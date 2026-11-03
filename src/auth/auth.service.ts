@@ -142,8 +142,10 @@ export class AuthService {
   // An toàn:
   //  · password = '' — checkPassword() trả false cho chuỗi rỗng, nên không ai
   //    đăng nhập vào tài khoản khách bằng mật khẩu, kể cả qua bản Django.
-  //  · email @guest.local là duy nhất (randomUUID) và nhận diện được để lọc
-  //    hoặc dọn sau buổi test: DELETE ... WHERE email LIKE '%@guest.local'.
+  //  · email @guest.local là duy nhất (randomUUID) và nhận diện được để lọc.
+  //    Dọn khách bằng scripts/cleanup-guest-accounts.ts, KHÔNG DELETE thẳng
+  //    users: khoá ngoại RESTRICT làm câu đó vỡ, và LIKE '%@guest.local' trúng
+  //    cả người thật (luật chọn ở ./guest-cleanup.ts).
   //  · Tắt bằng GUEST_LOGIN=off khi không còn cần (route trả 403).
   async guest() {
     if ((process.env.GUEST_LOGIN ?? 'on').toLowerCase() === 'off') {

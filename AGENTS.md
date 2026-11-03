@@ -35,9 +35,9 @@ mức này:
 
 | Hạng mục | Mốc | Đo ngày |
 |---|---|---|
-| Backend typecheck | sạch | 15/10/2026 |
-| Backend test | 35 bộ, 390 ca, tất cả đạt | 15/10/2026 |
-| Backend lint | 155 lỗi, 2 cảnh báo — **mốc trần trong CI là 170, chỉ được hạ** | 15/10/2026 |
+| Backend typecheck | sạch | 02/11/2026 |
+| Backend test | 36 bộ, 415 ca, tất cả đạt | 02/11/2026 |
+| Backend lint | 155 lỗi, 2 cảnh báo — **mốc trần trong CI là 170, chỉ được hạ** | 02/11/2026 |
 | Frontend typecheck | sạch | 15/10/2026 |
 | Frontend lint | 0 lỗi, 118 cảnh báo | 19/10/2026 |
 | Frontend unit test | `cd frontend && npm run test:unit` → 534 ca, 529 đạt; 5 ca trượt có sẵn từ `cd206ad` (đều chỉ vào trang `/demo-minigame`) | 19/10/2026 |
@@ -219,6 +219,13 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   · mọi trang công khai (trang chủ, `/courses/*`, badge "Tiếp tục ở bài X"…) dùng
     **`apiFetchSessionOnly`**: nó chỉ gửi kèm phiên đang có, 401 thì trả về 401 và để UI hiện
     trạng thái "chưa đăng nhập", KHÔNG tạo tài khoản.
+- **Đừng `DELETE FROM users` để dọn khách.** `DELETE ... WHERE email LIKE '%@guest.local'`
+  (từng được gợi ý trong chú thích `AuthService.guest`) vỡ ngay: 22 khoá ngoại tới `users` là
+  `ON DELETE RESTRICT`; và LIKE đó trúng cả người thật đăng ký bằng email đuôi ấy. Dùng
+  `scripts/cleanup-guest-accounts.ts` (mục dưới). Thứ tự xoá bảng con nằm ở
+  `src/auth/guest-cleanup.ts` và theo `schema.prisma`/migration: thêm bảng trỏ vào `users`
+  thì thêm vào danh sách ở file đó — spec đọc migration và đỏ nếu thiếu, hoặc nếu thứ tự
+  xoá ngược một khoá ngoại.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 
@@ -245,6 +252,24 @@ Hai đường, chọn sai là xoá tiến độ của người đang học:
 
 Sau MỌI lần nạp, vẫn phải chạy `py scripts/pe-v4/sync_curricula.py` — xem bẫy "Hai nguồn
 danh sách bài" ở trên.
+
+### Dọn tài khoản khách
+
+`scripts/cleanup-guest-accounts.ts` xoá khách (`guest_<uuid>@guest.local`, mật khẩu rỗng,
+không OAuth) mà không còn ai vào lại được: không còn phiên refresh sống, và mốc hoạt động cuối
+cũ hơn N ngày (mặc định 30). Mặc định chỉ xoá khách CHƯA HỌC (không `lesson_progress`, xp = 0)
+để giữ số liệu buổi test; `--include-with-progress` xoá cả khách đã
+học. Khách có bài viết/bình luận hoặc là giảng viên luôn bị bỏ qua và in ra để xử lý bằng tay.
+Mặc định CHẠY THỬ; `--apply` bắt buộc kèm `--backup=<file.json>` (ghi `users` + mọi hàng con,
+kể cả bảng CASCADE, TRƯỚC khi xoá); `--limit` chặn số khách mỗi lần, xoá trong một transaction.
+
+```bash
+npx ts-node scripts/cleanup-guest-accounts.ts                                  # xem trước
+npx ts-node scripts/cleanup-guest-accounts.ts --older-than=60d --include-with-progress
+npx ts-node scripts/cleanup-guest-accounts.ts --apply --backup=guests-bak.json --limit=200
+```
+
+Luật chọn và thứ tự xoá nằm ở `src/auth/guest-cleanup.ts` (có test Jest).
 
 ## Quy ước khi sửa
 

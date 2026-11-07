@@ -35,8 +35,10 @@ function toggleTheme() {
 
 export default function SiteHeader({ wide = false }: { wide?: boolean }) {
   const pathname = usePathname() ?? '/';
-  // Cùng cờ với `catalog.TOOLS`: ẩn thẻ công cụ mà vẫn để lối đi trên thanh
-  // trên thì thanh dẫn tới một trang trang chủ bảo là không có.
+  // `NEXT_PUBLIC_IDE_ENABLED=off` ẩn mục "Bàn thí nghiệm". Cờ này từng phải ẩn
+  // CÙNG thẻ công cụ của trang chủ cũ (`catalog.TOOLS`), nếu không thì thanh
+  // trên dẫn tới một trang mà trang chủ bảo là không có. Thẻ đó đã xoá cùng
+  // `CatalogTile` ở 4d5f86d, nên đây nay là chỗ DUY NHẤT đọc cờ.
   const items = navItems(process.env.NEXT_PUBLIC_IDE_ENABLED !== 'off');
 
   const bar = (

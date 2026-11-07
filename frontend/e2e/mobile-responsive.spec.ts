@@ -82,11 +82,22 @@ test('trang chủ chỉ còn ô Python và ô công cụ Python IDE', async ({ p
   const hrefs = await tiles.evaluateAll((els) => els.map((el) => el.getAttribute('href')));
   expect(hrefs).toEqual(['/courses/python_advanced']);
 
-  // Python IDE là CÔNG CỤ (href /ide, ngoài lưới khóa học) và hiện SẴN; chỉ ẩn
-  // khi build với NEXT_PUBLIC_IDE_ENABLED=off, mà e2e không đặt cờ đó.
-  await expect(page.locator('a[href="/ide"]')).toHaveCount(1);
+  // 08/11/2026: ô "Python IDE" của trang chủ CŨ đã mất cùng `CatalogTile` khi
+  // trang chủ đổi sang cảnh "Góc học" (4d5f86d). Đo trên production: trang chủ
+  // có ĐÚNG MỘT liên kết nội bộ, `/courses/python_advanced`.
+  //
+  // Ca này vì vậy KHÔNG còn đòi `/ide` ở đây — nhưng nó cũng KHÔNG bỏ phép kiểm
+  // đi. Nó chuyển assert sang ĐÚNG CHỖ `/ide` tới được bây giờ: trang khoá học,
+  // nơi `SiteHeader` dựng lối vào. Bỏ hẳn assert là làm ca mất răng; đổi chỗ thì
+  // nó vẫn đỏ vào ngày `/ide` thật sự mồ côi.
+  await expect(page.locator('a[href="/ide"]')).toHaveCount(0);
 
   await page.locator('a[href="/courses/python_advanced"]').click();
   await expect(page).toHaveURL(/\/courses\/python_advanced$/);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Python');
+
+  // `/ide` phải còn một lối vào THẤY ĐƯỢC. 411 nút "Thử ngay trong IDE" ở màn
+  // đọc là lối kia và `check-duong-toi.mjs` canh chúng; đây là lối cho người
+  // CHƯA mở bài nào.
+  await expect(page.locator('a[href="/ide"]').first()).toBeVisible();
 });

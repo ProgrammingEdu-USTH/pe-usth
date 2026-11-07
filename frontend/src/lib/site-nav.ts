@@ -31,9 +31,10 @@ export type NavItem = {
 };
 
 /**
- * `ideEnabled` false ⇒ bỏ "Bàn thí nghiệm", đúng cách `catalog.TOOLS` ẩn thẻ
- * công cụ khi `NEXT_PUBLIC_IDE_ENABLED=off`. Hai chỗ phải ẩn cùng nhau, nếu
- * không thì thanh trên dẫn tới một trang mà trang chủ bảo là không có.
+ * `ideEnabled` false ⇒ bỏ "Bàn thí nghiệm", tức khi `NEXT_PUBLIC_IDE_ENABLED=off`.
+ * Cờ ấy từng phải ẩn CÙNG thẻ công cụ của trang chủ cũ (`catalog.TOOLS`) — hai
+ * chỗ lệch nhau thì thanh trên dẫn tới một trang mà trang chủ bảo là không có.
+ * Thẻ đó đã xoá cùng `CatalogTile` ở 4d5f86d, nên nay chỉ còn MỘT chỗ đọc cờ.
  */
 export function navItems(ideEnabled: boolean): NavItem[] {
   const items: NavItem[] = [

@@ -259,17 +259,17 @@ test.describe('Python Advanced — chơi hết bài', () => {
     });
   }
 
-  test('khoá python cũ (v1) giữ nguyên luồng S1–S4, không có điểm hay game', async ({ page }) => {
-    await page.goto('/lesson/python?lesson=0');
-    await expect(page.locator('[data-cta="primary"]')).toHaveText(/Tiếp tục/, { timeout: 60_000 });
-    await expect(page.getByText(/Python · /)).toBeVisible();
-    await expect(page.getByLabel(/điểm$/)).toHaveCount(0);
-    // Luồng v1 của B01: brief, giải thích, ngộ nhận, dự đoán, 2 trắc nghiệm, tự giải thích,
-    // lắp ghép, nhật ký, tái dự đoán, sandbox, tổng kết = 12 màn.
-    await expect(page.getByText('1/12')).toBeVisible();
-    await page.locator('[data-cta="primary"]').click();
-    await expect(page.getByText(/S1 · Giải thích từng dòng/)).toBeVisible();
-  });
+  // CA "khoá python cũ (v1)" ĐÃ XOÁ 08/11/2026 — khoá nó kiểm không còn tồn tại.
+  //
+  // `prisma/seed-courses.js` nay tạo khoá `python` RỖNG: nó đọc `curricula[def.id]`
+  // mà `sync_curricula.py` đã bỏ hẳn khối `python` khỏi `curricula.json`. Nên
+  // `/lesson/python?lesson=0` không có bài nào để mở, và ca này đỏ vì SẢN PHẨM đã
+  // đổi theo một quyết định ĐÃ GHI (xem AGENTS.md), không phải vì có hồi quy.
+  //
+  // Xoá chứ không `skip`: một ca treo vĩnh viễn cho một khoá không còn là đúng
+  // thứ AGENTS.md gọi là "chỗ giấu rác". Và nói thẳng cái MẤT: luồng v1 S1–S4 nay
+  // KHÔNG còn ca nào canh — ngày khoá v1 sống lại thì phải viết ca mới, đừng
+  // tưởng bộ e2e vẫn đang canh nó.
 
   test.describe('điện thoại 390px', () => {
     test.use({ viewport: { width: 390, height: 844 } });

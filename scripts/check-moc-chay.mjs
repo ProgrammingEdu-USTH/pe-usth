@@ -85,6 +85,39 @@ const KIEM = {
         : null;
     },
   },
+  // e2e là mục được thêm MUỘN NHẤT, và lý do nó muộn là chính phát hiện của
+  // 08/11/2026: bộ e2e CHƯA BAO GIỜ nằm trong bậc thang chạy tay, số ca của nó
+  // chưa bao giờ có trong bảng mốc nền, và vì CI cũng không chạy (trigger
+  // `[master]`) nên HAI ca của nó chết từ 4d5f86d mà không cổng nào thấy. Một bộ
+  // test không có ai đếm thì nó mục đúng như một tính năng không có ai bấm.
+  e2e: {
+    nhan: 'ca e2e Playwright',
+    // `test:e2e` đã lọc sẵn `python-advanced mobile-responsive`; `webServer`
+    // trong config tự `npm run build`, nên lệnh này tốn ~2,5 phút.
+    lenh: 'npm run test:e2e',
+    cwd: 'frontend',
+    bang: () => {
+      const m = MD.match(/test:e2e[^|\n]*?\*\*([\d  ]+) ca\*\*/);
+      return m ? { ca: so(m[1]) } : null;
+    },
+    bang2: () => {
+      const m = MD.match(/check-moc-chay[^|\n]*?e2e ([\d  ]+)/);
+      return m ? { ca: so(m[1]) } : null;
+    },
+    // Playwright in `11 passed (2.4m)`, và khi đỏ thì thêm một dòng `1 failed`
+    // ĐỨNG TRƯỚC. Phải cộng cả hai mới ra tổng số ca: đọc riêng `passed` thì một
+    // ca TRƯỢT lại làm con số tụt xuống và cổng kêu "bảng ghi sai" thay vì kêu
+    // "bộ test đỏ" — tố oan đúng chỗ CI cần câu trả lời. Và khi TẤT CẢ đỏ thì
+    // không có dòng `passed` nào, nên cả hai cùng thiếu mới là "không đọc được".
+    doc: (ra) => {
+      const dat = ra.match(/^\s*(\d+) passed/m);
+      const hong = ra.match(/^\s*(\d+) failed/m);
+      if (!dat && !hong) return null;
+      const d = dat ? Number(dat[1]) : 0;
+      const h = hong ? Number(hong[1]) : 0;
+      return { ca: d + h, truot: h };
+    },
+  },
   tracer: {
     nhan: 'phép kiểm của bộ ghi vết',
     lenh: `${process.platform === 'win32' ? 'py' : 'python'}`

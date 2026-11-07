@@ -161,7 +161,11 @@ jobs:
 
       # `test:e2e` trong package.json đã lọc sẵn `python-advanced`. Không cần
       # bước `npm run build` riêng: `webServer` trong config tự build.
-      - run: npm run test:e2e
+      # Gọi qua `check-moc-chay` chứ không gọi `npm run test:e2e` trực tiếp: cổng
+      # đó CHẠY chính lệnh ấy rồi đối chiếu số ca với bảng mốc nền, nên nó THAY
+      # bước này chứ không thêm một lượt. Lý do phải đối chiếu: hai ca của bộ này
+      # đã chết từ 4d5f86d mà không cổng nào thấy (xem AGENTS.md).
+      - run: node ../scripts/check-moc-chay.mjs e2e
         env:
           CI: '1'
 

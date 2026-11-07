@@ -35,7 +35,7 @@ node scripts/check-duong-toi.mjs --json  # bản máy đọc
 node scripts/check-tai-nguyen-chet.mjs  # TỆP/COMPONENT nào KHÔNG ai tới được
 node scripts/check-da-nap.mjs           # BÀI nào đã dựng mà CHƯA nạp vào DB
 node scripts/check-moc-nen.mjs          # BẢNG MỐC NỀN dưới đây có nói đúng không
-node scripts/check-moc-chay.mjs         # MỐC phải CHẠY mới biết: frontend | backend | tracer
+node scripts/check-moc-chay.mjs         # MỐC phải CHẠY mới biết: frontend | backend | tracer | e2e
 node scripts/check-doi-hoi.mjs          # KHỐI CODE màn đọc nào chưa có lời đòi
 node scripts/check-nguong.mjs           # NGƯỠNG một chiều có ai nới ngược không
 node scripts/check-wheel.mjs            # WHEEL vendored: thừa megabyte chết / thiếu gói bài cần
@@ -78,6 +78,7 @@ học nó.
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d) |
 | Frontend unit test | `cd frontend && npm run test:unit` → **579 ca** / 49 tệp, tất cả đạt |
+| Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
 | Giáo trình pe-da (đang chạy) | **179 bài, 11 module**, 565 màn đọc, **537 câu trắc nghiệm**, 669 câu luyện tập, **143 bài tập được chấm / 480 ca**, 2 440 phút; 139 bài chạy trong trình duyệt / 15 hỗn hợp / 25 trên máy |
@@ -91,10 +92,10 @@ học nó.
 | Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **1 mục chết, 1 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **14 CSS module trong `src/`** |
 | Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **XANH: 179/179 khớp, 0 bài chờ** — chủ dự án nạp lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
-| Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **32 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
+| Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **33 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **3 mục** (frontend 579 · backend 35 bộ/501 · tracer 65), 0 trượt, 0 lỗi; nó CHẠY chính ba lệnh đó nên THAY cả ba bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở ba job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **4 mục** (frontend 579 · backend 35 bộ/501 · tracer 65 · e2e 11), 0 trượt, 0 lỗi; nó CHẠY chính bốn lệnh đó nên THAY cả bốn bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -3683,6 +3684,66 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** panel bên phải và 5 kệ sách nay có thanh cuộn mảnh.
   **KHÔNG bump `ASSET_VERSION`:** `scene.css` nằm trong `frontend/src/`, đi qua bundler nên
   URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
+
+- **BỘ e2e CHƯA BAO GIỜ NẰM TRONG BẬC THANG, và HAI ca của nó đã chết từ 4d5f86d — bốn
+  ngày, không cổng nào thấy.** Mục này là nửa sau của vụ CI: vòng trước phát hiện
+  `ci.yml` trigger `[master]` nên CI chưa chạy lần nào trên `main`, và lần chạy TAY đầu
+  tiên cho **4 xanh · 3 đỏ**. Hai cổng đỏ kia đã giải (`check-da-nap` — chủ dự án nạp DB;
+  `backend` — V8 OOM khi chạy song song). Còn `e2e`, và nó đỏ vì một lý do riêng:
+  **không ai từng chạy nó.** Số đo:
+  · bậc thang trong file này liệt kê `typecheck`/`lint`/`test:unit`/`build` — **không có
+    `test:e2e`**; bảng mốc nền có hàng cho unit, backend, tracer, văn phong — **không có
+    hàng nào cho e2e**; `check-moc-chay` canh **3 mục**, không mục nào là e2e;
+  · nên e2e chỉ được chạy bởi CI, mà CI thì không chạy. Hai lớp cùng im lặng, và
+    **mỗi lớp một mình đã đủ để che** — đó là vì sao nó sống được bốn ngày.
+  Tái hiện ở máy: `mobile-responsive.spec.ts:87` đỏ nguyên văn
+  `toHaveCount(expected) failed · Locator: a[href="/ide"] · Expected: 1 · Received: 0`.
+  **HAI CA ĐỎ VÌ SẢN PHẨM ĐỔI THEO QUYẾT ĐỊNH ĐÃ GHI, không vì hồi quy:**
+  · 4d5f86d đổi trang chủ sang cảnh "Góc học" và xoá `CatalogTile`, mang theo ô công cụ
+    "Python IDE". Ca này vẫn đòi ô đó. Đo trên production: trang chủ có **ĐÚNG MỘT** liên
+    kết nội bộ, `/courses/python_advanced`;
+  · ca "khoá python cũ (v1)" mở `/lesson/python?lesson=0`, mà `prisma/seed-courses.js` nay
+    tạo khoá `python` **RỖNG** — một bẫy chính file này đã ghi từ trước.
+  **KHÔNG XOÁ ASSERT, ĐỔI CHỖ NÓ.** `/ide` KHÔNG mồ côi — nó có **411** nút "Thử ngay
+  trong IDE" ở màn đọc (`check-duong-toi` canh, sàn 300) cộng lối vào `SiteHeader` ở trang
+  khoá học. Nên ca chuyển sang `toHaveCount(0)` ở trang chủ **cộng** một assert mới
+  `toBeVisible()` cho `/ide` ở trang khoá. Bỏ hẳn assert là làm ca mất răng; đổi chỗ thì
+  nó vẫn đỏ vào ngày `/ide` thật sự mồ côi — ablate: `if (false && ideEnabled)` trong
+  `site-nav.ts` → **1 đỏ**, đúng dòng assert mới. Ca v1 thì XOÁ chứ không `skip`, và nói
+  thẳng cái MẤT: **luồng v1 S1–S4 nay KHÔNG còn ca nào canh.**
+  **MỘT EXPORT CHẾT LỘ RA NHÂN DỊP, và cổng tài nguyên chết MÙ VỚI NÓ.**
+  `CatalogTool` · `IDE_TOOL` · `TOOLS` trong `catalog.ts` chỉ có MỘT người dùng là
+  `CatalogTile`, xoá ở 4d5f86d ⇒ **0 người đọc** từ hôm đó. Hai chỗ còn nhắc tên
+  `catalog.TOOLS` là **CHÚ THÍCH**, không phải lời gọi — đúng bẫy "đếm tham chiếu thô quét
+  cả chú thích" đã ghi ở mục 417 KB. `check-tai-nguyen-chet.mjs` không thấy vì nó quét
+  `public/static/{js,css}` · component `.tsx` · `.module.css`, **KHÔNG quét export chết
+  trong `lib/*.ts`** — đúng cái điểm mù mà mục ấy đã tự dặn phải hỏi mỗi lần thêm một LOẠI
+  tệp: *mục nào của cổng này quét nó?* Lần này câu trả lời là "không mục nào", và thứ tìm
+  ra nó là một bộ TEST, không phải một cổng.
+  **VÀ PHÉP THAY CHỮ LÀM HỎNG HAI CÂU CHÚ THÍCH, lần thứ hai trong repo này.** Xoá
+  `catalog.TOOLS` thì hai chú thích nhắc nó phải viết lại — tôi thay đúng DÒNG ĐẦU của mỗi
+  câu, nên phần còn lại treo lơ lửng (*"Thẻ công cụ mà câu này từng so công cụ khi…"*).
+  Cùng lỗi với `s/apiFetchSessionOnly/apiFetch/g` ở 4d5f86d. **Thay tên một ký hiệu thì
+  đọc lại CẢ CÂU, không chỉ dòng chứa nó.**
+  **CỔNG: `check-moc-chay` nhận mục thứ TƯ, `e2e`** — nó CHẠY `npm run test:e2e` rồi đối
+  chiếu số ca với bảng, nên nó THAY bước cũ trong job `e2e` chứ không thêm một lượt
+  (~2,5 phút, `webServer` tự build). Phép đọc phải CỘNG `passed + failed`: đọc riêng
+  `passed` thì một ca trượt làm con số tụt và cổng kêu "bảng ghi sai" thay vì kêu "bộ test
+  đỏ" — tố oan đúng chỗ CI cần câu trả lời.
+  Ablate 4 chiều: bảng ghi 12 **và** bản sao ghi 13 → **2 đỏ**, mỗi câu gọi đúng bản sao
+  của nó · đổi CHỮ hàng bảng → 1 đỏ "KHÔNG CÒN DÒNG" (và nó dừng TRƯỚC khi chạy lệnh, nên
+  phép ablate này tức thì) · gỡ bản sao thứ hai → 1 đỏ "KHÔNG CÒN DÒNG BẢN SAO THỨ HAI" ·
+  gieo một ca ĐỎ THẬT → `ca 11/11 · 1 TRƯỢT` kèm "1 ca TRƯỢT", **không** kêu bảng sai.
+  **VÀ MỘT CỔNG LÀ CHƯA ĐỦ, đúng lý lẽ đã ghi cho số ca frontend:** `check-moc-chay` bắt
+  "số trong bảng SAI", nhưng nó XANH khi ai đó cắt một ca **rồi hạ con số trong bảng cho
+  khớp** — chiều mà ImpossibleBench đo được Claude chọn **>79%** số lần. Nên 11 vào sổ
+  `scripts/nguong-mot-chieu.json` làm SÀN (32 → **33 ngưỡng**). Ablate qua sổ: hạ bảng
+  11 → 10 → **1 lỗi** "NỚI NGƯỢC CHIỀU" · siết 11 → 13 → **0 lỗi** kèm dòng `GHI SỔ`.
+  **GIỚI HẠN PHẢI NÓI RA:** cổng canh SỐ CA, không canh "bộ e2e có phủ đúng thứ đáng phủ".
+  Hôm nay nó phủ 11 ca trên 2 tệp spec, và sau vòng này luồng v1 có **0** ca. Và job `e2e`
+  mới chỉ XANH Ở MÁY — CI vẫn chưa chạy trên `main` vì trigger còn là `[master]`; lật nó
+  là **quyết định của chủ dự án**, và giờ thì lật được, vì đây là cổng cuối cùng trong
+  bảy cổng của lần chạy tay còn đỏ.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

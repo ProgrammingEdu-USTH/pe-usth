@@ -227,6 +227,14 @@
       "vi": "Số ca test frontend trong bảng mốc nền. Hai cổng canh con số này vì chúng bắt HAI lỗi khác nhau: `check-moc-chay.mjs` CHẠY bộ test và bắt \"số trong bảng SAI\" (nó từng ghi 204 trong khi cây mã chỉ có 134), còn mục sổ này bắt \"ai đó HẠ số trong bảng cho khớp một bộ đã bị cắt bớt\" — ablate đã đo: xoá một ca thật rồi sửa bảng từ 573 xuống 572 thì cổng chạy-bộ-test XANH, chỉ sổ này đỏ. Khi nào con số vượt 1000 thì nó sẽ mang dấu cách ngăn nhóm nghìn kiểu Việt và regex `(\\d+)` hết khớp — lúc đó sửa cả regex, đừng bỏ mục này."
     },
     {
+      "ten": "san-so-ca-e2e",
+      "tep": "AGENTS.md",
+      "re": "test:e2e[^|\\n]*?\\*\\*(\\d+) ca\\*\\*",
+      "chieu": "nang",
+      "moc": 11,
+      "vi": "So ca e2e Playwright trong bang moc nen. Can CA HAI cong, dung ly le cua `san-so-ca-test-frontend`: `check-moc-chay.mjs e2e` CHAY bo test va bat \"so trong bang SAI\", con muc so nay bat \"ai do HA so trong bang cho khop mot bo da bi cat bot\" — ablate da do tren con so frontend: skip mot ca roi sua bang thi cong chay-bo-test XANH, chi so do. Chieu ay KHONG phai lo xa voi bo nay: hai ca cua no vua chet bon ngay ma khong cong nao thay (08/11/2026), vi e2e khong nam trong bac thang chay tay va CI thi chua chay tren `main`. Moc 11 = 2 tep spec sau khi ca \"khoa python cu (v1)\" bi xoa; them spec thi SIET len, dung ha."
+    },
+    {
       "ten": "san-ca-test-backend",
       "tep": "AGENTS.md",
       "re": "\\*\\*\\d+ bộ, (\\d+) ca\\*\\*",

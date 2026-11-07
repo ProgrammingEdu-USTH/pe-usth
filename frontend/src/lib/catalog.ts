@@ -144,43 +144,21 @@ export function findCourse(id: string): CatalogCourse | undefined {
  * không tiến độ/XP. Tách khỏi `COURSES` để không lọt vào trang chi tiết khóa
  * (`generateStaticParams`) hay số liệu tổng hợp nào đếm theo danh mục khóa.
  */
-export type CatalogTool = {
-  id: string;
-  label: string;
-  href: string;
-  color: string;
-  accent: string;
-  mark: string;
-  icon?: GlyphKind;
-};
-
-const IDE_TOOL: CatalogTool = {
-  id: 'ide',
-  label: 'Python IDE',
-  href: '/ide',
-  // Xanh navy đậm + xanh sáng: cùng bộ xanh–đỏ nhưng tối hơn khoá Python (xanh +
-  // đỏ) nên hai biểu tượng vẫn phân biệt được ngay.
-  color: '#111a2e',
-  accent: '#4f8dff',
-  mark: 'IDE',
-  icon: 'ide',
-};
-
-/**
- * Thẻ "Python IDE" hiện SẴN; đặt NEXT_PUBLIC_IDE_ENABLED=off để ẩn.
+/* Ô "Python IDE" của TRANG CHỦ CŨ đã mồ côi — xoá 08/11/2026.
  *
- * Lịch sử của cái cờ này, vì nó giải thích vì sao vẫn còn: mặc định ban đầu
- * (12/10/2026) là ẨN, phải đặt =on mới hiện — hồi đó `/ide` gửi mã sang
- * `POST /api/python/run` và route đó chạy code trong container Docker, mà nền
- * tảng web service thường (Render) đã chạy SẴN trong container nên không có
- * Docker bên trong: mọi lần bấm Chạy đều trả lỗi hạ tầng. 13/10 đảo lại thành
- * HIỆN sau khi `IdeClient` biết nói một câu bình thường thay cho thông điệp của
- * docker.
+ * `CatalogTool`, `IDE_TOOL` và `TOOLS` chỉ có MỘT người dùng là `CatalogTile`,
+ * mà component đó bị xoá ở 4d5f86d khi trang chủ đổi sang cảnh "Góc học". Từ
+ * lúc ấy chúng là dữ liệu không ai đọc. Hai chỗ còn nhắc tên `catalog.TOOLS`
+ * (SiteHeader.tsx, site-nav.ts) chỉ là CHÚ THÍCH, không phải lời gọi — đúng bẫy
+ * "đếm tham chiếu thô quét cả chú thích" đã ghi trong AGENTS.md, và cũng là lý
+ * do `check-tai-nguyen-chet.mjs` không thấy: cổng đó quét `public/static`,
+ * component `.tsx` và `.module.css`, KHÔNG quét export chết trong `lib/`.
  *
- * 25/10/2026: lý do gốc đã mất hẳn — `/ide` chạy Pyodide ngay trong trình duyệt
- * và đường backend đã bị xoá khỏi repo, nên không còn tình huống "chưa có bộ
- * chạy". Giữ cờ lại vì nó vẫn có công dụng khác: buổi dạy nào không muốn học
- * viên thấy thẻ IDE thì đặt =off.
- */
-export const TOOLS: CatalogTool[] =
-  process.env.NEXT_PUBLIC_IDE_ENABLED === 'off' ? [] : [IDE_TOOL];
+ * Thứ phát hiện ra nó là bộ e2e — ca "trang chủ chỉ còn ô Python và ô công cụ
+ * Python IDE" đỏ vì `a[href="/ide"]` đếm được 0. Đo trên production: trang chủ
+ * có ĐÚNG MỘT liên kết nội bộ, `/courses/python_advanced`.
+ *
+ * `/ide` KHÔNG mồ côi: nó tới được qua `SiteHeader` ở trang khoá học và qua 411
+ * nút "Thử ngay trong IDE" ở màn đọc (sàn 300, `check-duong-toi.mjs` canh).
+ * Cờ `NEXT_PUBLIC_IDE_ENABLED` vẫn còn và vẫn có tác dụng — nó ẩn mục IDE trên
+ * thanh đầu trang (xem `site-nav.ts`); chỉ cái THẺ là không còn chỗ để hiện. */

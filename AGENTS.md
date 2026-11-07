@@ -89,7 +89,7 @@ học nó.
 | Xuất hình cho người học | `node scripts/check-figures.mjs` → 16 ca, **0 hỏng** |
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **17 mục, 14 có đường tới, 3 còn tối (đã khai lý do)**, 0 lỗi |
 | Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **1 mục chết, 1 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **14 CSS module trong `src/`** |
-| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **ĐỎ (exit 1): 72/179 khớp, 107 bài đã đổi sau lần nạp cuối** — đợt 04/11 (mở khoá SY24, `goi_can_tai` quét mã bài đọc, bài tập PY01, math.floor SY11, đếm process RC01, trung bình có trọng số GU12) cộng đợt 07/11 (câu nhồi mệnh đề thành BẢNG · L11 thôi gọi một thứ bằng hai tên · L4/L5/L6 bỏ danh-từ-hoá và từ cấm · §4-A bọc backtick 54 hằng Python rồi 85 tên kiểu Python, rồi 22 chỗ gọi `plt`/`ax`/`fig`, rồi 50 chỗ tên class pandas/matplotlib, rồi 21 chỗ tên thư viện và lớp, rồi 9 chỗ viết hoa tên kiểu, rồi 9 chỗ lệnh công cụ + 3 biểu thức làm L3 báo oan). Danh sách mã in ra ở đầu ra của cổng, KHÔNG liệt kê lại ở đây — một danh sách 61 mã trong bảng là thứ sẽ trôi. Biên nhận 03/11/2026 18:48 UTC; đỏ cho tới khi chủ dự án nạp. Nạp xong thì SỬA số ở đây, không thì `check-moc-nen` đỏ |
+| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **XANH: 179/179 khớp, 0 bài chờ** — chủ dự án nạp lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **32 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
@@ -3605,6 +3605,42 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   đối số `CreateProcess`, GU09 `x, y` / `width, height`, CT15 `ls, bc, ps và grep` — tức dạng
   chuyển sang bảng gọn nhất. 36 lượt viết lại là quá một vòng, và mỗi lượt cần phán xét, nên
   nó là một chuỗi lát chứ không phải một việc.
+
+- **CI CHƯA BAO GIỜ CHẠY TRÊN `main` — trigger là `[master]` từ chính commit tạo file, và
+  câu "đã có trong CI" tôi viết suốt mười vòng ĐÚNG VỚI FILE, SAI VỚI THỰC TẾ.** Lớp ngoài
+  cùng lại là lớp không ai canh, lần thứ hai sau vụ Vercel.
+  **Số đã đo** (08/11/2026, `gh run list -R ProgrammingEdu-USTH/pe-usth`):
+  · `.github/workflows/ci.yml` mở đầu bằng `on: push: branches: [master]`, mà MỌI việc nằm
+    trên `main`. `git log -L` trên khối đó: nó là `[master]` **từ commit tạo file** (`c3b0dbb`),
+    chưa bao giờ là `main`;
+  · **110 commit trong tháng 11, 0 lần CI được TẠO**;
+  · toàn bộ lịch sử repo này có **14 lần chạy, 14/14 `startup_failure`**, mỗi lần **0 giây**,
+    lần cuối **15/10**. API trả `path = BuildFailed`, `jobs: 0`.
+  **VÌ SAO 14 LẦN ĐÓ LẠI CÓ `head_branch = main` trong khi bộ lọc là `master`:** chúng
+  `startup_failure` vì GitHub KHÔNG PARSE NỔI file — mà không parse được thì nó cũng không
+  áp được bộ lọc nhánh. Khi file trở lại parse được, bộ lọc `[master]` có hiệu lực và CI
+  **thôi được tạo hoàn toàn**. Hai triệu chứng rất khác nhau, cùng một file.
+  **ĐỪNG CHỈ LẬT BỘ LỌC SANG `main` — đã đo lý do.** Job `giao-trinh-da` chạy
+  `check-da-nap.mjs`, và cổng đó ĐỎ CÓ CHỦ ĐÍCH cho tới khi chủ dự án nạp DB. Lật trigger
+  vào đúng lúc nó đang đỏ là làm `main` đỏ thường trực vì một việc chỉ chủ dự án làm được —
+  đúng thứ chính file này cấm ("một CI đỏ thường trực thì không ai đọc nữa").
+  **CÁCH ĐO MÀ KHÔNG ĐỤNG CẤU HÌNH:** workflow có sẵn `workflow_dispatch`, và chú thích
+  ngay cạnh nó nói đó là đường chạy tay. `gh workflow run ci.yml --ref main` cho một lần
+  chạy THẬT đầu tiên của repo. Kết quả: **4 xanh · 3 đỏ**.
+  · ✅ `thay-doi` · `hinh-ly-thuyet` · `frontend` · `giao-trinh`;
+  · ❌ `backend` — `npx jest --ci --runInBand` thoát 1;
+  · ❌ `giao-trinh-da` — `check-da-nap` (đã giải: chủ dự án nạp DB lúc 21:26 cùng ngày);
+  · ❌ `e2e` — Playwright `toHaveCount` / `toBeVisible` / `element(s) not found`. **Job này
+    chưa bao giờ nằm trong bậc thang tôi chạy ở máy**, nên nó là vùng tối thật sự.
+  **VÀ LỖI `backend` LỘ RA MỘT KHIẾM KHUYẾT CỦA CHÍNH CỔNG TÔI VIẾT.** `check-moc-chay.mjs`
+  dùng `spawnSync` nên nó BẮT hết stdout/stderr của jest; khi không parse được con số, log
+  CI chỉ có đúng câu *"không đọc được số"* và **không một dòng nào của jest** — tức người
+  đọc log mù hoàn toàn về nguyên nhân. Một cổng nuốt bằng chứng của chính thứ nó vừa tố là
+  một cổng sẽ bị gỡ. Nay nó in **30 dòng cuối** của lệnh. Ablate: cho lệnh in `1 2 3` rồi
+  thoát 1 → cổng in lại đúng ba dòng đó; trước bản sửa nó im.
+  **CÒN LẠI, và nó là quyết định của chủ dự án chứ không của vòng lặp:** sửa trigger thành
+  `[main, master]` thì CI mới thật sự canh mỗi lần push. Trước khi lật, phải xử lý `e2e`
+  (đang đỏ, nguyên nhân chưa rõ) — nếu không thì `main` đỏ ngay từ commit đầu tiên.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

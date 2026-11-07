@@ -131,12 +131,21 @@ for (const k of ten) {
     shell: true,
     maxBuffer: 64 * 1024 * 1024,
   });
-  const that = c.doc(`${r.stdout ?? ''}\n${r.stderr ?? ''}`);
+  const ra = `${r.stdout ?? ''}\n${r.stderr ?? ''}`;
+  const that = c.doc(ra);
   if (!that) {
+    // IN LẠI ĐUÔI ĐẦU RA. `spawnSync` BẮT hết stdout/stderr, nên khi không parse
+    // được thì người đọc log chỉ thấy đúng câu "không đọc được số" — và trên CI
+    // đó là mù hoàn toàn. Đo được 07/11/2026, lần CI đầu tiên thật sự chạy trên
+    // repo này: job `backend` đỏ với mã thoát 1 và log KHÔNG có một dòng nào của
+    // jest, nên không ai biết bộ test hỏng ở đâu. Một cổng nuốt bằng chứng của
+    // chính thứ nó vừa tố là một cổng sẽ bị gỡ.
+    const duoi = ra.split('\n').filter((d) => d.trim()).slice(-30);
     loi.push(
       `không đọc được số từ \`${c.lenh}\` — mã thoát ${r.status}`
       + `${r.error ? ` · spawn hỏng: ${r.error.message}` : ''}. Mã thoát \`null\` nghĩa `
-      + 'là không chạy được LỆNH, không phải bộ test hỏng.',
+      + 'là không chạy được LỆNH, không phải bộ test hỏng.'
+      + (duoi.length ? `\n── 30 dòng cuối của \`${c.lenh}\` ──\n${duoi.join('\n')}` : ''),
     );
     continue;
   }

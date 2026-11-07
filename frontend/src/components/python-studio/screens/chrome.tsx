@@ -191,7 +191,10 @@ export function ScreenShell({
                   ? 'Chưa đúng — đáp án đúng và lý do của từng phương án ở ngay trên'
                   : 'Chưa đúng — thử lại nhé'
           }
-          explanation={verdict.explain}
+          /* `paragraphs` chứ không phải chuỗi trần: `explain` dựng từ
+             `mcq[].explanation` / `options[].detail` của giáo trình, và bản
+             dựng có backtick ở đó. */
+          explanation={paragraphs(verdict.explain)}
         />
       )}
     </ShellB>

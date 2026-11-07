@@ -7,7 +7,7 @@ import { toCodeLines } from '@/lib/py-highlight';
 import { correctIndex, letterKey, optionDetail, optionText, tachDeVaCode } from '@/lib/studio-lesson';
 
 import c from '../studio-chrome.module.css';
-import { ScreenShell } from './chrome';
+import { paragraphs, ScreenShell } from './chrome';
 import type { LessonScreenProps } from './props';
 
 type Props = Pick<
@@ -33,7 +33,9 @@ export default function McqScreen({
   // code dồn thành một dòng — xem `tachDeVaCode`.
   const { de, code } = tachDeVaCode(q.question);
   return (
-    <ScreenShell scr={scr} metaLabel={metaLabel} title={de} verdict={verdict}>
+    // `title` nhận ReactNode, nên câu hỏi phải đi qua `paragraphs` — 8 câu hỏi
+    // của bản dựng có backtick và trước đây hiện ra nguyên dấu.
+    <ScreenShell scr={scr} metaLabel={metaLabel} title={paragraphs(de)} verdict={verdict}>
       {code ? (
         <div className={c.readCode}>
           <CodeBlock filename="python" langTag="đoạn code của câu hỏi" lines={toCodeLines(code)} />

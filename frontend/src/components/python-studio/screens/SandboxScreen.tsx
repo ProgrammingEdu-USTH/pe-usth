@@ -266,7 +266,15 @@ export default function SandboxScreen({
           levels={hints.map((h, i) => ({
             title: h.title,
             // Tầng "lời giải từng phần" là code nhiều dòng: giữ nguyên thụt lề.
-            body: h.body.includes('\n') ? <pre className={c.hintCode}>{h.body}</pre> : h.body,
+            // Tầng MỘT DÒNG thì đi qua `paragraphs` — 8 gợi ý của bản dựng có
+            // backtick và trước đây hiện ra nguyên dấu. Nhánh <pre> KHÔNG bóc,
+            // có chủ đích: ở đó cả khối đã là code, backtick trong đó là ký tự
+            // thật của code chứ không phải dấu đánh dấu.
+            body: h.body.includes('\n') ? (
+              <pre className={c.hintCode}>{h.body}</pre>
+            ) : (
+              paragraphs(h.body)
+            ),
             locked: i > hint.index,
           }))}
           openIndex={hint.index}

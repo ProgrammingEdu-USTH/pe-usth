@@ -343,18 +343,29 @@ function Block({
           <table>
             <thead>
               <tr>
+                {/* `paragraphs` chứ không phải `{h}` trần — xem chú thích ở
+                    <tbody> ngay dưới. */}
                 {block.headers.map((h, i) => (
                   <th key={i} scope="col">
-                    {h}
+                    {paragraphs(h)}
                   </th>
                 ))}
               </tr>
             </thead>
+            {/* Ô BẢNG đi qua `paragraphs` (tức `withInlineCode`), KHÔNG dựng
+                `{cell}` trần. Đây là LẦN THỨ BA của cùng một lỗi, và AGENTS.md
+                đã đoán trước nó bằng chữ: *"nơi thứ ba mượn lại cùng dữ liệu sẽ
+                lại hỏng đúng kiểu này"*. Lần một: màn đọc. Lần hai: ô tổng kết
+                (người thử gửi ảnh `.venv\Scripts\python -m pip install numpy`
+                kèm cả hai dấu backtick). Lần ba: ở đây.
+                Đo trên bản dựng trước khi sửa: 2 trong 7 khối `table` có
+                backtick trong ô — CT15 (`>` `<` `|`) và TH01 (`YYYY-MM-DD`,
+                `card`, `cash`) — tức người học ĐANG đọc ra nguyên dấu. */}
             <tbody>
               {block.rows.map((row, i) => (
                 <tr key={i}>
                   {row.map((cell, j) => (
-                    <td key={j}>{cell}</td>
+                    <td key={j}>{paragraphs(cell)}</td>
                   ))}
                 </tr>
               ))}

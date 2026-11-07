@@ -327,7 +327,17 @@ test('mọi phương án của mọi câu đang phát đều có `detail` — ph
 test('Mcq dựng lời giải thích cho MỌI phương án, và không làm mờ chữ phải đọc', () => {
   const mcq = doc(join(FE, 'src', 'components', 'lesson-chrome', 'exercises', 'Mcq.tsx'));
   // `opt.sub` đi với mọi lựa chọn, không chỉ lựa chọn được chọn.
-  assert.match(mcq, /\{opt\.sub && <span className=\{styles\.optionSub\}>\{opt\.sub\}<\/span>\}/);
+  //
+  // 08/11/2026: biểu thức dựng đổi từ `{opt.sub}` trần sang
+  // `{withInlineCode(opt.sub)}` — 5 lời giải thích của bản dựng có backtick và
+  // trước đó người học đọc ra nguyên dấu (xem `inline-code.test.mjs`). Ca này
+  // canh ĐIỀU KIỆN `opt.sub &&` và cái <span> có class đúng, KHÔNG canh "dựng
+  // trần hay đã bóc" — phần ấy là việc của cổng kia, và ghim cả hai ở hai chỗ
+  // là nuôi hai bản mô tả của cùng một dòng.
+  assert.match(
+    mcq,
+    /\{opt\.sub && \(\s*<span className=\{styles\.optionSub\}>\{withInlineCode\(opt\.sub\)\}<\/span>\s*\)\}/,
+  );
   // Phương án không được chọn mang lời giải thích thì không bị mờ xuống 0,55.
   assert.match(mcq, /opacity: opt\.sub \? 0\.8 : 0\.55/);
 

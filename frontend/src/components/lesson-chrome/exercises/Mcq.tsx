@@ -1,4 +1,9 @@
 // Dịch từ màn Stitch "1. mcq — trắc nghiệm 1 lựa chọn".
+// Bản DÙNG CHUNG để bóc `code nội tuyến`, không chép lại một bản thứ hai — xem
+// `inline-code.test.mjs`. `lesson-chrome/exercises/` không được import ngược
+// vào `components/python-studio/`, nhưng `lib/inline-code` thì dùng chung được.
+import { withInlineCode } from '@/lib/inline-code';
+
 import styles from './exercises.module.css';
 
 export interface McqCodeLine {
@@ -93,8 +98,14 @@ export default function Mcq({
               }
             >
               <span className={styles.optionMain}>
-                <code>{opt.key}.</code> {opt.label}
-                {opt.sub && <span className={styles.optionSub}>{opt.sub}</span>}
+                {/* `withInlineCode` chứ không phải chuỗi trần: 5 nhãn phương án
+                    và 5 lời giải thích của bản dựng có backtick, nên trước đây
+                    người học đọc ra nguyên dấu. Cùng lỗi với ô tổng kết (lần
+                    hai) và ô bảng (lần ba). */}
+                <code>{opt.key}.</code> {withInlineCode(opt.label)}
+                {opt.sub && (
+                  <span className={styles.optionSub}>{withInlineCode(opt.sub)}</span>
+                )}
               </span>
               {/* Ô tròn/dấu ✓✕ là hình; kết quả chấm phải có bản chữ, nếu không
                   thì sau khi "Kiểm tra" người dùng trình đọc màn hình chỉ nghe

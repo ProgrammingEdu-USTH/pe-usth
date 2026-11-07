@@ -78,7 +78,7 @@ học nó.
 | Backend lint | 104 lỗi, 2 cảnh báo — **mốc trần trong CI là 115, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d) |
-| Frontend unit test | `cd frontend && npm run test:unit` → **589 ca** / 51 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **592 ca** / 51 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -97,7 +97,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **33 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **4 mục** (frontend 589 · backend 35 bộ/501 · tracer 65 · e2e 11), 0 trượt, 0 lỗi; nó CHẠY chính bốn lệnh đó nên THAY cả bốn bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **4 mục** (frontend 592 · backend 35 bộ/501 · tracer 65 · e2e 11), 0 trượt, 0 lỗi; nó CHẠY chính bốn lệnh đó nên THAY cả bốn bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -112,13 +112,13 @@ thì bộ 172 bài dùng lại NGUYÊN VẸN: chính nó đặt `MPLBACKEND=Agg`
 catalog-duration 2 · catalog-naming 3 · consent-banner 15 · course-resume 9 ·
 data-files 18 · editor-load-gate 14 · feedback-link 9 · forum-xss 1 ·
 ide-brief-code 12 · ide-handoff 6 · ide-partial-output 10 · ide-stop-autosave 27 ·
-ide-trace 38 · inline-code 4 · insert-gate-sync 2 · label-version 2 ·
+ide-trace 38 · inline-code 7 · insert-gate-sync 2 · label-version 2 ·
 learning-events 48 · lesson-back 15 · lesson-load 7 · mcq-code 9 ·
 mcq-next-after-wrong 23 · phan-bai 8 · practice-contract 15 · practice-run 9 · prewarm-gate 5 ·
 read-diagram 12 ·
 read-guess 19 · read-trace 16 · recap-recall 7 · read-try-it 20 · review-quiz 34 · run-stale 15 ·
 session-marker 5 · spaced-review 14 · studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 · trap-leak 3 ·
-worker-csp 7 · ds-contrast 16 · feedback-rank 3 · goc-hoc-khung-cho 6 · goc-hoc-lo-trinh 9 · goc-hoc-man-con 3 · o-nhap-nhieu-dong 2 · ide-output-scroll 6 · lien-ket-noi-bo 3 · goc-hoc-cho-so 7 · goc-hoc-thanh-cuon 5 · goc-hoc-hang-nut 4 · goc-hoc-nhan-mot 6 = 589.
+worker-csp 7 · ds-contrast 16 · feedback-rank 3 · goc-hoc-khung-cho 6 · goc-hoc-lo-trinh 9 · goc-hoc-man-con 3 · o-nhap-nhieu-dong 2 · ide-output-scroll 6 · lien-ket-noi-bo 3 · goc-hoc-cho-so 7 · goc-hoc-thanh-cuon 5 · goc-hoc-hang-nut 4 · goc-hoc-nhan-mot 6 = 592.
 Mốc trước là 583; thêm goc-hoc-nhan-mot 6 (RÊ VÀO "KHOÁ HỌC" hiện 28 NHÃN cùng lúc, 116 cặp chồng
 nhau — nay đúng 1 nhãn; cổng CHẠY THẬT `setOn`/`lightRoute` bóc ra khỏi engine.js).
 Trước đó 579 → 583; thêm goc-hoc-hang-nut 4 (HÀNG NÚT ĐIỀU HƯỚNG tràn 425px ở 360×640 ⇒ chỉ 2/5
@@ -3697,6 +3697,58 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** panel bên phải và 5 kệ sách nay có thanh cuộn mảnh.
   **KHÔNG bump `ASSET_VERSION`:** `scene.css` nằm trong `frontend/src/`, đi qua bundler nên
   URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
+
+- **LẦN THỨ BA CỦA LỖI BACKTICK, và AGENTS.md ĐÃ ĐOÁN TRƯỚC NÓ BẰNG CHỮ — hoá ra là 32
+  chuỗi trên SÁU đường, không phải một chỗ.** Mục "withInlineCode phải dùng CHUNG một
+  bản" kết lại bằng một câu tiên đoán: *"Ca test canh 'hai nơi dùng CHUNG một hàm',
+  không canh 'Recap có gọi bóc backtick': **nơi thứ ba mượn lại cùng dữ liệu sẽ lại hỏng
+  đúng kiểu này**."* Nó hỏng thật.
+  **CÁCH TÌM RA, và nó đáng hơn chỗ hỏng:** vòng này mở ra để làm lát văn phong L3 (câu
+  liệt kê → bảng). Để đặt định danh vào ô bảng thì ô phải dựng được `code nội tuyến` —
+  đo thì ô bảng **không** đi qua `withInlineCode`, trong khi `check_vanphong.py` **có**
+  quét ô bảng. Hai điều kiện xung đột, và chính chỗ xung đột là chỗ hỏng.
+  **ĐẾM TRÊN BẢN DỰNG, theo ĐƯỜNG DẪN TRƯỜNG** — đây là phép đo đổi hình dạng cả việc:
+
+  | chuỗi có backtick | đường dẫn trường | trước vòng này |
+  |---|---|---|
+  | 382 | `step_1.read[][].text` | ✓ |
+  | 58 | `step_2.practice[].prompt` | ✓ |
+  | 54 | `step_1.read[][].trace.predict.prompt` | ✓ |
+  | 37 | `step_2.practice[].answer` | ✓ |
+  | **8** | `step_2.mcq[].question` | **DỰNG TRẦN** |
+  | **8** | `step_4.hints[].body` | **DỰNG TRẦN** |
+  | 6 | `step_4.task.body` | ✓ |
+  | 5 | `step_1.read[][].lanes[].note` | ✓ |
+  | **5** | `step_1.read[][].rows[][]` (ô bảng) | **DỰNG TRẦN** |
+  | **5** | `step_2.mcq[].options[].detail` | **DỰNG TRẦN** |
+  | **5** | `step_2.mcq[].options[].text` | **DỰNG TRẦN** |
+  | 2 | `step_1.read[][].lanes[].label` | ✓ |
+  | **1** | `step_2.mcq[].explanation` | **DỰNG TRẦN** |
+
+  **32 chuỗi trên 6 đường** đang hiện ra kèm nguyên dấu backtick, không phải một chỗ. Ô
+  bảng chỉ là chỗ tôi tình cờ đi qua; nếu dừng ở đó thì năm đường kia ở lại.
+  **CỔNG THÔI LIỆT KÊ NƠI.** Ca cũ ghim ĐÚNG HAI nơi, nên nó không thể bắt nơi thứ ba —
+  một cổng đếm danh sách thì luôn thiếu đúng mục chưa ai nghĩ tới. Ba ca mới đọc BẢN
+  DỰNG, gom MỌI đường dẫn trường có backtick, và đòi mỗi đường có một dòng khai kèm
+  BIỂU THỨC dựng nó — biểu thức ấy phải **có thật** trong tệp renderer. Hai chiều: đường
+  có backtick mà chưa khai là LỖI; dòng khai trỏ vào biểu thức không còn tồn tại cũng là
+  LỖI. Cộng một phép tự kiểm (quét bản dựng trượt thì đỏ).
+  **GIỚI HẠN PHẢI NÓI RA:** cổng chỉ thấy đường ĐANG có backtick trong bản dựng. Một
+  renderer dựng trần mà nội dung chưa dùng backtick thì nó im — nó bắt lỗi ĐÚNG LÚC lỗi
+  thành thấy được, không sớm hơn.
+  **MỘT CA CŨ PHẢI SỬA, và nó là ca ĐÚNG:** `mcq-next-after-wrong.test.mjs` ghim nguyên
+  văn biểu thức dựng trần `{opt.sub}`. Nó đỏ ngay khi tôi sửa — đúng việc của nó. Ca ấy
+  nay canh ĐIỀU KIỆN `opt.sub &&` và class của `<span>`, KHÔNG canh "trần hay đã bóc";
+  phần ấy là việc của cổng kia, và ghim cả hai ở hai chỗ là nuôi hai bản mô tả của cùng
+  một dòng.
+  **Nhánh `<pre>` của gợi ý CỐ Ý không bóc:** ở đó cả khối đã là code, nên backtick trong
+  đó là ký tự thật của code chứ không phải dấu đánh dấu.
+  Ablate 5 chiều, mỗi chiều **1 đỏ**: trả ô bảng về `{cell}` trần · trả nhãn phương án
+  MCQ về chuỗi trần · gỡ một dòng khai → "chưa khai" · khai trỏ vào biểu thức không có
+  thật · làm hỏng phép quét bản dựng (tự kiểm bắn, không im lặng xanh).
+  **GIÁ PHẢI TRẢ: 0 bài vào hàng chờ nạp DB** — đây là bản sửa RENDERER, không đụng một
+  chữ nội dung nào, nên `check-da-nap` giữ XANH 179/179. Lát văn phong L3 thì hoãn sang
+  vòng sau, và nay nó làm được vì ô bảng đã dựng được định danh.
 
 - **EXPORT CHẾT: điểm mù tôi tự ghi hai vòng trước nay có cổng — và phép đo của tôi tố
   oan BỐN LẦN trước khi đứng, mỗi lần một lý do khác.** Mục 417 KB ở trên tự dặn: mỗi

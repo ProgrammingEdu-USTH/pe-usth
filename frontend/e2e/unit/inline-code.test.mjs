@@ -113,3 +113,113 @@ test('ý chính ở màn tổng kết là MỘT flex item: withInlineCode nằm 
     'withInlineCode(f) là con TRỰC TIẾP của <li> flex ⇒ mỗi đoạn chữ / <code> thành một cột.',
   );
 });
+
+// ---------------------------------------------------------------------------
+// LẦN THỨ BA, và lần này cổng thôi LIỆT KÊ NƠI.
+// ---------------------------------------------------------------------------
+//
+// Ca ở trên canh ĐÚNG HAI nơi, và chú thích đầu file đã tự đoán: "nơi thứ ba
+// mượn lại cùng dữ liệu sẽ lại hỏng đúng kiểu này". Nó hỏng thật. Đo trên bản
+// dựng 08/11/2026 — đếm MỌI chuỗi có backtick, theo đường dẫn trường:
+//
+//     382  step_1.read[][].text                 ✓ paragraphs
+//      58  step_2.practice[].prompt             ✓ paragraphs
+//      54  step_1.read[][].trace.predict.prompt ✓ paragraphs
+//      37  step_2.practice[].answer             ✓ paragraphs
+//       8  step_2.mcq[].question                ✗ DỰNG TRẦN
+//       8  step_4.hints[].body                  ✗ DỰNG TRẦN
+//       6  step_4.task.body                     ✓ paragraphs
+//       5  step_1.read[][].lanes[].note         ✓ paragraphs
+//       5  step_1.read[][].rows[][]  (ô bảng)   ✗ DỰNG TRẦN
+//       5  step_2.mcq[].options[].detail        ✗ DỰNG TRẦN
+//       5  step_2.mcq[].options[].text          ✗ DỰNG TRẦN
+//       2  step_1.read[][].lanes[].label        ✓ paragraphs
+//       1  step_2.mcq[].explanation             ✗ DỰNG TRẦN
+//
+// Tức **32 chuỗi trên 6 đường** đang hiện ra kèm nguyên dấu backtick cho người
+// học, không phải một chỗ.
+//
+// Nên ca này KHÔNG liệt kê nơi nữa. Nó đọc BẢN DỰNG, gom mọi đường dẫn trường
+// có backtick, và đòi mỗi đường phải có một dòng khai kèm BIỂU THỨC dựng nó —
+// biểu thức ấy phải có thật trong tệp renderer. Hai chiều: đường có backtick mà
+// chưa khai là LỖI, và một dòng khai mà renderer không còn gọi `paragraphs`/
+// `withInlineCode` cũng là LỖI.
+//
+// GIỚI HẠN PHẢI NÓI RA: cổng chỉ thấy đường nào ĐANG có backtick trong bản
+// dựng. Một renderer dựng trần mà nội dung chưa dùng backtick thì nó im — nó
+// bắt lỗi ĐÚNG LÚC lỗi thành thấy được, không sớm hơn.
+const DUONG_BOC = {
+  'step_1.read[][].text': ['screens/ReadScreen.tsx', '{paragraphs(block.text)}'],
+  'step_1.read[][].rows[][]': ['screens/ReadScreen.tsx', '{paragraphs(cell)}'],
+  'step_1.read[][].headers[]': ['screens/ReadScreen.tsx', '{paragraphs(h)}'],
+  'step_1.read[][].lanes[].label': ['screens/ReadScreen.tsx', 'paragraphs(lane.label)'],
+  'step_1.read[][].lanes[].note': ['screens/ReadScreen.tsx', 'paragraphs(lane.note)'],
+  'step_1.read[][].trace.predict.prompt': [
+    'screens/StepTrace.tsx', '{paragraphs(trace.predict.prompt)}'],
+  'step_2.practice[].prompt': ['screens/PracticeScreen.tsx', 'paragraphs(item.prompt)'],
+  'step_2.practice[].answer': ['screens/PracticeScreen.tsx', '{paragraphs(item.answer)}'],
+  'step_2.mcq[].question': ['screens/McqScreen.tsx', 'title={paragraphs(de)}'],
+  'step_2.mcq[].options[].text': [
+    '../lesson-chrome/exercises/Mcq.tsx', '{withInlineCode(opt.label)}'],
+  'step_2.mcq[].options[].detail': [
+    '../lesson-chrome/exercises/Mcq.tsx', '{withInlineCode(opt.sub)}'],
+  'step_2.mcq[].explanation': ['screens/chrome.tsx', 'paragraphs(verdict.explain)'],
+  'step_4.task.body': ['screens/SandboxScreen.tsx', 'paragraphs(four?.task?.body)'],
+  'step_4.hints[].body': ['screens/SandboxScreen.tsx', 'paragraphs(h.body)'],
+};
+
+/** Mọi đường dẫn trường có backtick trong bản dựng, kèm số lần. */
+function duongCoBacktick() {
+  const goi = JSON.parse(
+    readFileSync(join(FE, '..', 'scripts', 'pe-da', 'out', 'lessons.json'), 'utf8'),
+  );
+  const ls = Array.isArray(goi) ? goi : goi.lessons;
+  const dem = new Map();
+  const di = (o, duong) => {
+    if (typeof o === 'string') {
+      if (o.includes('`')) dem.set(duong, (dem.get(duong) ?? 0) + 1);
+      return;
+    }
+    if (Array.isArray(o)) return o.forEach((x) => di(x, `${duong}[]`));
+    if (o && typeof o === 'object') {
+      for (const [k, v] of Object.entries(o)) di(v, duong ? `${duong}.${k}` : k);
+    }
+  };
+  for (const b of ls) di(b.content_json ?? b, '');
+  return dem;
+}
+
+test('phép quét bản dựng còn đọc được — rỗng thì hai ca dưới vô nghĩa', () => {
+  const dem = duongCoBacktick();
+  assert.ok(
+    dem.size >= 8,
+    `chỉ thấy ${dem.size} đường dẫn trường có backtick trong bản dựng — phép duyệt đã `
+      + 'trượt, và khi đó ca dưới XANH vì không có gì để kiểm. Sửa `duongCoBacktick`, '
+      + 'đừng nới ca.',
+  );
+});
+
+test('MỌI trường có backtick đều được khai, kèm biểu thức dựng có thật', () => {
+  const dem = duongCoBacktick();
+  const chuaKhai = [...dem.keys()].filter((k) => !(k in DUONG_BOC));
+  assert.deepEqual(
+    chuaKhai.map((k) => `${k} (${dem.get(k)} chuỗi)`),
+    [],
+    'Đường dẫn trường có backtick mà CHƯA KHAI ở `DUONG_BOC`. Hoặc renderer của nó đã '
+      + 'bóc backtick — thì thêm một dòng khai — hoặc nó đang dựng trần và người học '
+      + 'đọc ra nguyên dấu `. Đây là lỗi đã xảy ra BA lần.',
+  );
+});
+
+test('mỗi dòng khai phải trỏ vào một biểu thức CÓ THẬT trong renderer', () => {
+  const GOC = join(FE, 'src', 'components', 'python-studio');
+  for (const [duong, [tep, bieuThuc]] of Object.entries(DUONG_BOC)) {
+    const ma = doc(join(GOC, tep));
+    assert.ok(
+      ma.includes(bieuThuc),
+      `"${duong}" khai là được bóc bởi \`${bieuThuc}\` trong ${tep}, nhưng tệp đó KHÔNG `
+        + 'còn chứa biểu thức ấy. Hoặc renderer đã đổi (thì sửa dòng khai), hoặc ai đó '
+        + 'vừa gỡ phép bóc đi (thì trả lại). Im lặng xanh ở đây là bỏ mất phép đo.',
+    );
+  }
+});

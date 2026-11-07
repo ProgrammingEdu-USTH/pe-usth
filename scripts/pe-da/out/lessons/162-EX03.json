@@ -33,7 +33,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Trong terminal đã chọn đúng môi trường, dùng python -m pip install notebook rồi jupyter notebook. Nếu dùng conda để quản lý dự án, slide đưa lựa chọn conda install -c conda-forge notebook. Đây là hai cách cài thay thế, không phải bắt buộc làm lần lượt. Các chuỗi dưới chỉ ghi lại lệnh để đọc, không tự cài hay khởi động máy chủ."
+      "text": "Trong terminal đã chọn đúng môi trường, dùng `python -m pip install notebook` rồi `jupyter notebook`. Nếu dùng `conda` để quản lý dự án, slide đưa lựa chọn `conda install -c conda-forge notebook`. Đây là hai cách cài thay thế, không phải bắt buộc làm lần lượt. Các chuỗi dưới chỉ ghi lại lệnh để đọc, không tự cài hay khởi động máy chủ."
      },
      {
       "type": "code",

@@ -49,7 +49,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Tên `.venv` là thư mục bạn chọn để chứa môi trường của quán. Bước này chỉ tạo môi trường, chưa cài NumPy (thư viện tính toán trên cả dãy số một lượt). Bạn sẽ cần tới nó khi sổ bán hàng dài hàng nghìn dòng. Trên Windows, kiểm tra pip của môi trường vừa tạo bằng:"
+      "text": "Tên `.venv` là thư mục bạn chọn để chứa môi trường của quán. Bước này chỉ tạo môi trường, chưa cài NumPy (thư viện tính toán trên cả dãy số một lượt). Bạn sẽ cần tới nó khi sổ bán hàng dài hàng nghìn dòng. Trên Windows, kiểm tra `pip` của môi trường vừa tạo bằng:"
      },
      {
       "type": "terminal",
@@ -60,11 +60,11 @@
     [
      {
       "type": "paragraph",
-      "text": "Trên Linux/macOS, lệnh tương ứng là `.venv/bin/python -m pip --version`. Gọi pip qua đúng Python giúp bạn không cài nhầm thư viện sang môi trường khác. Khi tới bài NumPy, cài bằng `.venv\\Scripts\\python -m pip install numpy` trên Windows hoặc `.venv/bin/python -m pip install numpy` trên Linux/macOS. `pip` cài gói (package), tức một tập module nạp được như một đơn vị, thường lấy từ kho PyPI. Nó không tự đổi phiên bản Python."
+      "text": "Trên Linux/macOS, lệnh tương ứng là `.venv/bin/python -m pip --version`. Gọi `pip` qua đúng Python giúp bạn không cài nhầm thư viện sang môi trường khác. Khi tới bài NumPy, cài bằng `.venv\\Scripts\\python -m pip install numpy` trên Windows hoặc `.venv/bin/python -m pip install numpy` trên Linux/macOS. `pip` cài gói (package), tức một tập module nạp được như một đơn vị, thường lấy từ kho PyPI. Nó không tự đổi phiên bản Python."
      },
      {
       "type": "paragraph",
-      "text": "`sys` và `venv` thuộc thư viện chuẩn nên đã có sẵn cùng Python, còn NumPy là gói bên ngoài phải cài thêm. Quanh việc này còn vài công cụ khác mà bạn sẽ gặp trong tài liệu. `virtualenv` cũng tạo môi trường; `pyenv` chủ yếu giúp quản lý các phiên bản Python. Conda quản lý cả môi trường lẫn gói, trong đó Miniconda gọn hơn Anaconda vốn kèm sẵn nhiều gói."
+      "text": "`sys` và `venv` thuộc thư viện chuẩn nên đã có sẵn cùng Python, còn NumPy là gói bên ngoài phải cài thêm. Quanh việc này còn vài công cụ khác mà bạn sẽ gặp trong tài liệu. `virtualenv` cũng tạo môi trường; `pyenv` chủ yếu giúp quản lý các phiên bản Python. `conda` quản lý cả môi trường lẫn gói, trong đó Miniconda gọn hơn Anaconda vốn kèm sẵn nhiều gói."
      },
      {
       "type": "paragraph",

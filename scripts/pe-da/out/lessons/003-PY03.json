@@ -66,7 +66,7 @@
      },
      {
       "type": "paragraph",
-      "text": "Nếu máy chưa có nó, chạy `python -m pip install notebook` trong terminal của môi trường đã chọn, rồi chạy `jupyter notebook` để mở. Với conda, bài giảng gốc đưa lựa chọn `conda install -c conda-forge notebook`. Đây là lệnh terminal; đừng dán chúng vào một ô rồi coi là câu Python. Và không cần dùng cả pip lẫn conda cho cùng một lần cài."
+      "text": "Nếu máy chưa có nó, chạy `python -m pip install notebook` trong terminal của môi trường đã chọn, rồi chạy `jupyter notebook` để mở. Với `conda`, bài giảng gốc đưa lựa chọn `conda install -c conda-forge notebook`. Đây là lệnh terminal; đừng dán chúng vào một ô rồi coi là câu Python. Và không cần dùng cả `pip` lẫn `conda` cho cùng một lần cài."
      },
      {
       "type": "paragraph",

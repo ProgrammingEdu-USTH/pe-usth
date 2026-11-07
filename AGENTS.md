@@ -83,13 +83,13 @@ học nó.
 | Giáo trình pe-da (đang chạy) | **179 bài, 11 module**, 565 màn đọc, **537 câu trắc nghiệm**, 669 câu luyện tập, **143 bài tập được chấm / 480 ca**, 2 440 phút; 139 bài chạy trong trình duyệt / 15 hỗn hợp / 25 trên máy |
 | pe-da chấm nội dung | `node scripts/pe-da/check-pyodide.mjs` → 154 bài, 420 đoạn code, **0 hỏng**, **0 cảnh báo**, ~32 s; **pha 2: 52/53 đáp án mẫu màn luyện tập chạy đúng, 1 ngoại lệ đã khai, 10 câu bỏ qua (bài chạy trên máy)** |
 | pe-da chấm BÀI TẬP | `node scripts/pe-da/check-practice.mjs` → 143 bài, **480 ca đạt**, 773 biến thể sai đều trượt, **pha 3 cổng file dữ liệu 7 bài / 0 lỗi**, **pha 4: 2 372 ca trượt / 0 ca im lặng / 7 nhánh phản hồi**, ~12 s |
-| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **91 lỗi · 440 cảnh báo**, dồn ở L3 39 (câu ≥ 3 dấu phẩy) · L8 24 (mật độ thuật ngữ) · L1 21 (câu > 30 tiếng) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì 91 lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
+| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **87 lỗi · 434 cảnh báo**, dồn ở L3 36 (câu ≥ 3 dấu phẩy) · L8 23 (mật độ thuật ngữ) · L1 21 (câu > 30 tiếng) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì 87 lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
 | pe-da bảng từng bước | `py scripts/pe-da/gen_traces.py` → **56 vết / 359 khối đủ điều kiện** (303 bỏ qua — bảng từng ghi 356/300, đã CŨ từ trước 04/11: dựng lại từ HEAD cũng ra 359/303, và `check-moc-nen` không đối chiếu hàng này; phần lớn vì không ra được câu dự đoán nào ĐÁNG hỏi); build.py `return 1` nếu lệch |
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
 | Xuất hình cho người học | `node scripts/check-figures.mjs` → 16 ca, **0 hỏng** |
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **17 mục, 14 có đường tới, 3 còn tối (đã khai lý do)**, 0 lỗi |
 | Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **1 mục chết, 1 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **14 CSS module trong `src/`** |
-| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **ĐỎ (exit 1): 75/179 khớp, 104 bài đã đổi sau lần nạp cuối** — đợt 04/11 (mở khoá SY24, `goi_can_tai` quét mã bài đọc, bài tập PY01, math.floor SY11, đếm process RC01, trung bình có trọng số GU12) cộng đợt 07/11 (câu nhồi mệnh đề thành BẢNG · L11 thôi gọi một thứ bằng hai tên · L4/L5/L6 bỏ danh-từ-hoá và từ cấm · §4-A bọc backtick 54 hằng Python rồi 85 tên kiểu Python, rồi 22 chỗ gọi `plt`/`ax`/`fig`, rồi 50 chỗ tên class pandas/matplotlib, rồi 21 chỗ tên thư viện và lớp, rồi 9 chỗ viết hoa tên kiểu). Danh sách mã in ra ở đầu ra của cổng, KHÔNG liệt kê lại ở đây — một danh sách 61 mã trong bảng là thứ sẽ trôi. Biên nhận 03/11/2026 18:48 UTC; đỏ cho tới khi chủ dự án nạp. Nạp xong thì SỬA số ở đây, không thì `check-moc-nen` đỏ |
+| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **ĐỎ (exit 1): 72/179 khớp, 107 bài đã đổi sau lần nạp cuối** — đợt 04/11 (mở khoá SY24, `goi_can_tai` quét mã bài đọc, bài tập PY01, math.floor SY11, đếm process RC01, trung bình có trọng số GU12) cộng đợt 07/11 (câu nhồi mệnh đề thành BẢNG · L11 thôi gọi một thứ bằng hai tên · L4/L5/L6 bỏ danh-từ-hoá và từ cấm · §4-A bọc backtick 54 hằng Python rồi 85 tên kiểu Python, rồi 22 chỗ gọi `plt`/`ax`/`fig`, rồi 50 chỗ tên class pandas/matplotlib, rồi 21 chỗ tên thư viện và lớp, rồi 9 chỗ viết hoa tên kiểu, rồi 9 chỗ lệnh công cụ + 3 biểu thức làm L3 báo oan). Danh sách mã in ra ở đầu ra của cổng, KHÔNG liệt kê lại ở đây — một danh sách 61 mã trong bảng là thứ sẽ trôi. Biên nhận 03/11/2026 18:48 UTC; đỏ cho tới khi chủ dự án nạp. Nạp xong thì SỬA số ở đây, không thì `check-moc-nen` đỏ |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **32 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
@@ -3562,6 +3562,49 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   `String` và `range` đứng trần cạnh `` `list` ``/`` `tuple` `` đã bọc. Termbank không có mục
   cho hai chữ đó (`str` thì có, `String` thì không), nên không cổng nào thấy. Đó là một
   quyết định về TERMBANK, không phải về nội dung — và nó thuộc chủ dự án.
+
+- **L3 KHÔNG PHẢI TÁC PHẨM PHỤ CỦA §4-A — đo được 3, không phải 6–8 như tôi ước lượng bằng
+  mắt.** §2 chỉ đích danh L3 là cái sai thật của những câu dài, và một mục bẫy ở trên đoán
+  rằng "dọn §4-A sẽ hạ L3 như một tác dụng kèm". Đo thật, phân loại 39 lỗi L3 theo chỗ dấu
+  phẩy ĐẾN TỪ ĐÂU (đếm dấu nằm trong cặp ngoặc `()[]{}`): **3 chỗ** là dấu phẩy BÊN TRONG
+  một biểu thức code đứng trần, **36 chỗ** là nhồi mệnh đề THẬT. Ước lượng bằng mắt của tôi
+  vòng trước ("6–8") sai gần gấp đôi — **lần thứ hai trong hai vòng một ước lượng bằng mắt
+  lệch**, nên con số phải đến từ một phép đếm, kể cả khi việc trông nhỏ.
+  **Ba chỗ ấy §4-A KHÔNG THẤY**, và lý do đáng biết: `read_excel` · `add_axes` · `imshow` ·
+  `interpolation` không có trong termbank, nên không luật nào đòi chúng nằm trong backtick.
+  L3 thì đếm dấu phẩy trên văn bản đã thay backtick bằng `◆`, nên bọc chúng là **xoá luôn
+  nguyên nhân** chứ không phải nới luật. Cả 3 câu rời ngưỡng sau khi bọc; lớp báo oan về **0**.
+  **CÙNG VIỆC VỚI CỤM LỆNH CÔNG CỤ, nên làm chung một lát:** `pip` 4 · `conda` 5. Bằng chứng
+  mạnh nhất lại nằm trong chính corpus — **PY03#5 đã viết `` `python -m pip install
+  notebook` `` và `` `conda install -c conda-forge notebook` `` bọc backtick, còn EX03#1 viết
+  Y NGUYÊN hai lệnh ấy đứng trần.** Cùng lệnh, hai cách viết, trong cùng khoá. Ở EX03#1 phải
+  bọc **CẢ DÒNG LỆNH**, không bọc riêng chữ `pip`: một nửa dòng lệnh nằm trong chip là vô
+  nghĩa.
+  **Và lại một chỗ VIẾT HOA đầu câu:** PY02#5 mở bằng `Conda quản lý cả môi trường lẫn gói`
+  trong khi công cụ là `conda` chữ thường — cùng ca `Curses`, sửa bằng cùng kỹ thuật (bọc với
+  chính tả đúng).
+  **SỐ ĐÃ ĐO:** L3 **39 → 36** · §4-A **30 → 23** (−7, không phải −9: §4-A dồn theo thuật ngữ
+  + màn, hai lệnh của EX03 gộp lại) · L8 lỗi 24 → **23** · tổng khoá 91 → **87 lỗi**, 440 →
+  **434 cảnh báo**. L1 **KHÔNG** nhận thêm câu nào — đáng kiểm vì các nhánh `elif` nghĩa là
+  một câu rời L3 có thể rơi vào L1; phép bọc hạ số tiếng đủ để cả ba câu nằm dưới trần 25.
+  **TL BẮT ĐƯỢC, LẦN THỨ BA TRONG BA VÒNG LIỀN:** bảng §2 hàng "Câu L3 bắt" ghi 39, đo được
+  36. Và nó lộ ra cái CASCADE mà mục §8 đã khai là giới hạn: dòng tổng của §11 lúc đó in
+  **88** lỗi vì con số ấy ĐẾM CẢ lỗi TL đang mở. Sửa §2 xong thì tổng về **87**. Nên khi TL
+  đỏ, đừng ghi ngay con số tổng mà cổng vừa in — sửa gốc rồi đo lại.
+  Ablate: gỡ bản sửa nội dung ra → ratchet **11 LỖI**, exit 1, gồm *"L3: lỗi TĂNG 36 → 39"* ·
+  *"L8: lỗi TĂNG 23 → 24"* · *"§4-A: TỔNG TĂNG 23 → 30"* · *"TL: lỗi TĂNG 0 → 1"* · bốn hàng
+  bảng §11 và hai dòng tổng.
+  **GIÁ PHẢI TRẢ:** bài chờ nạp DB **104 → 107**.
+  **GIỚI HẠN, nói ra vì tôi cố ý dừng ở đó:** phép bọc chỉ đi hết CÂU mà L3 bắt, không đi hết
+  ĐOẠN. PD13#3 còn `startrow=1` · `skiprows=[0]` · `usecols` · `ExcelFile.parse` đứng trần;
+  VZ02#1 còn `add_subplot(111)` và `add_axes()`. Không cổng nào thấy chúng (termbank không
+  có), nên chúng sẽ không tự lộ ra — đó là một lượt biên tập riêng, không phải chỗ bỏ sót vô
+  ý.
+  **VÀ 36 LỖI L3 CÒN LẠI LÀ VIỆC THẬT, cỡ đã đo:** mỗi câu cần viết lại thành bullet hoặc
+  bảng (đúng thứ §2 kê). Nhiều câu trong đó là LIỆT KÊ định danh — SY12 bốn file, CT02 bốn
+  đối số `CreateProcess`, GU09 `x, y` / `width, height`, CT15 `ls, bc, ps và grep` — tức dạng
+  chuyển sang bảng gọn nhất. 36 lượt viết lại là quá một vòng, và mỗi lượt cần phán xét, nên
+  nó là một chuỗi lát chứ không phải một việc.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

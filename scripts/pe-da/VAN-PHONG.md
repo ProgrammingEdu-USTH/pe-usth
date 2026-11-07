@@ -118,7 +118,7 @@ nghĩa, và `tieng()` của bộ kiểm:
 | p90 | 23 tiếng |
 | Dài nhất cả bộ | 43 tiếng |
 | Câu > 30 tiếng | **32 câu** (1,3%) |
-| Câu L3 bắt | **39 câu** |
+| Câu L3 bắt | **36 câu** |
 
 ⚠️ **Bảng này từng mang số của MỘT PHÉP CHẺ KHÁC, và đó là lý do luật TL ra đời.** Bản
 trước ghi 3 059 câu · trung vị 13 · p90 22 · dài nhất 49 · 1,2% — mà 3 059 chính là con số
@@ -442,12 +442,12 @@ Format phải đồng nhất `N lỗi · N cb` cho MỌI hàng; bản cũ viết
 |---|---|---|---|
 | L1 | Câu > 25 tiếng cảnh báo, > 30 lỗi | CB/LỖI | 21 lỗi · 86 cb |
 | L2 | Đoạn > 90 tiếng hoặc > 6 câu | CB/LỖI | 7 lỗi · 14 cb |
-| **L3** | **Câu ≥ 3 dấu `,`/`;` và ≥ 20 tiếng → bảng** | **LỖI** | **39 lỗi · 0 cb** |
+| **L3** | **Câu ≥ 3 dấu `,`/`;` và ≥ 20 tiếng → bảng** | **LỖI** | **36 lỗi · 0 cb** |
 | L4 | Không mở câu bằng danh-từ-hoá | LỖI | 0 lỗi · 0 cb |
 | L5 | Cấm `được/bị + V + bởi` | LỖI | 0 lỗi · 0 cb |
 | L6 | Từ cấm hành chính (danh sách ĐÓNG 20 tính từ) | LỖI | 0 lỗi · 0 cb |
 | L7 | Chỉ "bạn" | LỖI | 0 lỗi · 17 cb |
-| **L8** | **Mật độ thuật ngữ ≤ 40/1000 tiếng** | CB/LỖI | **24 lỗi · 26 cb** |
+| **L8** | **Mật độ thuật ngữ ≤ 40/1000 tiếng** | CB/LỖI | **23 lỗi · 27 cb** |
 | L9 | ≤ 3 thuật ngữ mới mỗi màn — *hàng rào* | CB/LỖI | 0 lỗi · 0 cb |
 | L10 | Thuật ngữ lần đầu phải có chú giải | LỖI | 0 lỗi · 0 cb |
 | L11 | Một thuật ngữ một cách gọi, khoá (thuật ngữ, ngữ cảnh) | LỖI | 0 lỗi · 0 cb |
@@ -457,14 +457,14 @@ Format phải đồng nhất `N lỗi · N cb` cho MỌI hàng; bản cũ viết
 | L15 | Đoạn mở bài phải nối với bài trước | CẢNH BÁO | 0 lỗi · 0 cb |
 | TB | Bất biến termbank: `baiDauTien` khớp corpus | LỖI | 0 lỗi · 0 cb |
 | TL | Số đo trong đặc tả phải khớp số đo thật (§1 · §2 · §8 · §12 · bảng này) | LỖI | 0 lỗi · 0 cb |
-| §4-A | Định danh nhóm A phải nằm trong backtick | CẢNH BÁO | 0 lỗi · 30 cb |
+| §4-A | Định danh nhóm A phải nằm trong backtick | CẢNH BÁO | 0 lỗi · 23 cb |
 | **M1** | **3 phương án mặc định** | **LỖI** | — (do `check.py --strict`) |
 | **M2** | **Trộn vị trí có phân tầng** | **LỖI** | — (do `check.py --strict`) |
 | M3 | Nhiễu phải có lý do lưu kèm | LỖI | — (do `check.py --strict`) |
 | M4 | Không bài nào 3 câu cùng một ô Block Model | LỖI | — (do `check.py --strict`) |
 | M5 | Một lần trả lời, rồi đi tiếp | LỖI | — (do `check.py --strict`) |
 
-**Tổng trên corpus thật: 91 lỗi · 440 cảnh báo.**
+**Tổng trên corpus thật: 87 lỗi · 434 cảnh báo.**
 
 **Nếu chỉ làm được một việc:** L10. Cụ thể: `py -I scripts/pe-da/check_vanphong.py
 --luat L10 --chi-tiet 0` in ra đúng danh sách bài + câu phải sửa.
@@ -474,7 +474,7 @@ Format phải đồng nhất `N lỗi · N cb` cho MỌI hàng; bản cũ viết
 
 ## 12. Đừng bật `--strict` trong CI ngày đầu
 
-`check_vanphong.py` hôm nay cho **91 lỗi**. Nối thẳng vào `check.py --strict` là
+`check_vanphong.py` hôm nay cho **87 lỗi**. Nối thẳng vào `check.py --strict` là
 làm CI đỏ ngay, và một CI đỏ thường trực thì không ai đọc nữa.
 
 Dùng đúng khuôn mà repo đã có cho lint backend: **một mốc trần, CHỈ ĐƯỢC HẠ**

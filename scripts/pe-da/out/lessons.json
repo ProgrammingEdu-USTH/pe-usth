@@ -291,7 +291,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Tên `.venv` là thư mục bạn chọn để chứa môi trường của quán. Bước này chỉ tạo môi trường, chưa cài NumPy (thư viện tính toán trên cả dãy số một lượt). Bạn sẽ cần tới nó khi sổ bán hàng dài hàng nghìn dòng. Trên Windows, kiểm tra pip của môi trường vừa tạo bằng:"
+        "text": "Tên `.venv` là thư mục bạn chọn để chứa môi trường của quán. Bước này chỉ tạo môi trường, chưa cài NumPy (thư viện tính toán trên cả dãy số một lượt). Bạn sẽ cần tới nó khi sổ bán hàng dài hàng nghìn dòng. Trên Windows, kiểm tra `pip` của môi trường vừa tạo bằng:"
        },
        {
         "type": "terminal",
@@ -302,11 +302,11 @@
       [
        {
         "type": "paragraph",
-        "text": "Trên Linux/macOS, lệnh tương ứng là `.venv/bin/python -m pip --version`. Gọi pip qua đúng Python giúp bạn không cài nhầm thư viện sang môi trường khác. Khi tới bài NumPy, cài bằng `.venv\\Scripts\\python -m pip install numpy` trên Windows hoặc `.venv/bin/python -m pip install numpy` trên Linux/macOS. `pip` cài gói (package), tức một tập module nạp được như một đơn vị, thường lấy từ kho PyPI. Nó không tự đổi phiên bản Python."
+        "text": "Trên Linux/macOS, lệnh tương ứng là `.venv/bin/python -m pip --version`. Gọi `pip` qua đúng Python giúp bạn không cài nhầm thư viện sang môi trường khác. Khi tới bài NumPy, cài bằng `.venv\\Scripts\\python -m pip install numpy` trên Windows hoặc `.venv/bin/python -m pip install numpy` trên Linux/macOS. `pip` cài gói (package), tức một tập module nạp được như một đơn vị, thường lấy từ kho PyPI. Nó không tự đổi phiên bản Python."
        },
        {
         "type": "paragraph",
-        "text": "`sys` và `venv` thuộc thư viện chuẩn nên đã có sẵn cùng Python, còn NumPy là gói bên ngoài phải cài thêm. Quanh việc này còn vài công cụ khác mà bạn sẽ gặp trong tài liệu. `virtualenv` cũng tạo môi trường; `pyenv` chủ yếu giúp quản lý các phiên bản Python. Conda quản lý cả môi trường lẫn gói, trong đó Miniconda gọn hơn Anaconda vốn kèm sẵn nhiều gói."
+        "text": "`sys` và `venv` thuộc thư viện chuẩn nên đã có sẵn cùng Python, còn NumPy là gói bên ngoài phải cài thêm. Quanh việc này còn vài công cụ khác mà bạn sẽ gặp trong tài liệu. `virtualenv` cũng tạo môi trường; `pyenv` chủ yếu giúp quản lý các phiên bản Python. `conda` quản lý cả môi trường lẫn gói, trong đó Miniconda gọn hơn Anaconda vốn kèm sẵn nhiều gói."
        },
        {
         "type": "paragraph",
@@ -493,7 +493,7 @@
        },
        {
         "type": "paragraph",
-        "text": "Nếu máy chưa có nó, chạy `python -m pip install notebook` trong terminal của môi trường đã chọn, rồi chạy `jupyter notebook` để mở. Với conda, bài giảng gốc đưa lựa chọn `conda install -c conda-forge notebook`. Đây là lệnh terminal; đừng dán chúng vào một ô rồi coi là câu Python. Và không cần dùng cả pip lẫn conda cho cùng một lần cài."
+        "text": "Nếu máy chưa có nó, chạy `python -m pip install notebook` trong terminal của môi trường đã chọn, rồi chạy `jupyter notebook` để mở. Với `conda`, bài giảng gốc đưa lựa chọn `conda install -c conda-forge notebook`. Đây là lệnh terminal; đừng dán chúng vào một ô rồi coi là câu Python. Và không cần dùng cả `pip` lẫn `conda` cho cùng một lần cài."
        },
        {
         "type": "paragraph",
@@ -13170,7 +13170,7 @@
       [
        {
         "type": "paragraph",
-        "text": "ExcelFile giúp xem tên sheet rồi đọc đúng bảng. book.parse(sheet_name=0) và pd.read_excel(book, sheet_name=0) là hai cách đọc tương đương; số 0 chọn sheet đầu, còn chuỗi \"Sales\" chọn theo tên. Targets có một hàng trống đầu file do startrow=1 lúc ghi; skiprows=[0] bỏ hàng đó, còn names đặt tên cột đọc vào. Trong tờ tóm tắt cũ, parse_cols chọn cột; tham số hiện hành là usecols. Không đổi parse thành một API đã bị bỏ: ExcelFile.parse vẫn có trong tài liệu pandas ổn định được kiểm khi biên tập. Đừng mặc định sheet đầu luôn là bảng cần dùng; nó có thể chỉ là hướng dẫn."
+        "text": "ExcelFile giúp xem tên sheet rồi đọc đúng bảng. `book.parse(sheet_name=0)` và `pd.read_excel(book, sheet_name=0)` là hai cách đọc tương đương; số 0 chọn sheet đầu, còn chuỗi \"Sales\" chọn theo tên. Targets có một hàng trống đầu file do startrow=1 lúc ghi; skiprows=[0] bỏ hàng đó, còn names đặt tên cột đọc vào. Trong tờ tóm tắt cũ, parse_cols chọn cột; tham số hiện hành là usecols. Không đổi parse thành một API đã bị bỏ: ExcelFile.parse vẫn có trong tài liệu pandas ổn định được kiểm khi biên tập. Đừng mặc định sheet đầu luôn là bảng cần dùng; nó có thể chỉ là hướng dẫn."
        },
        {
         "type": "paragraph",
@@ -18482,7 +18482,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Có thể tạo `Figure` trước rồi thêm vùng vẽ bằng add_subplot(111). Ba chữ số lần lượt chỉ số hàng, số cột và vị trí: 111 nghĩa là một hàng, một cột, ô thứ nhất. add_axes([left, bottom, width, height]) lại đặt vùng vẽ theo phần tỷ lệ của `Figure`, phù hợp khi bạn cần điều khiển vị trí cụ thể. Lệnh add_axes() thiếu tọa độ trong tờ tóm tắt không đủ để tạo ví dụ hoàn chỉnh. pyplot giữ trạng thái `Figure`/`Axes` hiện tại: `plt.plot(...)` vẽ vào `Axes` hiện tại, còn `ax.plot(...)` chỉ rõ đối tượng cần vẽ. Quy trình thường là chuẩn bị dữ liệu → tạo `Figure`/`Axes` → vẽ → chỉnh nhãn và bố trí → lưu nếu cần → show. Nếu có nhiều `Axes`, viết rõ `ax` giúp tránh vẽ nhầm vùng."
+        "text": "Có thể tạo `Figure` trước rồi thêm vùng vẽ bằng add_subplot(111). Ba chữ số lần lượt chỉ số hàng, số cột và vị trí: 111 nghĩa là một hàng, một cột, ô thứ nhất. `add_axes([left, bottom, width, height])` lại đặt vùng vẽ theo phần tỷ lệ của `Figure`, phù hợp khi bạn cần điều khiển vị trí cụ thể. Lệnh add_axes() thiếu tọa độ trong tờ tóm tắt không đủ để tạo ví dụ hoàn chỉnh. pyplot giữ trạng thái `Figure`/`Axes` hiện tại: `plt.plot(...)` vẽ vào `Axes` hiện tại, còn `ax.plot(...)` chỉ rõ đối tượng cần vẽ. Quy trình thường là chuẩn bị dữ liệu → tạo `Figure`/`Axes` → vẽ → chỉnh nhãn và bố trí → lưu nếu cần → show. Nếu có nhiều `Axes`, viết rõ `ax` giúp tránh vẽ nhầm vùng."
        },
        {
         "type": "code",
@@ -20294,7 +20294,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Colorbar giải thích con số ứng với màu. Nếu hai heatmap dùng hai thang màu tự co giãn, cùng một màu có thể đại diện cho hai giá trị khác nhau. Khi so sánh, giữ chung vmin, vmax và đơn vị. Các ô ít có thể ghi thêm số để người đọc không phải ước lượng màu. cmap chọn quy tắc đổi số thành màu, còn vmin/vmax đặt hai đầu thang số. orientation=\"horizontal\" đặt colorbar nằm ngang; \"vertical\" đặt nó đứng dọc. Muốn giữ các ô như các khối màu rõ, imshow(..., interpolation=\"nearest\") tránh làm mượt giữa ô; màu trung gian do nội suy không phải số đo mới."
+        "text": "Colorbar giải thích con số ứng với màu. Nếu hai heatmap dùng hai thang màu tự co giãn, cùng một màu có thể đại diện cho hai giá trị khác nhau. Khi so sánh, giữ chung vmin, vmax và đơn vị. Các ô ít có thể ghi thêm số để người đọc không phải ước lượng màu. cmap chọn quy tắc đổi số thành màu, còn vmin/vmax đặt hai đầu thang số. orientation=\"horizontal\" đặt colorbar nằm ngang; \"vertical\" đặt nó đứng dọc. Muốn giữ các ô như các khối màu rõ, `imshow(..., interpolation=\"nearest\")` tránh làm mượt giữa ô; màu trung gian do nội suy không phải số đo mới."
        },
        {
         "type": "code",
@@ -44628,7 +44628,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Trong terminal đã chọn đúng môi trường, dùng python -m pip install notebook rồi jupyter notebook. Nếu dùng conda để quản lý dự án, slide đưa lựa chọn conda install -c conda-forge notebook. Đây là hai cách cài thay thế, không phải bắt buộc làm lần lượt. Các chuỗi dưới chỉ ghi lại lệnh để đọc, không tự cài hay khởi động máy chủ."
+        "text": "Trong terminal đã chọn đúng môi trường, dùng `python -m pip install notebook` rồi `jupyter notebook`. Nếu dùng `conda` để quản lý dự án, slide đưa lựa chọn `conda install -c conda-forge notebook`. Đây là hai cách cài thay thế, không phải bắt buộc làm lần lượt. Các chuỗi dưới chỉ ghi lại lệnh để đọc, không tự cài hay khởi động máy chủ."
        },
        {
         "type": "code",

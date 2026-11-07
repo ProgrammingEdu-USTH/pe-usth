@@ -642,11 +642,38 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
      35px và thanh tiến độ mất hẳn. Không co ba khối đầu; #side đã có
      overflow-y:auto nên phần thừa thành cuộn chứ không thành cắt. */
   #side>.pills,#side>.hero,#side>.menu{flex-shrink:0}
-  /* Hàng nút tràn ~400px mà không có dấu hiệu nào ngoài một nút bị cắt dở —
-     mờ mép phải để nó đọc ra là "còn nữa, vuốt sang". */
-  .menu{flex-direction:row;overflow-x:auto;scrollbar-width:none;gap:8px;
-    -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+  /* Người thử `will` 07/11: "size nhỏ phát là mất nút, có thể cho làm 2 hàng
+     xuống". Đo trên production: hàng nút TRÀN 425px ở 360×640 và 395px ở
+     390×844, nên chỉ **2/5** mục nằm trong mép. Ba mục kia KHÔNG mất hẳn — cả
+     ba nằm trong `.menu` cuộn ngang được — nhưng dấu hiệu duy nhất là 28px mờ
+     ở mép phải của một dải cao 48px, và một đường đi mà người dùng phải ĐOÁN
+     thì trên thực tế nó không tồn tại (đúng câu đã ghi cho nút "Quay lại", và
+     `will` là người thứ hai đọc ra nó như "mất nút").
+     Nay XUỐNG HÀNG — cùng cách `.dots` ngay dưới đã chọn cho chấm bài, nên đây
+     là nếp sẵn có của chính khối này, không phải một cách mới.
+     ĐO SAU KHI SỬA, trên production: **5/5 trong mép ở MỌI khổ**, tràn ngang
+     **0**, chip vẫn **48px**, chữ không bị cắt ở khổ nào. Số hàng: 3 ở 360–390,
+     **2 từ 480 lên**.
+     VÌ SAO KHÔNG ÉP ĐÚNG 2 HÀNG như `will` đề xuất — đã đo cả ba cách, cách nào
+     cũng phải trả một thứ:
+      · bỏ icon ⇒ 2 hàng, nhưng chip tụt **48 → 37px**, dưới cỡ ngón tay, và
+        repo vừa phải sửa một đích bấm 13×6px;
+      · siết `gap`/`padding` ⇒ hàng đầu ra **361px** trên 358px khả dụng, tức
+        THIẾU 3px. Ép được bằng cách hạ `gap` của `.menu` xuống 6px, nhưng khi
+        đó bố cục đứng cách mép đúng **1px** và một lần đổi nhãn là vỡ về 3 hàng;
+      · `flex:1 1 auto` cho các ô giãn đều ⇒ hai ô lọt ra ngoài **1px** vì làm
+        tròn sub-pixel.
+     Ba hàng chip 48px là cái giá rẻ nhất trong bốn. `#side` phải cuộn thêm
+     111px (61 → 172 ở 390×844), và nó đã có thanh cuộn thấy được từ `87a32db`.
+     KHÔNG còn `overflow-x`, `scrollbar-width:none` và mặt nạ mờ: khi đã xuống
+     hàng thì không còn gì ở bên phải, nên mặt nạ sẽ NÓI DỐI. Đó cũng là lý do
+     `.menu` rời khỏi `CO_CACH_BAO_KHAC` của `goc-hoc-thanh-cuon.test.mjs` —
+     luật hai chiều ở đó tự bắt, không cần ai nhớ. */
+  .menu{flex-direction:row;flex-wrap:wrap;gap:8px}
   .mi{flex:none;width:auto;padding:8px 12px}.mi small,.mi .chev{display:none}
+  /* Icon GIỮ ở điện thoại: nó là thứ duy nhất phân biệt năm mục bằng màu
+     (c-map/c-book/c-pen/c-tro/c-ph), và bỏ nó chính là biến thể "2 hàng" đã
+     bị loại ở trên vì chip tụt xuống 37px. */
   .mi .ic{width:30px;height:30px}
   .today .q{display:none}.today h3{margin:0}
   .music,#hint{display:none}

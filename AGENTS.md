@@ -77,7 +77,7 @@ học nó.
 | Backend lint | 104 lỗi, 2 cảnh báo — **mốc trần trong CI là 115, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d) |
-| Frontend unit test | `cd frontend && npm run test:unit` → **579 ca** / 49 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **583 ca** / 50 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -95,7 +95,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **33 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **4 mục** (frontend 579 · backend 35 bộ/501 · tracer 65 · e2e 11), 0 trượt, 0 lỗi; nó CHẠY chính bốn lệnh đó nên THAY cả bốn bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **4 mục** (frontend 583 · backend 35 bộ/501 · tracer 65 · e2e 11), 0 trượt, 0 lỗi; nó CHẠY chính bốn lệnh đó nên THAY cả bốn bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -116,7 +116,14 @@ mcq-next-after-wrong 23 · phan-bai 8 · practice-contract 15 · practice-run 9 
 read-diagram 12 ·
 read-guess 19 · read-trace 16 · recap-recall 7 · read-try-it 20 · review-quiz 34 · run-stale 15 ·
 session-marker 5 · spaced-review 14 · studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 · trap-leak 3 ·
-worker-csp 7 · ds-contrast 16 · feedback-rank 3 · goc-hoc-khung-cho 6 · goc-hoc-lo-trinh 9 · goc-hoc-man-con 3 · o-nhap-nhieu-dong 2 · ide-output-scroll 6 · lien-ket-noi-bo 3 · goc-hoc-cho-so 7 = 574.
+worker-csp 7 · ds-contrast 16 · feedback-rank 3 · goc-hoc-khung-cho 6 · goc-hoc-lo-trinh 9 · goc-hoc-man-con 3 · o-nhap-nhieu-dong 2 · ide-output-scroll 6 · lien-ket-noi-bo 3 · goc-hoc-cho-so 7 · goc-hoc-thanh-cuon 5 · goc-hoc-hang-nut 4 = 583.
+Mốc trước là 579; thêm goc-hoc-hang-nut 4 (HÀNG NÚT ĐIỀU HƯỚNG tràn 425px ở 360×640 ⇒ chỉ 2/5 mục
+trong mép; nay XUỐNG HÀNG).
+**Và bảng này vừa TRÔI 5 đơn vị:** nó cộng ra 574 trong khi bộ chạy ra 579, vì
+`goc-hoc-thanh-cuon 5` (vòng 07/11) được thêm vào cây mã mà KHÔNG thêm vào bảng — hàng "Frontend
+unit test" thì sửa đúng, nên `check-moc-chay` xanh và không gì bắt. Đây là con số THỨ BA của bảng
+phân rã không ai canh (hai con số kia đã có sổ ngưỡng). Thêm/bớt một tệp test thì sửa CẢ hàng mốc
+nền LẪN dòng phân rã này.
 Mốc trước là 573; ds-contrast 15 → 16 (CHIP `code nội tuyến` KHÔNG CÓ NỀN: `--edu-card-bg` trên
 thẻ trắng đo được 1,003:1, viền 1,252 — lần thứ TƯ của họ "trắng trên trắng").
 Trước đó 571 → 573; ds-contrast 13 → 15 (THANG CHỮ BAN NGÀY: đợt warm lofi dừng ở t2 nên t3–t6
@@ -3684,6 +3691,64 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** panel bên phải và 5 kệ sách nay có thanh cuộn mảnh.
   **KHÔNG bump `ASSET_VERSION`:** `scene.css` nằm trong `frontend/src/`, đi qua bundler nên
   URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
+
+- **"SIZE NHỎ PHÁT LÀ MẤT NÚT": 3/5 mục điều hướng nằm ngoài mép, và chúng KHÔNG mất —
+  chúng đòi một cú vuốt mà người thử không tìm ra.** Lỗi thứ 5 trong năm lỗi `will` báo
+  07/11, và là lỗi duy nhất chưa ai đo. Đo trên `programmingedu.io.vn` bằng Chrome, không
+  suy từ CSS:
+
+  | khổ | hàng nút tràn ngang | mục trong mép |
+  |---|---|---|
+  | 360×640 | **425px** | **2/5** |
+  | 390×844 | **395px** | **2/5** |
+  | 480×800 | 305px | 3/5 |
+  | 768×1024 | 17px | 4/5 |
+
+  **PHÉP ĐO PHẢI PHÂN BIỆT "MẤT HẲN" VỚI "CẦN CUỘN", nếu không là tố oan** — đúng lỗi tôi
+  vừa mắc ở bài sách-xám vòng trước. Bản đo thứ hai đi ngược cây tổ tiên tìm vùng cuộn
+  được: **0 nút mất hẳn**, cả ba nằm trong `.menu` cuộn ngang, và `#courseLink`/`#fbLink`
+  nằm trong `#side` cuộn dọc (`#musicBtn` thì `display:none` ở mobile, cố ý). Nên câu
+  trung thực không phải "mất nút" mà là: **dấu hiệu duy nhất là 28px mờ ở mép phải một
+  dải cao 48px**, và `will` là người THỨ HAI trong repo này đọc một đường đi phải-đoán
+  thành "không có" — lần đầu là nút "Quay lại", năm người cùng báo.
+  **CÁCH SỬA LÀ CÁCH CHÍNH NGƯỜI THỬ ĐỀ XUẤT, và nó đã là nếp của chính khối CSS đó:**
+  `.dots` ngay dưới trong cùng `@media` đã chọn `flex-wrap:wrap` cho chấm bài với lý do
+  ghi sẵn ("xuống hàng ở cỡ thật thay vì co lại"). Đo lại sau khi sửa: **5/5 trong mép ở
+  MỌI khổ**, tràn ngang **0**, chip vẫn **48px**, chữ không bị cắt. 3 hàng ở 360–390,
+  **2 từ 480 lên**.
+  **"2 HÀNG" ĐÚNG NHƯ `will` XIN THÌ KHÔNG ĐẠT ĐƯỢC MÀ KHÔNG TRẢ GIÁ — đã đo cả ba cách:**
+  · bỏ icon → 2 hàng, menu 159 → **81px**, nhưng chip tụt **48 → 37px** (dưới cỡ ngón tay,
+    và repo vừa phải sửa một đích bấm 13×6px) và mất luôn màu phân biệt năm mục;
+  · siết `gap`/`padding` → hàng đầu ra **361px** trên **358px** khả dụng, tức THIẾU **3px**.
+    Hạ `gap` của `.menu` xuống 6px thì ép được, nhưng bố cục khi đó đứng cách mép đúng
+    **1px** — một lần đổi nhãn là vỡ về 3 hàng;
+  · `flex:1 1 auto` → hai ô lọt ra ngoài **1px** vì làm tròn sub-pixel.
+  Ba hàng chip 48px là cái giá rẻ nhất trong bốn. Giá phải trả: `#side` cuộn thêm **111px**
+  (61 → 172 ở 390×844), và nó đã có thanh cuộn thấy được từ `87a32db`.
+  **CỔNG CỦA VÒNG TRƯỚC TỰ BẮT BẢN SỬA NÀY, và đó là lần đầu nó bắt một thay đổi THẬT.**
+  `.menu` là mục DUY NHẤT trong `CO_CACH_BAO_KHAC` của `goc-hoc-thanh-cuon.test.mjs`; thôi
+  cuộn ngang thì ngoại lệ ấy lỗi thời, và chiều thứ hai của luật đỏ ngay với đúng câu
+  *"NGOẠI LỆ ĐÃ LỖI THỜI, gỡ dòng ấy đi"*. Danh sách nay **RỖNG**, và rỗng là đầu NGHIÊM
+  của thang chứ không phải luật chết — ca kia đọc nó làm miễn trừ, nên rỗng nghĩa là không
+  vùng nào được phép ẩn thanh cuộn.
+  **VÀ CỔNG MỚI CỦA TÔI BÓC NHẦM KHỐI @media — `scene.css` có BA khối `max-width: 820px`**
+  (dòng 83 · 618 · 631) và luật hàng nút nằm ở khối CUỐI; bản đầu `search()` rồi dừng ở
+  khối thứ nhất, bóc được **169 ký tự** không có `.menu` nào. Lần này nó ĐỎ nên tôi thấy —
+  nhưng nếu khối đầu tình cờ có một luật `.menu` thì cổng đã **XANH vì lý do sai**. Đúng
+  bẫy "một regex mơ hồ là một cổng hỏng, và nó hỏng theo CẢ HAI chiều". Nay gộp cả ba khối
+  và đòi **ĐÚNG MỘT** luật `.menu` trong đó.
+  Ablate 6 chiều (`goc-hoc-hang-nut.test.mjs` 4 ca + `goc-hoc-thanh-cuon` 5 ca): trả về bản
+  TRƯỚC khi sửa → **3 đỏ** (hai cổng cùng bắn — gỡ bản sửa mà không trả lại dòng ngoại lệ
+  thì cả hai nói) · chỉ bỏ `flex-wrap` → 1 · giữ wrap nhưng trả lại mặt nạ mờ → 1 · bỏ icon
+  → 1 · đổi ngưỡng 820 → 821px → **4 đỏ** (phép bóc hết khớp, và nó TO TIẾNG chứ không im
+  lặng xanh) · thêm một luật `.menu` thứ hai → 1.
+  **GIỚI HẠN:** cổng đọc CSS TĨNH — nó chứng minh "đã khai xuống hàng và thôi cuộn ngang",
+  KHÔNG chứng minh "năm mục nằm trong mép". Bảng số ở trên là của Chrome trên production.
+  **BA LỖI CÒN LẠI CỦA `will`:** nhãn bài chồng chéo (đã có số: 28 nhãn, 118 cặp, lúc đo cả
+  28 đều `opacity:0` ⇒ ảnh của anh ấy là trạng thái hẹn giờ dồn khi tab ở nền — cần đọc
+  `goc-hoc/engine.js`) · avatar vỡ ở màn to (**chưa tái hiện được**: ở 2560×1440 tỉ lệ đúng
+  1,0 — cần hỏi anh ấy khổ màn/zoom) · sách xám (**KHÔNG tái hiện**, phép đo đầu của tôi
+  tố oan).
 
 - **BỘ e2e CHƯA BAO GIỜ NẰM TRONG BẬC THANG, và HAI ca của nó đã chết từ 4d5f86d — bốn
   ngày, không cổng nào thấy.** Mục này là nửa sau của vụ CI: vòng trước phát hiện

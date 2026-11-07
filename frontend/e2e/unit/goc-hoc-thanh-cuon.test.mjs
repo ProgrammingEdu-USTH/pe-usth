@@ -26,10 +26,18 @@ const GOC = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const CSS = readFileSync(join(GOC, 'src', 'components', 'goc-hoc', 'scene.css'), 'utf8');
 
 // Selector cuộn được mà CỐ Ý không có thanh cuộn, vì nó đã có cách báo khác.
-const CO_CACH_BAO_KHAC = {
-  '.menu': 'đã có mặt nạ mờ mép phải (`mask-image`) kèm chú thích nói rõ lý do; '
-    + 'hai cách báo chồng lên nhau là thừa',
-};
+//
+// HÔM NAY RỖNG, và rỗng là đầu NGHIÊM của thang chứ không phải một luật chết:
+// ca "mọi vùng cuộn được đều có dấu hiệu" đọc danh sách này làm miễn trừ, nên
+// danh sách rỗng nghĩa là KHÔNG vùng nào được phép ẩn thanh cuộn. Ca "ngoại lệ
+// phải còn đúng" thì lặp trên danh sách nên nó tạm không chạy phép so nào —
+// nói ra ở đây để không ai đọc nó thành "ca đã hỏng".
+//
+// `.menu` từng ở đây (mặt nạ mờ mép phải thay cho thanh cuộn) và đã RỜI ĐI
+// 08/11/2026: người thử `will` vẫn đọc mặt nạ đó là "mất nút", nên `.menu` nay
+// XUỐNG HÀNG và thôi cuộn ngang. Chính ca dưới bắt được chuyện ấy — nó đỏ với
+// "NGOẠI LỆ ĐÃ LỖI THỜI" ngay lần chạy đầu sau khi sửa CSS, không cần ai nhớ.
+const CO_CACH_BAO_KHAC = {};
 
 /** Các khối `selector{...}` của một tệp CSS, bỏ chú thích. */
 function khoi(css) {

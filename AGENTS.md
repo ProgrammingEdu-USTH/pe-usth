@@ -33,6 +33,7 @@ node scripts/check-figures.mjs         # kiểm việc XUẤT HÌNH của studio
 node scripts/check-duong-toi.mjs       # BẢN ĐỒ TÍNH NĂNG: tính năng nào có người đi qua
 node scripts/check-duong-toi.mjs --json  # bản máy đọc
 node scripts/check-tai-nguyen-chet.mjs  # TỆP/COMPONENT nào KHÔNG ai tới được
+node scripts/check-export-chet.mjs      # KÝ HIỆU nào được export ra mà không ai gọi
 node scripts/check-da-nap.mjs           # BÀI nào đã dựng mà CHƯA nạp vào DB
 node scripts/check-moc-nen.mjs          # BẢNG MỐC NỀN dưới đây có nói đúng không
 node scripts/check-moc-chay.mjs         # MỐC phải CHẠY mới biết: frontend | backend | tracer | e2e
@@ -90,6 +91,7 @@ học nó.
 | Xuất hình cho người học | `node scripts/check-figures.mjs` → 16 ca, **0 hỏng** |
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **17 mục, 14 có đường tới, 3 còn tối (đã khai lý do)**, 0 lỗi |
 | Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **1 mục chết, 1 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **14 CSS module trong `src/`** |
+| Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
 | Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **XANH: 179/179 khớp, 0 bài chờ** — chủ dự án nạp lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **33 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
@@ -3695,6 +3697,50 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** panel bên phải và 5 kệ sách nay có thanh cuộn mảnh.
   **KHÔNG bump `ASSET_VERSION`:** `scene.css` nằm trong `frontend/src/`, đi qua bundler nên
   URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
+
+- **EXPORT CHẾT: điểm mù tôi tự ghi hai vòng trước nay có cổng — và phép đo của tôi tố
+  oan BỐN LẦN trước khi đứng, mỗi lần một lý do khác.** Mục 417 KB ở trên tự dặn: mỗi
+  lần thêm một LOẠI tệp vào `src/` thì phải hỏi *"mục nào của cổng này quét nó?"*. Với
+  ký hiệu được `export` ra mà không ai gọi, câu trả lời là **không mục nào** —
+  `check-tai-nguyen-chet` quét `public/static` · `.tsx` · `.module.css`, không quét ký
+  hiệu. `catalog.TOOLS` chết **bốn ngày** trong chỗ trống đó, và thứ tìm ra nó là một
+  bộ test e2e, tình cờ.
+  **BỐN LẦN TỐ OAN, và số đo đi 75 → 4:**
+
+  | lần | sai ở đâu | "chết" |
+  |---|---|---|
+  | 0 | đếm cả `type`/`interface` | **116** (gần hết là `*Props`, quy ước hợp lệ) |
+  | 1 | chỉ quét `frontend/src` + `e2e` tìm người dùng | **75** |
+  | 2 | + `scripts/`, backend `src/`, `prisma/` | **22** (`ASSET_VERSION` lọt vào vì `check-da-deploy.mjs` đọc nó) |
+  | 3 | + `.js`/`.mjs` **nằm trong** `frontend/src` | **21** (`engine.js` dùng `lessonHref`) |
+  | 4 | tách "chết thật" khỏi "export thừa" | **4** |
+
+  **Lần 4 là lần đổi hình dạng cả việc.** Trong 21, có **17 ký hiệu được dùng trong
+  CHÍNH tệp khai nó** — chúng chỉ thừa từ khoá `export`, tức chuyện bề mặt module, chứ
+  không phải mã không ai tới được. Chỉ **4** ký hiệu xuất hiện **đúng một lần trong cả
+  repo**, tức chính dòng khai. Đó mới là hình dạng của `catalog.TOOLS`. Gộp 21 vào một
+  cổng là một cổng **kêu oan 17 lần**, và một cổng kêu oan sẽ bị tắt.
+  **LỖI CỦA CHÍNH CỔNG, và nó TỰ MÂU THUẪN nên không giấu được:** lần chạy đầu in ra
+  vừa *"khai là chết nhưng giữ"* vừa *"nay KHÔNG còn chết"* cho cùng hai ký hiệu.
+  Nguyên nhân: `scripts/` nằm trong phạm vi tìm người dùng, mà danh sách ngoại lệ
+  `GIU_DU_CHET` **nằm trong chính file cổng** và chứa TÊN của chúng. **Khai một ký hiệu
+  vào sổ làm nó thôi chết, rồi chiều thứ hai của luật bắn vào chính cái khai ấy.** Một
+  cổng đọc sổ của mình rồi tính đó là người dùng thì nó sai theo CẢ HAI chiều. Nay nó
+  loại chính nó khỏi phạm vi quét.
+  **GIỚI HẠN PHẢI NÓI RA:** phép so là `\bTÊN\b` trên văn bản đã bỏ chú thích, nên một
+  tên NGẮN hoặc trùng từ thường (`num`, `el`) trông như còn sống dù không ai gọi. Đó là
+  chiều AN TOÀN — cổng kêu ÍT đi — nhưng đừng đọc "0 lỗi" thành "không còn export chết".
+  **VÀ MỘT KÝ HIỆU ĐÃ ĐI:** `initialOf` trong `lib/goc-hoc.ts`. Không ai gọi, trong khi
+  `engine.js` viết thẳng CÙNG MỘT luật — `(x.trim()[0] || '?').toUpperCase()` — ở **bốn
+  chỗ**. Tức luật ấy có **năm bản**: bốn bản đang chạy và một bản không ai tới được.
+  Ba ký hiệu còn lại được KHAI GIỮ kèm lý do: `daDongYGhiNhatKy` (một thành viên của mặt
+  tiền `BO_GHI`), `presentSteps` và `assembleScaffold` (màn `brief`/`explain`/`scaffold`
+  — 0/179 bài hiện có, nhưng pe-v4 có; cùng lý do AGENTS.md giữ `scripts/pe-v4/**`).
+  Ablate 6 chiều: gieo một export chết mới → **1 đỏ** · khai ngoại lệ cho một ký hiệu
+  ĐANG SỐNG → 1 ("NGOẠI LỆ ĐÃ LỖI THỜI") · bỏ `scripts/` khỏi phạm vi quét (tái lập tố
+  oan lần 2) → 1 · bỏ `.js`/`.mjs` trong `frontend/src` (tái lập lần 3) → 1 · thôi loại
+  chính file cổng → **2 đỏ** · làm hỏng phép duyệt thư mục → **4 đỏ** (phép tự kiểm bắn,
+  không im lặng xanh).
 
 - **CÁCH THỨ TƯ PHÉP ĐO HIỆU NĂNG NÓI DỐI: chính CÔNG CỤ ĐO thổi LCP lên GẤP BA, và
   gần hết phần thổi rơi đúng vào ô mà một vòng trước đã ghi làm VIỆC PHẢI LÀM.**

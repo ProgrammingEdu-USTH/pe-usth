@@ -207,8 +207,9 @@ export function num(value: number | null | undefined): string {
   return typeof value === 'number' && Number.isFinite(value) ? value.toLocaleString('vi-VN') : '—';
 }
 
-/** Chữ cái trên ảnh đại diện. Không có tên thì để dấu hỏi, không bịa chữ. */
-export function initialOf(name: string | null): string {
-  const t = (name ?? '').trim();
-  return t ? t[0].toUpperCase() : '?';
-}
+/* ĐÃ XOÁ 08/11/2026: hàm lấy chữ cái cho ảnh đại diện. Không ai gọi nó, trong
+   khi `engine.js` viết thẳng CÙNG MỘT luật — `(x.trim()[0] || '?').toUpperCase()`
+   — ở BỐN chỗ (hồ sơ, hai chỗ bảng xếp hạng, và `T('uInitial', …)`). Tức luật ấy
+   có năm bản: bốn bản đang chạy và một bản không ai tới được. Bản TS là bản
+   chết, nên nó đi. Ngày nào `engine.js` cần một chỗ duy nhất cho luật này thì
+   dựng lại ở ĐÂY và cho cả bốn chỗ kia gọi sang — đừng để sáu bản. */

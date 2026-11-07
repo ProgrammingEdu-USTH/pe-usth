@@ -104,6 +104,12 @@ jobs:
       # nó bắt số TỆP rồi bỏ qua số CA.
       - run: node ../scripts/check-moc-chay.mjs frontend
 
+      # EXPORT CHẾT — điểm mù của `check-tai-nguyen-chet.mjs`, thứ quét
+      # public/static, component .tsx va .module.css nhưng KHÔNG quét ký hiệu
+      # được export ra mà không ai gọi. `catalog.TOOLS` đã chết bốn ngày từ
+      # 4d5f86d vì chỗ trống đó, và thứ tìm ra nó là một bộ test e2e, tình cờ.
+      - run: node ../scripts/check-export-chet.mjs
+
       - run: npm run build
 
       # `npm run test:e2e` (Playwright) đã chuyển sang job `e2e` riêng bên dưới.

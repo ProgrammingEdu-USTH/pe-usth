@@ -77,7 +77,7 @@ học nó.
 | Backend lint | 104 lỗi, 2 cảnh báo — **mốc trần trong CI là 115, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d) |
-| Frontend unit test | `cd frontend && npm run test:unit` → **574 ca** / 48 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **579 ca** / 49 tệp, tất cả đạt |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
 | Giáo trình pe-da (đang chạy) | **179 bài, 11 module**, 565 màn đọc, **537 câu trắc nghiệm**, 669 câu luyện tập, **143 bài tập được chấm / 480 ca**, 2 440 phút; 139 bài chạy trong trình duyệt / 15 hỗn hợp / 25 trên máy |
@@ -94,7 +94,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **32 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **3 mục** (frontend 574 · backend 35 bộ/501 · tracer 65), 0 trượt, 0 lỗi; nó CHẠY chính ba lệnh đó nên THAY cả ba bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở ba job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **3 mục** (frontend 579 · backend 35 bộ/501 · tracer 65), 0 trượt, 0 lỗi; nó CHẠY chính ba lệnh đó nên THAY cả ba bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở ba job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -3641,6 +3641,48 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **CÒN LẠI, và nó là quyết định của chủ dự án chứ không của vòng lặp:** sửa trigger thành
   `[main, master]` thì CI mới thật sự canh mỗi lần push. Trước khi lật, phải xử lý `e2e`
   (đang đỏ, nguyên nhân chưa rõ) — nếu không thì `main` đỏ ngay từ commit đầu tiên.
+
+- **BỐN VÙNG CUỘN ĐƯỢC MÀ KHÔNG CÓ DẤU HIỆU NÀO — người thử báo, và số đo nói nó không
+  hiếm.** Phản hồi 07/11/2026: *"scroll mà ko thấy scroll bar đâu"*. Đo trên PRODUCTION
+  bằng Chrome ở **1366×768** (độ phân giải laptop phổ biến nhất):
+  · `#side` tràn **28px dọc**;
+  · `.shelfrow` có **11 hàng, 5 hàng TRÀN NGANG: 101 · 350 · 809 · 709 · 603 px**. Tới
+    **809px** của một kệ — gần gấp đôi bề rộng thấy được — mà không gì báo là cuộn được.
+  `scene.css` ẩn thanh cuộn ở BỐN chỗ bằng `scrollbar-width:none`, và `#side` ẩn THÊM một
+  lần nữa bằng `::-webkit-scrollbar{display:none}` — hai phép ẩn khác nhau, gỡ một cái mà
+  để cái kia là bản sửa trông như xong.
+  **`.menu` KHÔNG nằm trong đợt sửa, và đó là cố ý.** Nó đã có mặt nạ mờ mép phải kèm chú
+  thích nói rõ lý do (*"để nó đọc ra là còn nữa, vuốt sang"*). Một quyết định đã ghi lại thì
+  đừng đè lên; hai cách báo chồng nhau là thừa. Nó thành mục khai trong `CO_CACH_BAO_KHAC`.
+  **MÀU CHỌN BẰNG PHÉP ĐO, và phép đo LOẠI phương án hiển nhiên.** Thanh cuộn là THÀNH PHẦN
+  GIAO DIỆN nên WCAG 1.4.11 đòi 3:1, và nó nằm trên HAI nền: panel tối `#0d0b13` và ván gỗ
+  `#5a3a26` của kệ. Tương phản của kem `#ffecdc` theo alpha:
+
+  | alpha | trên panel | trên gỗ |
+  |---|---|---|
+  | 0,26 — `--line-hi` có sẵn | **2,09** | **1,99** |
+  | 0,38 | 3,24 | **2,68** |
+  | **0,44** | **3,93** | **3,07** |
+
+  Nên **dùng lại `--line-hi` là TRƯỢT cả hai nền** — token đó là đường kẻ chia, vai khác.
+  0,44 là giá trị THẤP NHẤT vượt 3:1 trên cả hai.
+  **ĐÃ XEM THẬT TRONG CHROME, trên production:** tiêm đúng bộ luật mới thì số phần tử CÓ
+  thanh cuộn đi **1 → 7**; gỡ ra về **1**; tiêm lại **7**.
+  Cổng: `frontend/e2e/unit/goc-hoc-thanh-cuon.test.mjs` (5 ca), luật HAI CHIỀU — vùng cuộn
+  được mà ẩn thanh cuộn phải có tên trong `CO_CACH_BAO_KHAC`, và mục khai mà THÔI ẩn cũng là
+  lỗi thời. Ablate 5 chiều: trả `none` về `#side` → **1 đỏ** · gỡ `none` khỏi `.menu` → 1 ·
+  trả lại `::-webkit-scrollbar{display:none}` → 1 · hạ alpha về .26 → 1 · **làm hỏng phép
+  bóc CSS → 3 đỏ** (ca canh chính phép bóc bắn đúng, nên "regex trượt thì mọi ca rỗng"
+  không xảy ra được).
+  **MỘT PHÉP ĐO CỦA TÔI SAI, và nó sai theo chiều TỐ OAN.** Lần đo đầu tôi báo *"29/59 phần
+  tử giá sách có opacity < 1, thấp nhất 0,279"* — khớp ảnh người thử gửi. Đo lại bằng
+  selector đúng trên tab giá sách: **179 cuốn, opacity min 1 / max 1, 0 cuốn dưới 1**.
+  Selector `[class*=book]` của tôi bắt nhầm `k-notebook` của CẢNH. Ảnh của người thử bắt
+  trạng thái sách đang hiện dần. **Lỗi "sách xám" KHÔNG tái hiện** — và tôi đã tự ghi chú
+  "phép đo này over-broad" ngay lúc báo cáo, nên nó không kịp thành một vòng sửa nhầm.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** panel bên phải và 5 kệ sách nay có thanh cuộn mảnh.
+  **KHÔNG bump `ASSET_VERSION`:** `scene.css` nằm trong `frontend/src/`, đi qua bundler nên
+  URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

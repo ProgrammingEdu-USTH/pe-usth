@@ -305,8 +305,34 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .xpbar{width:150px;height:6px;border-radius:6px;background:rgba(255,255,255,.12);overflow:hidden}
 .xpbar i{display:block;height:100%;width:78%;border-radius:6px;background:linear-gradient(90deg,var(--sky),var(--lilac))}
 
-#side{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:var(--side);display:flex;flex-direction:column;gap:12px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
-#side::-webkit-scrollbar{display:none}
+#side{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:var(--side);display:flex;flex-direction:column;gap:12px;overflow-y:auto;overflow-x:hidden}
+/* ── THANH CUỘN: mỏng và chìm, nhưng PHẢI THẤY ĐƯỢC ─────────────────────
+   Ba vùng này cuộn được mà KHÔNG có dấu hiệu nào: `scrollbar-width:none`
+   cộng `#side::-webkit-scrollbar{display:none}`. Người thử báo đúng chuyện
+   đó ("scroll mà ko thấy scroll bar đâu"), và số đo trên production ở
+   1366×768 — độ phân giải laptop phổ biến nhất — cho thấy nó không phải
+   chuyện hiếm:
+     · `#side` tràn 28px dọc;
+     · `.shelfrow` có 11 hàng, 5 hàng TRÀN NGANG: 101 · 350 · 809 · 709 ·
+       603 px. Tới 809px của một kệ không có gì báo là cuộn được.
+   `.menu` KHÔNG nằm trong đây và đó là cố ý: nó đã có mặt nạ mờ mép phải
+   kèm chú thích nói rõ lý do. Hai cách báo chồng lên nhau là thừa.
+
+   MÀU CHỌN BẰNG PHÉP ĐO, không bằng mắt. Thanh cuộn là THÀNH PHẦN GIAO
+   DIỆN nên WCAG 1.4.11 đòi 3:1, và nó nằm trên HAI nền khác nhau: panel
+   tối #0d0b13 và ván gỗ #5a3a26 của kệ. Đo tương phản của kem #ffecdc
+   theo alpha, hợp thành trên từng nền:
+       alpha  trên panel  trên gỗ
+       0,26        2,09      1,99   ← `--line-hi` hiện có: TRƯỢT cả hai
+       0,38        3,24      2,68   ← trượt trên gỗ
+       0,44        3,93      3,07   ← thấp nhất vượt 3:1 trên CẢ HAI
+   Nên dùng .44, không dùng lại `--line-hi`: token đó là đường kẻ chia,
+   vai khác, và ở vai này nó mờ hơn ngưỡng. */
+#side,.tabs,.shelfrow{scrollbar-width:thin;scrollbar-color:rgba(255,236,220,.44) transparent}
+#side::-webkit-scrollbar,.tabs::-webkit-scrollbar,.shelfrow::-webkit-scrollbar{width:8px;height:8px}
+#side::-webkit-scrollbar-track,.tabs::-webkit-scrollbar-track,.shelfrow::-webkit-scrollbar-track{background:transparent}
+#side::-webkit-scrollbar-thumb,.tabs::-webkit-scrollbar-thumb,.shelfrow::-webkit-scrollbar-thumb{background:rgba(255,236,220,.44);border-radius:999px;border:2px solid transparent;background-clip:padding-box}
+#side::-webkit-scrollbar-thumb:hover,.tabs::-webkit-scrollbar-thumb:hover,.shelfrow::-webkit-scrollbar-thumb:hover{background:rgba(255,236,220,.62);background-clip:padding-box}
 .pills{display:flex;gap:6px;align-items:center}
 .pill{display:flex;align-items:center;gap:7px;height:38px;padding:0 13px;border-radius:999px;font-weight:600;font-size:13.5px;font-variant-numeric:tabular-nums;flex:none}
 .pill svg{width:16px;height:16px}
@@ -399,7 +425,7 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 #page.live{pointer-events:auto}
 .top{display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));opacity:0}
 .back{display:flex;align-items:center;gap:8px;height:40px;padding:0 16px 0 12px;border-radius:999px;font-weight:600;font-size:13.5px}
-.tabs{display:flex;gap:4px;padding:4px;border-radius:999px;margin:0 auto;overflow-x:auto;scrollbar-width:none;max-width:100%}
+.tabs{display:flex;gap:4px;padding:4px;border-radius:999px;margin:0 auto;overflow-x:auto;max-width:100%}
 .tab{height:32px;padding:0 13px;border-radius:999px;font-size:13px;color:var(--faint);white-space:nowrap}
 .tab[aria-current="page"]{background:var(--ink);color:#2a1a26;font-weight:600}
 .tab:not([aria-current="page"]):hover{color:var(--ink);background:rgba(255,255,255,.08)}
@@ -416,7 +442,7 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .course .meta p{margin:4px 0 0;color:var(--faint);font-size:12.5px;line-height:1.45}
 .course .meta .bar{height:5px;border-radius:5px;background:rgba(255,255,255,.12);margin-top:8px;overflow:hidden}
 .course .meta .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--amber),var(--sakura))}
-.shelfrow{position:relative;display:flex;align-items:flex-end;gap:5px;padding:0 14px 16px;min-height:196px;overflow-x:auto;scrollbar-width:none}
+.shelfrow{position:relative;display:flex;align-items:flex-end;gap:5px;padding:0 14px 16px;min-height:196px;overflow-x:auto}
 .shelfrow::after{content:"";position:absolute;left:0;right:0;bottom:0;height:14px;border-radius:4px;background:linear-gradient(180deg,var(--wood-hi),var(--wood));box-shadow:0 12px 20px rgba(0,0,0,.45)}
 .bk{position:relative;flex:none;width:var(--w,40px);height:var(--h,150px);border-radius:4px 4px 2px 2px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:10px 0 8px;color:#fff8f0;transform-origin:0 0;
   box-shadow:inset 3px 0 0 rgba(255,255,255,.14),inset -4px 0 0 rgba(0,0,0,.22),0 6px 10px rgba(0,0,0,.3)}

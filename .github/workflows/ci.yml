@@ -354,6 +354,12 @@ jobs:
       # phong xấu ĐI; siết thì nó in GHI SỔ và vẫn xanh.
       - run: python scripts/pe-da/check_vanphong.py --doi-chieu
 
+      # ĐỘ PHỦ của chính bộ văn phong: chữ nào người học đọc mà bộ kiểm KHÔNG
+      # thấy. Bộ kiểm đọc `source/course.json` (cố ý), nhưng một phần văn xuôi
+      # do `build.py` SINH RA nên không nằm trong tệp ấy — 108 chuỗi, gồm 80
+      # alt text. Cổng này không bịt khe, nó làm khe THẤY ĐƯỢC và có trần.
+      - run: node scripts/pe-da/check-phu-van-phong.mjs
+
       # Trang khoá học đọc file tĩnh curricula.json, nội dung bài đọc từ DB —
       # quên bước chép là hai con số trên cùng một màn hình nói khác nhau.
       - name: curricula.json phải khớp bản dựng

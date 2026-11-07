@@ -273,6 +273,14 @@
       "chieu": "nang",
       "moc": 1.4,
       "vi": "Sàn tương phản của NỀN chip `code nội tuyến` so với nền thẻ, chế độ ĐÊM. Lần thứ TƯ của họ lỗi \"trắng trên trắng\": `.inlineCode` từng dùng `--edu-card-bg` (nền THẺ, nửa trong suốt) nên đo được 1,003:1 — chip không có nền gì, và viền chỉ 1,252:1, thấp hơn cả mức 1,42 mà hai thanh sticky đã phải nâng lên. Số đo thật là 1,436; sàn đặt thấp hơn một nhịp để đổi một màu không làm đỏ oan."
+    },
+    {
+      "ten": "tran-chuoi-ngoai-tam-van-phong",
+      "tep": "scripts/pe-da/check-phu-van-phong.mjs",
+      "re": "const TRAN_NGOAI_TAM = (\\d+);",
+      "chieu": "ha",
+      "moc": 108,
+      "vi": "So chuoi van xuoi nguoi hoc doc ma bo kiem van phong KHONG thay (chu sinh ra o `build.py`, khong co trong `source/course.json`). Moi chuoi them vao day la mot cau khong luat nao do. Do nguoc: nhet 183 chuoi ngoai tam vao mot ban SAO roi chay bo kiem -> L3 32->41, L13 cb 217->229, §4-A cb 23->30, L14 0->3 loi; tuc tin hieu dung dang bao THIEU ~20%. Cong `check-phu-van-phong.mjs` tu no da do lech chieu, nhung con so TRAN thi no doc tu chinh minh — muc so nay la thu canh chieu cua con so ay."
     }
   ]
 }

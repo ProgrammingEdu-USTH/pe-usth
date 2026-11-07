@@ -27,6 +27,7 @@ py scripts/pe-da/gen_traces.py         # SINH LẠI traces.json (bảng từng b
 npm i --no-save pyodide@314.0.7
 node scripts/pe-da/check-pyodide.mjs   # chạy code từng bài trong Pyodide, so với `expected`
 node scripts/pe-da/check-practice.mjs  # chấm 415 ca BÀI TẬP + đòi 556 biến thể sai trượt
+node scripts/pe-da/check-phu-van-phong.mjs  # chữ màn đọc nào bộ VĂN PHONG không thấy
 # 516 câu trắc nghiệm: check.py đối chiếu với nguồn (kiem_trac_nghiem), không có bộ riêng
 node scripts/check-perf.mjs            # kiểm BỘ ĐO ĐỘ HIỆU QUẢ trong studio-harness.py
 node scripts/check-figures.mjs         # kiểm việc XUẤT HÌNH của studio-harness.py
@@ -86,6 +87,7 @@ học nó.
 | pe-da chấm nội dung | `node scripts/pe-da/check-pyodide.mjs` → 154 bài, 420 đoạn code, **0 hỏng**, **0 cảnh báo**, ~32 s; **pha 2: 52/53 đáp án mẫu màn luyện tập chạy đúng, 1 ngoại lệ đã khai, 10 câu bỏ qua (bài chạy trên máy)** |
 | pe-da chấm BÀI TẬP | `node scripts/pe-da/check-practice.mjs` → 143 bài, **480 ca đạt**, 773 biến thể sai đều trượt, **pha 3 cổng file dữ liệu 7 bài / 0 lỗi**, **pha 4: 2 372 ca trượt / 0 ca im lặng / 7 nhánh phản hồi**, ~12 s |
 | pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **82 lỗi · 432 cảnh báo**, dồn ở L3 32 (câu ≥ 3 dấu phẩy) · L8 22 (mật độ thuật ngữ) · L1 21 (câu > 30 tiếng) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì 82 lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
+| pe-da ĐỘ PHỦ văn phong | `node scripts/pe-da/check-phu-van-phong.mjs` → **108 chuỗi NGOÀI TẦM / 5 mục đã khai**, 0 lỗi. Bộ văn phong đọc `source/course.json` (cố ý), nên chữ do `build.py` SINH RA thì không luật nào thấy: **80 `figure.alt`** · 9 `paragraph.text` · 19 chuỗi của `diagram`. NỢ ẨN đã đo: L3 32 → 41 · L13 cb 217 → 229 · §4-A cb 23 → 30 · L14 0 → 3 lỗi — tức tín hiệu dừng báo THIẾU ~20%. Trần 108 CHỈ ĐƯỢC HẠ |
 | pe-da bảng từng bước | `py scripts/pe-da/gen_traces.py` → **56 vết / 359 khối đủ điều kiện** (303 bỏ qua — bảng từng ghi 356/300, đã CŨ từ trước 04/11: dựng lại từ HEAD cũng ra 359/303, và `check-moc-nen` không đối chiếu hàng này; phần lớn vì không ra được câu dự đoán nào ĐÁNG hỏi); build.py `return 1` nếu lệch |
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
 | Xuất hình cho người học | `node scripts/check-figures.mjs` → 16 ca, **0 hỏng** |
@@ -94,7 +96,7 @@ học nó.
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
 | Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **173/179 khớp, 6 bài CHỜ NẠP** (PD32 · SY12 · SY23 · SY25 · CT03 · CT15 — hai lát văn phong 08/11). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
-| Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **33 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
+| Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **34 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
 | Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **4 mục** (frontend 592 · backend 35 bộ/501 · tracer 65 · e2e 11), 0 trượt, 0 lỗi; nó CHẠY chính bốn lệnh đó nên THAY cả bốn bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
@@ -3697,6 +3699,41 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** panel bên phải và 5 kệ sách nay có thanh cuộn mảnh.
   **KHÔNG bump `ASSET_VERSION`:** `scene.css` nằm trong `frontend/src/`, đi qua bundler nên
   URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
+
+- **108 CHUỖI VĂN XUÔI NGƯỜI HỌC ĐỌC NẰM NGOÀI TẦM BỘ VĂN PHONG — gồm CẢ 80 ALT TEXT, và
+  lần này nới hàm thu chữ KHÔNG cứu được.** Lần thứ BA của cùng lớp lỗi trong ba vòng:
+  `raw_doan` đọc bản TRẦN thay vì RAW · `doan_cua` + vòng duyệt màn bỏ khối `table` · và
+  nay là chữ **không nằm trong tệp mà bộ kiểm đọc**. Hai lần trước sửa được bằng cách nới
+  hàm thu chữ; lần này không, vì chữ ở một tệp khác.
+  **ĐO — so TỪNG CHUỖI của `out/lessons.json` với `source/course.json`:**
+
+  | chuỗi | đường dẫn trường | nguồn |
+  |---|---|---|
+  | 811 | `paragraph.text` | ✓ có trong source |
+  | 76 | `table.rows[][]` | ✓ |
+  | 20 | `table.headers[]` | ✓ |
+  | **80** | `figure.alt` | ✗ `build.py` sinh |
+  | **9** | `paragraph.text` | ✗ `build.py` chèn |
+  | **19** | `diagram.title` + `lanes[].label` + `lanes[].note` | ✗ `SO_DO_DOC` |
+
+  **NỢ ẨN, đo bằng cách nhét 183 chuỗi ngoài tầm vào một bản SAO rồi chạy bộ kiểm:**
+  L3 **32 → 41** · L13 cb **217 → 229** · §4-A cb **23 → 30** · L1 21·86 → 24·94 ·
+  L14 **0 → 3 lỗi**. Tức **tín hiệu dừng của vòng lặp đang báo thiếu ~20%**.
+  **KHÔNG đổi bộ kiểm sang đọc `out/`:** chính nó đã ghi lý do — *"bắt lỗi ở `out/` là bắt
+  lỗi ở một bản chép; người sửa phải sửa ở source"*. Nên `check-phu-van-phong.mjs` **không
+  bịt khe, nó làm khe THẤY ĐƯỢC và có trần**: mỗi đường dẫn trường mang văn xuôi phải được
+  khai `NGOAI_TAM` kèm LÝ DO, luật hai chiều, cộng một trần 108 CHỈ ĐƯỢC HẠ (vào sổ ngưỡng,
+  33 → 34 mục).
+  **MỤC ĐÁNG GỠ SỚM NHẤT trong năm mục là `paragraph.text` (9 chuỗi)** — đó là văn GIẢNG
+  thật, cùng loại với 811 đoạn đang được kiểm, chỉ khác là `build.py` chèn nó. `figure.alt`
+  thì khác genre (mô tả ảnh), và `SO_DO_DOC` có một quyết định đã ghi là giữ ở build cho
+  tới khi quá chục bài.
+  Ablate 5 chiều: đổi tên một dòng khai → **2 đỏ** (chưa khai + ngoại lệ lỗi thời) · khai
+  NGOÀI TẦM cho một đường ĐÃ được kiểm → 1 · hạ trần 108 → 100 → 1 · làm hỏng phép duyệt →
+  **6 đỏ** (tự kiểm bắn, không im lặng xanh) · gieo một TRƯỜNG văn xuôi MỚI vào bản dựng →
+  **2 đỏ** (chưa khai + vượt trần).
+  **GIỚI HẠN:** cổng đếm chuỗi và canh khai báo; nó KHÔNG làm cho một luật văn phong nào
+  chạy trên 108 chuỗi ấy. Đừng đọc "0 lỗi" thành "chữ ấy đã được kiểm".
 
 - **Ô BẢNG LÀ ĐIỂM MÙ CỦA BỘ VĂN PHONG, và §2 kê "phải thành bảng" làm CÁCH SỬA — tức
   ratchet TỰ GAME ĐƯỢC, và tôi vừa game nó một cách vô tình.** Đây là lỗ thủng trong chính

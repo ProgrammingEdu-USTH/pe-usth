@@ -2661,8 +2661,10 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **Kết luận trung thực: số trong trình duyệt KHÔNG cho thấy cái giật mà người dùng cảm
   nhận**, nên nguyên nhân còn lại nằm NGOÀI trang — máy này chạy song song nhiều dự án
   (ghi chú `tai-nguyen-may`), 16 GB, và một dev server cộng vài agent là đủ.
-  **Lead DUY NHẤT còn sống cho nhánh #96:** trang khoá học ở 390×844 + CPU 4× có LCP
-  **1 626 ms** mà **render delay 1 098 ms = 67%** — chưa ai sửa, và nó là việc của vòng sau.
+  **~~Lead DUY NHẤT còn sống cho nhánh #96: trang khoá học ở 390×844 + CPU 4× có LCP
+  1 626 ms mà render delay 1 098 ms = 67%.~~ ĐO LẠI 08/11 VÀ BÁC — xem mục bẫy "CÁCH
+  THỨ TƯ phép đo hiệu năng nói dối" ở cuối file.** LCP thật là **324–652 ms**; con số
+  1 626 là của chính CÔNG CỤ ĐO.
 
 - **THANG CHỮ BAN NGÀY BỊ CHIA ĐÔI: t1/t2 đã nâu, t3–t6 còn xanh lạnh — và t5 trượt AA
   trên giấy.** Đợt warm lofi trước đổi `--edu-t1` (#2A2018) và `--edu-t2` (#4A3B2E) rồi
@@ -3693,6 +3695,45 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** panel bên phải và 5 kệ sách nay có thanh cuộn mảnh.
   **KHÔNG bump `ASSET_VERSION`:** `scene.css` nằm trong `frontend/src/`, đi qua bundler nên
   URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
+
+- **CÁCH THỨ TƯ PHÉP ĐO HIỆU NĂNG NÓI DỐI: chính CÔNG CỤ ĐO thổi LCP lên GẤP BA, và
+  gần hết phần thổi rơi đúng vào ô mà một vòng trước đã ghi làm VIỆC PHẢI LÀM.**
+  Mục #96 ở trên liệt kê ba cách đo đã nói dối, rồi kết lại bằng một lead: *"trang khoá
+  học ở 390×844 + CPU 4× có LCP 1 626 ms mà render delay 1 098 ms = 67% — chưa ai sửa,
+  và nó là việc của vòng sau."* Vòng sau là vòng này, và việc đầu tiên nó làm là ĐO LẠI.
+
+  | cách đo (cùng máy, cùng 390×844 + CPU 4×) | LCP | render delay |
+  |---|---|---|
+  | **CÓ vết DevTools** (3 mẫu, 1 mẫu từ vòng trước) | **1 626 · 1 597 · 1 524** | 1 098 · 1 369 · 1 275 |
+  | **KHÔNG vết**, `PerformanceObserver`, cache SẠCH | **652 · 324** | ~150 |
+  | **KHÔNG vết**, cache ấm | **448 · 524** | — |
+
+  **Chiều của khoảng lệch là thứ loại bỏ mọi giải thích khác.** Lần chạy KHÔNG vết mà
+  *bỏ qua cache hoàn toàn* vẫn **nhanh hơn** lần chạy CÓ vết — nên "lần traced là lần
+  cold" không giải thích được gì; nó đi ngược. Ba mẫu có vết nằm trong 100 ms của nhau,
+  ba mẫu không vết nằm dưới một nửa. Phần chênh dồn gần hết vào **render delay**, tức
+  ĐÚNG ô mà lead được dựng trên.
+  **LCP THẬT của trang khoá học là 324–652 ms** — trong mức "tốt" của Core Web Vitals
+  (≤ 2 500 ms) với biên gần bốn lần. **Không có việc để làm ở đây.**
+  **VÌ SAO CÁCH NÀY NGUY HIỂM HƠN BA CÁCH KIA:** ba cách trước cho một con số sai rồi
+  thôi. Cách này cho một con số sai **đã được ghi vào file như một nhiệm vụ cho vòng
+  sau** — nó không chỉ sai, nó còn ĐIỀU KHIỂN. Đúng điều mục mốc nền đã nói: một con số
+  cũ không phải chú thích lỗi thời vô hại.
+  **LUẬT RÚT RA, dùng cho mọi phép đo hiệu năng sau này:** vết DevTools trả lời câu
+  **"AI"** (hàm nào, layout nào, script nào), KHÔNG trả lời câu **"BAO LÂU"**. Con số
+  thời gian phải đến từ `PerformanceObserver` trong một lần tải KHÔNG có vết. Trộn hai
+  thứ là lấy độ phóng đại của công cụ làm số đo của người dùng.
+  **MỘT THỨ CŨNG LÀ ẢO, cùng lý do:** vết báo *"Layout update: 740 ms · 623 ms · 382 ms"*
+  cho một DOM chỉ **1 127 phần tử**. Đo reflow cưỡng bức trên chính trang đã ổn định,
+  không vết, cùng CPU 4×: **19,8 · 21,6 · 18,2 ms**. Gấp hơn 30 lần.
+  **CÒN LẠI MỘT SỐ ĐO THẬT, và phải nói ra cho đúng tầm:** `domInteractive` cold là
+  **1 700–2 488 ms** với **256–669 ms** long task — đo KHÔNG vết nên nó đứng. Nhưng nó
+  KHÔNG phải thứ lead nói tới, nó xảy ra SAU khi trang đã vẽ xong (LCP 324–652), và nó
+  chưa được chứng minh là có ai gặp. Ghi lại làm lead MỚI, không phải việc đang mở.
+  **MỘT THỨ ĐÃ XEM VÀ BỎ, đừng dựng lại:** `/static/images/python.webp` trả
+  `cache-control: public, max-age=0, must-revalidate`. Trông như một chỗ dễ sửa, nhưng
+  ảnh trong `public/` KHÔNG có `?v=` như các tệp CSS, nên cho nó `immutable` là đổi một
+  lượt revalidate **0,6 ms** lấy nguy cơ ảnh cũ kẹt lại ở máy người học. Giữ nguyên.
 
 - **28 NHÃN BÀI CHỒNG LÊN NHAU, và dòng sửa nó ĐÃ NẰM SẴN trong hàm từ đầu — nó chỉ bị
   dòng ngay trên làm cho vô nghĩa.** Lỗi thứ 1 trong năm lỗi `will` báo 07/11. Đo trên

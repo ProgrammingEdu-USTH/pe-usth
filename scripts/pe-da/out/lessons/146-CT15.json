@@ -33,15 +33,15 @@
       "rows": [
        [
         "`>`",
-        "đưa output vào file"
+        "đưa đầu ra vào file"
        ],
        [
         "`<`",
-        "lấy input từ file"
+        "lấy đầu vào từ file"
        ],
        [
         "`|`",
-        "nối output chương trình này vào input chương trình kia"
+        "nối đầu ra chương trình này vào đầu vào chương trình kia"
        ]
       ]
      },

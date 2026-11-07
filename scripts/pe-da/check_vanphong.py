@@ -394,11 +394,37 @@ def kiem_termbank(bank: list[Muc], bai: list[dict]) -> None:
 def doan_cua(l: dict) -> list[str]:
     """Các đoạn văn của phần giảng, ĐÃ qua hai tiền xử lý.
 
-    Chỉ `paragraph`: khối `code`/`terminal` là mã, `figure`/`table` là nhãn
-    giao diện. Đo văn phong trên mã là đo sai thứ.
+    `code`/`terminal` là mã và `figure` là nhãn ảnh — đo văn phong trên mã là đo
+    sai thứ, nên chúng ở ngoài.
+
+    NHƯNG Ô BẢNG THÌ PHẢI VÀO, và đây là lỗi của bản đầu. Docstring cũ xếp
+    `table` cùng nhóm với `figure` là "nhãn giao diện". Điều đó đúng khi bảng còn
+    hiếm và chỉ chứa nhãn — nhưng **§2 của VAN-PHONG.md kê "phải thành
+    bullet/bảng" làm CÁCH SỬA cho L3**, nên bảng nay là ĐÍCH ĐẾN của văn xuôi bị
+    tách ra. Hai điều đó cộng lại làm ratchet TỰ GAME ĐƯỢC: cách rẻ nhất để hạ
+    bất kỳ luật nào là chuyển chữ vào một ô bảng, không sửa gì cả.
+    Đã gieo để kiểm, trên một bản SAO qua `--nguon`: một câu **5 dấu phẩy, > 20
+    tiếng**, kèm `DataFrame` **đứng trần**, đặt vào một ô bảng — L3 giữ 32, §4-A
+    giữ 23, L13 giữ 217. Mù hoàn toàn.
+    Và nó không phải lo xa: lát L3 ngày 08/11 chuyển bốn câu liệt kê vào bảng,
+    và L13 tụt 220 → 217 — ba lần xuất hiện BIẾN KHỎI TẦM NHÌN chứ không phải
+    ba chỗ được sửa.
+
+    Mỗi Ô là một mục riêng (không nối thành câu): một ô bảng ĐÚNG RA là một mẩu
+    ngắn, nên nối chúng lại sẽ dựng ra những "câu" mà không ai viết và L1/L3 sẽ
+    bắt oan.
     """
-    return [chuan(k['text']) for k in (l.get('reading') or [])
-            if k.get('type') == 'paragraph' and (k.get('text') or '').strip()]
+    ra = []
+    for k in (l.get('reading') or []):
+        loai = k.get('type')
+        if loai == 'paragraph' and (k.get('text') or '').strip():
+            ra.append(chuan(k['text']))
+        elif loai == 'table':
+            for o in list(k.get('headers') or []) + [
+                    x for hang in (k.get('rows') or []) for x in hang]:
+                if str(o).strip():
+                    ra.append(chuan(str(o)))
+    return ra
 
 
 def raw_doan(l: dict) -> list[str]:
@@ -711,10 +737,19 @@ def kiem_thuat_ngu(bai: list[dict], bank: list[Muc]) -> None:
         # L9 + L10 + §4-A — duyệt theo MÀN, đúng thứ tự người học đọc.
         for i, man in enumerate(chia_man(l.get('reading') or [])):
             moi: list[Muc] = []
+            # Ô BẢNG cũng là chữ người học đọc — xem `doan_cua()`. Vòng này là
+            # chỗ THỨ HAI lặp khối trực tiếp thay vì gọi `doan_cua`, nên sửa
+            # một mình `doan_cua` là bịt nửa khe: ablate đo được L3 thấy ô bảng
+            # (32 → 33) trong khi §4-A vẫn giữ 23 với cùng một ô gieo.
             for k in man:
-                if k.get('type') != 'paragraph' or not (k.get('text') or '').strip():
+                if k.get('type') == 'table':
+                    chu = [str(x) for x in (k.get('headers') or [])] + [
+                        str(x) for hang in (k.get('rows') or []) for x in hang]
+                elif k.get('type') == 'paragraph' and (k.get('text') or '').strip():
+                    chu = [k['text']]
+                else:
                     continue
-                d = chuan(k['text'])
+                d = chuan(' '.join(c for c in chu if c.strip()))
                 for m, _ in thuat_ngu_trong(d, bank, ma):
                     if m.nhom == 'A':
                         # §4 hàng A: định danh trong code phải LUÔN trong

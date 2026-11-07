@@ -109,7 +109,7 @@ chính là thứ L3 phải đếm BÊN TRONG một câu.
 
 ## 2. Độ dài câu KHÔNG phải vấn đề của bộ này
 
-Đo thật trên **2 552** câu phần giảng — bằng CHÍNH phép chẻ `.!?…` mà mục trên định
+Đo thật trên **2 651** câu phần giảng — bằng CHÍNH phép chẻ `.!?…` mà mục trên định
 nghĩa, và `tieng()` của bộ kiểm:
 
 | | |
@@ -117,7 +117,7 @@ nghĩa, và `tieng()` của bộ kiểm:
 | Trung vị | **15 tiếng** |
 | p90 | 23 tiếng |
 | Dài nhất cả bộ | 43 tiếng |
-| Câu > 30 tiếng | **30 câu** (1,2%) |
+| Câu > 30 tiếng | **30 câu** (1,1%) |
 | Câu L3 bắt | **32 câu** |
 
 ⚠️ **Bảng này từng mang số của MỘT PHÉP CHẺ KHÁC, và đó là lý do luật TL ra đời.** Bản
@@ -447,7 +447,7 @@ Format phải đồng nhất `N lỗi · N cb` cho MỌI hàng; bản cũ viết
 | L5 | Cấm `được/bị + V + bởi` | LỖI | 0 lỗi · 0 cb |
 | L6 | Từ cấm hành chính (danh sách ĐÓNG 20 tính từ) | LỖI | 0 lỗi · 0 cb |
 | L7 | Chỉ "bạn" | LỖI | 0 lỗi · 17 cb |
-| **L8** | **Mật độ thuật ngữ ≤ 40/1000 tiếng** | CB/LỖI | **23 lỗi · 27 cb** |
+| **L8** | **Mật độ thuật ngữ ≤ 40/1000 tiếng** | CB/LỖI | **22 lỗi · 28 cb** |
 | L9 | ≤ 3 thuật ngữ mới mỗi màn — *hàng rào* | CB/LỖI | 0 lỗi · 0 cb |
 | L10 | Thuật ngữ lần đầu phải có chú giải | LỖI | 0 lỗi · 0 cb |
 | L11 | Một thuật ngữ một cách gọi, khoá (thuật ngữ, ngữ cảnh) | LỖI | 0 lỗi · 0 cb |
@@ -464,7 +464,7 @@ Format phải đồng nhất `N lỗi · N cb` cho MỌI hàng; bản cũ viết
 | M4 | Không bài nào 3 câu cùng một ô Block Model | LỖI | — (do `check.py --strict`) |
 | M5 | Một lần trả lời, rồi đi tiếp | LỖI | — (do `check.py --strict`) |
 
-**Tổng trên corpus thật: 83 lỗi · 431 cảnh báo.**
+**Tổng trên corpus thật: 82 lỗi · 432 cảnh báo.**
 
 **Nếu chỉ làm được một việc:** L10. Cụ thể: `py -I scripts/pe-da/check_vanphong.py
 --luat L10 --chi-tiet 0` in ra đúng danh sách bài + câu phải sửa.
@@ -474,7 +474,7 @@ Format phải đồng nhất `N lỗi · N cb` cho MỌI hàng; bản cũ viết
 
 ## 12. Đừng bật `--strict` trong CI ngày đầu
 
-`check_vanphong.py` hôm nay cho **83 lỗi**. Nối thẳng vào `check.py --strict` là
+`check_vanphong.py` hôm nay cho **82 lỗi**. Nối thẳng vào `check.py --strict` là
 làm CI đỏ ngay, và một CI đỏ thường trực thì không ai đọc nữa.
 
 Dùng đúng khuôn mà repo đã có cho lint backend: **một mốc trần, CHỈ ĐƯỢC HẠ**

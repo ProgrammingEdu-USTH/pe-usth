@@ -85,11 +85,11 @@
        ],
        [
         "ready queue",
-        "process đã ở bộ nhớ và sẵn sàng dùng CPU"
+        "tiến trình đã ở bộ nhớ và sẵn sàng dùng CPU"
        ],
        [
         "device queue",
-        "process chờ một thiết bị I/O"
+        "tiến trình chờ một thiết bị I/O"
        ]
       ]
      },

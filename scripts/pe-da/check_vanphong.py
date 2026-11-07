@@ -409,9 +409,25 @@ def raw_doan(l: dict) -> list[str]:
     đúng cái §4-A cấm, và tín hiệu đó mù dần khi §4-A được thoả. HAI luật cần
     nó — bất biến TB và dấu hiệu B của L15 — nên nó là MỘT hàm; hai bản chép
     sẽ trôi khỏi nhau, và L15 mắc đúng lỗi này vì nó không có bản nào.
+
+    PHẢI GỒM Ô BẢNG, và đây là lỗi của bản đầu. 08/11/2026 một câu liệt kê của
+    SY12 được tách thành bảng, `curses` theo ô bảng mà đi — hàm này chỉ đọc
+    `paragraph` nên nó THÔI THẤY `curses` ở SY12, và TB đỏ với "`baiDauTien`=SY12
+    nhưng corpus dùng lần đầu ở SY14". Cái sai KHÔNG nằm ở termbank: SY12 vẫn
+    nói về `curses`, chỉ là nói trong một ô bảng.
+    Đây là cùng một khe với `doan_cua()`, thứ ĐÃ quét `headers`/`rows` — tức hai
+    phép quét bất đồng về việc chữ nào tồn tại, và luật nào đứng giữa hai phép
+    ấy thì sai theo một chiều không ai đoán trước được.
     """
-    return [k['text'] for k in (l.get('reading') or [])
-            if k.get('type') == 'paragraph' and (k.get('text') or '').strip()]
+    ra = []
+    for k in (l.get('reading') or []):
+        if k.get('type') == 'paragraph' and (k.get('text') or '').strip():
+            ra.append(k['text'])
+        elif k.get('type') == 'table':
+            ra.extend(str(x) for x in (k.get('headers') or []) if str(x).strip())
+            for hang in (k.get('rows') or []):
+                ra.extend(str(x) for x in hang if str(x).strip())
+    return ra
 
 
 def van_ban_hoc_vien(l: dict) -> str:

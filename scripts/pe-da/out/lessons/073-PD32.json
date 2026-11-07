@@ -53,10 +53,45 @@
       "code": "import pandas as pd\ndf = pd.DataFrame({'ngay': pd.to_datetime(['2026-01-01', '2026-01-02', '2026-02-01']), 'khu_vuc': ['Phía Nam', 'Trung tâm', None], 'tong_tien': [10, 20, 30]})\ndf['khu_vuc'] = df['khu_vuc'].fillna('Unknown')\ndf['thang'] = df['ngay'].dt.to_period('M').astype(str)\nreport = df.groupby(['thang', 'khu_vuc'], as_index=False)['tong_tien'].sum().sort_values(['thang', 'khu_vuc'])\nassert report['tong_tien'].sum() == df['tong_tien'].sum()\nprint(report.to_csv(index=False, lineterminator='\\n').strip())",
       "expected": "thang,khu_vuc,tong_tien\n2026-01,Phía Nam,10\n2026-01,Trung tâm,20\n2026-02,Unknown,30",
       "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Báo cáo giữ nhóm Unknown để tổng vẫn đối chiếu được. Cột thang, khu_vuc, tong_tien ở dạng dài sẵn sàng cho biểu đồ cột hoặc đường ở phần visualization. Khi giao báo cáo, ghi kèm năm mục sau:"
+     },
+     {
+      "type": "table",
+      "headers": [
+       "#",
+       "Ghi kèm khi giao báo cáo"
+      ],
+      "rows": [
+       [
+        "1",
+        "đơn vị tiền"
+       ],
+       [
+        "2",
+        "khoảng ngày"
+       ],
+       [
+        "3",
+        "định nghĩa doanh thu"
+       ],
+       [
+        "4",
+        "cách bỏ trùng"
+       ],
+       [
+        "5",
+        "số đơn chưa khớp"
+       ]
+      ]
      },
      {
       "type": "paragraph",
-      "text": "Báo cáo giữ nhóm Unknown để tổng vẫn đối chiếu được. Cột thang, khu_vuc, tong_tien ở dạng dài sẵn sàng cho biểu đồ cột hoặc đường ở phần visualization. Khi giao báo cáo, ghi đơn vị tiền, khoảng ngày, định nghĩa doanh thu, cách bỏ trùng và số đơn chưa khớp; nhận xét nên bám vào dữ liệu, không tự suy ra nguyên nhân. Quán đã có báo cáo bằng số; chặng sau là làm cho người khác đọc được nó."
+      "text": "Nhận xét nên bám vào dữ liệu, không tự suy ra nguyên nhân. Quán đã có báo cáo bằng số; chặng sau là làm cho người khác đọc được nó."
      }
     ]
    ],

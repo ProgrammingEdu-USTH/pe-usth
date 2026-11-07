@@ -336,10 +336,41 @@
         }
        ]
       }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Truyền ask làm ví dụ tự chạy được với dữ liệu cố định; khi mở CLI dùng read_item(input). Bài hoàn chỉnh cần bốn hàm nhập, theo thứ tự này:"
+     },
+     {
+      "type": "table",
+      "headers": [
+       "#",
+       "Hàm cần có"
+      ],
+      "rows": [
+       [
+        "1",
+        "nhập số món, rồi nhập từng món"
+       ],
+       [
+        "2",
+        "nhập số nguyên liệu và id/name từng nguyên liệu"
+       ],
+       [
+        "3",
+        "chọn nguyên liệu rồi nhập lượng cho từng món"
+       ],
+       [
+        "4",
+        "liệt kê món, nguyên liệu và định lượng"
+       ]
+      ]
      },
      {
       "type": "paragraph",
-      "text": "Truyền ask làm ví dụ tự chạy được với dữ liệu cố định; khi mở CLI dùng read_item(input). Bài hoàn chỉnh cần hàm nhập số món, nhập từng món; nhập số nguyên liệu và id/name từng nguyên liệu; chọn nguyên liệu rồi nhập lượng cho từng món; liệt kê món, nguyên liệu và định lượng. Giữ một state chung để danh sách và định lượng không bị lệch."
+      "text": "Giữ một state chung để danh sách và định lượng không bị lệch."
      }
     ]
    ],

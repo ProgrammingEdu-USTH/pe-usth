@@ -6694,7 +6694,40 @@
         },
         {
           "type": "paragraph",
-          "text": "Báo cáo giữ nhóm Unknown để tổng vẫn đối chiếu được. Cột thang, khu_vuc, tong_tien ở dạng dài sẵn sàng cho biểu đồ cột hoặc đường ở phần visualization. Khi giao báo cáo, ghi đơn vị tiền, khoảng ngày, định nghĩa doanh thu, cách bỏ trùng và số đơn chưa khớp; nhận xét nên bám vào dữ liệu, không tự suy ra nguyên nhân. Quán đã có báo cáo bằng số; chặng sau là làm cho người khác đọc được nó."
+          "text": "Báo cáo giữ nhóm Unknown để tổng vẫn đối chiếu được. Cột thang, khu_vuc, tong_tien ở dạng dài sẵn sàng cho biểu đồ cột hoặc đường ở phần visualization. Khi giao báo cáo, ghi kèm năm mục sau:"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "#",
+            "Ghi kèm khi giao báo cáo"
+          ],
+          "rows": [
+            [
+              "1",
+              "đơn vị tiền"
+            ],
+            [
+              "2",
+              "khoảng ngày"
+            ],
+            [
+              "3",
+              "định nghĩa doanh thu"
+            ],
+            [
+              "4",
+              "cách bỏ trùng"
+            ],
+            [
+              "5",
+              "số đơn chưa khớp"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Nhận xét nên bám vào dữ liệu, không tự suy ra nguyên nhân. Quán đã có báo cáo bằng số; chặng sau là làm cho người khác đọc được nó."
         }
       ],
       "drills": [
@@ -10646,7 +10679,36 @@
         },
         {
           "type": "paragraph",
-          "text": "Điều kiện `if __name__ == \"__main__\"` được gọi là main guard. Nó chỉ gọi run khi bạn chạy file trực tiếp làm điểm bắt đầu của chương trình. Import main để dùng hàm không tự khởi chạy giao diện. PW4 dùng main.py điều phối, input.py cho nhập liệu, output.py cho `curses`, domains cho class; đặt trách nhiệm rõ còn quan trọng hơn số file."
+          "text": "Điều kiện `if __name__ == \"__main__\"` được gọi là main guard. Nó chỉ gọi run khi bạn chạy file trực tiếp làm điểm bắt đầu của chương trình. Import main để dùng hàm không tự khởi chạy giao diện. PW4 chia trách nhiệm theo file:"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "File",
+            "Lo việc gì"
+          ],
+          "rows": [
+            [
+              "`main.py`",
+              "điều phối"
+            ],
+            [
+              "`input.py`",
+              "nhập liệu"
+            ],
+            [
+              "`output.py`",
+              "`curses`"
+            ],
+            [
+              "`domains`",
+              "class"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Đặt trách nhiệm rõ còn quan trọng hơn số file."
         },
         {
           "type": "paragraph",
@@ -11675,7 +11737,32 @@
         },
         {
           "type": "paragraph",
-          "text": "Với dictionary nhận từ loadmat, keys() xem tên biến, values() xem các giá trị và items() duyệt từng cặp tên/giá trị, chẳng hạn `for name, value in values.items(): print(name, type(value).__name__)`. Những mục như __header__ mô tả file; đừng đưa tất cả values() vào cùng một phép tính rồi coi đó là bảng dữ liệu."
+          "text": "Với dictionary nhận từ loadmat, có ba cách xem nhanh:"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Gọi gì",
+            "Cho ra gì"
+          ],
+          "rows": [
+            [
+              "`keys()`",
+              "tên biến"
+            ],
+            [
+              "`values()`",
+              "các giá trị"
+            ],
+            [
+              "`items()`",
+              "từng cặp tên/giá trị"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Chẳng hạn `for name, value in values.items(): print(name, type(value).__name__)`. Những mục như __header__ mô tả file; đừng đưa tất cả values() vào cùng một phép tính rồi coi đó là bảng dữ liệu."
         }
       ],
       "drills": [
@@ -11846,7 +11933,36 @@
         },
         {
           "type": "paragraph",
-          "text": "Truyền ask làm ví dụ tự chạy được với dữ liệu cố định; khi mở CLI dùng read_item(input). Bài hoàn chỉnh cần hàm nhập số món, nhập từng món; nhập số nguyên liệu và id/name từng nguyên liệu; chọn nguyên liệu rồi nhập lượng cho từng món; liệt kê món, nguyên liệu và định lượng. Giữ một state chung để danh sách và định lượng không bị lệch."
+          "text": "Truyền ask làm ví dụ tự chạy được với dữ liệu cố định; khi mở CLI dùng read_item(input). Bài hoàn chỉnh cần bốn hàm nhập, theo thứ tự này:"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "#",
+            "Hàm cần có"
+          ],
+          "rows": [
+            [
+              "1",
+              "nhập số món, rồi nhập từng món"
+            ],
+            [
+              "2",
+              "nhập số nguyên liệu và id/name từng nguyên liệu"
+            ],
+            [
+              "3",
+              "chọn nguyên liệu rồi nhập lượng cho từng món"
+            ],
+            [
+              "4",
+              "liệt kê món, nguyên liệu và định lượng"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Giữ một state chung để danh sách và định lượng không bị lệch."
         }
       ],
       "drills": [

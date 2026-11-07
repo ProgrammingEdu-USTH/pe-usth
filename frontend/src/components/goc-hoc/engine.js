@@ -383,10 +383,13 @@ function placeUI(){
 }
 
 /* ---------- hover: lift the object, light its outline, link the menu ---------- */
-function setOn(G, on){
+/* `nhan=false`: sáng ĐỒ VẬT mà KHÔNG hiện nhãn. Chỉ `lightRoute` dùng — xem lý
+   do ở đó. Cờ này chỉ chặn chiều BẬT: `on===false` vẫn luôn tắt nhãn, nếu không
+   thì một nhãn do nhánh khác bật lên sẽ không có ai tắt. */
+function setOn(G, on, nhan=true){
   G.keys.forEach(k=>{ EL[k].classList.toggle('on',on); GEL[k].classList.toggle('on',on); });
   if (G.g==='window') host.querySelectorAll('[data-g="window"]').forEach(g=>g.classList.toggle('on',on));
-  G.tag.classList.toggle('on', on && !route && !busy);
+  G.tag.classList.toggle('on', on && nhan && !route && !busy);
   if (G.g==='mug' && on){ steamG.classList.add('puff'); setTimeout(()=>steamG.classList.remove('puff'),2400); }
 }
 function clearHover(){ GROUPS.forEach(G=>setOn(G,false)); host.querySelectorAll('.hl').forEach(m=>m.classList.remove('hl')); }
@@ -401,9 +404,25 @@ GROUPS.forEach(G=>{
   const act = (e)=>{ setOn(G,false); activate(G, e && e.target && e.target.dataset ? e.target.dataset.k : null); };
   h.addEventListener('click',act); h.addEventListener('keydown',e=>{ if (e.key==='Enter'||e.key===' '){ e.preventDefault(); act(); } });
 });
+/* Rê vào một mục menu thì SÁNG CẢ NHÓM ĐỒ VẬT nhưng chỉ hiện MỘT nhãn.
+   Người thử `will` báo 07/11 kèm ảnh các nhãn đè lên nhau. Đo trên production:
+   rê vào "Khoá học" ⇒ **28 nhãn** cùng hiện, **116 cặp chồng nhau** — 28 cuốn
+   sách trên kệ đều mang `route:'book'` nên `setOn` bật nhãn cho tất cả, và
+   chúng đứng sát nhau nên nhãn chất thành một đống không đọc được.
+   Dòng `main` dưới đây ĐÃ nói ra ý định "một nhãn thôi" từ đầu, nhưng `setOn` ở
+   trên bật nhãn cho MỌI nhóm nên nó bị vô hiệu — nay `setOn(..., false)` để nó
+   có hiệu lực thật. Sáng cả nhóm đồ vật thì GIỮ: đó mới là thứ nói cho người
+   dùng biết mục menu này trỏ vào đâu trong cảnh. */
 function lightRoute(r, on){
-  GROUPS.forEach(G=>{ if (G.route===r || (r==='learn' && KEY_CUR && G.g===KEY_CUR) || (r==='courses' && G.route==='book')) setOn(G,on); });
-  const main = GROUPS.find(G=>G.route===r); if (main) main.tag.classList.toggle('on', on && !route && !busy);
+  GROUPS.forEach(G=>{ if (G.route===r || (r==='learn' && KEY_CUR && G.g===KEY_CUR) || (r==='courses' && G.route==='book')) setOn(G,on,false); });
+  /* `courses` KHÔNG có nhóm nào mang route ấy — sách mang `route:'book'` — nên
+     `find` trả undefined và mục "Khoá học" trước nay KHÔNG có nhãn chính nào.
+     Lấy cuốn của bài ĐANG HỌC, không có thì cuốn đầu kệ. */
+  const main = GROUPS.find(G=>G.route===r)
+    || (r==='courses'
+      ? (KEY_CUR && GROUPS.find(G=>G.g===KEY_CUR)) || GROUPS.find(G=>G.route==='book')
+      : null);
+  if (main) main.tag.classList.toggle('on', on && !route && !busy);
 }
 host.querySelectorAll('[data-go]').forEach(b=>{ const r=b.dataset.go;
   b.addEventListener('pointerenter',()=>lightRoute(r,true)); b.addEventListener('pointerleave',()=>lightRoute(r,false));

@@ -77,7 +77,7 @@ học nó.
 | Backend lint | 104 lỗi, 2 cảnh báo — **mốc trần trong CI là 115, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d) |
-| Frontend unit test | `cd frontend && npm run test:unit` → **583 ca** / 50 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **589 ca** / 51 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -95,7 +95,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **33 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **4 mục** (frontend 583 · backend 35 bộ/501 · tracer 65 · e2e 11), 0 trượt, 0 lỗi; nó CHẠY chính bốn lệnh đó nên THAY cả bốn bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **4 mục** (frontend 589 · backend 35 bộ/501 · tracer 65 · e2e 11), 0 trượt, 0 lỗi; nó CHẠY chính bốn lệnh đó nên THAY cả bốn bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -116,9 +116,11 @@ mcq-next-after-wrong 23 · phan-bai 8 · practice-contract 15 · practice-run 9 
 read-diagram 12 ·
 read-guess 19 · read-trace 16 · recap-recall 7 · read-try-it 20 · review-quiz 34 · run-stale 15 ·
 session-marker 5 · spaced-review 14 · studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 · trap-leak 3 ·
-worker-csp 7 · ds-contrast 16 · feedback-rank 3 · goc-hoc-khung-cho 6 · goc-hoc-lo-trinh 9 · goc-hoc-man-con 3 · o-nhap-nhieu-dong 2 · ide-output-scroll 6 · lien-ket-noi-bo 3 · goc-hoc-cho-so 7 · goc-hoc-thanh-cuon 5 · goc-hoc-hang-nut 4 = 583.
-Mốc trước là 579; thêm goc-hoc-hang-nut 4 (HÀNG NÚT ĐIỀU HƯỚNG tràn 425px ở 360×640 ⇒ chỉ 2/5 mục
-trong mép; nay XUỐNG HÀNG).
+worker-csp 7 · ds-contrast 16 · feedback-rank 3 · goc-hoc-khung-cho 6 · goc-hoc-lo-trinh 9 · goc-hoc-man-con 3 · o-nhap-nhieu-dong 2 · ide-output-scroll 6 · lien-ket-noi-bo 3 · goc-hoc-cho-so 7 · goc-hoc-thanh-cuon 5 · goc-hoc-hang-nut 4 · goc-hoc-nhan-mot 6 = 589.
+Mốc trước là 583; thêm goc-hoc-nhan-mot 6 (RÊ VÀO "KHOÁ HỌC" hiện 28 NHÃN cùng lúc, 116 cặp chồng
+nhau — nay đúng 1 nhãn; cổng CHẠY THẬT `setOn`/`lightRoute` bóc ra khỏi engine.js).
+Trước đó 579 → 583; thêm goc-hoc-hang-nut 4 (HÀNG NÚT ĐIỀU HƯỚNG tràn 425px ở 360×640 ⇒ chỉ 2/5
+mục trong mép; nay XUỐNG HÀNG).
 **Và bảng này vừa TRÔI 5 đơn vị:** nó cộng ra 574 trong khi bộ chạy ra 579, vì
 `goc-hoc-thanh-cuon 5` (vòng 07/11) được thêm vào cây mã mà KHÔNG thêm vào bảng — hàng "Frontend
 unit test" thì sửa đúng, nên `check-moc-chay` xanh và không gì bắt. Đây là con số THỨ BA của bảng
@@ -3691,6 +3693,45 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** panel bên phải và 5 kệ sách nay có thanh cuộn mảnh.
   **KHÔNG bump `ASSET_VERSION`:** `scene.css` nằm trong `frontend/src/`, đi qua bundler nên
   URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
+
+- **28 NHÃN BÀI CHỒNG LÊN NHAU, và dòng sửa nó ĐÃ NẰM SẴN trong hàm từ đầu — nó chỉ bị
+  dòng ngay trên làm cho vô nghĩa.** Lỗi thứ 1 trong năm lỗi `will` báo 07/11. Đo trên
+  production bằng cách bắn `pointerenter` lên từng mục menu rồi đếm nhãn `.on`:
+
+  | mục menu | nhãn hiện | cặp chồng nhau |
+  |---|---|---|
+  | **Khoá học** | **28** | **116** |
+  | Học tiếp | 2 | 0 |
+  | Lộ trình · Ôn tập · Thành tựu · Bảng xếp hạng | 1 | 0 |
+
+  (Vòng trước đếm 118 cặp ở khổ khác — con số ấy PHỤ THUỘC KHỔ MÀN, nên cổng không ghim nó.)
+  **NGUYÊN NHÂN, và nó nằm ở hai dòng liền nhau.** 28 cuốn sách trên kệ đều mang
+  `route:'book'`; `lightRoute('courses')` gọi `setOn` cho tất cả, mà `setOn` bật LUÔN nhãn.
+  Ngay dưới vòng lặp ấy đã có `const main = GROUPS.find(…); main.tag.classList.toggle('on')`
+  — tức tác giả ĐÃ viết ra ý định *"sáng cả nhóm đồ vật, hiện MỘT nhãn"*. Dòng đó chưa bao
+  giờ có hiệu lực, vì `setOn` ở trên đã bật hết rồi. Bản sửa không thêm ý tưởng nào: nó cho
+  `setOn` một cờ `nhan` và để dòng `main` làm đúng việc nó được viết ra để làm.
+  **VÀ `main` KHÔNG GIẢI RA ĐƯỢC CHO `courses`:** sách mang `route:'book'`, không nhóm nào
+  mang `'courses'`, nên `find` trả `undefined`. Chỉ sửa `setOn` thôi thì mục "Khoá học" đi
+  từ 28 nhãn xuống **0** — một lỗi đổi lấy một lỗi. Nhánh dự phòng lấy cuốn của bài ĐANG
+  HỌC, không có thì cuốn đầu kệ.
+  **CỜ `nhan` CHỈ ĐƯỢC CHẶN CHIỀU BẬT.** Viết `if (nhan) toggle(...)` thì `setOn(G,false,
+  false)` không tắt được nhãn nữa, và một nhãn do nhánh khác bật lên sẽ kẹt lại trên cảnh.
+  Đúng một dòng khác nhau (`on && nhan && …` so với `if (nhan)`), và có một ca riêng cho nó.
+  **ĐO SAU KHI SỬA, trên bản CHẠY THẬT ở máy (`npm run dev`), không suy từ code:** mọi mục
+  menu đúng **1 nhãn**, **0 cặp chồng**, rời chuột về **0**; và khi rê "Khoá học" thì
+  **57 phần tử của cảnh vẫn sáng** — tức phần có ích của `lightRoute` còn nguyên.
+  **CỔNG CHẠY THẬT HAI HÀM ĐÓ, không đọc regex.** `goc-hoc-nhan-mot.test.mjs` bóc `setOn`
+  và `lightRoute` khỏi `engine.js` bằng phép đếm ngoặc rồi `new Function` chúng với phụ
+  thuộc giả (cảnh giả: 1 laptop, 1 bảng ghim, 28 cuốn cùng `route:'book'`) — cùng khuôn
+  `forum-xss.test.mjs` lôi `escHtml` ra khỏi `dashboard.js`, và cùng bài học của
+  `da-nap-hash-sync.spec.ts`: một spec TỰ CHÉP hàm vào trong nó thì ablate vẫn xanh.
+  Ablate 5 chiều: gỡ cờ `nhan` khỏi `setOn` → **3 đỏ** · `lightRoute` thôi truyền `false`
+  → 2 · bỏ nhánh dự phòng cho `courses` → 1 · cho `nhan` chặn cả chiều TẮT → 1 · đổi tên
+  `setOn` → **6 đỏ** (phép bóc hết khớp, và nó TO TIẾNG chứ không im lặng xanh).
+  **GIỚI HẠN:** cổng chạy hàm trên cảnh GIẢ, nên nó chứng minh LUẬT ("một mục menu ⇒ một
+  nhãn"), không chứng minh "nhãn đó không đè lên nhãn khác trên cảnh thật" — phép đếm cặp
+  chồng ở bảng trên là của Chrome, không của cổng.
 
 - **"SIZE NHỎ PHÁT LÀ MẤT NÚT": 3/5 mục điều hướng nằm ngoài mép, và chúng KHÔNG mất —
   chúng đòi một cú vuốt mà người thử không tìm ra.** Lỗi thứ 5 trong năm lỗi `will` báo

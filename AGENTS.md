@@ -84,7 +84,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
-| Frontend unit test | `cd frontend && npm run test:unit` → **634 ca** / 55 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **638 ca** / 56 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -104,7 +104,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **35 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **7 mục** (frontend 634 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **7 mục** (frontend 638 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -2346,6 +2346,12 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   `#ffffff` — đo được **1,000:1**, tức CÙNG MỘT MÀU. Cả hai sticky, nội dung cuộn LỌT
   xuống dưới chúng, và không thanh nào có `border` lẫn `box-shadow`: chữ trôi vào
   thanh rồi biến mất, không gì nói ranh giới ở đâu.
+  **ĐÍNH CHÍNH 08/11/2026 — hai chữ "Cả hai sticky" ở trên là một TIỀN ĐỀ SAI.** Chúng khai
+  `position: sticky`, nhưng đo trên production thì KHÔNG thanh nào ghim: `overflow-x: hidden`
+  trên `html, body` (edu-responsive.css §6) biến gốc trang thành scroll container. Nên câu
+  "nội dung cuộn LỌT xuống dưới chúng" chưa bao giờ xảy ra — nội dung cuộn QUA chúng. Cạnh
+  vẫn đúng việc của nó (hai mặt phẳng cùng màu thì cần một đường chia), nhưng lý do nêu ra
+  thì không. Xem mục "HAI thanh STICKY KHÔNG ghim trên điện thoại" ở dưới.
   **ĐÃ ĐO VÀ BỎ cách sửa hiển nhiên, đừng dựng lại:** chuyển thanh sang tầng
   `--ds-paper` `#F7FAFD` của bảng lofi chỉ cho **1,048:1** so với thẻ — vẫn không ai
   thấy. Ở khoảng sáng này MÀU NỀN không tách được hai mặt phẳng; chỉ ĐƯỜNG KẺ mới
@@ -5613,6 +5619,89 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   bắt được nó là `global-error.tsx`, và file này chưa có. Nó cũng không bắt lỗi ở Server
   Component lúc render trên máy chủ. Và bẫy heredoc lại cắn khi viết test (dấu gạch chéo bị
   xử lý dù delimiter đã nháy), nên ba bản sửa cuối đi qua Edit chứ không qua heredoc.
+
+- **HAI THANH STICKY CỦA VỎ BÀI HỌC CHƯA BAO GIỜ GHIM, và thứ phá chúng nằm ở một file
+  khác.** Vòng này mở ra bằng một phép quét có biên trên production (Chrome, 390×844 emulate
+  mobile, `/lesson/python_advanced?lesson=0`, màn tổng kết) chứ không bằng một lead sẵn.
+  **SỐ ĐO:** `.topBar` khai `position: sticky; top: 0; z-index: 50` mà ở `scrollY = 400` thì
+  `y = **−400**` (cuộn mất hẳn); `.bottomBar` khai `sticky; bottom: 0` mà
+  `y = 1362 − scrollY` **đúng dòng chảy TĨNH**, chỉ thấy được ở đáy tuyệt đối
+  (`scrollY = 606`). Tức nút **"Quay lại"** — thứ NĂM người thử đòi ngày 27/10 — và nút chính
+  của màn đều ngoài màn hình, phải **cuộn 606px** mới tới.
+  **NGUYÊN NHÂN:** `edu-responsive.css` §6 ("CHỐNG TRÀN NGANG") khai
+  `@media (max-width: 1023.98px) { html, body { overflow-x: hidden } }`. Một `overflow` khác
+  `visible` ở GỐC biến html/body thành scroll container, và `position: sticky` thôi ghim theo
+  viewport. Trang bài học chỉ khai hai tệp CSS (`edu-theme` + `studio-tokens`) nên nó không
+  nằm trong tầm nhìn của ai đọc trang ấy — phải hỏi TRÌNH DUYỆT rule nào đang có hiệu lực
+  (`document.styleSheets` → `edu-responsive.css`, media `(max-width: 1023.98px)`).
+  **PHÉP THỬ ĐẦU CỦA TÔI LÀ GIEO VÔ HIỆU, và nó im lặng đúng như một kết quả âm:** đặt
+  `overflow-y: visible` cho html/body → **không đổi một pixel nào** (`topY` vẫn −400). Vì khi
+  một trục là `hidden`, CSS tính trục `visible` kia lại thành `auto`. Tôi suýt đọc nó thành
+  "overflow không phải thủ phạm" và đi tìm chỗ khác. Đặt `overflow: visible` CẢ HAI trục mới
+  thấy: `topY −400 → 0`, `botY 962 → 755` (= 844 − 89, đúng đáy viewport). **Khi phép thử một
+  thuộc tính CSS ra "không đổi gì", hỏi xem giá trị đó có bị tính lại hay không trước khi
+  loại giả thuyết.**
+  **CÁCH SỬA: `overflow-x: clip`, MỘT thuộc tính.** `clip` clip mà KHÔNG tạo scroll
+  container, nên sticky chạy lại; và `clip` nằm trong tập mà CSS cho phép đi cùng `visible`
+  nên trục kia không bị tính lại thành `auto` — khai thêm `overflow-y` là dư, và dư ở đây là
+  đè một thứ chỗ khác có thể đặt có chủ đích. Kiểm trên chính trang production sau khi tiêm:
+  `topY` **0** · `botY` **755** · `scrollWidth` GIỮ **390**. Tức phép chống tràn ngang của
+  mục §6 **vẫn còn nguyên** — bản sửa không đổi lấy gì.
+  **MỘT TIỀN ĐỀ ĐÃ GHI TRONG FILE NÀY LÀ SAI, và tôi đã đính chính nó tại chỗ:** mục "HAI
+  THANH STICKY phải có cạnh" viết *"Cả hai sticky, nội dung cuộn LỌT xuống dưới chúng"*.
+  Chúng KHAI sticky, nhưng chưa bao giờ ghim — nội dung cuộn QUA chúng. Cạnh vẫn đúng việc
+  của nó (hai mặt phẳng cùng màu thì cần một đường chia), nhưng lý do nêu ra thì không. Một
+  câu viết ở THÌ HIỆN TẠI trong một mục bẫy sẽ bị đọc như hiện trạng, nên nó cần đính chính
+  chứ không chỉ cần một mục mới.
+  **CỔNG CANH HAI NỬA Ở HAI FILE, và một nửa thôi là cổng rỗng:** khai sticky mà gốc `hidden`
+  thì không ghim; gốc đúng mà thanh thôi khai sticky thì cũng không ghim.
+  `lesson-chrome-sticky.test.mjs` (4 ca) quét **mọi** tệp trong `public/static/css`, không
+  chỉ `edu-responsive.css` — trang bài học nạp nhiều file hơn nó khai, nên luật phải đúng ở
+  bất cứ file nào đặt overflow cho gốc.
+  **HAI LẦN CA CỦA TÔI BÁO OAN, cả hai vì neo sai chỗ:**
+  · `indexOf('.topBar')` bắt rule DÙNG CHUNG ở đầu file (`.topBar, .topBar *, .bottomBar,
+    .bottomBar * { … }`) chứ không bắt rule thật ở dòng 55 — rule dùng chung không có
+    `position`, nên ca đỏ oan. Neo vào `.topBar {` CÓ DẤU NGOẶC;
+  · phép quét overflow so "selector có CHỨA html/body" và bắt hai chỗ hợp lệ:
+    `body #sidebar-detail { overflow-x: hidden }` (overflow áp cho CON, không cho body) và
+    `body.rm-sidebar-open { overflow: hidden }` (khoá cuộn khi drawer mở — khuôn thường dùng,
+    chỉ sống trong lúc có class ấy, và ở trang dashboard di sản). Nay luật nhắm **COMPOUND
+    CUỐI** của selector và chỉ cấm khi nó là ĐÚNG `html`/`body`, không class không id. Một
+    `overflow` bật/tắt theo class nằm NGOÀI TẦM cổng này, và điều đó được khai ra.
+  **ABLATE 5 chiều:** trả về `overflow-x: hidden` → **2 đỏ** · khai thêm `overflow-y` (dư) →
+  1 · gỡ hẳn dòng chống tràn ngang → 1 · gieo một `overflow` gốc vào một tệp CSS KHÁC → 1 ·
+  `.topBar` thôi khai sticky → 1.
+  **Chiều thứ năm ra 0 đỏ ở lần gieo đầu, và lỗi là của PHÉP GIEO:** tôi chèn
+  `position: static;` vào đầu rule trong khi `position: sticky` vẫn còn ở dưới, nên phép so
+  `match(/position:\s*sticky/)` vẫn đạt. Gieo lại bằng cách THAY chính dòng ấy (neo vào
+  `height: var(--st-chrome-h);` — chỉ `.topBar` có) → **1 đỏ**. Cùng họ bẫy `NP02#1`: một
+  phép gieo THÊM chứ không THAY là một phép gieo vô hiệu.
+  **SỐ ĐÃ ĐO:** frontend unit **634 → 638 ca / 55 → 56 tệp** · sổ ngưỡng siết sàn 634 → 638 ·
+  typecheck sạch · lint **146 cảnh báo / 0 lỗi** · `npm run build` exit 0 · `ASSET_VERSION`
+  → `2026-11-08a` (edu-responsive.css nằm trong `public/` nên URL không đổi theo nội dung) ·
+  `check-moc-nen` 20 mục 0 lỗi · `check-moc-chay frontend` 0 lỗi · `check-nguong` 35 ngưỡng
+  0 lỗi · `tai-nguyen-chet` / `export-chet` / `duong-toi` 0 lỗi. **KHÔNG đụng một dòng nội
+  dung nào**, nên `check-da-nap` giữ **62 bài chờ**.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** trên điện thoại, thanh tiến độ + nút đóng ở trên và
+  nút "Quay lại" + nút chính ở dưới nay GHIM trong màn ở mọi vị trí cuộn, thay vì phải cuộn
+  tới đáy. Và nó áp cho MỌI màn của 179 bài, không riêng màn tổng kết.
+  **GIỚI HẠN PHẢI NÓI RA, hai cái.** (1) Cổng đọc CSS TĨNH: nó chứng minh "đã khai đúng", chứ
+  không chứng minh "thanh ghim trên màn" — bảng số ở trên là của Chrome trên production. (2)
+  Tôi **không** mở lại một trang bài học trên bản dựng CÓ bản sửa, vì localhost trỏ API
+  production nên mở nó là một lần GHI (tạo tài khoản khách). Chuỗi bằng chứng vì vậy gồm ba
+  mắt: tiêm `overflow-x: clip` vào trang production THẬT → hai thanh ghim; CSS đã dựng chứa
+  đúng khai báo đó (`grep -c` = 1 trên URL có `?v=`); và trang dài nhất (5 807px) giữ
+  `scrollWidth` 390 ở mọi mốc cuộn.
+  **HAI KHIẾM KHUYẾT ĐÍCH BẤM ĐO ĐƯỢC CÙNG LÚC, KHÔNG làm vòng này — mỗi cái một quyết
+  định:**
+  · 15 đoạn thanh tiến độ có vùng chạm THẬT **11×24** (đo bằng `elementFromPoint`, không bằng
+    `getBoundingClientRect` — rect chỉ 11×6 và bản sửa cũ nới hit area bằng `::after`). `::after`
+    là `inset: -9px 0px`, tức chỉ nới chiều DỌC; trục ngang vẫn 11px. **Và 15 đích 44px không
+    nhét được vào 358px** (cần 660px), nên đây là việc THIẾT KẾ (một bộ chọn màn riêng cho
+    điện thoại) chứ không phải một dòng CSS. WCAG 2.5.8 ngoại lệ "spacing" KHÔNG áp vì các
+    đoạn kề nhau;
+  · nút `×` "Đóng bài học" là **40×40** (vùng chạm 39×39), dưới mức 44px mà repo tự đặt trong
+    `not-found`/`error`. Nhỏ và sửa được, nhưng nó không nằm trong việc của vòng này.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

@@ -202,6 +202,79 @@ const KIEM = {
       return m ? { ca: Number(m[1]), truot: Number(m[2]) } : null;
     },
   },
+  // BỘ VĂN PHONG. Hàng này của bảng mốc nền mang BẢY con số, và trước 08/11/2026
+  // KHÔNG cổng nào đối chiếu một con số nào trong đó: `check-moc-nen` cố ý không
+  // chạy bộ kiểm nào (nó phải nhanh) nên nó tự khai chúng là NGOÀI TẦM, còn
+  // ratchet `--doi-chieu` canh §11 của VAN-PHONG.md chứ không canh AGENTS.md. Hệ
+  // quả đo được: mười lát văn phong liền, bảy con số ấy được sửa BẰNG TAY — và
+  // một bản sao TRONG CHÍNH hàng đó đã trôi thật (nó ghi 82 lỗi khi số thật là
+  // 77). Đúng lớp của con số 204 vs 134.
+  //
+  // BA con số L3/L1/L8 không chỉ là số: hàng khai chúng là ba luật DỒN nhiều lỗi
+  // nhất, tức một lời khai về THỨ TỰ. Nên mục này kiểm thêm rằng ba luật ấy VẪN
+  // là ba luật nhiều lỗi nhất — ngày L2 vượt L3 thì con số có thể vẫn khớp trong
+  // khi câu "dồn ở" đã sai, và một phép so BẰNG sẽ im lặng ở đúng chỗ đó.
+  vanphong: {
+    nhan: 'bộ văn phong pe-da',
+    lenh: `${process.platform === 'win32' ? 'py' : 'python'}`
+      + ' -I scripts/pe-da/check_vanphong.py --doi-chieu',
+    cwd: '.',
+    luuY: 'TL là một luật của chính bộ này, nên một con số TRÔI trong VAN-PHONG.md '
+      + 'làm `lỗi` phình lên và mục này sẽ kêu CẢ "bảng ghi sai" — đó là cascade đã '
+      + 'khai ở AGENTS.md. Sửa cái GỐC (§1/§2/§8/§11/§12 của VAN-PHONG.md) rồi đo '
+      + 'lại, đừng ghi ngay con số mà cổng vừa in.',
+    bang: () => {
+      const m = MD.match(
+        /check_vanphong\.py` → ([\d  ]+) bài, \*\*([\d  ]+) lỗi · ([\d  ]+) cảnh báo\*\*, dồn ở L3 ([\d  ]+)[^|\n]*?· L1 ([\d  ]+)[^|\n]*?· L8 ([\d  ]+)/);
+      const r = MD.match(/\*\*([\d  ]+) luật, 0 lỗi\*\*/);
+      return m && r
+        ? {
+          bai: so(m[1]), loi: so(m[2]), canhBao: so(m[3]),
+          L3: so(m[4]), L1: so(m[5]), L8: so(m[6]), luat: so(r[1]),
+        }
+        : null;
+    },
+    bang2: () => {
+      const m = MD.match(/check-moc-chay[^|\n]*?vanphong ([\d  ]+)\/([\d  ]+)/);
+      return m ? { loi: so(m[1]), canhBao: so(m[2]) } : null;
+    },
+    // Ba tầng của CÙNG một lần chạy: bảng TỪNG LUẬT, dòng tổng của bộ kiểm, và
+    // dòng của ratchet. `truot` lấy từ ratchet, nên một luật xấu đi làm cổng đỏ vì
+    // "bộ test đỏ" chứ không vì "bảng ghi sai" — cùng lý lẽ đã viết cho mục e2e.
+    doc: (ra) => {
+      const t = ra.match(/^(\d+) bài · (\d+) thuật ngữ · (\d+) lỗi · (\d+) cảnh báo/m);
+      const r = ra.match(/^Đối chiếu sổ: (\d+) luật · (\d+) bài · (\d+) lỗi/m);
+      // `^L1 ` KHÔNG khớp `L10`/`L11`: sau `L1` ở đó là chữ số, không phải khoảng
+      // trắng. Và phép đếm ≥ 15 luật là phép TỰ KIỂM — bảng từng luật trượt thì
+      // `L3`/`L1`/`L8` đều `undefined` và mọi phép so dưới sẽ đạt RỖNG, đúng cách
+      // một cổng tự khai khống độ phủ.
+      const luat = {};
+      for (const d of ra.split('\n')) {
+        const m = d.match(/^(L\d+|TB|TL|§4-A) +(\d+) +(\d+) /);
+        if (m) luat[m[1]] = Number(m[2]);
+      }
+      if (!t || !r || Object.keys(luat).length < 15) return null;
+      return {
+        bai: Number(t[1]), loi: Number(t[3]), canhBao: Number(t[4]),
+        L3: luat.L3, L1: luat.L1, L8: luat.L8,
+        luat: Number(r[1]), truot: Number(r[3]),
+        _topBa: Object.entries(luat).sort((a, b) => b[1] - a[1]).slice(0, 3)
+          .map(([k]) => k).sort(),
+      };
+    },
+    // Lời khai về THỨ TỰ, không về con số. Ba luật mà hàng mốc nền kể tên phải là
+    // ba luật nhiều lỗi nhất; L1 và L8 đang BẰNG nhau (21) nên phép so là theo
+    // TẬP, không theo vị trí. Câu trong thông điệp SUY RA từ chính mảng — ghi
+    // cứng "dồn ở L3 · L1 · L8" cạnh `['L1','L3','L8']` là nuôi một bản sao thứ
+    // hai, đúng khiếm khuyết mà cổng này ra đời để bắt.
+    themLuat: (that) => {
+      const mong = ['L1', 'L3', 'L8'];
+      if (mong.join() === that._topBa.join()) return null;
+      return `hàng mốc nền khai ba luật dồn nhiều lỗi nhất là ${mong.join(' · ')} `
+        + `nhưng đo được ${that._topBa.join(' · ')}. Sửa CÂU của hàng đó, đừng chỉ `
+        + 'sửa con số: một phép so BẰNG sẽ im lặng khi tên luật đã sai.';
+    },
+  },
 };
 
 const xin = process.argv.slice(2).filter((a) => !a.startsWith('-'));
@@ -268,12 +341,21 @@ for (const k of ten) {
     loi.push(`${c.nhan}: ${that.truot} ca TRƯỢT — con số chỉ đúng khi bộ test xanh.`
       + (c.luuY ? `\n   LƯU Ý: ${c.luuY}` : ''));
   }
+  if (c.themLuat) {
+    const x = c.themLuat(that);
+    if (x) loi.push(`${c.nhan}: ${x}`);
+  }
   for (const f of Object.keys(khai)) {
     // Con số CHẠY RA là thẩm quyền; mỗi bản sao so RIÊNG với nó, nên thông điệp
     // chỉ đúng vào bản sai thay vì nói chung "bảng ghi sai".
     for (const [nhanBang, ghi] of [
       ['bảng', khai[f]],
-      ...(khai2 ? [['bản sao ở hàng "Mốc phải CHẠY mới biết"', khai2[f]]] : []),
+      // `f in khai2`: bản sao được phép chở một TẬP CON các con số — hàng "Mốc
+      // phải CHẠY mới biết" chở 2 trong 7 con số của mục văn phong. Nó KHÔNG nới
+      // phép kiểm: chính regex của `bang2` đã đòi đúng hình dạng, nên mất một con
+      // số ở đó là "KHÔNG CÒN DÒNG", không phải im lặng.
+      ...(khai2 && f in khai2
+        ? [['bản sao ở hàng "Mốc phải CHẠY mới biết"', khai2[f]]] : []),
     ]) {
       if (ghi !== that[f]) {
         const d = that[f] - ghi;
@@ -287,8 +369,29 @@ for (const k of ten) {
   }
 }
 
+// SỐ MỤC CỦA CHÍNH CỔNG NÀY cũng là một con số trong bảng, và cho tới
+// 08/11/2026 không gì canh nó — hàng ghi "6 mục" suốt trong khi thêm/bớt một mục
+// chỉ sửa file này. `check-moc-nen` đã tự canh `mucDoiChieu` của nó từ trước; đây
+// là nửa còn thiếu. Nó chạy ở MỌI lần gọi, kể cả khi chỉ gọi một mục, vì con số
+// ấy không phụ thuộc tham số.
+{
+  const m = MD.match(/check-moc-chay\.mjs` → \*\*(\d+) mục\*\*/);
+  const that = Object.keys(KIEM).length;
+  if (!m) {
+    loi.push(
+      'AGENTS.md KHÔNG CÒN DÒNG nào khai SỐ MỤC của cổng này ("N mục"). Đổi chữ '
+      + 'hàng đó thì phải sửa cổng này.',
+    );
+  } else if (Number(m[1]) !== that) {
+    loi.push(
+      `số mục của chính cổng này: bảng ghi ${m[1]}, đếm ra ${that}. Thêm/bớt một `
+      + 'mục thì sửa hàng "Mốc phải CHẠY mới biết" TRONG CÙNG commit.',
+    );
+  }
+}
+
 console.log('\nNGOÀI TẦM cổng này, cố ý (xem chú thích đầu file):');
-console.log('   – Backend lint 104 lỗi · Frontend lint 146 cảnh báo. Hai con số đó phải ĐI '
+console.log('   – Backend lint 92 lỗi · Frontend lint 146 cảnh báo. Hai con số đó phải ĐI '
   + 'XUỐNG, nên phép so BẰNG sẽ đỏ ở mỗi đợt dọn — chiều của chúng đã có sổ ngưỡng canh.');
 console.log('');
 if (loi.length) {

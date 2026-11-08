@@ -352,7 +352,13 @@ jobs:
       # được — mà đỏ vĩnh viễn thì dạy người ta quen với màu đỏ (bài học đã ghi
       # cho DAP_AN_MAU_KHONG_CHAY và check-da-nap). Bước này chỉ đỏ khi văn
       # phong xấu ĐI; siết thì nó in GHI SỔ và vẫn xanh.
-      - run: python scripts/pe-da/check_vanphong.py --doi-chieu
+      # Chạy qua `check-moc-chay vanphong` chứ không gọi trực tiếp: nó CHẠY đúng
+      # lệnh ấy rồi đối chiếu thêm BẢY con số của hàng "pe-da VĂN PHONG" trong
+      # bảng mốc nền (179 bài · 75 lỗi · 391 cảnh báo · L3 · L1 · L8 · 18 luật) và
+      # kiểm cả lời khai "dồn ở L3 · L1 · L8" vẫn đúng thứ tự. Nên đây THAY bước
+      # cũ, không thêm một lượt chạy — trước 08/11/2026 bảy con số đó không cổng
+      # nào canh, và một bản sao trong chính hàng ấy đã trôi (ghi 82 khi thật là 77).
+      - run: node scripts/check-moc-chay.mjs vanphong
 
       # ĐỘ PHỦ của chính bộ văn phong: chữ nào người học đọc mà bộ kiểm KHÔNG
       # thấy. Bộ kiểm đọc `source/course.json` (cố ý), nhưng một phần văn xuôi

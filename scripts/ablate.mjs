@@ -269,17 +269,32 @@ export function chayMot(o) {
         + `\n   ${TRAN_DONG_IN} dòng cuối của lệnh:\n${dongCuoi(ra)}`,
       );
     }
-    // Khuôn KHÔNG in tổng (cổng `.mjs` chỉ in "N lỗi") không có con số nào
-    // chứng minh nó đã chạy hết, nên bằng chứng ở đây là MÃ THOÁT: một cổng in
-    // "0 lỗi" mà thoát khác 0, hoặc in "3 lỗi" mà thoát 0, là tự nói ngược —
-    // và một bộ kiểm tự nói ngược thì con số của nó không dùng được.
-    if (kq.tong === null && r.status !== null) {
+    // BẰNG CHỨNG CUỐI LÀ MÃ THOÁT, và nó áp cho MỌI khuôn — không chỉ khuôn
+    // không in tổng. Một bộ kiểm in "0 lỗi" mà thoát khác 0, hoặc in "3 lỗi" mà
+    // thoát 0, là tự nói ngược; con số của nó không dùng được.
+    //
+    // VÌ SAO NỚI RA CẢ KHUÔN CÓ TỔNG — cách THỨ NĂM để "0 đỏ" nói dối, đo được
+    // 08/11/2026 khi ablate chính `check-moc-chay`: một cổng KHÔNG đọc được số
+    // thì nó in lại 30 DÒNG CUỐI của lệnh con để người đọc log không bị mù. Thế
+    // là đầu ra của nó CHỨA đầu ra của cổng trong, và thứ tự ưu tiên của
+    // `docSoDo` khớp dòng tổng của cổng TRONG (`Đối chiếu sổ: … 179 bài · 0
+    // lỗi`) thay vì lời phán của cổng NGOÀI. Ablate in "0 đỏ / 179 ca" trong khi
+    // cổng ngoài ĐỎ và thoát 1. Khuôn ấy CÓ tổng, nên phép kiểm cũ bỏ qua nó.
+    //
+    // Đo trước khi siết, vì một phép kiểm báo oan sẽ bị tắt: `check_vanphong.py`
+    // không cờ in "75 lỗi" và thoát **1**; `--doi-chieu` in "0 lỗi" và thoát
+    // **0**; `check.py --strict` 0 lỗi thoát 0; `check-duong-toi.mjs` 0 lỗi
+    // thoát 0. Bất biến "thoát 0 ⟺ 0 đỏ" đứng cho cả tám khuôn.
+    if (r.status !== null) {
       const xanh = kq.do === 0;
       if (xanh !== (r.status === 0)) {
         throw new Error(
-          `KHUÔN KHÔNG CÓ TỔNG, và lệnh TỰ NÓI NGƯỢC: in "${kq.do} lỗi" nhưng mã `
-          + `thoát ${r.status}. Đây KHÔNG phải "${kq.do} đỏ" — một bộ kiểm tự nói `
-          + 'ngược thì con số của nó không dùng được.\n'
+          `LỆNH TỰ NÓI NGƯỢC: đọc ra "${kq.do} đỏ" nhưng mã thoát ${r.status}. `
+          + `Đây KHÔNG phải "${kq.do} đỏ".\n`
+          + '   Hai nguyên nhân đã gặp: (a) bộ kiểm in một con số rồi thoát ngược '
+          + 'lại nó; (b) lệnh in LẠI đầu ra của một lệnh con, nên con số đọc được '
+          + 'là của cổng TRONG chứ không phải lời phán của cổng NGOÀI — thêm một '
+          + 'khuôn cho cổng ngoài, đừng nới phép kiểm này.\n'
           + `   ${TRAN_DONG_IN} dòng cuối của lệnh:\n${dongCuoi(ra)}`,
         );
       }

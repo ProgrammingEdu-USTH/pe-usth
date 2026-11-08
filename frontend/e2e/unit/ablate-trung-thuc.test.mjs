@@ -169,6 +169,62 @@ test('chayMot: khuôn không-có-tổng + lệnh TỰ NÓI NGƯỢC → DỪNG',
   }
 });
 
+test('chayMot: khuôn CÓ TỔNG cũng phải khớp mã thoát — cách THỨ NĂM "0 đỏ" nói dối', () => {
+  // ĐO ĐƯỢC 08/11/2026 khi ablate chính `check-moc-chay`: một cổng KHÔNG đọc
+  // được số thì nó in lại 30 dòng cuối của lệnh con, để người đọc log CI không
+  // bị mù. Thế là đầu ra của nó CHỨA đầu ra của cổng trong, và thứ tự ưu tiên
+  // của `docSoDo` khớp dòng tổng của cổng TRONG (`Đối chiếu sổ: … 179 bài · 0
+  // lỗi`) thay vì lời phán của cổng NGOÀI. Ablate in "0 đỏ / 179 ca" trong khi
+  // cổng ngoài ĐỎ và thoát 1.
+  //
+  // Phép kiểm cũ chỉ áp cho khuôn KHÔNG in tổng, nên nó bỏ qua đúng ca này —
+  // khuôn ratchet CÓ tổng (số bài). Nay mã thoát là bằng chứng cho MỌI khuôn.
+  const d = thuMucTam();
+  const tep = join(d, 'a.txt');
+  writeFileSync(tep, 'alpha\n');
+  try {
+    assert.throws(
+      () => chayMot({
+        tep,
+        cu: 'alpha',
+        moi: 'beta',
+        // Đúng hình dạng đã gặp: một cổng ngoài thoát 1 nhưng in lại dòng tổng
+        // XANH của cổng trong.
+        lenh: 'echo Đối chiếu sổ: 18 luật · 179 bài · 0 lỗi && exit 1',
+      }),
+      (e) => {
+        assert.match(e.message, /TỰ NÓI NGƯỢC/);
+        assert.match(e.message, /KHÔNG phải "0 đỏ"/);
+        // Thông điệp phải NÓI RA nguyên nhân thứ hai, nếu không người đọc đi tìm
+        // một bộ kiểm hỏng trong khi thứ hỏng là PHÉP ĐỌC.
+        assert.match(e.message, /cổng TRONG/);
+        return true;
+      },
+    );
+    // Chiều NGƯỢC, và nó là chiều quan trọng: nhất quán thì khuôn CÓ TỔNG vẫn
+    // đọc được bình thường. Siết quá tay ở đây là làm mọi phép ablate hợp lệ
+    // của tám khuôn kia thành lỗi.
+    const k = chayMot({
+      tep,
+      cu: 'alpha',
+      moi: 'beta',
+      lenh: 'echo Đối chiếu sổ: 18 luật · 179 bài · 0 lỗi',
+    });
+    assert.deepEqual({ tong: k.tong, do: k.do }, { tong: 179, do: 0 });
+    // Và một khuôn CÓ TỔNG với số đỏ > 0 phải thoát khác 0 — đo được:
+    // `check_vanphong.py` không cờ in "75 lỗi" và thoát 1.
+    const x = chayMot({
+      tep,
+      cu: 'alpha',
+      moi: 'beta',
+      lenh: 'echo Đối chiếu sổ: 18 luật · 179 bài · 3 lỗi && exit 1',
+    });
+    assert.deepEqual({ tong: x.tong, do: x.do }, { tong: 179, do: 3 });
+  } finally {
+    rmSync(d, { recursive: true, force: true });
+  }
+});
+
 test('docSoDo: đầu ra không có dòng tổng kết trả null', () => {
   assert.equal(docSoDo(''), null);
   assert.equal(docSoDo('error TS1005: expected\n'), null);
@@ -236,7 +292,7 @@ test('chayMot: đọc được số thật, và PHỤC HỒI tệp', () => {
       tep,
       cu: 'alpha',
       moi: 'beta',
-      lenh: 'echo Tests:       3 failed, 5 passed, 8 total',
+      lenh: 'echo Tests:       3 failed, 5 passed, 8 total && exit 1',
     });
     assert.deepEqual({ do: k.do, tong: k.tong }, { do: 3, tong: 8 });
     assert.equal(readFileSync(tep, 'utf8'), 'alpha\n');
@@ -290,7 +346,7 @@ test('chayMot: seed đi qua TỆP, nên dấu gạch chéo ngược không bị 
       tep,
       'cu-tep': cuTep,
       'moi-tep': moiTep,
-      lenh: 'echo Tests:       1 failed, 1 total',
+      lenh: 'echo Tests:       1 failed, 1 total && exit 1',
     });
     assert.equal(k.do, 1);
     assert.equal(readFileSync(tep, 'utf8'), than);

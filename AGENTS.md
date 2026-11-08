@@ -84,14 +84,14 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d) |
-| Frontend unit test | `cd frontend && npm run test:unit` → **621 ca** / 54 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **622 ca** / 54 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
 | Giáo trình pe-da (đang chạy) | **179 bài, 11 module**, 567 màn đọc, **537 câu trắc nghiệm**, 669 câu luyện tập, **143 bài tập được chấm / 480 ca**, 2 439 phút; 139 bài chạy trong trình duyệt / 15 hỗn hợp / 25 trên máy |
 | pe-da chấm nội dung | `node scripts/pe-da/check-pyodide.mjs` → 154 bài, 420 đoạn code, **0 hỏng**, **0 cảnh báo**, 30–85 s (BIẾN THIÊN theo tải máy — xem bẫy "trần 5 giây là trần của đường khác"); trần pha 1 là **15 000 ms** (`/ide`), trần pha 2 là **5 000 ms** (ô chạy trong bài), và mỗi pha in biên riêng; **pha 2: 52/53 đáp án mẫu màn luyện tập chạy đúng, 1 ngoại lệ đã khai, 10 câu bỏ qua (bài chạy trên máy)** |
 | pe-da chấm BÀI TẬP | `node scripts/pe-da/check-practice.mjs` → 143 bài, **480 ca đạt**, 773 biến thể sai đều trượt, **pha 3 cổng file dữ liệu 7 bài / 0 lỗi**, **pha 4: 2 372 ca trượt / 0 ca im lặng / 7 nhánh phản hồi**, ~12 s |
-| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **75 lỗi · 391 cảnh báo**, dồn ở L3 27 (câu ≥ 3 dấu phẩy) · L1 21 (câu > 30 tiếng) · L8 21 (mật độ thuật ngữ) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì 75 lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
+| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **75 lỗi · 391 cảnh báo**, dồn ở L3 27 (câu ≥ 3 dấu phẩy) · L1 21 (câu > 30 tiếng) · L8 21 (mật độ thuật ngữ) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì những lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
 | pe-da ĐỘ PHỦ văn phong | `node scripts/pe-da/check-phu-van-phong.mjs` → **99 chuỗi NGOÀI TẦM / 4 mục đã khai**, 0 lỗi. Bộ văn phong đọc `source/course.json` (cố ý), nên chữ do `build.py` SINH RA thì không luật nào thấy: **80 `figure.alt`** · 19 chuỗi của `diagram`. NỢ ẨN đã đo: L3 32 → 41 · L13 cb 217 → 229 · §4-A cb 23 → 30 · L14 0 → 3 lỗi — tức tín hiệu dừng báo THIẾU ~20%. Trần 99 CHỈ ĐƯỢC HẠ (108 → 99 ngày 08/11: 9 đoạn `paragraph.text` đã về gói nguồn) |
 | pe-da bảng từng bước | `py scripts/pe-da/gen_traces.py` → **56 vết / 359 khối đủ điều kiện** (303 bỏ qua — bảng từng ghi 356/300, đã CŨ từ trước 04/11: dựng lại từ HEAD cũng ra 359/303, và `check-moc-nen` không đối chiếu hàng này; phần lớn vì không ra được câu dự đoán nào ĐÁNG hỏi); build.py `return 1` nếu lệch |
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
@@ -104,7 +104,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **34 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **6 mục** (frontend 621 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773), 0 trượt, 0 lỗi; nó CHẠY chính sáu lệnh đó nên THAY cả sáu bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **7 mục** (frontend 622 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 75/391), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -5218,6 +5218,95 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   VAN-PHONG.md, không canh AGENTS.md. Mười lát văn phong liền tôi sửa sáu con số ấy BẰNG TAY,
   tức đúng lớp "con số không ai canh thì sẽ trôi" — và chỗ đúng cho nó là mục thứ bảy của
   `check-moc-chay`, không phải `check-moc-nen`.
+
+- **HÀNG "pe-da VĂN PHONG" MANG BẢY CON SỐ MÀ KHÔNG CỔNG NÀO ĐỐI CHIẾU — mười lát liền
+  tôi sửa chúng bằng tay, và một bản sao trong chính hàng ấy đã trôi.** Lead này tôi tự
+  ghi ở lát trước; #147 vừa dạy rằng một lead viết ở vòng trước vẫn là lời khai phải
+  kiểm, nên đo trước: `grep -ln "VĂN PHONG\|check_vanphong" scripts/check-*.mjs` → **RỖNG**.
+  `check-moc-nen` cố ý không chạy bộ kiểm nào (nó phải nhanh) nên nó tự khai các con số ấy
+  là NGOÀI TẦM; `check-moc-chay` lúc đó có **6 mục**, không mục nào là văn phong; ratchet
+  `--doi-chieu` canh §11 của VAN-PHONG.md, **không** canh AGENTS.md. Bằng chứng cứng: ở lát
+  trước `check-moc-nen` in **0 lỗi** trong khi hàng ghi 77/393 và bộ kiểm đo 75/391.
+  Và bản sao TRONG CHÍNH hàng đó (*"nó KHÔNG đỏ vì N lỗi đang tồn"*) đã trôi thật — nó ghi
+  **82** khi số thật là **77**.
+  Nay `check-moc-chay` có **mục thứ bảy** (`vanphong`), và nó CHẠY đúng lệnh `--doi-chieu`
+  mà CI đã chạy ở job `giao-trinh-da`, nên nó THAY bước đó chứ không thêm lượt chạy.
+  **BA TẦNG CỦA CÙNG MỘT LẦN CHẠY** được đọc một lượt: bảng TỪNG LUẬT (L3 · L1 · L8), dòng
+  tổng của bộ kiểm (bài · lỗi · cảnh báo), và dòng của ratchet (số luật · số lỗi). `truot`
+  lấy từ ratchet, nên một luật xấu đi làm cổng đỏ vì "bộ test đỏ" chứ không vì "bảng ghi
+  sai" — cùng lý lẽ đã viết cho mục `e2e`.
+  **VÀ BA CON SỐ L3/L1/L8 KHÔNG CHỈ LÀ SỐ: hàng khai chúng là ba luật DỒN nhiều lỗi nhất,
+  tức một lời khai về THỨ TỰ.** Ngày L2 vượt L3 thì con số có thể vẫn khớp trong khi câu
+  "dồn ở" đã sai, và một phép so BẰNG sẽ im lặng ở đúng chỗ đó. Nên mục này có `themLuat`:
+  ba luật được kể tên phải là ba luật nhiều lỗi nhất, so theo TẬP (L1 và L8 đang BẰNG nhau
+  ở 21 nên so theo vị trí sẽ báo oan). Câu trong thông điệp SUY RA từ chính mảng — bản đầu
+  của tôi ghi cứng `"dồn ở L3 · L1 · L8"` cạnh `['L1','L3','L8']`, tức nuôi một bản sao thứ
+  hai ngay trong mã của cổng chống-bản-sao.
+  **BẢN SAO TRONG CHÍNH HÀNG THÌ BỎ SỐ, KHÔNG CANH.** Câu *"nó KHÔNG đỏ vì … lỗi đang
+  tồn"* nói về CƠ CHẾ (không đỏ vì lỗi đang tồn, chỉ đỏ khi một luật TĂNG) — nó không cần
+  con số. Cùng nước đi đã làm cho ghi chú §2 khi dựng luật TL: **ít con số hơn là câu trả
+  lời đúng khi một con số không thêm thông tin nào mà cổng không in ra được.**
+  **`f in khai2`: bản sao được phép chở một TẬP CON.** Hàng "Mốc phải CHẠY mới biết" chở 2
+  trong 7 con số (`vanphong 75/391`), mà vòng so cũ đọc `khai2[f]` cho MỌI trường của
+  `khai` — thiếu một trường là `undefined !== that[f]`, tức một lỗi GIẢ. Nó KHÔNG nới phép
+  kiểm: chính regex của `bang2` đã đòi đúng hình dạng, nên mất một con số ở đó là "KHÔNG
+  CÒN DÒNG", không phải im lặng.
+  **SỐ MỤC CỦA CHÍNH CỔNG cũng là một con số không ai canh** — hàng ghi "6 mục" suốt trong
+  khi thêm/bớt một mục chỉ sửa một file. `check-moc-nen` đã tự canh `mucDoiChieu` của nó từ
+  trước; đây là nửa còn thiếu, và nó chạy ở MỌI lần gọi vì con số ấy không phụ thuộc tham số.
+  **VÀ MỘT CON SỐ TRONG ĐẦU RA CỦA CHÍNH CỔNG ĐÃ TRÔI:** dòng NGOÀI TẦM còn ghi "Backend
+  lint 104 lỗi" trong khi lint đã xuống **92** ở vòng dọn `prisma-exception.filter`. Một
+  cổng chống trôi mà tự in một con số cũ thì nó dạy người đọc thôi tin nó.
+
+  **CÁCH THỨ NĂM ĐỂ "0 ĐỎ" NÓI DỐI: một cổng in LẠI đầu ra của cổng con.** Phát hiện này
+  đến từ việc DÙNG `ablate.mjs` trên chính `check-moc-chay`, đúng như #141 và #142.
+  Chiều "phá phép đọc bảng TỪNG LUẬT" (phép tự kiểm `≥ 15 luật`) in ra **`0 đỏ / 179 ca
+  (ratchet văn phong)`** — một con số trông hợp lệ. Thật ra cổng ngoài ĐỎ và thoát **1**:
+  khi `doc()` trả `null`, `check-moc-chay` in lại **30 dòng cuối** của lệnh con (bản sửa
+  07/11, để log CI không bị mù), nên đầu ra của nó CHỨA đầu ra của cổng trong, và thứ tự ưu
+  tiên của `docSoDo` khớp dòng `Đối chiếu sổ: … 179 bài · 0 lỗi` của cổng TRONG thay vì lời
+  phán của cổng NGOÀI.
+  Phép kiểm "TỰ NÓI NGƯỢC" đã có từ #141 nhưng nó chỉ áp cho khuôn **không in tổng**, mà
+  khuôn ratchet CÓ tổng (số bài) — nên nó bỏ qua đúng ca này. Nay mã thoát là bằng chứng
+  cho **MỌI** khuôn.
+  **ĐO TRƯỚC KHI SIẾT, vì một phép kiểm báo oan sẽ bị tắt:** `check_vanphong.py` không cờ
+  in "75 lỗi" và thoát **1**; `--doi-chieu` in "0 lỗi" và thoát **0**; `check.py --strict`
+  0 lỗi thoát 0; `check-duong-toi.mjs` 0 lỗi thoát 0. Bất biến "thoát 0 ⟺ 0 đỏ" đứng cho
+  cả tám khuôn.
+  **VÀ PHÉP SIẾT LÀM HAI CA SẴN CÓ ĐỎ — đó là chiều phải kiểm, không phải tai nạn.** Hai
+  fixture TỔNG HỢP in `Tests: 3 failed, 5 passed, 8 total` rồi thoát **0**, trong khi jest
+  THẬT thoát 1 khi có ca trượt. Fixture mô hình sai mã thoát, nên bản sửa là sửa FIXTURE,
+  không nới phép kiểm — cùng luật "sửa cổng, đừng sửa nội dung" ở Luật 6 của cổng INSERT,
+  lần này theo chiều ngược.
+  **Bẫy nhỏ khi viết ca mới:** `echo` của cmd GIỮ nguyên dấu nháy kép, nên
+  `echo "Đối chiếu sổ: …"` in ra một dòng mở đầu bằng `"` và regex `^Đối chiếu sổ:` không
+  khớp — ca ĐỎ OAN với câu "KHÔNG ĐỌC ĐƯỢC SỐ". Ca sẵn có ở trên đã echo KHÔNG nháy; làm
+  theo nó.
+  **Chiều hậu quả, phải nói ra:** nay `ablate.mjs` **TỪ CHỐI** đo chiều "phá phép tự kiểm"
+  của `check-moc-chay` thay vì in một con số giả. Đó là kết quả ĐÚNG và là kiểu bằng chứng
+  mạnh nhất công cụ ấy đưa ra được (nó thà không trả lời còn hơn trả lời sai), nhưng nó
+  nghĩa là chiều ấy không có SỐ — và thông điệp nói ra cách sửa nếu cần số: thêm một khuôn
+  cho cổng ngoài, đừng nới phép kiểm.
+
+  **ABLATE 8 chiều.** Năm chiều trên AGENTS.md, mỗi chiều **1 đỏ**: đổi `L3 27 → 26` trong
+  hàng · đổi bản sao `vanphong 75/391 → 75/390` · đổi CHỮ của hàng (regex hết khớp → "KHÔNG
+  CÒN DÒNG") · gỡ hẳn bản sao thứ hai · đổi số mục `7 → 6`. Hai chiều trên cây mã: đổi tập
+  luật kỳ vọng của `themLuat` → **1 đỏ** kèm đúng thông điệp của nó (nên con đỏ ấy đến từ
+  `themLuat`, không từ phép so số) · phá phép đọc bảng TỪNG LUẬT → **ablate TỪ CHỐI** với
+  "LỆNH TỰ NÓI NGƯỢC", mã thoát 1. Chiều thứ tám trên chính `ablate.mjs`: trả bất biến về
+  bản chỉ-áp-cho-khuôn-không-tổng → **1 đỏ / 19 ca**.
+  **SỐ ĐÃ ĐO:** `check-moc-chay` **6 → 7 mục**, 0 trượt 0 lỗi, và nó đối chiếu 7 con số của
+  hàng văn phong (179 · 75 · 391 · 27 · 21 · 21 · 18) cộng 2 con số của bản sao · frontend
+  unit **621 → 622 ca** / 54 tệp · sổ ngưỡng siết sàn 621 → 622 · `check-moc-nen` 20 mục
+  0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi · `export-chet` / `tai-nguyen-chet` /
+  `duong-toi` / `check-wheel` 0 lỗi. **KHÔNG đụng một dòng nội dung nào**, nên `check-da-nap`
+  giữ **59 bài chờ**.
+  **GIỚI HẠN PHẢI NÓI RA:** mục này đối chiếu BẢY con số của hàng, không phải mọi con số
+  trong bảng mốc nền có liên quan tới văn phong. Hàng "pe-da ĐỘ PHỦ văn phong" (99 chuỗi
+  ngoài tầm · 4 mục khai) và hàng "Bảng mốc nền" vẫn do cổng khác canh, và các bảng số
+  trong VAN-PHONG.md thì do luật TL canh. Và cascade của TL vẫn còn: một con số trôi trong
+  VAN-PHONG.md làm `lỗi` phình lên nên mục này sẽ kêu CẢ "bảng ghi sai" — `luuY` của nó nói
+  ra điều đó cùng cách sửa (sửa cái GỐC rồi đo lại, đừng ghi ngay con số cổng vừa in).
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

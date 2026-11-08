@@ -30,9 +30,40 @@ import { join } from 'node:path';
 import test from 'node:test';
 
 const GOC = new URL('../../', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
-const CSS = readFileSync(join(GOC, 'src/components/lesson-chrome/LessonChrome.module.css'), 'utf8');
+
+/** Ba module dựng nên màn bài học. Cổng phủ cả ba, không chỉ vỏ. */
+const TEP = [
+  'src/components/lesson-chrome/LessonChrome.module.css',
+  'src/components/python-studio/studio-chrome.module.css',
+  'src/components/lesson-chrome/exercises/exercises.module.css',
+];
+const CSS = readFileSync(join(GOC, TEP[0]), 'utf8');
 
 const SAN = 44;
+
+/**
+ * Rule `cursor: pointer` CHƯA ĐO trên thiết bị — nợ, không phải "đã đạt".
+ *
+ * VÌ SAO KHAI thay vì nói chúng đạt: cả 16 rule của hai module kia đều KHÔNG
+ * khai `min-*`/`height`, nên kích thước đến từ `padding` + nội dung và không
+ * đọc được từ CSS. Năm cái đã đo trên production (390×844, màn ĐÃ LẮNG,
+ * `offsetHeight`) hoá ra dưới sàn: `.chip` 24 · `.tracePredictGo` 36 ·
+ * `.runBtn` 37 · `.practiceReveal` 37 · `.onGianCachNut` 43 — tức tỉ lệ vi phạm
+ * trong nhóm ĐÃ ĐO là 5/7. Khai 11 cái còn lại là "đạt" khi chưa mở màn chứa
+ * chúng ra xem là một lời khẳng định không có số đo, và nó tệ hơn không khai.
+ *
+ * Phần lớn chúng nằm trên bề mặt tôi chưa đi qua được trong một lượt: toast,
+ * bảng giải thưởng, panel gập, chú thích hình, hoặc màn của pe-v4.
+ *
+ * DANH SÁCH NÀY CHỈ ĐƯỢC NGẮN ĐI — mỗi lần ai đo một mục thì nó rời khỏi đây,
+ * hoặc vì đã đạt (khai `min-height`) hoặc vì phải sửa. Cùng luật một chiều của
+ * `DA_SANG_LOFI`.
+ */
+const CHUA_DO = [
+  '.toast button', '.resetLink', '.answerKeyHead', '.panel summary',
+  '.awards button', '.theoryFigure figcaption a', '.traceOpen',
+  '.onGianCachTiep', '.practiceRun', '.toggleBtn', '.optionCard',
+];
 
 /** Đích bấm CỐ Ý dưới sàn, kèm lý do. Hai chiều: một mục đã đạt sàn là LỖI. */
 const NGOAI_TAM = {
@@ -54,8 +85,8 @@ const boChuThich = (s) => s.replace(/\/\*[\s\S]*?\*\//g, ' ');
  * `@media (max-width: 560px)` là giá trị của KHỔ ĐIỆN THOẠI, còn `height: 40px`
  * ngoài đó là giá trị desktop. Gộp chúng lại là đọc sai cả hai.
  */
-function moiRule() {
-  const ma = boChuThich(CSS);
+function moiRule(van = CSS) {
+  const ma = boChuThich(van);
   const ra = [];
   for (const mm of ma.matchAll(/@media([^{]*)\{([\s\S]*?)\n\}/g)) {
     for (const m of mm[2].matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
@@ -152,4 +183,80 @@ test('đích bấm: `.closeBtn` không quay về 40px', () => {
   const c = hieuLuc(rules, '.closeBtn', 'height');
   const r = hieuLuc(rules, '.closeBtn', 'width');
   assert.ok(c >= SAN && r >= SAN, `.closeBtn nay ${r}×${c}, dưới sàn ${SAN}px`);
+});
+
+test('đích bấm: CẢ BA module — mọi rule `cursor: pointer` đạt sàn hoặc được KHAI', () => {
+  // Mở rộng của ca trên sang `studio-chrome.module.css` và
+  // `exercises.module.css`. Vẫn canh theo ĐỘ PHỦ: một nút MỚI thêm vào bất cứ
+  // file nào trong ba file phải đạt sàn hoặc có tên trong một danh sách khai.
+  //
+  // HAI danh sách khai, và chúng nói hai điều KHÁC NHAU:
+  //   NGOAI_TAM — đã đo, sàn BẤT KHẢ ở đó, kèm lý do mang số.
+  //   CHUA_DO   — chưa đo trên thiết bị, nên không ai được nói nó đạt.
+  // Gộp hai cái lại là mất phân biệt "đã quyết" với "chưa biết".
+  const loi = [];
+  const datMaKhai = [];
+  const thay = new Set();
+  for (const tep of TEP) {
+    const van = readFileSync(join(GOC, tep), 'utf8');
+    const rules = moiRule(van);
+    for (const r of rules) {
+      if (!/cursor\s*:\s*pointer/.test(r.than)) continue;
+      const sel = r.sel;
+      thay.add(sel);
+      const cao = hieuLuc(rules, sel, 'min-height') ?? hieuLuc(rules, sel, 'height');
+      const rong = hieuLuc(rules, sel, 'min-width') ?? hieuLuc(rules, sel, 'width');
+      // Bề rộng: năm nút vừa sửa đều ĐÃ ≥ 44 theo nội dung, và `min-height` một
+      // mình là bản sửa đúng cho chúng. Nên ở hai module này luật đòi TRỤC DỌC
+      // bằng khai báo, còn trục ngang thì chấp nhận số đo đã có — ghi ra đây vì
+      // đó là một phép nới so với ca trên, và nó có lý do: ép `min-width` lên
+      // một chip trong hàng ngang là đổi bố cục mà tôi chưa đo.
+      const doiCaHaiTruc = tep === TEP[0];
+      const duSan = cao !== null && cao >= SAN
+        && (!doiCaHaiTruc || (rong !== null && rong >= SAN));
+      const khai = NGOAI_TAM[sel] ? 'NGOAI_TAM' : (CHUA_DO.includes(sel) ? 'CHUA_DO' : null);
+      if (khai) { if (duSan) datMaKhai.push(`${sel} (${khai})`); continue; }
+      if (!duSan) {
+        loi.push(`${tep.split('/').pop()} \`${sel}\`: cao ${cao ?? 'KHÔNG KHAI'}`
+          + (doiCaHaiTruc ? `, rộng ${rong ?? 'KHÔNG KHAI'}` : ''));
+      }
+    }
+  }
+  assert.deepEqual(
+    loi, [],
+    `đích bấm dưới sàn ${SAN}px, hoặc KHÔNG được khai báo bảo đảm. Kích thước đến `
+    + 'từ `padding` + nội dung thì không gì bảo đảm nó — thêm `min-height: 44px`. '
+    + 'Nếu chưa đo được trên thiết bị thì thêm vào CHUA_DO (nợ), KHÔNG nói nó '
+    + 'đạt.\n   ' + loi.join('\n   '),
+  );
+  assert.deepEqual(
+    datMaKhai, [],
+    'KHAI ĐÃ LỖI THỜI: mục dưới nay đã đạt sàn bằng khai báo, gỡ nó khỏi danh '
+    + 'sách — CHUA_DO chỉ được NGẮN ĐI.\n   ' + datMaKhai.join('\n   '),
+  );
+  // Tự kiểm: phép quét trượt thì mọi luật trên đạt RỖNG.
+  assert.ok(thay.size >= 15, `chỉ thấy ${thay.size} selector \`cursor: pointer\` trên cả ba file`);
+  // Và mọi mục trong CHUA_DO phải trỏ vào một selector CÓ THẬT.
+  for (const s of CHUA_DO) {
+    assert.ok(thay.has(s), `CHUA_DO khai \`${s}\` nhưng không file nào còn rule đó`);
+  }
+});
+
+test('đích bấm: năm nút đã đo không quay về dưới sàn', () => {
+  // Ghim riêng con số của năm nút ĐÃ ĐO trên thiết bị, kèm giá trị cũ — để một
+  // bản "dọn cho gọn" gỡ `min-height` ra thì có chỗ nói rõ nó từng là bao nhiêu.
+  const CU = {
+    '.chip': 24, '.runBtn': 37,
+    '.tracePredictGo': 36, '.practiceReveal': 37, '.onGianCachNut': 43,
+  };
+  for (const [sel, cu] of Object.entries(CU)) {
+    const tep = ['.chip', '.runBtn'].includes(sel) ? TEP[2] : TEP[1];
+    const rules = moiRule(readFileSync(join(GOC, tep), 'utf8'));
+    const cao = hieuLuc(rules, sel, 'min-height') ?? hieuLuc(rules, sel, 'height');
+    assert.ok(
+      cao !== null && cao >= SAN,
+      `\`${sel}\` nay khai cao ${cao ?? 'KHÔNG GÌ'} — đo trên production nó cao `
+      + `${cu}px khi chưa có sàn. Đừng gỡ \`min-height: 44px\`.`,
+    );
+  }
 });

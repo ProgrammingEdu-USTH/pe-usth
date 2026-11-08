@@ -84,7 +84,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
-| Frontend unit test | `cd frontend && npm run test:unit` → **647 ca** / 58 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **649 ca** / 58 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -104,7 +104,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **35 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **7 mục** (frontend 647 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **7 mục** (frontend 649 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -5845,6 +5845,69 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   đích nên phải triage từng cái, và đó là một lát riêng. Hai đích tôi đã đo dưới sàn ở đó:
   `practiceReveal` **61×37** (nút "Viết thử rồi mới xem đáp án") và option của màn ôn giãn
   cách **61×43** — con số thứ hai nằm trong sai số ±1px của phép dò, con số đầu thì không.
+
+- **NĂM ĐÍCH BẤM DƯỚI 44px Ở HAI MODULE CÒN LẠI, và nút thấp nhất là "Xem lời giải mẫu" —
+  CAO 24px.** Lead của vòng trước: cổng 44px chỉ phủ `LessonChrome.module.css`, còn **16 rule
+  `cursor: pointer`** ở `studio-chrome.module.css` (12) và `exercises.module.css` (4) chưa ai
+  canh. Triage cả 16 thì **không một rule nào khai `min-height`/`min-width`/`height`** — mọi
+  kích thước đến từ `padding` + nội dung, tức không gì bảo đảm sàn.
+  **SỐ ĐO** (production, 390×844, đi qua cả 15 màn, bằng `offsetHeight` trên màn ĐÃ LẮNG):
+
+  | lớp | cao | rộng | nút |
+  |---|---|---|---|
+  | `.chip` | **24** | 124 | **"Xem lời giải mẫu"** |
+  | `.tracePredictGo` | **36** | 119 | "Xem kết quả" của cổng dự đoán |
+  | `.runBtn` | **37** | 121 | "▶ Chạy thử" của ô bài tập được chấm |
+  | `.practiceReveal` | **37** | 221 | "Viết thử rồi mới xem đáp án" |
+  | `.onGianCachNut` | **43** | 321 | option màn ôn giãn cách |
+
+  **Tất cả chỉ thiếu trục DỌC** — bề rộng đều ≥ 44, nên `min-height: 44px` chữa đúng chỗ mà
+  không chạm bố cục ngang. Tiêm năm khai báo ấy vào trang production và đi lại cả 15 màn: cả
+  năm lên **đúng 44**, **0 màn tràn ngang**.
+  **HOẠT ẢNH VÀO MÀN LÀM `getBoundingClientRect` NÓI DỐI 0,7px, và tôi đã suýt đi tìm một
+  giới hạn không tồn tại.** Lần đo đầu, ngay sau khi bấm một đoạn thanh tiến độ, ba nút ra
+  **43,3** trong khi computed `min-height` là `44px` và `box-sizing` là `border-box` — một mâu
+  thuẫn. Nguyên nhân: tổ tiên `.stepEnter` chạy hoạt ảnh vào màn, nên rect bị CO khi animation
+  còn bay. `offsetHeight`/`clientHeight` là LAYOUT nên không bị, và chúng ra đúng 44. Cùng họ
+  sai số với *"đếm fps bằng rAF tự làm hỏng phép đo"* đã ghi ở mục độ giật. **Sai số chỉ lệch
+  phần thập phân, KHÔNG đổi kết luận** — cả năm vẫn dưới 44 trên màn đã lắng; nhưng nếu đọc
+  43,3 như một số thật thì đã đi tìm một `max-height` hay một phép scale không có.
+  **Và một lần nữa cùng họ:** tiêm rule cho `.chip` rồi đo qua `Range` ra 43,3, nhưng đọc
+  `getComputedStyle` TRƯỚC (buộc layout) thì ra đúng 44. **Khi đo kích thước sau khi vừa đổi
+  CSS, buộc layout trước — và dùng `offsetHeight` nếu có hoạt ảnh trong cây.**
+  **HAI DANH SÁCH KHAI, VÀ CHÚNG NÓI HAI ĐIỀU KHÁC NHAU** — gộp lại là mất phân biệt "đã
+  quyết" với "chưa biết":
+  · `NGOAI_TAM` — ĐÃ ĐO, sàn BẤT KHẢ ở đó, kèm lý do mang số (`button.segment`: 15 đích 44px
+    cần 660px trong khi khổ 390 có 358px);
+  · `CHUA_DO` — **11 rule** chưa đo trên thiết bị, nên không ai được nói nó đạt. Phần lớn nằm
+    trên bề mặt tôi chưa đi qua được trong một lượt (toast, bảng giải thưởng, panel gập, chú
+    thích hình, hoặc màn của pe-v4). Danh sách này **CHỈ ĐƯỢC NGẮN ĐI**, cùng luật một chiều
+    của `DA_SANG_LOFI`.
+  **VÌ SAO PHẢI KHAI "CHƯA ĐO" THAY VÌ NÓI CHÚNG ĐẠT:** tỉ lệ vi phạm trong nhóm ĐÃ ĐO là
+  **5/7**. Khai 11 cái còn lại là "đạt" khi chưa mở màn chứa chúng ra xem là một lời khẳng
+  định không có số đo — và nó tệ hơn không khai, vì nó làm "0 lỗi" đọc ra thành "mọi đích bấm
+  của màn bài học đã đạt".
+  **MỘT PHÉP NỚI CÓ CHỦ ĐÍCH, ghi ra vì nó là phép nới:** ở hai module mới, cổng đòi TRỤC DỌC
+  bằng khai báo nhưng chấp nhận số đo đã có cho trục ngang. Lý do: năm nút này đều đã ≥ 44 bề
+  rộng, và ép `min-width` lên một chip trong hàng ngang là đổi bố cục mà tôi chưa đo. Vỏ bài
+  học (`LessonChrome.module.css`) vẫn đòi CẢ HAI trục.
+  **ABLATE 5 chiều, cả 5 đỏ:** đổi tên `.chip` (mất khai sàn) → **1** · đổi tên
+  `.tracePredictGo` → 1 · đổi tên `.runBtn` → 1 · gỡ một mục khỏi `CHUA_DO` → 1 · khai
+  `CHUA_DO` cho một selector KHÔNG CÓ THẬT → 1.
+  **BA PHÉP GIEO TRƯỢT TRƯỚC ĐÓ, và `ablate.mjs` từ chối cả ba:** tiền tố 14 ký tự tôi dựng
+  để neo dòng `min-height` khớp **2 chỗ** (hai lớp trong cùng file có chú thích giống nhau),
+  rồi một seed nhiều dòng khớp 0 chỗ vì tệp là **CRLF**. Cách đi đúng là gieo vào chính thứ
+  cổng kiểm — TÊN SELECTOR — chứ không vào một dòng khai báo mà nhiều lớp dùng chung khuôn.
+  **SỐ ĐÃ ĐO:** frontend unit **647 → 649 ca** / 58 tệp (hai ca mới, cùng tệp) · sổ ngưỡng
+  siết sàn 647 → 649 · typecheck sạch · lint **146 cảnh báo / 0 lỗi** · `npm run build`
+  exit 0 · `check-moc-nen` 20 mục 0 lỗi · `check-moc-chay frontend` 0 lỗi · `check-nguong`
+  35 ngưỡng 0 lỗi · `tai-nguyen-chet` / `duong-toi` 0 lỗi. **KHÔNG đụng một dòng nội dung
+  nào**, nên `check-da-nap` giữ **62 bài chờ**. **KHÔNG bump `ASSET_VERSION`:** hai tệp sửa
+  đều là CSS module trong `src/`.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** năm nút cao hơn trên điện thoại — đáng kể nhất là
+  "Xem lời giải mẫu" (24 → 44, gần gấp đôi) và "▶ Chạy thử" (37 → 44).
+  **CÒN LẠI:** 11 rule trong `CHUA_DO`. Mỗi lần ai mở được một bề mặt chứa chúng thì đo rồi
+  gỡ tên khỏi danh sách — đó là cách danh sách ngắn đi, và là lát tiếp theo của cụm này.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

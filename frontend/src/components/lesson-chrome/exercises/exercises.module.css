@@ -258,6 +258,16 @@
   color: var(--edu-t2);
 }
 .chip {
+  /* SÀN ĐÍCH BẤM 44px. Đo trên production 08/11/2026 (390×844, màn ĐÃ
+   * LẮNG, bằng `offsetHeight` vì `getBoundingClientRect` bị hoạt ảnh vào
+   * màn của `.stepEnter` làm co): nút "Xem lời giải mẫu" — đích bấm THẤP NHẤT đo được của màn bài học cao **24px**.
+   * Bề rộng đã ≥ 44 nên chỉ thiếu trục dọc — `min-height` chữa đúng chỗ đó
+   * mà không chạm bố cục ngang. Luật 44px là luật của chính repo
+   * (`not-found.module.css`: "Repo đã phải sửa một đích 13×6px một lần"), và
+   * trước 08/11 KHÔNG rule nào trong hai module này khai `min-*` — mọi kích
+   * thước đến từ `padding` + nội dung, tức không gì bảo đảm sàn.
+   * `dich-bam-vo-bai-hoc.test.mjs` canh nó. */
+  min-height: 44px;
   border: 1px solid var(--edu-sidebar-border);
   background: var(--edu-panel-bg-solid);
   border-radius: 8px;
@@ -318,6 +328,16 @@
   flex-wrap: wrap;
 }
 .runBtn {
+  /* SÀN ĐÍCH BẤM 44px. Đo trên production 08/11/2026 (390×844, màn ĐÃ
+   * LẮNG, bằng `offsetHeight` vì `getBoundingClientRect` bị hoạt ảnh vào
+   * màn của `.stepEnter` làm co): nút "▶ Chạy thử" của ô bài tập được chấm cao **37px**.
+   * Bề rộng đã ≥ 44 nên chỉ thiếu trục dọc — `min-height` chữa đúng chỗ đó
+   * mà không chạm bố cục ngang. Luật 44px là luật của chính repo
+   * (`not-found.module.css`: "Repo đã phải sửa một đích 13×6px một lần"), và
+   * trước 08/11 KHÔNG rule nào trong hai module này khai `min-*` — mọi kích
+   * thước đến từ `padding` + nội dung, tức không gì bảo đảm sàn.
+   * `dich-bam-vo-bai-hoc.test.mjs` canh nó. */
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   gap: 8px;

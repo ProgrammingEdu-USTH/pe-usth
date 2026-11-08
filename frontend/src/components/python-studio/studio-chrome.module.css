@@ -1066,6 +1066,16 @@
 }
 
 .tracePredictGo {
+  /* SÀN ĐÍCH BẤM 44px. Đo trên production 08/11/2026 (390×844, màn ĐÃ
+   * LẮNG, bằng `offsetHeight` vì `getBoundingClientRect` bị hoạt ảnh vào
+   * màn của `.stepEnter` làm co): nút "Xem kết quả" của cổng dự đoán cao **36px**.
+   * Bề rộng đã ≥ 44 nên chỉ thiếu trục dọc — `min-height` chữa đúng chỗ đó
+   * mà không chạm bố cục ngang. Luật 44px là luật của chính repo
+   * (`not-found.module.css`: "Repo đã phải sửa một đích 13×6px một lần"), và
+   * trước 08/11 KHÔNG rule nào trong hai module này khai `min-*` — mọi kích
+   * thước đến từ `padding` + nội dung, tức không gì bảo đảm sàn.
+   * `dich-bam-vo-bai-hoc.test.mjs` canh nó. */
+  min-height: 44px;
   padding: 8px 16px;
   border: 0;
   border-radius: 10px;
@@ -1329,6 +1339,16 @@
 }
 
 .onGianCachNut {
+  /* SÀN ĐÍCH BẤM 44px. Đo trên production 08/11/2026 (390×844, màn ĐÃ
+   * LẮNG, bằng `offsetHeight` vì `getBoundingClientRect` bị hoạt ảnh vào
+   * màn của `.stepEnter` làm co): option của màn ôn giãn cách cao **43px**.
+   * Bề rộng đã ≥ 44 nên chỉ thiếu trục dọc — `min-height` chữa đúng chỗ đó
+   * mà không chạm bố cục ngang. Luật 44px là luật của chính repo
+   * (`not-found.module.css`: "Repo đã phải sửa một đích 13×6px một lần"), và
+   * trước 08/11 KHÔNG rule nào trong hai module này khai `min-*` — mọi kích
+   * thước đến từ `padding` + nội dung, tức không gì bảo đảm sàn.
+   * `dich-bam-vo-bai-hoc.test.mjs` canh nó. */
+  min-height: 44px;
   display: block;
   width: 100%;
   text-align: left;
@@ -1446,6 +1466,16 @@
 }
 
 .practiceReveal {
+  /* SÀN ĐÍCH BẤM 44px. Đo trên production 08/11/2026 (390×844, màn ĐÃ
+   * LẮNG, bằng `offsetHeight` vì `getBoundingClientRect` bị hoạt ảnh vào
+   * màn của `.stepEnter` làm co): nút "Viết thử rồi mới xem đáp án" cao **37px**.
+   * Bề rộng đã ≥ 44 nên chỉ thiếu trục dọc — `min-height` chữa đúng chỗ đó
+   * mà không chạm bố cục ngang. Luật 44px là luật của chính repo
+   * (`not-found.module.css`: "Repo đã phải sửa một đích 13×6px một lần"), và
+   * trước 08/11 KHÔNG rule nào trong hai module này khai `min-*` — mọi kích
+   * thước đến từ `padding` + nội dung, tức không gì bảo đảm sàn.
+   * `dich-bam-vo-bai-hoc.test.mjs` canh nó. */
+  min-height: 44px;
   align-self: flex-start;
   padding: 9px 16px;
   border: 1px solid var(--edu-sidebar-border);

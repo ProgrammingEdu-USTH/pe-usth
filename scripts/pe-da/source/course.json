@@ -14078,8 +14078,8 @@
         },
         {
           "type": "code",
-          "code": "import tkinter as tk\nroot = tk.Tk(); root.withdraw()\nroot.title('Quan ly diem')\nroot.geometry('640x400')\nprint(root.title())\nprint(root.winfo_class())\nroot.destroy()",
-          "expected": "Quan ly diem\nTk"
+          "code": "import tkinter as tk\nroot = tk.Tk(); root.withdraw()\nroot.title('Nhan don tai quay')\nroot.geometry('640x400')\nprint(root.title())\nprint(root.winfo_class())\nroot.destroy()",
+          "expected": "Nhan don tai quay\nTk"
         },
         {
           "type": "paragraph",
@@ -14087,8 +14087,8 @@
         },
         {
           "type": "code",
-          "code": "import tkinter as tk\nroot = tk.Tk(); root.withdraw()\ndetail = tk.Toplevel(root); detail.withdraw()\ndetail.title('Sinh vien S01')\nprint(detail.title())\nprint(detail.master is root)\ndetail.destroy()\nprint(root.winfo_exists())\nroot.destroy()",
-          "expected": "Sinh vien S01\nTrue\n1"
+          "code": "import tkinter as tk\nroot = tk.Tk(); root.withdraw()\ndetail = tk.Toplevel(root); detail.withdraw()\ndetail.title('Mon latte')\nprint(detail.title())\nprint(detail.master is root)\ndetail.destroy()\nprint(root.winfo_exists())\nroot.destroy()",
+          "expected": "Mon latte\nTrue\n1"
         },
         {
           "type": "paragraph",
@@ -14096,7 +14096,7 @@
         },
         {
           "type": "code",
-          "code": "import tkinter as tk\nroot = tk.Tk(); root.withdraw()\nchild = tk.Toplevel(root); child.withdraw()\nlabel = tk.Label(child, text='S01')\nprint(label.master is child)\nchild.destroy()\nprint(len(root.winfo_children()))\nroot.destroy()",
+          "code": "import tkinter as tk\nroot = tk.Tk(); root.withdraw()\nchild = tk.Toplevel(root); child.withdraw()\nlabel = tk.Label(child, text='latte')\nprint(label.master is child)\nchild.destroy()\nprint(len(root.winfo_children()))\nroot.destroy()",
           "expected": "True\n0"
         },
         {

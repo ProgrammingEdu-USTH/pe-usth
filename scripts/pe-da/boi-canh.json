@@ -19,10 +19,11 @@
       "tuKhoa": [
         "cà phê", "cafe", "coffee", "espresso", "latte", "cappuccino",
         "barista", "quán", "cốc", "cup", "cups", "đồ uống", "drink", "drinks",
+        "món", "quầy",
         "topping", "pha chế", "hạt rang", "ca phe"
       ],
       "loaiTru": ["nhất quán"],
-      "ghiChu": "`menu` CỐ Ý không nằm đây: SY14 và GU03 dùng `menu` cho giao diện terminal và thanh menu Tkinter, nên nó nhận diện sai thành quán cà phê ở đúng hai bài mà L14 cần nói là CHƯA neo. Thêm `menu` vào là tự tạo hai dương tính giả. Và `nhất quán` (= consistent) phải nằm trong `loaiTru`: nó xuất hiện 10 lần trong corpus, và ở PY09 nó là TOÀN BỘ dấu hiệu 'quán' của bài — tức bài trông như đã neo vào quán cà phê trong khi nó nói về sự nhất quán của dữ liệu. Dương tính giả ở miền CHÍNH tệ hơn ở miền ngoài: nó làm một bài chưa neo trông như đã neo, và luật im lặng."
+      "ghiChu": "`menu` CỐ Ý không nằm đây: SY14 và GU03 dùng `menu` cho giao diện terminal và thanh menu Tkinter, nên nó nhận diện sai thành quán cà phê ở đúng hai bài mà L14 cần nói là CHƯA neo. Thêm `menu` vào là tự tạo hai dương tính giả. Và `nhất quán` (= consistent) phải nằm trong `loaiTru`: nó xuất hiện 10 lần trong corpus, và ở PY09 nó là TOÀN BỘ dấu hiệu 'quán' của bài — tức bài trông như đã neo vào quán cà phê trong khi nó nói về sự nhất quán của dữ liệu. Dương tính giả ở miền CHÍNH tệ hơn ở miền ngoài: nó làm một bài chưa neo trông như đã neo, và luật im lặng. ĐÃ ĐO VÀ BÁC, đừng dựng lại: cho phép đếm BỎ DẤU cả hai vế (để bắt chuỗi code viết không dấu) thì `quán` → `quan` khớp \"**quản** lý\" 7 lần ở PY02, biến một bài nói về `pyenv`/`conda` thành bài có neo quán; và `cửa hàng` → `cua hang` khớp \"**của hàng**\" ở NP06, nơi câu đang nói về HÀNG của ma trận. Hai va chạm đó ở đúng chiều nguy hiểm, nên dạng bỏ dấu phải khai TƯỜNG MINH từng cụm, đúng luật `khopTuKhoa` đã đặt cho dạng số nhiều. `món` và `quầy` thêm 08/11/2026: đo được `món` 39 bài / `quầy` 21 bài, và trong số đó chỉ GU02 + GU06 là bài chưa có neo nào khác — cả hai neo thật (\"dựng cửa sổ đầu tiên cho quầy\", \"quầy chỉ được chọn một trong vài mục\"). 0 báo oan. NÓI CHO ĐÚNG sau khi sửa nội dung GU02 trong cùng đợt: `quầy` là từ khoá DUY NHẤT quyết định GU06, còn `món` nay không quyết định bài nào — GU02 đã có `latte`×3 từ chuỗi `'Mon latte'` mới. Giữ `món` vì nó là từ lõi của miền chính và khai tường minh là luật của file này, nhưng đừng đọc nó như một từ khoá đang đỡ một bài nào."
     },
     {
       "id": "ban-hang",
@@ -43,11 +44,12 @@
       "vaiTro": "ngoai",
       "tuKhoa": [
         "quản lý điểm", "quản lý sinh viên", "sinh viên", "học sinh", "điểm thi", "bảng điểm", "môn học", "học kỳ",
+        "sinh vien", "quan ly diem",
         "tín chỉ", "lớp học", "student", "students", "grade", "grades",
         "mark", "marks", "student_id", "course_id"
       ],
       "loaiTru": ["điểm thi hành"],
-      "ghiChu": "Miền ngoài hành trình ĐANG dùng nhiều nhất. Nó không chỉ nằm trong một ví dụ lẻ: SY25–SY28 là một project bốn bài về quản lý sinh viên. Sửa nó là sửa nội dung, không phải sửa một chữ — nên luật này để ở mức LỖI đúng với quy mô của việc."
+      "ghiChu": "Miền ngoài hành trình từng dùng nhiều nhất, nên luật này để ở mức LỖI đúng với quy mô của việc: sửa nó là sửa nội dung, không phải sửa một chữ. ĐÍNH CHÍNH 08/11/2026: câu ở đây từng ghi \"SY25–SY28 là một project bốn bài về quản lý sinh viên\" — bốn bài đó ĐÃ đổi sang \"quản lý món, nguyên liệu và định lượng\" từ 29/10, và đo lại thì cả bốn có 0 dấu hiệu miền này. Một chú thích nói về HIỆN TRẠNG thì trôi được; chỗ này đã trôi. `sinh vien` và `quan ly diem` là DẠNG BỎ DẤU, thêm vì chuỗi trong code của khoá này không có dấu (Tkinter và terminal) và học viên ĐỌC chúng: GU02 từng mang `root.title('Quan ly diem')` cùng `detail.title('Sinh vien S01')` mà không luật nào thấy. Quét 27 từ khoá miền ngoài có dạng bỏ dấu khác dạng có dấu: đúng 1 bài dính, 4 lần."
     },
     {
       "id": "thoi-tiet",

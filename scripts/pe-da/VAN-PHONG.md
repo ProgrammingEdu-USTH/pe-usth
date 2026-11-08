@@ -453,7 +453,7 @@ Format phải đồng nhất `N lỗi · N cb` cho MỌI hàng; bản cũ viết
 | L11 | Một thuật ngữ một cách gọi, khoá (thuật ngữ, ngữ cảnh) | LỖI | 0 lỗi · 0 cb |
 | L12 | ≤ 1 hedge/câu (lỗi ở ≥3) | LỖI | 0 lỗi · 17 cb |
 | L13 | Ưu tiên thuần Việt theo danh sách | CẢNH BÁO | 0 lỗi · 217 cb |
-| L14 | Bối cảnh bài phải thuộc `boi-canh.json` | CẢNH BÁO | 0 lỗi · 26 cb |
+| L14 | Bối cảnh bài phải thuộc `boi-canh.json` | CẢNH BÁO | 0 lỗi · 24 cb |
 | L15 | Đoạn mở bài phải nối với bài trước | CẢNH BÁO | 0 lỗi · 0 cb |
 | TB | Bất biến termbank: `baiDauTien` khớp corpus | LỖI | 0 lỗi · 0 cb |
 | TL | Số đo trong đặc tả phải khớp số đo thật (§1 · §2 · §8 · §12 · bảng này) | LỖI | 0 lỗi · 0 cb |
@@ -464,7 +464,7 @@ Format phải đồng nhất `N lỗi · N cb` cho MỌI hàng; bản cũ viết
 | M4 | Không bài nào 3 câu cùng một ô Block Model | LỖI | — (do `check.py --strict`) |
 | M5 | Một lần trả lời, rồi đi tiếp | LỖI | — (do `check.py --strict`) |
 
-**Tổng trên corpus thật: 82 lỗi · 428 cảnh báo.**
+**Tổng trên corpus thật: 82 lỗi · 426 cảnh báo.**
 
 **Nếu chỉ làm được một việc:** L10. Cụ thể: `py -I scripts/pe-da/check_vanphong.py
 --luat L10 --chi-tiet 0` in ra đúng danh sách bài + câu phải sửa.

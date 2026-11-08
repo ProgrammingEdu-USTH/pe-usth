@@ -924,12 +924,21 @@ test('fixture bài đọc: bản dựng pe-da đúng hình dạng ReadBlock/Prac
   // này. Thêm/bớt khối thì chạy `py scripts/pe-da/build.py` rồi đếm lại, đừng
   // cộng tay. Đo sau khi chuyển: L3 32 → 29 lỗi, L2 lỗi 7 → 6, L13 cảnh báo
   // 217 → 215, không luật nào tăng.
+  // 08/11/2026 (lát thứ năm): table 14 -> 16, paragraph GIỮ 820. MỘT bảng, HAI
+  // bài — bốn hậu tố `l`/`v`/`p`/`e` của họ `exec`, nhồi trong CT02[5] và trong
+  // EX04[4] bằng hai cách diễn đạt khác nhau. Lý lẽ không phải "nó là liệt kê":
+  // CT02 ĐÃ CÓ một khối table (`Đối số | Nó là gì`) cho bốn đối số của
+  // `CreateProcess` rồi nhồi danh sách SONG SINH vào một câu, trong CÙNG bài —
+  // nên tiền lệ, cặp tiêu đề cột và hai-cột đều lấy từ chính bài đó. Vẫn CHÈN
+  // SAU đoạn văn: đo được nếu THAY đoạn bằng bảng thì màn đọc tụt 567 -> 565,
+  // tức xoá đúng hai ranh giới màn. Đo sau khi chuyển: L3 29 → 27 lỗi, L2 cảnh
+  // báo 15 → 13, không luật nào tăng.
   assert.deepEqual(count, {
     paragraph: 820,
     code: 508,
     terminal: 17,
     figure: 80,
-    table: 14,
+    table: 16,
     diagram: 3,
   });
   // Câu luyện tập là câu MỞ kèm lời giải mẫu — không có phương án sai nào để

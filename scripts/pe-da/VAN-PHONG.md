@@ -109,16 +109,16 @@ chính là thứ L3 phải đếm BÊN TRONG một câu.
 
 ## 2. Độ dài câu KHÔNG phải vấn đề của bộ này
 
-Đo thật trên **2 719** câu phần giảng — bằng CHÍNH phép chẻ `.!?…` mà mục trên định
+Đo thật trên **2 731** câu phần giảng — bằng CHÍNH phép chẻ `.!?…` mà mục trên định
 nghĩa, và `tieng()` của bộ kiểm:
 
 | | |
 |---|---|
 | Trung vị | **15 tiếng** |
-| p90 | 23 tiếng |
+| p90 | 22 tiếng |
 | Dài nhất cả bộ | 43 tiếng |
 | Câu > 30 tiếng | **30 câu** (1,1%) |
-| Câu L3 bắt | **29 câu** |
+| Câu L3 bắt | **27 câu** |
 
 ⚠️ **Bảng này từng mang số của MỘT PHÉP CHẺ KHÁC, và đó là lý do luật TL ra đời.** Bản
 trước ghi 3 059 câu · trung vị 13 · p90 22 · dài nhất 49 · 1,2% — mà 3 059 chính là con số
@@ -441,8 +441,8 @@ Format phải đồng nhất `N lỗi · N cb` cho MỌI hàng; bản cũ viết
 | | Luật | Mức | Corpus hiện trượt |
 |---|---|---|---|
 | L1 | Câu > 25 tiếng cảnh báo, > 30 lỗi | CB/LỖI | 21 lỗi · 86 cb |
-| L2 | Đoạn > 90 tiếng hoặc > 6 câu | CB/LỖI | 6 lỗi · 15 cb |
-| **L3** | **Câu ≥ 3 dấu `,`/`;` và ≥ 20 tiếng → bảng** | **LỖI** | **29 lỗi · 0 cb** |
+| L2 | Đoạn > 90 tiếng hoặc > 6 câu | CB/LỖI | 6 lỗi · 13 cb |
+| **L3** | **Câu ≥ 3 dấu `,`/`;` và ≥ 20 tiếng → bảng** | **LỖI** | **27 lỗi · 0 cb** |
 | L4 | Không mở câu bằng danh-từ-hoá | LỖI | 0 lỗi · 0 cb |
 | L5 | Cấm `được/bị + V + bởi` | LỖI | 0 lỗi · 0 cb |
 | L6 | Từ cấm hành chính (danh sách ĐÓNG 20 tính từ) | LỖI | 0 lỗi · 0 cb |
@@ -464,7 +464,7 @@ Format phải đồng nhất `N lỗi · N cb` cho MỌI hàng; bản cũ viết
 | M4 | Không bài nào 3 câu cùng một ô Block Model | LỖI | — (do `check.py --strict`) |
 | M5 | Một lần trả lời, rồi đi tiếp | LỖI | — (do `check.py --strict`) |
 
-**Tổng trên corpus thật: 77 lỗi · 393 cảnh báo.**
+**Tổng trên corpus thật: 75 lỗi · 391 cảnh báo.**
 
 **Nếu chỉ làm được một việc:** L10. Cụ thể: `py -I scripts/pe-da/check_vanphong.py
 --luat L10 --chi-tiet 0` in ra đúng danh sách bài + câu phải sửa.
@@ -474,7 +474,7 @@ Format phải đồng nhất `N lỗi · N cb` cho MỌI hàng; bản cũ viết
 
 ## 12. Đừng bật `--strict` trong CI ngày đầu
 
-`check_vanphong.py` hôm nay cho **77 lỗi**. Nối thẳng vào `check.py --strict` là
+`check_vanphong.py` hôm nay cho **75 lỗi**. Nối thẳng vào `check.py --strict` là
 làm CI đỏ ngay, và một CI đỏ thường trực thì không ai đọc nữa.
 
 Dùng đúng khuôn mà repo đã có cho lint backend: **một mốc trần, CHỈ ĐƯỢC HẠ**

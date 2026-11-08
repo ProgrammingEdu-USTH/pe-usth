@@ -37170,7 +37170,32 @@
       [
        {
         "type": "paragraph",
-        "text": "Đây là mô hình của `exec`: thay image chương trình trong process hiện tại, giữ PID và không tạo process thứ ba. Trong tên họ hàm, l nhận các đối số riêng, v nhận vector argv; p tìm chương trình qua PATH và e nhận environment tường minh. Vì thế execl/execv khác cách truyền đối số, execlp/execvp thêm tìm PATH, execle thêm environment. Trong ví dụ C của slide, argv gồm \"/bin/ps\", \"-ef\", rồi NULL kết thúc danh sách. Python `subprocess` nhận một `list` đối số thay cho việc bạn tự chép nguyên chữ ký C."
+        "text": "Đây là mô hình của `exec`: thay image chương trình trong process hiện tại, giữ PID và không tạo process thứ ba. Bốn hậu tố trong tên họ hàm ở bảng dưới. Vì thế execl/execv khác cách truyền đối số, execlp/execvp thêm tìm PATH, execle thêm environment. Trong ví dụ C của slide, argv gồm \"/bin/ps\", \"-ef\", rồi NULL kết thúc danh sách. Python `subprocess` nhận một `list` đối số thay cho việc bạn tự chép nguyên chữ ký C."
+       },
+       {
+        "type": "table",
+        "headers": [
+         "Hậu tố",
+         "Nó đổi gì"
+        ],
+        "rows": [
+         [
+          "`l`",
+          "nhận từng đối số rời nhau"
+         ],
+         [
+          "`v`",
+          "nhận một vector đối số"
+         ],
+         [
+          "`p`",
+          "tìm chương trình qua `PATH`"
+         ],
+         [
+          "`e`",
+          "nhận `environment` tường minh"
+         ]
+        ]
        },
        {
         "type": "code",
@@ -45013,7 +45038,32 @@
       [
        {
         "type": "paragraph",
-        "text": "Ở POSIX, fork trả PID con ở cha và 0 ở con, sau đó hai nhánh tiếp tục từ vị trí sau fork. `exec` thay image của process hiện tại. Hậu tố l nhận danh sách đối số riêng, v nhận một vector/`list` đối số, p tìm executable qua PATH, e nhận environment tường minh. execl, execle, execlp, execv và execvp là các biến thể được nhắc trong slide. Windows có CreateProcess và API cũ WinExec; tên và cờ WinAPI trong đoạn C không phải cú pháp Python. Dùng `subprocess` nếu muốn bài thực hành chạy trên cả Windows và UNIX."
+        "text": "Ở POSIX, fork trả PID con ở cha và 0 ở con, sau đó hai nhánh tiếp tục từ vị trí sau fork. `exec` thay image của process hiện tại. Bốn hậu tố trong tên họ hàm ở bảng dưới. execl, execle, execlp, execv và execvp là các biến thể được nhắc trong slide. Windows có CreateProcess và API cũ WinExec; tên và cờ WinAPI trong đoạn C không phải cú pháp Python. Dùng `subprocess` nếu muốn bài thực hành chạy trên cả Windows và UNIX."
+       },
+       {
+        "type": "table",
+        "headers": [
+         "Hậu tố",
+         "Nó đổi gì"
+        ],
+        "rows": [
+         [
+          "`l`",
+          "nhận từng đối số rời nhau"
+         ],
+         [
+          "`v`",
+          "nhận một vector đối số"
+         ],
+         [
+          "`p`",
+          "tìm chương trình qua `PATH`"
+         ],
+         [
+          "`e`",
+          "nhận `environment` tường minh"
+         ]
+        ]
        },
        {
         "type": "code",

@@ -91,7 +91,7 @@ học nó.
 | Giáo trình pe-da (đang chạy) | **179 bài, 11 module**, 567 màn đọc, **537 câu trắc nghiệm**, 669 câu luyện tập, **143 bài tập được chấm / 480 ca**, 2 439 phút; 139 bài chạy trong trình duyệt / 15 hỗn hợp / 25 trên máy |
 | pe-da chấm nội dung | `node scripts/pe-da/check-pyodide.mjs` → 154 bài, 420 đoạn code, **0 hỏng**, **0 cảnh báo**, 30–85 s (BIẾN THIÊN theo tải máy — xem bẫy "trần 5 giây là trần của đường khác"); trần pha 1 là **15 000 ms** (`/ide`), trần pha 2 là **5 000 ms** (ô chạy trong bài), và mỗi pha in biên riêng; **pha 2: 52/53 đáp án mẫu màn luyện tập chạy đúng, 1 ngoại lệ đã khai, 10 câu bỏ qua (bài chạy trên máy)** |
 | pe-da chấm BÀI TẬP | `node scripts/pe-da/check-practice.mjs` → 143 bài, **480 ca đạt**, 773 biến thể sai đều trượt, **pha 3 cổng file dữ liệu 7 bài / 0 lỗi**, **pha 4: 2 372 ca trượt / 0 ca im lặng / 7 nhánh phản hồi**, ~12 s |
-| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **77 lỗi · 393 cảnh báo**, dồn ở L3 29 (câu ≥ 3 dấu phẩy) · L1 21 (câu > 30 tiếng) · L8 21 (mật độ thuật ngữ) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì 82 lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
+| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **75 lỗi · 391 cảnh báo**, dồn ở L3 27 (câu ≥ 3 dấu phẩy) · L1 21 (câu > 30 tiếng) · L8 21 (mật độ thuật ngữ) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì 75 lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
 | pe-da ĐỘ PHỦ văn phong | `node scripts/pe-da/check-phu-van-phong.mjs` → **99 chuỗi NGOÀI TẦM / 4 mục đã khai**, 0 lỗi. Bộ văn phong đọc `source/course.json` (cố ý), nên chữ do `build.py` SINH RA thì không luật nào thấy: **80 `figure.alt`** · 19 chuỗi của `diagram`. NỢ ẨN đã đo: L3 32 → 41 · L13 cb 217 → 229 · §4-A cb 23 → 30 · L14 0 → 3 lỗi — tức tín hiệu dừng báo THIẾU ~20%. Trần 99 CHỈ ĐƯỢC HẠ (108 → 99 ngày 08/11: 9 đoạn `paragraph.text` đã về gói nguồn) |
 | pe-da bảng từng bước | `py scripts/pe-da/gen_traces.py` → **56 vết / 359 khối đủ điều kiện** (303 bỏ qua — bảng từng ghi 356/300, đã CŨ từ trước 04/11: dựng lại từ HEAD cũng ra 359/303, và `check-moc-nen` không đối chiếu hàng này; phần lớn vì không ra được câu dự đoán nào ĐÁNG hỏi); build.py `return 1` nếu lệch |
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
@@ -5157,6 +5157,67 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   số của quán được, nhưng đổi là đổi CODE và cả bốn có mục trong `traces.json`); cụm SY
   là file/regex/OOP; cụm GU phải đổi nhãn widget mà `expected` của bài `local` không cổng
   nào chạy. Cả ba cụm đều KHÔNG còn đường "sửa một câu", nên đừng hứa một lát dọn hết.
+
+- **CT02 ĐÃ CÓ một bảng cho một danh sách rồi nhồi danh sách SONG SINH vào một câu — trong
+  CÙNG bài, và EX04 nhồi ĐÚNG danh sách đó.** Lát L3 thứ năm (43 → 41 → 39 → 36 → 32 → 29 →
+  **27**). Bốn lát trước chọn câu theo SỐ DẤU PHÂN CÁCH; lát này đọc CẤU TRÚC bài trước, và
+  nó cho một lý lẽ mạnh hơn "nó là liệt kê nên làm thành bảng":
+  · CT02 có khối `table` ở `reading[1]` (`Đối số | Nó là gì`) cho bốn đối số của
+    `CreateProcess`, rồi ở `reading[5]` nhồi một danh sách **cùng cấu trúc** — bốn hậu tố
+    `l`/`v`/`p`/`e` của họ `exec`, mỗi hậu tố một nghĩa — vào một câu 26 tiếng / 3 dấu. Tiền
+    lệ, cặp tiêu đề cột VÀ hình dạng hai-cột đều lấy từ chính bài đó, do chính tác giả ấy đặt;
+  · EX04`[4]` nhồi ĐÚNG danh sách ấy bằng cách diễn đạt khác (`chương trình` so với
+    `executable`, `vector argv` so với `vector/list đối số`): 25 tiếng / 3 dấu. **Một bảng,
+    hai bài, hai câu nhồi** — nên bản sửa là MỘT khối `table` dùng lại ở cả hai chỗ, và câu
+    trỏ lấy nguyên khuôn của CT02`[0]` (*"`CreateProcess` nhận bốn đối số ở bảng dưới"*), nơi
+    tác giả đã đặt tiền lệ cho con trỏ đứng GIỮA đoạn với bốn câu đi sau.
+  **CT15 ĐÚNG hình dạng đó mà BỎ QUA có chủ đích:** nó cũng có `TABLE ['Dấu','Shell làm gì']`
+  ở `[1]` rồi nhồi `ls, bc, ps và grep` ở `[6]`. Nhưng câu ấy chỉ có TÊN, không có nghĩa đi
+  kèm, nên cột thứ hai sẽ phải BỊA — đúng lý do PD12 đã bị bỏ ở lát #137 (*"lấy cái có nguyên
+  liệu, đừng lấy cái vừa đủ nặng"*).
+  **CHÈN SAU ĐOẠN VĂN, ĐỪNG THAY NÓ — nay có số, và đo được KHÔNG CHẠM FILE.** `chia_man()`
+  chỉ cắt màn trước một `paragraph` đứng sau code, và khối `table` không đặt `da_co_code`, nên
+  chèn bảng là trung tính. Gọi `chia_man` trực tiếp trên hai biến thể: chèn SAU → **567 màn**,
+  THAY đoạn bằng bảng → **565** — tức xoá đúng hai ranh giới màn. Một phép đo trong tiến trình
+  như vậy trả lời câu hỏi mà không cần gieo khiếm khuyết vào cây mã, và `check-moc-nen` thì
+  chỉ nói được "số màn sai", không nói được "bạn vừa xoá một ranh giới".
+  **CHỮ MỚI PHẢI ĐI QUA CHÍNH BỘ LUẬT NÓ ĐANG HẠ — bài học #137, nay có răng đo được.**
+  CT02`[5]` có `process` trong văn xuôi cũ, mà `process` là nhóm **B** của termbank (L13 đã
+  chốt gọi là "tiến trình"). Ablate: đổi câu trỏ thành *"Bốn hậu tố trong tên họ hàm của tiến
+  trình ở bảng dưới"* → **L11 1 đỏ** (*"gọi cùng một thứ bằng hai tên"*). Nên ô bảng CỐ Ý
+  không nhắc tiến trình/process ở đâu cả; bốn ô là "nhận từng đối số rời nhau" · "nhận một
+  vector đối số" · "tìm chương trình qua `PATH`" · "nhận `environment` tường minh".
+  `PATH`/`environment` bọc backtick theo đúng tiền lệ `bInheritHandles` của bảng cũ (tên tham
+  số C), còn `vector` là nhóm C nên không đòi gì.
+  **CASCADE LÀM "8 ĐỎ" MẤT SỨC PHÂN BIỆT, và phải đọc số trên LUẬT.** Trả CT02 một mình, trả
+  EX04 một mình, hay trả cả hai — **cả ba đều ra 8 đỏ**, vì mỗi lần đều làm L3 tăng rồi kéo
+  theo TL (ba con số §2) và năm dòng sổ sách của §11/§12. Đo lại bằng `--luat L3` thì mỗi bài
+  đáng ĐÚNG MỘT lỗi: CT02 một mình → **28**, EX04 một mình → **28**, nguyên bản → **27**.
+  Phân rã của 8 đỏ: **3 luật hồi quy** (L2 TỔNG 19 → 21 · L3 27 → 29 · TL 0 → 3) cộng **5
+  dòng sổ sách**. Giới hạn cascade này đã khai ở mục §8; đây là lần nó làm mờ một phép ablate
+  thật, nên luật dùng là: **ablate một lát văn phong thì đọc `--luat <L>`, dùng ratchet chỉ để
+  biết có luật nào xấu đi.**
+  **SỐ ĐÃ ĐO:** L3 **29 → 27** · L2 cảnh báo **15 → 13** (hai đoạn ngắn lại nhờ rút câu) ·
+  tổng khoá **77 → 75 lỗi**, 393 → **391 cảnh báo** · L1 21·86 · L8 21·28 · L13 213 · L14 0·16
+  · §4-A 0·1 **đều không động** · câu phần giảng 2 719 → **2 731** và **p90 23 → 22** (ô bảng
+  là câu riêng và chúng ngắn, nên phân bố tụt — phép đo đang trung thực, không phải trôi) ·
+  màn đọc **567** · `table` 14 → **16**, `paragraph` GIỮ 820 · thời lượng khoá **2 439 phút** ·
+  `check.py --strict` 0/0 · `check-pyodide` 154 bài / 420 đoạn / 0 hỏng (VZ25 2 578 ms, biên
+  5,8×) · `check-practice` 143 bài / **480 ca đạt** / 773 biến thể sai đều trượt ·
+  `check-phu-van-phong` 0 lỗi · frontend unit **621** · ratchet 18 luật 0 lỗi (2 mục SIẾT đã
+  ghi sổ) · `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi ·
+  `check-doi-hoi`/`check-duong-toi` 0 lỗi.
+  **GIÁ PHẢI TRẢ: 0 bài THÊM vào hàng chờ nạp** — CT02 và EX04 đã nằm trong đợt chờ từ các lát
+  trước, nên `check-da-nap` giữ **59 bài**. Đây là lần đầu một lát nội dung không đẩy con số đó
+  lên, và lý do là nó rơi vào hai bài đã chờ sẵn.
+  **MỘT KHOẢNG TRỐNG ĐO ĐƯỢC TRONG VÒNG NÀY, chưa làm:** hàng "pe-da VĂN PHONG" của bảng mốc
+  nền mang **sáu** con số (75 lỗi · 391 cảnh báo · L3 27 · L1 21 · L8 21 · 18 luật) mà
+  **KHÔNG cổng nào đối chiếu** — `check-moc-nen` cố ý không chạy bộ kiểm nào (nó phải nhanh) và
+  `check-moc-chay` mới có 6 mục, không mục nào là văn phong. Bằng chứng: cổng vẫn in **0 lỗi**
+  trong khi hàng ấy còn ghi 77/393 và bộ kiểm đo 75/391. Ratchet thì canh §11 của
+  VAN-PHONG.md, không canh AGENTS.md. Mười lát văn phong liền tôi sửa sáu con số ấy BẰNG TAY,
+  tức đúng lớp "con số không ai canh thì sẽ trôi" — và chỗ đúng cho nó là mục thứ bảy của
+  `check-moc-chay`, không phải `check-moc-nen`.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

@@ -13925,7 +13925,7 @@
     },
     {
       "id": "RC01",
-      "title": "Đọc sơ đồ Apache và Chromium: process ở ngoài, thread ở trong",
+      "title": "Đọc sơ đồ Apache và Chromium: tiến trình ở ngoài, luồng ở trong",
       "level": "Trung cấp",
       "before": [
         "CT09"
@@ -13946,7 +13946,7 @@
       "reading": [
         {
           "type": "paragraph",
-          "text": "Hai cách chia việc ở các bài trước đã đủ để bạn đọc sơ đồ của phần mềm thật. Trong hình Apache Prefork ở trang 274, một tiến trình cha (parent) quản lý nhiều tiến trình con (child). Mỗi ô child nối với HTTP request. Bạn có thể đếm số child mà không cần triển khai một web server:"
+          "text": "Hai cách chia việc ở các bài trước đã đủ để bạn đọc sơ đồ của phần mềm thật. Trong hình Apache Prefork ở trang 274, một tiến trình cha (parent) quản lý nhiều tiến trình con (child). Mỗi ô con nối với HTTP request. Bạn có thể đếm số tiến trình con mà không cần triển khai một web server:"
         },
         {
           "type": "code",
@@ -13955,7 +13955,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Dictionary chỉ là bản chép đơn giản của sơ đồ. Nó không tạo process thật. Ở mô hình Prefork trong tài liệu, request được giao cho child process; các child có không gian địa chỉ riêng. Phải dùng cơ chế trao đổi dữ liệu nếu muốn chia sẻ kết quả."
+          "text": "Dictionary chỉ là bản chép đơn giản của sơ đồ. Nó không tạo tiến trình thật. Ở mô hình Prefork trong tài liệu, request được giao cho tiến trình con; mỗi tiến trình con có không gian địa chỉ riêng. Phải dùng cơ chế trao đổi dữ liệu nếu muốn chia sẻ kết quả."
         },
         {
           "type": "code",
@@ -13964,7 +13964,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Hình Apache Worker ở trang 275 có thêm các ô thread bên trong mỗi child process. Trong mô hình trên có hai child, mỗi child có hai thread. Hai thread trong P1 dùng chung heap của P1; một thread ở P2 không tự truy cập heap đó. Đây là cách kết hợp chia sẻ bên trong process với ranh giới bộ nhớ giữa các process."
+          "text": "Hình Apache Worker ở trang 275 có thêm các ô luồng bên trong mỗi tiến trình con. Trong mô hình trên có hai tiến trình con, mỗi cái có hai luồng. Hai luồng trong P1 dùng chung heap của P1; một luồng ở P2 không tự truy cập heap đó. Đây là cách kết hợp chia sẻ bên trong một tiến trình với ranh giới bộ nhớ giữa các tiến trình."
         },
         {
           "type": "code",
@@ -13973,7 +13973,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Hình Chromium ở trang 276 đặt main thread và I/O thread trong browser process; renderer process có các thread của nó. Các đường từ browser sang renderer được ghi IPC (inter-process communication). Tách process có thể tăng cô lập, còn trao đổi giữa chúng cần giao thức và có chi phí. Ba ví dụ chỉ giúp đọc sơ đồ lịch sử của slide; chúng không khẳng định kiến trúc của mọi phiên bản Apache hoặc Chromium đang được dùng. Quán của bạn chia việc theo đúng hai tầng đó."
+          "text": "Hình Chromium ở trang 276 đặt luồng chính và luồng I/O trong tiến trình browser; tiến trình renderer có luồng riêng. Các đường từ browser sang renderer ghi IPC (inter-process communication). Tách tiến trình có thể tăng cô lập, còn trao đổi giữa chúng cần giao thức và có chi phí. Ba ví dụ chỉ giúp đọc sơ đồ lịch sử của slide; chúng không khẳng định kiến trúc của mọi phiên bản Apache hoặc Chromium đang được dùng. Quán của bạn chia việc theo đúng hai tầng đó."
         }
       ],
       "drills": [

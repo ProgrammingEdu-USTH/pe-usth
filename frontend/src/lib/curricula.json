@@ -197,7 +197,7 @@
           "lessons": [
             "CT14 · Multiprocessing: dữ liệu riêng và trao đổi kết quả",
             "CT15 · PW7: shell có chuyển hướng và pipe",
-            "RC01 · Đọc sơ đồ Apache và Chromium: process ở ngoài, thread ở trong"
+            "RC01 · Đọc sơ đồ Apache và Chromium: tiến trình ở ngoài, luồng ở trong"
           ]
         },
         {

@@ -447,12 +447,12 @@ Format phải đồng nhất `N lỗi · N cb` cho MỌI hàng; bản cũ viết
 | L5 | Cấm `được/bị + V + bởi` | LỖI | 0 lỗi · 0 cb |
 | L6 | Từ cấm hành chính (danh sách ĐÓNG 20 tính từ) | LỖI | 0 lỗi · 0 cb |
 | L7 | Chỉ "bạn" | LỖI | 0 lỗi · 17 cb |
-| **L8** | **Mật độ thuật ngữ ≤ 40/1000 tiếng** | CB/LỖI | **21 lỗi · 28 cb** |
+| **L8** | **Mật độ thuật ngữ ≤ 40/1000 tiếng** | CB/LỖI | **20 lỗi · 28 cb** |
 | L9 | ≤ 3 thuật ngữ mới mỗi màn — *hàng rào* | CB/LỖI | 0 lỗi · 0 cb |
 | L10 | Thuật ngữ lần đầu phải có chú giải | LỖI | 0 lỗi · 0 cb |
 | L11 | Một thuật ngữ một cách gọi, khoá (thuật ngữ, ngữ cảnh) | LỖI | 0 lỗi · 0 cb |
 | L12 | ≤ 1 hedge/câu (lỗi ở ≥3) | LỖI | 0 lỗi · 17 cb |
-| L13 | Ưu tiên thuần Việt theo danh sách | CẢNH BÁO | 0 lỗi · 213 cb |
+| L13 | Ưu tiên thuần Việt theo danh sách | CẢNH BÁO | 0 lỗi · 208 cb |
 | L14 | Bối cảnh bài phải thuộc `boi-canh.json` | CẢNH BÁO | 0 lỗi · 16 cb |
 | L15 | Đoạn mở bài phải nối với bài trước | CẢNH BÁO | 0 lỗi · 0 cb |
 | TB | Bất biến termbank: `baiDauTien` khớp corpus | LỖI | 0 lỗi · 0 cb |
@@ -464,7 +464,7 @@ Format phải đồng nhất `N lỗi · N cb` cho MỌI hàng; bản cũ viết
 | M4 | Không bài nào 3 câu cùng một ô Block Model | LỖI | — (do `check.py --strict`) |
 | M5 | Một lần trả lời, rồi đi tiếp | LỖI | — (do `check.py --strict`) |
 
-**Tổng trên corpus thật: 75 lỗi · 391 cảnh báo.**
+**Tổng trên corpus thật: 74 lỗi · 386 cảnh báo.**
 
 **Nếu chỉ làm được một việc:** L10. Cụ thể: `py -I scripts/pe-da/check_vanphong.py
 --luat L10 --chi-tiet 0` in ra đúng danh sách bài + câu phải sửa.
@@ -474,7 +474,7 @@ Format phải đồng nhất `N lỗi · N cb` cho MỌI hàng; bản cũ viết
 
 ## 12. Đừng bật `--strict` trong CI ngày đầu
 
-`check_vanphong.py` hôm nay cho **75 lỗi**. Nối thẳng vào `check.py --strict` là
+`check_vanphong.py` hôm nay cho **74 lỗi**. Nối thẳng vào `check.py --strict` là
 làm CI đỏ ngay, và một CI đỏ thường trực thì không ai đọc nữa.
 
 Dùng đúng khuôn mà repo đã có cho lint backend: **một mốc trần, CHỈ ĐƯỢC HẠ**

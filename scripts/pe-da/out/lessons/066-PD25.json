@@ -22,7 +22,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Bài trước so kỳ này với kỳ trước; lần này bạn sửa chính giá trị trong cột. Cột status chỉ ghi P và C. Bạn muốn đổi sang tên đọc được rồi tính doanh thu sau chiết khấu. Với từng loại thao tác, chọn hàm diễn đạt đúng việc cần làm."
+      "text": "Bài trước so kỳ này với kỳ trước; lần này bạn sửa chính giá trị trong cột. Cột status trong sổ đơn của quán chỉ ghi P và C. Bạn muốn đổi sang tên đọc được rồi tính doanh thu sau chiết khấu. Với từng loại thao tác, chọn hàm diễn đạt đúng việc cần làm."
      },
      {
       "type": "code",

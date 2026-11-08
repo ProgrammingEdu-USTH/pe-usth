@@ -22,7 +22,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Phép đổi giá trị từng ô ở bài trước chưa dạy được thứ tự cho các nhãn. Mức ưu tiên low, medium, high có thứ tự riêng. Nếu sắp theo bảng chữ cái, high có thể đứng trước low; kiểu category cho phép bạn ghi rõ thứ tự mong muốn."
+      "text": "Phép đổi giá trị từng ô ở bài trước chưa dạy được thứ tự cho các nhãn. Mức ưu tiên của đơn ở quán có thứ tự riêng: low rồi medium rồi high. Nếu sắp theo bảng chữ cái, high có thể đứng trước low; kiểu category cho phép bạn ghi rõ thứ tự mong muốn."
      },
      {
       "type": "code",

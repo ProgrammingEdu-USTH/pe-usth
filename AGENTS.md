@@ -91,7 +91,7 @@ học nó.
 | Giáo trình pe-da (đang chạy) | **179 bài, 11 module**, 567 màn đọc, **537 câu trắc nghiệm**, 669 câu luyện tập, **143 bài tập được chấm / 480 ca**, 2 439 phút; 139 bài chạy trong trình duyệt / 15 hỗn hợp / 25 trên máy |
 | pe-da chấm nội dung | `node scripts/pe-da/check-pyodide.mjs` → 154 bài, 420 đoạn code, **0 hỏng**, **0 cảnh báo**, 30–85 s (BIẾN THIÊN theo tải máy — xem bẫy "trần 5 giây là trần của đường khác"); trần pha 1 là **15 000 ms** (`/ide`), trần pha 2 là **5 000 ms** (ô chạy trong bài), và mỗi pha in biên riêng; **pha 2: 52/53 đáp án mẫu màn luyện tập chạy đúng, 1 ngoại lệ đã khai, 10 câu bỏ qua (bài chạy trên máy)** |
 | pe-da chấm BÀI TẬP | `node scripts/pe-da/check-practice.mjs` → 143 bài, **480 ca đạt**, 773 biến thể sai đều trượt, **pha 3 cổng file dữ liệu 7 bài / 0 lỗi**, **pha 4: 2 372 ca trượt / 0 ca im lặng / 7 nhánh phản hồi**, ~12 s |
-| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **77 lỗi · 397 cảnh báo**, dồn ở L3 29 (câu ≥ 3 dấu phẩy) · L1 21 (câu > 30 tiếng) · L8 21 (mật độ thuật ngữ) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì 82 lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
+| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **77 lỗi · 393 cảnh báo**, dồn ở L3 29 (câu ≥ 3 dấu phẩy) · L1 21 (câu > 30 tiếng) · L8 21 (mật độ thuật ngữ) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì 82 lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
 | pe-da ĐỘ PHỦ văn phong | `node scripts/pe-da/check-phu-van-phong.mjs` → **99 chuỗi NGOÀI TẦM / 4 mục đã khai**, 0 lỗi. Bộ văn phong đọc `source/course.json` (cố ý), nên chữ do `build.py` SINH RA thì không luật nào thấy: **80 `figure.alt`** · 19 chuỗi của `diagram`. NỢ ẨN đã đo: L3 32 → 41 · L13 cb 217 → 229 · §4-A cb 23 → 30 · L14 0 → 3 lỗi — tức tín hiệu dừng báo THIẾU ~20%. Trần 99 CHỈ ĐƯỢC HẠ (108 → 99 ngày 08/11: 9 đoạn `paragraph.text` đã về gói nguồn) |
 | pe-da bảng từng bước | `py scripts/pe-da/gen_traces.py` → **56 vết / 359 khối đủ điều kiện** (303 bỏ qua — bảng từng ghi 356/300, đã CŨ từ trước 04/11: dựng lại từ HEAD cũng ra 359/303, và `check-moc-nen` không đối chiếu hàng này; phần lớn vì không ra được câu dự đoán nào ĐÁNG hỏi); build.py `return 1` nếu lệch |
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
@@ -99,7 +99,7 @@ học nó.
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **17 mục, 14 có đường tới, 3 còn tối (đã khai lý do)**, 0 lỗi |
 | Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **2 mục chết, 2 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **15 CSS module trong `src/`** |
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
-| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **124/179 khớp, 55 bài CHỜ NẠP** (năm lát văn phong 08/11 · hai lát alt text · bốn lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
+| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **120/179 khớp, 59 bài CHỜ NẠP** (năm lát văn phong 08/11 · hai lát alt text · năm lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **34 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
@@ -5110,6 +5110,53 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   `local` không cổng nào chạy — nên nó đi sau. Và #145 đã đo: chỉ 1/24 bài im lặng có
   dữ liệu đã thuộc quán, nên **đừng mở một lát "neo cho hết"** — mỗi bài còn lại cần một
   câu ví von riêng, viết được thì viết, không thì để im chứ không rắc từ khoá.
+
+- **BỐN BÀI PD ĐÃ NÓI VỀ SỔ ĐƠN VÀ DOANH THU CỦA QUÁN mà L14 không thấy — vì `đơn` cố
+  ý không phải từ khoá.**
+  **ĐO LẠI DANH SÁCH, KHÔNG TIN LEAD CỦA CHÍNH MÌNH — và lead sai hai chỗ.** #146 tôi
+  ghi *"20 cảnh báo L14 còn lại: GU 6 · SY 5 · PD 4 · VZ 4 · NP 1"*. Đo lại:
+  **SY 6 · GU 6 · PD 4 · VZ 4 = 20**, và **không có bài NP nào** — NP20 đã được neo từ
+  #134 ("Quán đong hai phần sữa 0.1 và 0.2 lít"), tôi đếm nó vào bằng một bản đo cũ.
+  Một lead viết ở vòng TRƯỚC vẫn là một lời khai phải kiểm, không phải một dữ kiện.
+  **BA BÀI ĐANG NÓI VỀ QUÁN RỒI:** PD21 *"**Ngày đặt hàng** đang là chuỗi"* · PD23
+  *"Hệ thống **ghi đơn** lúc 00:00 UTC… phân đơn vào đúng **ngày kinh doanh**"* · PD25
+  *"Cột `status` chỉ ghi P và C… tính **doanh thu** sau chiết khấu"*. L14 không thấy vì
+  `đơn` và `đặt hàng` **cố ý không phải từ khoá** — `đơn` trần khớp cả "đơn giản" và
+  "đơn vị" (81 bài), đã đo và bác ở #136. Nên bản sửa không bịa khung nào: nó chỉ gọi
+  tên cái quầy mà ví dụ vốn đang nói về.
+  **ĐÂY LÀ MỘT HÌNH DẠNG RIÊNG, đáng tách khỏi "chưa neo":** bài neo được trong ĐẦU
+  người đọc nhưng không neo được với bộ dò, vì từ chỉ miền của nó là một từ đã bị loại
+  có lý do. Nó KHÁC "bài dùng dữ liệu kỹ thuật thuần" (23/24 ở #145) và khác "bài cơ chế
+  máy cần một câu ví von" (#146). Ba hình dạng, ba cách sửa.
+  **PD25 ĐƯỢC HAI:** nó có `doanh thu` (nhóm `kemChinh`), nên câu neo vừa xoá cảnh báo
+  "chưa neo" vừa chặn sẵn nhánh LỖI "dữ liệu trơ" cho ngày `doanh thu` lên 2 lần.
+  **PD26 LÀ BÀI DUY NHẤT KHÁC:** `['low','medium','high']` là nhãn phân loại chung chung,
+  khung quán có thật (mức ưu tiên của đơn) nhưng đổi chính dữ liệu là đổi CODE — mà PD26
+  **có mục trong `traces.json`** nên phải chạy `gen_traces` (~20 phút, cần
+  numpy/pandas/matplotlib, không chạy được trên CI). Nên nó cũng chỉ sửa văn xuôi, và
+  câu mới **bỏ luôn 2 dấu phẩy** ("low rồi medium rồi high") để một câu dài hơn không
+  đẩy L3 lên.
+  **SỐ ĐÃ ĐO:** L14 cảnh báo **20 → 16** · tổng khoá giữ **77 lỗi**, 397 → **393 cảnh
+  báo** · L1 21·86 · L2 6·15 · L3 29 · L8 21·28 · L13 213 · §4-A 1 **đều không động** ·
+  TL **0** (số CÂU không đổi — bốn phép sửa chỉ thêm tiếng, không thêm câu; đó là lý do
+  vòng này không phải sửa §2 như ba vòng trước) · `check.py --strict` 0/0 ·
+  `check-pyodide` 154 bài / 420 đoạn / 0 hỏng · `check-practice` 480 ca đạt / 773 biến
+  thể sai đều trượt · `phu-van-phong` 0 lỗi · frontend unit 621 · ratchet 18 luật 0 lỗi
+  · `check-nguong` 34 ngưỡng 0 lỗi.
+  **ABLATE 5 chiều, đo bằng RATCHET** (bài học #146: L14 "chưa neo" là CẢNH BÁO, nên bộ
+  kiểm trần in 0 lỗi ở cả hai phía): trả nội dung về HEAD → **3 đỏ** · gỡ RIÊNG câu neo
+  của PD21 → 3 · gỡ RIÊNG câu neo của PD25 → 3 · đổi `quán` thành "hệ thống trung tâm" ở
+  PD23 → 3 · PD26 giữ 2 dấu phẩy và dài 27 tiếng → **6 đỏ** (hai luật cùng động).
+  **Ba đỏ là 1 luật hồi quy + 2 dòng sổ sách**, không phải ba luật — ratchet đếm SỐ LUẬT
+  xấu đi, không đếm độ lớn. Đọc "3 đỏ" thành "ba luật hỏng" là đọc sai cấu tạo của nó.
+  **CỔNG MỐC NỀN BẮT MỘT CON SỐ TÔI SẼ QUÊN:** hàng "Đã nạp DB chưa" ghi "124/179 khớp"
+  mà đo được 120 — bốn bài vừa sửa rời khỏi nhóm khớp biên nhận. Con số ấy đổi MỖI lát
+  nội dung, nên nó là hàng dễ trôi nhất của bảng.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 55 → **59 bài CHỜ NẠP**.
+  **CÒN LẠI 16 cảnh báo L14: SY 6 · GU 6 · VZ 4.** Cụm VZ là biểu đồ (dữ liệu vẽ ra là
+  số của quán được, nhưng đổi là đổi CODE và cả bốn có mục trong `traces.json`); cụm SY
+  là file/regex/OOP; cụm GU phải đổi nhãn widget mà `expected` của bài `local` không cổng
+  nào chạy. Cả ba cụm đều KHÔNG còn đường "sửa một câu", nên đừng hứa một lát dọn hết.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

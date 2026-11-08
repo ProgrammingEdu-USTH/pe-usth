@@ -15163,7 +15163,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Bảng tổng theo tháng vừa dựng xong vẫn coi ngày là chữ. Ngày đặt hàng đang là chuỗi \"05/01/2026\". Nếu không biết quy ước ngày/tháng, bạn có thể đọc nhầm thành ngày 1 tháng 5. format giúp ghi rõ cách hiểu."
+        "text": "Bảng tổng theo tháng vừa dựng xong vẫn coi ngày là chữ. Ngày đặt hàng ở sổ của quán đang là chuỗi \"05/01/2026\". Nếu không biết quy ước ngày/tháng, bạn có thể đọc nhầm thành ngày 1 tháng 5. format giúp ghi rõ cách hiểu."
        },
        {
         "type": "code",
@@ -15647,7 +15647,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Mốc thời gian ở bài trước chưa nói nó thuộc giờ nào. Hệ thống ghi đơn lúc 00:00 UTC. Người quản lý ở Việt Nam cần xem giờ địa phương để phân đơn vào đúng ngày kinh doanh."
+        "text": "Mốc thời gian ở bài trước chưa nói nó thuộc giờ nào. Hệ thống của quán ghi đơn lúc 00:00 UTC. Người quản lý ở Việt Nam cần xem giờ địa phương để phân đơn vào đúng ngày kinh doanh."
        },
        {
         "type": "code",
@@ -16109,7 +16109,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Bài trước so kỳ này với kỳ trước; lần này bạn sửa chính giá trị trong cột. Cột status chỉ ghi P và C. Bạn muốn đổi sang tên đọc được rồi tính doanh thu sau chiết khấu. Với từng loại thao tác, chọn hàm diễn đạt đúng việc cần làm."
+        "text": "Bài trước so kỳ này với kỳ trước; lần này bạn sửa chính giá trị trong cột. Cột status trong sổ đơn của quán chỉ ghi P và C. Bạn muốn đổi sang tên đọc được rồi tính doanh thu sau chiết khấu. Với từng loại thao tác, chọn hàm diễn đạt đúng việc cần làm."
        },
        {
         "type": "code",
@@ -16349,7 +16349,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Phép đổi giá trị từng ô ở bài trước chưa dạy được thứ tự cho các nhãn. Mức ưu tiên low, medium, high có thứ tự riêng. Nếu sắp theo bảng chữ cái, high có thể đứng trước low; kiểu category cho phép bạn ghi rõ thứ tự mong muốn."
+        "text": "Phép đổi giá trị từng ô ở bài trước chưa dạy được thứ tự cho các nhãn. Mức ưu tiên của đơn ở quán có thứ tự riêng: low rồi medium rồi high. Nếu sắp theo bảng chữ cái, high có thể đứng trước low; kiểu category cho phép bạn ghi rõ thứ tự mong muốn."
        },
        {
         "type": "code",

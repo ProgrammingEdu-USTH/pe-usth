@@ -79,7 +79,7 @@ học nó.
 | Backend lint | 104 lỗi, 2 cảnh báo — **mốc trần trong CI là 115, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d) |
-| Frontend unit test | `cd frontend && npm run test:unit` → **592 ca** / 51 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **598 ca** / 52 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -92,14 +92,14 @@ học nó.
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
 | Xuất hình cho người học | `node scripts/check-figures.mjs` → 16 ca, **0 hỏng** |
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **17 mục, 14 có đường tới, 3 còn tối (đã khai lý do)**, 0 lỗi |
-| Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **1 mục chết, 1 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **14 CSS module trong `src/`** |
+| Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **1 mục chết, 1 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **15 CSS module trong `src/`** |
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
 | Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **143/179 khớp, 36 bài CHỜ NẠP** (bốn lát văn phong 08/11 · hai lát alt text · ba lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **34 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **6 mục** (frontend 592 · backend 35 bộ/501 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773), 0 trượt, 0 lỗi; nó CHẠY chính sáu lệnh đó nên THAY cả sáu bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **6 mục** (frontend 598 · backend 35 bộ/501 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773), 0 trượt, 0 lỗi; nó CHẠY chính sáu lệnh đó nên THAY cả sáu bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -4539,6 +4539,68 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   câu trong đó là hai mệnh đề nối bằng `;` chứ không phải một bảng bị nén — tức mỗi lát
   sau sẽ nhỏ hơn và cần phán xét nhiều hơn. Đó là dấu hiệu cụm này gần cạn, không phải
   dấu hiệu nên nới luật.
+
+- **TRANG 404 LÀ BẢN MẶC ĐỊNH CỦA NEXT: tiếng Anh, 0 liên kết, 0 CSS — và bookmark cũ
+  của bản Django rơi đúng vào đó.** Năm vòng liền đã ở một chiều (văn phong), nên vòng
+  này đi theo đúng chỉ dẫn đã ghi ở mục `--ds-action`: *"lát tiếp theo KHÔNG nằm ở trang
+  bài học. Phải quét một bề mặt khác (trang `(standalone)`, màn lỗi, trang 404) — và
+  quét bằng trình duyệt."*
+  **ĐO TRÊN PRODUCTION bằng Chrome** (`programmingedu.io.vn/practice`, 08/11/2026):
+  chữ `404 / This page could not be found.` — **tiếng Anh** trên một khoá tiếng Việt ·
+  **0 liên kết**, không có đường về · nền `rgb(255,255,255)` thay cho giấy kem
+  `#F4EEE3` · font `"Times New Roman"` · **0 tệp CSS**. Cây mã: **không có
+  `not-found.tsx` lẫn `error.tsx`** trên 15 tệp route.
+  **BỀ MẶT NÀY CÓ NGƯỜI ĐI VÀO, không phải lo xa — ba bằng chứng độc lập:**
+  `(standalone)/courses/[courseId]/page.tsx` gọi `notFound()` cho mã khoá lạ, nên 404
+  nằm trong đường đi THEO THIẾT KẾ · AGENTS.md đã ghi một 404 THẬT đã xảy ra ("Ôn tập"
+  và nút trong cảnh Góc học cùng dẫn tới `/practice`) · đo được **6 đường trả 404** cùng
+  một trang 13 990 byte, trong đó `/login`, `/dashboard`, `/forum` là **URL của bản
+  Django cũ** mà người thử còn bookmark.
+  **MỘT PHÉP ĐO CỦA TÔI SAI, và nó sai theo chiều TỐ OAN KHẮP NƠI:** bản đầu dò 404
+  bằng `fetch` rồi khớp chuỗi `This page could not be found` trong HTML — nó trả `true`
+  cho CẢ `/ide` và trang khoá hợp lệ, vì Next nhúng chuỗi ấy vào bundle của MỌI trang.
+  **Một phép đo trả `true` ở mọi nơi là phép đo hỏng**, cùng họ với "một phép đo trả 0
+  là thứ phải nghi ngờ trước nhất". Đo lại bằng mã trạng thái cộng chữ ĐÃ RENDER.
+  **VÌ SAO 0 TỆP CSS, và vì sao một file là đủ:** layout gốc CỐ Ý không import CSS global
+  nào — chú thích tại chỗ nói *"mỗi page/layout con tự import ĐÚNG tổ hợp CSS của
+  template gốc để tránh class trùng tên giữa các file đè nhau"*. Nên không nạp gì là
+  không có style nào. `edu-theme.css` một mình đặt `body` background + `font-family` +
+  `color`, nên `<PageStyles hrefs={['/static/css/edu-theme.css']} />` là phụ thuộc nhỏ
+  nhất đủ dùng.
+  **NÚT CHÍNH ĐẢO ĐÚNG CẶP MÀU CỦA `body`** (`background: var(--edu-t1)` ·
+  `color: var(--edu-bg-solid)`), nên nó tự đúng ở cả hai chế độ mà không phải khai một
+  cặp màu thứ hai sẽ trôi — đo được **13,80:1** ở cả tiêu đề lẫn nút. Đường kẻ nút phụ
+  dùng `--edu-card-line`, KHÔNG `--edu-card-border`: token kia là
+  `rgba(255,255,255,.85)`, tức trắng trên thẻ trắng, lỗi đã gặp bốn lần.
+  **XEM THẬT TRONG CHROME trên bản `next build` + `next start`, không suy từ cây mã:**
+  giấy kem `rgb(244,238,227)` · font **Montserrat** · 4 tệp CSS · 2 liên kết cao 46px ·
+  tương phản 13,8:1 · **không cuộn ngang**. Ở **360×640**: hai nút CÙNG MỘT HÀNG, cả hai
+  trong mép (x 16 → 343 trên vw 360, giữ đúng gutter 16px), không cuộn ngang lẫn dọc.
+  **ABLATE 7 chiều, cả 7 đỏ:** trả chữ về tiếng Anh → 1 · đường về trỏ vào một 404 khác
+  (`/practice`) → 1 · bỏ `PageStyles` → 1 · thêm một lời gọi `apiFetch` → 1 · dùng
+  `--edu-card-border` → 1 · hạ đích bấm xuống 24px → 1 · **làm hỏng phép quét cây route
+  (tự kiểm)** → 1. Chiều cuối là chiều đáng nhất: phép kiểm "đường về là route CÓ THẬT"
+  đọc CÂY TỆP `src/app`, và nếu phép quét trượt thì tập route RỖNG và luật sẽ đạt rỗng
+  mà không chứng minh gì — đúng bẫy đã ghi ở `insert-gate-sync.test.mjs`, nên có một
+  `assert` đòi tập đó ≥ 8 route và chứa `/`.
+  **LUẬT `apiFetch` LÀ LUẬT THẬT Ở ĐÂY, không phải phòng xa:** trang 404 là nơi bot quét
+  web rơi vào nhiều nhất, và `apiFetch` gặp 401 thì TỰ TẠO một tài khoản khách — mỗi
+  lượt quét một hàng `@guest.local`, ăn vào `THROTTLE_GUEST_LIMIT` tính theo IP.
+  **MỘT CA ĐỎ OAN Ở LẦN CHẠY ĐẦU:** regex so câu tiếng Việt chạy trên văn bản THÔ, mà
+  JSX ngắt câu giữa dòng rồi thụt lề ("Tiến độ học của\n          bạn vẫn còn nguyên").
+  Phải gộp khoảng trắng trước khi so. Cùng họ bẫy CRLF và bẫy `ℹ` multibyte.
+  **SỐ ĐÃ ĐO:** frontend unit **592 → 598 ca / 51 → 52 tệp** · CSS module trong `src/`
+  **14 → 15** (chính cổng mốc nền bắt con số này, đúng việc nó ra đời để làm) · sổ ngưỡng
+  siết sàn 592 → 598 · frontend typecheck sạch · lint 0 lỗi / 146 cảnh báo (không đổi) ·
+  `npm run build` exit 0 · `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi ·
+  `tai-nguyen-chet` / `export-chet` / `duong-toi` / ratchet văn phong / `check.py --strict`
+  đều 0 lỗi. **Không đụng một dòng nội dung nào**, nên `check-da-nap` giữ 36 bài chờ.
+  **KHÔNG bump `ASSET_VERSION`:** cả hai tệp mới nằm trong `frontend/src/` nên đi qua
+  bundler, URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
+  **`error.tsx` VẪN THIẾU, và đó là lựa chọn chứ không phải bỏ sót:** nó cũng không có
+  trên 15 tệp route, nhưng KHÁC 404 ở một chỗ quyết định — **không có bằng chứng ai đã
+  đi vào nó**. Trang 404 có ba bằng chứng độc lập ở trên; màn lỗi thì chưa có một lượt
+  nào được ghi nhận. Dựng nó cùng vòng là mở phạm vi dựa trên suy đoán.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

@@ -84,7 +84,7 @@ học nó.
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
 | Giáo trình pe-da (đang chạy) | **179 bài, 11 module**, 567 màn đọc, **537 câu trắc nghiệm**, 669 câu luyện tập, **143 bài tập được chấm / 480 ca**, 2 439 phút; 139 bài chạy trong trình duyệt / 15 hỗn hợp / 25 trên máy |
-| pe-da chấm nội dung | `node scripts/pe-da/check-pyodide.mjs` → 154 bài, 420 đoạn code, **0 hỏng**, **0 cảnh báo**, ~32 s; **pha 2: 52/53 đáp án mẫu màn luyện tập chạy đúng, 1 ngoại lệ đã khai, 10 câu bỏ qua (bài chạy trên máy)** |
+| pe-da chấm nội dung | `node scripts/pe-da/check-pyodide.mjs` → 154 bài, 420 đoạn code, **0 hỏng**, **0 cảnh báo**, 30–85 s (BIẾN THIÊN theo tải máy — xem bẫy "trần 5 giây là trần của đường khác"); trần pha 1 là **15 000 ms** (`/ide`), trần pha 2 là **5 000 ms** (ô chạy trong bài), và mỗi pha in biên riêng; **pha 2: 52/53 đáp án mẫu màn luyện tập chạy đúng, 1 ngoại lệ đã khai, 10 câu bỏ qua (bài chạy trên máy)** |
 | pe-da chấm BÀI TẬP | `node scripts/pe-da/check-practice.mjs` → 143 bài, **480 ca đạt**, 773 biến thể sai đều trượt, **pha 3 cổng file dữ liệu 7 bài / 0 lỗi**, **pha 4: 2 372 ca trượt / 0 ca im lặng / 7 nhánh phản hồi**, ~12 s |
 | pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **82 lỗi · 432 cảnh báo**, dồn ở L3 32 (câu ≥ 3 dấu phẩy) · L8 22 (mật độ thuật ngữ) · L1 21 (câu > 30 tiếng) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì 82 lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
 | pe-da ĐỘ PHỦ văn phong | `node scripts/pe-da/check-phu-van-phong.mjs` → **99 chuỗi NGOÀI TẦM / 4 mục đã khai**, 0 lỗi. Bộ văn phong đọc `source/course.json` (cố ý), nên chữ do `build.py` SINH RA thì không luật nào thấy: **80 `figure.alt`** · 19 chuỗi của `diagram`. NỢ ẨN đã đo: L3 32 → 41 · L13 cb 217 → 229 · §4-A cb 23 → 30 · L14 0 → 3 lỗi — tức tín hiệu dừng báo THIẾU ~20%. Trần 99 CHỈ ĐƯỢC HẠ (108 → 99 ngày 08/11: 9 đoạn `paragraph.text` đã về gói nguồn) |
@@ -3699,6 +3699,42 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** panel bên phải và 5 kệ sách nay có thanh cuộn mảnh.
   **KHÔNG bump `ASSET_VERSION`:** `scene.css` nằm trong `frontend/src/`, đi qua bundler nên
   URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
+
+- **TRẦN 5 GIÂY LÀ TRẦN CỦA ĐƯỜNG KHÁC — hai vòng trước tôi đi chỉnh NGƯỠNG mà không hỏi
+  ngưỡng ấy LÀ NGƯỠNG CỦA CÁI GÌ.** Đây là nguyên nhân thật của vụ cổng chập chờn ở mục
+  ngay dưới, và nó làm cả hai bản sửa trước thành chữa triệu chứng.
+  **HAI ĐƯỜNG, HAI TRẦN:**
+
+  | code | người học chạy nó ở đâu | trần |
+  |---|---|---|
+  | khối `code` của **màn đọc** | **CHỈ** qua nút "Thử ngay trong IDE" → `/ide` | `IDE_RUN_TIMEOUT_MS` = **15 000 ms** |
+  | `answerCode` màn luyện tập · `step_4` | ô chạy trong chính bài → `PyodideRunner` | `DEFAULT_LIMITS.execMs` = **5 000 ms** |
+
+  Màn đọc **KHÔNG có ô soạn mã** (`CodeBlock`, chỉ đọc) — AGENTS.md đã ghi điều đó từ mục
+  bảng-từng-bước. Nên 5 000 ms **chưa bao giờ** là trần của pha 1, mà nó lại là trần DUY
+  NHẤT `check-pyodide.mjs` từng áp, và nó chỉ áp cho pha 1. Hai cái sai chồng nhau:
+  · pha 1 bị kiểm khắt hơn thực tế **3×** — VZ25 đo 2 304–6 699 ms nên vắt qua 5 000, trong
+    khi nó còn cách 15 000 tới **2,2×**;
+  · pha 2 — đường mà 5 000 ms ĐÚNG — **không có phép kiểm thời gian nào**.
+  **BẰNG CHỨNG SỐNG, ngay trong vòng này:** sau khi đổi trần, một lần chạy cho VZ25
+  **6 219 ms** — ĐỎ dưới trần cũ, xanh với trần đúng (biên 2,4×). Lần khác 4 928 ms (biên
+  3,0×). Cùng cây mã.
+  **CÁCH SỬA:** `TRAN_IDE_MS = 15 000` cho pha 1, `TRAN_O_BAI_MS = 5 000` cho pha 2 (phép
+  kiểm MỚI), mỗi pha in biên riêng. Bội số phương sai `BOI_PHUONG_SAI` của vòng trước bị
+  GỠ — nó ra đời để che một trần sai, và trần đúng thì biên 2,2× đã nằm ngoài khoảng biến
+  thiên nên phép so thẳng lại xác định được.
+  **BÀI HỌC đáng hơn con số: khi một cổng chập chờn quanh một hằng số, hãy kiểm HẰNG SỐ
+  trước khi kiểm phương sai.** Hai vòng liền tôi đo lại, dựng phép chạy lại, dựng danh sách
+  khai, dựng bội số — bốn việc, tất cả quanh một con số mà tôi chưa bao giờ hỏi nó đến từ
+  đâu. Câu hỏi đúng tốn một lệnh `grep`.
+  Ablate 5 chiều: hạ trần pha 1 xuống 1 000 → **1 đỏ** `[quá 15 giây]` · **cặp đối chứng**
+  trần 1 000 + BỎ nhánh → **0 đỏ** · hạ trần pha 2 xuống −1 → **1 đỏ** `[quá 5 giây]` ·
+  cặp đối chứng trần −1 + BỎ nhánh pha 2 → **0 đỏ** · đổi tên `TRAN_IDE_MS` → **exit 1 kèm
+  `ReferenceError`**.
+  **MỘT PHÉP GIEO 10 ms VẪN QUÁ CAO:** chiều 3 lần đầu ra 0 đỏ vì đáp án luyện tập chạy
+  ~5 ms, và lần trước đó còn ra 0 vì tôi chọn PD13 — bài mà câu duy nhất của nó `continue`
+  ở nhánh "khai không chạy được" trước khi tới phép kiểm. **Hai lần "0 đỏ" đều là phép gieo
+  hỏng, không phải cổng hỏng.**
 
 - **MỘT PHÉP ĐO BIẾN THIÊN 2,9× KHÔNG PHÁN XỬ ĐƯỢC MỘT ĐƯỜNG NẰM GIỮA KHOẢNG ẤY — và tôi
   đã chẩn đoán SAI hai lần trước khi đo đủ.** `check-pyodide.mjs` có trần 5 000 ms và nó

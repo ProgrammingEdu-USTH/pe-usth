@@ -30,8 +30,27 @@ const ROOT = join(HERE, '..', '..');
 // phiên bản (`npm i --no-save pyodide@<bản>`), không thì API không khớp runtime.
 const RUNTIME =
   process.env.PYODIDE_DIR || join(ROOT, 'frontend', 'public', 'pyodide', 'v314.0.7') + '/';
-/** Cùng giới hạn với trình duyệt: worker.terminate() cắt sau 5 giây. */
-const LIMIT_MS = 5000;
+/*
+ * HAI ĐƯỜNG, HAI TRẦN — và bản trước áp nhầm trần của đường kia.
+ *
+ * Khối `code` của MÀN ĐỌC: màn đọc KHÔNG có ô soạn mã (`CodeBlock`, chỉ đọc),
+ * nên đường DUY NHẤT người học chạy chúng là nút "Thử ngay trong IDE" → `/ide`,
+ * và `/ide` cắt ở `IDE_RUN_TIMEOUT_MS` = **15 000 ms**.
+ *
+ * `answerCode` của màn LUYỆN TẬP (pha 2) và `step_4`: chạy trong ô của chính
+ * bài học → `PyodideRunner` với `DEFAULT_LIMITS.execMs` = **5 000 ms**.
+ *
+ * Chú thích cũ ở đây ghi "Cùng giới hạn với trình duyệt: worker.terminate() cắt
+ * sau 5 giây" — ĐÚNG với ô bài tập, SAI với màn đọc, và nó là trần DUY NHẤT mà
+ * file này từng áp. Tức pha 1 bị kiểm khắt hơn thực tế **3×**, và đó là nguyên
+ * nhân thật của vụ cổng chập chờn ở #130: VZ25 đo được 2 304–6 699 ms, vắt qua
+ * 5 000 nhưng còn cách 15 000 tới **2,2×**.
+ *
+ * Vòng #130 chữa TRIỆU CHỨNG bằng một bội số phương sai (`BOI_PHUONG_SAI`); nay
+ * trần đã đúng thì bội số ấy không còn lý do tồn tại, nên nó đi.
+ */
+const TRAN_IDE_MS = 15000;
+const TRAN_O_BAI_MS = 5000;
 
 const harness = readFileSync(
   join(ROOT, 'frontend', 'public', 'static', 'js', 'studio-harness.py'), 'utf8');
@@ -195,36 +214,32 @@ const hong = [];
 /** Cảnh báo thư viện: không làm bài trượt, nhưng phải in ra cho tác giả thấy. */
 const canhBaoTheoBai = [];
 const chamQua = [];
-/**
- * VÌ SAO CỔNG KHÔNG PHÁN XỬ ĐƯỜNG 5 GIÂY NỮA — và đây là chỗ tôi đã sai HAI lần.
+/*
+ * LỊCH SỬ CỦA TRẦN NÀY, giữ lại vì nó là ba lần chẩn đoán cho một triệu chứng.
  *
- * Lần một (#129) tôi gọi nó là "đỏ giả do tranh CPU" và chỉ ghi lại. Lần hai tôi
- * đo VZ25 chạy riêng ba lần — 6 699 · 5 619 · 5 959 ms — rồi kết luận ngược lại
- * rằng nó CHẬM THẬT, và khai nó vào một danh sách hai chiều. Phép ablate của
- * chính bản sửa ấy lộ ra cái sai: ngay sau đó VZ25 chạy **2 304 ms**.
+ * #129: cổng khi đỏ khi xanh trên cùng cây mã. Tôi gọi là "đỏ giả do tranh CPU"
+ * và chỉ GHI LẠI.
+ * #130 lần một: đo biên bằng max của các dòng `✓` trong `--verbose` → "biên
+ * 1,5×". Lấy max của một tập ĐÃ LOẠI phần tử lớn nhất là phép đo tự khẳng định.
+ * #130 lần hai: đo VZ25 riêng ba lần (6 699 · 5 619 · 5 959 ms) → kết luận
+ * ngược lại rằng nó CHẬM THẬT, khai vào danh sách hai chiều. Ablate lộ ra ngay:
+ * lần sau VZ25 chạy 2 304 ms. Đổi một cổng chập chờn lấy một cổng chập chờn
+ * theo chiều ngược.
  *
  * SỐ ĐẦY ĐỦ, cùng một bài, cùng một cây mã, 6 lần chạy:
  *     2 304 · 5 042 · 5 619 · 5 787 · 5 959 · 6 699 ms   (spread 2,9×)
  *
- * Một phép đo biến thiên 2,9× KHÔNG phán xử được một đường nằm GIỮA khoảng ấy.
- * Đặt trần ở 5 000 thì cổng chập chờn theo chiều "đỏ oan"; khai VZ25 là
- * vượt-trần-có-lý-do thì nó chập chờn theo chiều "ngoại lệ đã lỗi thời". Tôi đã
- * làm cả hai và cả hai đều sai cùng một kiểu.
+ * NGUYÊN NHÂN THẬT, đo ở #131: **trần 5 000 là trần của ĐƯỜNG KHÁC.** Khối màn
+ * đọc chỉ tới người học qua `/ide` (15 000 ms); 5 000 ms là trần của ô chạy
+ * trong bài. Cổng khắt hơn thực tế 3×, nên một bài 6,7 s trông như hỏng. Với
+ * trần đúng, bài chậm nhất còn biên 2,2× — NGOÀI khoảng biến thiên, nên phép so
+ * thẳng `ms > TRAN_IDE_MS` lại xác định được.
  *
- * Nên cổng nay chỉ bắt thứ nó ĐO ĐƯỢC chắc chắn: một đoạn chạy LỒNG, tức chậm
- * tới mức phương sai của máy không giải thích nổi. Trần phán xử đặt ở
- * `BOI_PHUONG_SAI` lần trần thật — NGOÀI khoảng biến thiên đã đo.
- *
- * Đường 5 giây KHÔNG biến mất: nó vẫn được IN RA mỗi lần chạy, kèm bài chậm
- * nhất và biên còn lại. Thứ bỏ đi là quyền của một phép đo không lặp lại được
- * trong việc làm CI đỏ. Câu "người học có bị cắt ở 5 giây không" phải đo trên
- * MÁY NGƯỜI HỌC, không đo bằng đồng hồ treo tường của máy dựng.
+ * BÀI HỌC đáng hơn con số: hai lần đầu tôi đi chỉnh NGƯỠNG của một phép đo mà
+ * không hỏi ngưỡng ấy LÀ NGƯỠNG CỦA CÁI GÌ. Khi một cổng chập chờn quanh một
+ * hằng số, hãy kiểm hằng số đó trước khi kiểm phương sai.
  */
-const BOI_PHUONG_SAI = 2;
-const TRAN_DO_DUOC = LIMIT_MS * BOI_PHUONG_SAI;
 
-/** Bài vượt đường 5 giây trong LẦN CHẠY NÀY — in ra, không làm đỏ. */
-const chamLai = [];
 /** Bài chậm nhất và biên còn lại so với trần — in ra để biên thôi vô hình. */
 let chamNhat = { ma: '—', ms: 0 };
 let daChay = 0;
@@ -318,30 +333,12 @@ for (const lesson of bundle.lessons) {
     continue;
   }
   if (ms > chamNhat.ms) chamNhat = { ma, ms };
-  if (ms > LIMIT_MS) {
-    /* BÀI ĐÃ KHAI là vượt trần thì KHÔNG làm cổng đỏ, nhưng vẫn được in ra.
-     *
-     * Vì sao không chạy lại một lần rồi cho qua — tôi đã viết bản ấy rồi gỡ đi:
-     * phép chạy lại GIẤU một tín hiệu thật. Đo 08/11/2026, VZ25 chạy RIÊNG ba
-     * lần: **6 699 · 5 619 · 5 959 ms**, lần chạy lại cũng 5 147–5 195 ms. Nó
-     * KHÔNG phải tranh CPU — nó thật sự ở trên trần.
-     *
-     * Và chẩn đoán "đỏ giả" của vòng trước SAI vì phép đo biên của tôi sai: tôi
-     * lấy max của các dòng `✓` trong `--verbose`, tức đã LOẠI đúng bài trượt,
-     * nên ra "max 3 336 ms, biên 1,5×". Lấy max của tập đã bỏ phần tử lớn nhất
-     * là một phép đo tự khẳng định.
-     *
-     * Nên luật nay là: khai ra, kèm số đo và lý do, HAI CHIỀU — bài khai mà nay
-     * xuống dưới trần cũng là LỖI, nếu không danh sách chỉ dài ra. Cổng thôi
-     * chập chờn, và sự thật thì không bị nuốt. */
-    chamLai.push({ ma, ms });
-  }
-  if (ms > TRAN_DO_DUOC) {
+  if (ms > TRAN_IDE_MS) {
     hong.push({
       ma,
-      loai: 'chậm tới mức phương sai không giải thích nổi',
-      chiTiet: `${ms} ms — quá ${BOI_PHUONG_SAI}× trần ${LIMIT_MS} ms. Đây là đoạn chạy `
-        + 'lồng, không phải máy bận.',
+      loai: 'quá 15 giây',
+      chiTiet: `${ms} ms — \`/ide\` cắt ở ${TRAN_IDE_MS} ms, nên nút "Thử ngay trong IDE" `
+        + 'của bài này bàn giao một chương trình sẽ bị cắt giữa chừng.',
     });
     continue;
   }
@@ -370,6 +367,11 @@ const DAP_AN_MAU_KHONG_CHAY = {
   'PD13#3': 'openpyxl — Pyodide 314 không có wheel (xem danh sách 14 bài không chấm được)',
 };
 
+/* Pha 2 chạy trong ô của CHÍNH bài học, nên trần của nó là `TRAN_O_BAI_MS`,
+ * không phải trần `/ide`. Trước #131 pha này KHÔNG có phép kiểm thời gian nào —
+ * tức trần 5 giây, trần DUY NHẤT đúng cho một đường, lại chỉ được áp cho đường
+ * kia. */
+let chamNhatLuyen = { khoa: '—', ms: 0 };
 const luyen = [];
 let boQuaLocal = 0;
 for (const lesson of bundle.lessons) {
@@ -405,7 +407,10 @@ for (const { ma, i, p, lesson } of luyen) {
 
   const khoa = `${ma}#${i + 1}`;
   const coLyDo = DAP_AN_MAU_KHONG_CHAY[khoa];
+  const tLuyen = performance.now();
   const res = JSON.parse(grade(p.answerCode, '[]', '{}'));
+  const msLuyen = Math.round(performance.now() - tLuyen);
+  if (msLuyen > chamNhatLuyen.ms) chamNhatLuyen = { khoa, ms: msLuyen };
   if (res.error) {
     if (coLyDo) {
       biet.push(`${khoa}: ${coLyDo}`);
@@ -437,6 +442,15 @@ for (const { ma, i, p, lesson } of luyen) {
     });
     continue;
   }
+  if (msLuyen > TRAN_O_BAI_MS) {
+    hong.push({
+      ma: `${ma} luyện tập #${i + 1}`,
+      loai: 'quá 5 giây',
+      chiTiet: `${msLuyen} ms — ô chạy trong bài cắt ở ${TRAN_O_BAI_MS} ms `
+        + '(`DEFAULT_LIMITS.execMs`), nên người học bấm Chạy thử sẽ bị cắt.',
+    });
+    continue;
+  }
   luyenDat += 1;
 }
 
@@ -456,19 +470,19 @@ const giay = ((Date.now() - batDau) / 1000).toFixed(1);
 console.log(`\n${daChay} bài · ${soDoan} đoạn code · ${chamQua.length} đạt · ${hong.length} hỏng · ${giay}s`);
 /* BIÊN phải in ra mỗi lần, kể cả khi xanh. Trước bản này nó vô hình, nên không
  * ai biết bài chậm nhất đang ở 67% trần cho tới lúc cổng đỏ. */
-console.log(`   chậm nhất: ${chamNhat.ma} ${chamNhat.ms} ms / trần ${LIMIT_MS} ms `
-  + `(biên ${(LIMIT_MS / Math.max(chamNhat.ms, 1)).toFixed(1)}×)`);
-if (chamLai.length) {
-  console.log(`   VƯỢT đường ${LIMIT_MS} ms trong lần chạy này (${chamLai.length}) — KHÔNG làm `
-    + 'cổng đỏ (phép đo biến thiên 2,9×, xem chú thích), nhưng người học có thể bị cắt '
-    + 'nếu họ bấm "Thử ngay trong IDE":');
-  for (const x of chamLai) console.log(`      · ${x.ma}: ${x.ms} ms`);
-}
+console.log(`   chậm nhất: ${chamNhat.ma} ${chamNhat.ms} ms / trần ${TRAN_IDE_MS} ms `
+  + `(biên ${(TRAN_IDE_MS / Math.max(chamNhat.ms, 1)).toFixed(1)}×)`);
+
 console.log(
   `đáp án mẫu màn luyện tập: ${luyenDat}/${luyen.length} chạy đúng`
   + (biet.length ? ` · ${biet.length} ngoại lệ đã khai` : '')
   + (boQuaLocal ? ` · ${boQuaLocal} câu BỎ QUA (bài chạy trên máy)` : ''),
 );
+/* Biên của pha 2 cũng phải IN RA. Nó dùng trần KHÁC pha 1 (5 000 vs 15 000) vì
+ * hai pha chạy ở hai chỗ khác nhau trong sản phẩm, và trộn hai con số ấy vào
+ * một dòng là đúng cái nhầm mà #131 vừa sửa. */
+console.log(`   chậm nhất: ${chamNhatLuyen.khoa} ${chamNhatLuyen.ms} ms / trần `
+  + `${TRAN_O_BAI_MS} ms (biên ${(TRAN_O_BAI_MS / Math.max(chamNhatLuyen.ms, 1)).toFixed(1)}×)`);
 for (const b of biet) console.log(`  — ${b}`);
 if (canhBaoTheoBai.length) {
   const tong = canhBaoTheoBai.reduce((n, c) => n + c.canhBao.length, 0);

@@ -79,7 +79,7 @@ học nó.
 | Backend lint | 104 lỗi, 2 cảnh báo — **mốc trần trong CI là 115, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d) |
-| Frontend unit test | `cd frontend && npm run test:unit` → **598 ca** / 52 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **602 ca** / 53 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -99,7 +99,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **34 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **6 mục** (frontend 598 · backend 35 bộ/501 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773), 0 trượt, 0 lỗi; nó CHẠY chính sáu lệnh đó nên THAY cả sáu bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **6 mục** (frontend 602 · backend 35 bộ/501 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773), 0 trượt, 0 lỗi; nó CHẠY chính sáu lệnh đó nên THAY cả sáu bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -4601,6 +4601,77 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   trên 15 tệp route, nhưng KHÁC 404 ở một chỗ quyết định — **không có bằng chứng ai đã
   đi vào nó**. Trang 404 có ba bằng chứng độc lập ở trên; màn lỗi thì chưa có một lượt
   nào được ghi nhận. Dựng nó cùng vòng là mở phạm vi dựa trên suy đoán.
+
+- **`/lesson/python` MỜI GHI DANH vào một khoá không còn giáo trình — và quyết định
+  13/10 KHÔNG kể tên nó.** Vòng này tiếp nếp vòng trước: đo một bề mặt chưa ai nhìn,
+  bằng trình duyệt.
+  **MỘT GIẢ THUYẾT CỦA TÔI BỊ PHÉP ĐO BÁC NGAY, và đó là phần đáng ghi đầu tiên.** Tôi
+  thấy `/courses/{python,java,htmlcss}` trả **404** còn `/lesson/{python,java,htmlcss}`
+  trả **200** và tưởng đã tìm ra một lỗi bất đối xứng. Đọc `catalog.ts` thì nó khai rõ
+  đó là **quyết định có chủ đích 13/10/2026**: *"Đây là thay đổi TRÌNH BÀY… các route
+  tự có của chúng (`/courses/db_design*`, `/lesson/java`, `/lesson/htmlcss`,
+  `/interface`) vẫn chạy khi mở bằng đường dẫn trực tiếp — chỉ không còn lối vào từ
+  trang chủ"*. Và `curricula.json` CÓ `java`/`htmlcss`/`cpp`/`db_design` với 4 học phần
+  mỗi khoá. **Đọc chú thích TRƯỚC khi gọi một bất đối xứng là lỗi** — repo này đã trả
+  giá cho chiều ngược (chú thích trôi), nhưng chiều này cũng có giá.
+  **NHƯNG DANH SÁCH ẤY KHÔNG CÓ `/lesson/python`**, và khoá `python` khác hẳn bốn khoá
+  kia: nó **không có mục nào trong `curricula.json`** (file đó có `cpp`, `db_design`,
+  `htmlcss`, `java`, `python_advanced` — không có `python`). Nên kể cả khi hàng khoá
+  còn trong DB, giao diện không có giáo trình để vẽ và `/courses/python` cũng 404 nên
+  không có đường quay về.
+  **ĐO TRONG CHROME tới trạng thái cuối (33,2 s vì cold start):** *"Bài học Python —
+  Đăng ký khóa học miễn phí để mở bài học và lưu tiến độ"* kèm nút *"Đăng ký khóa Python
+  & bắt đầu"*, **0 liên kết**. Bấm nút đó là **GHI một hàng `enrollments`** rồi vào ngõ
+  cụt. `metadata.description` còn hứa *"Giáo trình Python 40 bài"* — giáo trình đó không
+  còn, tức tài liệu nói sai ra tới công cụ tìm kiếm.
+  **KHÔNG XOÁ ROUTE, chỉ chặn nhánh không-demo:** `?demo=list` là lối **DUY NHẤT** tới
+  `PythonStudio` (bài "List & Mutability" dựng tay) — grep ra đúng một chỗ mount. Xoá
+  route là biến một component đang sống thành code không ai tới được.
+  **`notFound()` chứ không `redirect('/courses/python')`:** route động
+  `/lesson/[courseId]` đã chuyển mã lạ về `/courses/<id>`, mà đích đó cũng 404 — thêm
+  một chặng chỉ làm người học chờ thêm một vòng để tới đúng trang ấy. Và nó đáp xuống
+  đúng trang 404 tiếng Việt dựng ở vòng trước: hai vòng khớp nhau.
+  **LUẬT CỦA CỔNG LÀ "CÒN GIÁO TRÌNH", KHÔNG PHẢI "CÒN TRONG DANH MỤC"** — và sự khác
+  nhau ấy là cả vấn đề. Bốn khoá rời `catalog.ts` được giữ CÓ CHỦ ĐÍCH, nên một luật
+  "phải có trong danh mục" sẽ báo oan đúng bốn bài đang làm đúng. Luật đứng được: một
+  route `/lesson/<id>` chỉ được dựng NỘI DUNG BÀI (`StudioLesson`/`LessonDbDesign`) khi
+  `<id>` còn một mục trong `curricula.json`.
+  **HAI LỖ TRONG CHÍNH CỔNG CỦA TÔI, cả hai chỉ lộ nhờ ablate, và một trong hai là lỗi
+  ĐIỂN HÌNH của ca test:**
+  · ca "giữ nhánh demo" chỉ đòi hai CHUỖI `notFound()` và `<PythonStudio` **cùng có
+    mặt**. Ablate thay cả nhánh bằng một `notFound()` TRẦN → **0 đỏ**, vì
+    `<PythonStudio />` vẫn nằm trong JSX phía dưới, chỉ là không còn ai tới được. **Một
+    ca đòi "chuỗi có mặt" không chứng minh được "nhánh còn sống."** Nay nó cắt nguồn
+    theo `;{}\n` rồi đòi MỖI câu lệnh chứa `notFound()` phải có `PYTHON_DEMO_PARAM`;
+    ablate lại → **1 đỏ**;
+  · phép gieo thứ hai của tôi SAI, không phải cổng sai: tôi gỡ `java` khỏi
+    `curricula.json` và đọc **0 đỏ** như "cổng rỗng". Đo lại thì `/lesson/java` dựng
+    **HTML di sản ghi cứng** (`LegacyScripts` + CSS inline), không đọc `content_json`
+    lần nào — nên luật ĐÚNG là im. Gieo đúng chỗ (`python_advanced`, khoá duy nhất còn
+    content-driven) → **1 đỏ**. Và chiều `java` giữ **0 đỏ** chính là phép kiểm NGƯỢC.
+  **GHI NHẬN TRUNG THỰC, vì ràng buộc của vòng lặp là KHÔNG ghi DB production:** chính
+  phép đo của tôi đã tạo một tài khoản khách trên production — mở `/lesson/python` trong
+  trình duyệt là `apiFetch` gặp 401 rồi `ensureGuest()`. Đúng thứ mọi khách mở trang đều
+  làm, và không chạm dữ liệu bài học, nhưng nó là một lần GHI. **Mở một trang bài học
+  trên production bằng trình duyệt là một phép đo CÓ GHI** — chọn `fetch` HEAD khi chỉ
+  cần mã trạng thái.
+  **XEM THẬT trên `next build` + `next start`:** `/lesson/python` → **404** kèm trang
+  tiếng Việt, 2 liên kết `['/courses/python_advanced', '/']`, Montserrat, giấy kem ·
+  `/lesson/python?demo=list` → **200** và có nội dung studio · `/lesson/python_advanced`
+  → 200 · `/lesson/java` → 200 (quyết định 13/10 không bị đụng).
+  **ABLATE 6 chiều:** trang về HEAD → **3 đỏ** (luật chung + hai ca riêng) · CẶP ĐỐI
+  CHỨNG trang HEAD + gỡ luật chung → **2 đỏ** · `notFound()` trần → 1 · metadata về câu
+  "40 bài" → 1 · gỡ `python_advanced` khỏi giáo trình → 1 · làm hỏng phép quét route
+  (tự kiểm) → 1. Chiều NGƯỢC: gỡ `java` khỏi giáo trình → **0 đỏ**, đúng.
+  **SỐ ĐÃ ĐO:** frontend unit **598 → 602 ca / 52 → 53 tệp** · sổ ngưỡng siết sàn
+  598 → 602 · typecheck sạch · lint 0 lỗi / 146 cảnh báo (không đổi) · `npm run build`
+  exit 0 · `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi ·
+  `duong-toi` / `tai-nguyen-chet` / `export-chet` 0 lỗi. **Không đụng một dòng nội dung
+  nào**, nên `check-da-nap` giữ 36 bài chờ.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** một bookmark cũ tới `/lesson/python` nay nhận
+  trang 404 tiếng Việt có đường về, thay cho một lời mời ghi danh vào ngõ cụt.
+  **`/interface` ĐÃ ĐO VÀ ĐỂ NGUYÊN:** nó là minigame "CODEGEN Z" (kéo khối lệnh cứu
+  robot), và ràng buộc của vòng lặp nói thẳng KHÔNG đầu tư vào minigame.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

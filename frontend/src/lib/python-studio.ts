@@ -1,10 +1,14 @@
 // The Figma lesson is List & Mutability — the one studio screen built by hand
 // instead of read from `lessons.content_json`.
 //
-// Khoá python giờ là 40 bài PE Python v3 (scripts/pe-v3), mọi bài đều đọc
-// content_json. Bài dựng tay này nằm NGOÀI giáo trình: chỉ mở bằng
-// /lesson/python?demo=list và không ghi tiến độ (xem PythonStudio.tsx).
-export const PYTHON_DEMO_PARAM = 'list';
+// ĐÍNH CHÍNH 08/11/2026. Câu ở đây từng ghi "Khoá python giờ là 40 bài PE
+// Python v3 … chỉ mở bằng /lesson/python?demo=list". Cả hai nửa đã lỗi thời:
+// khoá `python` không còn mục nào trong `curricula.json` và `/courses/python`
+// là 404 từ 13/10/2026; còn `?demo=list` đã đo trên production là KHÔNG dùng
+// được (demo bị chặn sau cổng ghi danh vào đúng khoá rỗng ấy, nút bước tiếp
+// `disabled`, liên kết thoát trỏ vào một 404). `/lesson/python` nay trả 404 ở
+// mọi tham số, nên hằng `PYTHON_DEMO_PARAM` đã đi cùng nhánh đó — giữ lại một
+// hằng mà không nhánh nào đọc là đúng thứ `check-export-chet` có để bắt.
 export const STARTER_CODE = `def clean_and_boost_scores(raw_scores: list[float], bonus: float) -> list[float]:
     """Lọc điểm âm, cộng thưởng và giữ nguyên danh sách gốc."""
     result = []

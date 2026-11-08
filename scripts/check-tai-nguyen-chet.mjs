@@ -36,6 +36,21 @@ const FE = join(GOC, 'frontend');
  * sách tên trần thì sáu tháng sau không ai dám xoá mục nào.
  */
 const GIU_DU_CHET = {
+  'component/PythonStudio.tsx':
+    'Bài "List & Mutability" dựng tay — lối duy nhất tới nó là ' +
+    '/lesson/python?demo=list, và vòng 08/11/2026 đã cho đường đó trả 404. ' +
+    'ĐO TRÊN PRODUCTION TRƯỚC KHI GỠ: trang tới trạng thái cuối sau 39,3 s cold ' +
+    'start rồi hiện "Đăng ký khóa học miễn phí để lưu tiến độ" với nút bước tiếp ' +
+    '`disabled` và một liên kết thoát tới /courses/python (404) — tức nó KHÔNG ' +
+    'dùng được, không phải "đang sống". Ba thứ phải sửa nếu hồi sinh, không chỉ ' +
+    'bật lại route: (1) load() gọi /api/user + /api/enrolled ngay khi mount, ' +
+    'không có cổng hasStoredSession, nên mỗi lượt bot quét sinh một tài khoản ' +
+    'khách; (2) cả demo bị chặn sau !enrolled với khoá `python`, khoá không có ' +
+    'mục nào trong curricula.json; (3) liên kết thoát trỏ vào một 404. GIỮ mã ' +
+    'lại vì quyết định "xoá 69 KB hay hồi sinh demo" là của chủ dự án, không của ' +
+    'vòng lặp — cùng lý lẽ đang giữ scripts/pe-v4/**. GIỚI HẠN của cổng này: nó ' +
+    'so component bằng \b<Tên>\b nên những component CHỈ PythonStudio import ' +
+    'vẫn trông như còn sống; studio-ui.tsx thì sống thật (StudioLesson dùng nó).',
   'js/dashboard.js':
     'e2e/unit/forum-xss.test.mjs ĐỌC file này từ đĩa để chứng minh escHtml ' +
     'trung hoà payload XSS (test `forum-xss`, 1 ca). Xoá file là bộ test đỏ. ' +

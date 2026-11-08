@@ -63,31 +63,52 @@ test('route /lesson tĩnh: dựng nội dung bài ⇒ khoá phải còn giáo tr
   }
 });
 
-test('/lesson/python: nhánh không-demo phải 404, nhánh demo phải Ở LẠI', () => {
+test('/lesson/python: 404 ở MỌI tham số, không mount PythonStudio nữa', () => {
   const p = join(LESSON, 'python/page.tsx');
   const nguon = boChuThich(readFileSync(p, 'utf8'));
   assert.ok(!/<StudioLesson\b/.test(nguon),
     'không được dựng nội dung bài cho khoá python: khoá đó không còn giáo trình');
-  // `?demo=list` là lối DUY NHẤT tới PythonStudio (grep ra đúng một chỗ mount).
-  // Xoá nó là biến một component đang sống thành code không ai tới được — đúng
-  // lỗi thống trị mà repo này có bốn cổng để bắt.
-  assert.match(nguon, /<PythonStudio\b/, 'mất lối duy nhất tới PythonStudio');
 
-  // `notFound()` phải CÓ ĐIỀU KIỆN trên tham số demo, không đứng trần.
+  // ĐÃ VIẾT LẠI 08/11/2026, và lý do là một PHÉP ĐO BÁC CHÍNH CA NÀY.
   //
-  // Bản đầu của ca này chỉ đòi hai CHUỖI `notFound()` và `<PythonStudio` cùng
-  // có mặt — và ablate cho **0 đỏ** khi thay cả nhánh bằng một `notFound()`
-  // trần: `<PythonStudio />` vẫn nằm trong JSX phía dưới, chỉ là không còn ai
-  // tới được. Một ca đòi "chuỗi có mặt" không chứng minh được "nhánh còn sống".
+  // Bản trước đòi `<PythonStudio` phải CÒN và `notFound()` phải có điều kiện
+  // trên `PYTHON_DEMO_PARAM`, với lý lẽ "?demo=list là lối DUY NHẤT tới
+  // PythonStudio". Lý lẽ ấy giữ nhánh vì component CÓ CHỖ MOUNT, không vì trang
+  // CHẠY ĐƯỢC. Đo trên production: `/lesson/python?demo=list` tới trạng thái
+  // cuối sau 39,3 s cold start rồi hiện "Đăng ký khóa học miễn phí để lưu tiến
+  // độ", nút bước tiếp `disabled`, và một liên kết thoát tới `/courses/python`
+  // (404). Tức nhánh ấy KHÔNG dùng được — ca cũ đang bảo vệ một đường chết.
+  //
+  // Nay luật là: trang này 404 ở MỌI tham số, và `PythonStudio` được khai vào
+  // `GIU_DU_CHET` của `check-tai-nguyen-chet.mjs` kèm ba việc phải sửa nếu hồi
+  // sinh. Hai cổng khoá nhau: bỏ khai thì cổng tài nguyên chết đỏ; nối lại
+  // mount mà không khai thì ca dưới đỏ.
+  assert.ok(!/<PythonStudio\b/.test(nguon),
+    'trang này không được mount PythonStudio nữa — đường đó đã đo là không dùng '
+    + 'được; nếu hồi sinh thì phải sửa cả ba việc đã khai trong GIU_DU_CHET và gỡ '
+    + 'mục khai đó đi');
+
+  // `notFound()` phải đứng ở nhánh MẶC ĐỊNH, không sau một điều kiện nào — nếu
+  // không thì một tham số nào đó lại mở ra trang cũ.
   const canh = nguon
     .split(/[;{}\n]/)
     .map((s) => s.trim())
     .filter((s) => s.includes('notFound()'));
-  assert.ok(canh.length >= 1, 'nhánh không-demo phải gọi notFound()');
-  for (const c of canh) {
-    assert.match(c, /PYTHON_DEMO_PARAM/,
-      `notFound() đứng TRẦN ở "${c}" — nó phải có điều kiện trên tham số demo, `
-      + 'nếu không thì lối duy nhất tới PythonStudio chết mà hai chuỗi kia vẫn có mặt');
+  assert.equal(canh.length, 1, 'phải có đúng một lời gọi notFound()');
+  assert.equal(canh[0], 'notFound()',
+    `notFound() phải đứng TRẦN, đo được "${canh[0]}" — mọi tham số đều 404`);
+});
+
+test('PythonStudio được KHAI là chết-mà-giữ, kèm ba việc phải sửa nếu hồi sinh', () => {
+  // Cổng tài nguyên chết đã bắt đúng 69 126 byte này ngay khi mount bị gỡ. Ca
+  // này canh nửa còn lại: lời khai phải nói ra VÌ SAO, không chỉ có tên. Một
+  // danh sách ngoại lệ không kèm lý do là một danh sách không ai dám dọn.
+  const nguon = readFileSync(join(GOC, '../scripts/check-tai-nguyen-chet.mjs'), 'utf8');
+  const i = nguon.indexOf("'component/PythonStudio.tsx'");
+  assert.ok(i > 0, 'chưa khai component/PythonStudio.tsx vào GIU_DU_CHET');
+  const khai = nguon.slice(i, nguon.indexOf('\n  }', i) + 4);
+  for (const viec of ['hasStoredSession', '!enrolled', '404']) {
+    assert.ok(khai.includes(viec), `lời khai thiếu việc phải sửa: ${viec}`);
   }
 });
 

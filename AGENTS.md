@@ -84,7 +84,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d) |
-| Frontend unit test | `cd frontend && npm run test:unit` → **613 ca** / 54 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **614 ca** / 54 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -97,14 +97,14 @@ học nó.
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
 | Xuất hình cho người học | `node scripts/check-figures.mjs` → 16 ca, **0 hỏng** |
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **17 mục, 14 có đường tới, 3 còn tối (đã khai lý do)**, 0 lỗi |
-| Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **1 mục chết, 1 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **15 CSS module trong `src/`** |
+| Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **2 mục chết, 2 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **15 CSS module trong `src/`** |
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
 | Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **143/179 khớp, 36 bài CHỜ NẠP** (bốn lát văn phong 08/11 · hai lát alt text · ba lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **34 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **6 mục** (frontend 613 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773), 0 trượt, 0 lỗi; nó CHẠY chính sáu lệnh đó nên THAY cả sáu bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **6 mục** (frontend 614 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773), 0 trượt, 0 lỗi; nó CHẠY chính sáu lệnh đó nên THAY cả sáu bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -4819,6 +4819,71 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   ablate chúng vẫn phải đếm bằng tay — và ba khuôn ấy là nơi bẫy đếm sai từng xảy ra
   nhiều nhất. Thêm khuôn thì thêm một nhánh vào `docSoDo` kèm một ca "tổng = 0 trả
   `null`", đừng thêm một regex ở chỗ gọi.
+
+- **"CÓ CHỖ MOUNT" KHÔNG PHẢI "ĐANG SỐNG" — và tôi đã lấy cái thứ nhất làm lý lẽ giữ
+  một trang không dùng được.** Vòng #139 cho `/lesson/python` trả 404 nhưng GIỮ nhánh
+  `?demo=list`, với câu: *"đó là lối DUY NHẤT tới `PythonStudio`, xoá route là biến một
+  component đang sống thành code không ai tới được."* Câu ấy đúng về MOUNT và sai về
+  TRANG.
+  **ĐO TRÊN PRODUCTION** (Chrome, phiên khách đã có từ #139 nên lượt đo **không tạo thêm
+  hàng nào**): `/lesson/python?demo=list` tới trạng thái cuối sau **39,3 giây** cold
+  start rồi hiện *"Đăng ký khóa học miễn phí để lưu tiến độ"* kèm nút *"Đăng ký khóa
+  Python & bắt đầu"* — **đúng lời mời ghi danh vào ngõ cụt mà #139 vừa gỡ, chỉ nằm sâu
+  hơn một lớp**; nút *"Tiếp tục bước tiếp theo"* ở trạng thái `disabled`; và liên kết
+  thoát trỏ `/courses/python`, đã đo là **404**.
+  **BA KHIẾM KHUYẾT NỐI NHAU, đọc từ cây mã:** `PythonStudio.load()` gọi `/api/user` +
+  `/api/enrolled` ngay khi mount **không có cổng `hasStoredSession`**, nên mỗi lượt bot
+  quét URL này sinh một hàng `@guest.local` · cả demo bị chặn sau `!enrolled && !isAdmin`
+  với khoá `python`, khoá **không có mục nào** trong `curricula.json` · liên kết thoát
+  trỏ vào một 404. Mà trang tự khai *"Bài demo… không ghi tiến độ"* — nên hai lượt API
+  cùng cổng ghi-danh đều không mua gì cho nó.
+  **ĐÂY LÀ MỘT LỚP LỖI MÀ BỐN CỔNG CỦA REPO KHÔNG BẮT, và phải nói ra:**
+  `check-duong-toi.mjs` chứng minh *"có một màn MOUNT tính năng này"* —
+  `check-tai-nguyen-chet` chứng minh *"có ai import nó"* — cả hai đều XANH với trang
+  này suốt. Thứ không cổng nào nói được là *"đường đó dẫn tới một trang DÙNG ĐƯỢC"*.
+  Lỗ ấy chỉ đóng được bằng cách MỞ TRANG RA XEM, và nó là lý do mục `--ds-action` đã dặn
+  *"quét bằng trình duyệt, vì grep đã sai 6:1 một lần rồi"*.
+  **CÁCH SỬA: 404 ở MỌI tham số, và KHAI component là chết-mà-giữ kèm ba việc phải
+  sửa.** Không xoá 69 126 byte của `PythonStudio` — quyết định "xoá hẳn hay hồi sinh
+  demo" là của chủ dự án, cùng lý lẽ đang giữ `scripts/pe-v4/**`. Hai cổng nay khoá nhau:
+  bỏ mục khai thì `check-tai-nguyen-chet` đỏ; nối lại mount mà không gỡ mục khai thì ca
+  test đỏ. Và lời khai phải NÓI RA ba việc (`hasStoredSession` · `!enrolled` · `404`) —
+  có một ca đọc đúng ba chữ đó, vì một danh sách ngoại lệ không kèm lý do là danh sách
+  không ai dám dọn.
+  **GIỮ TỆP chứ không xoá thư mục:** xoá thì `/lesson/python` rơi xuống route động
+  `[courseId]`, mà route đó chuyển hướng Ở PHÍA CLIENT (`window.location.replace`) —
+  thêm một lần nháy trang rồi mới tới 404. Một `notFound()` ở máy chủ cho đúng kết quả
+  mà không có chặng đó. Bản dựng còn đổi route từ `ƒ` (dynamic) sang `○` (static) vì nó
+  thôi đọc `searchParams`.
+  **CA TEST CỦA #139 PHẢI VIẾT LẠI, và đó là nửa trung thực của vòng này.** Ca cũ đòi
+  `<PythonStudio` phải CÒN và `notFound()` phải có điều kiện trên `PYTHON_DEMO_PARAM` —
+  tức nó đang **bảo vệ một đường chết**. Nay nó đòi ngược: không mount nữa, và
+  `notFound()` phải đứng TRẦN (`canh.length === 1 && canh[0] === 'notFound()'`), vì một
+  `notFound()` sau điều kiện nghĩa là có tham số nào đó lại mở ra trang cũ. Tên ca cũng
+  đổi — *"nhánh demo phải Ở LẠI"* nay là một lời khai sai.
+  **DÙNG CHÍNH CÔNG CỤ ABLATE DỰNG VÒNG TRƯỚC, và nó bắt HAI phép gieo sai của tôi:**
+  · `--ve-head` với đường dẫn tương đối từ `frontend/` → `git show HEAD:<đường dẫn>`
+    giải theo GỐC REPO nên nó `fatal:`. Công cụ từ chối to tiếng thay vì in "0 đỏ"; đã
+    sửa bằng `git rev-parse --show-prefix` để mọi cờ nhận cùng kiểu đường dẫn;
+  · seed `notFound()` khớp **2 chỗ** — chỗ thứ hai nằm trong CHÚ THÍCH của chính bản
+    sửa. Công cụ dừng với *"khớp 2 chỗ, phải đúng 1"*. Nếu vẫn dùng script shell cũ thì
+    phép thay sẽ sửa cả hai rồi cho một con số vô nghĩa.
+  Hai lần ấy là bằng chứng công cụ đáng dựng, và cả hai đều ở dạng "0 đỏ" giả nếu không
+  có nó.
+  **ABLATE 5 chiều:** trả trang về HEAD (mount lại `PythonStudio`) → **1 đỏ** ·
+  `notFound()` sau một điều kiện → 1 · đổi tên mục khai trong `GIU_DU_CHET` → 1 · lời
+  khai bỏ một việc phải sửa (`hasStoredSession`) → 1 · gỡ HẲN mục khai →
+  `check-tai-nguyen-chet` **1 lỗi** đúng tên và đúng số byte.
+  **SỐ ĐÃ ĐO:** `/lesson/python` và `?demo=list` cùng **404** trên bản `next build` ·
+  `/lesson/python_advanced` và `/lesson/java` giữ **200** · frontend unit **613 → 614
+  ca** (54 tệp) · tài nguyên chết **1 → 2 mục, 2 khai giữ, 0 chưa khai** · sổ ngưỡng
+  siết sàn 613 → 614 · typecheck sạch · lint 0 lỗi / 146 cảnh báo không đổi ·
+  `npm run build` exit 0 · `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi
+  · `export-chet` / `duong-toi` 0 lỗi. **Không đụng một dòng nội dung nào**, nên
+  `check-da-nap` giữ 36 bài chờ.
+  **`PYTHON_DEMO_PARAM` đi cùng nhánh đó**, và chú thích ở `lib/python-studio.ts` đã
+  được đính chính: nó còn ghi *"Khoá python giờ là 40 bài PE Python v3… chỉ mở bằng
+  /lesson/python?demo=list"* — cả hai nửa đã lỗi thời.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

@@ -94,9 +94,17 @@ function dongCuoi(s, n = TRAN_DONG_IN) {
 
 function noiDungSeed(o, goc) {
   if (o['ve-head']) {
+    // `git show HEAD:<đường dẫn>` giải đường dẫn theo GỐC REPO, không theo thư
+    // mục hiện tại. Gọi từ `frontend/` với một đường dẫn tương đối đã ném
+    // `fatal: path 'frontend/…' exists, but not '…'` — đúng, nhưng nó bắt người
+    // dùng phải tự biết luật ấy. `--show-prefix` cho tiền tố của cwd trong repo
+    // nên lời gọi nào cũng dùng được đường dẫn tương đối như mọi cờ khác.
+    const tienTo = execFileSync('git', ['rev-parse', '--show-prefix'], {
+      encoding: 'utf8',
+    }).trim();
     // `git show` đòi dấu `/`; `join()` trên Windows sinh `\` và 14/14 lời gọi
     // từng ném `fatal:` — bẫy đã ghi ở `check-da-deploy.mjs`.
-    const duong = o.tep.replace(/\\/g, '/');
+    const duong = `${tienTo}${o.tep}`.replace(/\\/g, '/');
     return execFileSync('git', ['show', `HEAD:${duong}`], {
       encoding: 'utf8',
       maxBuffer: 64 * 1024 * 1024,

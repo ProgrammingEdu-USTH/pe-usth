@@ -22,7 +22,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Bản sao ở bài trước giữ được số gốc, nhưng số thực còn một cái bẫy riêng. Bạn muốn kiểm tra tổng 0.1 và 0.2 có khớp kết quả dự kiến là 0.3 không. Với số thực, kết quả tính có thể lệch một lượng rất nhỏ:"
+      "text": "Bản sao ở bài trước giữ được số gốc, nhưng số thực còn một cái bẫy riêng. Quán đong hai phần sữa 0.1 và 0.2 lít. Bạn muốn kiểm tổng có khớp 0.3 lít không. Với số thực, kết quả tính có thể lệch một lượng rất nhỏ:"
      },
      {
       "type": "code",

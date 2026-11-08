@@ -4895,7 +4895,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Ba bạn có điểm 6, 8 và 9. Nếu mỗi bạn được cộng thêm 0.5 điểm, bạn có thể cộng trực tiếp số đó vào array:"
+        "text": "Quán vừa thu phiếu đánh giá cho ba món: 6, 8 và 9 điểm. Nếu mỗi món được cộng thêm 0.5 điểm, bạn có thể cộng trực tiếp số đó vào array:"
        },
        {
         "type": "code",
@@ -4907,7 +4907,7 @@
       [
        {
         "type": "paragraph",
-        "text": "NumPy cộng 0.5 vào từng phần tử: 6 thành 6.5, 8 thành 8.5 và 9 thành 9.5. Thứ tự các bạn vẫn giữ nguyên. Trong code, `6.` là cách viết số thực 6.0."
+        "text": "NumPy cộng 0.5 vào từng phần tử: 6 thành 6.5, 8 thành 8.5 và 9 thành 9.5. Thứ tự các món vẫn giữ nguyên. Trong code, `6.` là cách viết số thực 6.0."
        },
        {
         "type": "paragraph",
@@ -4943,7 +4943,7 @@
        },
        {
         "type": "paragraph",
-        "text": "Bạn cũng có thể dùng phép trừ để giảm đồng loạt một dãy giá, hoặc phép chia để đổi đơn vị các số đo."
+        "text": "Bạn cũng có thể dùng phép trừ để giảm đồng loạt một dãy giá món, hoặc phép chia để đổi đơn vị các số đo."
        }
       ]
      ],
@@ -7697,7 +7697,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Phép lọc ở bài trước trả về các ô đạt mức, còn lần này bạn cần gắn nhãn cho từng ô. Bạn cần hiển thị điểm của ba học viên kèm trạng thái đạt hay chưa đạt. Ngưỡng đạt là 5. Để chọn nhãn cho mỗi điểm, dùng `np.where`:"
+        "text": "Phép lọc ở bài trước trả về các ô đạt mức, còn lần này bạn cần gắn nhãn cho từng ô. Quán cần hiện điểm đánh giá của ba món kèm trạng thái đạt hay chưa đạt. Ngưỡng đạt là 5. Để chọn nhãn cho mỗi điểm, dùng `np.where`:"
        },
        {
         "type": "code",
@@ -8187,7 +8187,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Bảng vừa tính trung bình ở bài trước giả định mọi ô đều có số. Một cảm biến ghi được 28°C, mất dữ liệu một ngày, rồi ghi được 32°C. Ngày mất dữ liệu không phải là ngày có nhiệt độ 0°C. Bạn có thể biểu diễn giá trị chưa biết bằng `np.nan`:"
+        "text": "Bảng vừa tính trung bình ở bài trước giả định mọi ô đều có số. Máy đo nhiệt độ sữa ở quán ghi được 28°C, mất dữ liệu một ngày, rồi 32°C. Ngày mất dữ liệu không phải là ngày có nhiệt độ sữa 0°C. Bạn có thể biểu diễn giá trị chưa biết bằng `np.nan`:"
        },
        {
         "type": "code",
@@ -8219,7 +8219,7 @@
        },
        {
         "type": "paragraph",
-        "text": "Tính trung bình từ hai điểm đã có:"
+        "text": "Tính trung bình từ hai số đo đã có:"
        },
        {
         "type": "code",
@@ -8231,11 +8231,11 @@
       [
        {
         "type": "paragraph",
-        "text": "Có hai điểm thực là 6 và 10, nên trung bình bằng 8. Nếu mọi phần tử đều là NaN, `nanmean` trả NaN và phát cảnh báo; khi đó cần báo chưa có dữ liệu, không ghi một điểm trung bình giả."
+        "text": "Có hai số đo thực là 6 và 10, nên trung bình bằng 8. Nếu mọi phần tử đều là NaN, `nanmean` trả NaN và phát cảnh báo; khi đó cần báo chưa có dữ liệu, không ghi một số trung bình giả."
        },
        {
         "type": "paragraph",
-        "text": "Với điểm có trọng số, khi bỏ một điểm thiếu, bạn phải bỏ cả tín chỉ của môn đó bằng cùng một mask. `np.isnan(a)` đánh dấu ô thiếu; thêm `~` ở trước để đảo `True`/`False`, nên `~np.isnan(a)` đánh dấu các ô không thiếu. Ngoài ra, bỏ NaN không đồng nghĩa bỏ mọi giá trị vô hạn; đó là hai điều kiện kiểm tra khác nhau."
+        "text": "Với số đo có trọng số, khi bỏ một ô thiếu, bạn phải bỏ cả trọng số của ô đó bằng cùng một mask. `np.isnan(a)` đánh dấu ô thiếu; thêm `~` ở trước để đảo `True`/`False`, nên `~np.isnan(a)` đánh dấu các ô không thiếu. Ngoài ra, bỏ NaN không đồng nghĩa bỏ mọi giá trị vô hạn; đó là hai điều kiện kiểm tra khác nhau."
        }
       ]
      ],
@@ -8972,7 +8972,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Bản sao ở bài trước giữ được số gốc, nhưng số thực còn một cái bẫy riêng. Bạn muốn kiểm tra tổng 0.1 và 0.2 có khớp kết quả dự kiến là 0.3 không. Với số thực, kết quả tính có thể lệch một lượng rất nhỏ:"
+        "text": "Bản sao ở bài trước giữ được số gốc, nhưng số thực còn một cái bẫy riêng. Quán đong hai phần sữa 0.1 và 0.2 lít. Bạn muốn kiểm tổng có khớp 0.3 lít không. Với số thực, kết quả tính có thể lệch một lượng rất nhỏ:"
        },
        {
         "type": "code",

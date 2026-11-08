@@ -57,7 +57,7 @@
         "thời tiết", "nhiệt độ", "độ ẩm", "lượng mưa", "trạm đo",
         "temperature", "temp_c", "weather", "rainfall", "humidity"
       ],
-      "loaiTru": [],
+      "loaiTru": ["nhiệt độ sữa"],
       "ghiChu": "CẢNH BÁO cho người sửa nội dung: `nhiệt độ` cũng là một đại lượng THẬT của quán cà phê (nhiệt độ nước pha, nhiệt độ sữa). Ngày câu chuyện quán dùng tới nó, thêm đúng cụm đó vào `loaiTru` — ví dụ \"nhiệt độ nước\", \"nhiệt độ sữa\" — đừng xoá từ khoá, vì xoá là mất luôn phép dò bảng dữ liệu thời tiết."
     },
     {

@@ -86,7 +86,7 @@ học nó.
 | Giáo trình pe-da (đang chạy) | **179 bài, 11 module**, 567 màn đọc, **537 câu trắc nghiệm**, 669 câu luyện tập, **143 bài tập được chấm / 480 ca**, 2 439 phút; 139 bài chạy trong trình duyệt / 15 hỗn hợp / 25 trên máy |
 | pe-da chấm nội dung | `node scripts/pe-da/check-pyodide.mjs` → 154 bài, 420 đoạn code, **0 hỏng**, **0 cảnh báo**, 30–85 s (BIẾN THIÊN theo tải máy — xem bẫy "trần 5 giây là trần của đường khác"); trần pha 1 là **15 000 ms** (`/ide`), trần pha 2 là **5 000 ms** (ô chạy trong bài), và mỗi pha in biên riêng; **pha 2: 52/53 đáp án mẫu màn luyện tập chạy đúng, 1 ngoại lệ đã khai, 10 câu bỏ qua (bài chạy trên máy)** |
 | pe-da chấm BÀI TẬP | `node scripts/pe-da/check-practice.mjs` → 143 bài, **480 ca đạt**, 773 biến thể sai đều trượt, **pha 3 cổng file dữ liệu 7 bài / 0 lỗi**, **pha 4: 2 372 ca trượt / 0 ca im lặng / 7 nhánh phản hồi**, ~12 s |
-| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **82 lỗi · 432 cảnh báo**, dồn ở L3 32 (câu ≥ 3 dấu phẩy) · L8 22 (mật độ thuật ngữ) · L1 21 (câu > 30 tiếng) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì 82 lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
+| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **82 lỗi · 428 cảnh báo**, dồn ở L3 32 (câu ≥ 3 dấu phẩy) · L8 22 (mật độ thuật ngữ) · L1 21 (câu > 30 tiếng) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì 82 lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
 | pe-da ĐỘ PHỦ văn phong | `node scripts/pe-da/check-phu-van-phong.mjs` → **99 chuỗi NGOÀI TẦM / 4 mục đã khai**, 0 lỗi. Bộ văn phong đọc `source/course.json` (cố ý), nên chữ do `build.py` SINH RA thì không luật nào thấy: **80 `figure.alt`** · 19 chuỗi của `diagram`. NỢ ẨN đã đo: L3 32 → 41 · L13 cb 217 → 229 · §4-A cb 23 → 30 · L14 0 → 3 lỗi — tức tín hiệu dừng báo THIẾU ~20%. Trần 99 CHỈ ĐƯỢC HẠ (108 → 99 ngày 08/11: 9 đoạn `paragraph.text` đã về gói nguồn) |
 | pe-da bảng từng bước | `py scripts/pe-da/gen_traces.py` → **56 vết / 359 khối đủ điều kiện** (303 bỏ qua — bảng từng ghi 356/300, đã CŨ từ trước 04/11: dựng lại từ HEAD cũng ra 359/303, và `check-moc-nen` không đối chiếu hàng này; phần lớn vì không ra được câu dự đoán nào ĐÁNG hỏi); build.py `return 1` nếu lệch |
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
@@ -94,7 +94,7 @@ học nó.
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **17 mục, 14 có đường tới, 3 còn tối (đã khai lý do)**, 0 lỗi |
 | Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **1 mục chết, 1 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **14 CSS module trong `src/`** |
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
-| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **155/179 khớp, 24 bài CHỜ NẠP** (ba lát văn phong 08/11 cộng hai lát alt text — bảy bài VZ nữa vào ở lát thứ hai). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
+| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **151/179 khớp, 28 bài CHỜ NẠP** (ba lát văn phong 08/11 · hai lát alt text · một lát neo bối cảnh cụm NP). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **34 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
@@ -4291,6 +4291,73 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   mới chỉ XANH Ở MÁY — CI vẫn chưa chạy trên `main` vì trigger còn là `[master]`; lật nó
   là **quyết định của chủ dự án**, và giờ thì lật được, vì đây là cổng cuối cùng trong
   bảy cổng của lần chạy tay còn đỏ.
+
+- **ĐỢT ĐỔI 32 BÀI SANG MIỀN QUÁN CÀ PHÊ BỎ SÓT MỘT CỤM, và nó bỏ sót vì bộ kiểm xếp
+  chúng ở bậc CẢNH BÁO — mà chiến dịch chỉ đọc bậc LỖI.** L14 còn **30 cảnh báo**
+  *"không có bối cảnh nào"*, và 4 trong số đó — NP04 (điểm của ba bạn học), NP15 (điểm
+  của ba học viên), NP17 (một cảm biến ghi 28°C), NP20 — dùng đúng hai miền mà đợt
+  29/10 đã đổi. `boi-canh.json` không có từ khoá nào gọi tên chúng Ở DẠNG CHÚNG XUẤT
+  HIỆN (`điểm` trần, `cảm biến`, `°C`), nên chúng không thành LỖI "dùng miền ngoài" mà
+  rơi xuống CẢNH BÁO "chưa neo".
+  **ĐO TRƯỚC KHI SỬA — bốn vòng liền đã bắt một luật văn phong báo oan, nên lần này
+  phải hỏi trước:** quét chữ NGOÀI phần giảng (`title` · `drills` · `reviewExercises` ·
+  `manualLab` · MCQ và bài tập của `practice.json`) thì **28/30 bài không có một dấu
+  hiệu miền chính/kèm-chính nào ở đâu cả**; 2 bài (SY15, PD25) chỉ neo ở phần bài tập.
+  **L14 lần này TRUNG THỰC** — 30 cảnh báo là 30 khoảng trống nội dung thật.
+  **PHÉP ĐO ĐẦU CỦA TÔI SUÝT RA 0 VÌ LÝ DO TẦM THƯỜNG:** nó đọc `l['exercises']` và
+  `l['quiz']`, hai khoá KHÔNG tồn tại ở cấp bài (MCQ và bài tập sống ở
+  `source/practice.json`, một gói riêng). Một con số 0 là thứ phải nghi ngờ trước nhất
+  — kiểm tên khoá bằng `sorted(l.keys())` rồi mới tin phép đếm.
+  **NEO BẰNG VĂN XUÔI, KHÔNG ĐỔI CODE — và đó là một ràng buộc đo được, không phải
+  khẩu vị:** `traces.json` có mục `codeHash` cho cả 4 bài **kể cả khi số vết là 0**
+  (`blocks` ghi lại phần khâu sinh bỏ qua), nên sửa một ký tự trong `code` là
+  `build.py` `return 1` và buộc chạy `gen_traces.py` (~20 phút, cần
+  numpy/pandas/matplotlib trên máy, KHÔNG chạy được trên CI). Dữ liệu của bốn bài này
+  là số trung tính (6/8/9 · 0.1/0.2), nên thứ làm chúng thành ví dụ "điểm học sinh" hay
+  "đánh giá món" CHỈ LÀ văn xuôi — và `scores`, `temps`, `parts` đều đọc đúng ở khung
+  mới. Neo bằng chữ ở đây là bản sửa THẬT, không phải rắc từ khoá cho qua cổng.
+  **LẦN THỨ NĂM một luật văn phong bắt chuỗi con không có ngữ cảnh — nhưng lần này FILE
+  DỮ LIỆU ĐÃ ĐOÁN TRƯỚC và nói sẵn cách sửa.** Khung mới của NP17 ("nhiệt độ sữa ở
+  quán") làm L14 **nổ 1 LỖI** *"dùng miền Thời tiết"*, vì `nhiệt độ` là từ khoá của
+  miền `thoi-tiet`. Lối thoát trông hợp lý nhất lúc đó là đổi NỘI DUNG để chiều một
+  phép kiểm sai — đúng bệnh "Luật 6 của cổng INSERT". Mà `ghiChu` của chính miền ấy
+  viết nguyên văn: *"`nhiệt độ` cũng là một đại lượng THẬT của quán cà phê… Ngày câu
+  chuyện quán dùng tới nó, thêm đúng cụm đó vào `loaiTru` — ví dụ "nhiệt độ nước",
+  "nhiệt độ sữa" — đừng xoá từ khoá, vì xoá là mất luôn phép dò bảng dữ liệu thời
+  tiết."* Làm đúng thế: `loaiTru` của `thoi-tiet` nhận `"nhiệt độ sữa"`, và câu thứ hai
+  của bài đổi từ `nhiệt độ 0°C` sang `nhiệt độ sữa 0°C` cho cả hai lần nhắc cùng một
+  nghĩa.
+  **Đây là mặt ĐỐI của bẫy "chú thích là lời KHAI, giá trị mới là sự THẬT".** Một chú
+  thích nói về HIỆN TẠI thì trôi được và sẽ sai; một chú thích đoán trước một hỏng
+  hóc TƯƠNG LAI và nói ra cách sửa thì không trôi được, vì nó chưa khẳng định gì về
+  một con số. Chỉ thêm `"nhiệt độ sữa"`, KHÔNG thêm `"nhiệt độ nước"` mà chú thích
+  cũng nêu: corpus chưa dùng cụm ấy, và một mục khai không ai với tới là đúng thứ repo
+  này có bốn cổng để bắt.
+  **KHÔNG DỰNG CỔNG MỚI, và lý do là phép đo:** `van-phong-moc.json` đã ratchet L14,
+  nên 30 → 26 là một mục SIẾT và tăng lại là ĐỎ. Cổng đã có từ trước; thứ thiếu là ai
+  đi đọc cảnh báo của nó. Dựng thêm một cổng ở đây là tối ưu BỘ ĐO thay vì sản phẩm.
+  **SỐ ĐÃ ĐO:** L14 cảnh báo **30 → 26**, L14 lỗi 0 → 1 → **0** · tổng khoá giữ **82
+  lỗi**, 432 → **428 cảnh báo** · không luật nào khác động (L1 21·86 · L2 7·14 · L3 32 ·
+  L8 22·28 · L13 217 · §4-A 23 đều y nguyên) · tổng số câu phần giảng 2 683 → **2 684**
+  (NP20 chẻ một câu làm hai). `check.py --strict` 0 lỗi 0 cảnh báo · `check-pyodide`
+  154 bài / 420 đoạn / 0 hỏng · `check-practice` 480 ca đạt / 773 biến thể sai đều
+  trượt · frontend unit 592.
+  **ABLATE 4 chiều**, và chiều 2 là phép kiểm NGƯỢC đáng nhất: gỡ `loaiTru` (giữ văn
+  xuôi mới) → L14 **1 lỗi** · trả văn xuôi về HEAD (giữ `loaiTru`) → **0 lỗi, 30 cảnh
+  báo**, tức y hệt HEAD ⇒ mục `loaiTru` MỘT MÌNH không nới cổng cho bài nào đang có ·
+  gỡ cả hai → 30 cảnh báo · ratchet khi gỡ cả hai → **6 lỗi**, gọi đúng tên *"L14: TỔNG
+  TĂNG 26 → 30"* và *"TL: lỗi TĂNG 0 → 1"*.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 155/179 → **151/179, 28 bài CHỜ NẠP**.
+  **MỘT LEAD ĐỂ LẠI, đo được và nhỏ:** `drills` của NP01 còn *"Tạo một array chứa ba
+  nhiệt độ 28, 30 và 29"* — miền cũ, và **L14 không đọc `drills`** (`van_ban_hoc_vien`
+  chỉ đọc `reading`, cố ý: "phần giảng"). Nó dưới ngưỡng `NGUONG_MIEN` nên `loaiTru`
+  mới không chạm tới. Sửa nó là sửa vào một vùng không cổng nào đo, nên nó là một lát
+  riêng — và câu hỏi thật ở đó là **L14 có nên đọc cả `drills` không**, một quyết định
+  về phạm vi luật chứ không về một chuỗi.
+  **CÒN LẠI 26 cảnh báo L14**, dồn ở GU 8 (Tkinter) · SY 5 · PD 4 · VZ 4 · CT 4 · NP 1.
+  Cụm GU là cụm lớn nhất và nó KHÔNG neo được bằng văn xuôi: ví dụ của nó là nhãn và
+  nút của giao diện, tức neo thật thì phải đổi CODE — mà GU không có mục nào trong
+  `traces.json`, nên ở đó đổi code lại RẺ. Đo lại trước khi làm.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

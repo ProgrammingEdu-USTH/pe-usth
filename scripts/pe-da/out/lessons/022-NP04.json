@@ -22,7 +22,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Ba bạn có điểm 6, 8 và 9. Nếu mỗi bạn được cộng thêm 0.5 điểm, bạn có thể cộng trực tiếp số đó vào array:"
+      "text": "Quán vừa thu phiếu đánh giá cho ba món: 6, 8 và 9 điểm. Nếu mỗi món được cộng thêm 0.5 điểm, bạn có thể cộng trực tiếp số đó vào array:"
      },
      {
       "type": "code",
@@ -34,7 +34,7 @@
     [
      {
       "type": "paragraph",
-      "text": "NumPy cộng 0.5 vào từng phần tử: 6 thành 6.5, 8 thành 8.5 và 9 thành 9.5. Thứ tự các bạn vẫn giữ nguyên. Trong code, `6.` là cách viết số thực 6.0."
+      "text": "NumPy cộng 0.5 vào từng phần tử: 6 thành 6.5, 8 thành 8.5 và 9 thành 9.5. Thứ tự các món vẫn giữ nguyên. Trong code, `6.` là cách viết số thực 6.0."
      },
      {
       "type": "paragraph",
@@ -70,7 +70,7 @@
      },
      {
       "type": "paragraph",
-      "text": "Bạn cũng có thể dùng phép trừ để giảm đồng loạt một dãy giá, hoặc phép chia để đổi đơn vị các số đo."
+      "text": "Bạn cũng có thể dùng phép trừ để giảm đồng loạt một dãy giá món, hoặc phép chia để đổi đơn vị các số đo."
      }
     ]
    ],

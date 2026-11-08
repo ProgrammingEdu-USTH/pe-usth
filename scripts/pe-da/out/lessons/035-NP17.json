@@ -22,7 +22,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Bảng vừa tính trung bình ở bài trước giả định mọi ô đều có số. Một cảm biến ghi được 28°C, mất dữ liệu một ngày, rồi ghi được 32°C. Ngày mất dữ liệu không phải là ngày có nhiệt độ 0°C. Bạn có thể biểu diễn giá trị chưa biết bằng `np.nan`:"
+      "text": "Bảng vừa tính trung bình ở bài trước giả định mọi ô đều có số. Máy đo nhiệt độ sữa ở quán ghi được 28°C, mất dữ liệu một ngày, rồi 32°C. Ngày mất dữ liệu không phải là ngày có nhiệt độ sữa 0°C. Bạn có thể biểu diễn giá trị chưa biết bằng `np.nan`:"
      },
      {
       "type": "code",
@@ -54,7 +54,7 @@
      },
      {
       "type": "paragraph",
-      "text": "Tính trung bình từ hai điểm đã có:"
+      "text": "Tính trung bình từ hai số đo đã có:"
      },
      {
       "type": "code",
@@ -66,11 +66,11 @@
     [
      {
       "type": "paragraph",
-      "text": "Có hai điểm thực là 6 và 10, nên trung bình bằng 8. Nếu mọi phần tử đều là NaN, `nanmean` trả NaN và phát cảnh báo; khi đó cần báo chưa có dữ liệu, không ghi một điểm trung bình giả."
+      "text": "Có hai số đo thực là 6 và 10, nên trung bình bằng 8. Nếu mọi phần tử đều là NaN, `nanmean` trả NaN và phát cảnh báo; khi đó cần báo chưa có dữ liệu, không ghi một số trung bình giả."
      },
      {
       "type": "paragraph",
-      "text": "Với điểm có trọng số, khi bỏ một điểm thiếu, bạn phải bỏ cả tín chỉ của môn đó bằng cùng một mask. `np.isnan(a)` đánh dấu ô thiếu; thêm `~` ở trước để đảo `True`/`False`, nên `~np.isnan(a)` đánh dấu các ô không thiếu. Ngoài ra, bỏ NaN không đồng nghĩa bỏ mọi giá trị vô hạn; đó là hai điều kiện kiểm tra khác nhau."
+      "text": "Với số đo có trọng số, khi bỏ một ô thiếu, bạn phải bỏ cả trọng số của ô đó bằng cùng một mask. `np.isnan(a)` đánh dấu ô thiếu; thêm `~` ở trước để đảo `True`/`False`, nên `~np.isnan(a)` đánh dấu các ô không thiếu. Ngoài ra, bỏ NaN không đồng nghĩa bỏ mọi giá trị vô hạn; đó là hai điều kiện kiểm tra khác nhau."
      }
     ]
    ],

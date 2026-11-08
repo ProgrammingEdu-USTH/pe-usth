@@ -32,7 +32,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ16-1.png",
-      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ16-1.png)"
+      "alt": "Biểu đồ phân phối, tiêu đề \"A named column in a DataFrame\", trục ngang \"Wait (minutes)\", trục dọc \"Orders\"."
      }
     ],
     [
@@ -48,7 +48,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ16-2.png",
-      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ16-2.png)"
+      "alt": "Biểu đồ hàm phân phối tích luỹ, tiêu đề \"How many orders wait at most four minutes?\", trục ngang \"Wait (minutes)\", trục dọc \"Proportion <= x\"."
      }
     ],
     [
@@ -64,7 +64,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ16-3.png",
-      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ16-3.png)"
+      "alt": "Biểu đồ mật độ, tiêu đề \"Smoothing does not add observations\", trục ngang \"Wait (minutes)\", trục dọc \"Estimated density\"."
      }
     ]
    ],

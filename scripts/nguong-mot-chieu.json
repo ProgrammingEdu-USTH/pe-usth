@@ -23,7 +23,7 @@
       "tep": "scripts/pe-da/check.py",
       "re": "TRAN_ALT_KHUON = (\\d+)",
       "chieu": "ha",
-      "moc": 19,
+      "moc": 1,
       "vi": "Số hình còn mang alt KHUÔN (chữ máy sinh thay cho mô tả thật). Khiếm khuyết NỘI DUNG, chỉ hạ được bằng cách viết alt thật."
     },
     {

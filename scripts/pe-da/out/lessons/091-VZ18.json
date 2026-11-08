@@ -32,7 +32,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ18-1.png",
-      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ18-1.png)"
+      "alt": "Biểu đồ điểm phân tán, tiêu đề \"Color and marker encode the same group\", trục ngang \"Distance (km)\", trục dọc \"Delivery (minutes)\"."
      }
     ],
     [
@@ -48,7 +48,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ18-2.png",
-      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ18-2.png)"
+      "alt": "Biểu đồ đường, tiêu đề \"Repeated x values are aggregated\", trục ngang \"Day\", trục dọc \"Mean cups\"."
      }
     ],
     [
@@ -64,7 +64,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ18-3.png",
-      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ18-3.png)"
+      "alt": "Biểu đồ đường, tiêu đề \"Bootstrap CI; illustrative n=3 per day\", trục ngang \"Day\", trục dọc \"Mean cups\"."
      }
     ]
    ],

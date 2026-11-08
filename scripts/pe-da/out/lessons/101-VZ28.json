@@ -165,7 +165,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ28-2.png",
-      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ28-2.png)"
+      "alt": "Bản đồ đường đồng mức, tiêu đề \"Contours of x squared plus y squared\", trục ngang \"x\", trục dọc \"y\"."
      }
     ],
     [
@@ -182,7 +182,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ28-3.png",
-      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ28-3.png)"
+      "alt": "Bản đồ đường đồng mức tô màu, tiêu đề \"Filled contour bands\", trục ngang \"x\", trục dọc \"y\"."
      }
     ]
    ],

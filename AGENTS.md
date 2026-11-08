@@ -94,7 +94,7 @@ học nó.
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **17 mục, 14 có đường tới, 3 còn tối (đã khai lý do)**, 0 lỗi |
 | Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **1 mục chết, 1 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **14 CSS module trong `src/`** |
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
-| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **162/179 khớp, 17 bài CHỜ NẠP** (ba lát văn phong 08/11 cộng năm bài đổi alt text: VZ08 · VZ09 · VZ27 · VZ30 · RD01). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
+| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **155/179 khớp, 24 bài CHỜ NẠP** (ba lát văn phong 08/11 cộng hai lát alt text — bảy bài VZ nữa vào ở lát thứ hai). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **34 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
@@ -3699,6 +3699,36 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** panel bên phải và 5 kệ sách nay có thanh cuộn mảnh.
   **KHÔNG bump `ASSET_VERSION`:** `scene.css` nằm trong `frontend/src/`, đi qua bundler nên
   URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
+
+- **"CON SỐ NÀY CHỈ GIẢM KHI NGƯỜI SOẠN THÊM NHÃN" — SAI với 17/19, và nó đẩy việc sang
+  người không cần làm.** Chú thích ở `TRAN_ALT_KHUON` giải thích 19 hình còn mang alt
+  khuôn bằng một câu nghe hợp lý: chúng thiếu dữ liệu, nên người soạn giáo trình phải thêm
+  nhãn vào code của bài. Đo thì **17/19 CÓ nhãn** — chúng chỉ dùng lời gọi vẽ mà
+  `LOAI_BIEU_DO` không biết, còn 2 hình kia đặt nhãn bằng `set_axis_labels` thay vì
+  `ax.set(xlabel=…)`. **Lỗi ở PHÉP BÓC, không ở nội dung** — cùng hình dạng với mục ngay
+  dưới, hai vòng liền.
+  **THỨ `LOAI_BIEU_DO` KHÔNG BIẾT:** `errorbar` (VZ13) · `histplot` · `ecdfplot` ·
+  `kdeplot` (VZ16) · `countplot` · `stripplot` (VZ17) · `lineplot` · `scatterplot` (VZ18) ·
+  `relplot` · `catplot` · `regplot` (VZ19) · `contour` · `contourf` (VZ28) · `quiver` ·
+  `streamplot` · `arrow` (VZ29). Gần hết là **seaborn** — danh sách cũ chỉ biết matplotlib.
+  **SỐ ĐÃ ĐO: alt khuôn 19 → 1.** 79/80 hình nay có một câu nói được điều gì; độ dài trung
+  vị 86 → **97**. Trần trong sổ ngưỡng siết theo.
+  **MỘT HÌNH Ở LẠI, và nó ở lại có lý do đứng được:** VZ28-1 gọi **ĐỘNG** —
+  `getattr(ax, method)` với `method` chạy qua `["pcolor", "pcolormesh"]` — nên không có
+  chuỗi `.pcolormesh(` nào trong mã để một phép bóc TĨNH nhìn thấy. Đoán loại từ một chuỗi
+  trong danh sách là bịa, mà một câu bịa còn tệ hơn một câu chung chung vì người đọc không
+  có cách nào biết nó bịa.
+  **KIỂM VA CHẠM CHUỖI CON TRƯỚC KHI THÊM, đã làm từng cái:** `.plot(` KHÔNG nằm trong
+  `.lineplot(` (ký tự trước `plot(` là `e`), `.bar(` không nằm trong `.barplot(`,
+  `.contour(` không nằm trong `.contourf(`, `.arrow(` không khớp `arrowprops=`. Danh sách
+  khớp bằng `in` và lấy mục ĐẦU TIÊN, nên thêm loại mới thì kiểm lại phép này.
+  Ablate 4 chiều: bỏ một loại (`errorbar`) → **1 đỏ** · bỏ nguồn nhãn `set_axis_labels` →
+  1 đỏ · hạ trần 1 → 0 → 1 đỏ · **đổi tên một loại thành chuỗi vô nghĩa → 0 đỏ**.
+  **CHIỀU THỨ TƯ LÀ MỘT KHOẢNG TRỐNG ĐÃ KHAI, không phải chỗ bị quên:** luật chống trôi so
+  phần TRONG NHÁY KÉP với code, mà cụm nói LOẠI biểu đồ là tiếng Việt do `LOAI_BIEU_DO`
+  đặt — nó không có trong code để mà so. Phủ nốt thì phải chép bảng ấy sang `check.py`,
+  tức nuôi bản thứ hai của đúng thứ docstring ở đó vừa dặn là đừng nuôi.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 162/179 → **155/179**, thêm bảy bài VZ.
 
 - **BA HÌNH KHÁC NHAU DÙNG CHUNG MỘT ALT, và phép sinh alt thiếu theo một chiều CÓ HỆ
   THỐNG: nó tả đúng phần KHÔNG ĐỔI.** Bốn vòng liền tôi làm cổng, nên vòng này đo một thứ

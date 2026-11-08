@@ -897,11 +897,20 @@ def kiem_vi_du_io(ma: str, bon: dict) -> None:
 
 # Trần số hình còn mang alt KHUÔN. CHỈ ĐƯỢC HẠ.
 #
-# 19/80 hình không đủ dữ liệu để dựng một câu nói được điều gì (không nhận ra
-# loại biểu đồ, hoặc code không đặt nhãn nào). Chúng giữ chuỗi khuôn — một câu
-# BỊA còn tệ hơn một câu chung chung, vì người đọc không có cách nào biết nó bịa.
-# Con số này chỉ giảm khi người soạn thêm nhãn vào code của bài.
-TRAN_ALT_KHUON = 19
+# CÂU CŨ Ở ĐÂY SAI, và nó sai theo chiều đẩy việc sang người khác. Nó ghi: "21
+# hình không đủ dữ liệu… Con số này chỉ giảm khi NGƯỜI SOẠN thêm nhãn vào code
+# của bài." Đo 08/11/2026: **17/19 hình CÓ nhãn** — chúng chỉ dùng lời gọi vẽ mà
+# `LOAI_BIEU_DO` không biết (errorbar · các hàm seaborn · contour · quiver …),
+# và hai hình còn lại đặt nhãn bằng `set_axis_labels` thay vì `ax.set(xlabel=…)`.
+# Tức lỗi ở PHÉP BÓC, không ở nội dung. Thêm 16 loại biểu đồ + một nguồn nhãn
+# đưa con số từ **19 xuống 1**.
+#
+# MỘT hình còn lại là VZ28-1, và nó ở lại có lý do đứng được: code gọi ĐỘNG —
+# `getattr(ax, method)` với `method` chạy qua `["pcolor", "pcolormesh"]` — nên
+# không có chuỗi `.pcolormesh(` nào trong mã để một phép bóc TĨNH nhìn thấy.
+# Đoán ra loại từ một chuỗi trong danh sách là bịa, và một câu bịa còn tệ hơn
+# một câu chung chung vì người đọc không có cách nào biết nó bịa.
+TRAN_ALT_KHUON = 1
 
 ALT_KHUON = 'Biểu đồ do đoạn code trên vẽ ra'
 
@@ -919,6 +928,14 @@ def kiem_alt_hinh(bai: list[dict]) -> None:
     vì nó so hai phép NỐI, nhưng ở đây có cách chặt hơn mà không cần bản thứ
     hai: mọi chuỗi alt đặt trong dấu nháy kép PHẢI có thật trong code ngay trên
     nó. Nhãn đổi mà alt không đổi ⇒ đỏ, và luật không phụ thuộc vào cách sinh.
+
+    GIỚI HẠN PHẢI NÓI RA: phép so ấy chỉ phủ phần TRONG NHÁY KÉP — nhãn trục,
+    tiêu đề, chữ trên hình. Nó KHÔNG phủ cụm mở đầu nói LOẠI biểu đồ ("Biểu đồ
+    cột", "Bản đồ nhiệt"…), vì cụm đó là tiếng Việt do `LOAI_BIEU_DO` đặt, không
+    có trong code. Ablate đã đo: đổi tên một loại thành một chuỗi vô nghĩa →
+    **0 đỏ**. Muốn phủ nốt thì phải chép bảng `LOAI_BIEU_DO` sang đây, tức nuôi
+    bản thứ hai của đúng thứ đoạn trên vừa nói là đừng nuôi — nên chỗ này ở lại
+    làm một khoảng trống ĐÃ KHAI, không phải một chỗ bị quên.
     """
     khuon = 0
     for b in bai:

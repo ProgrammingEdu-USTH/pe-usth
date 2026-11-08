@@ -33,7 +33,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ13-1.png",
-      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ13-1.png)"
+      "alt": "Biểu đồ đường kèm thanh sai số, tiêu đề \"Means with supplied +/- standard deviations\", trục dọc \"Delivery (minutes)\"."
      }
     ],
     [
@@ -50,7 +50,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ13-2.png",
-      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ13-2.png)"
+      "alt": "Biểu đồ đường kèm thanh sai số, tiêu đề \"Mean +/- one standard error; n=4\", trục dọc \"Delivery (minutes)\"."
      }
     ],
     [

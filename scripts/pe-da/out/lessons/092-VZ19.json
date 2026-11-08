@@ -32,7 +32,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ19-1.png",
-      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ19-1.png)"
+      "alt": "Lưới biểu đồ điểm, mỗi ô một nhóm, trục ngang \"Distance (km)\", trục dọc \"Delivery (minutes)\"."
      }
     ],
     [
@@ -48,7 +48,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ19-2.png",
-      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ19-2.png)"
+      "alt": "Lưới biểu đồ theo nhóm, mỗi ô một nhóm, trục ngang \"Shift\", trục dọc \"Wait (minutes)\"."
      },
      {
       "type": "code",
@@ -58,7 +58,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ19-3.png",
-      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ19-3.png)"
+      "alt": "Biểu đồ điểm phân tán kèm đường hồi quy, tiêu đề \"A fitted line is a model, not a causal proof\", trục ngang \"Distance (km)\", trục dọc \"Delivery (minutes)\"."
      }
     ]
    ],

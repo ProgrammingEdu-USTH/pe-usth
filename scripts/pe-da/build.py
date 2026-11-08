@@ -1116,6 +1116,37 @@ def goi_can_tai(codes: list[str]) -> list[str]:
 # Thứ tự QUAN TRỌNG: `.barh(` phải đứng trước `.bar(`, và `.plot(` đứng CUỐI vì
 # gần như bài nào cũng gọi nó ở đâu đó.
 LOAI_BIEU_DO = [
+    # Nhóm thêm 08/11/2026. Chú thích ở `TRAN_ALT_KHUON` (check.py) từng ghi
+    # "con số này chỉ giảm khi người soạn thêm nhãn vào code của bài" — SAI với
+    # **17/19**: chúng CÓ nhãn, chỉ là danh sách dưới đây không biết lời gọi vẽ
+    # của chúng. Tức việc bị đẩy sang người soạn giáo trình, một việc họ không
+    # cần làm. Đo: errorbar (VZ13) · histplot (VZ16) · countplot + stripplot
+    # (VZ17) · lineplot + scatterplot (VZ18) · relplot + catplot + regplot
+    # (VZ19) · contour + contourf (VZ28) · quiver (VZ29).
+    #
+    # KHÔNG có va chạm chuỗi con với các mục cũ, đã kiểm từng cái: `.plot(`
+    # không nằm trong `.lineplot(` (ký tự trước "plot(" là "e", không phải "."),
+    # `.bar(` không nằm trong `.barplot(`, `.contour(` không nằm trong
+    # `.contourf(`. Thêm loại mới thì kiểm lại phép này.
+    ('.relplot(', 'Lưới biểu đồ điểm, mỗi ô một nhóm'),
+    ('.catplot(', 'Lưới biểu đồ theo nhóm, mỗi ô một nhóm'),
+    ('.errorbar(', 'Biểu đồ đường kèm thanh sai số'),
+    ('.countplot(', 'Biểu đồ cột đếm số hàng mỗi nhóm'),
+    ('.stripplot(', 'Biểu đồ điểm theo nhóm'),
+    ('.regplot(', 'Biểu đồ điểm phân tán kèm đường hồi quy'),
+    ('.scatterplot(', 'Biểu đồ điểm phân tán'),
+    ('.lineplot(', 'Biểu đồ đường'),
+    ('.histplot(', 'Biểu đồ phân phối'),
+    ('.contourf(', 'Bản đồ đường đồng mức tô màu'),
+    ('.contour(', 'Bản đồ đường đồng mức'),
+    ('.quiver(', 'Biểu đồ vector'),
+    ('.streamplot(', 'Biểu đồ đường dòng'),
+    ('.ecdfplot(', 'Biểu đồ hàm phân phối tích luỹ'),
+    ('.kdeplot(', 'Biểu đồ mật độ'),
+    # `.arrow(` là một NÉT VẼ, không phải một loại biểu đồ — nhưng ở VZ29 nó là
+    # thứ duy nhất vẽ ra hình, nên để trống thì alt rỗng nghĩa. `arrowprops=`
+    # KHÔNG khớp (không có "(" ngay sau "arrow").
+    ('.arrow(', 'Hình mũi tên trên hệ trục'),
     ('.barh(', 'Biểu đồ cột ngang'),
     ('.bar(', 'Biểu đồ cột'),
     ('.scatter(', 'Biểu đồ điểm phân tán'),
@@ -1130,6 +1161,10 @@ _NHAN = re.compile(r'(?<![\w.])(xlabel|ylabel|title)\s*=\s*[\'"]([^\'"]+)')
 # `set_title("…")` là dạng thứ HAI của cùng một nhãn, và `_NHAN` không thấy nó
 # (nó đòi `title=`). RD01 khối 5 dùng đúng dạng này.
 _TIEU_DE_HAM = re.compile(r'\.set_title\(\s*r?[\'"]([^\'"]+)')
+# `g.set_axis_labels("x", "y")` — dạng thứ HAI của nhãn trục, dùng cho lưới
+# seaborn (`relplot`/`catplot`) vốn không có một `ax` duy nhất để gọi
+# `ax.set(xlabel=…)`. Hai hình của VZ19 thiếu CẢ loại lẫn nhãn chính vì chỗ này.
+_NHAN_LUOI = re.compile(r'\.set_axis_labels\(\s*[\'"]([^\'"]+)[\'"]\s*,\s*[\'"]([^\'"]+)')
 # CHỮ ĐẶT TRÊN HÌNH — `ax.text(x, y, "…")` và `ax.annotate("…", …)`.
 #
 # Vì sao phải có: alt cũ chỉ đọc NHÃN TRỤC, mà nhãn trục là đúng phần GIỐNG
@@ -1172,6 +1207,10 @@ def alt_cua_hinh(code: str, ten_file: str) -> str:
         m = _TIEU_DE_HAM.search(code)
         if m:
             nhan['title'] = m.group(1).strip()
+    if 'xlabel' not in nhan:
+        m = _NHAN_LUOI.search(code)
+        if m:
+            nhan['xlabel'], nhan['ylabel'] = m.group(1).strip(), m.group(2).strip()
     if not loai or not nhan:
         return f'Biểu đồ do đoạn code trên vẽ ra ({ten_file})'
     phan = [loai]

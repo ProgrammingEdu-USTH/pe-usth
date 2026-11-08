@@ -33,7 +33,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ29-1.png",
-      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ29-1.png)"
+      "alt": "Hình mũi tên trên hệ trục, tiêu đề \"One displacement: dx=2, dy=1\", trục ngang \"x (m)\", trục dọc \"y (m)\"."
      }
     ],
     [
@@ -50,7 +50,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ29-2.png",
-      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ29-2.png)"
+      "alt": "Biểu đồ vector, tiêu đề \"Four vectors pointing right\", trục ngang \"x (m)\", trục dọc \"y (m)\"."
      }
     ],
     [
@@ -67,7 +67,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ29-3.png",
-      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ29-3.png)"
+      "alt": "Biểu đồ đường dòng, tiêu đề \"A synthetic rotating vector field\", trục ngang \"x\", trục dọc \"y\"."
      }
     ]
    ],

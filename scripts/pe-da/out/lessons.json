@@ -21884,7 +21884,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ13-1.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ13-1.png)"
+        "alt": "Biểu đồ đường kèm thanh sai số, tiêu đề \"Means with supplied +/- standard deviations\", trục dọc \"Delivery (minutes)\"."
        }
       ],
       [
@@ -21901,7 +21901,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ13-2.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ13-2.png)"
+        "alt": "Biểu đồ đường kèm thanh sai số, tiêu đề \"Mean +/- one standard error; n=4\", trục dọc \"Delivery (minutes)\"."
        }
       ],
       [
@@ -22657,7 +22657,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ16-1.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ16-1.png)"
+        "alt": "Biểu đồ phân phối, tiêu đề \"A named column in a DataFrame\", trục ngang \"Wait (minutes)\", trục dọc \"Orders\"."
        }
       ],
       [
@@ -22673,7 +22673,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ16-2.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ16-2.png)"
+        "alt": "Biểu đồ hàm phân phối tích luỹ, tiêu đề \"How many orders wait at most four minutes?\", trục ngang \"Wait (minutes)\", trục dọc \"Proportion <= x\"."
        }
       ],
       [
@@ -22689,7 +22689,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ16-3.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ16-3.png)"
+        "alt": "Biểu đồ mật độ, tiêu đề \"Smoothing does not add observations\", trục ngang \"Wait (minutes)\", trục dọc \"Estimated density\"."
        }
       ]
      ],
@@ -22844,7 +22844,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ17-1.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ17-1.png)"
+        "alt": "Biểu đồ cột đếm số hàng mỗi nhóm, tiêu đề \"Count rows in each shift\", trục ngang \"Shift\", trục dọc \"Orders\"."
        }
       ],
       [
@@ -22860,7 +22860,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ17-2.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ17-2.png)"
+        "alt": "Biểu đồ điểm theo nhóm, tiêu đề \"Every dot is an observed order\", trục ngang \"Shift\", trục dọc \"Wait (minutes)\"."
        },
        {
         "type": "code",
@@ -22870,7 +22870,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ17-3.png",
-        "alt": "Biểu đồ hộp, tiêu đề \"Summary and observations together\", trục ngang \"Shift\", trục dọc \"Wait (minutes)\"."
+        "alt": "Biểu đồ điểm theo nhóm, tiêu đề \"Summary and observations together\", trục ngang \"Shift\", trục dọc \"Wait (minutes)\"."
        }
       ]
      ],
@@ -23025,7 +23025,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ18-1.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ18-1.png)"
+        "alt": "Biểu đồ điểm phân tán, tiêu đề \"Color and marker encode the same group\", trục ngang \"Distance (km)\", trục dọc \"Delivery (minutes)\"."
        }
       ],
       [
@@ -23041,7 +23041,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ18-2.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ18-2.png)"
+        "alt": "Biểu đồ đường, tiêu đề \"Repeated x values are aggregated\", trục ngang \"Day\", trục dọc \"Mean cups\"."
        }
       ],
       [
@@ -23057,7 +23057,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ18-3.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ18-3.png)"
+        "alt": "Biểu đồ đường, tiêu đề \"Bootstrap CI; illustrative n=3 per day\", trục ngang \"Day\", trục dọc \"Mean cups\"."
        }
       ]
      ],
@@ -23212,7 +23212,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ19-1.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ19-1.png)"
+        "alt": "Lưới biểu đồ điểm, mỗi ô một nhóm, trục ngang \"Distance (km)\", trục dọc \"Delivery (minutes)\"."
        }
       ],
       [
@@ -23228,7 +23228,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ19-2.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ19-2.png)"
+        "alt": "Lưới biểu đồ theo nhóm, mỗi ô một nhóm, trục ngang \"Shift\", trục dọc \"Wait (minutes)\"."
        },
        {
         "type": "code",
@@ -23238,7 +23238,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ19-3.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ19-3.png)"
+        "alt": "Biểu đồ điểm phân tán kèm đường hồi quy, tiêu đề \"A fitted line is a model, not a causal proof\", trục ngang \"Distance (km)\", trục dọc \"Delivery (minutes)\"."
        }
       ]
      ],
@@ -25390,7 +25390,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ28-2.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ28-2.png)"
+        "alt": "Bản đồ đường đồng mức, tiêu đề \"Contours of x squared plus y squared\", trục ngang \"x\", trục dọc \"y\"."
        }
       ],
       [
@@ -25407,7 +25407,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ28-3.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ28-3.png)"
+        "alt": "Bản đồ đường đồng mức tô màu, tiêu đề \"Filled contour bands\", trục ngang \"x\", trục dọc \"y\"."
        }
       ]
      ],
@@ -25678,7 +25678,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ29-1.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ29-1.png)"
+        "alt": "Hình mũi tên trên hệ trục, tiêu đề \"One displacement: dx=2, dy=1\", trục ngang \"x (m)\", trục dọc \"y (m)\"."
        }
       ],
       [
@@ -25695,7 +25695,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ29-2.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ29-2.png)"
+        "alt": "Biểu đồ vector, tiêu đề \"Four vectors pointing right\", trục ngang \"x (m)\", trục dọc \"y (m)\"."
        }
       ],
       [
@@ -25712,7 +25712,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ29-3.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ29-3.png)"
+        "alt": "Biểu đồ đường dòng, tiêu đề \"A synthetic rotating vector field\", trục ngang \"x\", trục dọc \"y\"."
        }
       ]
      ],

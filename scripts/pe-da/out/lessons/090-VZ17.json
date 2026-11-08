@@ -32,7 +32,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ17-1.png",
-      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ17-1.png)"
+      "alt": "Biểu đồ cột đếm số hàng mỗi nhóm, tiêu đề \"Count rows in each shift\", trục ngang \"Shift\", trục dọc \"Orders\"."
      }
     ],
     [
@@ -48,7 +48,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ17-2.png",
-      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ17-2.png)"
+      "alt": "Biểu đồ điểm theo nhóm, tiêu đề \"Every dot is an observed order\", trục ngang \"Shift\", trục dọc \"Wait (minutes)\"."
      },
      {
       "type": "code",
@@ -58,7 +58,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ17-3.png",
-      "alt": "Biểu đồ hộp, tiêu đề \"Summary and observations together\", trục ngang \"Shift\", trục dọc \"Wait (minutes)\"."
+      "alt": "Biểu đồ điểm theo nhóm, tiêu đề \"Summary and observations together\", trục ngang \"Shift\", trục dọc \"Wait (minutes)\"."
      }
     ]
    ],

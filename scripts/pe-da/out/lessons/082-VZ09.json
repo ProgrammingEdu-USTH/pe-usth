@@ -33,7 +33,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ09-1.png",
-      "alt": "Biểu đồ đường, tiêu đề \"Revenue peaked on day 2\", trục ngang \"Day in January\", trục dọc \"Revenue (million VND)\"."
+      "alt": "Biểu đồ đường, tiêu đề \"Revenue peaked on day 2\", trục ngang \"Day in January\", trục dọc \"Revenue (million VND)\", chú thích trên hình: \"Synthetic teaching data; three days only\"."
      }
     ],
     [
@@ -50,7 +50,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ09-2.png",
-      "alt": "Biểu đồ đường, tiêu đề \"Explain a point\", trục ngang \"Day\", trục dọc \"Revenue (million VND)\"."
+      "alt": "Biểu đồ đường, tiêu đề \"Explain a point\", trục ngang \"Day\", trục dọc \"Revenue (million VND)\", chú thích trên hình: \"Peak: 10\"."
      }
     ],
     [
@@ -67,7 +67,7 @@
      {
       "type": "figure",
       "src": "/static/da/VZ09-3.png",
-      "alt": "Biểu đồ đường, tiêu đề \"Targets and annotations\", trục ngang \"Day\", trục dọc \"Revenue (million VND)\"."
+      "alt": "Biểu đồ đường, tiêu đề \"Targets and annotations\", trục ngang \"Day\", trục dọc \"Revenue (million VND)\", chú thích trên hình: \"$\\sigma=2$\"."
      }
     ]
    ],

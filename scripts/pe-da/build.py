@@ -1127,6 +1127,19 @@ LOAI_BIEU_DO = [
 ]
 
 _NHAN = re.compile(r'(?<![\w.])(xlabel|ylabel|title)\s*=\s*[\'"]([^\'"]+)')
+# `set_title("…")` là dạng thứ HAI của cùng một nhãn, và `_NHAN` không thấy nó
+# (nó đòi `title=`). RD01 khối 5 dùng đúng dạng này.
+_TIEU_DE_HAM = re.compile(r'\.set_title\(\s*r?[\'"]([^\'"]+)')
+# CHỮ ĐẶT TRÊN HÌNH — `ax.text(x, y, "…")` và `ax.annotate("…", …)`.
+#
+# Vì sao phải có: alt cũ chỉ đọc NHÃN TRỤC, mà nhãn trục là đúng phần GIỐNG
+# NHAU giữa các hình của một bài. Khuôn dạy của khoá này là "cùng một biểu đồ,
+# đổi MỘT thứ", nên alt cũ tả đúng phần không đổi và bỏ phần đổi. Đo được:
+# RD01 có BA hình khác nhau (md5 khác, 38 430 / 27 812 / 29 234 byte) mang CÙNG
+# một alt, trong khi bài tên là "Đặt chú thích theo dữ liệu hoặc theo vùng vẽ"
+# — tức thứ ba hình khác nhau CHÍNH LÀ thứ bài đang dạy.
+_CHU_TREN_HINH = re.compile(
+    r'\.annotate\(\s*r?[\'"]([^\'"]+)|\.text\(\s*[^,]+,\s*[^,]+,\s*r?[\'"]([^\'"]+)')
 
 
 def alt_cua_hinh(code: str, ten_file: str) -> str:
@@ -1155,6 +1168,10 @@ def alt_cua_hinh(code: str, ten_file: str) -> str:
     """
     loai = next((ten for dau, ten in LOAI_BIEU_DO if dau in code), None)
     nhan = {k: v.strip() for k, v in _NHAN.findall(code)}
+    if 'title' not in nhan:
+        m = _TIEU_DE_HAM.search(code)
+        if m:
+            nhan['title'] = m.group(1).strip()
     if not loai or not nhan:
         return f'Biểu đồ do đoạn code trên vẽ ra ({ten_file})'
     phan = [loai]
@@ -1164,6 +1181,12 @@ def alt_cua_hinh(code: str, ten_file: str) -> str:
         phan.append(f'trục ngang "{nhan["xlabel"]}"')
     if nhan.get('ylabel'):
         phan.append(f'trục dọc "{nhan["ylabel"]}"')
+    # Chữ ĐẶT TRÊN hình đi SAU nhãn trục: nhãn trục cho người nghe khung tham
+    # chiếu, rồi mới tới thứ được chỉ ra. Giữ nguyên văn như mọi nhãn khác —
+    # chữ ấy nằm trong pixel của ảnh.
+    chu = [a or b for a, b in _CHU_TREN_HINH.findall(code)]
+    if chu:
+        phan.append('chú thích trên hình: ' + ', '.join(f'"{c.strip()}"' for c in chu))
     return ', '.join(phan) + '.'
 
 

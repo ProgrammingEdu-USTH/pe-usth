@@ -20323,7 +20323,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ08-1.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ08-1.png)"
+        "alt": "Bản đồ nhiệt, tiêu đề \"Orders by store and time\"."
        }
       ],
       [
@@ -20727,7 +20727,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ09-1.png",
-        "alt": "Biểu đồ đường, tiêu đề \"Revenue peaked on day 2\", trục ngang \"Day in January\", trục dọc \"Revenue (million VND)\"."
+        "alt": "Biểu đồ đường, tiêu đề \"Revenue peaked on day 2\", trục ngang \"Day in January\", trục dọc \"Revenue (million VND)\", chú thích trên hình: \"Synthetic teaching data; three days only\"."
        }
       ],
       [
@@ -20744,7 +20744,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ09-2.png",
-        "alt": "Biểu đồ đường, tiêu đề \"Explain a point\", trục ngang \"Day\", trục dọc \"Revenue (million VND)\"."
+        "alt": "Biểu đồ đường, tiêu đề \"Explain a point\", trục ngang \"Day\", trục dọc \"Revenue (million VND)\", chú thích trên hình: \"Peak: 10\"."
        }
       ],
       [
@@ -20761,7 +20761,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ09-3.png",
-        "alt": "Biểu đồ đường, tiêu đề \"Targets and annotations\", trục ngang \"Day\", trục dọc \"Revenue (million VND)\"."
+        "alt": "Biểu đồ đường, tiêu đề \"Targets and annotations\", trục ngang \"Day\", trục dọc \"Revenue (million VND)\", chú thích trên hình: \"$\\sigma=2$\"."
        }
       ]
      ],
@@ -25007,7 +25007,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ27-2.png",
-        "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ27-2.png)"
+        "alt": "Biểu đồ tròn, tiêu đề \"Only two mutually exclusive shares\"."
        }
       ],
       [
@@ -26148,7 +26148,7 @@
        {
         "type": "figure",
         "src": "/static/da/VZ30-2.png",
-        "alt": "Biểu đồ điểm phân tán, tiêu đề \"Only select an existing observation\", trục ngang \"Day\", trục dọc \"Cups\"."
+        "alt": "Biểu đồ điểm phân tán, tiêu đề \"Only select an existing observation\", trục ngang \"Day\", trục dọc \"Cups\", chú thích trên hình: \"No selection\"."
        }
       ],
       [
@@ -46409,7 +46409,7 @@
        {
         "type": "figure",
         "src": "/static/da/RD01-1.png",
-        "alt": "Biểu đồ đường, trục ngang \"Day\", trục dọc \"Revenue (million VND)\"."
+        "alt": "Biểu đồ đường, trục ngang \"Day\", trục dọc \"Revenue (million VND)\", chú thích trên hình: \"Three days only\"."
        }
       ],
       [
@@ -46426,7 +46426,7 @@
        {
         "type": "figure",
         "src": "/static/da/RD01-2.png",
-        "alt": "Biểu đồ đường, trục ngang \"Day\", trục dọc \"Revenue (million VND)\"."
+        "alt": "Biểu đồ đường, trục ngang \"Day\", trục dọc \"Revenue (million VND)\", chú thích trên hình: \"Peak: 10\"."
        }
       ],
       [
@@ -46443,7 +46443,7 @@
        {
         "type": "figure",
         "src": "/static/da/RD01-3.png",
-        "alt": "Biểu đồ đường, trục ngang \"Day\", trục dọc \"Revenue (million VND)\"."
+        "alt": "Biểu đồ đường, tiêu đề \"Three daily observations\", trục ngang \"Day\", trục dọc \"Revenue (million VND)\", chú thích trên hình: \"$y=10$\"."
        },
        {
         "type": "paragraph",

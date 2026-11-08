@@ -897,11 +897,11 @@ def kiem_vi_du_io(ma: str, bon: dict) -> None:
 
 # Trần số hình còn mang alt KHUÔN. CHỈ ĐƯỢC HẠ.
 #
-# 21/80 hình không đủ dữ liệu để dựng một câu nói được điều gì (không nhận ra
+# 19/80 hình không đủ dữ liệu để dựng một câu nói được điều gì (không nhận ra
 # loại biểu đồ, hoặc code không đặt nhãn nào). Chúng giữ chuỗi khuôn — một câu
 # BỊA còn tệ hơn một câu chung chung, vì người đọc không có cách nào biết nó bịa.
 # Con số này chỉ giảm khi người soạn thêm nhãn vào code của bài.
-TRAN_ALT_KHUON = 21
+TRAN_ALT_KHUON = 19
 
 ALT_KHUON = 'Biểu đồ do đoạn code trên vẽ ra'
 
@@ -923,6 +923,29 @@ def kiem_alt_hinh(bai: list[dict]) -> None:
     khuon = 0
     for b in bai:
         ma = b['lesson_code']
+        # ALT TRÙNG NHAU TRONG CÙNG MỘT BÀI — luật này thiếu cho tới 08/11/2026,
+        # và nó thiếu theo một chiều có hệ thống. `alt_cua_hinh` dựng câu từ
+        # NHÃN TRỤC, mà khuôn dạy của khoá là "cùng một biểu đồ, đổi MỘT thứ":
+        # nhãn trục là đúng phần GIỮ NGUYÊN giữa các hình của một bài. Nên alt
+        # tả phần không đổi và bỏ phần đổi.
+        # Đo được: RD01 có BA hình khác nhau thật (md5 khác nhau, 38 430 /
+        # 27 812 / 29 234 byte) mang CÙNG một câu — người dùng trình đọc màn
+        # hình nghe y hệt ba lần cho ba biểu đồ, trong một bài tên là "Đặt chú
+        # thích theo dữ liệu hoặc theo vùng vẽ". Alt KHUÔN được miễn: 21 hình
+        # cố ý dùng chung nó, và trần riêng ở trên đã canh chúng.
+        thay: dict[str, str] = {}
+        for man in (b['content_json'].get('step_1') or {}).get('read') or []:
+            for k in man:
+                if k.get('type') != 'figure':
+                    continue
+                alt = (k.get('alt') or '').strip()
+                if not alt or alt.startswith(ALT_KHUON):
+                    continue
+                if alt in thay:
+                    loi(f'{ma}: hai hình ({thay[alt]} và {k.get("src", "?")}) dùng CHUNG '
+                        f'một alt — người dùng trình đọc màn hình không phân biệt được. '
+                        f'Alt phải nói ra thứ KHÁC NHAU giữa chúng.')
+                thay[alt] = k.get('src', '?')
         for man in (b['content_json'].get('step_1') or {}).get('read') or []:
             code = ''
             for k in man:

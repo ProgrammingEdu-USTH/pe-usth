@@ -94,7 +94,7 @@ học nó.
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **17 mục, 14 có đường tới, 3 còn tối (đã khai lý do)**, 0 lỗi |
 | Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **1 mục chết, 1 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **14 CSS module trong `src/`** |
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
-| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **167/179 khớp, 12 bài CHỜ NẠP** (PD13 · PD16 · PD32 · SY12 · SY23 · SY25 · CT03 · CT15 · TH01 · TH02 · TH06 · TH07 — ba lát văn phong 08/11). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
+| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **162/179 khớp, 17 bài CHỜ NẠP** (ba lát văn phong 08/11 cộng năm bài đổi alt text: VZ08 · VZ09 · VZ27 · VZ30 · RD01). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **34 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
@@ -3699,6 +3699,39 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** panel bên phải và 5 kệ sách nay có thanh cuộn mảnh.
   **KHÔNG bump `ASSET_VERSION`:** `scene.css` nằm trong `frontend/src/`, đi qua bundler nên
   URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
+
+- **BA HÌNH KHÁC NHAU DÙNG CHUNG MỘT ALT, và phép sinh alt thiếu theo một chiều CÓ HỆ
+  THỐNG: nó tả đúng phần KHÔNG ĐỔI.** Bốn vòng liền tôi làm cổng, nên vòng này đo một thứ
+  user-facing chưa ai kiểm — 80 alt text, nhóm lớn nhất trong 99 chuỗi NGOÀI TẦM bộ văn
+  phong mà chính tôi đã khai là "khác genre".
+  **ĐO — nhìn chung TỐT:** 80/80 hình có alt · độ dài trung vị 77, p90 116, max 131 · **0**
+  câu mở bằng "Hình ảnh của…" · **0** ngắn dưới 25 ký tự · **0** dài quá 300.
+  **MỘT phát hiện, và nó không nhỏ:** ba hình của RD01 mang CÙNG một câu —
+  *"Biểu đồ đường, trục ngang "Day", trục dọc "Revenue (million VND)"."* — trong khi ba ảnh
+  **khác nhau thật** (md5 `a3230218c0aa` / `122e46155833` / `d2675c5b9c68`; 38 430 / 27 812
+  / 29 234 byte). Người dùng trình đọc màn hình nghe y hệt ba lần.
+  **NGUYÊN NHÂN CÓ HỆ THỐNG, không phải một ca lẻ.** `alt_cua_hinh` dựng câu từ **nhãn
+  trục** (+ `title=`). Mà khuôn dạy của khoá này là *"cùng một biểu đồ, đổi MỘT thứ"* —
+  nên nhãn trục chính là phần **giữ nguyên** giữa các hình của một bài. Alt tả phần không
+  đổi và bỏ phần đổi. Ở RD01 điều đó đặc biệt mỉa mai: bài tên là *"Đặt chú thích theo dữ
+  liệu hoặc theo vùng vẽ"*, tức thứ ba hình khác nhau **chính là thứ bài đang dạy**.
+  **CÁCH SỬA — thêm hai nguồn chữ mà alt đang bỏ qua:** chữ ĐẶT TRÊN hình
+  (`ax.text(x, y, "…")` và `ax.annotate("…", …)`) và `ax.set_title("…")` (dạng thứ hai của
+  cùng một nhãn, `_NHAN` chỉ thấy `title=`). Sau sửa: **0 alt trùng**, RD01 ra ba câu nói
+  đúng thứ khác nhau (`"Three days only"` · `"Peak: 10"` · `"$y=10$"` + tiêu đề), độ dài
+  trung vị 77 → **86**, max 131 → **177**.
+  **VÀ TRẦN ALT KHUÔN TỰ SIẾT:** phép bóc `set_title` cho thêm hai hình đủ dữ liệu, nên số
+  hình còn mang chuỗi khuôn đi **21 → 19**. `check.py` in ra dòng *"hạ trần đi"* và sổ
+  ngưỡng đã ghi.
+  **LUẬT MỚI nằm trong `kiem_alt_hinh` đã có sẵn**, không dựng cổng thứ hai: hai hình cùng
+  bài không được dùng chung alt. Alt KHUÔN được miễn — 19 hình cố ý dùng chung nó và trần
+  riêng ở trên đã canh chúng.
+  Ablate 5 chiều: build thôi đọc chữ trên hình (tái lập RD01) → **1 đỏ** · **cặp đối
+  chứng** cùng trạng thái ấy nhưng BỎ luật → **0 đỏ** · hạ trần alt khuôn 19 → 10 → 1 đỏ ·
+  bỏ phép bóc `set_title` (19 → 21, vượt trần) → 1 đỏ · cho alt trích một chuỗi KHÔNG có
+  trong code → **62 đỏ** (luật chống trôi có sẵn, bắn trên mọi hình dính).
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 167/179 → **162/179**, thêm 5 bài đổi alt (VZ08 · VZ09 ·
+  VZ27 · VZ30 · RD01).
 
 - **TRẦN 5 GIÂY LÀ TRẦN CỦA ĐƯỜNG KHÁC — hai vòng trước tôi đi chỉnh NGƯỠNG mà không hỏi
   ngưỡng ấy LÀ NGƯỠNG CỦA CÁI GÌ.** Đây là nguyên nhân thật của vụ cổng chập chờn ở mục

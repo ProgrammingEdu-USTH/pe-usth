@@ -205,7 +205,7 @@
    ],
    "context": {
     "level": "Trung cấp",
-    "prereq": "SY12 · Package và điểm bắt đầu của chương trình, NP06 · Array hai chiều, NP10 · Tổng của cả dãy và cả bảng"
+    "prereq": "SY12 · Gói và điểm bắt đầu của chương trình, NP06 · Array hai chiều, NP10 · Tổng của cả dãy và cả bảng"
    }
   },
   "step_2": {

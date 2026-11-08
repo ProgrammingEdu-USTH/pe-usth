@@ -155,7 +155,7 @@
             "SY09 · Abstraction, interface và composition",
             "SY10 · Giữ trạng thái hợp lệ bằng getter và setter",
             "SY11 · Module và các cách import",
-            "SY12 · Package và điểm bắt đầu của chương trình",
+            "SY12 · Gói và điểm bắt đầu của chương trình",
             "SY13 · Làm tròn xuống và giá trung bình có trọng số",
             "SY14 · Curses: nhận phím và vẽ lại giao diện terminal",
             "SY15 · Mở file: đọc, ghi đè, nối và tạo mới",

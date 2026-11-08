@@ -33,7 +33,7 @@
     [
      {
       "type": "paragraph",
-      "text": "after lên lịch callback trong event loop. Nó không tạo thread mới. `quit` làm `mainloop` đang chạy kết thúc; `destroy` hủy cửa sổ. Đoạn này tự thoát sau 20ms để kiểm tra hữu hạn, không phải một ứng dụng người dùng hoàn chỉnh."
+      "text": "after lên lịch callback trong event loop. Nó không tạo luồng mới. `quit` làm `mainloop` đang chạy kết thúc; `destroy` hủy cửa sổ. Đoạn này tự thoát sau 20ms để kiểm tra hữu hạn, không phải một ứng dụng người dùng hoàn chỉnh."
      },
      {
       "type": "code",
@@ -44,7 +44,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Worker chỉ tính và gửi kết quả qua Queue; thao tác StringVar diễn ra trên thread tạo Tk. join ở đây chỉ là ranh giới kiểm tra một phép tính nhỏ trong ví dụ ẩn. Không đặt join cho tác vụ lâu trong callback giao diện vì nó vẫn chặn UI."
+      "text": "Worker chỉ tính và gửi kết quả qua `Queue`; thao tác StringVar diễn ra trên luồng tạo Tk. join ở đây chỉ là ranh giới kiểm tra một phép tính nhỏ trong ví dụ ẩn. Không đặt join cho tác vụ lâu trong callback giao diện vì nó vẫn chặn UI."
      },
      {
       "type": "code",
@@ -53,7 +53,7 @@
      },
      {
       "type": "paragraph",
-      "text": "Trong ứng dụng, poll đọc queue không chặn rồi tự lên lịch lại. Worker nên gửi cả trạng thái thành công hoặc lỗi, để UI bật lại nút và báo kết quả. Phần thread, queue và lưu nền là mở rộng nối với PW8; slide GUI gốc dừng ở `mainloop`. Khi đóng cửa sổ, ứng dụng phải có quy tắc rõ cho worker đang lưu."
+      "text": "Trong ứng dụng, poll đọc hàng đợi không chặn rồi tự lên lịch lại. Worker nên gửi cả trạng thái thành công hoặc lỗi, để UI bật lại nút và báo kết quả. Phần luồng, hàng đợi và lưu nền là mở rộng nối với PW8; slide GUI gốc dừng ở `mainloop`. Khi đóng cửa sổ, ứng dụng phải có quy tắc rõ cho worker đang lưu."
      }
     ]
    ],

@@ -22,7 +22,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Cách chia việc ở phần trước vẫn nằm gọn trong một chương trình. Mở thêm một quầy ở chỗ khác thì nó có sổ riêng, nên muốn biết kết quả phải gửi về. Một phép tính Python thuần dùng nhiều CPU có thể cần process riêng thay vì thêm thread trong CPython build có GIL. Trước khi tìm cách tăng tốc, hãy kiểm tra dữ liệu của cha và con có được dùng chung không:"
+      "text": "Cách chia việc ở phần trước vẫn nằm gọn trong một chương trình. Mở thêm một quầy ở chỗ khác thì nó có sổ riêng, nên muốn biết kết quả phải gửi về. Một phép tính Python thuần dùng nhiều CPU có thể cần tiến trình riêng thay vì thêm luồng trong CPython build có GIL. Trước khi tìm cách tăng tốc, hãy kiểm tra dữ liệu của cha và con có được dùng chung không:"
      },
      {
       "type": "code",
@@ -33,7 +33,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Hàm change thêm 9 vào `list` trong process con, nhưng `list` values ở cha vẫn là [1, 2]. Hãy lưu mỗi ví dụ thành file .py rồi chạy file. Khi dùng cơ chế spawn, process con cần import được module chứa hàm worker. Khối if __name__ == \"__main__\":, thường gọi là main guard, ngăn phần khởi chạy process chạy lại khi module được import ở con."
+      "text": "Hàm change thêm 9 vào `list` trong tiến trình con, nhưng `list` values ở cha vẫn là [1, 2]. Hãy lưu mỗi ví dụ thành file .py rồi chạy file. Khi dùng cơ chế spawn, tiến trình con cần import được module chứa hàm worker. Khối if __name__ == \"__main__\":, thường gọi là main guard, ngăn phần khởi chạy tiến trình chạy lại khi module được import ở con."
      },
      {
       "type": "code",
@@ -44,7 +44,7 @@
     [
      {
       "type": "paragraph",
-      "text": "multiprocessing.Queue gửi kết quả giữa process; nó không phải chính queue.Queue dành cho thread. Dữ liệu gửi thường được pickle, nên cần object phù hợp và tránh gửi các object GUI hoặc handle không có cơ chế chuyển giao rõ ràng."
+      "text": "`multiprocessing.Queue` gửi kết quả giữa các tiến trình; nó không phải chính `queue.Queue` dành cho luồng. Dữ liệu gửi thường được pickle, nên cần đối tượng phù hợp. Tránh gửi đối tượng GUI hoặc handle không có cơ chế chuyển giao rõ ràng."
      },
      {
       "type": "code",
@@ -55,17 +55,17 @@
     [
      {
       "type": "paragraph",
-      "text": "Pool dùng lại worker cho nhiều việc; map giữ thứ tự kết quả theo đầu vào. Khởi tạo process và truyền dữ liệu đều tốn chi phí, nên phép tính nhỏ có thể chậm hơn chạy tuần tự. Không dùng các ví dụ vài số này làm benchmark."
+      "text": "Pool dùng lại worker cho nhiều việc; map giữ thứ tự kết quả theo đầu vào. Khởi tạo tiến trình và truyền dữ liệu đều tốn chi phí, nên phép tính nhỏ có thể chậm hơn chạy tuần tự. Không dùng các ví dụ vài số này làm benchmark."
      },
      {
       "type": "paragraph",
-      "text": "Đây là phần mở rộng cho Data Analyst. Chương Multi Processing trong slide chủ yếu dạy process của hệ điều hành và `subprocess`, còn bài này dùng module multiprocessing. Nếu thư viện native, tức thư viện có phần code biên dịch như C/C++, đã dùng nhiều thread bên trong, hãy kiểm tra trước khi tạo thêm nhiều process. Quá nhiều worker ở cả hai tầng có thể cùng tranh CPU và làm chương trình chậm hơn."
+      "text": "Đây là phần mở rộng cho Data Analyst. Chương Multi Processing trong slide chủ yếu dạy tiến trình của hệ điều hành và `subprocess`, còn bài này dùng module multiprocessing. Nếu thư viện native, tức thư viện có phần code biên dịch như C/C++, đã dùng nhiều luồng bên trong, hãy kiểm tra trước khi tạo thêm nhiều tiến trình. Quá nhiều worker ở cả hai tầng có thể cùng tranh CPU và làm chương trình chậm hơn."
      }
     ]
    ],
    "context": {
     "level": "Nâng cao",
-    "prereq": "CT02 · Tạo process: Windows, fork và exec, EX05 · GIL, reference counting và chọn đúng kiểu đồng thời, SY12 · Package và điểm bắt đầu của chương trình"
+    "prereq": "CT02 · Tạo process: Windows, fork và exec, EX05 · GIL, reference counting và chọn đúng kiểu đồng thời, SY12 · Gói và điểm bắt đầu của chương trình"
    }
   },
   "step_2": {

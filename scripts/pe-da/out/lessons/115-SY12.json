@@ -2,13 +2,13 @@
  "lesson_code": "SY12",
  "sort_order": 115,
  "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
- "title": "SY12 · Package và điểm bắt đầu của chương trình",
+ "title": "SY12 · Gói và điểm bắt đầu của chương trình",
  "subtitle": "Trung cấp · M5 · 16 phút",
  "estimated_minutes": 16,
  "xp_reward": 10,
  "content_json": {
   "schema": "studio-lesson/v2",
-  "title": "SY12 · Package và điểm bắt đầu của chương trình",
+  "title": "SY12 · Gói và điểm bắt đầu của chương trình",
   "subtitle": "Trung cấp · M5 · 16 phút",
   "source": {
    "kind": "python-da",
@@ -22,7 +22,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Dự án của quán có thể cần nhiều module. Bạn có thể gom chúng vào một package, rồi chia tiếp thành package con. Ví dụ này dùng domains chứa pricing và package con reports; reports chứa module summary. Tạo hai file __init__.py rỗng ở domains và domains/reports. Đó là các file khởi tạo package thông thường (regular package), khác với method __init__ của class:"
+      "text": "Dự án của quán có thể cần nhiều module. Bạn có thể gom chúng vào một gói, rồi chia tiếp thành gói con. Ví dụ này dùng domains chứa pricing và gói con reports; reports chứa module summary. Tạo hai file __init__.py rỗng ở domains và domains/reports. Đó là các file khởi tạo gói thông thường, khác với phương thức __init__ của lớp:"
      },
      {
       "type": "code",
@@ -34,7 +34,7 @@
     [
      {
       "type": "paragraph",
-      "text": "`domains.reports.summary` là tên module theo các tầng thư mục, không phải một đường dẫn có dấu slash. Trong summary.py, `from ..pricing import has_discount` đi lên package domains rồi lấy module pricing. Python còn hỗ trợ namespace packages không cần __init__.py; khóa này dùng regular package để cấu trúc dễ theo dõi."
+      "text": "`domains.reports.summary` là tên module theo các tầng thư mục, không phải một đường dẫn có dấu slash. Trong summary.py, `from ..pricing import has_discount` đi lên gói domains rồi lấy module pricing. Python còn hỗ trợ gói namespace không cần __init__.py; khóa này dùng gói thông thường để cấu trúc dễ theo dõi."
      },
      {
       "type": "code",
@@ -45,7 +45,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Import package không tự import mọi submodule. Ví dụ trên chủ động export has_discount ở __init__.py. Khi cài thư viện bên ngoài, dùng Python đúng môi trường với `python -m pip install ten_package`; tên cài trên PyPI và tên import đôi khi khác nhau."
+      "text": "Import một gói không tự import mọi submodule. Ví dụ trên chủ động export has_discount ở __init__.py. Khi cài thư viện bên ngoài, dùng Python đúng môi trường với `python -m pip install ten_package`; tên cài trên PyPI và tên import đôi khi khác nhau."
      },
      {
       "type": "code",
@@ -89,7 +89,7 @@
      },
      {
       "type": "paragraph",
-      "text": "`import domains.pricing` nạp submodule và cho phép gọi `domains.pricing.has_discount(6)`. Chỉ `import domains` không bảo đảm pricing có sẵn, trừ khi __init__.py đã import hoặc export nó. Tên nhiều tầng như domains.reports.summary vẫn dùng dấu chấm; để tạo cây đó cần các thư mục tương ứng và __init__.py ở những regular package."
+      "text": "`import domains.pricing` nạp submodule và cho phép gọi `domains.pricing.has_discount(6)`. Chỉ `import domains` không bảo đảm pricing có sẵn, trừ khi __init__.py đã import hoặc export nó. Tên nhiều tầng như domains.reports.summary vẫn dùng dấu chấm; để tạo cây đó cần thư mục tương ứng và __init__.py ở những gói thông thường."
      }
     ]
    ],

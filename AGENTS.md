@@ -91,7 +91,7 @@ học nó.
 | Giáo trình pe-da (đang chạy) | **179 bài, 11 module**, 567 màn đọc, **537 câu trắc nghiệm**, 669 câu luyện tập, **143 bài tập được chấm / 480 ca**, 2 439 phút; 139 bài chạy trong trình duyệt / 15 hỗn hợp / 25 trên máy |
 | pe-da chấm nội dung | `node scripts/pe-da/check-pyodide.mjs` → 154 bài, 420 đoạn code, **0 hỏng**, **0 cảnh báo**, 30–85 s (BIẾN THIÊN theo tải máy — xem bẫy "trần 5 giây là trần của đường khác"); trần pha 1 là **15 000 ms** (`/ide`), trần pha 2 là **5 000 ms** (ô chạy trong bài), và mỗi pha in biên riêng; **pha 2: 52/53 đáp án mẫu màn luyện tập chạy đúng, 1 ngoại lệ đã khai, 10 câu bỏ qua (bài chạy trên máy)** |
 | pe-da chấm BÀI TẬP | `node scripts/pe-da/check-practice.mjs` → 143 bài, **480 ca đạt**, 773 biến thể sai đều trượt, **pha 3 cổng file dữ liệu 7 bài / 0 lỗi**, **pha 4: 2 372 ca trượt / 0 ca im lặng / 7 nhánh phản hồi**, ~12 s |
-| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **74 lỗi · 386 cảnh báo**, dồn ở L3 27 (câu ≥ 3 dấu phẩy) · L1 21 (câu > 30 tiếng) · L8 20 (mật độ thuật ngữ) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì những lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
+| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **71 lỗi · 366 cảnh báo**, dồn ở L3 27 (câu ≥ 3 dấu phẩy) · L1 21 (câu > 30 tiếng) · L8 17 (mật độ thuật ngữ) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì những lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
 | pe-da ĐỘ PHỦ văn phong | `node scripts/pe-da/check-phu-van-phong.mjs` → **99 chuỗi NGOÀI TẦM / 4 mục đã khai**, 0 lỗi. Bộ văn phong đọc `source/course.json` (cố ý), nên chữ do `build.py` SINH RA thì không luật nào thấy: **80 `figure.alt`** · 19 chuỗi của `diagram`. NỢ ẨN đã đo: L3 32 → 41 · L13 cb 217 → 229 · §4-A cb 23 → 30 · L14 0 → 3 lỗi — tức tín hiệu dừng báo THIẾU ~20%. Trần 99 CHỈ ĐƯỢC HẠ (108 → 99 ngày 08/11: 9 đoạn `paragraph.text` đã về gói nguồn) |
 | pe-da bảng từng bước | `py scripts/pe-da/gen_traces.py` → **56 vết / 359 khối đủ điều kiện** (303 bỏ qua — bảng từng ghi 356/300, đã CŨ từ trước 04/11: dựng lại từ HEAD cũng ra 359/303, và `check-moc-nen` không đối chiếu hàng này; phần lớn vì không ra được câu dự đoán nào ĐÁNG hỏi); build.py `return 1` nếu lệch |
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
@@ -99,12 +99,12 @@ học nó.
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **17 mục, 14 có đường tới, 3 còn tối (đã khai lý do)**, 0 lỗi |
 | Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **2 mục chết, 2 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **15 CSS module trong `src/`** |
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
-| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **119/179 khớp, 60 bài CHỜ NẠP** (năm lát văn phong 08/11 · hai lát alt text · năm lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
+| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **117/179 khớp, 62 bài CHỜ NẠP** (năm lát văn phong 08/11 · hai lát alt text · năm lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **34 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **7 mục** (frontend 622 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 74/386), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **7 mục** (frontend 622 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -5380,6 +5380,75 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   GU11; các bài còn lại dồn vào nhóm C, nơi termbank CỐ Ý không chốt tiếng Việt — ở đó hạ
   mật độ nghĩa là viết thêm lời giải thích, một việc khác hẳn và đắt hơn. Đo nhóm trước khi
   mở lát, đừng đọc con số mật độ một mình.
+
+- **LÁT THỨ HAI CỦA KHUÔN "dịch nhóm B hạ luôn L8" — và nó chỉ ăn ở BA trong bốn ứng viên,
+  phép đo nói trước bài nào.** Chiếu cả bốn bài L8 cao nhất còn lại trước khi mở việc:
+
+  | bài | nay | nhóm B | chiếu | thật sau khi sửa |
+  |---|---|---|---|---|
+  | **SY12** | 82 | `package`×9 · `class`×1 · `method`×1 | ~39 | **39 — rời CẢ HAI danh sách** |
+  | **CT14** | 106 | `process`×8 · `thread`×3 · `queue`×3 · `object`×2 | ~53 | **52 — rời bậc LỖI** |
+  | **GU11** | 88 | `thread`×3 · `queue`×3 | ~57 | **56 — rời bậc LỖI** |
+  | SY21 | 109 | chỉ 6/28 là B | ~86 | **bỏ qua** |
+
+  SY21 là bài cao THỨ HAI mà khuôn này không ăn: nó dồn vào nhóm **C** (`pickle`×7 ·
+  `JSON`×6 · `file`×5), nơi termbank CỐ Ý không chốt tiếng Việt — ở đó hạ mật độ nghĩa là
+  viết thêm lời giải thích, việc khác hẳn và đắt hơn. **Đọc NHÓM trước khi mở lát, đừng đọc
+  con số mật độ một mình** — chiếu lệch ≤ 1 điểm ở cả ba bài làm được, nên phép chiếu này
+  dùng lại được.
+  **PHÉP SỬA CỦA CT14 LÀ HỖN HỢP, và đó là phần đáng ghi nhất:** `process`/`thread`/`object`
+  là văn xuôi nhóm B ⇒ dịch; nhưng `queue` ×3 KHÔNG phải văn xuôi — chúng là
+  `multiprocessing.Queue` và `queue.Queue`, tức **định danh code** ⇒ bọc backtick. Hai công
+  cụ, hai loại chỗ, và backtick cũng xoá chúng khỏi phép đếm (backtick → `◆` trước khi
+  quét). Ablate chiều "bỏ backtick 3 định danh ấy, giữ nguyên phần dịch": L8 **17 → 18**,
+  vì CT14 quay lại 61/1000 — tức phép bọc backtick MỘT MÌNH là thứ đưa CT14 ra khỏi bậc
+  LỖI. Dịch một định danh code sang tiếng Việt sẽ là sai; bọc nó là đúng.
+  **GU11 cũng có một ca như thế:** *"gửi kết quả qua Queue"* là class `queue.Queue`, không
+  phải khái niệm hàng đợi ⇒ `` `Queue` ``. Còn *"poll đọc queue"* và *"Phần thread, queue"*
+  là khái niệm ⇒ "hàng đợi". Cùng một chữ, hai vai, hai cách sửa — phải đọc từng chỗ.
+  **L11 BẮN NGAY, và nó bắn vào một quyết định tôi tưởng là tử tế.** Tôi giữ chú giải
+  *"gói thông thường (regular package)"* để người học còn tra được tiếng Anh. L11 đỏ: *"gọi
+  cùng một thứ bằng hai tên — package và gói trong một đoạn"*. Khuôn chú giải được MIỄN chỉ
+  ở `baiDauTien`, và `package` có `baiDauTien = PY02` — tức tiếng Anh thuộc PY02, không
+  thuộc SY12. Bỏ nó đi; `namespace packages` → "gói namespace". Ablate chiều "trả chú giải
+  về" → **L11 1 đỏ**.
+  **Và lưu ý: dạng SỐ NHIỀU không bị đếm** — biên từ là `(?![\w-])` nên `packages` không
+  khớp `package`. Nghĩa là `namespace packages` chưa bao giờ nằm trong mật độ, và nếu để
+  nguyên thì L11 cũng không thấy nó cạnh "gói thông thường". Dịch nó là quyết định về văn
+  phong, không phải để chiều một con số.
+  **GIÁ PHẢI TRẢ, đúng như #150 đã dặn, và lần này ở L1 chứ không L2:** tiếng Việt dài hơn
+  nên hai câu vượt 25 tiếng (SY12 26 · CT14 29) và L1 cảnh báo 86 → 87 ⇒ TỔNG L1 phình ⇒
+  ratchet sẽ đỏ. Sửa: bỏ một chữ đệm ở SY12, và **chẻ câu** CT14 làm hai. Kết quả L1 cảnh
+  báo về **85**, tức THẤP hơn mốc cũ — chẻ một câu 29 tiếng thành 12 + 15 là siết thật, không
+  phải bù trừ. **Dịch sang tiếng Việt thì đo CẢ L1 LẪN L2 ngay, không chỉ L2.**
+  **CASCADE CỦA TL LÀM TÔI GHI SAI MỘT CON SỐ, và `luuY` của cổng #149 đã dặn đúng điều
+  đó.** Sau khi sửa nội dung, cổng in **72 lỗi** — nhưng 1 trong 72 là chính TL (số câu phần
+  giảng đổi vì tôi chẻ một câu). Tôi ghi 72 vào §11/§12/AGENTS.md, rồi sửa §2 xong thì tổng
+  về **71** và ratchet lại đỏ 2. Luật: **sửa §2 TRƯỚC, đo lại, rồi mới ghi dòng tổng.**
+  **SỐ ĐÃ ĐO:** L8 **20 → 17 lỗi** (cảnh báo 28 → 30: CT14 và GU11 đổi bậc, SY12 rời hẳn;
+  TỔNG L8 48 → 47) · L13 cảnh báo **208 → 187** (−21) · L1 cảnh báo **86 → 85** · tổng khoá
+  **74 → 71 lỗi**, 386 → **366 cảnh báo** (−20) · L2 6·13 · L3 27 · L11 0 · TB 0 · TL 0 ·
+  §4-A 0·1 **đều không động** · màn đọc **567** · thời lượng **2 439 phút** · `check.py
+  --strict` 0/0 · `check-pyodide` 154 bài / 420 đoạn / 0 hỏng / 52-53 đáp án mẫu ·
+  `check-practice` 143 bài / 480 ca đạt / 773 biến thể sai đều trượt · `check-phu-van-phong`
+  0 lỗi · `check-doi-hoi` 0 lỗi · frontend unit **622** · `check-nguong` 34 ngưỡng 0 lỗi.
+  **ABLATE 5 chiều.** Trả cả ba bài về HEAD, đọc `--luat L8` → **20** (nay 17) · đọc qua
+  ratchet → **10 đỏ** = 4 luật hồi quy (L1 TỔNG 106→107 · L8 17→20 · L13 TỔNG 187→208 ·
+  TL 0→1) cộng 6 dòng sổ sách · bỏ backtick 3 định danh của CT14 → **18** · trả chú giải
+  tiếng Anh về SY12 → **L11 1 đỏ** · trả RIÊNG hai chỗ `package` của SY12 → `--luat L8` giữ
+  **17**, qua ratchet **6 đỏ**.
+  **Chiều cuối là một phép đo đáng đọc đúng:** trả một PHẦN của SY12 KHÔNG làm L8 đổi bậc,
+  vì SY12 nay ở 39 và cách trần LỖI **21 điểm**. Biên lớn là kết quả tốt, nhưng nó cũng
+  nghĩa là `--luat L8` mù với phần sửa ấy — con số nói được nằm ở ratchet (nó thấy cảnh báo
+  và L13). Một chiều ablate ra "không đổi" phải được đọc là *"luật này không đo chỗ đó"*,
+  không phải *"phần sửa đó vô ích"*.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 60 → **62 bài CHỜ NẠP** (ba bài sửa, nhưng CT14 đã chờ
+  sẵn từ lát #146).
+  **CÒN LẠI 17 lỗi L8, và khuôn này đã CẠN:** sau ba bài này không bài L8 nào còn có nhóm B
+  chiếm đa số. Phần còn lại dồn vào nhóm C — `file` · `pickle` · `JSON` · `callback` ·
+  `stdout` · `descriptor` — nơi termbank cố ý giữ tiếng Anh. Hạ mật độ ở đó là viết thêm lời
+  giải thích cho một bài 250 tiếng, tức một việc biên tập khác hẳn: nó LÀM BÀI DÀI RA, nên
+  phải đo L1 và L2 trước, và nó không có một quyết định sẵn trong termbank để dựa vào.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

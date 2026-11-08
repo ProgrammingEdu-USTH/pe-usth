@@ -30746,13 +30746,13 @@
    "lesson_code": "SY12",
    "sort_order": 115,
    "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
-   "title": "SY12 · Package và điểm bắt đầu của chương trình",
+   "title": "SY12 · Gói và điểm bắt đầu của chương trình",
    "subtitle": "Trung cấp · M5 · 16 phút",
    "estimated_minutes": 16,
    "xp_reward": 10,
    "content_json": {
     "schema": "studio-lesson/v2",
-    "title": "SY12 · Package và điểm bắt đầu của chương trình",
+    "title": "SY12 · Gói và điểm bắt đầu của chương trình",
     "subtitle": "Trung cấp · M5 · 16 phút",
     "source": {
      "kind": "python-da",
@@ -30766,7 +30766,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Dự án của quán có thể cần nhiều module. Bạn có thể gom chúng vào một package, rồi chia tiếp thành package con. Ví dụ này dùng domains chứa pricing và package con reports; reports chứa module summary. Tạo hai file __init__.py rỗng ở domains và domains/reports. Đó là các file khởi tạo package thông thường (regular package), khác với method __init__ của class:"
+        "text": "Dự án của quán có thể cần nhiều module. Bạn có thể gom chúng vào một gói, rồi chia tiếp thành gói con. Ví dụ này dùng domains chứa pricing và gói con reports; reports chứa module summary. Tạo hai file __init__.py rỗng ở domains và domains/reports. Đó là các file khởi tạo gói thông thường, khác với phương thức __init__ của lớp:"
        },
        {
         "type": "code",
@@ -30778,7 +30778,7 @@
       [
        {
         "type": "paragraph",
-        "text": "`domains.reports.summary` là tên module theo các tầng thư mục, không phải một đường dẫn có dấu slash. Trong summary.py, `from ..pricing import has_discount` đi lên package domains rồi lấy module pricing. Python còn hỗ trợ namespace packages không cần __init__.py; khóa này dùng regular package để cấu trúc dễ theo dõi."
+        "text": "`domains.reports.summary` là tên module theo các tầng thư mục, không phải một đường dẫn có dấu slash. Trong summary.py, `from ..pricing import has_discount` đi lên gói domains rồi lấy module pricing. Python còn hỗ trợ gói namespace không cần __init__.py; khóa này dùng gói thông thường để cấu trúc dễ theo dõi."
        },
        {
         "type": "code",
@@ -30789,7 +30789,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Import package không tự import mọi submodule. Ví dụ trên chủ động export has_discount ở __init__.py. Khi cài thư viện bên ngoài, dùng Python đúng môi trường với `python -m pip install ten_package`; tên cài trên PyPI và tên import đôi khi khác nhau."
+        "text": "Import một gói không tự import mọi submodule. Ví dụ trên chủ động export has_discount ở __init__.py. Khi cài thư viện bên ngoài, dùng Python đúng môi trường với `python -m pip install ten_package`; tên cài trên PyPI và tên import đôi khi khác nhau."
        },
        {
         "type": "code",
@@ -30833,7 +30833,7 @@
        },
        {
         "type": "paragraph",
-        "text": "`import domains.pricing` nạp submodule và cho phép gọi `domains.pricing.has_discount(6)`. Chỉ `import domains` không bảo đảm pricing có sẵn, trừ khi __init__.py đã import hoặc export nó. Tên nhiều tầng như domains.reports.summary vẫn dùng dấu chấm; để tạo cây đó cần các thư mục tương ứng và __init__.py ở những regular package."
+        "text": "`import domains.pricing` nạp submodule và cho phép gọi `domains.pricing.has_discount(6)`. Chỉ `import domains` không bảo đảm pricing có sẵn, trừ khi __init__.py đã import hoặc export nó. Tên nhiều tầng như domains.reports.summary vẫn dùng dấu chấm; để tạo cây đó cần thư mục tương ứng và __init__.py ở những gói thông thường."
        }
       ]
      ],
@@ -31161,7 +31161,7 @@
      ],
      "context": {
       "level": "Trung cấp",
-      "prereq": "SY12 · Package và điểm bắt đầu của chương trình, NP06 · Array hai chiều, NP10 · Tổng của cả dãy và cả bảng"
+      "prereq": "SY12 · Gói và điểm bắt đầu của chương trình, NP06 · Array hai chiều, NP10 · Tổng của cả dãy và cả bảng"
      }
     },
     "step_2": {
@@ -35757,7 +35757,7 @@
      ],
      "context": {
       "level": "Trung cấp",
-      "prereq": "SY05 · Class và object: mỗi món có dữ liệu riêng, SY06 · Cho object cách hiển thị và so sánh, SY07 · Kế thừa, override và super, SY10 · Giữ trạng thái hợp lệ bằng getter và setter, SY12 · Package và điểm bắt đầu của chương trình, SY13 · Làm tròn xuống và giá trung bình có trọng số, SY14 · Curses: nhận phím và vẽ lại giao diện terminal, SY25 · PW1: quản lý món, nguyên liệu và định lượng bằng collection"
+      "prereq": "SY05 · Class và object: mỗi món có dữ liệu riêng, SY06 · Cho object cách hiển thị và so sánh, SY07 · Kế thừa, override và super, SY10 · Giữ trạng thái hợp lệ bằng getter và setter, SY12 · Gói và điểm bắt đầu của chương trình, SY13 · Làm tròn xuống và giá trung bình có trọng số, SY14 · Curses: nhận phím và vẽ lại giao diện terminal, SY25 · PW1: quản lý món, nguyên liệu và định lượng bằng collection"
      }
     },
     "step_2": {
@@ -40906,7 +40906,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Cách chia việc ở phần trước vẫn nằm gọn trong một chương trình. Mở thêm một quầy ở chỗ khác thì nó có sổ riêng, nên muốn biết kết quả phải gửi về. Một phép tính Python thuần dùng nhiều CPU có thể cần process riêng thay vì thêm thread trong CPython build có GIL. Trước khi tìm cách tăng tốc, hãy kiểm tra dữ liệu của cha và con có được dùng chung không:"
+        "text": "Cách chia việc ở phần trước vẫn nằm gọn trong một chương trình. Mở thêm một quầy ở chỗ khác thì nó có sổ riêng, nên muốn biết kết quả phải gửi về. Một phép tính Python thuần dùng nhiều CPU có thể cần tiến trình riêng thay vì thêm luồng trong CPython build có GIL. Trước khi tìm cách tăng tốc, hãy kiểm tra dữ liệu của cha và con có được dùng chung không:"
        },
        {
         "type": "code",
@@ -40917,7 +40917,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Hàm change thêm 9 vào `list` trong process con, nhưng `list` values ở cha vẫn là [1, 2]. Hãy lưu mỗi ví dụ thành file .py rồi chạy file. Khi dùng cơ chế spawn, process con cần import được module chứa hàm worker. Khối if __name__ == \"__main__\":, thường gọi là main guard, ngăn phần khởi chạy process chạy lại khi module được import ở con."
+        "text": "Hàm change thêm 9 vào `list` trong tiến trình con, nhưng `list` values ở cha vẫn là [1, 2]. Hãy lưu mỗi ví dụ thành file .py rồi chạy file. Khi dùng cơ chế spawn, tiến trình con cần import được module chứa hàm worker. Khối if __name__ == \"__main__\":, thường gọi là main guard, ngăn phần khởi chạy tiến trình chạy lại khi module được import ở con."
        },
        {
         "type": "code",
@@ -40928,7 +40928,7 @@
       [
        {
         "type": "paragraph",
-        "text": "multiprocessing.Queue gửi kết quả giữa process; nó không phải chính queue.Queue dành cho thread. Dữ liệu gửi thường được pickle, nên cần object phù hợp và tránh gửi các object GUI hoặc handle không có cơ chế chuyển giao rõ ràng."
+        "text": "`multiprocessing.Queue` gửi kết quả giữa các tiến trình; nó không phải chính `queue.Queue` dành cho luồng. Dữ liệu gửi thường được pickle, nên cần đối tượng phù hợp. Tránh gửi đối tượng GUI hoặc handle không có cơ chế chuyển giao rõ ràng."
        },
        {
         "type": "code",
@@ -40939,17 +40939,17 @@
       [
        {
         "type": "paragraph",
-        "text": "Pool dùng lại worker cho nhiều việc; map giữ thứ tự kết quả theo đầu vào. Khởi tạo process và truyền dữ liệu đều tốn chi phí, nên phép tính nhỏ có thể chậm hơn chạy tuần tự. Không dùng các ví dụ vài số này làm benchmark."
+        "text": "Pool dùng lại worker cho nhiều việc; map giữ thứ tự kết quả theo đầu vào. Khởi tạo tiến trình và truyền dữ liệu đều tốn chi phí, nên phép tính nhỏ có thể chậm hơn chạy tuần tự. Không dùng các ví dụ vài số này làm benchmark."
        },
        {
         "type": "paragraph",
-        "text": "Đây là phần mở rộng cho Data Analyst. Chương Multi Processing trong slide chủ yếu dạy process của hệ điều hành và `subprocess`, còn bài này dùng module multiprocessing. Nếu thư viện native, tức thư viện có phần code biên dịch như C/C++, đã dùng nhiều thread bên trong, hãy kiểm tra trước khi tạo thêm nhiều process. Quá nhiều worker ở cả hai tầng có thể cùng tranh CPU và làm chương trình chậm hơn."
+        "text": "Đây là phần mở rộng cho Data Analyst. Chương Multi Processing trong slide chủ yếu dạy tiến trình của hệ điều hành và `subprocess`, còn bài này dùng module multiprocessing. Nếu thư viện native, tức thư viện có phần code biên dịch như C/C++, đã dùng nhiều luồng bên trong, hãy kiểm tra trước khi tạo thêm nhiều tiến trình. Quá nhiều worker ở cả hai tầng có thể cùng tranh CPU và làm chương trình chậm hơn."
        }
       ]
      ],
      "context": {
       "level": "Nâng cao",
-      "prereq": "CT02 · Tạo process: Windows, fork và exec, EX05 · GIL, reference counting và chọn đúng kiểu đồng thời, SY12 · Package và điểm bắt đầu của chương trình"
+      "prereq": "CT02 · Tạo process: Windows, fork và exec, EX05 · GIL, reference counting và chọn đúng kiểu đồng thời, SY12 · Gói và điểm bắt đầu của chương trình"
      }
     },
     "step_2": {
@@ -43675,7 +43675,7 @@
       [
        {
         "type": "paragraph",
-        "text": "after lên lịch callback trong event loop. Nó không tạo thread mới. `quit` làm `mainloop` đang chạy kết thúc; `destroy` hủy cửa sổ. Đoạn này tự thoát sau 20ms để kiểm tra hữu hạn, không phải một ứng dụng người dùng hoàn chỉnh."
+        "text": "after lên lịch callback trong event loop. Nó không tạo luồng mới. `quit` làm `mainloop` đang chạy kết thúc; `destroy` hủy cửa sổ. Đoạn này tự thoát sau 20ms để kiểm tra hữu hạn, không phải một ứng dụng người dùng hoàn chỉnh."
        },
        {
         "type": "code",
@@ -43686,7 +43686,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Worker chỉ tính và gửi kết quả qua Queue; thao tác StringVar diễn ra trên thread tạo Tk. join ở đây chỉ là ranh giới kiểm tra một phép tính nhỏ trong ví dụ ẩn. Không đặt join cho tác vụ lâu trong callback giao diện vì nó vẫn chặn UI."
+        "text": "Worker chỉ tính và gửi kết quả qua `Queue`; thao tác StringVar diễn ra trên luồng tạo Tk. join ở đây chỉ là ranh giới kiểm tra một phép tính nhỏ trong ví dụ ẩn. Không đặt join cho tác vụ lâu trong callback giao diện vì nó vẫn chặn UI."
        },
        {
         "type": "code",
@@ -43695,7 +43695,7 @@
        },
        {
         "type": "paragraph",
-        "text": "Trong ứng dụng, poll đọc queue không chặn rồi tự lên lịch lại. Worker nên gửi cả trạng thái thành công hoặc lỗi, để UI bật lại nút và báo kết quả. Phần thread, queue và lưu nền là mở rộng nối với PW8; slide GUI gốc dừng ở `mainloop`. Khi đóng cửa sổ, ứng dụng phải có quy tắc rõ cho worker đang lưu."
+        "text": "Trong ứng dụng, poll đọc hàng đợi không chặn rồi tự lên lịch lại. Worker nên gửi cả trạng thái thành công hoặc lỗi, để UI bật lại nút và báo kết quả. Phần luồng, hàng đợi và lưu nền là mở rộng nối với PW8; slide GUI gốc dừng ở `mainloop`. Khi đóng cửa sổ, ứng dụng phải có quy tắc rõ cho worker đang lưu."
        }
       ]
      ],

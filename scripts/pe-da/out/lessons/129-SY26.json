@@ -893,7 +893,7 @@
    ],
    "context": {
     "level": "Trung cấp",
-    "prereq": "SY05 · Class và object: mỗi món có dữ liệu riêng, SY06 · Cho object cách hiển thị và so sánh, SY07 · Kế thừa, override và super, SY10 · Giữ trạng thái hợp lệ bằng getter và setter, SY12 · Package và điểm bắt đầu của chương trình, SY13 · Làm tròn xuống và giá trung bình có trọng số, SY14 · Curses: nhận phím và vẽ lại giao diện terminal, SY25 · PW1: quản lý món, nguyên liệu và định lượng bằng collection"
+    "prereq": "SY05 · Class và object: mỗi món có dữ liệu riêng, SY06 · Cho object cách hiển thị và so sánh, SY07 · Kế thừa, override và super, SY10 · Giữ trạng thái hợp lệ bằng getter và setter, SY12 · Gói và điểm bắt đầu của chương trình, SY13 · Làm tròn xuống và giá trung bình có trọng số, SY14 · Curses: nhận phím và vẽ lại giao diện terminal, SY25 · PW1: quản lý món, nguyên liệu và định lượng bằng collection"
    }
   },
   "step_2": {

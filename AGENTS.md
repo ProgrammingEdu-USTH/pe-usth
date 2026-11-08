@@ -75,8 +75,8 @@ học nó.
 | Hạng mục | Mốc |
 |---|---|
 | Backend typecheck | sạch — nay phủ **cả `scripts/**/*.ts`** (10 script, 0 lỗi) |
-| Backend test | **35 bộ, 501 ca**, tất cả đạt (chạy RIÊNG — xem bẫy tranh CPU) |
-| Backend lint | 104 lỗi, 2 cảnh báo — **mốc trần trong CI là 115, chỉ được hạ** |
+| Backend test | **35 bộ, 522 ca**, tất cả đạt (chạy RIÊNG — xem bẫy tranh CPU) |
+| Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d) |
 | Frontend unit test | `cd frontend && npm run test:unit` → **602 ca** / 53 tệp, tất cả đạt |
@@ -99,7 +99,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **34 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **6 mục** (frontend 602 · backend 35 bộ/501 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773), 0 trượt, 0 lỗi; nó CHẠY chính sáu lệnh đó nên THAY cả sáu bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **6 mục** (frontend 602 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773), 0 trượt, 0 lỗi; nó CHẠY chính sáu lệnh đó nên THAY cả sáu bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -4672,6 +4672,76 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   trang 404 tiếng Việt có đường về, thay cho một lời mời ghi danh vào ngõ cụt.
   **`/interface` ĐÃ ĐO VÀ ĐỂ NGUYÊN:** nó là minigame "CODEGEN Z" (kéo khối lệnh cứu
   robot), và ràng buộc của vòng lặp nói thẳng KHÔNG đầu tư vào minigame.
+
+- **`PrismaExceptionFilter`: 12 lỗi `any` làm hai dòng khai kiểu chỉ là CHỮ, và spec
+  của nó có đúng MỘT ca `should be defined`.** Chiều lint backend chưa vòng nào trong
+  phiên chạm. Đo bằng ĐÚNG lệnh CI dùng: **104 lỗi**, dồn ở `stats.service.spec` 20 ·
+  `oauth-login-csrf.spec` 18 · `user.service.spec` 13 · **`prisma-exception.filter.ts`
+  12** · `oauth-state.spec` 10, rồi đuôi dài 12 tệp. Theo luật:
+  `no-unsafe-member-access` 43 · `no-unsafe-assignment` 27 · prettier 14 ·
+  `no-unsafe-call` 10.
+  **CHỌN TỆP CODE CHẠY THẬT, KHÔNG CHỌN TỆP TO NHẤT.** Ba spec đầu cộng lại là 51/104
+  (49%), nhưng tệp thứ tư có hai thứ chúng không có: nó là `@Catch` đăng ký
+  **APP_FILTER toàn cục**, nên MỌI lỗi Prisma đi qua nó và nó dựng **9 thông điệp tiếng
+  Việt người dùng đọc trực tiếp** — mà spec của nó có đúng một ca `should be defined`,
+  tức **không thông điệp nào trong chín thông điệp ấy từng được chứng minh**.
+  **LỖ KIỂU CÓ HẬU QUẢ THẬT, và nó là một PHÉP TUNG ĐỒNG XU.** `const constraint:
+  string | undefined = …` nhận giá trị từ `any` rồi gọi `constraint?.includes('user_id')`.
+  Khi giá trị là MẢNG thì phép gọi VẪN chạy (`Array.prototype.includes`) nhưng đổi nghĩa
+  **theo nội dung mảng**:
+
+      'enrollments_user_id_fkey'.includes('user_id')   -> true   (câu ĐÚNG)
+      ['enrollments_user_id_fkey'].includes('user_id') -> FALSE  (câu SAI)
+      ['user_id'].includes('user_id')                  -> true   (đúng do TÌNH CỜ)
+
+  Tức tên RÀNG BUỘC thì sai, tên CỘT thì tình cờ đúng; người dùng nhận *"Dữ liệu liên
+  quan không còn tồn tại"* khi lẽ ra phải là *"Phiên đăng nhập không hợp lệ"*, và không
+  exception nào ném.
+  **ABLATE (TRONG ĐẦU) BÁC BẢN SỬA ĐẦU CỦA TÔI.** Tôi viết `chuoiHoacRong()` — chỉ nhận
+  chuỗi, mảng thành `undefined` — rồi nhận ra nó cho **CÙNG kết quả** như bản `any` ở ca
+  `['enrollments_user_id_fkey']`: cả hai rơi về câu chung. **Một ca test cho chiều đó sẽ
+  RỖNG.** Bản đúng là `join(',')`: mảng nào cũng về một chuỗi để tìm chuỗi con, nên cả
+  ba dòng trên đều ra `true`. Đó không phải vệ sinh kiểu, nó là **sửa hành vi**. Ablate
+  chiều "trả về bản chỉ-nhận-chuỗi" → **1 đỏ**, nên phép bỏ ấy có bằng chứng.
+  **VÀ TÔI SUÝT ĐỔI MỘT HÀNH VI KHÔNG AI YÊU CẦU.** Bản đầu viết
+  `if (chiChuoi(fields).length) return …`, tức `constraint.fields` RỖNG sẽ rơi xuống
+  `meta.target`; bản gốc dùng `Array.isArray(fields)` nên trả `[]` NGAY. Khác biệt nhỏ,
+  nhưng ở một filter toàn cục thì mọi thay đổi không cố ý phải chặn lại. Giữ
+  `Array.isArray`, và có một ca khoá đúng luồng đó — ablate → **1 đỏ**.
+  **`chiChuoi` LỌC chứ không ép kiểu, và lý do đo được:** `['user_id', 7].join(',')` ra
+  `"user_id,7"` — không khớp khoá nào — nên người dùng mất câu đúng VÀ một con số lọt ra
+  `detail` của response. Lọc thì phần chuỗi còn dùng được; ép kiểu thì cả hai sai mà
+  không ai thấy. Cùng cách `mapChuoi()` của `all-exceptions.filter.ts` xử lý biên của nó.
+  **SPEC: 1 → 22 ca**, và chúng chấm thứ chưa ai chấm: cả **9 khoá** của
+  `UNIQUE_FIELD_MESSAGES` (mỗi khoá một ca `it.each`) · THỨ TỰ CỘT có nghĩa (đảo
+  `course_id,lesson_code` là mất câu riêng — chú thích nói "theo đúng thứ tự Postgres
+  trả về", ca này biến lời dặn ấy thành ràng buộc) · engine CŨ `meta.target` cả mảng lẫn
+  chuỗi · `constraint.fields` rỗng KHÔNG rơi xuống `target` · phần tử không phải chuỗi
+  bị lọc · ba hình dạng của P2003 · `request_id` · và `meta` thiếu hẳn/sai hình dạng
+  (`undefined`, `null`, `'chuoi'`, `42`, `[]`, `{target: 7}`) không làm filter ném.
+  **`json` KHAI KIỂU THAM SỐ** (`jest.fn<void, [ThanPhanHoi]>`): với `jest.fn()` trần
+  thì `json.mock.calls[0][0]` là `any` và mọi phép so trên thân response KHÔNG được TS
+  kiểm — đúng bài học đã ghi cho `all-exceptions.filter.spec.ts`.
+  **FIXTURE LÀ OBJECT THUẦN, có lý do:** filter chỉ đọc `code`/`meta`/`message`/`stack`,
+  không gọi method nào của lớp lỗi Prisma. Dựng một `PrismaClientKnownRequestError` xịn
+  đòi `clientVersion` và đổi chữ ký giữa các bản Prisma — một fixture phải sửa mỗi lần
+  nâng là một fixture sẽ trôi.
+  **ABLATE 6 chiều, cả 6 đỏ:** trả filter về HEAD → **2 đỏ + lint 12** · `chiChuoi` ép
+  kiểu → 1 · `chuoiTimKiem` chỉ nhận chuỗi → 1 · `Array.isArray` thành `.length` → 1 ·
+  gỡ một khoá khỏi bảng thông điệp → 1 · gõ sai một khoá (`course_id` → `courseId`) → 2.
+  **SỐ ĐÃ ĐO:** lint backend **104 → 92 lỗi** (2 cảnh báo không đổi) · backend test
+  **35 bộ / 501 → 522 ca**, chạy `--runInBand` 28,7 s · typecheck sạch · trần lint trong
+  `ci.yml` **115 → 100** (đo 92, giữ 8 chỗ dư — sổ ngưỡng đã ghi) · `check-moc-nen`
+  20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi · `export-chet` / `duong-toi` 0 lỗi.
+  **Không đụng một dòng nội dung nào**, nên `check-da-nap` giữ 36 bài chờ.
+  **HAI CHỖ TRONG AGENTS.MD CÒN GHI "104 lỗi" VÀ CỐ Ý GIỮ:** dòng ở mục mốc nền và dòng
+  ở mục `check-moc-chay` là BẢN GHI của một phép đo đã xảy ra ("đo lại ngày đó ra 104"),
+  không phải lời khai về hiện trạng. Chỉ hàng mốc nền và chú thích của cổng — hai chỗ
+  nói về HIỆN TẠI — được sửa. Phân biệt ấy là thứ giữ cho lịch sử đo lường còn đọc được.
+  **CÒN LẠI 92 lỗi, và hình dạng đã rõ:** `stats.service.spec` 20 · `oauth-login-csrf
+  .spec` 18 · `user.service.spec` 13 · `oauth-state.spec` 10 — bốn tệp spec = **61/92
+  (66%)**, và công thức bốn bước của AGENTS.md áp nguyên cho cả bốn. Sau tệp này thì
+  KHÔNG còn tệp code-chạy-thật nào trên 4 lỗi, nên các lát sau là lát spec.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

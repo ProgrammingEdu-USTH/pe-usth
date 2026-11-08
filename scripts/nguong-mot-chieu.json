@@ -15,7 +15,7 @@
       "tep": ".github/workflows/ci.yml",
       "re": "const TRAN = (\\d+);",
       "chieu": "ha",
-      "moc": 115,
+      "moc": 100,
       "vi": "Trần lỗi lint backend trong CI. Dọn `any` từng module rồi hạ dần. Nới nó là cho `any` chảy ngược vào code."
     },
     {

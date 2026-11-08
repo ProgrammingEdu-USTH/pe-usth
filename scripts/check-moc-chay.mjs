@@ -20,7 +20,7 @@
  *   node scripts/check-moc-chay.mjs backend    # job backend
  *   node scripts/check-moc-chay.mjs tracer     # job tracer
  *
- * CỐ Ý KHÔNG PHỦ hai con số lint (backend 104 lỗi · frontend 146 cảnh báo), và lý
+ * CỐ Ý KHÔNG PHỦ hai con số lint (backend 92 lỗi · frontend 146 cảnh báo), và lý
  * do không phải tiết kiệm: con số lint phải ĐI XUỐNG. Ghim bằng phép so BẰNG thì
  * mỗi đợt dọn `any` là một lần cổng đỏ, tức dạy người ta THÔI DỌN — đúng cái
  * `check-nguong` đã tránh bằng dòng `GHI SỔ`. Chiều của chúng đã có sổ canh

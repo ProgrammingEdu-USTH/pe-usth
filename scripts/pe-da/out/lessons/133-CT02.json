@@ -22,7 +22,32 @@
     [
      {
       "type": "paragraph",
-      "text": "Ở bài trước quán đã có hai lần thực thi cùng lúc. Bạn muốn chương trình con chạy với thư mục dữ liệu riêng. Trên Windows, CreateProcess nhận command line, environment, current directory và lựa chọn bInheritHandles; nó khởi tạo image của process, tạo thread ban đầu và trả thông tin/handle process, thread. Handle là tham chiếu tới tài nguyên của Windows; kế thừa handle quyết định những tài nguyên nào được chuyển cho con theo cấu hình. WinExec là API cũ đã được khuyến cáo thay. Đây là tên và chữ ký WinAPI/C trong slide, không phải các hàm Python để gọi như cú pháp thông thường."
+      "text": "Ở bài trước quán đã có hai lần thực thi cùng lúc. Bạn muốn chương trình con chạy với thư mục dữ liệu riêng. Trên Windows, `CreateProcess` nhận bốn đối số ở bảng dưới. Nó khởi tạo image của process, tạo thread ban đầu và trả handle của process cùng thread. Handle là tham chiếu tới tài nguyên của Windows; kế thừa handle quyết định những tài nguyên nào được chuyển cho con theo cấu hình. `WinExec` là API cũ đã được khuyến cáo thay. Đây là tên và chữ ký WinAPI/C trong slide, không phải các hàm Python để gọi như cú pháp thông thường."
+     },
+     {
+      "type": "table",
+      "headers": [
+       "Đối số",
+       "Nó là gì"
+      ],
+      "rows": [
+       [
+        "command line",
+        "lệnh và tham số để chạy"
+       ],
+       [
+        "environment",
+        "bộ biến môi trường cấp cho tiến trình con"
+       ],
+       [
+        "current directory",
+        "thư mục làm việc của tiến trình con"
+       ],
+       [
+        "`bInheritHandles`",
+        "có cho con kế thừa handle hay không"
+       ]
+      ]
      },
      {
       "type": "code",

@@ -914,12 +914,22 @@ test('fixture bài đọc: bản dựng pe-da đúng hình dạng ReadBlock/Prac
   // hàng, hai cột). Mỗi lần chuyển: 1 đoạn nhồi → 1 đoạn dẫn + 1 bảng + 1 đoạn
   // còn lại, nên +1 table và +1 paragraph. Đo sau khi chuyển: L3 43 → 41 lỗi,
   // L2 cảnh báo 17 → 16, không luật nào tăng.
+  // 08/11/2026: table 11 -> 14, paragraph GIỮ 820. Ba câu nhồi mệnh đề nặng
+  // nhất thành bảng (CT02 bốn đối số `CreateProcess` · CT09 "riêng mỗi luồng
+  // hay chung cả tiến trình" — đúng câu hỏi ở TIÊU ĐỀ bài · GU09 bốn tham số
+  // của `place`). Khác hai đợt trước ở một chỗ KỸ THUẬT: lần này đoạn văn được
+  // GIỮ LẠI và bảng CHÈN NGAY SAU, nên paragraph không đổi. Lý do: `chia_man`
+  // chẻ màn ở ĐOẠN VĂN đứng sau code, nên THAY một đoạn bằng một bảng sẽ xoá
+  // một ranh giới màn và làm `màn đọc` tụt — đo được 567 giữ nguyên sau bản
+  // này. Thêm/bớt khối thì chạy `py scripts/pe-da/build.py` rồi đếm lại, đừng
+  // cộng tay. Đo sau khi chuyển: L3 32 → 29 lỗi, L2 lỗi 7 → 6, L13 cảnh báo
+  // 217 → 215, không luật nào tăng.
   assert.deepEqual(count, {
     paragraph: 820,
     code: 508,
     terminal: 17,
     figure: 80,
-    table: 11,
+    table: 14,
     diagram: 3,
   });
   // Câu luyện tập là câu MỞ kèm lời giải mẫu — không có phương án sai nào để

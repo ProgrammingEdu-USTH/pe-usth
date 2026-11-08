@@ -12483,7 +12483,32 @@
       "reading": [
         {
           "type": "paragraph",
-          "text": "Ở bài trước quán đã có hai lần thực thi cùng lúc. Bạn muốn chương trình con chạy với thư mục dữ liệu riêng. Trên Windows, CreateProcess nhận command line, environment, current directory và lựa chọn bInheritHandles; nó khởi tạo image của process, tạo thread ban đầu và trả thông tin/handle process, thread. Handle là tham chiếu tới tài nguyên của Windows; kế thừa handle quyết định những tài nguyên nào được chuyển cho con theo cấu hình. WinExec là API cũ đã được khuyến cáo thay. Đây là tên và chữ ký WinAPI/C trong slide, không phải các hàm Python để gọi như cú pháp thông thường."
+          "text": "Ở bài trước quán đã có hai lần thực thi cùng lúc. Bạn muốn chương trình con chạy với thư mục dữ liệu riêng. Trên Windows, `CreateProcess` nhận bốn đối số ở bảng dưới. Nó khởi tạo image của process, tạo thread ban đầu và trả handle của process cùng thread. Handle là tham chiếu tới tài nguyên của Windows; kế thừa handle quyết định những tài nguyên nào được chuyển cho con theo cấu hình. `WinExec` là API cũ đã được khuyến cáo thay. Đây là tên và chữ ký WinAPI/C trong slide, không phải các hàm Python để gọi như cú pháp thông thường."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Đối số",
+            "Nó là gì"
+          ],
+          "rows": [
+            [
+              "command line",
+              "lệnh và tham số để chạy"
+            ],
+            [
+              "environment",
+              "bộ biến môi trường cấp cho tiến trình con"
+            ],
+            [
+              "current directory",
+              "thư mục làm việc của tiến trình con"
+            ],
+            [
+              "`bInheritHandles`",
+              "có cho con kế thừa handle hay không"
+            ]
+          ]
         },
         {
           "type": "code",
@@ -13227,7 +13252,52 @@
         },
         {
           "type": "paragraph",
-          "text": "Single-threaded process có một luồng thực thi, với một stack và một ngữ cảnh CPU. Khi có nhiều luồng, mỗi luồng có stack, stack pointer (SP: vị trí hiện tại trên stack), program counter, thanh ghi và trạng thái điều phối riêng. Code, dữ liệu toàn cục, heap và file descriptors được dùng chung, nên worker truy cập được `list` result. Descriptor có thể trỏ tới file đang mở, TCP/UNIX socket hoặc thiết bị. Slide còn nhắc signals: đây là cơ chế thông báo của hệ điều hành, không phải dữ liệu Python riêng tự sao chép vào mỗi luồng. Quy tắc xử lý signal tùy hệ điều hành; bài này không dạy socket API."
+          "text": "Một tiến trình chỉ có một luồng thì chỉ có một stack và một ngữ cảnh CPU. Khi có nhiều luồng, bảng dưới nói thứ nào mỗi luồng giữ riêng và thứ nào cả tiến trình dùng chung. Vì heap là chung nên worker truy cập được `list` result. Descriptor có thể trỏ tới file đang mở, TCP/UNIX socket hoặc thiết bị. Slide còn nhắc signals: đây là cơ chế thông báo của hệ điều hành, không phải dữ liệu Python riêng tự sao chép vào mỗi luồng. Quy tắc xử lý signal tùy hệ điều hành; bài này không dạy socket API."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Thứ",
+            "Riêng mỗi luồng hay chung cả tiến trình"
+          ],
+          "rows": [
+            [
+              "`stack`",
+              "riêng"
+            ],
+            [
+              "`stack pointer` (SP — vị trí hiện tại trên stack)",
+              "riêng"
+            ],
+            [
+              "`program counter`",
+              "riêng"
+            ],
+            [
+              "thanh ghi",
+              "riêng"
+            ],
+            [
+              "trạng thái điều phối",
+              "riêng"
+            ],
+            [
+              "code",
+              "chung"
+            ],
+            [
+              "dữ liệu toàn cục",
+              "chung"
+            ],
+            [
+              "heap",
+              "chung"
+            ],
+            [
+              "`file descriptors`",
+              "chung"
+            ]
+          ]
         },
         {
           "type": "code",
@@ -14761,7 +14831,24 @@
         },
         {
           "type": "paragraph",
-          "text": "x, y là khoảng cách từ góc trên trái của parent; width, height ở place là kích thước theo khoảng cách màn hình, ở đây là pixel. Đừng nhầm với width theo ký tự của Label khi tạo widget."
+          "text": "Bảng dưới nói bốn tham số của `place` đo cái gì. Đừng nhầm với `width` theo ký tự của `Label` khi tạo widget."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Tham số",
+            "Đo cái gì"
+          ],
+          "rows": [
+            [
+              "`x`, `y`",
+              "khoảng cách từ góc trên trái của parent"
+            ],
+            [
+              "`width`, `height`",
+              "kích thước theo khoảng cách màn hình — ở đây là pixel"
+            ]
+          ]
         },
         {
           "type": "code",

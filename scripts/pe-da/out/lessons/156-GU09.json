@@ -3,13 +3,13 @@
  "sort_order": 156,
  "module": "M8 · Tkinter: từ form nhỏ đến màn hình nhận đơn",
  "title": "GU09 · Place: vị trí tuyệt đối và tương đối",
- "subtitle": "Trung cấp · M8 · 14 phút",
- "estimated_minutes": 14,
+ "subtitle": "Trung cấp · M8 · 13 phút",
+ "estimated_minutes": 13,
  "xp_reward": 8,
  "content_json": {
   "schema": "studio-lesson/v2",
   "title": "GU09 · Place: vị trí tuyệt đối và tương đối",
-  "subtitle": "Trung cấp · M8 · 14 phút",
+  "subtitle": "Trung cấp · M8 · 13 phút",
   "source": {
    "kind": "python-da",
    "filename": "course.json#GU09",
@@ -33,7 +33,24 @@
     [
      {
       "type": "paragraph",
-      "text": "x, y là khoảng cách từ góc trên trái của parent; width, height ở place là kích thước theo khoảng cách màn hình, ở đây là pixel. Đừng nhầm với width theo ký tự của Label khi tạo widget."
+      "text": "Bảng dưới nói bốn tham số của `place` đo cái gì. Đừng nhầm với `width` theo ký tự của `Label` khi tạo widget."
+     },
+     {
+      "type": "table",
+      "headers": [
+       "Tham số",
+       "Đo cái gì"
+      ],
+      "rows": [
+       [
+        "`x`, `y`",
+        "khoảng cách từ góc trên trái của parent"
+       ],
+       [
+        "`width`, `height`",
+        "kích thước theo khoảng cách màn hình — ở đây là pixel"
+       ]
+      ]
      },
      {
       "type": "code",

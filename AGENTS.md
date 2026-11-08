@@ -83,10 +83,10 @@ học nó.
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
-| Giáo trình pe-da (đang chạy) | **179 bài, 11 module**, 567 màn đọc, **537 câu trắc nghiệm**, 669 câu luyện tập, **143 bài tập được chấm / 480 ca**, 2 439 phút; 139 bài chạy trong trình duyệt / 15 hỗn hợp / 25 trên máy |
+| Giáo trình pe-da (đang chạy) | **179 bài, 11 module**, 567 màn đọc, **537 câu trắc nghiệm**, 669 câu luyện tập, **143 bài tập được chấm / 480 ca**, 2 438 phút; 139 bài chạy trong trình duyệt / 15 hỗn hợp / 25 trên máy |
 | pe-da chấm nội dung | `node scripts/pe-da/check-pyodide.mjs` → 154 bài, 420 đoạn code, **0 hỏng**, **0 cảnh báo**, 30–85 s (BIẾN THIÊN theo tải máy — xem bẫy "trần 5 giây là trần của đường khác"); trần pha 1 là **15 000 ms** (`/ide`), trần pha 2 là **5 000 ms** (ô chạy trong bài), và mỗi pha in biên riêng; **pha 2: 52/53 đáp án mẫu màn luyện tập chạy đúng, 1 ngoại lệ đã khai, 10 câu bỏ qua (bài chạy trên máy)** |
 | pe-da chấm BÀI TẬP | `node scripts/pe-da/check-practice.mjs` → 143 bài, **480 ca đạt**, 773 biến thể sai đều trượt, **pha 3 cổng file dữ liệu 7 bài / 0 lỗi**, **pha 4: 2 372 ca trượt / 0 ca im lặng / 7 nhánh phản hồi**, ~12 s |
-| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **82 lỗi · 426 cảnh báo**, dồn ở L3 32 (câu ≥ 3 dấu phẩy) · L8 22 (mật độ thuật ngữ) · L1 21 (câu > 30 tiếng) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì 82 lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
+| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **78 lỗi · 425 cảnh báo**, dồn ở L8 22 (mật độ thuật ngữ) · L1 21 (câu > 30 tiếng) · L3 29 (câu ≥ 3 dấu phẩy) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì 82 lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
 | pe-da ĐỘ PHỦ văn phong | `node scripts/pe-da/check-phu-van-phong.mjs` → **99 chuỗi NGOÀI TẦM / 4 mục đã khai**, 0 lỗi. Bộ văn phong đọc `source/course.json` (cố ý), nên chữ do `build.py` SINH RA thì không luật nào thấy: **80 `figure.alt`** · 19 chuỗi của `diagram`. NỢ ẨN đã đo: L3 32 → 41 · L13 cb 217 → 229 · §4-A cb 23 → 30 · L14 0 → 3 lỗi — tức tín hiệu dừng báo THIẾU ~20%. Trần 99 CHỈ ĐƯỢC HẠ (108 → 99 ngày 08/11: 9 đoạn `paragraph.text` đã về gói nguồn) |
 | pe-da bảng từng bước | `py scripts/pe-da/gen_traces.py` → **56 vết / 359 khối đủ điều kiện** (303 bỏ qua — bảng từng ghi 356/300, đã CŨ từ trước 04/11: dựng lại từ HEAD cũng ra 359/303, và `check-moc-nen` không đối chiếu hàng này; phần lớn vì không ra được câu dự đoán nào ĐÁNG hỏi); build.py `return 1` nếu lệch |
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
@@ -94,7 +94,7 @@ học nó.
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **17 mục, 14 có đường tới, 3 còn tối (đã khai lý do)**, 0 lỗi |
 | Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **1 mục chết, 1 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **14 CSS module trong `src/`** |
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
-| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **146/179 khớp, 33 bài CHỜ NẠP** (ba lát văn phong 08/11 · hai lát alt text · ba lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
+| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **143/179 khớp, 36 bài CHỜ NẠP** (bốn lát văn phong 08/11 · hai lát alt text · ba lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **34 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
@@ -4487,6 +4487,58 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   phải đổi chuỗi trong code — mà `expected` của GU KHÔNG cổng nào chạy, nên mỗi lần đổi là
   một lần phải suy ra từng ký tự bằng tay. Đó là lý do kỹ thuật để cụm GU đi SAU các cụm
   khác, không phải đi trước.
+
+- **CHÈN BẢNG SAU ĐOẠN, ĐỪNG THAY ĐOẠN BẰNG BẢNG — `chia_man` chẻ màn ở ĐOẠN VĂN sau
+  code.** Lát L3 thứ tư (43 → 41 → 39 → 36 → 32 → **29**). Hai đợt trước chuyển "1 đoạn
+  nhồi → 1 đoạn dẫn + 1 bảng + 1 đoạn còn lại", tức +1 paragraph mỗi lần. Lần này tôi
+  kiểm cấu trúc TRƯỚC khi sửa và thấy cả ba bài có dạng `0:para 1:code 2:para 3:code…`:
+  thay khối `2:para` bằng một `table` sẽ **xoá một ranh giới màn**, vì `chia_man()` chỉ
+  chẻ khi gặp một `paragraph` đứng sau code. Nên cách làm là RÚT NGẮN đoạn văn và CHÈN
+  bảng ngay sau nó. Đo xác nhận: `màn đọc` giữ **567**, `paragraph` giữ **820**,
+  `table` 11 → **14**.
+  **BA CÂU ĐƯỢC CHỌN THEO "CÓ NGUYÊN LIỆU", không theo "vừa đủ nặng":** CT02 (6 dấu /
+  29 tiếng — bốn đối số của `CreateProcess`) · CT09 (4 / 27 — "riêng mỗi luồng" so với
+  "chung cả tiến trình", **đúng câu hỏi ở TIÊU ĐỀ bài**) · GU09 (4 / 27 — bốn tham số
+  của `place`). **PD12 (4 dấu) BỎ QUA có chủ đích:** AGENTS.md đã ghi câu của nó chỉ có
+  TÊN ("shape, kiểu cột, ô thiếu và mã đơn") nên cột thứ hai sẽ phải BỊA — một quyết
+  định đã ghi thì không mở lại.
+  **BẢNG MỚI CỦA TÔI LÀM L13 TĂNG, và cái tăng là CHỮ CỦA CHÍNH TÔI.** Vừa chuyển xong
+  thì L13 đi **217 → 219**. Không phải nội dung cũ xấu đi: hai ô bảng tôi tự viết dùng
+  `process` ("bộ biến môi trường cấp cho process con", "thư mục làm việc của process
+  con") và một tiêu đề cột cũng vậy — mà L13 đã chốt gọi là "tiến trình" (chú giải ở
+  SY15). Đổi sang tiếng Việt thì L13 về **215**, tức SIẾT so với trước.
+  **Luật rút ra: chữ MỚI của một lát sửa phải đi qua chính bộ luật mà lát ấy đang hạ.**
+  Phép đo chỉ ra điều đó vì nó so TỪNG BÀI với HEAD (`CT02 process 3 → 5`,
+  `CT09 process 3 → 4`, `GU09 label 1 → 0`); đọc con số TỔNG thì chỉ thấy "+2" mà không
+  biết nó từ đâu.
+  **RỒI L11 NỔ, và nó nổ vì phép sửa L13 đúng một nửa.** Đổi `process` sang "tiến trình"
+  trong ô bảng làm CT09 có cả `process` (câu "Single-threaded process", có từ trước) lẫn
+  "tiến trình" (chữ mới) **trong cùng một đoạn** — đúng luật L11 "gọi cùng một thứ bằng
+  hai tên". Sửa nốt câu cũ ("Một tiến trình chỉ có một luồng thì chỉ có một stack và một
+  ngữ cảnh CPU") thì L11 về 0. Hai luật này khoá nhau: **không thể dịch một nửa thuật
+  ngữ của một đoạn**, và đó là tính chất đúng chứ không phải chướng ngại.
+  **ĐẦU DÒNG KHÁC NHAU THEO TỪNG TỆP — dò, đừng đoán.** `check_vanphong.py` là CRLF
+  (vòng trước đã ghi), còn `frontend/e2e/unit/studio-lesson.test.mjs` là **LF thuần**
+  (0 CRLF / 1 276 LF). Phép thay nhiều dòng của tôi khớp 0 chỗ vì dùng lại `\r\n` của
+  vòng trước. Nay script tự dò (`EOL = '\r\n' if '\r\n' in t else '\n'`).
+  **SỐ ĐÃ ĐO:** L3 **32 → 29** · L2 lỗi **7 → 6** (cảnh báo 14 → 15, TỔNG giữ 21 — một
+  lỗi đổi thành một cảnh báo, ratchet cho qua đúng luật) · L13 cảnh báo **217 → 215** ·
+  tổng khoá **82 → 78 lỗi**, 428 → **425 cảnh báo** · câu phần giảng 2 684 → **2 715**
+  (ô bảng là đoạn riêng nên số câu tăng) · thời lượng khoá **2 439 → 2 438 phút** ·
+  `màn đọc` 567, `paragraph` 820, `table` 11 → 14 · `check.py --strict` 0/0 ·
+  `check-pyodide` 154 bài / 420 đoạn / 0 hỏng · `check-practice` 480 ca đạt / 773 biến
+  thể sai đều trượt · frontend unit **592** · ratchet 18 luật 0 lỗi (3 mục SIẾT đã ghi
+  sổ) · `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi.
+  **ABLATE 3 chiều:** trả nội dung về HEAD → L3 **32**, ratchet **10 lỗi** gọi đúng tên
+  (L2 6→7 · L3 29→32 · L13 TỔNG 215→217 · TL 0→2) · gieo lại RIÊNG câu của CT09 →
+  L3 **30** · gieo lại RIÊNG câu của GU09 → L3 **30**. Mỗi bảng đáng đúng 1 lỗi L3.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 146/179 → **143/179, 36 bài CHỜ NẠP**.
+  **CÒN LẠI 29 lỗi L3**, và hình dạng đã đổi: không còn câu nào ≥ 4 dấu phân cách TRỪ
+  CT15 (4), PD12 (4, đã khai bỏ qua) và PD26 (4, không phải liệt kê mà là một luật kèm
+  hệ quả — chẻ câu KHÔNG phải cách sửa §2 chốt). Phần còn lại là 26 câu 3 dấu, và nhiều
+  câu trong đó là hai mệnh đề nối bằng `;` chứ không phải một bảng bị nén — tức mỗi lát
+  sau sẽ nhỏ hơn và cần phán xét nhiều hơn. Đó là dấu hiệu cụm này gần cạn, không phải
+  dấu hiệu nên nới luật.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

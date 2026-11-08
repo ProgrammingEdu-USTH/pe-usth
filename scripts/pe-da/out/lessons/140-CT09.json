@@ -33,7 +33,52 @@
     [
      {
       "type": "paragraph",
-      "text": "Single-threaded process có một luồng thực thi, với một stack và một ngữ cảnh CPU. Khi có nhiều luồng, mỗi luồng có stack, stack pointer (SP: vị trí hiện tại trên stack), program counter, thanh ghi và trạng thái điều phối riêng. Code, dữ liệu toàn cục, heap và file descriptors được dùng chung, nên worker truy cập được `list` result. Descriptor có thể trỏ tới file đang mở, TCP/UNIX socket hoặc thiết bị. Slide còn nhắc signals: đây là cơ chế thông báo của hệ điều hành, không phải dữ liệu Python riêng tự sao chép vào mỗi luồng. Quy tắc xử lý signal tùy hệ điều hành; bài này không dạy socket API."
+      "text": "Một tiến trình chỉ có một luồng thì chỉ có một stack và một ngữ cảnh CPU. Khi có nhiều luồng, bảng dưới nói thứ nào mỗi luồng giữ riêng và thứ nào cả tiến trình dùng chung. Vì heap là chung nên worker truy cập được `list` result. Descriptor có thể trỏ tới file đang mở, TCP/UNIX socket hoặc thiết bị. Slide còn nhắc signals: đây là cơ chế thông báo của hệ điều hành, không phải dữ liệu Python riêng tự sao chép vào mỗi luồng. Quy tắc xử lý signal tùy hệ điều hành; bài này không dạy socket API."
+     },
+     {
+      "type": "table",
+      "headers": [
+       "Thứ",
+       "Riêng mỗi luồng hay chung cả tiến trình"
+      ],
+      "rows": [
+       [
+        "`stack`",
+        "riêng"
+       ],
+       [
+        "`stack pointer` (SP — vị trí hiện tại trên stack)",
+        "riêng"
+       ],
+       [
+        "`program counter`",
+        "riêng"
+       ],
+       [
+        "thanh ghi",
+        "riêng"
+       ],
+       [
+        "trạng thái điều phối",
+        "riêng"
+       ],
+       [
+        "code",
+        "chung"
+       ],
+       [
+        "dữ liệu toàn cục",
+        "chung"
+       ],
+       [
+        "heap",
+        "chung"
+       ],
+       [
+        "`file descriptors`",
+        "chung"
+       ]
+      ]
      },
      {
       "type": "code",

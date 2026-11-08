@@ -1540,3 +1540,11 @@
   border: 1px solid var(--edu-sidebar-border);
   border-radius: 12px;
 }
+
+/* SÀN 16px CHO Ô GÕ TRÊN ĐIỆN THOẠI. Safari iOS tự phóng viewport khi một
+ * form control có `font-size < 16px` nhận focus và KHÔNG phóng lại ra; viewport
+ * của dự án không có `maximum-scale` nên không gì chặn. Lý lẽ đầy đủ, số đo và
+ * giá phải trả ghi ở `exercises.module.css`. `o-go-16px.test.mjs` canh sàn này. */
+@media (max-width: 1023.98px) {
+  .practiceInput { font-size: 16px; }
+}

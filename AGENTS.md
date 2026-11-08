@@ -84,7 +84,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
-| Frontend unit test | `cd frontend && npm run test:unit` → **638 ca** / 56 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **643 ca** / 57 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -104,7 +104,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **35 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **7 mục** (frontend 638 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **7 mục** (frontend 643 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -5702,6 +5702,83 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
     đoạn kề nhau;
   · nút `×` "Đóng bài học" là **40×40** (vùng chạm 39×39), dưới mức 44px mà repo tự đặt trong
     `not-found`/`error`. Nhỏ và sửa được, nhưng nó không nằm trong việc của vòng này.
+
+- **Ô SOẠN MÃ Ở 13px, VÀ ĐÓ LÀ MỘT LỖI iOS CHỨ KHÔNG PHẢI CHUYỆN CỠ CHỮ.** Vòng này tiếp
+  phép quét điện thoại của #154 sang các màn chưa ai đo (ôn giãn cách · đọc · trắc nghiệm ·
+  ô soạn mã). Ba màn đầu SẠCH về layout — 0 tràn ngang ở mọi màn, 0 phần tử ngoài mép. Màn
+  thứ tư thì đủ **cả hai** điều kiện của một lỗi đã tài liệu hoá:
+  · `textarea.codeBody` = **13px**;
+  · viewport = `width=device-width, initial-scale=1.0` — **không** `maximum-scale`, **không**
+    `user-scalable=no`.
+  Safari trên iOS TỰ PHÓNG viewport khi một form control có `font-size < 16px` nhận focus, và
+  nó KHÔNG phóng lại ra. Hệ quả: học viên gõ code trong một trang đã phóng, phải kéo ngang —
+  và hai thanh vỏ bài học vừa được ghim ở #154 lại ra ngoài màn.
+  **NĂM Ô `<textarea>`/`<input>` DƯỚI 16px, và `.tracePredictInput` thì ĐÃ ĐÚNG 16px** — tức
+  quy ước CÓ mà không áp đều:
+
+  | lớp | px | tới được người học? |
+  |---|---|---|
+  | `textarea.codeBody` | **13** | **CÓ** — ô bài tập được chấm, 143 bài (xác nhận live) |
+  | `.practiceInput` | **15** | **CÓ** — ô chạy thử màn luyện tập |
+  | `.fallbackInput` | **13,5** | **CÓ** — ô dự phòng của `/ide` |
+  | `.explanationInput` | 13 `!important` | không — `PythonStudio` đã khai chết-mà-giữ |
+  | `.codeInput` | 11 `!important` | không — cùng component ấy |
+
+  **KHÔNG chữa bằng `maximum-scale=1`/`user-scalable=no`:** nó chặn phép phóng của iOS nhưng
+  cũng chặn người học phóng chữ — vi phạm WCAG 1.4.4. 16px là cách duy nhất còn lại, nên nó
+  là một SÀN chứ không phải một lựa chọn thẩm mỹ. Một ca canh chính `layout.tsx` để hai thứ
+  không bị gỡ cho nhau.
+  **GIÁ ĐÃ ĐO, KHÔNG ĐOÁN:** ô rộng 317px ở khổ 390; ở 16px mono vừa ~36 ký tự/dòng, ở 13px
+  ~44. Trên **688 dòng** khung bài tập của khoá: **22,7% vượt 36** so với **14,8% vượt 44** —
+  tức thêm ~54 dòng bị NGẮT DÒNG MỀM (textarea đang soft-wrap, `scrollWidth == clientWidth`),
+  không phải bị cắt mất. Và **chỉ ở khổ điện thoại**: desktop không có lỗi này nên 13px ở đó
+  giữ nguyên.
+  **`.codeBody` GẮN LÊN CẢ `<div>` VÀ `<pre>`, nên selector phải là `textarea.codeBody`.**
+  Đếm được 6 chỗ `<div>`, 1 chỗ `<pre>`, 1 chỗ `<textarea>`. Viết `.codeBody { 16px }` là
+  phóng to luôn mọi khối mã CHỈ ĐỌC của màn đọc — một thay đổi lớn hơn hẳn việc đang làm, và
+  không chữa gì thêm (iOS chỉ phóng khi focus một CONTROL). Ablate chiều đó: **1 đỏ**.
+  **DANH SÁCH KHAI HAI CHIỀU, và lý do nó phải là một danh sách:** CSS một mình KHÔNG biết
+  một lớp được gắn lên `<textarea>` hay `<div>`. Nên `o-go-16px.test.mjs` giữ 4 mục
+  (lớp + tệp CSS + tệp TSX), và kiểm CẢ HAI chiều: mục nào không còn nằm trên một form
+  control là ngoại lệ lỗi thời; lớp nào có mặt mà thiếu sàn là lỗi.
+  **CA ĐẦU CỦA TÔI HẸP QUÁ VÀ BÁO OAN:** nó đòi đúng `<textarea>`, nên `.tracePredictInput`
+  — vốn là `<input>` và vốn ĐÃ 16px — làm nó đỏ. iOS phóng cho `input` và `select` nữa. Nới
+  thành tập form control; thứ phải chặn là một lớp đã khai mà nay nằm trên `<div>`/`<pre>`,
+  vì ở đó sàn 16px vô nghĩa.
+  **HAI Ô CÒN LẠI: KHAI, KHÔNG SỬA — và đó là một lựa chọn có cấu trúc.** Chúng thuộc
+  `PythonStudio`, component đã được khai CHẾT-MÀ-GIỮ ở vòng #142 với ba việc phải sửa nếu
+  hồi sinh. Sửa CSS của một component không ai tới là việc không có người dùng; để nó im lặng
+  thì ngày hồi sinh nó sẽ sai y nguyên. Nên nó thành **việc thứ (4)** trong chính lời khai
+  ấy, và ca test canh dòng khai đó hai chiều — kể cả chiều "ai sửa chúng rồi thì gỡ dòng khai
+  đi" (ablate: nâng `.codeInput` lên 16px → **1 đỏ**).
+  **XEM THẬT TRÊN BẢN DỰNG, hai mắt chứ không một:** stylesheet đã dựng chứa cả hai rule
+  (`.fallbackInput` 13,5px thường + 16px trong `@media (max-width: 1023.98px)`), và giá trị
+  **TÍNH RA** ở khổ 390 là **16px** — rule có mặt là một chuyện, rule THẮNG là chuyện khác.
+  **KHÔNG bump `ASSET_VERSION`:** ba tệp sửa đều là CSS module trong `src/`, đi qua bundler
+  nên URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
+  **ABLATE 6 chiều, cả 6 đỏ:** hạ `codeBody` về 13px → **1** · hạ `practiceInput` về 15px →
+  1 · đổi selector thành `.codeBody` (nhắm cả div) → 1 · thêm `maximum-scale=1` vào viewport
+  → 1 · gỡ dòng khai thứ (4) khỏi `GIU_DU_CHET` → 1 · nâng `.codeInput` lên 16px (dòng khai
+  thành lỗi thời) → 1.
+  **BA PHÉP GIEO TRƯỢT, và `ablate.mjs` từ chối cả ba thay vì in "0 đỏ":** `.codeInput {`
+  khớp **3 chỗ**; rồi seed nhiều dòng khớp **0 chỗ** vì `studio.module.css` là **CRLF**
+  trong khi tôi dựng seed bằng `\n`. Bẫy "đầu dòng khác nhau theo từng tệp — dò, đừng đoán"
+  đã ghi từ trước; nay nó cắn ở một tệp CSS. Dò bằng `'\r\n' in raw`.
+  **SỐ ĐÃ ĐO:** frontend unit **638 → 643 ca / 56 → 57 tệp** · sổ ngưỡng siết sàn 638 → 643 ·
+  typecheck sạch · lint **146 cảnh báo / 0 lỗi** · `npm run build` exit 0 · `check-moc-nen`
+  20 mục 0 lỗi · `check-moc-chay frontend` 0 lỗi · `check-nguong` 35 ngưỡng 0 lỗi ·
+  `tai-nguyen-chet` / `export-chet` / `duong-toi` 0 lỗi. **KHÔNG đụng một dòng nội dung
+  nào**, nên `check-da-nap` giữ **62 bài chờ**.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** trên điện thoại, chữ trong ba ô gõ to hơn (13→16,
+  15→16, 13,5→16) và trang thôi bị iOS phóng khi bấm vào chúng.
+  **GIỚI HẠN PHẢI NÓI RA, và nó là giới hạn chính:** tôi **KHÔNG có iOS** để xem phép phóng
+  xảy ra hay thôi xảy ra. Đây là bản sửa theo ĐIỀU KIỆN — hành vi đã tài liệu hoá cộng hai số
+  đo (13px và viewport không chặn) — không phải theo quan sát. Thứ ĐÃ quan sát được là: giá
+  trị tính ra nay 16px ở khổ 390, và không màn nào sinh tràn ngang sau bản sửa.
+  **BA MÀN ĐÃ QUÉT VÀ SẠCH, ghi lại để không ai quét lại:** ôn giãn cách · đọc · trắc nghiệm,
+  ở 390×844 — `scrollWidth` = 390 ở cả bốn màn đi qua, 0 phần tử ngoài mép, 0 khối (`pre`/
+  `table`/`img`/`figure`) tràn nội bộ. Lề nội dung là 16px (container) + 20px (padding thẻ) =
+  36px mỗi bên: đó là THIẾT KẾ (thẻ cần padding), không phải vi phạm luật 16px của repo.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

@@ -531,3 +531,34 @@ textarea.codeBody:focus-visible {
     transition: none;
   }
 }
+
+/* SÀN 16px CHO Ô GÕ TRÊN ĐIỆN THOẠI — và đây là một bản sửa lỗi, không phải
+ * chuyện cỡ chữ.
+ *
+ * Safari trên iOS TỰ PHÓNG viewport khi một form control có `font-size < 16px`
+ * nhận focus, và nó KHÔNG tự phóng lại ra. Đo trên production 08/11/2026
+ * (Chrome, 390×844): ô này ở **13px**, và viewport là
+ * `width=device-width, initial-scale=1.0` — KHÔNG có `maximum-scale`, KHÔNG có
+ * `user-scalable=no`, nên không gì chặn phép phóng ấy. Hệ quả: học viên gõ code
+ * trong một trang đã phóng, phải kéo ngang, và hai thanh vỏ bài học vừa được
+ * ghim lại ra ngoài màn.
+ *
+ * KHÔNG chữa bằng `maximum-scale=1` / `user-scalable=no`: đó là vi phạm WCAG
+ * 1.4.4 (người học phải phóng được chữ). 16px là cách duy nhất còn lại.
+ *
+ * GIÁ ĐÃ ĐO, không đoán: ô rộng 317px ở khổ 390; ở 16px mono vừa ~36 ký tự mỗi
+ * dòng, ở 13px ~44. Trên 688 dòng khung bài tập của khoá: 22,7% vượt 36 ký tự
+ * so với 14,8% vượt 44 — tức thêm ~54 dòng bị NGẮT DÒNG MỀM (textarea đang
+ * soft-wrap: `scrollWidth == clientWidth`), không phải bị cắt mất. Đổi lấy việc
+ * trang không bị phóng là đáng.
+ *
+ * CHỈ ở khổ điện thoại: trên desktop không có lỗi này, nên 13px ở đó giữ nguyên
+ * để cột mã còn rộng. Mốc 1023.98px lấy theo `edu-responsive.css` §6, cùng ranh
+ * giới "điện thoại/máy tính" mà repo đã chốt.
+ *
+ * GIỚI HẠN: tôi không có iOS để xem phép phóng xảy ra. Đây là bản sửa theo ĐIỀU
+ * KIỆN (hành vi đã tài liệu hoá + hai số đo trên), không phải theo quan sát.
+ * `o-go-16px.test.mjs` canh sàn này cho MỌI ô gõ đã khai. */
+@media (max-width: 1023.98px) {
+  textarea.codeBody { font-size: 16px; }
+}

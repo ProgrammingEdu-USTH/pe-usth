@@ -46,7 +46,14 @@ const GIU_DU_CHET = {
     'bật lại route: (1) load() gọi /api/user + /api/enrolled ngay khi mount, ' +
     'không có cổng hasStoredSession, nên mỗi lượt bot quét sinh một tài khoản ' +
     'khách; (2) cả demo bị chặn sau !enrolled với khoá `python`, khoá không có ' +
-    'mục nào trong curricula.json; (3) liên kết thoát trỏ vào một 404. GIỮ mã ' +
+    'mục nào trong curricula.json; (3) liên kết thoát trỏ vào một 404; (4) hai ô ' +
+    'gõ của nó — `.explanationInput` 13px và `.codeInput` 11px trong ' +
+    'studio.module.css — dưới sàn 16px, nên Safari iOS sẽ TỰ PHÓNG trang khi ' +
+    'focus chúng và không phóng lại ra (đo 08/11/2026: viewport của dự án không ' +
+    'có maximum-scale nên không gì chặn). Ba ô gõ CÒN SỐNG đã có sàn ấy; hai ô ' +
+    'này cố ý không sửa vì sửa CSS của một component không ai tới là việc không ' +
+    'có người dùng — `o-go-16px.test.mjs` canh dòng khai này theo CẢ HAI chiều. ' +
+    'GIỮ mã ' +
     'lại vì quyết định "xoá 69 KB hay hồi sinh demo" là của chủ dự án, không của ' +
     'vòng lặp — cùng lý lẽ đang giữ scripts/pe-v4/**. GIỚI HẠN của cổng này: nó ' +
     'so component bằng \b<Tên>\b nên những component CHỈ PythonStudio import ' +

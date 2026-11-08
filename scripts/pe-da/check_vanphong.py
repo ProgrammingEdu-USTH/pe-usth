@@ -934,6 +934,29 @@ def nap_boi_canh() -> tuple[list[Mien], dict[str, str]]:
     return mien, tru
 
 
+def can_mien_tru(l: dict, mien: list[Mien]) -> bool:
+    """Bài này còn CẦN miễn trừ không — tức nếu bỏ miễn trừ thì L14 có nói gì?
+
+    Trả `True` khi L14 sẽ báo một trong ba thứ (dùng miền ngoài · dữ liệu trơ
+    không neo · chưa neo), `False` khi bài tự qua.
+
+    Tách thành hàm RIÊNG chứ không chép điều kiện vào nhánh miễn trừ: hai bản
+    chép của cùng một phép phán xử sẽ trôi khỏi nhau, và trôi theo đúng chiều
+    nguy hiểm (một mục miễn trừ được coi là "còn cần" mãi mãi). Cùng lý lẽ
+    `raw_doan()` đã phải gom hai người dùng về một hàm.
+    """
+    chinh = [m for m in mien if m.vai == 'chinh']
+    kem = [m for m in mien if m.vai == 'kemChinh']
+    s = van_ban_hoc_vien(l)
+    dem = {m.id: m.dem(s) for m in mien if m.vai != 'trungTinh'}
+    neo = sum(dem[m.id][0] for m in chinh)
+    if any(dem[m.id][0] >= NGUONG_MIEN for m in mien if m.vai == 'ngoai'):
+        return True
+    if any(dem[m.id][0] >= NGUONG_MIEN for m in kem) and neo < NGUONG_NEO:
+        return True
+    return neo < NGUONG_NEO
+
+
 def kiem_boi_canh(bai: list[dict], mien: list[Mien], tru: dict[str, str]) -> None:
     """L14 + bất biến của chính `boi-canh.json`.
 
@@ -966,6 +989,22 @@ def kiem_boi_canh(bai: list[dict], mien: list[Mien], tru: dict[str, str]) -> Non
     for l in bai:
         ma = l['id']
         if ma in tru:
+            # CHIỀU THỨ HAI của miễn trừ: một mục KHÔNG CÒN CẦN cũng là LỖI.
+            #
+            # Thiếu chiều này thì danh sách chỉ dài ra rồi thành chỗ giấu rác —
+            # cùng bài học `DAP_AN_MAU_KHONG_CHAY`, `GIU_DU_CHET` và
+            # `CO_CACH_BAO_KHAC`, cả ba đều kiểm hai chiều. Đo ngày 08/11/2026:
+            # `mienTru` có 14 mục và **13 KHÔNG CÒN CẦN** — các bài ấy đã được
+            # neo ở những đợt đổi miền (`quán`, `quầy`, `cups`) nhưng không ai
+            # gỡ mục miễn trừ của chúng.
+            #
+            # Tác hại là CỤ THỂ, không phải vệ sinh: một mục chết CHE được một
+            # lỗi thật về sau. Ngày ai đó viết lại CT03 và làm mất câu neo, L14
+            # vẫn im vì CT03 đang được miễn trừ.
+            if not can_mien_tru(l, mien):
+                loi('L14', f'boi-canh.json: miễn trừ {ma} KHÔNG CÒN CẦN — bài '
+                           'này nay tự qua L14 (đã neo vào hành trình). Gỡ nó '
+                           'khỏi `mienTru`; để lại là che một lỗi thật về sau.')
             continue
         s = van_ban_hoc_vien(l)
         dem = {m.id: m.dem(s) for m in mien if m.vai != 'trungTinh'}

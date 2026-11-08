@@ -5006,6 +5006,61 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   tay. Đó là khuôn duy nhất còn thiếu trong bậc thang, và nó thiếu vì không có gì để
   đọc, không vì chưa ai viết regex.
 
+- **DANH SÁCH MIỄN TRỪ CỦA L14 CÓ 14 MỤC VÀ 13 KHÔNG CÒN CẦN — chỉ dài ra, chưa bao giờ
+  ngắn lại, và không luật nào canh chiều đó.**
+  **VÒNG MỞ RA ĐỂ LÀM MỘT LÁT L14, và phép đo đổi hẳn việc — hai lần.**
+  **ĐO 1: neo 23/24 bài im lặng là BỊA một khung quán, không phải thêm một câu.** Quét
+  dấu hiệu quán trong CODE của 24 bài (kể cả dạng bỏ dấu và `snake_case`): **đúng 1/24**
+  (PD26) có dữ liệu đã thuộc quán. 23 bài kia dùng dữ liệu kỹ thuật thuần — múi giờ,
+  regex `"Paid by S012 today"`, `abc.ABC`, `tempfile`, `subprocess.Popen`, widget
+  Tkinter. Mà `NGUONG_NEO = 1` nghĩa là bản sửa RẺ NHẤT đúng là rắc một từ khoá. Nên
+  **cụm L14 còn lại KHÔNG phải nợ nội dung đồng nhất** — đừng mở một lát "neo cho hết".
+  **ĐO 2, và đây là việc thật:** chạy phép thử "bỏ miễn trừ thì L14 có nói gì không"
+  trên cả 14 mục → **13 mục KHÔNG CÒN CẦN**. CT01–CT06, CT09, CT12, CT15, EX03–EX05,
+  EX07 đều đã được neo ở các đợt đổi miền (`quán`, `quầy`, `cups`) nhưng **không ai gỡ
+  mục miễn trừ của chúng**. Chỉ **SY04** còn load-bearing: bỏ nó ra thì SY04 ra LỖI
+  "dùng miền Sinh viên, môn học, điểm".
+  **TÁC HẠI LÀ CỤ THỂ, không phải vệ sinh: một mục miễn trừ chết CHE được một lỗi thật
+  về sau.** Ngày ai đó viết lại CT03 và làm mất câu neo, L14 vẫn im vì CT03 đang được
+  miễn trừ. `kiem_boi_canh` canh được ba thứ (mã bài có thật · không miễn trừ hai lần ·
+  phải có `lyDo`) nhưng **không có chiều "mục đã lỗi thời"** — khác hẳn
+  `DAP_AN_MAU_KHONG_CHAY`, `GIU_DU_CHET`, `CO_CACH_BAO_KHAC`, cả ba đều hai chiều. Đây
+  là lần thứ TƯ cùng một hình dạng, và lần này nó ở một file DỮ LIỆU chứ không ở một
+  hằng trong code.
+  **`can_mien_tru()` LÀ HÀM RIÊNG, không phải điều kiện chép vào nhánh miễn trừ:** hai
+  bản chép của cùng một phép phán xử sẽ trôi khỏi nhau, và trôi theo đúng chiều nguy
+  hiểm (một mục được coi là "còn cần" mãi mãi). Cùng lý lẽ `raw_doan()` đã phải gom hai
+  người dùng về một hàm.
+  **HAI `phepThu` ĐƯỢC GIỮ NGUYÊN VĂN, dời lên tầm trên** (`nguyenTacMienTru`): chúng là
+  LUẬT quyết một bài có được miễn hay không — *"dữ liệu của bài CHỌN ĐƯỢC không? CT03
+  không chọn được (hàng đợi của scheduler là của hệ điều hành), nên miễn. SY11 chọn được
+  …, nên KHÔNG miễn"* — và luật ấy còn đúng kể cả khi danh sách ngắn lại. Danh sách co
+  thì nguyên tắc phải ở chỗ không co theo.
+  **VÀ NÓ TRẢ LỜI MỘT CÂU TƯỞNG LÀ PHẢN BIỆN:** nhóm "ĐỐI TƯỢNG HỌC LÀ CÁI MÁY" nay
+  **không còn mục nào**, trong khi chủ đề của chúng không đổi. Nghĩa là mười ba bài "là
+  cái máy" VẪN neo được — bằng một câu VÍ VON chứ không bằng một bảng dán vào. CT12 viết
+  *"như hai quầy dùng chung một máy xay"*. Đó là bằng chứng rằng nhóm (1) chưa bao giờ
+  cần miễn trừ, và nó cũng là phép thử cho **CT08 · CT10 · CT11 · CT14** — bốn bài im
+  lặng cùng dải: hãy ví von, đừng miễn.
+  **`phamViMienTru` SAI THEO HAI CHIỀU CÙNG LÚC:** nó ghi *"14/172 bài = 8%"* — mẫu số
+  đã thành **179** từ lâu, còn tử số xuống **1**. Một con số sai ở cả tử lẫn mẫu thì
+  không đọc ra được là nó đang nói về cái gì.
+  **SỐ ĐÃ ĐO:** `mienTru` **14 → 1 mục** · L14 **0 lỗi · 24 cảnh báo** TRƯỚC VÀ SAU (13
+  bài nay được KIỂM THẬT và tất cả tự qua, nên không con số nào phình) · tổng khoá giữ
+  **77 lỗi · 401 cảnh báo**, không luật nào động · `check.py --strict` 0/0 ·
+  `phu-van-phong` 0 lỗi · frontend unit 621 · ratchet 18 luật 0 lỗi · `check-moc-nen` 20
+  mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi. **Không đụng một dòng nội dung bài nào**,
+  nên `check-da-nap` giữ 52 bài chờ.
+  **ABLATE 6 chiều, dùng `scripts/ablate.mjs`:** trả CT12 vào `mienTru` → **1 đỏ** · trả
+  cả 13 mục vào → **13 đỏ** · `can_mien_tru` bỏ nhánh MIỀN NGOÀI → 1 · gỡ SY04 (mục CÒN
+  CẦN) → **2 đỏ** · gỡ luật hai chiều trên danh sách ĐÃ SẠCH → **0 đỏ** · **CẶP ĐỐI
+  CHỨNG** CT12 lỗi thời + gỡ luật → **0 đỏ**, cùng trạng thái mà GIỮ luật → **1 đỏ**.
+  Chiều thứ năm một mình không chứng minh gì — nó là lý do phải có cặp đối chứng.
+  **MỘT CÁCH ĐỌC SAI CẦN CHẶN TRƯỚC:** "gỡ 13 mục miễn trừ" nghe như nới luật, nhưng nó
+  là SIẾT: 13 bài từ chỗ KHÔNG được kiểm sang chỗ được kiểm, và chúng qua. Phép thử phân
+  biệt hai chiều: nếu gỡ miễn trừ mà một luật TĂNG thì đó là nới (phải sửa nội dung
+  trước); ở đây mọi con số đứng yên.
+
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 
 Hai đường, chọn sai là xoá tiến độ của người đang học:

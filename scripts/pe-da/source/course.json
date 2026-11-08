@@ -13120,7 +13120,7 @@
       "reading": [
         {
           "type": "paragraph",
-          "text": "Một chương trình con cần nhận văn bản đầu vào rồi trả kết quả. `Popen` cho phép tạo process trước, sau đó trao đổi dữ liệu bằng communicate:"
+          "text": "Ở quầy, việc nặng được đẩy qua ô cửa cho người phía sau rồi chờ nhận lại ở đúng ô đó. Một chương trình con cũng cần nhận văn bản đầu vào rồi trả kết quả. `Popen` cho phép tạo process trước, sau đó trao đổi dữ liệu bằng communicate:"
         },
         {
           "type": "code",
@@ -13390,7 +13390,7 @@
       "reading": [
         {
           "type": "paragraph",
-          "text": "Bạn muốn tính một kết quả ở luồng nền rồi dùng kết quả sau khi nó hoàn thành. Truyền hàm vào target, gọi start để tạo luồng thực thi và join để chờ:"
+          "text": "Giao một việc cho người ở quầy sau rồi quay lại chờ họ xong, khác với tự tay làm nó. Bạn muốn tính một kết quả ở luồng nền rồi dùng kết quả sau khi nó hoàn thành. Truyền hàm vào target, gọi start để tạo luồng thực thi và join để chờ:"
         },
         {
           "type": "code",
@@ -13481,7 +13481,7 @@
       "reading": [
         {
           "type": "paragraph",
-          "text": "Khi worker có nhiều dữ liệu riêng, bạn có thể tạo subclass của `threading.Thread`. Hàm __init__ nhận tham số, còn run chứa công việc:"
+          "text": "Mỗi người ở quầy có khay riêng, nhưng cuốn sổ đặt giữa bàn thì vẫn là của chung. Khi worker có nhiều dữ liệu riêng, bạn có thể tạo subclass của `threading.Thread`. Hàm __init__ nhận tham số, còn run chứa công việc:"
         },
         {
           "type": "code",
@@ -13727,7 +13727,7 @@
       "reading": [
         {
           "type": "paragraph",
-          "text": "Cách chia việc ở phần trước vẫn nằm gọn trong một chương trình. Một phép tính Python thuần dùng nhiều CPU có thể cần process riêng thay vì thêm thread trong CPython build có GIL. Trước khi tìm cách tăng tốc, hãy kiểm tra dữ liệu của cha và con có được dùng chung không:"
+          "text": "Cách chia việc ở phần trước vẫn nằm gọn trong một chương trình. Mở thêm một quầy ở chỗ khác thì nó có sổ riêng, nên muốn biết kết quả phải gửi về. Một phép tính Python thuần dùng nhiều CPU có thể cần process riêng thay vì thêm thread trong CPython build có GIL. Trước khi tìm cách tăng tốc, hãy kiểm tra dữ liệu của cha và con có được dùng chung không:"
         },
         {
           "type": "code",

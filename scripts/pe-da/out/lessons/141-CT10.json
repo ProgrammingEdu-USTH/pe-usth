@@ -3,13 +3,13 @@
  "sort_order": 141,
  "module": "M6 · Hệ điều hành, tiến trình và đa luồng",
  "title": "CT10 · Tạo thread bằng target, start và join",
- "subtitle": "Nâng cao · M6 · 13 phút",
- "estimated_minutes": 13,
+ "subtitle": "Nâng cao · M6 · 14 phút",
+ "estimated_minutes": 14,
  "xp_reward": 8,
  "content_json": {
   "schema": "studio-lesson/v2",
   "title": "CT10 · Tạo thread bằng target, start và join",
-  "subtitle": "Nâng cao · M6 · 13 phút",
+  "subtitle": "Nâng cao · M6 · 14 phút",
   "source": {
    "kind": "python-da",
    "filename": "course.json#CT10",
@@ -22,7 +22,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Bạn muốn tính một kết quả ở luồng nền rồi dùng kết quả sau khi nó hoàn thành. Truyền hàm vào target, gọi start để tạo luồng thực thi và join để chờ:"
+      "text": "Giao một việc cho người ở quầy sau rồi quay lại chờ họ xong, khác với tự tay làm nó. Bạn muốn tính một kết quả ở luồng nền rồi dùng kết quả sau khi nó hoàn thành. Truyền hàm vào target, gọi start để tạo luồng thực thi và join để chờ:"
      },
      {
       "type": "code",

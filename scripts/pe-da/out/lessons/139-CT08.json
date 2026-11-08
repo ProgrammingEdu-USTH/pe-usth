@@ -22,7 +22,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Một chương trình con cần nhận văn bản đầu vào rồi trả kết quả. `Popen` cho phép tạo process trước, sau đó trao đổi dữ liệu bằng communicate:"
+      "text": "Ở quầy, việc nặng được đẩy qua ô cửa cho người phía sau rồi chờ nhận lại ở đúng ô đó. Một chương trình con cũng cần nhận văn bản đầu vào rồi trả kết quả. `Popen` cho phép tạo process trước, sau đó trao đổi dữ liệu bằng communicate:"
      },
      {
       "type": "code",

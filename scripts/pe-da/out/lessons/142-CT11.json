@@ -22,7 +22,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Khi worker có nhiều dữ liệu riêng, bạn có thể tạo subclass của `threading.Thread`. Hàm __init__ nhận tham số, còn run chứa công việc:"
+      "text": "Mỗi người ở quầy có khay riêng, nhưng cuốn sổ đặt giữa bàn thì vẫn là của chung. Khi worker có nhiều dữ liệu riêng, bạn có thể tạo subclass của `threading.Thread`. Hàm __init__ nhận tham số, còn run chứa công việc:"
      },
      {
       "type": "code",

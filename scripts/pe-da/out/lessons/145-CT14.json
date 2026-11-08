@@ -22,7 +22,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Cách chia việc ở phần trước vẫn nằm gọn trong một chương trình. Một phép tính Python thuần dùng nhiều CPU có thể cần process riêng thay vì thêm thread trong CPython build có GIL. Trước khi tìm cách tăng tốc, hãy kiểm tra dữ liệu của cha và con có được dùng chung không:"
+      "text": "Cách chia việc ở phần trước vẫn nằm gọn trong một chương trình. Mở thêm một quầy ở chỗ khác thì nó có sổ riêng, nên muốn biết kết quả phải gửi về. Một phép tính Python thuần dùng nhiều CPU có thể cần process riêng thay vì thêm thread trong CPython build có GIL. Trước khi tìm cách tăng tốc, hãy kiểm tra dữ liệu của cha và con có được dùng chung không:"
      },
      {
       "type": "code",

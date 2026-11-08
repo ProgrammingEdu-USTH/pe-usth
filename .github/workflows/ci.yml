@@ -89,7 +89,26 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run typecheck
-      - run: npm run lint
+      # TRẦN CẢNH BÁO, và `--max-warnings` là thứ phải có ở đây: `eslint` thoát
+      # **0** khi chỉ có cảnh báo, còn script `lint` của frontend là `eslint`
+      # trần. Nên trước 08/11/2026 con số "146 cảnh báo" của bảng mốc nền lên
+      # 1 000 thì job này vẫn XANH — bốn tầng đều mù (không trần CI, không mục
+      # sổ ngưỡng, `check-moc-chay` cố ý ngoài tầm, `check-moc-nen` không chạy
+      # bộ nào). Backend thì có CẢ HAI lớp (`const TRAN` ở dưới + mục
+      # `ci-lint-backend` trong sổ); đây là nửa còn thiếu.
+      #
+      # KHÔNG để dư như trần backend (100 cho 92 đo được): chỗ dư ở đó là cho
+      # spec đang viết dở sinh lỗi `no-unsafe-*` tạm thời. Cảnh báo
+      # `no-unused-vars` thì không xuất hiện vì đang viết dở — nó xuất hiện vì
+      # một biến bị bỏ lại, và đó là thứ để sửa. Siết thì `check-nguong` in
+      # `GHI SỔ` và vẫn xanh, nên hạ con số này không có ma sát nào.
+      #
+      # 146 = 132 `no-unused-vars` (127 ở JS di sản `public/static/js/`, 5 ở
+      # `goc-hoc/engine.js`) + 6 `no-unused-expressions` + 5
+      # `no-page-custom-font` + 2 `no-img-element`. Đo bằng DÒNG TỔNG KẾT của
+      # eslint, không bằng `grep -c warning` — phép grep ra 148 vì hai dòng khác
+      # cũng chứa chữ ấy.
+      - run: npm run lint -- --max-warnings 146
 
       # Bộ chấm bài nằm hẳn ở trình duyệt (AGENTS.md: server tin `quizScore` do
       # client gửi), nên `src/lib/studio-lesson.ts` là thứ duy nhất quyết định

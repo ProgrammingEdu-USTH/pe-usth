@@ -148,6 +148,33 @@ if (process.argv.includes('--ghi-so')) {
   process.exit(0);
 }
 
+  // SỐ MỤC CỦA CHÍNH SỔ NÀY cũng là một con số trong bảng mốc nền, và cho tới
+  // 08/11/2026 KHÔNG cổng nào canh nó: `check-moc-nen` đối chiếu 20 con số đọc
+  // ra từ `out/` và cây tệp, không có mục nào cho sổ ngưỡng; `check-moc-chay`
+  // thì cố ý không phủ. Tìm ra bằng cách ABLATE chính vòng thêm mục thứ 35: đổi
+  // "35 ngưỡng" thành "34" trong AGENTS.md cho **0 đỏ** ở cả hai cổng.
+  //
+  // Cùng khuôn `check-moc-chay` đã phải đặt cho con số "N mục" của nó, và cùng
+  // lý lẽ: thêm/bớt một mục chỉ sửa một file, nên con số trong bảng trôi được.
+  try {
+    const MD = readFileSync(join(GOC, 'AGENTS.md'), 'utf8');
+    const m = MD.match(/check-nguong\.mjs` → \*\*(\d+) ngưỡng\*\*/);
+    if (!m) {
+      loi.push(
+        'AGENTS.md KHÔNG CÒN DÒNG nào khai SỐ MỤC của sổ ("N ngưỡng"). Đổi chữ '
+        + 'hàng đó thì phải sửa cổng này — im lặng xanh ở đây là cách con số 204 '
+        + 'sống sót.',
+      );
+    } else if (Number(m[1]) !== so.nguong.length) {
+      loi.push(
+        `số mục của sổ: bảng mốc nền ghi ${m[1]}, sổ có ${so.nguong.length}. `
+        + 'Thêm/bớt một ngưỡng thì sửa hàng "Ngưỡng một chiều" TRONG CÙNG commit.',
+      );
+    }
+  } catch (e) {
+    loi.push(`không đọc được AGENTS.md để đối chiếu số mục: ${e.message}`);
+  }
+
 if (process.argv.includes('--json')) {
   console.log(JSON.stringify({ bang, loi, nhac }, null, 2));
 } else {

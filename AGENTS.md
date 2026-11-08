@@ -83,7 +83,7 @@ học nó.
 | Backend test | **35 bộ, 522 ca**, tất cả đạt (chạy RIÊNG — xem bẫy tranh CPU) |
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
-| Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d) |
+| Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
 | Frontend unit test | `cd frontend && npm run test:unit` → **622 ca** / 54 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
@@ -101,7 +101,7 @@ học nó.
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
 | Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **117/179 khớp, 62 bài CHỜ NẠP** (năm lát văn phong 08/11 · hai lát alt text · năm lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
-| Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **34 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
+| Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **35 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
 | Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **7 mục** (frontend 622 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
@@ -2815,6 +2815,11 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   bằng phép so BẰNG thì mỗi đợt dọn `any` là một lần cổng đỏ — đúng cái "dạy người ta THÔI
   SIẾT" mà `check-nguong` đã tránh bằng dòng `GHI SỔ`. Chiều của chúng đã có sổ canh
   (`ci-lint-backend`, trần 115).
+  **ĐÍNH CHÍNH 08/11/2026:** trần ấy nay là **100** (hạ ở lát dọn `any` của
+  `PrismaExceptionFilter`), và con số lint FRONTEND lúc viết mục này **chưa có sổ nào
+  canh** — `eslint` thoát 0 khi chỉ có cảnh báo. Nay có `ci-lint-frontend` (trần 146,
+  thi hành bằng `--max-warnings`). Câu trên nói "chúng" như thể cả hai đã được canh;
+  chỉ một cái đã.
   **MỘT LỖI SẼ CHỈ HIỆN TRÊN CI, bắt được nhờ ĐỌC chú thích CI chứ không nhờ chạy:** cổng ghi
   cứng `py -I …`, mà chú thích ngay cạnh bước tracer nói nguyên văn *"`python`, không phải
   `py` — đây là runner Linux"*. `py` là launcher CHỈ có trên Windows, nên bản đầu chạy được ở
@@ -5449,6 +5454,77 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   `stdout` · `descriptor` — nơi termbank cố ý giữ tiếng Anh. Hạ mật độ ở đó là viết thêm lời
   giải thích cho một bài 250 tiếng, tức một việc biên tập khác hẳn: nó LÀM BÀI DÀI RA, nên
   phải đo L1 và L2 trước, và nó không có một quyết định sẵn trong termbank để dựa vào.
+
+- **`eslint` THOÁT 0 KHI CHỈ CÓ CẢNH BÁO — nên con số "146 cảnh báo" của bảng mốc nền lên
+  1 000 thì CI vẫn XANH, và bốn tầng đều mù.** Lead của #151 nói đừng kéo khuôn văn phong đi
+  tiếp, nên vòng này đo một con số MỘT CHIỀU chưa ai nhìn trong phiên. Bất đối xứng với
+  backend là bốn tầng, và nó đo được:
+
+  | | backend lint | frontend lint |
+  |---|---|---|
+  | trần trong CI | **`const TRAN = 100`**, job ĐỎ khi vượt | **không có gì** |
+  | mục sổ ngưỡng | **`ci-lint-backend`** | **không có** |
+  | `check-moc-chay` | cố ý NGOÀI TẦM | cố ý NGOÀI TẦM |
+  | `check-moc-nen` | không chạy bộ nào | không chạy bộ nào |
+
+  Script frontend là `eslint` TRẦN (không `--fix`, không `--max-warnings`), và CI chỉ
+  `- run: npm run lint`. Nay là `npm run lint -- --max-warnings 146` cộng một mục sổ
+  `ci-lint-frontend` (34 → **35 ngưỡng**).
+  **KHÔNG để dư như trần backend (100 cho 92 đo được), và lý do là một phép phân biệt:** chỗ
+  dư ở backend là cho spec đang viết dở sinh lỗi `no-unsafe-*` tạm thời. Cảnh báo
+  `no-unused-vars` thì không xuất hiện vì đang viết dở — nó xuất hiện vì một biến bị bỏ lại.
+  Và siết thì `check-nguong` in `GHI SỔ` rồi vẫn xanh, nên hạ con số này không có ma sát nào.
+  **PHÂN RÃ 146, để lát dọn sau biết chỗ và biết GIÁ:** `no-unused-vars` **132** ·
+  `no-unused-expressions` 6 · `no-page-custom-font` 5 · `no-img-element` 2. Trong 132 thì
+  **127 ở JS di sản** `public/static/js/` (`main.js` 44 · `lesson_db_design.js` 24 ·
+  `drag_game.js` 17 · `dashboard.js` 12 · `course_db_design.js` 9 · `pe-bridge.js` 7 …) và
+  **5 ở `src/components/goc-hoc/engine.js`**, tức code đang chạy. **Vòng này KHÔNG dọn:** 127
+  cảnh báo nằm trong JS di sản không có một bài test nào, mà các trang ấy (`/lesson/java`,
+  `/lesson/htmlcss`, `/courses/db_design*`, `/interface`) là những trang #143 đã xác nhận còn
+  sống theo quyết định 13/10. Dọn chúng là rủi ro không đổi lấy giá trị cho người học; cổng
+  này là điều kiện để lát ấy đo được mình.
+  **PHÉP ĐO ĐẦU CỦA TÔI SAI VÀ TÔI TỰ BẮT:** `grep -oE … | grep -c warning` ra **148** trong
+  khi dòng tổng kết của eslint nói **146** — hai dòng khác cũng chứa chữ ấy (dòng tổng và
+  dòng "0 errors and 1 warning potentially fixable"). Suýt ghi "con số đã trôi lên 148" làm
+  một phát hiện. **Đọc DÒNG TỔNG KẾT, đừng đếm bằng grep** — cùng họ bẫy `^. pass` và bẫy
+  "0 nghĩa là không đọc được".
+  **VÀ ABLATE CỦA VÒNG NÀY TÌM RA MỘT CON SỐ KHÔNG AI CANH NỮA: số mục của chính sổ.** Chiều
+  "đổi 35 ngưỡng thành 34 trong AGENTS.md" cho **0 đỏ** ở CẢ `check-nguong` LẪN
+  `check-moc-nen` — cổng ấy đối chiếu 20 con số đọc ra từ `out/` và cây tệp, và không mục nào
+  là sổ ngưỡng. Nay `check-nguong` tự canh số mục của nó, cùng khuôn `check-moc-chay` đã phải
+  đặt cho "N mục" ở #149. Ablate lại: **1 đỏ**.
+  **Phép tự kiểm đặt SAU nhánh `--ghi-so`, có chủ đích, và tôi KIỂM thay vì giả định:**
+  `--ghi-so` ở dòng 94, phép tự kiểm ở 151, nên một con số cũ trong AGENTS.md KHÔNG chặn việc
+  ghi sổ một ngưỡng vừa siết. Đo được: gieo "34 ngưỡng" rồi chạy `--ghi-so` → **0 đỏ**. Đúng
+  phép chia HỒI QUY / SỔ SÁCH đã phải đặt khi thêm luật TL: lỗi sổ sách thì ghi CHÍNH LÀ cách
+  sửa, chặn nó là dựng lại thế bế tắc.
+  **HAI TRÍCH DẪN CŨ ĐI KÈM, và chúng khác nhau về cách sửa.** Cả `check-moc-chay.mjs` lẫn
+  một mục bẫy của AGENTS.md trích *"`ci-lint-backend`, trần 115"* — trần ấy đã là **100** từ
+  lát dọn `PrismaExceptionFilter`. Chú thích của CỔNG là lời khai về HIỆN TẠI ⇒ sửa thẳng
+  (và thêm mục frontend). Mục BẪY là BẢN GHI của một phép đo đã xảy ra ⇒ **không sửa con số**,
+  thêm một đoạn ĐÍNH CHÍNH — vì câu ấy viết ở thì hiện tại ("chúng đã có sổ canh") nên nó sẽ
+  bị đọc như hiện trạng, mà lúc viết thì chỉ MỘT trong hai đã được canh.
+  **SỐ ĐÃ ĐO:** frontend lint **146 cảnh báo / 0 lỗi**, nay có trần · sổ ngưỡng 34 → **35
+  mục** · frontend typecheck sạch · frontend unit **622** · `check-moc-nen` 20 mục 0 lỗi ·
+  `check-moc-chay frontend` 0 lỗi · `check-nguong` 35 ngưỡng 0 lỗi · `export-chet` /
+  `tai-nguyen-chet` / `duong-toi` 0 lỗi. **KHÔNG đụng một dòng nội dung nào**, nên
+  `check-da-nap` giữ **62 bài chờ**.
+  **ABLATE 8 chiều.** Trên sổ/CI: nới trần 146 → 200 → **1 đỏ** · **siết** 146 → 120 →
+  **0 đỏ** kèm `GHI SỔ` (siết không được đỏ — bắt nó đỏ là dạy người ta THÔI SIẾT) · gỡ hẳn
+  cờ `--max-warnings` → **1 đỏ** (regex hết khớp là LỖI, không im lặng xanh) · đổi số mục
+  35 → 34 → **1 đỏ** sau khi có tự kiểm, **0 đỏ** trước đó · đổi CHỮ của hàng → 1 đỏ ·
+  `--ghi-so` với số mục cũ → **0 đỏ** (không bị chặn). Trên CODE: gieo một biến không ai dùng
+  vào `not-found.tsx` (cảnh báo thứ 147) → **1 đỏ** · không gieo gì → exit **0**.
+  **Chiều thứ bảy cần một ADAPTER, và nó phải giữ MÃ THOÁT:** eslint in tiếng Anh
+  ("147 problems") nên `docSoDo` của `ablate.mjs` không có khuôn nào đọc được. Bọc bằng
+  `bash -c "…; c=$?; echo $c lỗi; exit $c"` — in con số VÀ truyền lại mã thoát. Nếu bỏ
+  `exit $c` thì bất biến TỰ NÓI NGƯỢC dựng ở #149 sẽ bắn ngay ("đọc ra 1 đỏ nhưng mã thoát
+  0"), tức công cụ tự chặn một adapter gian. Đó là cách đúng để ablate một lệnh có khuôn lạ:
+  thêm một adapter TRUNG THỰC, đừng nới `docSoDo`.
+  **CÒN LẠI, nói cho đúng:** trần này canh TỔNG số cảnh báo, không canh "cảnh báo nào". Một
+  đợt dọn 10 cảnh báo ở JS di sản rồi thêm 10 cảnh báo mới ở `src/` sẽ qua cửa — và `src/`
+  mới là chỗ đáng canh. Chia trần theo thư mục đòi hai lần chạy eslint, nên chưa làm; đó là
+  lựa chọn, không phải bỏ sót.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

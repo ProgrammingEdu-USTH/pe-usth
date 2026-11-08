@@ -19,6 +19,14 @@
       "vi": "Trần lỗi lint backend trong CI. Dọn `any` từng module rồi hạ dần. Nới nó là cho `any` chảy ngược vào code."
     },
     {
+      "ten": "ci-lint-frontend",
+      "tep": ".github/workflows/ci.yml",
+      "re": "--max-warnings (\\d+)",
+      "chieu": "ha",
+      "moc": 146,
+      "vi": "Trần CẢNH BÁO lint frontend trong CI. `eslint` thoát 0 khi chỉ có cảnh báo, nên không có cờ này thì con số 146 của bảng mốc nền lên 1 000 mà job vẫn xanh — bốn tầng đều mù. 132/146 là `no-unused-vars`, 127 trong đó ở JS di sản. Nới nó là cho cảnh báo chảy ngược vào code."
+    },
+    {
       "ten": "alt-khuon",
       "tep": "scripts/pe-da/check.py",
       "re": "TRAN_ALT_KHUON = (\\d+)",

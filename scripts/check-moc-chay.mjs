@@ -24,7 +24,9 @@
  * do không phải tiết kiệm: con số lint phải ĐI XUỐNG. Ghim bằng phép so BẰNG thì
  * mỗi đợt dọn `any` là một lần cổng đỏ, tức dạy người ta THÔI DỌN — đúng cái
  * `check-nguong` đã tránh bằng dòng `GHI SỔ`. Chiều của chúng đã có sổ canh
- * (`ci-lint-backend`, trần 115, chỉ được hạ).
+ * (`ci-lint-backend` trần 100 cho LỖI backend · `ci-lint-frontend` trần 146 cho
+ * CẢNH BÁO frontend, thi hành bằng `--max-warnings` trong ci.yml), cả hai chỉ
+ * được hạ.
  */
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';

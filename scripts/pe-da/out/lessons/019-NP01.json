@@ -147,9 +147,9 @@
      "answer": "Điền `np.array`."
     },
     {
-     "prompt": "Tạo một array chứa ba nhiệt độ 28, 30 và 29.",
-     "answer": "Bạn có thể đặt tên biến là `temps`:",
-     "answerCode": "import numpy as np\n\ntemps = np.array([28, 30, 29])\nprint(temps)",
+     "prompt": "Tạo một array chứa ba số cốc 28, 30 và 29.",
+     "answer": "Bạn có thể đặt tên biến là `cups`:",
+     "answerCode": "import numpy as np\n\ncups = np.array([28, 30, 29])\nprint(cups)",
      "answerExpected": "[28 30 29]"
     }
    ]

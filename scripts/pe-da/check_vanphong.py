@@ -486,6 +486,23 @@ def van_ban_hoc_vien(l: dict) -> str:
     return '\n'.join(ra).replace('\r', '')
 
 
+def van_ban_luyen_tap(l: dict) -> str:
+    """Chữ người học thấy ở MÀN LUYỆN TẬP — câu hỏi, đáp án mẫu và mã của nó.
+
+    Tách khỏi `van_ban_hoc_vien()` có chủ đích: hàm kia là "phần giảng", và
+    mọi luật văn phong khác đo trên đó. Chỉ MỘT nhánh của L14 đọc hàm này —
+    nhánh "dùng miền ngoài" — vì đó là lớp lỗi AGENTS.md đã ghi tên ("màn đọc
+    ở quán cà phê nhưng ĐỀ BÀI TẬP ở miền cũ"), và nó đã xảy ra ba lần ở
+    `exercises` rồi một lần nữa ở `drills`. KHÔNG áp nhánh "chưa neo" ở đây:
+    một câu luyện tập hai dòng không thể bị đòi kể lại cả bối cảnh.
+    """
+    ra: list[str] = []
+    for d in (l.get('drills') or []) + (l.get('reviewExercises') or []):
+        ra += [d.get('prompt') or '', d.get('answer') or '',
+               d.get('answerCode') or '', str(d.get('answerExpected') or '')]
+    return '\n'.join(ra).replace('\r', '')
+
+
 def chia_man(reading: list[dict]) -> list[list[dict]]:
     """Bản CHÉP của `chia_man()` trong build.py — cố ý chép, không import.
 
@@ -846,6 +863,16 @@ NGUONG_MIEN = 2
 # đang đúng, nên phía "bài đã có bối cảnh" phải rộng tay hơn phía "bài dùng miền
 # lạ".
 NGUONG_NEO = 1
+# MÀN LUYỆN TẬP có ngưỡng RIÊNG, và nó bằng 1 — không phải một lần nới tay.
+# Một đoạn giảng dài thì một lần nhắc qua miền lạ là bình thường (vì thế
+# `NGUONG_MIEN` = 2); một câu luyện tập chỉ dài một hai dòng, nên MỘT từ khoá
+# miền lạ ở đó LÀ miền của câu ấy. Đo trên corpus 08/11/2026, ngưỡng 1 bắt
+# đúng 4 bài và CẢ BỐN là tàn dư thật của đợt đổi miền — 0 báo oan:
+# NP01 1 lần (`nhiệt độ`) · NP09 3 (`bảng điểm` + `marks`×2) · NP17 4
+# (`tín chỉ` + `marks`×3) · SY09 4 (`sinh viên` + `tín chỉ` + `student`×2).
+# Nâng lên 2 thì mất ĐÚNG MỘT bài, NP01 — con số này tôi đã ghi sai thành
+# "mất ba trong bốn" vì phép đo đầu không đọc `answerCode`, và ablate bác nó.
+NGUONG_MIEN_LUYEN = 1
 VAI_TRO = ('chinh', 'kemChinh', 'ngoai', 'trungTinh')
 
 
@@ -954,6 +981,18 @@ def kiem_boi_canh(bai: list[dict], mien: list[Mien], tru: dict[str, str]) -> Non
             loi('L14', f'{ma}: dữ liệu {", ".join(m.ten for m in kem)} '
                        'nhưng không một chữ nào nói đây là quán nào '
                        f'({", ".join(w for m in kem for w in dem[m.id][1])})')
+        # MÀN LUYỆN TẬP: chỉ nhánh "miền ngoài", ngưỡng riêng. Màn đọc có thể
+        # đã neo đúng vào quán mà câu luyện tập ngay sau đó còn ở miền cũ —
+        # đúng lớp lỗi đã gặp bốn lần, và `van_ban_hoc_vien()` mù với nó.
+        s_lt = van_ban_luyen_tap(l)
+        for m in mien:
+            if m.vai != 'ngoai':
+                continue
+            n_lt, thay_lt = m.dem(s_lt)
+            if n_lt >= NGUONG_MIEN_LUYEN:
+                loi('L14', f'{ma}: màn LUYỆN TẬP dùng miền "{m.ten}" — ngoài '
+                           f'hành trình ({", ".join(thay_lt)}). Màn đọc có thể '
+                           'đã neo đúng; chỗ lệch là câu luyện tập.')
         if neo < NGUONG_NEO and not xau and not kem:
             # Không gộp vào lỗi: bài KHÔNG CÓ bối cảnh nào là một khiếm khuyết
             # khác với bài dùng bối cảnh SAI, và nó sửa bằng cách thêm chữ chứ

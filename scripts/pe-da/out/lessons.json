@@ -4276,9 +4276,9 @@
        "answer": "Điền `np.array`."
       },
       {
-       "prompt": "Tạo một array chứa ba nhiệt độ 28, 30 và 29.",
-       "answer": "Bạn có thể đặt tên biến là `temps`:",
-       "answerCode": "import numpy as np\n\ntemps = np.array([28, 30, 29])\nprint(temps)",
+       "prompt": "Tạo một array chứa ba số cốc 28, 30 và 29.",
+       "answer": "Bạn có thể đặt tên biến là `cups`:",
+       "answerCode": "import numpy as np\n\ncups = np.array([28, 30, 29])\nprint(cups)",
        "answerExpected": "[28 30 29]"
       }
      ]
@@ -6311,9 +6311,9 @@
        "answer": "Điền `2` hoặc `-1` với bảng mẫu ba cột."
       },
       {
-       "prompt": "Tạo bảng điểm `[[6, 8], [7, 9], [5, 6]]`. Lấy điểm bài kiểm tra thứ hai của mọi học viên.",
+       "prompt": "Tạo bảng số cốc `[[6, 8], [7, 9], [5, 6]]`. Lấy số cốc ngày thứ hai của mọi quầy.",
        "answer": "Lấy tất cả hàng và cột chỉ số 1:",
-       "answerCode": "import numpy as np\n\nmarks = np.array([[6, 8], [7, 9], [5, 6]])\nprint(marks[:, 1])",
+       "answerCode": "import numpy as np\n\ncups = np.array([[6, 8], [7, 9], [5, 6]])\nprint(cups[:, 1])",
        "answerExpected": "[8 9 6]"
       }
      ]
@@ -8314,9 +8314,9 @@
        "answer": "Điền `nanmean` để bỏ NaN khi tính trung bình."
       },
       {
-       "prompt": "Khi tính điểm trung bình có trọng số mà một môn thiếu điểm, cần bỏ những phần tử nào trước khi dùng `np.average`?",
-       "answer": "Bỏ điểm thiếu và tín chỉ tương ứng bằng cùng mask. Dấu `~` đảo True/False để giữ vị trí không thiếu:",
-       "answerCode": "import numpy as np\n\nmarks = np.array([7., np.nan, 9.])\ncredits = np.array([2, 3, 1])\nvalid = ~np.isnan(marks)\nprint(np.average(marks[valid], weights=credits[valid]))",
+       "prompt": "Khi tính trung bình có trọng số mà một ô thiếu số đo, cần bỏ những phần tử nào trước khi dùng `np.average`?",
+       "answer": "Bỏ số đo thiếu và trọng số tương ứng bằng cùng mask. Dấu `~` đảo True/False để giữ vị trí không thiếu:",
+       "answerCode": "import numpy as np\n\nvalues = np.array([7., np.nan, 9.])\nweights = np.array([2, 3, 1])\nvalid = ~np.isnan(values)\nprint(np.average(values[valid], weights=weights[valid]))",
        "answerExpected": "7.666666666666667"
       }
      ]
@@ -27115,7 +27115,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Mẫu ngẫu nhiên ở bài trước lấy cả dòng; có lúc bạn chỉ cần một mẩu trong dòng. Trong ghi chú \"Paid by S012 today\", bạn muốn lấy mã sinh viên thay vì dựa vào vị trí ký tự cố định. Regex mô tả dạng của mã:"
+        "text": "Mẫu ngẫu nhiên ở bài trước lấy cả dòng; có lúc bạn chỉ cần một mẩu trong dòng. Trong ghi chú \"Paid by S012 today\", bạn muốn lấy mã khách thay vì dựa vào vị trí ký tự cố định. Regex mô tả dạng của mã:"
        },
        {
         "type": "code",
@@ -29705,8 +29705,8 @@
        "answer": "JsonExporter.export dùng json.dumps(rows); service gọi cùng .export(rows). Nếu kế thừa ABC, phải cài đầy đủ abstractmethod trước khi tạo instance. Thử hai exporter mà không sửa build."
       },
       {
-       "prompt": "Tách chương trình thành hàm tính điểm khác tách thành Student, Course, StudentMark ở đâu? Vì sao không cho StudentMark tự gọi input trong __init__?",
-       "answer": "Cách hàm truyền dữ liệu qua từng tác vụ; cách object gắn dữ liệu với hành vi liên quan. Student giữ hồ sơ, Course giữ môn/tín chỉ, StudentMark giữ điểm của cặp sinh viên–môn. Không buộc constructor đọc bàn phím để còn dựng object từ file, test hoặc GUI."
+       "prompt": "Tách chương trình thành hàm tính giá khác tách thành Item, Ingredient, RecipeLine ở đâu? Vì sao không cho RecipeLine tự gọi input trong __init__?",
+       "answer": "Cách hàm truyền dữ liệu qua từng tác vụ; cách object gắn dữ liệu với hành vi liên quan. Item giữ hồ sơ món, Ingredient giữ nguyên liệu, RecipeLine giữ định lượng của cặp món–nguyên liệu. Không buộc constructor đọc bàn phím để còn dựng object từ file, test hoặc GUI."
       },
       {
        "prompt": "Nêu is-a và has-a trong hai ví dụ Exporter/ReportService. Java có kế thừa nhiều class như Python không? Interface giúp bên dùng biết gì?",

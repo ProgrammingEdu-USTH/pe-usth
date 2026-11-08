@@ -149,9 +149,9 @@
      "answer": "Điền `nanmean` để bỏ NaN khi tính trung bình."
     },
     {
-     "prompt": "Khi tính điểm trung bình có trọng số mà một môn thiếu điểm, cần bỏ những phần tử nào trước khi dùng `np.average`?",
-     "answer": "Bỏ điểm thiếu và tín chỉ tương ứng bằng cùng mask. Dấu `~` đảo True/False để giữ vị trí không thiếu:",
-     "answerCode": "import numpy as np\n\nmarks = np.array([7., np.nan, 9.])\ncredits = np.array([2, 3, 1])\nvalid = ~np.isnan(marks)\nprint(np.average(marks[valid], weights=credits[valid]))",
+     "prompt": "Khi tính trung bình có trọng số mà một ô thiếu số đo, cần bỏ những phần tử nào trước khi dùng `np.average`?",
+     "answer": "Bỏ số đo thiếu và trọng số tương ứng bằng cùng mask. Dấu `~` đảo True/False để giữ vị trí không thiếu:",
+     "answerCode": "import numpy as np\n\nvalues = np.array([7., np.nan, 9.])\nweights = np.array([2, 3, 1])\nvalid = ~np.isnan(values)\nprint(np.average(values[valid], weights=weights[valid]))",
      "answerExpected": "7.666666666666667"
     }
    ]

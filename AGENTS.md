@@ -94,7 +94,7 @@ học nó.
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **17 mục, 14 có đường tới, 3 còn tối (đã khai lý do)**, 0 lỗi |
 | Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **1 mục chết, 1 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **14 CSS module trong `src/`** |
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
-| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **151/179 khớp, 28 bài CHỜ NẠP** (ba lát văn phong 08/11 · hai lát alt text · một lát neo bối cảnh cụm NP). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
+| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **147/179 khớp, 32 bài CHỜ NẠP** (ba lát văn phong 08/11 · hai lát alt text · hai lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **34 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
@@ -4358,6 +4358,77 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   Cụm GU là cụm lớn nhất và nó KHÔNG neo được bằng văn xuôi: ví dụ của nó là nhãn và
   nút của giao diện, tức neo thật thì phải đổi CODE — mà GU không có mục nào trong
   `traces.json`, nên ở đó đổi code lại RẺ. Đo lại trước khi làm.
+
+- **PHẦN ĐUÔI CỦA ĐỢT ĐỔI MIỀN NẰM Ở MÀN LUYỆN TẬP, nơi L14 không đọc — và cùng lớp
+  lỗi này nay đã xảy ra NĂM lần.** Vòng trước neo bốn bài NP vào hành trình quán. Lead
+  để lại là *"`drills` của NP01 còn 'ba nhiệt độ 28, 30 và 29', và L14 không đọc
+  `drills`"*. Đo rộng ra thì nó không phải một chuỗi lẻ.
+  **ĐO TRƯỚC KHI DỰNG, và phép đo bác ngay ý định đầu của tôi.** Ý định là nới L14 cho
+  đọc cả `drills`. Nhưng nới cả hai nhánh thì:
+  · nhánh "dùng miền ngoài" ở `drills` ngưỡng 2 → **1 bài**;
+  · nhánh "chưa neo" → **0/26 bài im lặng** hết im nếu L14 đọc `drills`.
+  Tức nới cả hai gần như không mua gì, còn nhánh "chưa neo" thì SAI về nguyên tắc: một
+  câu luyện tập dài hai dòng không thể bị đòi kể lại cả bối cảnh. Nên nửa mới chỉ gồm
+  **nhánh "miền ngoài", ngưỡng RIÊNG bằng 1**.
+  **NGƯỠNG LỆCH CÓ LÝ DO ĐO ĐƯỢC, không phải nới tay:** đoạn giảng dài thì một lần nhắc
+  qua miền lạ là bình thường (vì thế `NGUONG_MIEN` = 2); một câu luyện tập thì MỘT từ
+  khoá miền lạ LÀ miền của câu ấy. Ngưỡng 1 bắt đúng **4 bài, cả 4 đều thật, 0 báo oan**:
+  NP01 1 lần (`nhiệt độ`) · NP09 3 (`bảng điểm` + `marks`×2) · NP17 4 (`tín chỉ` +
+  `marks`×3) · SY09 4 (`sinh viên` + `tín chỉ` + `student`×2).
+  **IN NGỮ CẢNH TỪNG CHỖ ĐỔI PHÂN LOẠI BA LẦN — không in thì ba bản sửa sai:**
+  · **SY13** bị bắt `tín chỉ`, mà câu đó là *"Cùng công thức này ở trường được gọi là
+    điểm trung bình (GPA), với trọng số là số tín chỉ"* — một CÂU CẦU NỐI tới khái niệm
+    người học đã biết, đúng phương pháp, không phải tàn dư. Nó ở `reading` nên nửa mới
+    không chạm tới;
+  · **TH01** bị bắt `tác giả`, mà câu đó là *"phát hành theo CC0 1.0, tức tác giả đã bỏ
+    mọi quyền"* — tác giả của BỘ DỮ LIỆU, không phải miền thư viện sách. Báo oan tiềm
+    ẩn (1 lần, dưới ngưỡng), lần thứ SÁU của họ bắt-chuỗi-con;
+  · **VZ28** bị bắt `temperature` trong `label="Temperature (arbitrary units)"` — và
+    AGENTS.md đã ghi rằng ba ảnh `VZ28-*.png` mang ĐÚNG nhãn ấy TRONG PIXEL. Sửa code
+    mà không xuất lại ảnh (gói nguồn nằm ngoài repo) là làm code và hình nói khác nhau.
+  **BA BÀI CÓ MÀN ĐỌC ĐÃ NEO ĐÚNG mà câu luyện tập còn ở miền cũ** — NP01 (*"Sổ tay của
+  quán đã ghi được một tuần"* / drill: *"ba nhiệt độ"*), NP09 (*"Bảng số cốc hai quầy"* /
+  drill: *"bảng điểm… mọi học viên"*), NP17 (màn đọc tôi vừa neo VÒNG TRƯỚC / drill:
+  *"Bỏ điểm thiếu và tín chỉ tương ứng"*). Bài thứ ba là lỗi do CHÍNH VÒNG LẶP vừa tạo
+  ra một vòng trước: tôi sửa màn đọc sang "số đo có trọng số" rồi để câu luyện tập nói
+  "tín chỉ". Đó là lý do nửa mới đáng dựng — không phải một giả định về tương lai.
+  **SY09 dùng lại ĐÚNG ba tên class mà SY26 đã chốt**, không nghĩ tên mới:
+  `Student`/`Course`/`StudentMark` → `Item`/`Ingredient`/`RecipeLine`. SY26 (PW2–PW4)
+  là bài đã đổi sang "quản lý món, nguyên liệu và định lượng", nên SY09 nay trỏ vào một
+  bài trong cùng khoá thay vì vào một lược đồ không tồn tại.
+  **NỬA MỚI PHẢI ĐỌC `answerCode`, và ablate chứng minh bằng con số:** sửa CÂU HỎI mà
+  để nguyên `marks` trong `answerCode` → **2 lỗi**. Nếu cổng chỉ đọc `prompt`/`answer`
+  thì một bản sửa nửa vời như vậy XANH trong khi học viên vẫn đọc `marks = np.array(…)`
+  — đúng họ "bản sửa nửa vời trông như xong". Và `check-pyodide` chạy thật 53 đáp án
+  mẫu, nên phép đổi tên biến được một cổng KHÁC xác nhận: 52/53 giữ nguyên.
+  **ABLATE 5 chiều:** trả nội dung về HEAD, giữ cổng mới → **4 lỗi**, gọi đúng cả bốn
+  bài · **CẶP ĐỐI CHỨNG** nội dung HEAD + cổng CŨ → **0 lỗi** (chứng minh cái bắt là
+  CỔNG, không phải nội dung) · nâng `NGUONG_MIEN_LUYEN` 1 → 2 → **3 lỗi** · cổng thôi
+  đọc `answerCode` (nội dung HEAD) → 4 lỗi · sửa câu hỏi mà bỏ `answerCode` → **2 lỗi**.
+  **VÀ ABLATE BÁC MỘT CHÚ THÍCH TÔI VỪA VIẾT.** Tôi ghi *"nâng lên 2 thì mất ba trong
+  bốn"* — chiều 3 đo được **mất ĐÚNG MỘT** (NP01). Sai vì phép đo đầu của tôi chỉ đọc
+  `prompt`/`answer` còn cổng đọc cả `answerCode`, nơi `marks` xuất hiện thêm 2–3 lần.
+  Đã sửa chú thích bằng số thật. **Một chú thích viết TRƯỚC khi ablate là một lời khai
+  chưa được kiểm**, kể cả khi nó nằm cạnh con số nó nói về.
+  **SỐ ĐÃ ĐO:** L14 **0 lỗi · 26 cảnh báo** trước và sau (nửa mới bắt 4, nội dung sửa
+  hết 4) · tổng khoá giữ **82 lỗi · 428 cảnh báo**, không luật nào động · `check.py
+  --strict` 0/0 · `check-pyodide` 154 bài / 420 đoạn / 0 hỏng / 52-53 đáp án mẫu ·
+  `check-practice` 480 ca đạt / 773 biến thể sai đều trượt · frontend unit 592 ·
+  `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi.
+  **BA LẦN PHÉP THAY CHUỖI TRƯỢT VÌ CÙNG MỘT CHUYỆN, và nó đáng ghi riêng:** heredoc
+  của công cụ Bash ở đây **XỬ LÝ dấu gạch chéo ngược dù delimiter đã nháy** (`<<'PY'`).
+  Nên `"a\nb"` trong thân heredoc tới Python thành `a` + newline THẬT + `b` — lần một
+  khớp 0 chỗ, lần hai `assert` bắt, lần ba lọt vào file và làm `SyntaxError`. Cộng thêm
+  `check_vanphong.py` là **CRLF** (1 530 dòng, 0 LF trần) nên mọi chuỗi nhiều dòng phải
+  mang `\r\n`, và `readlines(newline='')` còn chẻ cả ở `\r` lẻ. Luật: trong Python viết
+  qua heredoc, dựng dấu gạch chéo bằng `chr(92)` và đầu dòng bằng `chr(13)+chr(10)` —
+  đừng gõ chúng.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 151/179 → **147/179, 32 bài CHỜ NẠP**.
+  **CÒN LẠI, đo được:** 26 cảnh báo L14 ("chưa neo") dồn ở GU 8 · SY 5 · PD 4 · VZ 4 ·
+  CT 4 · NP 1; cụm GU không neo được bằng văn xuôi vì ví dụ của nó là nhãn và nút giao
+  diện, nhưng GU **không có mục nào trong `traces.json`** nên ở đó đổi code lại rẻ.
+  Và nửa mới của L14 hôm nay canh một vùng ĐÃ SẠCH — nó chống hồi quy, không chứng minh
+  hôm nay có ai được đỡ.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

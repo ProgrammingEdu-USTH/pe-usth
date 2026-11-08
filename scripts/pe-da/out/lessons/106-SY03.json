@@ -22,7 +22,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Mẫu ngẫu nhiên ở bài trước lấy cả dòng; có lúc bạn chỉ cần một mẩu trong dòng. Trong ghi chú \"Paid by S012 today\", bạn muốn lấy mã sinh viên thay vì dựa vào vị trí ký tự cố định. Regex mô tả dạng của mã:"
+      "text": "Mẫu ngẫu nhiên ở bài trước lấy cả dòng; có lúc bạn chỉ cần một mẩu trong dòng. Trong ghi chú \"Paid by S012 today\", bạn muốn lấy mã khách thay vì dựa vào vị trí ký tự cố định. Regex mô tả dạng của mã:"
      },
      {
       "type": "code",

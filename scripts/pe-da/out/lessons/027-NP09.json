@@ -149,9 +149,9 @@
      "answer": "Điền `2` hoặc `-1` với bảng mẫu ba cột."
     },
     {
-     "prompt": "Tạo bảng điểm `[[6, 8], [7, 9], [5, 6]]`. Lấy điểm bài kiểm tra thứ hai của mọi học viên.",
+     "prompt": "Tạo bảng số cốc `[[6, 8], [7, 9], [5, 6]]`. Lấy số cốc ngày thứ hai của mọi quầy.",
      "answer": "Lấy tất cả hàng và cột chỉ số 1:",
-     "answerCode": "import numpy as np\n\nmarks = np.array([[6, 8], [7, 9], [5, 6]])\nprint(marks[:, 1])",
+     "answerCode": "import numpy as np\n\ncups = np.array([[6, 8], [7, 9], [5, 6]])\nprint(cups[:, 1])",
      "answerExpected": "[8 9 6]"
     }
    ]

@@ -324,8 +324,8 @@
      "answer": "JsonExporter.export dùng json.dumps(rows); service gọi cùng .export(rows). Nếu kế thừa ABC, phải cài đầy đủ abstractmethod trước khi tạo instance. Thử hai exporter mà không sửa build."
     },
     {
-     "prompt": "Tách chương trình thành hàm tính điểm khác tách thành Student, Course, StudentMark ở đâu? Vì sao không cho StudentMark tự gọi input trong __init__?",
-     "answer": "Cách hàm truyền dữ liệu qua từng tác vụ; cách object gắn dữ liệu với hành vi liên quan. Student giữ hồ sơ, Course giữ môn/tín chỉ, StudentMark giữ điểm của cặp sinh viên–môn. Không buộc constructor đọc bàn phím để còn dựng object từ file, test hoặc GUI."
+     "prompt": "Tách chương trình thành hàm tính giá khác tách thành Item, Ingredient, RecipeLine ở đâu? Vì sao không cho RecipeLine tự gọi input trong __init__?",
+     "answer": "Cách hàm truyền dữ liệu qua từng tác vụ; cách object gắn dữ liệu với hành vi liên quan. Item giữ hồ sơ món, Ingredient giữ nguyên liệu, RecipeLine giữ định lượng của cặp món–nguyên liệu. Không buộc constructor đọc bàn phím để còn dựng object từ file, test hoặc GUI."
     },
     {
      "prompt": "Nêu is-a và has-a trong hai ví dụ Exporter/ReportService. Java có kế thừa nhiều class như Python không? Interface giúp bên dùng biết gì?",

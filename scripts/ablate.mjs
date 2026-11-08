@@ -67,23 +67,117 @@ function thamSo(argv) {
  * được CẢ số trượt LẪN tổng số ca: một dòng tổng kết nói "0 failed" mà tổng là 0
  * thì bộ test không chạy ca nào, nên nó không nói gì về răng của cổng.
  */
-export function docSoDo(ra) {
+/**
+ * Con số trong dòng tổng kết, sau khi BỎ MỌI KHOẢNG TRẮNG.
+ *
+ * Các bộ kiểm của repo in số kiểu Việt — dấu cách ngăn nhóm nghìn ("2 715"), và
+ * có chỗ là U+00A0. `Number('2 715')` ra `NaN`, nên không bóc khoảng trắng là
+ * đọc ra `NaN` rồi mọi phép so sau đó im lặng sai. Bẫy đã ghi ở
+ * `check-moc-nen.mjs`.
+ */
+function so(s) {
+  return Number(String(s).replace(/\s/g, ''));
+}
+
+/**
+ * Các khuôn dòng tổng kết, THEO THỨ TỰ ƯU TIÊN.
+ *
+ * `tong` là bằng chứng "bộ kiểm ĐÃ CHẠY": tổng bằng 0 nghĩa là không có ca nào,
+ * nên con số trượt không nói gì về răng của cổng. Khuôn nào KHÔNG in tổng thì
+ * khai `tong: null` và `chayMot()` phải lấy bằng chứng khác (xem ở đó).
+ *
+ * `re` phải khớp ĐÚNG MỘT DÒNG. Nhiều dòng khớp là MƠ HỒ, và mơ hồ thì DỪNG —
+ * không lấy dòng đầu tiên. Cùng luật `check-nguong.mjs` đã phải đặt sau khi một
+ * regex lỏng báo oan một ngưỡng đang đúng.
+ */
+const KHUON = [
   // jest: "Tests:       2 failed, 6 passed, 8 total"
-  const j = /^Tests:.*?(\d+) total\s*$/m.exec(ra);
-  if (j) {
-    const tong = Number(j[1]);
-    if (tong === 0) return null;
-    const truot = /^Tests:.*?(\d+) failed/m.exec(ra);
-    return { do: truot ? Number(truot[1]) : 0, tong, bo: 'jest' };
-  }
-  // node --test: hai dòng riêng, "ℹ tests 592" và "ℹ fail 0". KHÔNG neo vào đầu
-  // dòng bằng `^.` — ký tự `ℹ` là multibyte và đó đúng là bẫy đã trả về RỖNG.
-  const nt = /[\s\S]*?tests[ \t]+(\d+)/.exec(ra);
-  const nf = /[\s\S]*?\bfail[ \t]+(\d+)/.exec(ra);
-  if (nt && nf) {
-    const tong = Number(nt[1]);
-    if (tong === 0) return null;
-    return { do: Number(nf[1]), tong, bo: 'node --test' };
+  {
+    bo: 'jest',
+    re: /^Tests:[^\n]*?(\d+) total[ \t]*$/gm,
+    doc: (m, ra) => {
+      const t = /^Tests:[^\n]*?(\d+) failed/m.exec(ra);
+      return { tong: so(m[1]), do: t ? so(t[1]) : 0 };
+    },
+  },
+  // `node --test`: tổng và số trượt ở HAI DÒNG RIÊNG ("ℹ tests 614" / "ℹ fail 0").
+  {
+    bo: 'node --test',
+    re: /^[^\n]*?\btests[ \t]+(\d+)[ \t]*$/gm,
+    doc: (m, ra) => {
+      const f = /^[^\n]*?\bfail[ \t]+(\d+)[ \t]*$/m.exec(ra);
+      return f ? { tong: so(m[1]), do: so(f[1]) } : null;
+    },
+  },
+  // ── Bộ kiểm NỘI DUNG, thêm 08/11/2026 ────────────────────────────────
+  // Lý do thêm: vòng trước tôi muốn ablate một lát văn phong bằng công cụ này
+  // và nó TỪ CHỐI (đúng giới hạn đã khai), buộc đếm tay — tức khuôn này ĐÃ CÓ
+  // người cần, không phải dựng trước cho một lỗi chưa xảy ra.
+  //
+  // `Đối chiếu sổ` phải ĐỨNG TRƯỚC khuôn `check_vanphong` bên dưới: chạy
+  // `--doi-chieu` in CẢ HAI dòng, và con số đáng đọc là của ratchet.
+  {
+    bo: 'ratchet văn phong',
+    re: /^Đối chiếu sổ: [\d\s]+ luật · ([\d\s]+) bài · ([\d\s]+) lỗi[ \t]*$/gm,
+    doc: (m) => ({ tong: so(m[1]), do: so(m[2]) }),
+  },
+  {
+    bo: 'check_vanphong.py',
+    re: /^([\d\s]+) bài · [\d\s]+ thuật ngữ · ([\d\s]+) lỗi · [\d\s]+ cảnh báo[ \t]*$/gm,
+    doc: (m) => ({ tong: so(m[1]), do: so(m[2]) }),
+  },
+  {
+    bo: 'check.py',
+    re: /^([\d\s]+) bài · ([\d\s]+) lỗi · [\d\s]+ cảnh báo/gm,
+    doc: (m) => ({ tong: so(m[1]), do: so(m[2]) }),
+  },
+  {
+    bo: 'check-pyodide.mjs',
+    re: /^([\d\s]+) bài · ([\d\s]+) đoạn code · [\d\s]+ đạt · ([\d\s]+) hỏng/gm,
+    doc: (m) => ({ tong: so(m[2]), do: so(m[3]) }),
+  },
+  {
+    // Khuôn này KHÔNG in số trượt — nó in số ĐẠT. Số đỏ là hiệu, và phải tính
+    // như thế: đọc "480 đạt" rồi kết luận 0 đỏ là bỏ qua đúng trường hợp có ca
+    // không đạt.
+    bo: 'check-practice.mjs',
+    re: /^[\d\s]+ bài tự làm · ([\d\s]+) ca chấm · ([\d\s]+) đạt/gm,
+    doc: (m) => ({ tong: so(m[1]), do: so(m[1]) - so(m[2]) }),
+  },
+  {
+    // Cổng `.mjs` thường: dòng cuối chỉ có "N lỗi", KHÔNG có tổng. `tong: null`
+    // nói ra điều đó, và `chayMot()` lấy bằng chứng chạy từ MÃ THOÁT thay vì
+    // từ một con số tổng không tồn tại.
+    // Hai hình dạng cùng tồn tại trong repo: `0 lỗi` trần (phần lớn cổng) và
+    // `17 tính năng · 14 có đường tới · 3 còn tối · 0 lỗi` (cổng in kèm thống
+    // kê). Tiền tố tuỳ chọn phải kết thúc bằng `·` để nó KHÔNG khớp những dòng
+    // liệt kê lỗi từng mục — chúng mở đầu bằng `LỖI:` và không kết thúc bằng
+    // "lỗi". Khuôn này nằm CUỐI danh sách, nên `Đối chiếu sổ: … N lỗi` (cũng
+    // kết thúc bằng "lỗi") đã được khuôn ratchet nhận trước.
+    bo: 'cổng .mjs',
+    re: /^(?:[^\n]*·[^\n·]*)?([\d\s]+) lỗi[ \t]*$/gm,
+    doc: (m) => ({ tong: null, do: so(m[1]) }),
+  },
+];
+
+/**
+ * Số ca ĐỎ, hoặc `null` khi không chứng minh được bộ test đã chạy.
+ *
+ * `null` KHÁC 0, và đó là toàn bộ điểm của hàm này.
+ */
+export function docSoDo(ra) {
+  for (const k of KHUON) {
+    k.re.lastIndex = 0;
+    const khop = [...ra.matchAll(k.re)];
+    if (khop.length === 0) continue;
+    if (khop.length > 1) {
+      // Mơ hồ: hai dòng cùng khớp một khuôn thì không biết dòng nào là tổng kết.
+      return null;
+    }
+    const r = k.doc(khop[0], ra);
+    if (!r) continue;
+    if (r.tong === 0) return null;
+    return { ...r, bo: k.bo };
   }
   return null;
 }
@@ -137,7 +231,26 @@ export function chayMot(o) {
   const goc = readFileSync(o.tep, 'utf8');
   let khoiPhuc = false;
   try {
-    writeFileSync(o.tep, noiDungSeed(o, goc));
+    const seed = noiDungSeed(o, goc);
+    // GIEO VÔ HIỆU là một cách thứ tư để "0 đỏ" nói dối, và nó chỉ lộ ra khi
+    // DÙNG công cụ thật: `--ve-head` trên một tệp KHÔNG đổi so với HEAD là một
+    // phép thay không thay gì. Đã xảy ra ngay vòng sau khi thêm khuôn nội dung
+    // — tôi ablate một lát văn phong ĐÃ COMMIT, và công cụ in "0 đỏ / 179 ca":
+    // nó chứng minh bộ kiểm đã CHẠY, nhưng không chứng minh seed đổi được gì.
+    // Nhánh `--cu`/`--cu-tep` đã được bảo vệ bởi luật "khớp đúng một lần";
+    // `--ve-head` thì không có gì canh, nên phép so này là chỗ canh nó.
+    if (seed === goc) {
+      throw new Error(
+        'GIEO VÔ HIỆU: nội dung sau khi gieo GIỐNG Y nguyên bản, nên không có '
+        + 'khiếm khuyết nào được gieo. Đây KHÔNG phải "0 đỏ".'
+        + (o['ve-head']
+          ? ` Tệp ${o.tep} không khác HEAD — thay đổi cần ablate đã được commit `
+            + 'rồi, nên hãy gieo bằng `--cu-tep`/`--moi-tep`, hoặc so với một '
+            + 'commit trước đó.'
+          : ''),
+      );
+    }
+    writeFileSync(o.tep, seed);
     // MỘT chuỗi lệnh kèm `shell: true`: `spawnSync('npm', [...], {shell:true})`
     // làm Node ném DeprecationWarning DEP0190, còn `npm.cmd` không kèm shell
     // thì ENOENT trên Git Bash và `status` ra `null` — cả hai đã đo.
@@ -146,8 +259,8 @@ export function chayMot(o) {
     khoiPhuc = true;
 
     const ra = `${r.stdout ?? ''}\n${r.stderr ?? ''}`;
-    const so = docSoDo(ra);
-    if (!so) {
+    const kq = docSoDo(ra);
+    if (!kq) {
       const vi = r.error ? `\n   lỗi spawn: ${r.error.message}` : '';
       throw new Error(
         'KHÔNG ĐỌC ĐƯỢC SỐ CA — đây KHÔNG phải "0 đỏ".\n'
@@ -156,7 +269,22 @@ export function chayMot(o) {
         + `\n   ${TRAN_DONG_IN} dòng cuối của lệnh:\n${dongCuoi(ra)}`,
       );
     }
-    return so;
+    // Khuôn KHÔNG in tổng (cổng `.mjs` chỉ in "N lỗi") không có con số nào
+    // chứng minh nó đã chạy hết, nên bằng chứng ở đây là MÃ THOÁT: một cổng in
+    // "0 lỗi" mà thoát khác 0, hoặc in "3 lỗi" mà thoát 0, là tự nói ngược —
+    // và một bộ kiểm tự nói ngược thì con số của nó không dùng được.
+    if (kq.tong === null && r.status !== null) {
+      const xanh = kq.do === 0;
+      if (xanh !== (r.status === 0)) {
+        throw new Error(
+          `KHUÔN KHÔNG CÓ TỔNG, và lệnh TỰ NÓI NGƯỢC: in "${kq.do} lỗi" nhưng mã `
+          + `thoát ${r.status}. Đây KHÔNG phải "${kq.do} đỏ" — một bộ kiểm tự nói `
+          + 'ngược thì con số của nó không dùng được.\n'
+          + `   ${TRAN_DONG_IN} dòng cuối của lệnh:\n${dongCuoi(ra)}`,
+        );
+      }
+    }
+    return kq;
   } finally {
     if (!khoiPhuc) {
       writeFileSync(o.tep, goc);
@@ -180,7 +308,8 @@ function main() {
         const dat = mong === undefined || k.do === mong;
         if (!dat) loi += 1;
         console.log(
-          `${dat ? '✓' : '✗'} ${m.ten}: ${k.do} đỏ / ${k.tong} ca`
+          `${dat ? '✓' : '✗'} ${m.ten}: ${k.do} đỏ`
+          + (k.tong === null ? ' (khuôn không in tổng)' : ` / ${k.tong} ca`)
           + (mong === undefined ? '' : ` (mong đợi ${mong})`),
         );
       } catch (e) {
@@ -195,7 +324,13 @@ function main() {
 
   try {
     const k = chayMot(o);
-    console.log(`${k.do} đỏ / ${k.tong} ca (${k.bo})`);
+    // Khuôn không in tổng thì NÓI RA, đừng in `null ca` — một con số trông
+    // như số mà không phải số là đúng thứ công cụ này ra đời để chặn.
+    console.log(
+      `${k.do} đỏ`
+      + (k.tong === null ? ' (khuôn không in tổng)' : ` / ${k.tong} ca`)
+      + ` (${k.bo})`,
+    );
   } catch (e) {
     console.error(e.message);
     process.exitCode = 1;

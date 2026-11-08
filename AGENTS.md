@@ -84,7 +84,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d) |
-| Frontend unit test | `cd frontend && npm run test:unit` → **614 ca** / 54 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **621 ca** / 54 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -104,7 +104,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **34 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **6 mục** (frontend 614 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773), 0 trượt, 0 lỗi; nó CHẠY chính sáu lệnh đó nên THAY cả sáu bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **6 mục** (frontend 621 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773), 0 trượt, 0 lỗi; nó CHẠY chính sáu lệnh đó nên THAY cả sáu bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -4950,6 +4950,61 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   54 hằng → 85 tên kiểu → 22 chỗ gọi `plt`/`ax`/`fig` → 50 tên class → 21 tên thư viện →
   9 chỗ viết hoa + 9 lệnh công cụ → 21 định danh cuối. Việc văn phong còn lại là L3 29 ·
   L1 21 · L8 21, và cả ba đòi phán xét từng câu chứ không còn danh sách nào để quét.
+
+- **`ablate.mjs` đọc được năm khuôn của bộ kiểm NỘI DUNG — và việc DÙNG nó lộ ra cách
+  THỨ TƯ để "0 đỏ" nói dối: PHÉP GIEO VÔ HIỆU.**
+  **LEAD NÀY CÓ BẰNG CHỨNG, và nó đến theo đúng thứ tự đáng có.** Đầu vòng #143 tôi đã
+  BỎ ý định mở rộng `docSoDo`, vì kiểm lại thì ba lần đếm sai của phiên đều ở jest /
+  `node --test` / một script đo chuỗi — **không lần nào** ở khuôn nội dung, nên nó là
+  "dựng cho một lỗi chưa xảy ra". Cuối vòng đó thì **chính tôi cần**: muốn ablate một
+  lát văn phong, công cụ từ chối (đúng giới hạn đã khai), phải đếm tay. Nay nó là việc
+  có cơ sở.
+  **ĐO NGUYÊN VĂN TRƯỚC KHI VIẾT REGEX**, năm khuôn cộng bảy cổng `.mjs`. Ba quyết định
+  thiết kế, mỗi cái từ một phép đo chứ không từ khẩu vị:
+  · **thứ tự ƯU TIÊN**: `--doi-chieu` in CẢ HAI dòng (tổng văn phong và dòng ratchet),
+    và con số đáng đọc là của ratchet — nên khuôn `Đối chiếu sổ` đứng TRƯỚC. Đo trên
+    một seed thật: cùng một phép gieo cho **3 đỏ** khi đọc dòng ratchet và **77 đỏ** khi
+    đọc dòng mặc định. Hai con số đều đúng với dòng của chúng; công cụ báo cái mà LỆNH
+    báo, nên chọn lệnh là chọn nghĩa;
+  · **`check-practice` in số ĐẠT, không in số trượt** — số đỏ là HIỆU. Đọc "480 đạt"
+    rồi kết luận 0 đỏ là bỏ qua đúng trường hợp có ca không đạt;
+  · **khuôn `N lỗi` trần có `tong: null`**, vì bảy cổng `.mjs` không in tổng nào. Bằng
+    chứng-chạy ở đó là MÃ THOÁT: một cổng in "0 lỗi" mà thoát khác 0 là **tự nói
+    ngược**, và một bộ kiểm tự nói ngược thì con số của nó không dùng được. Công cụ in
+    `0 đỏ (khuôn không in tổng)` chứ không in `0 đỏ / null ca` — một con số trông như số
+    mà không phải số là đúng thứ nó ra đời để chặn.
+  **VÀ ĐÂY LÀ PHẦN ĐÁNG NHẤT: dùng công cụ trên ca thật lộ ra một lỗ của chính nó.**
+  Chạy `--ve-head` trên `source/course.json` để ablate lát văn phong của #143 thì nó in
+  **`0 đỏ / 179 ca`**. Con số ấy TRUNG THỰC về việc bộ kiểm đã chạy — và vô nghĩa, vì
+  lát ấy ĐÃ COMMIT nên `--ve-head` là một phép thay **không thay gì**. `--ve-head` không
+  có luật nào canh (nhánh `--cu`/`--cu-tep` thì đã được luật "khớp ĐÚNG MỘT LẦN" che).
+  Nay `chayMot()` so nội dung sau khi gieo với nguyên bản và DỪNG với *"GIEO VÔ HIỆU"*,
+  kèm câu chỉ đúng việc phải làm ("thay đổi cần ablate đã được commit rồi, hãy gieo bằng
+  `--cu-tep`/`--moi-tep`").
+  **Bốn cách "0 đỏ" nói dối, nay đủ bốn và đều có cổng:** bộ test không chạy (`tong = 0`
+  hoặc không có dòng tổng kết) · phép gieo không vào được tệp (khớp 0 hoặc >1 chỗ) ·
+  bộ kiểm tự nói ngược (in 0 lỗi mà thoát khác 0) · **phép gieo không đổi gì**.
+  **ABLATE CHÍNH CÔNG CỤ, BẰNG CHÍNH NÓ — 6 chiều, cả 6 đỏ:** bỏ kiểm GIEO VÔ HIỆU → 1 ·
+  bỏ kiểm TỰ NÓI NGƯỢC → 1 · bỏ luật MƠ HỒ (nhiều dòng khớp một khuôn) → 1 · `so()` thôi
+  bóc khoảng trắng → 1 · bỏ luật `tong === 0 → null` → 1 · đổi TÊN khuôn ratchet →
+  **2 đỏ** (ca nói thẳng, không im lặng xanh).
+  **`so()` LÀ MỘT BẪY ĐÃ GHI, cắn lại ở chỗ mới:** bộ kiểm in số kiểu Việt ("2 715", có
+  chỗ dấu cách là U+00A0) và `Number('2 715')` ra `NaN`. Không bóc khoảng trắng là đọc ra
+  `NaN` rồi mọi phép so sau đó im lặng sai — cùng bẫy `check-moc-nen.mjs` đã phải đặt.
+  **MỘT CA TEST CỦA TÔI ĐỎ VÌ ĐẦU VÀO SAI, không vì cổng sai:** tôi viết ca cho khuôn
+  `N lỗi` trần nhưng đưa dòng của `check-duong-toi`
+  (`17 tính năng · … · 0 lỗi`) — dòng ấy không phải `N lỗi` TRẦN. Nới khuôn để nhận cả
+  hai hình dạng (tiền tố tuỳ chọn phải kết thúc bằng `·`, nên nó KHÔNG khớp dòng liệt kê
+  `LỖI: …`), rồi kiểm trên đầu ra THẬT của bảy cổng: cả bảy đọc đúng.
+  **SỐ ĐÃ ĐO:** `docSoDo` 2 → **8 khuôn** · frontend unit **614 → 621 ca** (54 tệp) · sổ
+  ngưỡng siết sàn 614 → 621 · `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng
+  0 lỗi · `export-chet` / `tai-nguyen-chet` 0 lỗi · ratchet văn phong 18 luật 0 lỗi ·
+  `check.py --strict` 0/0. **Không đụng một dòng nội dung nào**, nên `check-da-nap` giữ
+  52 bài chờ.
+  **CÒN LẠI, nói cho đúng:** công cụ đọc được 8 khuôn, nhưng `build.py` thì KHÔNG —
+  nó `return 1` mà không in dòng tổng kết nào, nên ablate nó vẫn phải đọc mã thoát bằng
+  tay. Đó là khuôn duy nhất còn thiếu trong bậc thang, và nó thiếu vì không có gì để
+  đọc, không vì chưa ai viết regex.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

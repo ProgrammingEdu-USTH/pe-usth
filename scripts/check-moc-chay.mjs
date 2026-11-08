@@ -129,13 +129,16 @@ const KIEM = {
     nhan: 'đoạn code pe-da chạy thật trong Pyodide',
     lenh: 'node scripts/pe-da/check-pyodide.mjs',
     cwd: '.',
-    // ĐO ĐƯỢC 08/11/2026: **2 lần ĐỎ GIẢ trên 6 lần chạy** trong cùng một phiên,
-    // KHÔNG đổi một dòng mã nào — mỗi lần đúng `1 hỏng`. Bộ chấm có trần 5 giây MỖI
-    // ĐOẠN, nên khi máy đang bận thì một đoạn chậm bị đánh trượt — cùng họ với
-    // bẫy "tranh CPU sinh ĐỎ GIẢ" của jest đã ghi trong AGENTS.md. Câu dưới đây
-    // tồn tại để lần đỏ đầu tiên KHÔNG bị đổ cho nội dung.
-    luuY: 'bộ này có trần 5 giây MỖI ĐOẠN, nên máy bận có thể sinh ĐỎ GIẢ — đo '
-      + 'được 2/6 lần chạy. Chạy LẠI một mình trước khi kết luận là nội dung hỏng.',
+    // ĐÃ SỬA Ở GỐC 08/11/2026 — câu cũ ở đây SAI và phải nói ra. Nó ghi "2 lần
+    // ĐỎ GIẢ trên 6 lần chạy… trần 5 giây MỖI ĐOẠN, máy bận thì một đoạn chậm bị
+    // đánh trượt". Đo kỹ hơn thì nguyên nhân khác: ĐÚNG MỘT bài (VZ25) có thời
+    // gian biến thiên **2 304–6 699 ms, spread 2,9×**, nằm vắt qua đường 5 000.
+    // `check-pyodide.mjs` nay thôi phán xử đường ấy (nó chỉ IN RA) và chỉ làm đỏ
+    // khi một đoạn chạy LỒNG — quá 2× trần, tức ngoài khoảng biến thiên đã đo.
+    // Nên mục này KHÔNG còn sinh đỏ giả, và `luuY` ở dưới chỉ còn là lời dặn.
+    luuY: 'bộ này đo thời gian bằng đồng hồ treo tường của MÁY DỰNG, và một bài đã '
+      + 'đo được biến thiên 2,9× — nên nó chỉ làm đỏ khi một đoạn chạy LỒNG (quá 2× '
+      + 'trần). Nếu đỏ, đó KHÔNG phải máy bận: đọc đúng tên bài rồi xem code của nó.',
     bang: () => {
       const m = MD.match(/check-pyodide\.mjs`[^|\n]*?([\d  ]+) bài, ([\d  ]+) đoạn code/);
       return m ? { bai: so(m[1]), doan: so(m[2]) } : null;

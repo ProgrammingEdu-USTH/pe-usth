@@ -3700,6 +3700,42 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **KHÔNG bump `ASSET_VERSION`:** `scene.css` nằm trong `frontend/src/`, đi qua bundler nên
   URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
 
+- **MỘT PHÉP ĐO BIẾN THIÊN 2,9× KHÔNG PHÁN XỬ ĐƯỢC MỘT ĐƯỜNG NẰM GIỮA KHOẢNG ẤY — và tôi
+  đã chẩn đoán SAI hai lần trước khi đo đủ.** `check-pyodide.mjs` có trần 5 000 ms và nó
+  làm cổng đỏ khi vượt.
+  **LẦN SAI THỨ NHẤT (#129):** tôi gọi nó là *"đỏ giả do tranh CPU"* — 2 lần `1 hỏng` trên
+  6 lần chạy — rồi chỉ GHI LẠI chứ không sửa, và còn viết một câu `luuY` khẳng định nguyên
+  nhân.
+  **LẦN SAI THỨ HAI:** vòng này tôi đo biên bằng cách lấy max của các dòng `✓` trong
+  `--verbose` → "max 3 336 ms, biên 1,5×". **Lấy max của một tập ĐÃ LOẠI phần tử lớn nhất
+  là một phép đo tự khẳng định** — dòng `✓` chỉ in bài ĐẠT, tức đã bỏ đúng bài trượt. Dựa
+  vào đó tôi dựng một phép CHẠY LẠI MỘT LẦN. Rồi đo VZ25 riêng ba lần: **6 699 · 5 619 ·
+  5 959 ms**, chạy lại cũng 5 147–5 195 → kết luận ngược lại rằng nó CHẬM THẬT, gỡ phép
+  chạy lại, khai nó vào một danh sách vượt-trần HAI CHIỀU.
+  **PHÉP ABLATE CỦA CHÍNH BẢN SỬA ẤY LỘ RA CÁI SAI:** ngay sau đó VZ25 chạy **2 304 ms**,
+  và luật hai chiều bắn *"NGOẠI LỆ ĐÃ LỖI THỜI"*. Tôi vừa đổi một cổng chập chờn lấy một
+  cổng chập chờn **theo chiều ngược**.
+  **SỐ ĐẦY ĐỦ, cùng một bài, cùng một cây mã, 6 lần chạy:**
+  **2 304 · 5 042 · 5 619 · 5 787 · 5 959 · 6 699 ms — spread 2,9×.**
+  Đường 5 000 nằm GIỮA khoảng ấy, nên không có cách khai nào làm cổng hết chập chờn: đặt
+  trần ở đó thì đỏ oan, khai ngoại lệ thì "ngoại lệ lỗi thời". Cả hai tôi đều đã làm.
+  **CÁCH SỬA: cổng thôi phán xử đường nó không đo nổi.** Nó chỉ làm đỏ khi một đoạn chạy
+  **LỒNG** — quá `BOI_PHUONG_SAI = 2` lần trần, tức **ngoài** khoảng biến thiên đã đo.
+  Đường 5 giây KHÔNG biến mất: mỗi lần chạy vẫn in bài chậm nhất, số ms và biên còn lại,
+  cộng danh sách bài vượt 5 000 trong lần chạy ấy. **Thứ bỏ đi là quyền của một phép đo
+  không lặp lại được trong việc làm CI đỏ.**
+  **VÀ CÂU HỎI THẬT THÌ CHƯA TRẢ LỜI, phải nói ra:** VZ25 có `tryIt=True` ở **cả ba khối**,
+  nên một người học bấm "Thử ngay trong IDE" nhận cả ba khối nối lại — đúng chương trình
+  vừa đo được 2,3–6,7 s. *"Người học có bị cắt ở 5 giây không"* phải đo trên **MÁY NGƯỜI
+  HỌC**, không đo bằng đồng hồ treo tường của máy dựng. Đó là việc của chủ dự án.
+  Ablate 4 chiều: **trả trần phán xử về 5 000** → 0 đỏ ba lần liên tiếp trên máy đang rảnh
+  (chiều này KHÔNG tái hiện được theo ý muốn, và đó chính là bằng chứng phép đo phụ thuộc
+  trạng thái máy chứ không phụ thuộc mã) · hạ `BOI_PHUONG_SAI` xuống 0,3 → **1 đỏ** đúng
+  loại · **cặp đối chứng** `BOI=0,3` có nhánh → 1 đỏ, bỏ nhánh → **0 đỏ** · đổi tên
+  `LIMIT_MS` → **exit 1 kèm `ReferenceError`**, tức to tiếng chứ không im lặng xanh.
+  **MỘT CON SỐ ABLATE RỖNG KHÔNG PHẢI SỐ 0:** chiều cuối lần đầu in ra chuỗi RỖNG vì script
+  chết trước khi kịp in dòng tổng kết. Đọc rỗng thành "0 đỏ" là kết luận ngược hẳn.
+
 - **HAI HÀNG CHẤM NỘI DUNG CỦA BẢNG MỐC NỀN LÀ SỐ CHẠY-MỚI-BIẾT MÀ KHÔNG CỔNG NÀO CANH —
   và chính việc gắn cổng đã lộ ra bộ chấm sinh ĐỎ GIẢ.** `check-moc-chay` canh 4 mục,
   `check-moc-nen` đối chiếu 20 con số **đọc ra được từ `out/`**. Giữa hai cái đó có một

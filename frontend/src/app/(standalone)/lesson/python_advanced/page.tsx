@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 
 import PageStyles from '@/components/PageStyles';
 import StudioLesson from '@/components/python-studio/StudioLesson';
+import { soBaiTuTruyVan } from '@/lib/nhap-bai';
 
 // Cùng lý do với /lesson/python: Lighthouse SEO trừ điểm vì thiếu meta
 // description, mà tên bài chỉ có sau khi client tải content_json.
@@ -31,9 +32,9 @@ export default async function LessonPythonAdvancedPage({
   searchParams: Promise<{ lesson?: string }>;
 }) {
   const { lesson } = await searchParams;
-  const index = Number(lesson);
-  const sortOrder =
-    lesson === undefined || !Number.isInteger(index) || index < 0 ? 1 : index + 1;
+  // Phép ánh xạ 0-based → `sort_order` nay ở `lib/nhap-bai.ts`: trang lỗi cần
+  // ĐÚNG phép tính này để xoá đúng bản nháp, và hai bản chép của nó sẽ trôi.
+  const sortOrder = soBaiTuTruyVan(lesson);
   return (
     <>
       <PageStyles hrefs={STUDIO_CSS} />

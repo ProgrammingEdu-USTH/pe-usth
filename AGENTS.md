@@ -84,7 +84,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
-| Frontend unit test | `cd frontend && npm run test:unit` → **622 ca** / 54 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **634 ca** / 55 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -97,14 +97,14 @@ học nó.
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
 | Xuất hình cho người học | `node scripts/check-figures.mjs` → 16 ca, **0 hỏng** |
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **17 mục, 14 có đường tới, 3 còn tối (đã khai lý do)**, 0 lỗi |
-| Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **2 mục chết, 2 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **15 CSS module trong `src/`** |
+| Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **2 mục chết, 2 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **16 CSS module trong `src/`** |
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
 | Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **117/179 khớp, 62 bài CHỜ NẠP** (năm lát văn phong 08/11 · hai lát alt text · năm lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **35 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **7 mục** (frontend 622 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **7 mục** (frontend 634 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -5525,6 +5525,94 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   đợt dọn 10 cảnh báo ở JS di sản rồi thêm 10 cảnh báo mới ở `src/` sẽ qua cửa — và `src/`
   mới là chỗ đáng canh. Chia trần theo thư mục đòi hai lần chạy eslint, nên chưa làm; đó là
   lựa chọn, không phải bỏ sót.
+
+- **KHÔNG CÓ BIÊN LỖI NÀO TRONG CẢ APP — và `reset()` một mình không cứu được lớp lỗi ĐÃ
+  XẢY RA.** `find src -name "error.tsx" -o -name "global-error.tsx" -o -name "ErrorBoundary*"`
+  → **RỖNG**; `grep -rln "componentDidCatch\|ErrorBoundary" src/` → **RỖNG**. Nên một lỗi
+  render bất kỳ cho trang mặc định của Next ("Application error: a client-side exception has
+  occurred") — tiếng Anh, 0 liên kết, 0 CSS, đúng hình dạng trang 404 đã sửa trước đó.
+  **LÁT 404 HOÃN `error.tsx` VÌ "không có bằng chứng ai đã đi vào nó" — BẰNG CHỨNG NẰM NGAY
+  TRONG FILE NÀY.** Mục bẫy về kho quiz ghi: `screenVerdict` dùng `Number.isInteger(picked)`
+  để chặn index xấu, mà `keyIndex('')` trả **−1** và `Number.isInteger(-1)` là TRUE ⇒ nó gọi
+  `optionDetail(q.options[-1])` và ném TypeError. Nguyên văn: *"nháp cũ trong localStorage giữ
+  khoá của bản bài có nhiều lựa chọn hơn — học viên đó mở bài là crash, MÃI MÃI."* Tôi đọc
+  câu ấy ở một mục khác của chính file này, không phải suy ra.
+  **VÀ ĐÓ LÀ LÝ DO `reset()` KHÔNG ĐỦ:** nó render lại CHÍNH cái cây vừa ném, nên với một
+  nháp đã nhiễm trong `localStorage` thì nó crash lại ngay — đúng chữ "mãi mãi". Phép khôi
+  phục thật sự là XOÁ NHÁP của bài đó, nên nút thứ hai là nửa CÓ BẰNG CHỨNG của trang này,
+  không phải tiện thể. Nó **do học viên bấm**, không tự chạy: nháp giữ code họ đang viết và
+  server không có bản sao nào (`lesson_progress` chỉ biết "đã hoàn thành").
+  **BA BẢN CHÉP CỦA MỘT KHUÔN KHOÁ, và bản thứ ba là chỗ tôi sắp thêm.** Khoá nháp
+  `pe-studio-lesson-v1:<owner>:<khoá>:<bài>` được dựng **HAI LẦN trong chính
+  `useLessonDraft.ts`** (chỗ tự lưu và chỗ `restore`), và trang lỗi cần nó lần thứ ba. Khi
+  chúng trôi thì học viên mất nháp mà không exception nào ném — `getItem` chỉ trả `null`. Nay
+  một định nghĩa ở `lib/nhap-bai.ts`, ba chỗ dùng.
+  **VÀ PHÉP ÁNH XẠ `?lesson=` → `sort_order` CŨNG CHỈ CÓ MỘT BẢN, nhưng không có test nào.**
+  Nó nằm inline trong `lesson/python_advanced/page.tsx`, và AGENTS.md đã ghi một vụ lệch MỘT
+  đơn vị ở đúng chỗ này (*"vẫn mở đúng module ở hầu hết các bài, chỉ sai ở bài ĐẦU của mỗi
+  module"* — hỏng im lặng). Trang lỗi cần ĐÚNG phép tính ấy để xoá đúng nháp, nên nó rời vào
+  `nhap-bai.ts` cùng khoá nháp: 2 người dùng, 1 định nghĩa, và nay có ca gọi thẳng.
+  **XEM THẬT TRONG CHROME, trên `next build` + `next start`, và nhánh xoá nháp được đi qua.**
+  Gieo một trang tạm ném lỗi — và nó phải ném **chỉ trong trình duyệt** (`typeof window !==
+  'undefined'`): ném lúc prerender thì `next build` **exit 1** chứ không tới `error.tsx`, đã
+  thử. Đo trên `/lesson/zz-boom?lesson=11`: tiêu đề *"Trang này vừa gặp lỗi"* · giấy kem
+  `rgb(244,238,227)` · font **Montserrat** · 23 stylesheet · 2 liên kết, cả hai là route có
+  thật · nút "Thử lại" cao **46px**. Rồi gieo HAI nháp (`:zz-boom:12` của bài trong URL và
+  `:zz-boom:3` của bài khác): nút xoá hiện ra, bấm nó thì **`:12` đi, `:3` ở lại**, trang tải
+  lại. Ở **360×640** (emulate mobile): 0 cuộn ngang, 0 cuộn dọc, 4 mục trong mép, đích bấm nhỏ
+  nhất **44px**, 3 hàng.
+  **LINT ĐỎ 1 LỖI NGAY, và đó là bẫy file này ĐÃ GHI HAI LẦN:** React 19 cấm `setState` đồng
+  bộ trong thân effect (`react-hooks/set-state-in-effect`). Bản đầu viết
+  `useEffect(() => setNhap(nhapCuaBaiNay()), [])`. Hoãn bằng `setTimeout(…, 0)` kèm
+  `clearTimeout` trong cleanup. **KHÔNG chuyển phép đọc vào `useState(() => …)`:** server
+  không có `localStorage` nên HTML trả về không có nút, dựng nút ngay lượt đầu ở client là một
+  hydration mismatch — luật là "hoãn", không phải "đọc sớm hơn".
+  Và nói cho đúng công: con số lint 1 LỖI ấy do `eslint` bắt (nó thoát 1 với lỗi từ trước),
+  không phải nhờ trần `--max-warnings` dựng ở lát trước — trần đó canh CẢNH BÁO.
+  **HAI LẦN CỔNG CỦA TÔI RỖNG, cả hai chỉ lộ nhờ ablate, và cả hai là cùng một bệnh: so với
+  dạng ÍT KHẢ NĂNG nhất.**
+  · Phép kiểm "đường về là route CÓ THẬT" cho một route ĐỘNG khớp MỌI segment, nên chiều
+    "đổi đường về thành `/courses/python`" ra **0 đỏ** — trong khi đường đó đã được đo là
+    **404** (khoá `python` không còn trong `COURSES`). Nay `[courseId]` khớp đúng danh sách id
+    mà `generateStaticParams()` sinh ra, đọc từ chính `catalog.ts`. Ablate lại: **1 đỏ**.
+  · Phép kiểm "không ghi cứng tiền tố khoá" tìm `'pe-studio-lesson` (nháy ĐƠN), nên chiều
+    "chép lại khuôn khoá bằng TEMPLATE LITERAL" ra **0 đỏ** — mà template literal chính là
+    cách người ta sẽ viết nó, vì khoá có nội suy. Bỏ dấu nháy khỏi phép so. Ablate lại:
+    **1 đỏ**.
+  **Và một ca ĐỎ OAN trên chính lời giải thích của bản sửa, lần thứ hai trong repo:** ca
+  "không dùng token brand" đọc CSS THÔ, mà chú thích đầu file kể tên `--edu-accent` để nói vì
+  sao không dùng nó. Bỏ chú thích trước khi so — y hệt bẫy đã mắc khi viết ca cho trang 404.
+  **Phép đếm try/catch phải TÍCH LUỸ:** `split('localStorage')` cho các đoạn RỜI NHAU, nên
+  đếm `try`/`catch` trong một đoạn không nói gì về việc nó có nằm trong try hay không. Bản đầu
+  đếm theo từng đoạn và báo oan lần chạm thứ hai.
+  **ABLATE 6 chiều, cả 6 đỏ:** chép lại khuôn khoá thay vì import → **1** · bỏ cổng "thật có
+  nháp" → 1 · đường về trỏ vào một 404 → 1 (trước khi siết: **0**) · đẩy một lần chạm
+  `localStorage` ra ngoài try/catch → 1 · `setState` đồng bộ trong thân effect → 1 · chép lại
+  tiền tố trong `useLessonDraft` bằng template literal → 1 (trước khi siết: **0**).
+  **SỐ ĐÃ ĐO:** frontend unit **622 → 634 ca / 54 → 55 tệp** · CSS module trong `src/`
+  **15 → 16** · sổ ngưỡng siết sàn 622 → 634 · typecheck sạch · lint **146 cảnh báo / 0 lỗi**
+  (trần 146 giữ nguyên) · `npm run build` exit 0 · `check-moc-nen` 20 mục 0 lỗi ·
+  `check-moc-chay frontend` 0 lỗi · `check-nguong` 35 ngưỡng 0 lỗi · `tai-nguyen-chet` /
+  `export-chet` / `duong-toi` 0 lỗi. **KHÔNG đụng một dòng nội dung nào**, nên `check-da-nap`
+  giữ **62 bài chờ**.
+  **VÌ SAO VÒNG NÀY NHẮM PHẦN CODE:** `check-da-deploy` đo được production đang chạy
+  **`ae48ee4`** — commit của vòng trước. Tức Vercel đã nối lại org mới và thay đổi CODE tới
+  người học NGAY, còn nội dung thì đang có 62 bài nằm chờ DB. Khi hai đường có độ trễ khác
+  nhau thế, chọn đường ngắn.
+  **HAI ỨNG VIÊN ĐÃ ĐO VÀ BỎ, ghi lại để không ai dựng lại phép đo:**
+  · `GET courses/:id/quiz/history` — route tối DUY NHẤT không có xung đột đã biết (read-only,
+    không tạo `review_quiz_results`). Nhưng `getQuizHistory` trả về **chỉ điểm số**
+    (`score`/`total`/`submittedAt`), tức dạng phản hồi mà chính văn liệu trong file này đo
+    được **d = 0,05** — yếu nhất. Nối nó như hiện tại là ship đúng dạng yếu. Dữ liệu cho dạng
+    **d = 0,49** thì CÓ (`answersJson` + `tallyMistakesByLesson` đã tính sai-theo-bài), nhưng
+    phơi nó ra là một quyết định về nội dung hiển thị, không phải một lát nối dây.
+  · 6 cảnh báo `no-unused-expressions` đều là **idiom cố ý**: `parent && parent.appendChild(e)`
+    (guard ngắn mạch) và `el.offsetWidth;` (đọc layout để FLUSH style trước transition — gỡ
+    nó là hỏng phép reset hoạt ảnh). **0 lỗi thật.**
+  **GIỚI HẠN PHẢI NÓI RA:** `error.tsx` ở gốc `app/` KHÔNG bắt lỗi của `layout.tsx` gốc — thứ
+  bắt được nó là `global-error.tsx`, và file này chưa có. Nó cũng không bắt lỗi ở Server
+  Component lúc render trên máy chủ. Và bẫy heredoc lại cắn khi viết test (dấu gạch chéo bị
+  xử lý dù delimiter đã nháy), nên ba bản sửa cuối đi qua Edit chứ không qua heredoc.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

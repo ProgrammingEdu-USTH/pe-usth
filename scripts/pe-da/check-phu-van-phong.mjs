@@ -50,15 +50,10 @@ const NGOAI_TAM = {
     + 'Hôm nay 3 sơ đồ.',
   'diagram.lanes[].label': 'cùng `SO_DO_DOC` — xem `diagram.title`.',
   'diagram.lanes[].note': 'cùng `SO_DO_DOC` — xem `diagram.title`.',
-  'paragraph.text':
-    'MỘT PHẦN đoạn văn do `build.py` chèn (ô "Chạy thử", lời dặn file dữ liệu…). '
-    + 'Phần lớn `paragraph.text` ĐẾN TỪ source và được kiểm; chỉ số ít là chữ sinh ra. '
-    + 'Đây là mục đáng gỡ sớm nhất trong năm mục, vì nó là văn GIẢNG thật, cùng loại '
-    + 'với 811 đoạn đang được kiểm.',
 };
 
 /** Trần số chuỗi ngoài tầm — CHỈ ĐƯỢC HẠ. Nới nó là giấu nợ. */
-const TRAN_NGOAI_TAM = 108;
+const TRAN_NGOAI_TAM = 99;
 
 const src = readFileSync(SOURCE, 'utf8');
 const build = JSON.parse(readFileSync(BUILD, 'utf8'));

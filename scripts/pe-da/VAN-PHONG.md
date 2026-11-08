@@ -109,7 +109,7 @@ chính là thứ L3 phải đếm BÊN TRONG một câu.
 
 ## 2. Độ dài câu KHÔNG phải vấn đề của bộ này
 
-Đo thật trên **2 651** câu phần giảng — bằng CHÍNH phép chẻ `.!?…` mà mục trên định
+Đo thật trên **2 683** câu phần giảng — bằng CHÍNH phép chẻ `.!?…` mà mục trên định
 nghĩa, và `tieng()` của bộ kiểm:
 
 | | |

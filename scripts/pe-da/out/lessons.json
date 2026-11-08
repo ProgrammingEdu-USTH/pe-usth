@@ -13174,7 +13174,7 @@
        },
        {
         "type": "paragraph",
-        "text": "Hai bảng tra của quán có THẬT trong thư mục của bài này: `mon.csv` giữ giá niêm yết từng món, `quay.csv` giữ ba quầy. Khi file đã nằm cạnh chương trình thì `pd.read_csv` nhận luôn tên file — không cần `StringIO` như các ví dụ ở trên. Việc đầu tiên vẫn là xem bảng nào có cột mình cần, chứ không phải đọc cả hai rồi mới tính."
+        "text": "Hai bảng tra của quán có THẬT trong thư mục của bài này: `mon.csv` giữ giá niêm yết từng món, `quay.csv` giữ ba quầy. Khi file đã nằm cạnh chương trình thì `pd.read_csv` nhận luôn tên file — không cần `StringIO` như các ví dụ ở trên. Trước hết vẫn phải xem bảng nào có cột mình cần, chứ không phải đọc cả hai rồi mới tính."
        },
        {
         "type": "code",
@@ -13880,7 +13880,7 @@
        },
        {
         "type": "paragraph",
-        "text": "Bảng danh mục của quán có THẬT trong thư mục của bài này: `mon.csv` giữ mã món, tên và giá niêm yết. Đây đúng là hình dạng mà `merge` sinh ra để phục vụ — một bên là đơn hàng đổi từng ngày, một bên là danh mục đứng yên, nối với nhau bằng mã món. Và câu hỏi ngay trên vẫn là câu hỏi đầu tiên: mã trong bảng danh mục có duy nhất không, vì nếu không thì phép nối nhân số hàng đơn hàng lên."
+        "text": "Bảng danh mục của quán có THẬT trong thư mục của bài này: `mon.csv` giữ mã món, tên và giá niêm yết. Đây đúng là hình dạng mà `merge` sinh ra để phục vụ. Một bên là đơn hàng đổi từng ngày, một bên là danh mục đứng yên; chúng nối với nhau bằng mã món. Và câu hỏi ngay trên vẫn là câu hỏi đầu tiên: mã trong bảng danh mục có duy nhất không? Nếu không, phép nối sẽ nhân số hàng đơn hàng lên."
        },
        {
         "type": "code",
@@ -47819,7 +47819,7 @@
        },
        {
         "type": "paragraph",
-        "text": "File thật nằm sẵn trong thư mục của bài này, tên trơn, không cần đường dẫn. Ô dưới đếm đúng ba thứ vừa nói: bảng có mấy dòng mấy cột, tên năm cột là gì, và mỗi cột có bao nhiêu giá trị khác nhau. Dòng cuối in khoảng của cột tiền kèm chữ nói thẳng là chưa biết đơn vị."
+        "text": "File thật nằm sẵn trong thư mục của bài này, tên trơn, không cần đường dẫn. Ô dưới đếm đúng ba thứ vừa nói: số dòng và số cột, tên năm cột, và số giá trị khác nhau của mỗi cột. Dòng cuối in khoảng của cột tiền kèm chữ nói thẳng là chưa biết đơn vị."
        },
        {
         "type": "code",
@@ -48030,7 +48030,7 @@
        },
        {
         "type": "paragraph",
-        "text": "Ô dưới xếp hạng hai lần trên cùng một bảng. Lần đầu theo tiền, lần sau theo số lượt. Hai bảng xếp hạng đổi chỗ nhau ở hai hạng đầu, và dòng cuối là phép đối chiếu: tổng tám nhóm phải bằng tổng cả bảng."
+        "text": "Ô dưới xếp hạng hai lần trên cùng một bảng. Lần đầu theo tiền, lần sau theo số lượt. Hai bảng xếp hạng đổi chỗ nhau ở hai hạng đầu. Dòng cuối là phép đối chiếu: tổng tám nhóm phải bằng tổng cả bảng."
        },
        {
         "type": "code",
@@ -48844,13 +48844,13 @@
    "sort_order": 178,
    "module": "M11 · Thực hành trên số liệu thật của một quán khác",
    "title": "TH06 · Đối chiếu: tổng các nhóm phải bằng tổng cả bảng",
-   "subtitle": "Nâng cao · M11 · 9 phút",
-   "estimated_minutes": 9,
+   "subtitle": "Nâng cao · M11 · 8 phút",
+   "estimated_minutes": 8,
    "xp_reward": 8,
    "content_json": {
     "schema": "studio-lesson/v2",
     "title": "TH06 · Đối chiếu: tổng các nhóm phải bằng tổng cả bảng",
-    "subtitle": "Nâng cao · M11 · 9 phút",
+    "subtitle": "Nâng cao · M11 · 8 phút",
     "source": {
      "kind": "python-da",
      "filename": "course.json#TH06",
@@ -48879,7 +48879,7 @@
        },
        {
         "type": "paragraph",
-        "text": "Ô dưới chạy cùng một phép đối chiếu trên ba khoá gom khác nhau. Mỗi dòng in tên cột, số nhóm, lệch, và tên nhóm lớn nhất. Lệch lấy trị tuyệt đối, nếu không thì một trong ba dòng in ra `-0.0` — đúng một con số mà không ai muốn đọc trong báo cáo."
+        "text": "Ô dưới chạy cùng một phép đối chiếu trên ba khoá gom khác nhau. Mỗi dòng in tên cột, số nhóm, lệch, và tên nhóm lớn nhất. Lệch lấy trị tuyệt đối. Nếu không, một trong ba dòng in ra `-0.0` — con số mà không ai muốn đọc trong báo cáo."
        },
        {
         "type": "code",
@@ -49093,7 +49093,7 @@
        },
        {
         "type": "paragraph",
-        "text": "Ô dưới là khung mở đầu của dự án, và nó là ô CHẠY THỬ: bài cuối không có ca chấm, nên bạn sửa được nó rồi chạy lại ngay tại đây. Nó gom theo tháng và vẽ một biểu đồ cột. Nhãn trục đã ghi đơn vị chưa xác định — giữ nguyên câu đó khi bạn đổi biểu đồ."
+        "text": "Ô dưới là khung mở đầu của dự án, và nó là ô CHẠY THỬ. Bài cuối không có ca chấm, nên bạn sửa được nó rồi chạy lại ngay tại đây. Nó gom theo tháng và vẽ một biểu đồ cột. Nhãn trục đã ghi đơn vị chưa xác định — giữ nguyên câu đó khi bạn đổi biểu đồ."
        },
        {
         "type": "code",

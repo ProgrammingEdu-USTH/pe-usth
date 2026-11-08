@@ -3,13 +3,13 @@
  "sort_order": 178,
  "module": "M11 · Thực hành trên số liệu thật của một quán khác",
  "title": "TH06 · Đối chiếu: tổng các nhóm phải bằng tổng cả bảng",
- "subtitle": "Nâng cao · M11 · 9 phút",
- "estimated_minutes": 9,
+ "subtitle": "Nâng cao · M11 · 8 phút",
+ "estimated_minutes": 8,
  "xp_reward": 8,
  "content_json": {
   "schema": "studio-lesson/v2",
   "title": "TH06 · Đối chiếu: tổng các nhóm phải bằng tổng cả bảng",
-  "subtitle": "Nâng cao · M11 · 9 phút",
+  "subtitle": "Nâng cao · M11 · 8 phút",
   "source": {
    "kind": "python-da",
    "filename": "course.json#TH06",
@@ -38,7 +38,7 @@
      },
      {
       "type": "paragraph",
-      "text": "Ô dưới chạy cùng một phép đối chiếu trên ba khoá gom khác nhau. Mỗi dòng in tên cột, số nhóm, lệch, và tên nhóm lớn nhất. Lệch lấy trị tuyệt đối, nếu không thì một trong ba dòng in ra `-0.0` — đúng một con số mà không ai muốn đọc trong báo cáo."
+      "text": "Ô dưới chạy cùng một phép đối chiếu trên ba khoá gom khác nhau. Mỗi dòng in tên cột, số nhóm, lệch, và tên nhóm lớn nhất. Lệch lấy trị tuyệt đối. Nếu không, một trong ba dòng in ra `-0.0` — con số mà không ai muốn đọc trong báo cáo."
      },
      {
       "type": "code",

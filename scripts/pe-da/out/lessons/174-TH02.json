@@ -38,7 +38,7 @@
      },
      {
       "type": "paragraph",
-      "text": "Ô dưới xếp hạng hai lần trên cùng một bảng. Lần đầu theo tiền, lần sau theo số lượt. Hai bảng xếp hạng đổi chỗ nhau ở hai hạng đầu, và dòng cuối là phép đối chiếu: tổng tám nhóm phải bằng tổng cả bảng."
+      "text": "Ô dưới xếp hạng hai lần trên cùng một bảng. Lần đầu theo tiền, lần sau theo số lượt. Hai bảng xếp hạng đổi chỗ nhau ở hai hạng đầu. Dòng cuối là phép đối chiếu: tổng tám nhóm phải bằng tổng cả bảng."
      },
      {
       "type": "code",

@@ -62,7 +62,7 @@
      },
      {
       "type": "paragraph",
-      "text": "Bảng danh mục của quán có THẬT trong thư mục của bài này: `mon.csv` giữ mã món, tên và giá niêm yết. Đây đúng là hình dạng mà `merge` sinh ra để phục vụ — một bên là đơn hàng đổi từng ngày, một bên là danh mục đứng yên, nối với nhau bằng mã món. Và câu hỏi ngay trên vẫn là câu hỏi đầu tiên: mã trong bảng danh mục có duy nhất không, vì nếu không thì phép nối nhân số hàng đơn hàng lên."
+      "text": "Bảng danh mục của quán có THẬT trong thư mục của bài này: `mon.csv` giữ mã món, tên và giá niêm yết. Đây đúng là hình dạng mà `merge` sinh ra để phục vụ. Một bên là đơn hàng đổi từng ngày, một bên là danh mục đứng yên; chúng nối với nhau bằng mã món. Và câu hỏi ngay trên vẫn là câu hỏi đầu tiên: mã trong bảng danh mục có duy nhất không? Nếu không, phép nối sẽ nhân số hàng đơn hàng lên."
      },
      {
       "type": "code",

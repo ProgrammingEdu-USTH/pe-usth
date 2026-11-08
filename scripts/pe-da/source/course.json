@@ -5245,6 +5245,10 @@
         {
           "type": "paragraph",
           "text": "ExcelFile giúp xem tên sheet rồi đọc đúng bảng. `book.parse(sheet_name=0)` và `pd.read_excel(book, sheet_name=0)` là hai cách đọc tương đương; số 0 chọn sheet đầu, còn chuỗi \"Sales\" chọn theo tên. Targets có một hàng trống đầu file do startrow=1 lúc ghi; skiprows=[0] bỏ hàng đó, còn names đặt tên cột đọc vào. Trong tờ tóm tắt cũ, parse_cols chọn cột; tham số hiện hành là usecols. Không đổi parse thành một API đã bị bỏ: ExcelFile.parse vẫn có trong tài liệu pandas ổn định được kiểm khi biên tập. Đừng mặc định sheet đầu luôn là bảng cần dùng; nó có thể chỉ là hướng dẫn."
+        },
+        {
+          "type": "paragraph",
+          "text": "Hai bảng tra của quán có THẬT trong thư mục của bài này: `mon.csv` giữ giá niêm yết từng món, `quay.csv` giữ ba quầy. Khi file đã nằm cạnh chương trình thì `pd.read_csv` nhận luôn tên file — không cần `StringIO` như các ví dụ ở trên. Trước hết vẫn phải xem bảng nào có cột mình cần, chứ không phải đọc cả hai rồi mới tính."
         }
       ],
       "drills": [
@@ -5484,6 +5488,10 @@
         {
           "type": "paragraph",
           "text": "join với on=\"quay\" đối chiếu cột của bảng trái với index bảng phải. Dù dùng merge hay join, hãy kiểm tra độ duy nhất của khóa; bảng tra trùng mã có thể nhân số hàng giao dịch."
+        },
+        {
+          "type": "paragraph",
+          "text": "Bảng danh mục của quán có THẬT trong thư mục của bài này: `mon.csv` giữ mã món, tên và giá niêm yết. Đây đúng là hình dạng mà `merge` sinh ra để phục vụ. Một bên là đơn hàng đổi từng ngày, một bên là danh mục đứng yên; chúng nối với nhau bằng mã món. Và câu hỏi ngay trên vẫn là câu hỏi đầu tiên: mã trong bảng danh mục có duy nhất không? Nếu không, phép nối sẽ nhân số hàng đơn hàng lên."
         }
       ],
       "drills": [
@@ -16269,6 +16277,10 @@
               "tên món, 8 món khác nhau"
             ]
           ]
+        },
+        {
+          "type": "paragraph",
+          "text": "File thật nằm sẵn trong thư mục của bài này, tên trơn, không cần đường dẫn. Ô dưới đếm đúng ba thứ vừa nói: số dòng và số cột, tên năm cột, và số giá trị khác nhau của mỗi cột. Dòng cuối in khoảng của cột tiền kèm chữ nói thẳng là chưa biết đơn vị."
         }
       ],
       "drills": [
@@ -16325,6 +16337,10 @@
         {
           "type": "paragraph",
           "text": "Làm tròn tới hai chữ số thập phân khi trình bày. Và nhớ rằng con số đó vẫn chưa có đơn vị."
+        },
+        {
+          "type": "paragraph",
+          "text": "Ô dưới xếp hạng hai lần trên cùng một bảng. Lần đầu theo tiền, lần sau theo số lượt. Hai bảng xếp hạng đổi chỗ nhau ở hai hạng đầu. Dòng cuối là phép đối chiếu: tổng tám nhóm phải bằng tổng cả bảng."
         }
       ],
       "drills": [
@@ -16381,6 +16397,10 @@
         {
           "type": "paragraph",
           "text": "Chọn bừa cũng là một quyết định. Chỉ khác là nó không được ghi ở đâu, nên người đọc báo cáo không biết nó đã xảy ra."
+        },
+        {
+          "type": "paragraph",
+          "text": "Ô dưới tách giờ ra khỏi cột mốc thời gian rồi đếm theo giờ. Dòng thứ hai là món `Espresso`: hai giờ cùng đạt 13 lượt, nên đáp án là một danh sách chứ không phải một con số. Dòng thứ ba lấy một đỉnh duy nhất của cả bảng, và nó im lặng về chuyện có thể có đỉnh thứ hai."
         }
       ],
       "drills": [
@@ -16437,6 +16457,10 @@
         {
           "type": "paragraph",
           "text": "Nên mỗi tỉ lệ trong báo cáo đi cùng số lượt dựng ra nó. Người đọc thấy mẫu số là họ tự biết tin tới đâu."
+        },
+        {
+          "type": "paragraph",
+          "text": "Ô dưới đếm theo kiểu thanh toán, rồi chia tiếp theo món. Dòng thứ hai cho thấy mẫu số thật của món `Espresso`: 5 lượt tiền mặt trên 97. Dòng thứ ba là tỉ lệ, và nó đứng một mình thì không ai biết nó dựng trên 5 lượt."
         }
       ],
       "drills": [
@@ -16494,6 +16518,10 @@
         {
           "type": "paragraph",
           "text": "Người nhận báo cáo sẽ hỏi đúng câu đó trước mọi câu khác. Trả lời sẵn thì họ tin phần còn lại."
+        },
+        {
+          "type": "paragraph",
+          "text": "Ô dưới dựng đúng bảng mà PD32 đã dạy, chỉ đổi nguồn số liệu. Dòng thứ hai đối chiếu: số lượt và tổng tiền của mười tháng phải bằng số lượt và tổng tiền của cả bảng. Dòng thứ ba là phần không ai được bỏ khi giao báo cáo."
         }
       ],
       "drills": [
@@ -16551,6 +16579,10 @@
         {
           "type": "paragraph",
           "text": "Kèm theo tên nhóm lớn nhất thì báo cáo trả lời luôn câu kế tiếp của người đọc. Quán cà phê này bán chạy nhất món nào. Nhưng nhóm lớn nhất của cột ngày chỉ là một ngày trong 294 ngày, nên nó không nói được xu hướng."
+        },
+        {
+          "type": "paragraph",
+          "text": "Ô dưới chạy cùng một phép đối chiếu trên ba khoá gom khác nhau. Mỗi dòng in tên cột, số nhóm, lệch, và tên nhóm lớn nhất. Lệch lấy trị tuyệt đối. Nếu không, một trong ba dòng in ra `-0.0` — con số mà không ai muốn đọc trong báo cáo."
         }
       ],
       "drills": [
@@ -16607,6 +16639,10 @@
         {
           "type": "paragraph",
           "text": "Đặt đoạn giới hạn ngay cạnh kết luận, đừng đẩy xuống cuối trang."
+        },
+        {
+          "type": "paragraph",
+          "text": "Ô dưới là khung mở đầu của dự án, và nó là ô CHẠY THỬ. Bài cuối không có ca chấm, nên bạn sửa được nó rồi chạy lại ngay tại đây. Nó gom theo tháng và vẽ một biểu đồ cột. Nhãn trục đã ghi đơn vị chưa xác định — giữ nguyên câu đó khi bạn đổi biểu đồ."
         }
       ],
       "drills": [

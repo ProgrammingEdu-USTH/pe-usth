@@ -38,7 +38,7 @@
      },
      {
       "type": "paragraph",
-      "text": "Ô dưới là khung mở đầu của dự án, và nó là ô CHẠY THỬ: bài cuối không có ca chấm, nên bạn sửa được nó rồi chạy lại ngay tại đây. Nó gom theo tháng và vẽ một biểu đồ cột. Nhãn trục đã ghi đơn vị chưa xác định — giữ nguyên câu đó khi bạn đổi biểu đồ."
+      "text": "Ô dưới là khung mở đầu của dự án, và nó là ô CHẠY THỬ. Bài cuối không có ca chấm, nên bạn sửa được nó rồi chạy lại ngay tại đây. Nó gom theo tháng và vẽ một biểu đồ cột. Nhãn trục đã ghi đơn vị chưa xác định — giữ nguyên câu đó khi bạn đổi biểu đồ."
      },
      {
       "type": "code",

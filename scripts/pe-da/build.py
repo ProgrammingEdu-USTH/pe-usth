@@ -125,15 +125,8 @@ TEN_FILE_DU_LIEU = re.compile(r'^[a-z0-9_-]+\.csv$')
 # lại, và một khoá theo chỉ số khối sẽ trôi im lặng.
 KHOI_DU_LIEU: dict[str, dict] = {
     'PD13': {
-        'files': ['mon.csv', 'quay.csv'],
-        'paragraph':
-            'Hai bảng tra của quán có THẬT trong thư mục của bài này: '
-            '`mon.csv` giữ giá niêm yết từng món, `quay.csv` giữ ba quầy. Khi '
-            'file đã nằm cạnh chương trình thì `pd.read_csv` nhận luôn tên '
-            'file — không cần `StringIO` như các ví dụ ở trên. Việc đầu tiên '
-            'vẫn là xem bảng nào có cột mình cần, chứ không phải đọc cả hai '
-            'rồi mới tính.',
-        'code': (
+        'danMoc': 'Hai bảng tra của quán',
+        'files': ['mon.csv', 'quay.csv'],        'code': (
             "import pandas as pd\n"
             "\n"
             "mon = pd.read_csv('mon.csv')\n"
@@ -154,16 +147,8 @@ KHOI_DU_LIEU: dict[str, dict] = {
         ),
     },
     'PD16': {
-        'files': ['mon.csv'],
-        'paragraph':
-            'Bảng danh mục của quán có THẬT trong thư mục của bài này: '
-            '`mon.csv` giữ mã món, tên và giá niêm yết. Đây đúng là hình dạng '
-            'mà `merge` sinh ra để phục vụ — một bên là đơn hàng đổi từng '
-            'ngày, một bên là danh mục đứng yên, nối với nhau bằng mã món. Và '
-            'câu hỏi ngay trên vẫn là câu hỏi đầu tiên: mã trong bảng danh mục '
-            'có duy nhất không, vì nếu không thì phép nối nhân số hàng đơn '
-            'hàng lên.',
-        'code': (
+        'danMoc': 'Bảng danh mục của quán',
+        'files': ['mon.csv'],        'code': (
             "import pandas as pd\n"
             "\n"
             "mon = pd.read_csv('mon.csv')\n"
@@ -200,14 +185,8 @@ KHOI_DU_LIEU: dict[str, dict] = {
     # `expected` của cả bảy khối ĐO BẰNG `node scripts/pe-da/check-pyodide.mjs`
     # trên chính Pyodide trong repo. Đừng sửa bằng tay.
     'TH01': {
-        'files': ['coffee-sales-cc0.csv'],
-        'paragraph':
-            'File thật nằm sẵn trong thư mục của bài này, tên trơn, không cần '
-            'đường dẫn. Ô dưới đếm đúng ba thứ vừa nói: bảng có mấy dòng mấy '
-            'cột, tên năm cột là gì, và mỗi cột có bao nhiêu giá trị khác '
-            'nhau. Dòng cuối in khoảng của cột tiền kèm chữ nói thẳng là chưa '
-            'biết đơn vị.',
-        'code': (
+        'danMoc': 'File thật nằm sẵn',
+        'files': ['coffee-sales-cc0.csv'],        'code': (
             "import pandas as pd\n"
             "\n"
             "ban = pd.read_csv('coffee-sales-cc0.csv')\n"
@@ -225,13 +204,8 @@ KHOI_DU_LIEU: dict[str, dict] = {
         ),
     },
     'TH02': {
-        'files': ['coffee-sales-cc0.csv'],
-        'paragraph':
-            'Ô dưới xếp hạng hai lần trên cùng một bảng. Lần đầu theo tiền, '
-            'lần sau theo số lượt. Hai bảng xếp hạng đổi chỗ nhau ở hai hạng '
-            'đầu, và dòng cuối là phép đối chiếu: tổng tám nhóm phải bằng tổng '
-            'cả bảng.',
-        'code': (
+        'danMoc': 'xếp hạng hai lần',
+        'files': ['coffee-sales-cc0.csv'],        'code': (
             "import pandas as pd\n"
             "\n"
             "ban = pd.read_csv('coffee-sales-cc0.csv')\n"
@@ -248,14 +222,8 @@ KHOI_DU_LIEU: dict[str, dict] = {
         ),
     },
     'TH03': {
-        'files': ['coffee-sales-cc0.csv'],
-        'paragraph':
-            'Ô dưới tách giờ ra khỏi cột mốc thời gian rồi đếm theo giờ. Dòng '
-            'thứ hai là món `Espresso`: hai giờ cùng đạt 13 lượt, nên đáp án '
-            'là một danh sách chứ không phải một con số. Dòng thứ ba lấy một '
-            'đỉnh duy nhất của cả bảng, và nó im lặng về chuyện có thể có đỉnh '
-            'thứ hai.',
-        'code': (
+        'danMoc': 'tách giờ ra khỏi',
+        'files': ['coffee-sales-cc0.csv'],        'code': (
             "import pandas as pd\n"
             "\n"
             "ban = pd.read_csv('coffee-sales-cc0.csv')\n"
@@ -273,13 +241,8 @@ KHOI_DU_LIEU: dict[str, dict] = {
         ),
     },
     'TH04': {
-        'files': ['coffee-sales-cc0.csv'],
-        'paragraph':
-            'Ô dưới đếm theo kiểu thanh toán, rồi chia tiếp theo món. Dòng thứ '
-            'hai cho thấy mẫu số thật của món `Espresso`: 5 lượt tiền mặt trên '
-            '97. Dòng thứ ba là tỉ lệ, và nó đứng một mình thì không ai biết nó '
-            'dựng trên 5 lượt.',
-        'code': (
+        'danMoc': 'đếm theo kiểu thanh toán',
+        'files': ['coffee-sales-cc0.csv'],        'code': (
             "import pandas as pd\n"
             "\n"
             "ban = pd.read_csv('coffee-sales-cc0.csv')\n"
@@ -297,13 +260,8 @@ KHOI_DU_LIEU: dict[str, dict] = {
         ),
     },
     'TH05': {
-        'files': ['coffee-sales-cc0.csv'],
-        'paragraph':
-            'Ô dưới dựng đúng bảng mà PD32 đã dạy, chỉ đổi nguồn số liệu. Dòng '
-            'thứ hai đối chiếu: số lượt và tổng tiền của mười tháng phải bằng '
-            'số lượt và tổng tiền của cả bảng. Dòng thứ ba là phần không ai '
-            'được bỏ khi giao báo cáo.',
-        'code': (
+        'danMoc': 'PD32 đã dạy',
+        'files': ['coffee-sales-cc0.csv'],        'code': (
             "import pandas as pd\n"
             "\n"
             "ban = pd.read_csv('coffee-sales-cc0.csv')\n"
@@ -324,13 +282,8 @@ KHOI_DU_LIEU: dict[str, dict] = {
         ),
     },
     'TH06': {
-        'files': ['coffee-sales-cc0.csv'],
-        'paragraph':
-            'Ô dưới chạy cùng một phép đối chiếu trên ba khoá gom khác nhau. '
-            'Mỗi dòng in tên cột, số nhóm, lệch, và tên nhóm lớn nhất. Lệch '
-            'lấy trị tuyệt đối, nếu không thì một trong ba dòng in ra `-0.0` — '
-            'đúng một con số mà không ai muốn đọc trong báo cáo.',
-        'code': (
+        'danMoc': 'ba khoá gom khác nhau',
+        'files': ['coffee-sales-cc0.csv'],        'code': (
             "import pandas as pd\n"
             "\n"
             "ban = pd.read_csv('coffee-sales-cc0.csv')\n"
@@ -347,13 +300,8 @@ KHOI_DU_LIEU: dict[str, dict] = {
         ),
     },
     'TH07': {
-        'files': ['coffee-sales-cc0.csv'],
-        'paragraph':
-            'Ô dưới là khung mở đầu của dự án, và nó là ô CHẠY THỬ: bài cuối '
-            'không có ca chấm, nên bạn sửa được nó rồi chạy lại ngay tại đây. '
-            'Nó gom theo tháng và vẽ một biểu đồ cột. Nhãn trục đã ghi đơn vị '
-            'chưa xác định — giữ nguyên câu đó khi bạn đổi biểu đồ.',
-        'code': (
+        'danMoc': 'khung mở đầu của dự án',
+        'files': ['coffee-sales-cc0.csv'],        'code': (
             "import pandas as pd\n"
             "import matplotlib.pyplot as plt\n"
             "\n"
@@ -1496,13 +1444,33 @@ def dung_bai(bai: dict, thu_tu: int, module_so: int, module_ten: str,
     # `thu_duoc`/`so_do`/`vet` đang dùng, không thêm cách thứ hai.
     can_du_lieu: set[int] = set()
     if khai_du_lieu:
+        # ĐOẠN VĂN DẪN nay nằm trong GÓI NGUỒN, không ở đây nữa (08/11/2026).
+        # Vì sao tách: `KHOI_DU_LIEU` trộn hai việc khác hẳn nhau. `files` là
+        # KHAI BÁO FILE — chuyện của nền tảng, và lý do giữ nó ở build vẫn
+        # đứng. `paragraph` thì là VĂN XUÔI NGƯỜI HỌC ĐỌC, mà lý do ấy không
+        # phủ được. Hệ quả đã đo: bộ văn phong đọc `source/course.json` nên 9
+        # đoạn ấy chưa bao giờ đi qua một luật nào, và khi đưa vào tầm kiểm
+        # chúng cho **L1 21 → 24 lỗi** (3 câu > 30 tiếng, đã tách).
+        # Đoạn dẫn là khối CUỐI của `reading` trong nguồn, nên thứ tự người học
+        # thấy không đổi: … → đoạn dẫn → khối code đọc file.
+        # HÀNG RÀO PHẢI NEO VÀO NỘI DUNG, không vào hình dạng. Bản đầu chỉ kiểm
+        # "khối cuối là một đoạn văn" — ablate: xoá hẳn đoạn dẫn của PD13 thì
+        # build VẪN exit 0, vì khối đứng trước nó cũng là một đoạn văn. Một hàng
+        # rào không phân biệt được "đoạn dẫn" với "một đoạn văn bất kỳ" thì nó
+        # không rào gì. `danMoc` là một cụm chữ ngắn PHẢI có trong đoạn ấy.
+        cuoi = reading[-1] if reading else {}
+        moc = khai_du_lieu['danMoc']
+        if cuoi.get('type') != 'paragraph' or moc not in (cuoi.get('text') or ''):
+            print(f'LỖI: {bai["id"]} khai KHOI_DU_LIEU nhưng khối CUỐI của '
+                  f'`reading` trong gói nguồn không chứa mốc {moc!r}. Đoạn dẫn ấy '
+                  'đã chuyển sang gói nguồn (08/11/2026) để bộ văn phong nhìn '
+                  'thấy nó — xoá hoặc viết lại mà quên sửa `danMoc` thì người học '
+                  'mất câu giải thích vì sao bài này đọc file thật.')
+            raise SystemExit(1)
         khoi_moi = {'type': 'code', 'code': khai_du_lieu['code'],
                     'expected': khai_du_lieu['expected']}
         can_du_lieu.add(id(khoi_moi))
-        reading = reading + [
-            {'type': 'paragraph', 'text': khai_du_lieu['paragraph']},
-            khoi_moi,
-        ]
+        reading = reading + [khoi_moi]
     man = chia_man(reading)
     luyen = cau_luyen(bai)
     trac_nghiem = cau_trac_nghiem(mcq, bai['id']) if mcq else []

@@ -60,7 +60,7 @@
      },
      {
       "type": "paragraph",
-      "text": "Hai bảng tra của quán có THẬT trong thư mục của bài này: `mon.csv` giữ giá niêm yết từng món, `quay.csv` giữ ba quầy. Khi file đã nằm cạnh chương trình thì `pd.read_csv` nhận luôn tên file — không cần `StringIO` như các ví dụ ở trên. Việc đầu tiên vẫn là xem bảng nào có cột mình cần, chứ không phải đọc cả hai rồi mới tính."
+      "text": "Hai bảng tra của quán có THẬT trong thư mục của bài này: `mon.csv` giữ giá niêm yết từng món, `quay.csv` giữ ba quầy. Khi file đã nằm cạnh chương trình thì `pd.read_csv` nhận luôn tên file — không cần `StringIO` như các ví dụ ở trên. Trước hết vẫn phải xem bảng nào có cột mình cần, chứ không phải đọc cả hai rồi mới tính."
      },
      {
       "type": "code",

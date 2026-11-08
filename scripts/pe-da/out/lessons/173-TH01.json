@@ -77,7 +77,7 @@
      },
      {
       "type": "paragraph",
-      "text": "File thật nằm sẵn trong thư mục của bài này, tên trơn, không cần đường dẫn. Ô dưới đếm đúng ba thứ vừa nói: bảng có mấy dòng mấy cột, tên năm cột là gì, và mỗi cột có bao nhiêu giá trị khác nhau. Dòng cuối in khoảng của cột tiền kèm chữ nói thẳng là chưa biết đơn vị."
+      "text": "File thật nằm sẵn trong thư mục của bài này, tên trơn, không cần đường dẫn. Ô dưới đếm đúng ba thứ vừa nói: số dòng và số cột, tên năm cột, và số giá trị khác nhau của mỗi cột. Dòng cuối in khoảng của cột tiền kèm chữ nói thẳng là chưa biết đơn vị."
      },
      {
       "type": "code",

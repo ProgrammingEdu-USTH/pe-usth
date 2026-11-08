@@ -118,6 +118,69 @@ const KIEM = {
       return { ca: d + h, truot: h };
     },
   },
+  // HAI BỘ CHẤM NỘI DUNG của pe-da. Chúng in ra những con số mà `check-moc-nen`
+  // KHÔNG tính được từ `out/` — "420 đoạn code CHẠY ĐƯỢC", "773 biến thể sai bị
+  // đánh trượt", "2 372 ca trượt mà 0 ca im lặng" đều là kết quả của một lần
+  // CHẠY THẬT trong Pyodide. Cả hai hàng hôm nay ĐÚNG, nên đây không phải sửa
+  // một lỗi đang sống — nó là gắn răng cho một tín hiệu dừng, đúng thế của con
+  // số 204 vs 134 (bảng ghi 204 ca test trong khi cây mã có 134, sống sót vì
+  // không ai canh).
+  pyodide: {
+    nhan: 'đoạn code pe-da chạy thật trong Pyodide',
+    lenh: 'node scripts/pe-da/check-pyodide.mjs',
+    cwd: '.',
+    // ĐO ĐƯỢC 08/11/2026: **2 lần ĐỎ GIẢ trên 6 lần chạy** trong cùng một phiên,
+    // KHÔNG đổi một dòng mã nào — mỗi lần đúng `1 hỏng`. Bộ chấm có trần 5 giây MỖI
+    // ĐOẠN, nên khi máy đang bận thì một đoạn chậm bị đánh trượt — cùng họ với
+    // bẫy "tranh CPU sinh ĐỎ GIẢ" của jest đã ghi trong AGENTS.md. Câu dưới đây
+    // tồn tại để lần đỏ đầu tiên KHÔNG bị đổ cho nội dung.
+    luuY: 'bộ này có trần 5 giây MỖI ĐOẠN, nên máy bận có thể sinh ĐỎ GIẢ — đo '
+      + 'được 2/6 lần chạy. Chạy LẠI một mình trước khi kết luận là nội dung hỏng.',
+    bang: () => {
+      const m = MD.match(/check-pyodide\.mjs`[^|\n]*?([\d  ]+) bài, ([\d  ]+) đoạn code/);
+      return m ? { bai: so(m[1]), doan: so(m[2]) } : null;
+    },
+    bang2: () => {
+      const m = MD.match(/check-moc-chay[^|\n]*?pyodide ([\d  ]+)\/([\d  ]+)/);
+      return m ? { bai: so(m[1]), doan: so(m[2]) } : null;
+    },
+    // Dòng tổng kết: "154 bài · 420 đoạn code · 154 đạt · 0 hỏng · 73.2s".
+    // `truot` lấy từ số HỎNG, nên một bài hỏng làm cổng đỏ vì "bộ test đỏ" chứ
+    // không vì "bảng ghi sai" — cùng lý lẽ đã viết cho mục e2e.
+    doc: (ra) => {
+      const m = ra.match(/^(\d+) bài · (\d+) đoạn code · (\d+) đạt · (\d+) hỏng/m);
+      return m
+        ? { bai: Number(m[1]), doan: Number(m[2]), truot: Number(m[4]) }
+        : null;
+    },
+  },
+  practice: {
+    nhan: 'ca chấm bài tập pe-da',
+    lenh: 'node scripts/pe-da/check-practice.mjs',
+    cwd: '.',
+    bang: () => {
+      const m = MD.match(
+        /check-practice\.mjs`[^|\n]*?([\d  ]+) bài, \*\*([\d  ]+) ca đạt\*\*, ([\d  ]+) biến thể/);
+      return m ? { bai: so(m[1]), ca: so(m[2]), bienThe: so(m[3]) } : null;
+    },
+    bang2: () => {
+      const m = MD.match(/check-moc-chay[^|\n]*?practice ([\d  ]+)\/([\d  ]+)\/([\d  ]+)/);
+      return m ? { bai: so(m[1]), ca: so(m[2]), bienThe: so(m[3]) } : null;
+    },
+    // "143 bài tự làm · 480 ca chấm · 480 đạt · 27.7 s" + "pha 2 — lời giải SAI:
+    // 773 biến thể · 773 bị đánh trượt đúng". `truot` = số ca chấm KHÔNG đạt
+    // CỘNG số biến thể sai KHÔNG bị bắt: cả hai đều là "bộ chấm hỏng", và gộp
+    // chúng vào một trường giữ đúng hợp đồng `truot` của các mục khác.
+    doc: (ra) => {
+      const a = ra.match(/^(\d+) bài tự làm · (\d+) ca chấm · (\d+) đạt/m);
+      const b = ra.match(/pha 2 — lời giải SAI: (\d+) biến thể · (\d+) bị đánh trượt đúng/);
+      if (!a || !b) return null;
+      return {
+        bai: Number(a[1]), ca: Number(a[2]), bienThe: Number(b[1]),
+        truot: (Number(a[2]) - Number(a[3])) + (Number(b[1]) - Number(b[2])),
+      };
+    },
+  },
   tracer: {
     nhan: 'phép kiểm của bộ ghi vết',
     lenh: `${process.platform === 'win32' ? 'py' : 'python'}`
@@ -198,7 +261,10 @@ for (const k of ten) {
   const phan = Object.keys(khai).map((f) => `${f} ${khai[f]}/${that[f]}`).join(' · ');
   console.log(`${c.nhan}: bảng/chạy ra → ${phan}`
     + (that.truot ? ` · ${that.truot} TRƯỢT` : ' · 0 trượt'));
-  if (that.truot) loi.push(`${c.nhan}: ${that.truot} ca TRƯỢT — con số chỉ đúng khi bộ test xanh.`);
+  if (that.truot) {
+    loi.push(`${c.nhan}: ${that.truot} ca TRƯỢT — con số chỉ đúng khi bộ test xanh.`
+      + (c.luuY ? `\n   LƯU Ý: ${c.luuY}` : ''));
+  }
   for (const f of Object.keys(khai)) {
     // Con số CHẠY RA là thẩm quyền; mỗi bản sao so RIÊNG với nó, nên thông điệp
     // chỉ đúng vào bản sai thay vì nói chung "bảng ghi sai".

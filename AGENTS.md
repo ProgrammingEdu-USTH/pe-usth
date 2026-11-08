@@ -37,7 +37,7 @@ node scripts/check-tai-nguyen-chet.mjs  # TỆP/COMPONENT nào KHÔNG ai tới �
 node scripts/check-export-chet.mjs      # KÝ HIỆU nào được export ra mà không ai gọi
 node scripts/check-da-nap.mjs           # BÀI nào đã dựng mà CHƯA nạp vào DB
 node scripts/check-moc-nen.mjs          # BẢNG MỐC NỀN dưới đây có nói đúng không
-node scripts/check-moc-chay.mjs         # MỐC phải CHẠY mới biết: frontend | backend | tracer | e2e
+node scripts/check-moc-chay.mjs         # MỐC phải CHẠY mới biết: frontend | backend | tracer | e2e | pyodide | practice
 node scripts/check-doi-hoi.mjs          # KHỐI CODE màn đọc nào chưa có lời đòi
 node scripts/check-nguong.mjs           # NGƯỠNG một chiều có ai nới ngược không
 node scripts/check-wheel.mjs            # WHEEL vendored: thừa megabyte chết / thiếu gói bài cần
@@ -99,7 +99,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **34 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **4 mục** (frontend 592 · backend 35 bộ/501 · tracer 65 · e2e 11), 0 trượt, 0 lỗi; nó CHẠY chính bốn lệnh đó nên THAY cả bốn bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **6 mục** (frontend 592 · backend 35 bộ/501 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773), 0 trượt, 0 lỗi; nó CHẠY chính sáu lệnh đó nên THAY cả sáu bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -3699,6 +3699,33 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** panel bên phải và 5 kệ sách nay có thanh cuộn mảnh.
   **KHÔNG bump `ASSET_VERSION`:** `scene.css` nằm trong `frontend/src/`, đi qua bundler nên
   URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
+
+- **HAI HÀNG CHẤM NỘI DUNG CỦA BẢNG MỐC NỀN LÀ SỐ CHẠY-MỚI-BIẾT MÀ KHÔNG CỔNG NÀO CANH —
+  và chính việc gắn cổng đã lộ ra bộ chấm sinh ĐỎ GIẢ.** `check-moc-chay` canh 4 mục,
+  `check-moc-nen` đối chiếu 20 con số **đọc ra được từ `out/`**. Giữa hai cái đó có một
+  khe: *"154 bài · **420 đoạn code** chạy thật trong Pyodide"* và *"143 bài · 480 ca ·
+  **773 biến thể sai đều trượt**"* chỉ biết được bằng cách CHẠY, và `out/` không chứa
+  chúng. **Hôm nay cả hai hàng ĐÚNG** — đã chạy và đối chiếu — nên đây không phải sửa một
+  lỗi đang sống, mà là gắn răng cho một tín hiệu dừng. Đúng thế của con số **204 vs 134**.
+  Nay `check-moc-chay` có **6 mục**, và hai mục mới THAY bước cũ trong job `giao-trinh-da`
+  (dòng 376 và 391) chứ không thêm lượt chạy.
+  **VÀ ĐÂY LÀ PHÁT HIỆN KÈM, lớn hơn chính việc đang làm: `check-pyodide.mjs` SINH ĐỎ GIẢ.**
+  Đo trong cùng một phiên, **không đổi một dòng mã nào**: **2 lần ĐỎ GIẢ trên 6 lần chạy**,
+  mỗi lần đúng `1 hỏng`, ba lần còn lại `0 hỏng`. Bộ chấm có trần **5 giây MỖI ĐOẠN**, nên
+  máy bận là một đoạn chậm bị đánh trượt — cùng họ với bẫy *"tranh CPU sinh ĐỎ GIẢ"* của
+  jest. Nếu không nói ra, lần đỏ đầu tiên trên CI sẽ bị đổ cho NỘI DUNG, và ai đó sẽ đi sửa
+  một bài học không hỏng. Nên mục `pyodide` mang một trường `luuY` in kèm mỗi lần có ca
+  trượt: *"bộ này có trần 5 giây MỖI ĐOẠN… chạy LẠI một mình trước khi kết luận"*.
+  **CHÍNH PHÉP ABLATE CŨNG DÍNH, và nó dạy cách đọc một con số ablate:** chiều "bảng ghi
+  421 đoạn" lần đầu cho **2 đỏ**, không phải 1. Chạy lại riêng thì đúng **1 đỏ** — con thứ
+  hai là một lần đỏ giả nữa. **Một con số ablate cao hơn dự tính phải được chạy lại trước
+  khi ghi**, nếu không thì bảng ablate tự khai khống.
+  `doc` của mục `practice` gộp hai nguồn trượt vào một trường: ca chấm KHÔNG đạt **cộng**
+  biến thể sai KHÔNG bị bắt — cả hai đều là "bộ chấm hỏng", và gộp giữ đúng hợp đồng
+  `truot` của bốn mục kia.
+  Ablate 5 chiều: bảng ghi 144 bài → **1 đỏ** · bản SAO ghi sai CẢ ca lẫn biến thể → **2
+  đỏ**, mỗi trường một lỗi · đổi CHỮ hàng bảng → 1 ("KHÔNG CÒN DÒNG") · gỡ bản SAO khỏi
+  hàng "Mốc phải CHẠY mới biết" → 1 · bảng ghi 421 đoạn → 1.
 
 - **9 ĐOẠN VĂN GIẢNG RỜI `build.py` VỀ GÓI NGUỒN — 108 → 99 chuỗi ngoài tầm, và hàng rào
   đầu tiên của tôi KHÔNG RÀO GÌ.** Lead tự ghi ở mục dưới: trong 5 nhóm chuỗi ngoài tầm,

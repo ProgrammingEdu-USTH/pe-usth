@@ -81,8 +81,19 @@
 }
 
 .closeBtn {
-  width: 40px;
-  height: 40px;
+  /* 44px, KHÔNG 40: luật đích bấm tối thiểu của repo (ghi ở
+   * `not-found.module.css` / `error.module.css`: "Repo đã phải sửa một đích
+   * 13×6px một lần"). Đo trên production 08/11/2026 ở 390×844, vùng chạm bằng
+   * `elementFromPoint`: nút này ra **39×39** — dưới sàn ở CẢ HAI trục, và ở MỌI
+   * khổ, vì nó không có override mobile nào. `@media (max-width: 560px)` của
+   * file này ĐÃ nâng `.backBtn` lên 44 và cho `.primaryBtn` một `min-width`,
+   * nên quy ước có — nút này bị bỏ sót.
+   *
+   * 44 vừa trong thanh trên (đo được cao 56px), nên không có rủi ro bố cục.
+   * `dich-bam-vo-bai-hoc.test.mjs` canh sàn này cho MỌI rule `cursor: pointer`
+   * của file. */
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   flex-shrink: 0;
   display: flex;
@@ -364,6 +375,11 @@ button.segment::after {
    với nút chính — người học vẫn phải đi tới, quay lại chỉ là lối thoát. */
 .backBtn {
   flex-shrink: 0;
+  /* `min-width`, không chỉ `height`: bề rộng của nút này do NỘI DUNG quyết
+   * (`padding` + chữ "Quay lại"), nên nó đo được **41,6px** ở 390×844 trong khi
+   * `@media (max-width: 560px)` dưới đây đã nâng chiều CAO lên 44. Một nút đạt
+   * một trục là chưa đạt — và `height` không bảo đảm được trục kia. */
+  min-width: 44px;
   height: 40px;
   padding: 0 16px 0 12px;
   border-radius: 999px;
@@ -443,6 +459,10 @@ button.segment::after {
 
 .secondaryBtn {
   flex-shrink: 0;
+  /* Cùng lý do như `.backBtn`: chiều cao đã đủ (52/48), bề rộng thì do nội dung
+   * — và nhãn của nút này đổi theo màn (`cta.ts` sinh ra nó), nên một màn có
+   * nhãn ngắn là một đích dưới sàn mà không ai thấy. `min-width` bảo đảm nó. */
+  min-width: 44px;
   height: 52px;
   padding: 0 20px;
   border-radius: 999px;

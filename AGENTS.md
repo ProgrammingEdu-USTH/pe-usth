@@ -84,7 +84,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
-| Frontend unit test | `cd frontend && npm run test:unit` → **643 ca** / 57 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **647 ca** / 58 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -104,7 +104,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **35 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **7 mục** (frontend 643 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **7 mục** (frontend 647 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -5779,6 +5779,72 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   ở 390×844 — `scrollWidth` = 390 ở cả bốn màn đi qua, 0 phần tử ngoài mép, 0 khối (`pre`/
   `table`/`img`/`figure`) tràn nội bộ. Lề nội dung là 16px (container) + 20px (padding thẻ) =
   36px mỗi bên: đó là THIẾT KẾ (thẻ cần padding), không phải vi phạm luật 16px của repo.
+
+- **LUẬT 44px CHO ĐÍCH BẤM LÀ LUẬT CỦA CHÍNH REPO, VÀ KHÔNG GÌ CANH NÓ — 21 rule
+  `cursor: pointer`, 0 rule khai `min-height`.** Luật nằm trong `not-found.module.css` và
+  `error.module.css` (*"44px: đích bấm tối thiểu. Repo đã phải sửa một đích 13×6px một
+  lần"*), và hai vòng quét điện thoại vừa rồi đo được hai vi phạm trong vỏ bài học — tức vỏ
+  mà MỌI màn của 179 bài đều hiện.
+  **SỐ ĐO** (production, 390×844, đi qua **cả 15 màn** của một bài, vùng chạm bằng
+  `elementFromPoint`):
+
+  | lớp | vùng chạm | CSS khai |
+  |---|---|---|
+  | `.closeBtn` | **39×39** | `width/height: 40px`, **không override mobile nào** |
+  | `.backBtn` | 41×43 | `@media ≤560px` nâng CAO lên 44, nhưng **không `min-width`** ⇒ rộng **41,6px** vì chữ "Quay lại" ngắn |
+  | `.secondaryBtn` | — | cao 52/48 ✓, **không `min-width`**, mà nhãn đổi theo màn (`cta.ts` sinh) |
+  | `.primaryBtn` | — | cao 52/48 + `min-width: 132px` ✓ |
+  | `button.segment` | 11×24 | ngoại lệ có chủ đích |
+
+  **CÓ NGƯỜI ĐÃ NGHĨ TỚI ĐIỆN THOẠI, và đó là chỗ đáng chú ý:** cùng
+  `@media (max-width: 560px)` ấy đã nâng `.backBtn` lên 44 và cho `.primaryBtn` một
+  `min-width` — nên quy ước CÓ, chỉ áp một nửa. `.closeBtn` bị bỏ sót ở MỌI khổ.
+  **`height` KHÔNG BẢO ĐẢM ĐƯỢC BỀ RỘNG, và đó là cả vấn đề:** bề rộng của một nút chữ do
+  NỘI DUNG quyết (`padding` + nhãn), nên `.backBtn` đạt trục dọc mà trượt trục ngang. Chỉ
+  `min-width` bảo đảm được nó, và cả ba module đều không dùng `min-*` cho đích bấm nào.
+  **CỔNG CANH THEO ĐỘ PHỦ, KHÔNG THEO DANH SÁCH — và ablate chứng minh phần ấy.** Mọi rule
+  `cursor: pointer` trong `LessonChrome.module.css` phải đạt sàn bằng KHAI BÁO
+  (`min-height`/`height` ≥ 44 **và** `min-width`/`width` ≥ 44 hoặc `100%`) ở khổ điện thoại,
+  hoặc có tên trong `NGOAI_TAM` kèm lý do. Chiều ablate "gieo một nút MỚI có `cursor: pointer`
+  mà không khai sàn" → **1 đỏ**: một danh sách các nút đã biết sẽ không phủ nút mới, còn
+  `cursor: pointer` thì phủ, vì không ai làm một đích bấm mà quên nó.
+  **Phép đọc phải cắt `@media` TRƯỚC khi duyệt rule:** `height: 44px` trong
+  `@media (max-width: 560px)` là giá trị của KHỔ ĐIỆN THOẠI, còn `height: 40px` ngoài đó là
+  desktop. Gộp lại là đọc sai cả hai — và sàn này phải đo ở khổ ĐIỆN THOẠI, nơi có ngón tay.
+  **NGOẠI LỆ HAI CHIỀU, và lý do phải mang SỐ:** `button.segment` khai sẵn rằng 15 đích 44px
+  cần 660px trong khi khổ 390 chỉ có 358px khả dụng — tức sàn ở đó **BẤT KHẢ**, không phải
+  chưa làm; `::after { inset: -9px 0 }` đã nới vùng chạm theo chiều DỌC (11×24). Chiều thứ
+  hai: cho đoạn ấy đạt sàn → **1 đỏ** ("NGOẠI LỆ ĐÃ LỖI THỜI"). Và một ca đòi mỗi lý do dài
+  > 120 ký tự, có chữ số, và trỏ vào một selector CÓ THẬT — một danh sách ngoại lệ không kèm
+  lý do là danh sách không ai dám dọn.
+  **XEM THẬT, HAI MẮT, và mắt thứ hai sửa một phép dò hỏng của tôi.** (1) CSS đã dựng chứa
+  đúng ba khai báo (`closeBtn` 44×44 · `min-width: 44px` ở hai nút kia · `@560` còn nguyên).
+  (2) Tiêm đúng ba khai báo ấy vào TRANG PRODUCTION THẬT ở 390px: `closeBtn` **40×40 → 44×44**
+  · `backBtn` **41,6×44 → 44×44** · và **không** thanh trên, thanh dưới hay trang nào tràn,
+  trước hay sau. Đó là câu trả lời cho rủi ro bố cục (+4px trong thanh trên cao 56px).
+  **PHÉP DÒ ĐẦU CỦA TÔI ĐO HƯ KHÔNG, và nó trả về số trông hợp lệ:** tôi fetch
+  `/_next/static/chunks/<tên trên đĩa>.css` rồi tiêm, nhưng URL ấy trả **404** (đường dẫn
+  trên đĩa không phải đường được phục vụ), nên `hash` ra `undefined`, class không khớp rule
+  nào, và tôi đo nút KHÔNG CÓ STYLE: `closeBtn` 15,2×5,2. Nếu đọc nó thành "bản sửa không
+  chạy" thì đã đi gỡ một bản sửa đúng. **Khi một phép đo trong trình duyệt ra số lạ, kiểm
+  `response.status` trước khi kết luận về sản phẩm.**
+  **ABLATE 5 chiều, cả 5 đỏ:** trả `closeBtn` về 40×40 → **2** (luật chung + ca ghim riêng)
+  · gỡ `min-width` của `backBtn` → 1 · gỡ `min-width` của `secondaryBtn` → 1 · gieo một nút
+  MỚI có `cursor: pointer` không khai sàn → 1 · cho `button.segment` đạt sàn → 1.
+  **SỐ ĐÃ ĐO:** frontend unit **643 → 647 ca / 57 → 58 tệp** · sổ ngưỡng siết sàn 643 → 647 ·
+  typecheck sạch · lint **146 cảnh báo / 0 lỗi** · `npm run build` exit 0 · `check-moc-nen`
+  20 mục 0 lỗi · `check-moc-chay frontend` 0 lỗi · `check-nguong` 35 ngưỡng 0 lỗi ·
+  `tai-nguyen-chet` / `duong-toi` 0 lỗi. **KHÔNG đụng một dòng nội dung nào**, nên
+  `check-da-nap` giữ **62 bài chờ**. **KHÔNG bump `ASSET_VERSION`:** tệp sửa là CSS module
+  trong `src/`, đi qua bundler.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** nút `×` đóng bài to hơn (40 → 44) và nút "Quay lại"
+  rộng hơn (41,6 → 44) trên mọi màn của 179 bài.
+  **PHẠM VI ĐÃ KHAI, để "0 lỗi" không bị đọc quá:** cổng chỉ phủ `LessonChrome.module.css`
+  (5 rule). **16 rule `cursor: pointer` còn lại** ở `studio-chrome.module.css` (12) và
+  `exercises.module.css` (4) CHƯA được canh — nhiều cái trong đó là chip/toggle nhỏ có chủ
+  đích nên phải triage từng cái, và đó là một lát riêng. Hai đích tôi đã đo dưới sàn ở đó:
+  `practiceReveal` **61×37** (nút "Viết thử rồi mới xem đáp án") và option của màn ôn giãn
+  cách **61×43** — con số thứ hai nằm trong sai số ±1px của phép dò, con số đầu thì không.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

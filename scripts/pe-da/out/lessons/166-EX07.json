@@ -22,7 +22,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Bạn đã chạy rất nhiều code của quán ở các bài trước mà chưa xem Python làm gì với nó. “Python được thông dịch” không có nghĩa CPython bỏ qua bước biên dịch. compile tạo một code object từ mã nguồn; exec có thể thực thi code object đó. Đây là cách quan sát hai bước bằng một phép tính nhỏ, không cần học chi tiết từng opcode."
+      "text": "Bạn đã chạy rất nhiều code của quán ở các bài trước mà chưa xem Python làm gì với nó. “Python được thông dịch” không có nghĩa CPython bỏ qua bước biên dịch. `compile` tạo một code object từ mã nguồn; `exec` có thể thực thi code object đó. Đây là cách quan sát hai bước bằng một phép tính nhỏ, không cần học chi tiết từng opcode."
      },
      {
       "type": "code",

@@ -121,7 +121,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Entry là ô nhập chữ. Ví dụ lấy dữ liệu từ hai ô rồi nhân giống phép tính ở CLI. root.withdraw() ẩn cửa sổ để đoạn code có thể kiểm tra tự động và kết thúc bằng destroy(). Muốn tương tác thật, bạn bỏ withdraw, bố trí widget và chạy mainloop như các bài sau."
+      "text": "Entry là ô nhập chữ. Ví dụ lấy dữ liệu từ hai ô rồi nhân giống phép tính ở CLI. root.withdraw() ẩn cửa sổ để đoạn code có thể kiểm tra tự động và kết thúc bằng destroy(). Muốn tương tác thật, bạn bỏ withdraw, bố trí widget và chạy `mainloop` như các bài sau."
      },
      {
       "type": "code",

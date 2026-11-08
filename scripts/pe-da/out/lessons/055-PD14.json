@@ -34,7 +34,7 @@
     [
      {
       "type": "paragraph",
-      "text": "groupby chia hàng thành nhóm, rồi sum tính riêng trong từng nhóm. Kết quả có một giá trị cho mỗi cửa hàng. Nếu cần nhiều thống kê, agg đặt tên rõ cho các cột báo cáo."
+      "text": "`groupby` chia hàng thành nhóm, rồi `sum` tính riêng trong từng nhóm. Kết quả có một giá trị cho mỗi cửa hàng. Nếu cần nhiều thống kê, agg đặt tên rõ cho các cột báo cáo."
      },
      {
       "type": "code",
@@ -56,7 +56,7 @@
      },
      {
       "type": "paragraph",
-      "text": "Có thể nhóm theo nhiều cột bằng danh sách, chẳng hạn groupby([\"store\", \"month\"]). Trước khi so sánh tổng báo cáo với tổng gốc, hãy quyết định cách xử lý khóa nhóm thiếu để tránh làm thất thoát số liệu."
+      "text": "Có thể nhóm theo nhiều cột bằng danh sách, chẳng hạn `groupby([\"store\", \"month\"])`. Trước khi so sánh tổng báo cáo với tổng gốc, hãy quyết định cách xử lý khóa nhóm thiếu để tránh làm thất thoát số liệu."
      }
     ]
    ],

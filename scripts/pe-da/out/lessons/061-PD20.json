@@ -56,7 +56,7 @@
      },
      {
       "type": "paragraph",
-      "text": "stack đưa tên cột thành một tầng index; unstack đưa tầng index trở lại thành cột. Chúng hữu ích khi dữ liệu đã có nhãn hàng, khác melt thường giữ các định danh trong cột."
+      "text": "`stack` đưa tên cột thành một tầng index; `unstack` đưa tầng index trở lại thành cột. Chúng hữu ích khi dữ liệu đã có nhãn hàng, khác melt thường giữ các định danh trong cột."
      }
     ]
    ],

@@ -34,7 +34,7 @@
     [
      {
       "type": "paragraph",
-      "text": "MS là mốc đầu tháng. Doanh thu tháng 1 là 30, dù có hai ngày bán khác nhau. Nếu thời gian vẫn là cột, groupby(pd.Grouper(key=\"date\", freq=\"MS\")) là một cách gom tương ứng."
+      "text": "MS là mốc đầu tháng. Doanh thu tháng 1 là 30, dù có hai ngày bán khác nhau. Nếu thời gian vẫn là cột, `groupby(pd.Grouper(key=\"date\", freq=\"MS\"))` là một cách gom tương ứng."
      },
      {
       "type": "code",

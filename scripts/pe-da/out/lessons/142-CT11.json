@@ -22,7 +22,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Khi worker có nhiều dữ liệu riêng, bạn có thể tạo subclass của threading.Thread. Hàm __init__ nhận tham số, còn run chứa công việc:"
+      "text": "Khi worker có nhiều dữ liệu riêng, bạn có thể tạo subclass của `threading.Thread`. Hàm __init__ nhận tham số, còn run chứa công việc:"
      },
      {
       "type": "code",
@@ -33,7 +33,7 @@
     [
      {
       "type": "paragraph",
-      "text": "`super().__init__()` khởi tạo phần Thread của object. self.value và self.result là thuộc tính của worker; run ghi kết quả, còn thread chính chỉ đọc sau join. Bạn cần học class, self và kế thừa trước khi tự viết dạng này."
+      "text": "`super().__init__()` khởi tạo phần `Thread` của object. self.value và self.result là thuộc tính của worker; run ghi kết quả, còn thread chính chỉ đọc sau join. Bạn cần học class, self và kế thừa trước khi tự viết dạng này."
      },
      {
       "type": "code",

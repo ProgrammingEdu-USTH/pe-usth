@@ -147,7 +147,7 @@
     [
      {
       "type": "paragraph",
-      "text": "`__str__` phải trả chuỗi. Nếu chỉ print trong method rồi không return, Python không nhận được chuỗi đúng yêu cầu. Để so sánh hai Cups bằng dấu <, định nghĩa __lt__:"
+      "text": "`__str__` phải trả chuỗi. Nếu chỉ `print` trong method rồi không return, Python không nhận được chuỗi đúng yêu cầu. Để so sánh hai Cups bằng dấu <, định nghĩa __lt__:"
      },
      {
       "type": "code",

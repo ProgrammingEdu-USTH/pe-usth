@@ -46,7 +46,7 @@
     [
      {
       "type": "paragraph",
-      "text": "melt làm chiều ngược lại: giữ cột định danh bằng id_vars, rồi chuyển các cột đo thành hai cột tên và giá trị. Dạng dài thường thuận tiện để groupby hoặc đưa vào thư viện vẽ biểu đồ."
+      "text": "melt làm chiều ngược lại: giữ cột định danh bằng id_vars, rồi chuyển các cột đo thành hai cột tên và giá trị. Dạng dài thường thuận tiện để `groupby` hoặc đưa vào thư viện vẽ biểu đồ."
      },
      {
       "type": "code",

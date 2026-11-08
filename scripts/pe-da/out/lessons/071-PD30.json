@@ -56,7 +56,7 @@
      },
      {
       "type": "paragraph",
-      "text": "pipe truyền cả bảng vào hàm để các bước đọc từ trái sang phải. Kiểm tra cuối cho thấy chuẩn hóa thêm lần nữa không làm đổi bảng ở ví dụ này. Ghi phiên bản thư viện, quy tắc và thứ tự đầu ra giúp người khác chạy lại báo cáo."
+      "text": "`pipe` truyền cả bảng vào hàm để các bước đọc từ trái sang phải. Kiểm tra cuối cho thấy chuẩn hóa thêm lần nữa không làm đổi bảng ở ví dụ này. Ghi phiên bản thư viện, quy tắc và thứ tự đầu ra giúp người khác chạy lại báo cáo."
      }
     ]
    ],

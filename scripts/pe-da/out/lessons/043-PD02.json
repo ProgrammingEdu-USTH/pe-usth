@@ -62,7 +62,7 @@
      },
      {
       "type": "paragraph",
-      "text": "Với bảng thật, `sales.info()` còn cho biết số giá trị không thiếu và kiểu dữ liệu từng cột. Hàm này in thông tin trực tiếp; không cần viết print(sales.info()). Đọc vài hàng là bước kiểm tra đầu tiên, chưa đủ để kết luận dữ liệu sạch."
+      "text": "Với bảng thật, `sales.info()` còn cho biết số giá trị không thiếu và kiểu dữ liệu từng cột. Hàm này in thông tin trực tiếp; không cần viết `print(sales.info())`. Đọc vài hàng là bước kiểm tra đầu tiên, chưa đủ để kết luận dữ liệu sạch."
      }
     ]
    ],

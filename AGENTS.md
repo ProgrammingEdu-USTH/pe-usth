@@ -91,7 +91,7 @@ học nó.
 | Giáo trình pe-da (đang chạy) | **179 bài, 11 module**, 567 màn đọc, **537 câu trắc nghiệm**, 669 câu luyện tập, **143 bài tập được chấm / 480 ca**, 2 438 phút; 139 bài chạy trong trình duyệt / 15 hỗn hợp / 25 trên máy |
 | pe-da chấm nội dung | `node scripts/pe-da/check-pyodide.mjs` → 154 bài, 420 đoạn code, **0 hỏng**, **0 cảnh báo**, 30–85 s (BIẾN THIÊN theo tải máy — xem bẫy "trần 5 giây là trần của đường khác"); trần pha 1 là **15 000 ms** (`/ide`), trần pha 2 là **5 000 ms** (ô chạy trong bài), và mỗi pha in biên riêng; **pha 2: 52/53 đáp án mẫu màn luyện tập chạy đúng, 1 ngoại lệ đã khai, 10 câu bỏ qua (bài chạy trên máy)** |
 | pe-da chấm BÀI TẬP | `node scripts/pe-da/check-practice.mjs` → 143 bài, **480 ca đạt**, 773 biến thể sai đều trượt, **pha 3 cổng file dữ liệu 7 bài / 0 lỗi**, **pha 4: 2 372 ca trượt / 0 ca im lặng / 7 nhánh phản hồi**, ~12 s |
-| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **78 lỗi · 425 cảnh báo**, dồn ở L8 22 (mật độ thuật ngữ) · L1 21 (câu > 30 tiếng) · L3 29 (câu ≥ 3 dấu phẩy) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì 82 lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
+| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **77 lỗi · 401 cảnh báo**, dồn ở L3 29 (câu ≥ 3 dấu phẩy) · L1 21 (câu > 30 tiếng) · L8 21 (mật độ thuật ngữ) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì 82 lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
 | pe-da ĐỘ PHỦ văn phong | `node scripts/pe-da/check-phu-van-phong.mjs` → **99 chuỗi NGOÀI TẦM / 4 mục đã khai**, 0 lỗi. Bộ văn phong đọc `source/course.json` (cố ý), nên chữ do `build.py` SINH RA thì không luật nào thấy: **80 `figure.alt`** · 19 chuỗi của `diagram`. NỢ ẨN đã đo: L3 32 → 41 · L13 cb 217 → 229 · §4-A cb 23 → 30 · L14 0 → 3 lỗi — tức tín hiệu dừng báo THIẾU ~20%. Trần 99 CHỈ ĐƯỢC HẠ (108 → 99 ngày 08/11: 9 đoạn `paragraph.text` đã về gói nguồn) |
 | pe-da bảng từng bước | `py scripts/pe-da/gen_traces.py` → **56 vết / 359 khối đủ điều kiện** (303 bỏ qua — bảng từng ghi 356/300, đã CŨ từ trước 04/11: dựng lại từ HEAD cũng ra 359/303, và `check-moc-nen` không đối chiếu hàng này; phần lớn vì không ra được câu dự đoán nào ĐÁNG hỏi); build.py `return 1` nếu lệch |
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
@@ -99,7 +99,7 @@ học nó.
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **17 mục, 14 có đường tới, 3 còn tối (đã khai lý do)**, 0 lỗi |
 | Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **2 mục chết, 2 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **15 CSS module trong `src/`** |
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
-| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **143/179 khớp, 36 bài CHỜ NẠP** (bốn lát văn phong 08/11 · hai lát alt text · ba lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
+| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **127/179 khớp, 52 bài CHỜ NẠP** (năm lát văn phong 08/11 · hai lát alt text · ba lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **34 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
@@ -4884,6 +4884,72 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **`PYTHON_DEMO_PARAM` đi cùng nhánh đó**, và chú thích ở `lib/python-studio.ts` đã
   được đính chính: nó còn ghi *"Khoá python giờ là 40 bài PE Python v3… chỉ mở bằng
   /lesson/python?demo=list"* — cả hai nửa đã lỗi thời.
+
+- **§4-A 23 → 1: cụm định danh đóng lại, và một trong 23 chỗ KHÔNG phải định danh.**
+  **VÒNG MỞ BẰNG VIỆC TỔNG QUÁT HOÁ PHÁT HIỆN CỦA #142 — và không tìm ra lỗi nào.**
+  Quyết định 13/10 "giữ các route tự có" nói về route TỒN TẠI, không về trang CHẠY
+  ĐƯỢC — đúng sự lẫn #142 vừa sửa. Mở bốn bề mặt ấy ra xem: `/lesson/java` và
+  `/lesson/htmlcss` là **minigame** kéo-thả khối lệnh ("Bảo Vệ Cổng Vào", "Thiết Kế
+  Responsive"), tự đủ, không cổng API — CHẠY, và ngoài phạm vi theo ràng buộc ·
+  `/courses/db_design{,_nc,_tc}` dựng **ba khoá RIÊNG** (`_nc` = *"Bên trong Database
+  Engine"*, 25 bài) · `/lesson/db_design_nc?lesson=1` đủ 4 bước, 8 021 ký tự, **không
+  ngõ cụt**, tải tức thì. Quyết định 13/10 đứng vững cho cả bốn; lead của #142 đóng lại.
+  **VÀ MỘT PHÉP ĐO CỦA TÔI SAI — lỗi đo thứ tư trong phiên, kiểu mới.** Tôi `fetch` ba
+  trang `db_design*` rồi so HTML và kết luận *"ba route dựng nội dung giống nhau TỪNG KÝ
+  TỰ"* (`viTriKhacDauTien: -1`). Ba trang đó là `'use client'`: HTML lấy bằng `fetch`
+  chỉ là **vỏ SSR**, giống nhau **THEO CẤU TẠO**, còn dữ liệu khoá nạp ở client.
+  **Luật: `fetch` + so HTML không phân biệt được trang render ở client** — phải mở trong
+  trình duyệt và chờ JS. Cùng họ "grep hits chú thích" và "0 nghĩa là không chạy", và nó
+  đáng ghi riêng vì nó cho một phép so BẰNG NHAU, tức một kết luận TÍCH CỰC sai.
+  **IN NGỮ CẢNH ĐỦ 23 CHỖ bằng ĐÚNG đường của cổng** (màn đọc → `chia_man` → nhóm A →
+  `trong_bai`), và nó chia làm ba, không một:
+  · **21 chỗ là định danh thuần** → bọc backtick, không phán xét nào: `groupby` 5 ·
+    `exec` 4 · `mainloop` 4 · `print` 3 · `Thread` 2 · `stack` 2 · `pipe` 1;
+  · **1 chỗ KHÔNG phải định danh:** EX06 viết *"**Thread** chính trong ví dụ dòng lệnh
+    dùng join"* — đó là KHÁI NIỆM "luồng chính" viết hoa đầu câu, không phải class
+    `threading.Thread`. Bọc backtick ở đây sẽ hiện ra `` `Thread` `` cho một thứ mà L13
+    đã chốt gọi là "luồng". Cùng ca `Curses`/`Conda` đã ghi; cách đúng là dùng tiếng
+    Việt → *"Luồng chính… dùng `join`"*;
+  · **1 chỗ là ngoại lệ đã khai:** EX07 *"vượt giới hạn int 64 bit"* — int của C/máy,
+    bọc nó là dạy ngược. Nó là cảnh báo §4-A **duy nhất còn lại**.
+  **BỌC KÈM NHỮNG ĐỊNH DANH ANH EM KHÔNG BỊ CỔNG BẮT**, vì để chúng trần cạnh một chip
+  là sự không nhất quán người học đọc ra trước khi đọc ra ý nghĩa: `sum` (cạnh
+  `groupby`), `unstack` (cạnh `stack`), `quit`/`destroy` (cạnh `mainloop`),
+  `fork`/`wait` (cạnh `exec`), `compile` (cạnh `exec`), `join` (ở câu EX06). Không mục
+  nào trong số đó có trong termbank nên không cổng nào thấy — đúng khoảng trống đã khai
+  ở lát `String`/`range`.
+  **CỔNG TL BẮT MỘT THỨ TỒN TỪ VÒNG #140, và nó bắt vì đọc NGUỒN chứ không đọc bản
+  chép.** §12 của VAN-PHONG.md còn trích *"mốc trần trong CI là 115"* trong khi `ci.yml`
+  đã hạ xuống **100** ở #140 — tôi hạ trần mà không sửa trích dẫn, và nó sống qua hai
+  vòng. Luật TL so trích dẫn với CHÍNH `ci.yml`, nên nó đỏ với câu *"Sửa trích dẫn, đừng
+  sửa trần"*. Đây là lần thứ hai cùng chỗ ấy trôi (trước đó nó ghi 245 suốt nhiều tháng).
+  **SỐ ĐÃ ĐO:** §4-A **23 → 1** · L8 lỗi **22 → 21** · L13 cảnh báo **215 → 213** ·
+  tổng khoá **78 → 77 lỗi**, 425 → **401 cảnh báo** (−24) · L1/L2/L3/L7/L12/L14 không
+  động · `check.py --strict` 0/0 · `check-pyodide` 154 bài / 420 đoạn / 0 hỏng / 52-53
+  đáp án mẫu · `check-practice` 143 bài / 480 ca đạt / 773 biến thể sai đều trượt ·
+  `phu-van-phong` 0 lỗi · frontend unit 614 · ratchet 18 luật 0 lỗi (3 mục SIẾT đã ghi
+  sổ) · `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi.
+  **ABLATE:** trả `source/course.json` về HEAD → ratchet **8 lỗi**, gọi đúng ba luật
+  (`L8` lỗi 21 → 22 · `L13` TỔNG 213 → 215 · `§4-A` TỔNG 1 → 23) cộng năm lỗi sổ sách.
+  **VÀ CÔNG CỤ ABLATE CỦA #141 TỪ CHỐI ĐÚNG Ở ĐÂY, đúng giới hạn đã khai:**
+  `check_vanphong.py` in khuôn RIÊNG nên nó in *"KHÔNG ĐỌC ĐƯỢC SỐ CA — đây KHÔNG phải
+  '0 đỏ'"* kèm 30 dòng cuối, mã thoát 1 — **không bịa ra một số 0**. Nên chiều này đếm
+  bằng tay. Đầu vòng tôi đã BỎ ý định mở rộng `docSoDo` sang ba khuôn ấy vì "chưa có
+  bằng chứng ai cần"; nay **đã có bằng chứng** (chính tôi cần, trong cùng phiên), nên đó
+  là lead có cơ sở cho vòng sau — thêm một nhánh vào `docSoDo` kèm một ca "tổng = 0 trả
+  `null`", đừng thêm regex ở chỗ gọi.
+  **MỘT LỖI CỦA TÔI TRONG CHÍNH BẢNG THAY CHUỖI:** tôi để một mục là `None` làm chỗ
+  trống ("xem dưới") rồi **quên lấp**, nên §4-A dừng ở 2 thay vì 1. Cổng chỉ ra ngay
+  bài và nguyên văn. Đừng để chỗ trống trong một bảng dữ liệu — hoặc điền, hoặc bỏ dòng.
+  **VÀ MỘT BẪY ĐÃ GHI LẠI CẮN LẦN NỮA:** chuỗi cần thay có dấu nháy kép
+  (`groupby(["store", "month"])`), mà trong JSON nó là `\"` — phép so không thoát khớp
+  **0 chỗ**. Đúng vụ 84-vs-9. Phép thay nay `json.dumps(...)[1:-1]` cả hai vế.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 143/179 → **127/179, 52 bài CHỜ NẠP** — lát này một
+  mình thêm 16 bài.
+  **CỤM §4-A ĐÓNG LẠI:** còn đúng 1 cảnh báo và nó là ngoại lệ đã khai. Sáu lát đã đi
+  54 hằng → 85 tên kiểu → 22 chỗ gọi `plt`/`ax`/`fig` → 50 tên class → 21 tên thư viện →
+  9 chỗ viết hoa + 9 lệnh công cụ → 21 định danh cuối. Việc văn phong còn lại là L3 29 ·
+  L1 21 · L8 21, và cả ba đòi phán xét từng câu chứ không còn danh sách nào để quét.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

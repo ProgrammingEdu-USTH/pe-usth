@@ -56,7 +56,7 @@
      },
      {
       "type": "paragraph",
-      "text": "unique trả các giá trị khác nhau theo thứ tự sắp xếp mặc định. counts cùng vị trí với values: A xuất hiện hai lần, B hai lần, C một lần. Tổng đếm bằng năm quan sát. Đây là đếm lần xuất hiện, không phải cộng doanh thu của từng mã; khi cần nhiều cột và nhãn, groupby của pandas thường dễ đọc hơn."
+      "text": "unique trả các giá trị khác nhau theo thứ tự sắp xếp mặc định. counts cùng vị trí với values: A xuất hiện hai lần, B hai lần, C một lần. Tổng đếm bằng năm quan sát. Đây là đếm lần xuất hiện, không phải cộng doanh thu của từng mã; khi cần nhiều cột và nhãn, `groupby` của pandas thường dễ đọc hơn."
      }
     ]
    ],

@@ -447,24 +447,24 @@ Format phải đồng nhất `N lỗi · N cb` cho MỌI hàng; bản cũ viết
 | L5 | Cấm `được/bị + V + bởi` | LỖI | 0 lỗi · 0 cb |
 | L6 | Từ cấm hành chính (danh sách ĐÓNG 20 tính từ) | LỖI | 0 lỗi · 0 cb |
 | L7 | Chỉ "bạn" | LỖI | 0 lỗi · 17 cb |
-| **L8** | **Mật độ thuật ngữ ≤ 40/1000 tiếng** | CB/LỖI | **22 lỗi · 28 cb** |
+| **L8** | **Mật độ thuật ngữ ≤ 40/1000 tiếng** | CB/LỖI | **21 lỗi · 28 cb** |
 | L9 | ≤ 3 thuật ngữ mới mỗi màn — *hàng rào* | CB/LỖI | 0 lỗi · 0 cb |
 | L10 | Thuật ngữ lần đầu phải có chú giải | LỖI | 0 lỗi · 0 cb |
 | L11 | Một thuật ngữ một cách gọi, khoá (thuật ngữ, ngữ cảnh) | LỖI | 0 lỗi · 0 cb |
 | L12 | ≤ 1 hedge/câu (lỗi ở ≥3) | LỖI | 0 lỗi · 17 cb |
-| L13 | Ưu tiên thuần Việt theo danh sách | CẢNH BÁO | 0 lỗi · 215 cb |
+| L13 | Ưu tiên thuần Việt theo danh sách | CẢNH BÁO | 0 lỗi · 213 cb |
 | L14 | Bối cảnh bài phải thuộc `boi-canh.json` | CẢNH BÁO | 0 lỗi · 24 cb |
 | L15 | Đoạn mở bài phải nối với bài trước | CẢNH BÁO | 0 lỗi · 0 cb |
 | TB | Bất biến termbank: `baiDauTien` khớp corpus | LỖI | 0 lỗi · 0 cb |
 | TL | Số đo trong đặc tả phải khớp số đo thật (§1 · §2 · §8 · §12 · bảng này) | LỖI | 0 lỗi · 0 cb |
-| §4-A | Định danh nhóm A phải nằm trong backtick | CẢNH BÁO | 0 lỗi · 23 cb |
+| §4-A | Định danh nhóm A phải nằm trong backtick | CẢNH BÁO | 0 lỗi · 1 cb |
 | **M1** | **3 phương án mặc định** | **LỖI** | — (do `check.py --strict`) |
 | **M2** | **Trộn vị trí có phân tầng** | **LỖI** | — (do `check.py --strict`) |
 | M3 | Nhiễu phải có lý do lưu kèm | LỖI | — (do `check.py --strict`) |
 | M4 | Không bài nào 3 câu cùng một ô Block Model | LỖI | — (do `check.py --strict`) |
 | M5 | Một lần trả lời, rồi đi tiếp | LỖI | — (do `check.py --strict`) |
 
-**Tổng trên corpus thật: 78 lỗi · 425 cảnh báo.**
+**Tổng trên corpus thật: 77 lỗi · 401 cảnh báo.**
 
 **Nếu chỉ làm được một việc:** L10. Cụ thể: `py -I scripts/pe-da/check_vanphong.py
 --luat L10 --chi-tiet 0` in ra đúng danh sách bài + câu phải sửa.
@@ -474,11 +474,11 @@ Format phải đồng nhất `N lỗi · N cb` cho MỌI hàng; bản cũ viết
 
 ## 12. Đừng bật `--strict` trong CI ngày đầu
 
-`check_vanphong.py` hôm nay cho **78 lỗi**. Nối thẳng vào `check.py --strict` là
+`check_vanphong.py` hôm nay cho **77 lỗi**. Nối thẳng vào `check.py --strict` là
 làm CI đỏ ngay, và một CI đỏ thường trực thì không ai đọc nữa.
 
 Dùng đúng khuôn mà repo đã có cho lint backend: **một mốc trần, CHỈ ĐƯỢC HẠ**
-(AGENTS.md: "mốc trần trong CI là **115**, chỉ được hạ" — con số đó đã hạ từ 245 xuống 115 qua bốn đợt dọn `any`; trích dẫn ở đây từng ghi 245 suốt nhiều tháng, đúng họ bẫy "một con số cũ không phải chú thích lỗi thời vô hại"). Và **đó là việc đã làm xong, theo một cách CHẶT HƠN một con số trần duy nhất**:
+(AGENTS.md: "mốc trần trong CI là **100**, chỉ được hạ" — con số đó đã hạ 245 → 115 → 100 qua năm đợt dọn `any`; trích dẫn ở đây từng ghi 245 suốt nhiều tháng, rồi ghi 115 suốt hai vòng sau khi `ci.yml` đã hạ xuống 100 — chính luật TL bắt được lần sau, vì nó đọc `ci.yml` chứ không đọc một bản chép). Và **đó là việc đã làm xong, theo một cách CHẶT HƠN một con số trần duy nhất**:
 `--doi-chieu` giữ mốc TỪNG LUẬT trong `van-phong-moc.json`, nên một luật xấu đi
 không còn núp được sau một luật khác vừa tốt lên. Luật của nó là HAI điều kiện —
 `lỗi` không được tăng, VÀ `lỗi + cảnh báo` không được tăng — nên một LỖI đổi thành

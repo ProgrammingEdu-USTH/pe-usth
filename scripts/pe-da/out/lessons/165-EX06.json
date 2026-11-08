@@ -156,7 +156,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Worker nhận một snapshot đã tách khỏi trạng thái đang sửa. Ở đây các phần tử chỉ là số nên deepcopy đủ để tách cấu trúc. Worker gửi thông điệp hoàn tất sau khi file đã được đóng. Thread chính trong ví dụ dòng lệnh dùng join; GUI phải kiểm queue theo event loop thay vì gọi join lâu trong callback."
+      "text": "Worker nhận một snapshot đã tách khỏi trạng thái đang sửa. Ở đây các phần tử chỉ là số nên deepcopy đủ để tách cấu trúc. Worker gửi thông điệp hoàn tất sau khi file đã được đóng. Luồng chính trong ví dụ dòng lệnh dùng `join`; GUI phải kiểm queue theo event loop thay vì gọi join lâu trong callback."
      },
      {
       "type": "code",

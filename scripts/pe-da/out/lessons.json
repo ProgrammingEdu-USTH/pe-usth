@@ -489,7 +489,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Hai kiểu dữ liệu đầu tiên của sổ xuất hiện ở đây: số cốc là một con số, tên món là chữ. `type(12)` cho biết 12 có kiểu `int`, còn `type(\"data\")` cho biết chuỗi có kiểu `str`. Khi cần tra một thứ gì, gõ `dir(object)` để xem tên các thuộc tính, hoặc `help(print)` để đọc hướng dẫn dùng print."
+        "text": "Hai kiểu dữ liệu đầu tiên của sổ xuất hiện ở đây: số cốc là một con số, tên món là chữ. `type(12)` cho biết 12 có kiểu `int`, còn `type(\"data\")` cho biết chuỗi có kiểu `str`. Khi cần tra một thứ gì, gõ `dir(object)` để xem tên các thuộc tính, hoặc `help(print)` để đọc hướng dẫn dùng `print`."
        },
        {
         "type": "paragraph",
@@ -10260,7 +10260,7 @@
        },
        {
         "type": "paragraph",
-        "text": "Với bảng thật, `sales.info()` còn cho biết số giá trị không thiếu và kiểu dữ liệu từng cột. Hàm này in thông tin trực tiếp; không cần viết print(sales.info()). Đọc vài hàng là bước kiểm tra đầu tiên, chưa đủ để kết luận dữ liệu sạch."
+        "text": "Với bảng thật, `sales.info()` còn cho biết số giá trị không thiếu và kiểu dữ liệu từng cột. Hàm này in thông tin trực tiếp; không cần viết `print(sales.info())`. Đọc vài hàng là bước kiểm tra đầu tiên, chưa đủ để kết luận dữ liệu sạch."
        }
       ]
      ],
@@ -13350,7 +13350,7 @@
       [
        {
         "type": "paragraph",
-        "text": "groupby chia hàng thành nhóm, rồi sum tính riêng trong từng nhóm. Kết quả có một giá trị cho mỗi cửa hàng. Nếu cần nhiều thống kê, agg đặt tên rõ cho các cột báo cáo."
+        "text": "`groupby` chia hàng thành nhóm, rồi `sum` tính riêng trong từng nhóm. Kết quả có một giá trị cho mỗi cửa hàng. Nếu cần nhiều thống kê, agg đặt tên rõ cho các cột báo cáo."
        },
        {
         "type": "code",
@@ -13372,7 +13372,7 @@
        },
        {
         "type": "paragraph",
-        "text": "Có thể nhóm theo nhiều cột bằng danh sách, chẳng hạn groupby([\"store\", \"month\"]). Trước khi so sánh tổng báo cáo với tổng gốc, hãy quyết định cách xử lý khóa nhóm thiếu để tránh làm thất thoát số liệu."
+        "text": "Có thể nhóm theo nhiều cột bằng danh sách, chẳng hạn `groupby([\"store\", \"month\"])`. Trước khi so sánh tổng báo cáo với tổng gốc, hãy quyết định cách xử lý khóa nhóm thiếu để tránh làm thất thoát số liệu."
        }
       ]
      ],
@@ -14654,7 +14654,7 @@
       [
        {
         "type": "paragraph",
-        "text": "melt làm chiều ngược lại: giữ cột định danh bằng id_vars, rồi chuyển các cột đo thành hai cột tên và giá trị. Dạng dài thường thuận tiện để groupby hoặc đưa vào thư viện vẽ biểu đồ."
+        "text": "melt làm chiều ngược lại: giữ cột định danh bằng id_vars, rồi chuyển các cột đo thành hai cột tên và giá trị. Dạng dài thường thuận tiện để `groupby` hoặc đưa vào thư viện vẽ biểu đồ."
        },
        {
         "type": "code",
@@ -14928,7 +14928,7 @@
        },
        {
         "type": "paragraph",
-        "text": "stack đưa tên cột thành một tầng index; unstack đưa tầng index trở lại thành cột. Chúng hữu ích khi dữ liệu đã có nhãn hàng, khác melt thường giữ các định danh trong cột."
+        "text": "`stack` đưa tên cột thành một tầng index; `unstack` đưa tầng index trở lại thành cột. Chúng hữu ích khi dữ liệu đã có nhãn hàng, khác melt thường giữ các định danh trong cột."
        }
       ]
      ],
@@ -15409,7 +15409,7 @@
       [
        {
         "type": "paragraph",
-        "text": "MS là mốc đầu tháng. Doanh thu tháng 1 là 30, dù có hai ngày bán khác nhau. Nếu thời gian vẫn là cột, groupby(pd.Grouper(key=\"date\", freq=\"MS\")) là một cách gom tương ứng."
+        "text": "MS là mốc đầu tháng. Doanh thu tháng 1 là 30, dù có hai ngày bán khác nhau. Nếu thời gian vẫn là cột, `groupby(pd.Grouper(key=\"date\", freq=\"MS\"))` là một cách gom tương ứng."
        },
        {
         "type": "code",
@@ -17350,7 +17350,7 @@
        },
        {
         "type": "paragraph",
-        "text": "pipe truyền cả bảng vào hàm để các bước đọc từ trái sang phải. Kiểm tra cuối cho thấy chuẩn hóa thêm lần nữa không làm đổi bảng ở ví dụ này. Ghi phiên bản thư viện, quy tắc và thứ tự đầu ra giúp người khác chạy lại báo cáo."
+        "text": "`pipe` truyền cả bảng vào hàm để các bước đọc từ trái sang phải. Kiểm tra cuối cho thấy chuẩn hóa thêm lần nữa không làm đổi bảng ở ví dụ này. Ghi phiên bản thư viện, quy tắc và thứ tự đầu ra giúp người khác chạy lại báo cáo."
        }
       ]
      ],
@@ -28274,7 +28274,7 @@
       [
        {
         "type": "paragraph",
-        "text": "`__str__` phải trả chuỗi. Nếu chỉ print trong method rồi không return, Python không nhận được chuỗi đúng yêu cầu. Để so sánh hai Cups bằng dấu <, định nghĩa __lt__:"
+        "text": "`__str__` phải trả chuỗi. Nếu chỉ `print` trong method rồi không return, Python không nhận được chuỗi đúng yêu cầu. Để so sánh hai Cups bằng dấu <, định nghĩa __lt__:"
        },
        {
         "type": "code",
@@ -37170,7 +37170,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Đây là mô hình của exec: thay image chương trình trong process hiện tại, giữ PID và không tạo process thứ ba. Trong tên họ hàm, l nhận các đối số riêng, v nhận vector argv; p tìm chương trình qua PATH và e nhận environment tường minh. Vì thế execl/execv khác cách truyền đối số, execlp/execvp thêm tìm PATH, execle thêm environment. Trong ví dụ C của slide, argv gồm \"/bin/ps\", \"-ef\", rồi NULL kết thúc danh sách. Python `subprocess` nhận một `list` đối số thay cho việc bạn tự chép nguyên chữ ký C."
+        "text": "Đây là mô hình của `exec`: thay image chương trình trong process hiện tại, giữ PID và không tạo process thứ ba. Trong tên họ hàm, l nhận các đối số riêng, v nhận vector argv; p tìm chương trình qua PATH và e nhận environment tường minh. Vì thế execl/execv khác cách truyền đối số, execlp/execvp thêm tìm PATH, execle thêm environment. Trong ví dụ C của slide, argv gồm \"/bin/ps\", \"-ef\", rồi NULL kết thúc danh sách. Python `subprocess` nhận một `list` đối số thay cho việc bạn tự chép nguyên chữ ký C."
        },
        {
         "type": "code",
@@ -37179,7 +37179,7 @@
        },
        {
         "type": "paragraph",
-        "text": "Cha có thể wait để thu trạng thái kết thúc của con. Trong ví dụ thật này, process con thoát với mã 3; wait và poll sau khi kết thúc đều cho mã đó. Trên UNIX, kết hợp fork/exec/wait là nền tảng của shell; bài Python sẽ dùng `subprocess` để thực hành trên cả Windows và UNIX. Quán của bạn sẽ gọi những lệnh này khi cần chạy một việc nền."
+        "text": "Cha có thể wait để thu trạng thái kết thúc của con. Trong ví dụ thật này, process con thoát với mã 3; wait và poll sau khi kết thúc đều cho mã đó. Trên UNIX, kết hợp `fork`/`exec`/`wait` là nền tảng của shell; bài Python sẽ dùng `subprocess` để thực hành trên cả Windows và UNIX. Quán của bạn sẽ gọi những lệnh này khi cần chạy một việc nền."
        }
       ]
      ],
@@ -40116,7 +40116,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Khi worker có nhiều dữ liệu riêng, bạn có thể tạo subclass của threading.Thread. Hàm __init__ nhận tham số, còn run chứa công việc:"
+        "text": "Khi worker có nhiều dữ liệu riêng, bạn có thể tạo subclass của `threading.Thread`. Hàm __init__ nhận tham số, còn run chứa công việc:"
        },
        {
         "type": "code",
@@ -40127,7 +40127,7 @@
       [
        {
         "type": "paragraph",
-        "text": "`super().__init__()` khởi tạo phần Thread của object. self.value và self.result là thuộc tính của worker; run ghi kết quả, còn thread chính chỉ đọc sau join. Bạn cần học class, self và kế thừa trước khi tự viết dạng này."
+        "text": "`super().__init__()` khởi tạo phần `Thread` của object. self.value và self.result là thuộc tính của worker; run ghi kết quả, còn thread chính chỉ đọc sau join. Bạn cần học class, self và kế thừa trước khi tự viết dạng này."
        },
        {
         "type": "code",
@@ -41789,7 +41789,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Entry là ô nhập chữ. Ví dụ lấy dữ liệu từ hai ô rồi nhân giống phép tính ở CLI. root.withdraw() ẩn cửa sổ để đoạn code có thể kiểm tra tự động và kết thúc bằng destroy(). Muốn tương tác thật, bạn bỏ withdraw, bố trí widget và chạy mainloop như các bài sau."
+        "text": "Entry là ô nhập chữ. Ví dụ lấy dữ liệu từ hai ô rồi nhân giống phép tính ở CLI. root.withdraw() ẩn cửa sổ để đoạn code có thể kiểm tra tự động và kết thúc bằng destroy(). Muốn tương tác thật, bạn bỏ withdraw, bố trí widget và chạy `mainloop` như các bài sau."
        },
        {
         "type": "code",
@@ -43639,7 +43639,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Nút Lưu ghi một file lớn có thể mất vài giây. Nếu callback tự ghi file và chờ xong, giao diện khó nhận thêm thao tác. mainloop chỉ tiếp tục xử lý sự kiện khi callback trả quyền điều khiển."
+        "text": "Nút Lưu ghi một file lớn có thể mất vài giây. Nếu callback tự ghi file và chờ xong, giao diện khó nhận thêm thao tác. `mainloop` chỉ tiếp tục xử lý sự kiện khi callback trả quyền điều khiển."
        },
        {
         "type": "code",
@@ -43650,7 +43650,7 @@
       [
        {
         "type": "paragraph",
-        "text": "after lên lịch callback trong event loop. Nó không tạo thread mới. quit làm mainloop đang chạy kết thúc; destroy hủy cửa sổ. Đoạn này tự thoát sau 20ms để kiểm tra hữu hạn, không phải một ứng dụng người dùng hoàn chỉnh."
+        "text": "after lên lịch callback trong event loop. Nó không tạo thread mới. `quit` làm `mainloop` đang chạy kết thúc; `destroy` hủy cửa sổ. Đoạn này tự thoát sau 20ms để kiểm tra hữu hạn, không phải một ứng dụng người dùng hoàn chỉnh."
        },
        {
         "type": "code",
@@ -43670,7 +43670,7 @@
        },
        {
         "type": "paragraph",
-        "text": "Trong ứng dụng, poll đọc queue không chặn rồi tự lên lịch lại. Worker nên gửi cả trạng thái thành công hoặc lỗi, để UI bật lại nút và báo kết quả. Phần thread, queue và lưu nền là mở rộng nối với PW8; slide GUI gốc dừng ở mainloop. Khi đóng cửa sổ, ứng dụng phải có quy tắc rõ cho worker đang lưu."
+        "text": "Trong ứng dụng, poll đọc queue không chặn rồi tự lên lịch lại. Worker nên gửi cả trạng thái thành công hoặc lỗi, để UI bật lại nút và báo kết quả. Phần thread, queue và lưu nền là mở rộng nối với PW8; slide GUI gốc dừng ở `mainloop`. Khi đóng cửa sổ, ứng dụng phải có quy tắc rõ cho worker đang lưu."
        }
       ]
      ],
@@ -45013,7 +45013,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Ở POSIX, fork trả PID con ở cha và 0 ở con, sau đó hai nhánh tiếp tục từ vị trí sau fork. exec thay image của process hiện tại. Hậu tố l nhận danh sách đối số riêng, v nhận một vector/`list` đối số, p tìm executable qua PATH, e nhận environment tường minh. execl, execle, execlp, execv và execvp là các biến thể được nhắc trong slide. Windows có CreateProcess và API cũ WinExec; tên và cờ WinAPI trong đoạn C không phải cú pháp Python. Dùng `subprocess` nếu muốn bài thực hành chạy trên cả Windows và UNIX."
+        "text": "Ở POSIX, fork trả PID con ở cha và 0 ở con, sau đó hai nhánh tiếp tục từ vị trí sau fork. `exec` thay image của process hiện tại. Hậu tố l nhận danh sách đối số riêng, v nhận một vector/`list` đối số, p tìm executable qua PATH, e nhận environment tường minh. execl, execle, execlp, execv và execvp là các biến thể được nhắc trong slide. Windows có CreateProcess và API cũ WinExec; tên và cờ WinAPI trong đoạn C không phải cú pháp Python. Dùng `subprocess` nếu muốn bài thực hành chạy trên cả Windows và UNIX."
        },
        {
         "type": "code",
@@ -45635,7 +45635,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Worker nhận một snapshot đã tách khỏi trạng thái đang sửa. Ở đây các phần tử chỉ là số nên deepcopy đủ để tách cấu trúc. Worker gửi thông điệp hoàn tất sau khi file đã được đóng. Thread chính trong ví dụ dòng lệnh dùng join; GUI phải kiểm queue theo event loop thay vì gọi join lâu trong callback."
+        "text": "Worker nhận một snapshot đã tách khỏi trạng thái đang sửa. Ở đây các phần tử chỉ là số nên deepcopy đủ để tách cấu trúc. Worker gửi thông điệp hoàn tất sau khi file đã được đóng. Luồng chính trong ví dụ dòng lệnh dùng `join`; GUI phải kiểm queue theo event loop thay vì gọi join lâu trong callback."
        },
        {
         "type": "code",
@@ -45866,7 +45866,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Bạn đã chạy rất nhiều code của quán ở các bài trước mà chưa xem Python làm gì với nó. “Python được thông dịch” không có nghĩa CPython bỏ qua bước biên dịch. compile tạo một code object từ mã nguồn; exec có thể thực thi code object đó. Đây là cách quan sát hai bước bằng một phép tính nhỏ, không cần học chi tiết từng opcode."
+        "text": "Bạn đã chạy rất nhiều code của quán ở các bài trước mà chưa xem Python làm gì với nó. “Python được thông dịch” không có nghĩa CPython bỏ qua bước biên dịch. `compile` tạo một code object từ mã nguồn; `exec` có thể thực thi code object đó. Đây là cách quan sát hai bước bằng một phép tính nhỏ, không cần học chi tiết từng opcode."
        },
        {
         "type": "code",
@@ -46793,7 +46793,7 @@
        },
        {
         "type": "paragraph",
-        "text": "stack tạo một chiều mới. Hai dãy vốn có shape (2,) trở thành bảng (2,2), mỗi hàng là một ngày. concatenate hai dãy đó không tạo chiều ngày mà chỉ cho dãy bốn số. Khi làm nhiều lô lớn, thu các lô vào `list` rồi ghép một lần để tránh sao chép lại toàn bộ sau mỗi lần thêm."
+        "text": "`stack` tạo một chiều mới. Hai dãy vốn có shape (2,) trở thành bảng (2,2), mỗi hàng là một ngày. concatenate hai dãy đó không tạo chiều ngày mà chỉ cho dãy bốn số. Khi làm nhiều lô lớn, thu các lô vào `list` rồi ghép một lần để tránh sao chép lại toàn bộ sau mỗi lần thêm."
        }
       ]
      ],
@@ -47070,7 +47070,7 @@
        },
        {
         "type": "paragraph",
-        "text": "unique trả các giá trị khác nhau theo thứ tự sắp xếp mặc định. counts cùng vị trí với values: A xuất hiện hai lần, B hai lần, C một lần. Tổng đếm bằng năm quan sát. Đây là đếm lần xuất hiện, không phải cộng doanh thu của từng mã; khi cần nhiều cột và nhãn, groupby của pandas thường dễ đọc hơn."
+        "text": "unique trả các giá trị khác nhau theo thứ tự sắp xếp mặc định. counts cùng vị trí với values: A xuất hiện hai lần, B hai lần, C một lần. Tổng đếm bằng năm quan sát. Đây là đếm lần xuất hiện, không phải cộng doanh thu của từng mã; khi cần nhiều cột và nhãn, `groupby` của pandas thường dễ đọc hơn."
        }
       ]
      ],

@@ -43,6 +43,11 @@ node scripts/check-nguong.mjs           # NGƯỠNG một chiều có ai nới n
 node scripts/check-wheel.mjs            # WHEEL vendored: thừa megabyte chết / thiếu gói bài cần
 npx ts-node scripts/pheu-tien-do.ts    # PHỄU tiến độ theo sort_order (CHỈ ĐỌC, cần DATABASE_URL)
 node scripts/check-da-deploy.mjs       # bản trên main ĐÃ LÊN production chưa (cần mạng)
+node scripts/ablate.mjs --tep <t> --ve-head --lenh "<lệnh>"   # GIEO khiếm khuyết rồi
+                                       # đếm ca đỏ; nó TỪ CHỐI in một con số khi không
+                                       # chứng minh được bộ test đã CHẠY. Dùng nó thay
+                                       # cho script shell ad-hoc: "0 đỏ" là con số dễ
+                                       # giả nhất của vòng lặp (xem bẫy cuối file).
 
 # pe-v4 (48 bài, 427 ca chấm) — GIỮ LẠI nhưng KHÔNG còn xuất bản; xem mục dưới
 py scripts/pe-v4/build.py              # dựng lại 48 bài -> scripts/pe-v4/out/
@@ -79,7 +84,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d) |
-| Frontend unit test | `cd frontend && npm run test:unit` → **602 ca** / 53 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **613 ca** / 54 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -99,7 +104,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **34 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **6 mục** (frontend 602 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773), 0 trượt, 0 lỗi; nó CHẠY chính sáu lệnh đó nên THAY cả sáu bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **6 mục** (frontend 613 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773), 0 trượt, 0 lỗi; nó CHẠY chính sáu lệnh đó nên THAY cả sáu bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -4742,6 +4747,78 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   .spec` 18 · `user.service.spec` 13 · `oauth-state.spec` 10 — bốn tệp spec = **61/92
   (66%)**, và công thức bốn bước của AGENTS.md áp nguyên cho cả bốn. Sau tệp này thì
   KHÔNG còn tệp code-chạy-thật nào trên 4 lỗi, nên các lát sau là lát spec.
+
+- **"0 ĐỎ" LÀ CON SỐ DỄ GIẢ NHẤT CỦA VÒNG LẶP — ba lần trong một phiên nó nghĩa là
+  "không chạy", và lần đắt nhất suýt thành một khẳng định SAI VỀ BẢO MẬT.**
+  **LEAD CỦA TÔI VÒNG TRƯỚC SAI, và phép đo bác nó.** Tôi ghi *"92 lỗi lint còn lại dồn
+  ở bốn tệp spec (66%), nên các lát sau là lát spec, nơi giá trị là 'test thôi nói
+  dối'"*. Đo bằng tiêu chí THẬT — một phép so ĐẠT được trên `undefined`:
+  `stats.service.spec` **0** · `oauth-login-csrf.spec` 4 · `user.service.spec` 1 ·
+  `oauth-state.spec` 5. Rồi áp tiêu chí mạnh hơn (phá CHỦ THỂ, đếm đỏ) lên tệp đáng ngờ
+  nhất: gỡ hẳn state store khỏi `GoogleStrategy` (tắt chống login CSRF) → **2 đỏ / 8
+  ca**; guard thôi ghi `req.oauthError` → **4 đỏ**. ⇒ `any` ở bốn tệp đó là **ồn, không
+  phải lời nói dối**; dọn chúng là vệ sinh kiểu, không phải sửa một test đang nói dối.
+  Lead cũ nói quá giá trị của nó, và lát spec vì vậy KHÔNG phải việc đáng ưu tiên.
+  **NHƯNG PHÉP ĐO ĐẦU CỦA TÔI SUÝT TẠO MỘT KHẲNG ĐỊNH SAI VỀ BẢO MẬT.** Lần gieo đầu
+  tôi cắt khối `store:` bằng `s.index('),', i)` — trúng dấu `),` SAI — sinh TypeScript
+  không biên dịch được. Jest in `Test Suites: 1 failed · Tests: 0 total`, mà phép đếm
+  của tôi (`sed` tìm "N failed" trong dòng `Tests:`) không khớp gì nên trả RỖNG → đọc
+  thành **0 đỏ** → suy ra *"gỡ chống login CSRF mà spec vẫn xanh"*. Một khẳng định sai,
+  ở chiều đáng sợ nhất, và nó đã vào bình luận Kanzo nếu tôi không đi kiểm con số 0 ấy.
+  **BA LẦN TRONG MỘT PHIÊN:** `grep -E "^. fail"` trả rỗng vì `ℹ` multibyte · phép đếm
+  chuỗi ngoài-tầm ra 84 thay vì 9 vì thiếu phép so bản đã thoát JSON · và lần này.
+  AGENTS.md đã ghi luật *"một con số ablate RỖNG không phải số 0"* từ trước, mà **không
+  gì thi hành nó**, và mỗi vòng lại viết lại một script shell ad-hoc với cùng một regex
+  mong manh.
+  **Nay có `node scripts/ablate.mjs`, giữ ba bất biến, mỗi cái đến từ một lần đã vấp:**
+  phép gieo phải khớp **ĐÚNG MỘT LẦN** (0 hoặc >1 là DỪNG) · bộ test phải **CHẠY ĐƯỢC**
+  (không đọc được dòng tổng kết, hoặc tổng số ca bằng 0, là DỪNG kèm 30 dòng cuối của
+  lệnh) · tệp phải **được phục hồi** kể cả khi lệnh ném, và nó in ra một dòng xác nhận.
+  **Mã thoát phân biệt hai chuyện mà `0` đang gộp:** 0 khi ĐỌC ĐƯỢC một con số (kể cả 0
+  đỏ — "cổng rỗng" là kết quả hợp lệ và phải báo được), 1 khi KHÔNG đọc được. Gộp hai
+  thứ đó là cả lý do công cụ này tồn tại.
+  **VÀ NÓ NHẬN SEED TỪ TỆP (`--cu-tep`/`--moi-tep`), hoặc `--ve-head`.** Đó là bản sửa
+  cho một bẫy riêng: heredoc của công cụ Bash ở đây XỬ LÝ dấu gạch chéo ngược dù
+  delimiter đã nháy, nên `"a\nb"` trong thân heredoc tới Python/Node thành `a` + newline
+  THẬT + `b` — ba phép thay chuỗi đã trượt vì đúng chuyện đó. Seed đi qua tệp thì không
+  còn lớp thoát nào để đếm sai; `--ve-head` thì không có chuỗi nào để thoát cả.
+  **CHẠY THẬT trên chính ca đã lừa tôi:** seed ĐÚNG (gỡ cả khối `store`) → **`2 đỏ / 8
+  ca`**, mã thoát 0 · seed HỎNG (cắt sai dấu ngoặc) → **từ chối** với *"KHÔNG ĐỌC ĐƯỢC
+  SỐ CA — đây KHÔNG phải '0 đỏ'"* kèm nguyên văn lỗi `TS1005`, mã thoát 1 · cả hai lần
+  tệp đều về nguyên.
+  **ABLATE TÌM RA MỘT LỖ TRONG CHÍNH CỔNG CỦA TÔI, vòng thứ ba liền:** gỡ hẳn phép phục
+  hồi trong `finally` cho **0 đỏ**, vì ca "lệnh không in dòng tổng kết" đã ghi tệp lại
+  TRƯỚC khi ném nên `finally` không bao giờ chạy tới. Thứ chỉ `finally` cứu được là khi
+  **chính `spawnSync` ném** — tức tệp đang mang khiếm khuyết gieo vào, và một công cụ
+  gieo khiếm khuyết để lại khiếm khuyết trong cây mã là thứ tệ nhất nó có thể làm. Thêm
+  một ca dùng byte null trong chuỗi lệnh (`spawnSync` ném `ERR_INVALID_ARG_VALUE`);
+  ablate lại → **1 đỏ**.
+  **VÀ ABLATE BÁC MỘT CÂU TRONG CHÚ THÍCH TÔI VỪA VIẾT.** Tôi đặt tên một ca là *"KỂ CẢ
+  dòng mở đầu bằng `ℹ` multibyte"*; trả regex về bản neo `^.` thì **0 đỏ**. Lý do: bẫy
+  `ℹ` là bẫy của **grep/sed** — chúng làm việc trên BYTE nên `^.` ăn một byte của một ký
+  tự ba byte — còn chuỗi JavaScript là UTF-16 và `ℹ` chỉ là MỘT code unit. Ca ấy vẫn có
+  giá trị (nó canh việc `node --test` in tổng và số trượt ở HAI DÒNG RIÊNG), nhưng nói
+  nó canh chiều multibyte là **nói quá**. Đã viết lại.
+  **ABLATE 8 chiều:** bỏ bất biến "phải CHẠY ĐƯỢC" ở nhánh jest → **1 đỏ** · ở nhánh
+  `node --test` → 1 · bỏ bất biến "khớp đúng một lần" → **2** · trả về `0 đỏ` thay vì từ
+  chối → 1 · thôi in đầu ra của lệnh (nuốt bằng chứng) → 1 · thôi phục hồi tệp khi lệnh
+  ném → **0 rồi 1 sau khi thêm ca** · bỏ câu khai phân biệt mã thoát → 1 · trả regex
+  `node --test` về neo `^.` → **0, đã khai là khoảng trống**.
+  **MỘT BẪY NỮA TRONG CHÍNH SCRIPT ABLATE CỦA TÔI, và nó là cùng một bệnh:** tôi viết
+  `gieo … >/dev/null`, nên một phép gieo TRƯỢT in `GIEO TRUOT` vào `/dev/null` và chiều
+  đó im lặng không chạy — bảng ablate vẫn trông đủ dòng. Đừng redirect đầu ra của phép
+  gieo. (Công cụ mới không có cửa đó: nó ném, không in.)
+  **SỐ ĐÃ ĐO:** frontend unit **602 → 613 ca / 53 → 54 tệp** · sổ ngưỡng siết hai sàn
+  (frontend 602 → 613, backend 501 → 522) · typecheck sạch · lint backend 92 lỗi và
+  frontend 146 cảnh báo **không đổi** (`.mjs` ngoài tầm lệnh lint backend) ·
+  `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi · `tai-nguyen-chet` /
+  `export-chet` / `duong-toi` 0 lỗi. **Không đụng một dòng nội dung nào**, nên
+  `check-da-nap` giữ 36 bài chờ.
+  **GIỚI HẠN PHẢI NÓI RA:** công cụ đọc được dòng tổng kết của **jest** và
+  `node --test`. `check.py`, `check-pyodide.mjs`, `check_vanphong.py` in khuôn RIÊNG, nên
+  ablate chúng vẫn phải đếm bằng tay — và ba khuôn ấy là nơi bẫy đếm sai từng xảy ra
+  nhiều nhất. Thêm khuôn thì thêm một nhánh vào `docSoDo` kèm một ca "tổng = 0 trả
+  `null`", đừng thêm một regex ở chỗ gọi.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

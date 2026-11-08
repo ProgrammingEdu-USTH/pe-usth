@@ -990,6 +990,12 @@
 }
 
 .traceOpen {
+  /* SÀN ĐÍCH BẤM 44px. Đo trên production 08/11/2026 ở 390×844 (bài SY05,
+   * `offsetHeight` trên màn ĐÃ LẮNG — `getBoundingClientRect` bị hoạt ảnh vào
+   * màn của `.stepEnter` làm co): nút "Xem từng bước ▸" của bảng từng bước — 56 bài có vết cao **34px**.
+   * Bề rộng đã 157 nên chỉ thiếu trục dọc.
+   * `dich-bam-vo-bai-hoc.test.mjs` canh nó. */
+  min-height: 44px;
   padding: 7px 14px;
   border: 1px solid var(--edu-sidebar-border);
   border-radius: 999px;

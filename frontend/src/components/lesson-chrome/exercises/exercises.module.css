@@ -110,6 +110,14 @@
   gap: 10px;
 }
 .optionCard {
+  /* SÀN ĐÍCH BẤM 44px. Đo trên production 08/11/2026 ở 390×844 (bài SY05,
+   * `offsetHeight` trên màn ĐÃ LẮNG — `getBoundingClientRect` bị hoạt ảnh vào
+   * màn của `.stepEnter` làm co): thẻ phương án trắc nghiệm cao **53px**.
+   * ĐÃ ĐO 53px nên khai sàn là no-op về hình — nhưng nó biến một số đo thành
+   * một BẢO ĐẢM: bề cao thẻ này do nội dung phương án quyết, và một phương án
+   * ngắn một dòng sẽ tụt xuống dưới sàn mà không ai thấy.
+   * `dich-bam-vo-bai-hoc.test.mjs` canh nó. */
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;

@@ -59,11 +59,57 @@ const SAN = 44;
  * hoặc vì đã đạt (khai `min-height`) hoặc vì phải sửa. Cùng luật một chiều của
  * `DA_SANG_LOFI`.
  */
-const CHUA_DO = [
-  '.toast button', '.resetLink', '.answerKeyHead', '.panel summary',
-  '.awards button', '.theoryFigure figcaption a', '.traceOpen',
-  '.onGianCachTiep', '.practiceRun', '.toggleBtn', '.optionCard',
-];
+const CHUA_DO = {
+  // 08/11/2026: danh sách đổi từ TÊN TRẦN sang có ĐƯỜNG ĐI. Bản đầu chỉ là 11
+  // chuỗi, nên vòng sau phải đi tìm lại từ đầu "nút này ở màn nào". Mỗi mục nay
+  // mang tệp dựng nó và VÌ SAO một lượt đi qua bài học không gặp nó — đó là
+  // thứ biến một danh sách nợ thành một việc làm được.
+  '.toast button':
+    'LessonOverlays.tsx — overlay thoáng qua (hiện rồi tự tắt), nên một lượt đi '
+    + 'qua màn không chắc gặp. Cần ép nó hiện mới đo được.',
+  '.awards button':
+    'LessonOverlays.tsx — bảng giải thưởng, cùng lý do như toast: nó là overlay '
+    + 'nên chỉ hiện sau một mốc (đạt huy hiệu) chứ không nằm trên đường đi thẳng '
+    + 'của màn, và một lượt đi qua bài học không kích được nó.',
+  '.resetLink':
+    'AdminAnswerKey.tsx — bề mặt QUẢN TRỊ, không nằm trên đường nào của người '
+    + 'học. Sàn 44px vẫn nên áp (chuột hay ngón tay thì cũng là đích bấm) nhưng '
+    + 'nó không cùng mức ưu tiên với màn bài học.',
+  '.answerKeyHead':
+    'AdminAnswerKey.tsx — cùng bề mặt quản trị ấy, là tiêu đề bấm được của bảng '
+    + 'đáp án. Nó khai `width: 100%` nên trục ngang đạt sẵn; chỉ trục dọc chưa đo.',
+  '.panel summary':
+    'CodeVisualizer.tsx — panel từng bước của `/ide`, không thuộc màn bài học. '
+    + 'Đo được bằng cách mở `/ide` rồi bấm "Xem từng bước".',
+  '.theoryFigure figcaption a':
+    'ReadScreen.tsx — link nguồn trong chú thích hình, chỉ có ở bài mà hình mang '
+    + 'link. Là thẻ `a` INLINE nên `min-height` không áp được: bản sửa ở đó phải '
+    + 'là `display: inline-block` + padding, một quyết định khác hẳn.',
+  '.practiceRun':
+    'PracticeScreen.tsx:134 — nằm sau cổng `{chayDuoc && …}`, tức chỉ hiện ở câu '
+    + 'luyện tập CHẠY ĐƯỢC (AGENTS.md: 53/63 câu có `answerCode` + '
+    + '`answerExpected`). Năm màn luyện tập của SY05 không có cái nào, nên lượt '
+    + 'đi qua ngày 08/11 không gặp. Chọn bài có câu chạy được thì đo được.',
+  '.onGianCachTiep':
+    'OnGianCach.tsx — nút "tiếp" của màn ôn giãn cách, chỉ hiện SAU khi trả lời. '
+    + 'Lượt đi qua bấm phương án rồi sang màn khác nên không kịp đo.',
+};
+
+/**
+ * Rule `cursor: pointer` KHÔNG CÓ ĐƯỜNG TỚI NGƯỜI HỌC — hạng khác với CHUA_DO.
+ *
+ * Gộp chúng vào "chưa đo" là sai, vì chúng sẽ KHÔNG BAO GIỜ đo được trên đường
+ * sản phẩm hiện tại: không phải thiếu một lượt đi, mà là thiếu một màn.
+ */
+const KHONG_CO_DUONG_TOI = {
+  '.toggleBtn':
+    'TrueFalse.tsx, và người dùng duy nhất của nó là `TrueFalseGame.tsx` — một '
+    + 'màn mini-game của pe-v4. Đo trên bản dựng: khoá 179 bài chỉ phát ra '
+    + '`step_2.mcq` (179) và `step_2.practice` (179), KHÔNG khoá game nào — tức '
+    + '0/179 bài có màn ấy. Cùng hạng với nút "Thử ngay trong IDE" ở màn '
+    + 'brief/explain mà `check-duong-toi.mjs` đã khai là còn tối. Vẫn giữ mã, vì '
+    + 'ngày pe-v4 bật lại thì nó sống.',
+};
 
 /** Đích bấm CỐ Ý dưới sàn, kèm lý do. Hai chiều: một mục đã đạt sàn là LỖI. */
 const NGOAI_TAM = {
@@ -214,7 +260,9 @@ test('đích bấm: CẢ BA module — mọi rule `cursor: pointer` đạt sàn 
       const doiCaHaiTruc = tep === TEP[0];
       const duSan = cao !== null && cao >= SAN
         && (!doiCaHaiTruc || (rong !== null && rong >= SAN));
-      const khai = NGOAI_TAM[sel] ? 'NGOAI_TAM' : (CHUA_DO.includes(sel) ? 'CHUA_DO' : null);
+      const khai = NGOAI_TAM[sel] ? 'NGOAI_TAM'
+        : CHUA_DO[sel] ? 'CHUA_DO'
+          : KHONG_CO_DUONG_TOI[sel] ? 'KHONG_CO_DUONG_TOI' : null;
       if (khai) { if (duSan) datMaKhai.push(`${sel} (${khai})`); continue; }
       if (!duSan) {
         loi.push(`${tep.split('/').pop()} \`${sel}\`: cao ${cao ?? 'KHÔNG KHAI'}`
@@ -236,9 +284,21 @@ test('đích bấm: CẢ BA module — mọi rule `cursor: pointer` đạt sàn 
   );
   // Tự kiểm: phép quét trượt thì mọi luật trên đạt RỖNG.
   assert.ok(thay.size >= 15, `chỉ thấy ${thay.size} selector \`cursor: pointer\` trên cả ba file`);
-  // Và mọi mục trong CHUA_DO phải trỏ vào một selector CÓ THẬT.
-  for (const s of CHUA_DO) {
-    assert.ok(thay.has(s), `CHUA_DO khai \`${s}\` nhưng không file nào còn rule đó`);
+  // Và mọi mục của CẢ BA danh sách phải trỏ vào một selector CÓ THẬT, cộng một
+  // LÝ DO đủ dài để kiểm được — một danh sách nợ không kèm đường đi thì vòng
+  // sau phải đi tìm lại từ đầu, và đó đúng là chuyện đã xảy ra với bản đầu của
+  // `CHUA_DO` (11 chuỗi tên trần).
+  for (const [ten, ds] of [['CHUA_DO', CHUA_DO], ['KHONG_CO_DUONG_TOI', KHONG_CO_DUONG_TOI]]) {
+    for (const [s, vi] of Object.entries(ds)) {
+      assert.ok(thay.has(s), `${ten} khai \`${s}\` nhưng không file nào còn rule đó`);
+      assert.ok(vi.length > 80, `${ten}['${s}'] thiếu lý do đủ để kiểm`);
+      assert.match(vi, /\.tsx|\.mjs/, `${ten}['${s}'] không nói ra tệp nào dựng nó`);
+    }
+  }
+  // `KHONG_CO_DUONG_TOI` phải mang SỐ ĐO chứng minh là không có đường, không
+  // chỉ một lời khẳng định — cùng mức bằng chứng mà `check-duong-toi.mjs` đòi.
+  for (const [s, vi] of Object.entries(KHONG_CO_DUONG_TOI)) {
+    assert.match(vi, /\d+\/\d+/, `KHONG_CO_DUONG_TOI['${s}'] không có số đo dạng N/M`);
   }
 });
 
@@ -246,11 +306,12 @@ test('đích bấm: năm nút đã đo không quay về dưới sàn', () => {
   // Ghim riêng con số của năm nút ĐÃ ĐO trên thiết bị, kèm giá trị cũ — để một
   // bản "dọn cho gọn" gỡ `min-height` ra thì có chỗ nói rõ nó từng là bao nhiêu.
   const CU = {
-    '.chip': 24, '.runBtn': 37,
+    '.chip': 24, '.runBtn': 37, '.optionCard': 53,
+    '.traceOpen': 34,
     '.tracePredictGo': 36, '.practiceReveal': 37, '.onGianCachNut': 43,
   };
   for (const [sel, cu] of Object.entries(CU)) {
-    const tep = ['.chip', '.runBtn'].includes(sel) ? TEP[2] : TEP[1];
+    const tep = ['.chip', '.runBtn', '.optionCard'].includes(sel) ? TEP[2] : TEP[1];
     const rules = moiRule(readFileSync(join(GOC, tep), 'utf8'));
     const cao = hieuLuc(rules, sel, 'min-height') ?? hieuLuc(rules, sel, 'height');
     assert.ok(

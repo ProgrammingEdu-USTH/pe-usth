@@ -5908,6 +5908,71 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   "Xem lời giải mẫu" (24 → 44, gần gấp đôi) và "▶ Chạy thử" (37 → 44).
   **CÒN LẠI:** 11 rule trong `CHUA_DO`. Mỗi lần ai mở được một bề mặt chứa chúng thì đo rồi
   gỡ tên khỏi danh sách — đó là cách danh sách ngắn đi, và là lát tiếp theo của cụm này.
+- **NÚT "XEM TỪNG BƯỚC" CAO 34px, và danh sách nợ 11 mục là một danh sách KHÔNG CÓ ĐƯỜNG
+  ĐI.** Lead vòng trước để lại `CHUA_DO` gồm 11 tên trần. Vòng này mở đúng bề mặt chứa chúng
+  và phân loại cả 11 — vì một danh sách tên trần thì vòng sau phải đi tìm lại từ đầu "nút này
+  ở màn nào", và đó đúng là việc tôi vừa phải làm.
+  **CHỌN BÀI BẰNG BẢN DỰNG, không bằng cảm giác:** quét `out/lessons.json` tìm bài có CẢ vết
+  + luyện tập + ca chấm, ra SY05 (`?lesson=107`) với **3 vết · 5 màn luyện tập · 4 ca chấm ·
+  2 gợi ý** — nhiều bề mặt nhất trong một lượt đi. Đi qua màn 1→12 ở 390×844, đo bằng
+  `offsetHeight` trên màn ĐÃ LẮNG:
+  · `.traceOpen` **34 × 157** ("Xem từng bước ▸") — **VI PHẠM**, và nó có ở **56 bài có vết**;
+  · `.optionCard` **53** · `.optionSelected` 53 · `.optionWrong` 66 · `.optionCorrect` 81 —
+    đạt, nhưng KHÔNG khai gì bảo đảm.
+  **VÀ LƯỢT ĐI NÀY XÁC NHẬN BẢN SỬA VÒNG TRƯỚC ĐÃ LÊN PRODUCTION:** `chip` · `runBtn` ·
+  `practiceReveal` đo đúng **44**, và `onGianCachNut` đi **43 → 44**. Một lượt quét thường
+  cũng là một phép kiểm deploy, miễn là có con số CŨ để so.
+  **`.optionCard` ĐẠT MÀ VẪN KHAI SÀN, và lý do không phải hình thức:** bề cao thẻ phương án
+  do NỘI DUNG quyết (phương án dài hai dòng thì 53, một dòng ngắn thì bao nhiêu?). 53 là số
+  đo của MỘT bài; khai `min-height: 44px` biến nó thành một bảo đảm. Đây là chỗ phân biệt
+  "đo được 53" với "không tụt dưới 44".
+  **PHÂN LOẠI 9 LỚP CÒN LẠI — tra chỗ dùng trong TSX thì KHÔNG cái nào chết, nhưng chúng
+  không cùng một hạng:**
+
+  | lớp | ở đâu | vì sao chưa với tới |
+  |---|---|---|
+  | `.toggleBtn` | `TrueFalse.tsx` ← `TrueFalseGame.tsx` | **0/179 bài có màn game** — bản dựng chỉ phát `step_2.mcq` (179) và `step_2.practice` (179). Đây là "KHÔNG CÓ ĐƯỜNG TỚI", không phải "chưa đo" |
+  | `.resetLink` · `.answerKeyHead` | `AdminAnswerKey.tsx` | bề mặt **QUẢN TRỊ** |
+  | `.panel summary` | `CodeVisualizer.tsx` | panel từng bước của `/ide` |
+  | `.toast button` · `.awards button` | `LessonOverlays.tsx` | overlay thoáng qua, phải kích mới hiện |
+  | `.theoryFigure figcaption a` | `ReadScreen.tsx` | link nguồn trong chú thích hình |
+  | `.practiceRun` | `PracticeScreen.tsx:134` | sau cổng `{chayDuoc && …}` — chỉ hiện ở câu luyện tập CHẠY ĐƯỢC (53/63 câu có `answerCode`), và 5 câu của SY05 không có cái nào |
+  | `.onGianCachTiep` | `OnGianCach.tsx` | chỉ hiện SAU khi trả lời |
+
+  **TÁCH `.toggleBtn` SANG MỘT HẠNG RIÊNG, và đó là điểm chính của vòng.** Gộp nó vào "chưa
+  đo" là sai: nó sẽ KHÔNG BAO GIỜ đo được trên đường sản phẩm hiện tại — không phải thiếu một
+  lượt đi, mà là thiếu một MÀN. Cùng hạng với nút "Thử ngay trong IDE" ở màn brief/explain mà
+  `check-duong-toi.mjs` đã khai là còn tối. `KHONG_CO_DUONG_TOI` vì vậy bị đòi một SỐ ĐO dạng
+  `N/M` (ca test khớp `/\d+\/\d+/`) — cùng mức bằng chứng mà cổng đường-tới đòi, chứ không
+  phải một lời khẳng định.
+  **`.theoryFigure figcaption a` LÀ MỘT CA KHÁC HẲN, phải nói ra:** nó là thẻ `a` **INLINE**,
+  nên `min-height` KHÔNG áp được. Bản sửa ở đó phải là `display: inline-block` + padding —
+  một quyết định về dòng chảy văn bản, không phải một dòng sàn. Nếu không khai điều này thì
+  vòng sau sẽ thêm `min-height` rồi tưởng đã xong.
+  **HAI PHÉP ABLATE ĐẦU CỦA TÔI ILL-POSED, và "0 đỏ" của chúng không nói gì.** Tôi đổi tên
+  `.traceOpen` → `.traceOpenZZ` để "gỡ khai sàn" — nhưng đổi tên mang `min-height` ĐI THEO,
+  nên cổng theo-độ-phủ vẫn thấy một rule đạt sàn và đúng ra phải im. Thứ cần gieo là **gỡ
+  chính dòng sàn**, neo vào chú thích RIÊNG của từng rule (mỗi rule có một câu mô tả khác
+  nhau). Gieo lại: **2 đỏ** mỗi chiều. **Một phép ablate "di chuyển" thứ cần kiểm chứ không
+  "lấy đi" nó là một phép ablate vô nghĩa** — họ hàng với bẫy "gieo THÊM chứ không THAY" đã
+  ghi ở vòng #154.
+  **ABLATE 5 chiều, cả 5 đỏ:** gỡ dòng sàn của `.traceOpen` → **2** · gỡ dòng sàn của
+  `.optionCard` → **2** · `CHUA_DO` quay về danh sách tên trần (lý do quá ngắn) → 1 · gỡ số
+  đo khỏi `KHONG_CO_DUONG_TOI` → 1 · bỏ hẳn `.toggleBtn` khỏi cả hai danh sách → 1.
+  **SỐ ĐÃ ĐO:** frontend unit giữ **649 ca / 58 tệp** (mở rộng ca sẵn có, không thêm ca — nên
+  bảng mốc nền KHÔNG đổi, và đó là trạng thái bình thường chứ không phải quên sửa) ·
+  typecheck sạch · lint **146 cảnh báo / 0 lỗi** · `npm run build` exit 0 · `check-moc-nen`
+  20 mục 0 lỗi · `check-moc-chay frontend` 649/649 · `check-nguong` 35 ngưỡng 0 lỗi ·
+  `tai-nguyen-chet` / `duong-toi` 0 lỗi. **KHÔNG đụng một dòng nội dung nào**, nên
+  `check-da-nap` giữ **62 bài chờ**. **KHÔNG bump `ASSET_VERSION`:** hai tệp sửa là CSS module
+  trong `src/`.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** nút "Xem từng bước ▸" cao hơn (34 → 44) ở 56 bài có
+  bảng từng bước. Kiểm trên trang production: tiêm khai báo ấy ở màn 3/13 của SY05 → **34 →
+  44**, không tràn ngang.
+  **CÒN LẠI 8 mục `CHUA_DO` + 1 mục `KHONG_CO_DUONG_TOI`**, và nay mỗi mục nói ra cách đo nó:
+  `/ide` cho `.panel summary` · một bài có câu luyện tập chạy được cho `.practiceRun` · trả
+  lời xong màn ôn giãn cách cho `.onGianCachTiep` · ép overlay hiện cho `.toast`/`.awards` ·
+  bề mặt quản trị cho hai mục của `AdminAnswerKey`.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

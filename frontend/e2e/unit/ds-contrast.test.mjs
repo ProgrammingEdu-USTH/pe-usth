@@ -518,7 +518,13 @@ test('bề mặt đã sang lofi: lớp tương tác không còn token brand xanh
  * cũng lạnh) và đều vượt AA (4,84–13,57 trên thẻ #1d232d), nên warm riêng t3–t6
  * ban đêm là TẠO ra đúng cái lệch mà ban ngày vừa xoá.
  */
-const NGAY = THEME.slice(0, THEME.indexOf('body.dark {'));
+// Bỏ chú thích TRƯỚC khi cắt khối. Không bỏ thì `docThemeToken` tìm chuỗi
+// `--edu-t5` + dấu hai chấm và trúng một câu VĂN XUÔI nhắc tên token — vòng
+// 09/11/2026 làm hai ca thang chữ ĐỎ OAN bằng đúng một chú thích mới. Đây là
+// lần thứ ba cùng lớp lỗi trong repo (ca trang 404 và ca viền thẻ đã mắc),
+// nên sửa ở HELPER chứ không sửa câu chú thích.
+const THEME_SACH = THEME.replace(/\/\*[\s\S]*?\*\//g, "");
+const NGAY = THEME_SACH.slice(0, THEME_SACH.indexOf('body.dark {'));
 const docToken = (ten) => {
   // Regex viết THẲNG, không dựng từ chuỗi: `new RegExp(`${ten}:\s*…`)` trong một
   // template literal biến `\s` thành chữ `s`, nên pattern thành `--edu-t1:s*…` và
@@ -533,7 +539,7 @@ const docToken = (ten) => {
 
 /** Token của edu-theme.css ở MỘT chế độ. `:root` đọc phần NGÀY (trước `body.dark`),
     `body.dark` đọc đúng khối đêm — gộp hai khối là trộn hai chế độ. */
-const DEM = THEME.slice(THEME.indexOf('body.dark {'));
+const DEM = THEME_SACH.slice(THEME_SACH.indexOf('body.dark {'));
 const docThemeToken = (che, ten) => {
   const than = che === ':root' ? NGAY : DEM;
   const i = than.indexOf(ten + ':');
@@ -635,4 +641,109 @@ test('chip `code nội tuyến` phải CÓ NỀN tách khỏi thẻ, và nền �
     if (rc < AA) loi.push(`${che}: chữ ${chu} trên nền chip chỉ ${rc.toFixed(2)}:1 — DƯỚI AA ${AA}`);
   }
   assert.deepEqual(loi, [], loi.join(' | '));
+});
+
+/* ──────────────────────────────────────────────────────────────────────────
+   THANH CUỘN và VỆT BÔI CHỌN — hai bề mặt chrome vẽ trên MỌI trang nạp
+   edu-theme.css (179 bài + trang khoá + 404 + màn lỗi), và tới 09/11/2026 cả
+   hai vẫn mang bảng brand xanh–đỏ tiền-lofi: `scrollbar-color: var(--edu-accent)`
+   (#2563eb) và một thumb `linear-gradient(xanh → đỏ)`. Trang khoá học cuộn
+   5 354px nên dải ấy chạy gần hết mép phải màn hình.
+
+   VÌ SAO CỔNG LOFI KHÔNG THẤY, và đó là bài học của ca này: `DA_SANG_LOFI` ở
+   trên kiểm từng tệp xem còn `var(--edu-accent)` không, mà `edu-theme.css` CỐ Ý
+   nằm ngoài danh sách — nó là nơi ĐỊNH NGHĨA token, thêm vào là tự tạo một cổng
+   báo oan. Nên một chỗ DÙNG nằm trong chính tệp định nghĩa thì vô hình. Ca này
+   bịt đúng khe đó bằng cách nhắm vào HAI SELECTOR cụ thể thay vì cả tệp.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/** Trộn `rgba(r,g,b,a)` lên một nền hex, trả về hex. */
+const tron = (rgba, nen) => {
+  const s = /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)/.exec(rgba);
+  assert.ok(s, `không đọc được màu "${rgba}"`);
+  const a = s[4] === undefined ? 1 : Number(s[4]);
+  const h = nen.replace("#", "");
+  const bg = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+  return "#" + [1, 2, 3]
+    .map((i) => Math.round(Number(s[i]) * a + bg[i - 1] * (1 - a)))
+    .map((v) => v.toString(16).padStart(2, "0")).join("");
+};
+
+/** Khai báo brand mà hai bề mặt này không được mang. */
+const BRAND = [
+  /rgba?\(\s*37\s*,\s*99\s*,\s*235/,   // #2563eb, accent ngày
+  /rgba?\(\s*79\s*,\s*141\s*,\s*255/,  // #4f8dff, accent đêm
+  /rgba?\(\s*229\s*,\s*51\s*,\s*75/,   // #e5334b, đỏ brand
+  /var\(--edu-accent/,
+  /var\(--edu-red/,
+];
+
+/** [chế độ, sàn]. WCAG 1.4.11 đòi 3:1 cho THÀNH PHẦN GIAO DIỆN; sàn ở đây cao
+    hơn một nhịp so với yêu cầu và thấp hơn một nhịp so với số đo thật (ngày
+    4,52 · đêm 3,75). CHỈ ĐƯỢC NÂNG — xem scripts/nguong-mot-chieu.json. */
+const SAN_THANH_CUON = [[":root", 4.3], ["body.dark", 3.6]];
+
+/** Như `docThemeToken` nhưng RƠI VỀ `:root` khi khối đêm không khai lại —
+    đó đúng là điều trình duyệt làm. Cần nó vì `--edu-scrollbar-thumb` CỐ Ý
+    chỉ có MỘT giá trị cho cả hai chế độ: một giá trị thì không có bản đêm để
+    trôi khỏi bản ngày. Đòi khai hai lần là ép nuôi một bản sao. */
+const docTokenCascade = (che, ten) => (
+  che === ":root" || DEM.includes(ten + ":")
+    ? docThemeToken(che, ten) : docThemeToken(":root", ten));
+
+test('thanh cuộn và vệt bôi chọn không còn mang bảng brand xanh–đỏ', () => {
+  const loi = [];
+  const sach = THEME.replace(/\/\*[\s\S]*?\*\//g, "");
+
+  // ── 1. ai DÙNG token: hai selector phải trỏ vào --edu-scrollbar-thumb ──
+  // Bậc quan trọng nhất. Kiểm GIÁ TRỊ token mà không kiểm ai dùng nó là cổng
+  // rỗng — ablate đã chứng minh đúng lỗi ấy ở ca chip `code nội tuyến`.
+  const cuon = /html\s*\{[^}]*scrollbar-color:([^;}]+)/.exec(sach);
+  assert.ok(cuon, "edu-theme.css không còn khai `html { scrollbar-color: … }`. "
+    + "Đổi selector thì SỬA CA NÀY — im lặng xanh ở đây là cổng rỗng.");
+  if (!/var\(--edu-scrollbar-thumb\)/.test(cuon[1]))
+    loi.push(`scrollbar-color khai "${cuon[1].trim()}" — phải là var(--edu-scrollbar-thumb)`);
+
+  const thumb = /::-webkit-scrollbar-thumb\s*\{([^}]*)\}/.exec(sach);
+  assert.ok(thumb, "không còn ::-webkit-scrollbar-thumb — SỬA CA NÀY");
+  const nenThumb = /background:([^;}]+)/.exec(thumb[1]);
+  assert.ok(nenThumb, "::-webkit-scrollbar-thumb không khai background");
+  if (!/var\(--edu-scrollbar-thumb\)/.test(nenThumb[1]))
+    loi.push(`thumb khai "${nenThumb[1].trim()}" — phải là var(--edu-scrollbar-thumb). `
+      + "Bản cũ là một GRADIENT xanh → đỏ, nên luật này cấm cả gradient.");
+
+  // ── 2. giá trị token: thấy được trên nền trang ở CẢ HAI chế độ ──
+  for (const [che, san] of SAN_THANH_CUON) {
+    const mau = docTokenCascade(che, "--edu-scrollbar-thumb");
+    const nen = docThemeToken(che, "--edu-bg-solid");
+    const r = tiSo(mau, nen);
+    if (r < san)
+      loi.push(`${che}: thumb ${mau} chỉ ${r.toFixed(2)}:1 so với nền trang ${nen} < sàn ${san}`);
+    const hx = mau.replace("#", "");
+    const [kr, , kb] = [0, 2, 4].map((i) => parseInt(hx.slice(i, i + 2), 16));
+    if (kr < kb) loi.push(`${che}: thumb ${mau} có đỏ ${kr} < xanh dương ${kb} — bảng lofi là ẤM`);
+  }
+
+  // ── 3. ::selection: không brand, và chữ vẫn đọc được trên vệt ──
+  // `color: inherit` nên chữ GIỮ màu của nó; thứ phải đo là mực trên nền ĐÃ TRỘN.
+  const SEL = [
+    [":root", /(?<!dark )::selection\s*\{([^}]*)\}/],
+    ["body.dark", /body\.dark\s+::selection\s*\{([^}]*)\}/],
+  ];
+  for (const [che, re] of SEL) {
+    const k = re.exec(sach);
+    assert.ok(k, `không còn quy tắc ::selection cho ${che} — SỬA CA NÀY`);
+    const bg = /background:([^;}]+)/.exec(k[1]);
+    assert.ok(bg, `::selection (${che}) không khai background`);
+    const v = bg[1].trim();
+    for (const b of BRAND)
+      if (b.test(v)) loi.push(`::selection (${che}) mang brand: "${v}"`);
+    const chu = docThemeToken(che, "--edu-t1");
+    const nen = docThemeToken(che, "--edu-bg-solid");
+    const r = tiSo(chu, tron(v, nen));
+    if (r < AA)
+      loi.push(`::selection (${che}): chữ ${chu} trên vệt chỉ ${r.toFixed(2)}:1 — DƯỚI AA ${AA}`);
+  }
+
+  assert.deepEqual(loi, [], loi.join(" | "));
 });

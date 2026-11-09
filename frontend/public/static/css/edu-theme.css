@@ -41,6 +41,20 @@
      tròn, nét dày, đó là thứ làm trang đọc ra "ấm" thay vì "bảng điều khiển". */
   --edu-font-display: 'Baloo 2', 'Montserrat', system-ui, sans-serif;
 
+  /* Thanh cuộn và vệt bôi chọn: HAI bề mặt chrome vẽ trên MỌI trang nạp tệp
+     này, và tới 09/11/2026 cả hai vẫn mang bảng brand xanh–đỏ tiền-lofi.
+     Token RIÊNG chứ không tái dùng hai bậc chữ ấm t3 và t5 — chúng là token CHỮ, và
+     repo đã bốn lần hỏng vì tái dùng một token sai vai (--edu-card-bg trên thẻ
+     trắng, --edu-card-border trắng-trên-trắng).
+
+     MỘT giá trị cho cả hai chế độ, và đó là kết quả của phép đo chứ không phải
+     tiết kiệm: thanh cuộn là THÀNH PHẦN GIAO DIỆN nên WCAG 1.4.11 đòi 3:1 so
+     với nền, mà nền ngày là giấy kem #F4EEE3 còn nền đêm là #080C15. Chỉ hai
+     màu trong cả bảng ấm vượt 3:1 ở CẢ HAI: #7C6551 (4,74 / 3,57) và #806853
+     (4,52 / 3,75). Lấy cái có BIÊN NHỎ NHẤT cao hơn. Một giá trị thì không có
+     bản đêm để trôi khỏi bản ngày. */
+  --edu-scrollbar-thumb: #806853;
+
   /* accent — identical in light & dark */
   --edu-accent: #2563eb;
   --edu-accent-2: #1f5fe0;
@@ -782,14 +796,28 @@ body.dark .edu-header-bar .chip-avatar { border-color: rgba(255,255,255,.22); }
    Hiệu ứng tự tắt khi hệ điều hành bật "giảm chuyển động".
    ══════════════════════════════════════════════════════════════ */
 
-::selection { background: rgba(37,99,235,.22); color: inherit; }
-body.dark ::selection { background: rgba(79,141,255,.34); }
+/* Vệt bôi chọn. Bản cũ là brand xanh rgba(37,99,235,.22) — trên giấy kem thì
+   một vệt xanh lạnh là thứ duy nhất còn lại của bảng xanh–đỏ trong lúc người
+   học đang đọc. Nay dùng --ds-mark-ochre #E0B062, token mang đúng vai "đánh
+   dấu". `color: inherit` nên chữ giữ nguyên màu: đo mực trên nền ĐÃ TRỘN —
+   ngày 11,15:1, đêm 9,09:1, cả hai trên mức AA 4,5 rất xa. Alpha ngày cao hơn
+   đêm vì ochre nhạt, trộn vào giấy kem thì nhoà, trộn vào nền đêm thì nổi. */
+::selection { background: rgba(224,176,98,.40); color: inherit; }
+body.dark ::selection { background: rgba(224,176,98,.30); }
 
-html { scrollbar-color: var(--edu-accent) transparent; }
+/* Thanh cuộn. Trước 09/11/2026 nó là bề mặt LỚN NHẤT còn mang brand: trang
+   khoá học cuộn 5 354px nên dải này chạy gần hết mép phải màn hình, và lõi của
+   nó là một gradient XANH → ĐỎ — đúng bảng mà năm vòng lofi đã gỡ khỏi nền
+   trang, quầng bám chuột, nút "Bắt đầu học" và viền thẻ.
+   Vì sao cổng lofi không thấy: `ds-contrast` kiểm danh sách DA_SANG_LOFI xem
+   tệp còn `var(--edu-accent)` không, mà `edu-theme.css` CỐ Ý nằm ngoài danh
+   sách ấy — nó là nơi ĐỊNH NGHĨA token, nên thêm vào là tự tạo cổng báo oan.
+   Một chỗ DÙNG nằm trong chính tệp định nghĩa thì vô hình với cổng. */
+html { scrollbar-color: var(--edu-scrollbar-thumb) transparent; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--edu-accent-3), var(--edu-red-2));
+  background: var(--edu-scrollbar-thumb);
   border-radius: 99px;
   border: 2px solid transparent;
   background-clip: padding-box;

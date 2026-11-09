@@ -378,4 +378,35 @@
  * giá phải trả ghi ở `exercises.module.css`. `o-go-16px.test.mjs` canh sàn này. */
 @media (max-width: 1023.98px) {
   .fallbackInput { font-size: 16px; }
+
+  /* SÀN 44px CHO ĐÍCH BẤM. Luật của chính repo (xem `not-found.module.css`),
+   * và nó chưa bao giờ được áp ở trang này. Đo trên production 390×844
+   * (`offsetHeight`, màn đã lắng): `.select`/`.run` 42 · `.start` 38 ·
+   * `.restoredAction` 31 · `.restoredClose` 26×26 — nút ✕ của băng khôi phục
+   * là nhỏ nhất, chưa tới 3/5 diện tích một đích đạt chuẩn.
+   *
+   * CHỈ ở khổ CẢM ỨNG, không đụng desktop: `.select`/`.run`/`.stop`/`.ctrl`/
+   * `.restoredClose` khai `height` (và `width`) TƯỜNG MINH, nên sửa thẳng là
+   * đổi cả bố cục desktop — một thay đổi lớn hơn việc đang làm và không ai
+   * đo. 1023.98px là đúng mốc mà sàn 16px ở trên đã chọn cho dải ấy.
+   * `dich-bam-vo-bai-hoc.test.mjs` canh sàn này. */
+  .select,
+  .run,
+  .stop { height: 44px; }
+  .restoredAction { min-height: 44px; }
+  .restoredClose { width: 44px; height: 44px; }
+  /* `.retry` chỉ hiện khi Monaco không nạp được (trình soạn thảo dự phòng),
+     nên con số thật của nó CHƯA ĐO trên thiết bị — đo được thì phải chặn
+     chunk của Monaco. Sàn vẫn áp: khai `min-height` là thứ cổng VERIFY được,
+     nên nó mạnh hơn khai một khoản nợ. Chính cổng đã bắt chỗ này — xem chiều
+     "NGOẠI LỆ ĐÃ LỖI THỜI" của `dich-bam-vo-bai-hoc.test.mjs`. */
+  .retry { min-height: 44px; }
+  /* `<summary>` là `display: list-item`, nên `min-height` một mình đẩy chữ
+     lên đỉnh một hộp 44px. `box-sizing: border-box` + padding 13px giữ chữ ở
+     giữa VÀ giữ dấu tam giác mở/đóng — `display: flex` thì mất dấu ấy. */
+  .detail summary {
+    min-height: 44px;
+    padding: 13px 0;
+    box-sizing: border-box;
+  }
 }

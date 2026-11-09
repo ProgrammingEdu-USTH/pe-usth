@@ -31,11 +31,20 @@ import test from 'node:test';
 
 const GOC = new URL('../../', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
 
-/** Ba module dựng nên màn bài học. Cổng phủ cả ba, không chỉ vỏ. */
+/**
+ * Năm module dựng nên các bề mặt người học bấm vào.
+ *
+ * Ba tệp đầu là màn BÀI HỌC. Hai tệp cuối là `/ide` và code visualizer —
+ * thêm 08/11/2026, và chúng KHÔNG phải phạm vi mở cho đủ: `/ide` có 411
+ * nút "Thử ngay trong IDE" trỏ tới (xem `check-duong-toi.mjs`), còn
+ * visualizer là chỗ DUY NHẤT của sản phẩm có bước-từng-dòng.
+ */
 const TEP = [
   'src/components/lesson-chrome/LessonChrome.module.css',
   'src/components/python-studio/studio-chrome.module.css',
   'src/components/lesson-chrome/exercises/exercises.module.css',
+  'src/app/ide/ide.module.css',
+  'src/components/code-visualizer/CodeVisualizer.module.css',
 ];
 const CSS = readFileSync(join(GOC, TEP[0]), 'utf8');
 
@@ -78,9 +87,17 @@ const CHUA_DO = {
   '.answerKeyHead':
     'AdminAnswerKey.tsx — cùng bề mặt quản trị ấy, là tiêu đề bấm được của bảng '
     + 'đáp án. Nó khai `width: 100%` nên trục ngang đạt sẵn; chỉ trục dọc chưa đo.',
+  // ĐÍNH CHÍNH 08/11/2026: lý do cũ ghi `CodeVisualizer.tsx` và nó SAI.
+  // `styles.panel` trong CodeVisualizer.tsx:292 là `.panel` của module RIÊNG
+  // của nó (`CodeVisualizer.module.css`), không phải lớp này. Chủ thật là
+  // `SandboxScreen.tsx:127` và `:148` — hai panel gập của màn BÀI TẬP, tức nó
+  // nằm trên đường người học (143 bài có ca chấm), không ở `/ide`.
   '.panel summary':
-    'CodeVisualizer.tsx — panel từng bước của `/ide`, không thuộc màn bài học. '
-    + 'Đo được bằng cách mở `/ide` rồi bấm "Xem từng bước".',
+    'SandboxScreen.tsx:127 và :148 — hai `<details>` của màn bài tập được chấm '
+    + '("Hợp đồng" và bảng ca chấm). Đo được nếu đi tới ĐÚNG màn sandbox: lượt '
+    + 'đi ngày 08/11 bấm qua 26 đoạn thanh tiến độ của SY05 mà không đoạn nào mở '
+    + 'được màn ấy, nên nó vẫn CHƯA ĐO.',
+
   '.theoryFigure figcaption a':
     'ReadScreen.tsx — link nguồn trong chú thích hình, chỉ có ở bài mà hình mang '
     + 'link. Là thẻ `a` INLINE nên `min-height` không áp được: bản sửa ở đó phải '
@@ -131,17 +148,34 @@ const boChuThich = (s) => s.replace(/\/\*[\s\S]*?\*\//g, ' ');
  * `@media (max-width: 560px)` là giá trị của KHỔ ĐIỆN THOẠI, còn `height: 40px`
  * ngoài đó là giá trị desktop. Gộp chúng lại là đọc sai cả hai.
  */
+/**
+ * MỌI selector của một rule, không chỉ dòng cuối.
+ *
+ * Bản đầu lấy `.split(/[\n;]/).pop()` — tức DÒNG CUỐI — nên một rule viết
+ * `.restoredAction,\n.restoredClose {` chỉ còn `.restoredClose`, và
+ * `.restoredAction` RƠI KHỎI phép quét hoàn toàn. Một đích bấm không bao
+ * giờ được kiểm trong khi cổng vẫn in 0 lỗi: đúng hình dạng "cổng rỗng"
+ * mà file này đã bắt ba lần ở chỗ khác.
+ *
+ * Cắt sau dấu `;` CUỐI để bỏ các at-rule không có khối (`@import …;`) lọt
+ * vào phần văn bản giữa hai dấu ngoặc.
+ */
+function selCua(tho) {
+  return tho.slice(tho.lastIndexOf(';') + 1)
+    .split(',').map((s) => s.trim()).filter(Boolean);
+}
+
 function moiRule(van = CSS) {
   const ma = boChuThich(van);
   const ra = [];
   for (const mm of ma.matchAll(/@media([^{]*)\{([\s\S]*?)\n\}/g)) {
     for (const m of mm[2].matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
-      ra.push({ sel: m[1].split(/[\n;]/).pop().trim(), than: m[2], media: mm[1].trim() });
+      ra.push({ sels: selCua(m[1]), than: m[2], media: mm[1].trim() });
     }
   }
   const ngoai = ma.replace(/@media[^{]*\{[\s\S]*?\n\}/g, ' ');
   for (const m of ngoai.matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
-    ra.push({ sel: m[1].split(/[\n;]/).pop().trim(), than: m[2], media: null });
+    ra.push({ sels: selCua(m[1]), than: m[2], media: null });
   }
   return ra;
 }
@@ -156,7 +190,7 @@ const phanTram = (than, prop) => new RegExp(`${prop}\\s*:\\s*100%`).test(than);
 function hieuLuc(rules, sel, prop) {
   let v = null;
   for (const r of rules) {
-    if (!r.sel.split(',').some((s) => s.trim() === sel)) continue;
+    if (!r.sels.includes(sel)) continue;
     const co = px(r.than, prop) ?? (phanTram(r.than, prop) ? Infinity : null);
     if (co === null) continue;
     if (r.media === null) { if (v === null) v = co; } else if (/max-width/.test(r.media)) v = co;
@@ -172,21 +206,31 @@ test('đích bấm: phép đọc tìm được file và các rule (tự kiểm)'
   assert.ok(rules.length >= 40, `phép duyệt rule trượt, chỉ thấy ${rules.length}`);
   const bam = rules.filter((r) => /cursor\s*:\s*pointer/.test(r.than));
   assert.ok(bam.length >= 4, `chỉ thấy ${bam.length} rule \`cursor: pointer\` — trượt?`);
+  // Và phép bóc selector phải giữ MỌI tên, không chỉ dòng cuối (xem `selCua`).
+  assert.deepEqual(
+    selCua('\n.a,\n.b c {'.replace(' {', '')), ['.a', '.b c'],
+    'selCua đánh rơi selector — rule nhiều tên sẽ lọt khỏi phép quét',
+  );
 });
 
-test('đích bấm: mọi rule `cursor: pointer` đạt sàn 44px hoặc được KHAI', () => {
+test('đích bấm: VỎ BÀI HỌC — nghiêm hơn, chỉ NGOAI_TAM miễn được', () => {
+  // Ca này KHÔNG dư so với ca năm-tệp ở dưới, và khác ở đúng một chỗ: ở đây
+  // lối thoát DUY NHẤT là `NGOAI_TAM` (đã đo, sàn bất khả, kèm số). Không ai
+  // dời được một đích bấm của vỏ bài học sang `CHUA_DO` — vỏ ấy hiện ở MỌI
+  // màn của 179 bài, nên "chưa đo" không phải một lời khai đứng được ở đây.
   const rules = moiRule();
   const loi = [];
   const dat = [];
   for (const r of rules) {
     if (!/cursor\s*:\s*pointer/.test(r.than)) continue;
-    const sel = r.sel;
-    const cao = hieuLuc(rules, sel, 'min-height') ?? hieuLuc(rules, sel, 'height');
-    const rong = hieuLuc(rules, sel, 'min-width') ?? hieuLuc(rules, sel, 'width');
-    const duSan = cao !== null && cao >= SAN && rong !== null && rong >= SAN;
-    if (NGOAI_TAM[sel]) { if (duSan) dat.push({ sel, cao, rong }); continue; }
-    if (!duSan) {
-      loi.push(`\`${sel}\`: cao ${cao ?? 'KHÔNG KHAI'}, rộng ${rong ?? 'KHÔNG KHAI'}`);
+    for (const sel of r.sels) {
+      const cao = hieuLuc(rules, sel, 'min-height') ?? hieuLuc(rules, sel, 'height');
+      const rong = hieuLuc(rules, sel, 'min-width') ?? hieuLuc(rules, sel, 'width');
+      const duSan = cao !== null && cao >= SAN && rong !== null && rong >= SAN;
+      if (NGOAI_TAM[sel]) { if (duSan) dat.push({ sel, cao, rong }); continue; }
+      if (!duSan) {
+        loi.push(`\`${sel}\`: cao ${cao ?? 'KHÔNG KHAI'}, rộng ${rong ?? 'KHÔNG KHAI'}`);
+      }
     }
   }
   assert.deepEqual(
@@ -216,7 +260,7 @@ test('đích bấm: ngoại lệ phải NÓI RA lý do, và lý do phải mang s
     assert.match(vi, /\d/, `lý do cho \`${t}\` không có số đo nào`);
     // Và mục khai phải trỏ vào một selector CÓ THẬT trong file.
     assert.ok(
-      moiRule().some((r) => r.sel.split(',').some((s) => s.trim() === t)),
+      moiRule().some((r) => r.sels.includes(t)),
       `NGOAI_TAM khai \`${t}\` nhưng file không còn rule nào có selector đó`,
     );
   }
@@ -231,7 +275,7 @@ test('đích bấm: `.closeBtn` không quay về 40px', () => {
   assert.ok(c >= SAN && r >= SAN, `.closeBtn nay ${r}×${c}, dưới sàn ${SAN}px`);
 });
 
-test('đích bấm: CẢ BA module — mọi rule `cursor: pointer` đạt sàn hoặc được KHAI', () => {
+test('đích bấm: CẢ NĂM module — mọi rule `cursor: pointer` đạt sàn hoặc được KHAI', () => {
   // Mở rộng của ca trên sang `studio-chrome.module.css` và
   // `exercises.module.css`. Vẫn canh theo ĐỘ PHỦ: một nút MỚI thêm vào bất cứ
   // file nào trong ba file phải đạt sàn hoặc có tên trong một danh sách khai.
@@ -240,6 +284,16 @@ test('đích bấm: CẢ BA module — mọi rule `cursor: pointer` đạt sàn 
   //   NGOAI_TAM — đã đo, sàn BẤT KHẢ ở đó, kèm lý do mang số.
   //   CHUA_DO   — chưa đo trên thiết bị, nên không ai được nói nó đạt.
   // Gộp hai cái lại là mất phân biệt "đã quyết" với "chưa biết".
+  //
+  // KHOẢNG TRỐNG ĐÃ ĐO, phải nói ra để "0 lỗi" không bị đọc quá: phép ĐỘ PHỦ
+  // khoá vào `cursor: pointer`, nên một CONTROL GỐC không khai nó
+  // thì nửa độ phủ mù hẳn. Một ca thật: `.scrub` (thanh trượt chọn
+  // bước của visualizer, một `input[type=range]`) cao 16px mà không
+  // rule nào của nó có `cursor: pointer` — range có con trỏ riêng của
+  // trình duyệt. Ablate xác nhận: hạ nó về 16 chỉ ra ĐÚNG 1 đỏ, và con đỏ ấy
+  // đến từ ca ghim CU theo TÊN, không từ ca này. Tức một range input THÊM MỚI
+  // ngày mai sẽ không ai canh. Khoá thêm vào `accent-color` thì phủ
+  // được, nhưng đó là một luật thứ hai chưa có bằng chứng ai cần — chưa làm.
   const loi = [];
   const datMaKhai = [];
   const thay = new Set();
@@ -248,7 +302,7 @@ test('đích bấm: CẢ BA module — mọi rule `cursor: pointer` đạt sàn 
     const rules = moiRule(van);
     for (const r of rules) {
       if (!/cursor\s*:\s*pointer/.test(r.than)) continue;
-      const sel = r.sel;
+      for (const sel of r.sels) {
       thay.add(sel);
       const cao = hieuLuc(rules, sel, 'min-height') ?? hieuLuc(rules, sel, 'height');
       const rong = hieuLuc(rules, sel, 'min-width') ?? hieuLuc(rules, sel, 'width');
@@ -257,16 +311,28 @@ test('đích bấm: CẢ BA module — mọi rule `cursor: pointer` đạt sàn 
       // bằng khai báo, còn trục ngang thì chấp nhận số đo đã có — ghi ra đây vì
       // đó là một phép nới so với ca trên, và nó có lý do: ép `min-width` lên
       // một chip trong hàng ngang là đổi bố cục mà tôi chưa đo.
+      // TRỤC NGANG, hai luật khác nhau và cả hai đều cần:
+      //  · vỏ bài học (TEP[0]) đòi bề rộng phải ĐƯỢC KHAI — nhãn nút ở đó do
+      //    `cta.ts` sinh nên nội dung đổi theo màn;
+      //  · MỌI tệp: nếu rule khai `width` TƯỜNG MINH thì tác giả đã ấn định bề
+      //    rộng, nên nó không do nội dung quyết và phải đạt sàn. Đây là luật
+      //    SUY RA ĐƯỢC, không phải một danh sách — và nó là thứ duy nhất bắt
+      //    `.ctrl` (khai `width: 40px`) và `.restoredClose` (26px), hai nút mà
+      //    luật "chỉ đòi trục dọc" của các module studio sẽ cho qua.
+      const rongAnDinh = hieuLuc(rules, sel, 'width');
       const doiCaHaiTruc = tep === TEP[0];
       const duSan = cao !== null && cao >= SAN
-        && (!doiCaHaiTruc || (rong !== null && rong >= SAN));
+        && (!doiCaHaiTruc || (rong !== null && rong >= SAN))
+        && (rongAnDinh === null || rongAnDinh >= SAN);
       const khai = NGOAI_TAM[sel] ? 'NGOAI_TAM'
         : CHUA_DO[sel] ? 'CHUA_DO'
           : KHONG_CO_DUONG_TOI[sel] ? 'KHONG_CO_DUONG_TOI' : null;
       if (khai) { if (duSan) datMaKhai.push(`${sel} (${khai})`); continue; }
       if (!duSan) {
         loi.push(`${tep.split('/').pop()} \`${sel}\`: cao ${cao ?? 'KHÔNG KHAI'}`
-          + (doiCaHaiTruc ? `, rộng ${rong ?? 'KHÔNG KHAI'}` : ''));
+          + (doiCaHaiTruc ? `, rộng ${rong ?? 'KHÔNG KHAI'}` : '')
+          + (rongAnDinh !== null && rongAnDinh < SAN ? `, KHAI \`width: ${rongAnDinh}px\`` : ''));
+      }
       }
     }
   }
@@ -283,7 +349,7 @@ test('đích bấm: CẢ BA module — mọi rule `cursor: pointer` đạt sàn 
     + 'sách — CHUA_DO chỉ được NGẮN ĐI.\n   ' + datMaKhai.join('\n   '),
   );
   // Tự kiểm: phép quét trượt thì mọi luật trên đạt RỖNG.
-  assert.ok(thay.size >= 15, `chỉ thấy ${thay.size} selector \`cursor: pointer\` trên cả ba file`);
+  assert.ok(thay.size >= 24, `chỉ thấy ${thay.size} selector \`cursor: pointer\` trên cả năm file`);
   // Và mọi mục của CẢ BA danh sách phải trỏ vào một selector CÓ THẬT, cộng một
   // LÝ DO đủ dài để kiểm được — một danh sách nợ không kèm đường đi thì vòng
   // sau phải đi tìm lại từ đầu, và đó đúng là chuyện đã xảy ra với bản đầu của
@@ -305,13 +371,22 @@ test('đích bấm: CẢ BA module — mọi rule `cursor: pointer` đạt sàn 
 test('đích bấm: năm nút đã đo không quay về dưới sàn', () => {
   // Ghim riêng con số của năm nút ĐÃ ĐO trên thiết bị, kèm giá trị cũ — để một
   // bản "dọn cho gọn" gỡ `min-height` ra thì có chỗ nói rõ nó từng là bao nhiêu.
+  // [cao đo được, chỉ số trong TEP]
   const CU = {
-    '.chip': 24, '.runBtn': 37, '.optionCard': 53,
-    '.traceOpen': 34,
-    '.tracePredictGo': 36, '.practiceReveal': 37, '.onGianCachNut': 43,
+    '.chip': [24, 2], '.runBtn': [37, 2], '.optionCard': [53, 2],
+    '.traceOpen': [34, 1], '.tracePredictGo': [36, 1],
+    '.practiceReveal': [37, 1], '.onGianCachNut': [43, 1],
+    // `/ide`, đo 08/11/2026 ở 390×844. `.stop` KHÔNG đo trực tiếp (nó chỉ
+    // hiện lúc đang chạy) — nó khai CÙNG `height: 42px` với `.run`, nên con
+    // số suy ra từ khai báo chứ không từ màn hình, và nói ra ở đây.
+    '.select': [42, 3], '.run': [42, 3], '.stop': [42, 3],
+    '.restoredAction': [31, 3], '.restoredClose': [26, 3],
+    // Code visualizer. `.ctrl` là năm nút bước, dưới sàn ở CẢ HAI trục.
+    '.ctrl': [36, 4], '.start': [38, 4], '.scrub': [16, 4],
+    '.detail summary': [16, 4],
   };
-  for (const [sel, cu] of Object.entries(CU)) {
-    const tep = ['.chip', '.runBtn', '.optionCard'].includes(sel) ? TEP[2] : TEP[1];
+  for (const [sel, [cu, i]] of Object.entries(CU)) {
+    const tep = TEP[i];
     const rules = moiRule(readFileSync(join(GOC, tep), 'utf8'));
     const cao = hieuLuc(rules, sel, 'min-height') ?? hieuLuc(rules, sel, 'height');
     assert.ok(

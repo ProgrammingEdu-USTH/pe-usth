@@ -5908,6 +5908,120 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   "Xem lời giải mẫu" (24 → 44, gần gấp đôi) và "▶ Chạy thử" (37 → 44).
   **CÒN LẠI:** 11 rule trong `CHUA_DO`. Mỗi lần ai mở được một bề mặt chứa chúng thì đo rồi
   gỡ tên khỏi danh sách — đó là cách danh sách ngắn đi, và là lát tiếp theo của cụm này.
+- **NĂM NÚT BƯỚC CỦA CODE VISUALIZER LÀ 40×36 — dưới sàn ở CẢ HAI trục, và chúng là đích
+  bấm của chính tính năng đó.** Lead #158: 8 mục `CHUA_DO`, mỗi mục nay nói ra cách đo nó.
+  Mục rẻ nhất là `/ide` — một trang CHƯA BAO GIỜ được đo ở khổ điện thoại cho đích bấm, và
+  là chỗ DUY NHẤT của sản phẩm có bước-từng-dòng.
+  **ĐỌC CSS TRƯỚC đã thấy, không có `@media` nào override bề cao ở khổ cảm ứng** — rồi ĐO
+  trên production (390×844, `offsetHeight`, màn đã lắng, 13 đích):
+
+  | lớp | đo được | nút |
+  |---|---|---|
+  | `.ctrl` ×5 | **40×36** | ⏮ ◀ ▶ ⏭ ⏩ — **dưới sàn CẢ HAI trục** |
+  | `.scrub` | 329×**16** | thanh trượt chọn bước (`input[type=range]`) |
+  | `.detail summary` | 307×**16** | hàng "Traceback" / "Chi tiết kỹ thuật" |
+  | `.restoredClose` | **26×26** | ✕ của băng khôi phục — nhỏ nhất |
+  | `.restoredAction` | 167×**31** | "Dùng ví dụ mặc định" |
+  | `.start` | 125×**38** | "Xem từng bước" / "Ghi vết lại" |
+  | `.select` · `.run` · `.stop` | **42** | thanh công cụ |
+
+  **HÀNG NÚT VỪA CHỖ, đo chứ không suy:** 5 × 44 + 4 × 6 gap = **244px**, trong khi
+  `.controls` rộng **333 / 302 / 262** px ở khổ 390 / 360 / 320. Tiêm thật ở cả ba khổ: 13
+  đích lên 44, `scrollWidth` giữ đúng bề rộng màn, **0 phần tử ngoài mép**.
+  **CHỈ SIẾT Ở KHỔ CẢM ỨNG (`max-width: 1023.98px`), không đụng desktop** — `.ctrl`,
+  `.restoredClose`, `.select`/`.run`/`.stop` khai `height` (và `width`) TƯỜNG MINH, nên sửa
+  thẳng là đổi cả bố cục desktop, một thay đổi lớn hơn việc đang làm mà không ai đo. 1023.98
+  là đúng mốc sàn 16px đã chọn cho dải ấy, nên không sinh một breakpoint thứ hai.
+
+  **LỖ TRONG CHÍNH `moiRule`: nó ĐÁNH RƠI selector, và rơi IM LẶNG.** Phép bóc là
+  `m[1].split(/[\n;]/).pop()` — DÒNG CUỐI — nên một rule viết `.restoredAction,` xuống dòng
+  `.restoredClose {` chỉ còn `.restoredClose`. **`.restoredAction` chưa bao giờ được quét**,
+  và nó là một trong năm đích tôi vừa đo dưới sàn. Thứ làm nó im lặng: một selector rơi ra
+  thì ĐỘ PHỦ chỉ co lại, không có luật nào đỏ — đúng hình dạng "cổng tự khai khống độ phủ"
+  mà file này đã bắt ba lần ở chỗ khác. Nay `selCua()` giữ MỌI tên (cắt sau dấu `;` cuối để
+  bỏ at-rule không khối, rồi tách theo `,`), và có một assert đơn vị ghim chính phép bóc đó.
+  Kiểm trước khi tách theo `,`: **0/5 tệp** có `:is()`/`:where()`/`:not(…,…)`, nên phép tách
+  không gặp dấu phẩy trong selector.
+
+  **LUẬT TRỤC NGANG MỚI LÀ MỘT LUẬT SUY RA ĐƯỢC, không phải một danh sách:** nếu rule khai
+  `width` TƯỜNG MINH thì tác giả đã ấn định bề rộng, nên nó không do nội dung quyết và phải
+  đạt sàn. Nó phủ cả năm tệp, và đó là thứ DUY NHẤT bắt được `.ctrl` (khai `width: 40px`) —
+  luật "chỉ đòi trục dọc" của các module studio cho qua, vì `.ctrl` đã cao 44 sau bản sửa.
+  Kiểm không báo oan: trong 5 tệp chỉ có `.closeBtn` 44px và ba chỗ `width: 100%`
+  (`hieuLuc` trả `Infinity`) là khai tường minh — cả bốn đạt.
+
+  **VÀ CỔNG BẮT ĐÚNG TÔI, ở chỗ tôi tưởng mình đang tử tế.** Tôi áp sàn cho `.retry` (nút
+  "thử lại" của trình soạn thảo dự phòng) **đồng thời** khai nó vào `CHUA_DO` để nói "chưa
+  đo trên thiết bị". Chiều thứ hai của luật đỏ ngay: *"NGOẠI LỆ ĐÃ LỖI THỜI"*. Hai thứ ấy
+  LOẠI TRỪ NHAU theo thiết kế, và cổng đúng: **`CHUA_DO` là lối thoát cho rule KHÔNG chứng
+  minh được bằng CSS**, không phải cho rule "chưa đo bằng ngón tay". Một khi `min-height:
+  44px` đã khai thì cổng VERIFY được nó, nên áp sàn **mạnh hơn** khai một khoản nợ — và
+  giữ cả hai là tự khai khống một khoản nợ đã trả. Danh sách vì vậy vẫn **8 mục**.
+  Bài học rộng hơn: khi một danh sách nợ và một bản sửa cùng nhắm một mục, bản sửa thắng;
+  nếu luật không nói ra điều đó thì danh sách sẽ phình bằng những món đã trả.
+
+  **MỘT LÝ DO TRONG `CHUA_DO` TRỎ SAI TỆP, và nó là lý do do CHÍNH #158 viết.** #158 đổi
+  danh sách từ tên trần sang "tên + tệp dựng nó", và một trong tám dòng ấy ghi `.panel
+  summary` là của `CodeVisualizer.tsx`. Sai: `styles.panel` ở `CodeVisualizer.tsx:292` là
+  `.panel` của module RIÊNG của nó, không phải lớp này. Chủ thật là **`SandboxScreen.tsx:127`
+  và `:148`** — hai `<details>` của màn BÀI TẬP ĐƯỢC CHẤM, tức nó nằm trên đường người học
+  (143 bài), không ở `/ide`. **Thêm tệp vào một dòng khai không làm dòng đó đúng** — phải
+  tra `styles.X` thuộc module nào, vì hai module khác nhau có thể có cùng tên lớp.
+  Nó vẫn CHƯA ĐO: bấm qua 26 đoạn thanh tiến độ của SY05 không đoạn nào mở được màn sandbox,
+  nên lý do nay nói ra đúng điều đó thay vì nói nó ở `/ide`.
+
+  **KHOẢNG TRỐNG ĐÃ ĐO VÀ KHAI: nửa ĐỘ PHỦ của cổng khoá vào `cursor: pointer`, nên một
+  CONTROL GỐC không khai nó thì cổng mù.** `.scrub` là `input[type=range]` — range có con
+  trỏ riêng của trình duyệt nên không rule nào của nó có `cursor: pointer`. Ablate chứng
+  minh: hạ nó về 16 chỉ ra **1 đỏ**, và con đỏ ấy đến từ ca ghim CU **theo TÊN**, không từ
+  ca độ phủ. Tức một range input THÊM MỚI ngày mai sẽ không ai canh. Khoá thêm vào
+  `accent-color` thì phủ được, nhưng đó là một luật thứ hai chưa có bằng chứng ai cần.
+
+  **CA MỘT-TỆP KHÔNG DƯ, và đó là chỗ tôi suýt xoá một ca.** Sau khi `TEP` lên 5 thì ca cũ
+  (chỉ `LessonChrome.module.css`, đòi cả hai trục) trông như bị ca năm-tệp bao trọn — và xoá
+  nó thì số ca tụt 649 → 648, tức đụng sàn một chiều. Khác biệt thật: ở ca ấy lối thoát DUY
+  NHẤT là `NGOAI_TAM` (đã đo, sàn bất khả, kèm số). **Không ai dời được một đích bấm của vỏ
+  bài học sang `CHUA_DO`** — vỏ ấy hiện ở MỌI màn của 179 bài, nên "chưa đo" không phải một
+  lời khai đứng được ở đó. Đã đổi tên ca cho nói ra tính chất ấy thay vì xoá nó.
+
+  **ABLATE 8 chiều, dùng `scripts/ablate.mjs`:** `.ctrl` → 40×36 → **2 đỏ** · `.scrub` → 16
+  → **1** · `.restoredClose` → 26×26 → **2** · `.select`/`.run`/`.stop` → 42 → **2** ·
+  `selCua` chỉ lấy selector CUỐI → **3** · `.retry` trở lại `CHUA_DO` → **1** · `.ctrl` chỉ
+  sai TRỤC NGANG (40×44) → **1** · gỡ luật `width` tường minh trên CSS ĐÚNG → **0**.
+  Chiều thứ bảy là chiều đáng nhất: cao vẫn 44 mà vẫn đỏ ⇒ luật `width` tường minh gánh một
+  phần tải mà luật chiều cao không gánh. Chiều thứ tám ra 0 và phải đọc đúng: nó nói luật ấy
+  là hàng rào cho SAU, không phải thứ đang giữ xanh hôm nay.
+  **GIỚI HẠN của phép ablate:** `ablate.mjs` nhận MỘT `--tep`, nên cặp đối chứng thật (vừa
+  hạ `.ctrl` về 40 vừa gỡ luật, cùng lúc) không gieo được bằng một lệnh. Chiều 7 chạy một
+  nửa ở mỗi phía, và nói ra ở đây thay vì gọi nó là cặp đối chứng.
+
+  **BẪY MỚI CỦA CÔNG CỤ, và nó hỏng IM LẶNG: backtick trong một chuỗi Python truyền qua
+  `bash -c` vẫn là COMMAND SUBSTITUTION của shell.** Tôi ghi một chú thích 9 dòng kèm 10 cụm
+  backtick; bash chạy `cursor:`, `.scrub`, `input[type=range]`, `accent-color` như lệnh,
+  in bốn dòng `command not found`, rồi thay mỗi cụm bằng **chuỗi rỗng**. Script in "xong",
+  bộ test vẫn **6/6 xanh** — một chú thích mất nội dung không làm assert nào đỏ. Cùng họ bẫy
+  heredoc ăn dấu gạch chéo, và cách chữa giống nhau: **ghi script ra TỆP rồi chạy tệp**,
+  đừng truyền mã nhiều dòng qua `-c`.
+  **Và một bẫy CRLF kiểu mới:** `open(f, encoding='utf-8')` ở chế độ text **dịch CRLF về
+  `\n` khi ĐỌC**, nên một chuỗi seed mang CRLF khớp **0 chỗ** trên đúng tệp đang chứa nó.
+  Phải `newline=''` cả khi đọc lẫn khi ghi. Bẫy "đầu dòng khác nhau theo từng tệp — dò, đừng
+  đoán" đã ghi từ trước; đây là nửa còn lại của nó: dò xong rồi vẫn phải ĐỌC đúng cách.
+
+  **SỐ ĐÃ ĐO:** `TEP` **3 → 5 tệp** · sàn tự kiểm `thay.size` **15 → 24** · `CU` ghim
+  **7 → 16** nút (thêm 9 nút của `/ide` + visualizer) · `CHUA_DO` giữ **8 mục**, một lý do
+  sửa lại · frontend unit giữ **649 ca / 58 tệp** (thêm assert vào ca sẵn có, không thêm ca
+  — nên bảng mốc nền KHÔNG đổi) · typecheck sạch · lint **146 cảnh báo / 0 lỗi** ·
+  `npm run build` exit 0 · CSS ĐÃ DỰNG chứa 4 khối `@1023.98` · 3 chỗ `width:44px;height:44px`
+  · 2 chỗ `padding:13px 0` · `check-moc-nen` 20 mục 0 lỗi · `check-moc-chay frontend`
+  649/649 · `check-nguong` 35 ngưỡng 0 lỗi · `tai-nguyen-chet` / `export-chet` /
+  `duong-toi` 0 lỗi. **KHÔNG đụng một dòng nội dung nào**, nên `check-da-nap` giữ **62 bài
+  chờ**. **KHÔNG bump `ASSET_VERSION`:** hai tệp sửa đều là CSS module trong `src/`.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** trên điện thoại, năm nút bước của bước-từng-dòng đi
+  từ 40×36 lên 44×44, thanh trượt chọn bước từ cao 16px lên 44px, và nút ✕ của băng khôi
+  phục từ 26×26 lên 44×44.
+  **CÒN LẠI 7 mục `CHUA_DO` chưa đo + 1 mục `KHONG_CO_DUONG_TOI`** (`.panel summary` nay
+  biết đúng đường: đi tới màn sandbox của một bài có ca chấm). Và nửa độ phủ vẫn mù với
+  control gốc không khai `cursor: pointer` — đã khai ở trên, chưa làm.
 - **NÚT "XEM TỪNG BƯỚC" CAO 34px, và danh sách nợ 11 mục là một danh sách KHÔNG CÓ ĐƯỜNG
   ĐI.** Lead vòng trước để lại `CHUA_DO` gồm 11 tên trần. Vòng này mở đúng bề mặt chứa chúng
   và phân loại cả 11 — vì một danh sách tên trần thì vòng sau phải đi tìm lại từ đầu "nút này

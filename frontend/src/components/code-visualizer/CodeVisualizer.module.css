@@ -477,6 +477,29 @@
 
 /* Điện thoại: xếp dọc. Dùng được — bước, đọc biến, đọc đầu ra — nhưng chật;
    khung mã cuộn ngang thay vì xuống dòng để thụt lề Python không bị sai. */
+/* SÀN 44px CHO ĐÍCH BẤM — xem lý lẽ đầy đủ ở `ide.module.css`.
+ *
+ * Đo trên production 390×844: năm nút bước `⏮ ◀ ▶ ⏭ ⏩` là **40×36**, tức
+ * dưới sàn ở CẢ HAI trục — và chúng là đích bấm của chính tính năng này,
+ * thứ người học bấm nhiều nhất khi đang xem từng bước. `.start` 38 ·
+ * `.scrub` cao **16** (một `input[type=range]`: hộp của nó LÀ vùng nắm
+ * được, nên 16px là một thanh trượt gần như không kéo nổi bằng ngón tay).
+ *
+ * HÀNG NÚT VỪA CHỖ, đã đo chứ không suy: 5 × 44 + 4 × 6 gap = 244px, trong
+ * khi `.controls` rộng 333px ở khổ 390 · 302 ở 360 · 262 ở 320. Không khổ
+ * nào tràn, và `scrollWidth` giữ đúng bề rộng màn ở cả ba. */
+@media (max-width: 1023.98px) {
+  .ctrl { width: 44px; height: 44px; }
+  .start { height: 44px; }
+  /* Thanh trượt: track vẫn nằm giữa, chỉ hộp bấm cao ra — không dời vạch. */
+  .scrub { height: 44px; }
+  .detail summary {
+    min-height: 44px;
+    padding: 13px 0;
+    box-sizing: border-box;
+  }
+}
+
 @media (max-width: 719.98px) {
   .panel { padding: 14px 12px; }
   .grid { grid-template-columns: minmax(0, 1fr); }

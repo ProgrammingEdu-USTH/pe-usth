@@ -86,7 +86,12 @@
      NAV co chứ không để nút co. */
   flex: none;
 }
-.theme:hover { color: var(--ds-violet-deep); background: var(--ds-violet-tint); }
+/* Guard con trỏ thật: trên màn cảm ứng `:hover` DÍNH LẠI sau cú chạm nên
+   phần tử kẹt ở trạng thái "đang trỏ vào" — đo 10/11/2026. Lý lẽ và số đo
+   đầy đủ ở `.start` trong `components/code-visualizer/CodeVisualizer.module.css`. */
+@media (hover: hover) and (pointer: fine) {
+  .theme:hover { color: var(--ds-violet-deep); background: var(--ds-violet-tint); }
+}
 .theme:focus-visible { outline: 3px solid var(--ds-violet); outline-offset: 3px; }
 
 /* Hành động sẽ xảy ra khi bấm: đang sáng → hiện trăng, đang tối → hiện mặt trời. */
@@ -131,7 +136,9 @@
   white-space: nowrap;
   transition: color var(--ds-dur-fast) ease, background var(--ds-dur-fast) ease;
 }
-.navLink:hover { color: var(--ds-ink); background: var(--ds-tint); }
+@media (hover: hover) and (pointer: fine) {
+  .navLink:hover { color: var(--ds-ink); background: var(--ds-tint); }
+}
 .navLink:focus-visible { outline: 3px solid var(--ds-violet); outline-offset: 3px; }
 
 /* Mục đang mở: đổi MÀU CHỮ và nền, không chỉ đậm lên — nét đậm một mình khó

@@ -105,10 +105,15 @@
   cursor: pointer;
   transition: background 0.15s, transform 0.1s;
 }
-/* Bảng lofi (studio-tokens.css): tint ĐỤC thay cho --edu-accent-soft — một
-   lớp 10% alpha của chính màu nhấn, khuôn đã làm hai chip trang chủ trượt AA. */
-.closeBtn:hover {
-  background: var(--ds-violet-tint);
+/* Guard con trỏ thật: trên màn cảm ứng `:hover` DÍNH LẠI sau cú chạm nên
+   phần tử kẹt ở trạng thái "đang trỏ vào" — đo 10/11/2026. Lý lẽ và số đo
+   đầy đủ ở `.start` trong `components/code-visualizer/CodeVisualizer.module.css`. */
+@media (hover: hover) and (pointer: fine) {
+  /* Bảng lofi (studio-tokens.css): tint ĐỤC thay cho --edu-accent-soft — một
+     lớp 10% alpha của chính màu nhấn, khuôn đã làm hai chip trang chủ trượt AA. */
+  .closeBtn:hover {
+    background: var(--ds-violet-tint);
+  }
 }
 .closeBtn:active {
   transform: scale(0.95);
@@ -396,9 +401,11 @@ button.segment::after {
   white-space: nowrap;
   transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
 }
-.backBtn:hover {
-  background: var(--ds-violet-tint);
-  color: var(--ds-violet-deep);
+@media (hover: hover) and (pointer: fine) {
+  .backBtn:hover {
+    background: var(--ds-violet-tint);
+    color: var(--ds-violet-deep);
+  }
 }
 .backBtn:active {
   transform: translateY(1px);
@@ -436,9 +443,11 @@ button.segment::after {
   cursor: pointer;
   transition: transform 0.15s ease, filter 0.15s ease;
 }
-.primaryBtn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  filter: brightness(1.05);
+@media (hover: hover) and (pointer: fine) {
+  .primaryBtn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+  }
 }
 .primaryBtn:active:not(:disabled) {
   transform: translateY(1px);
@@ -479,9 +488,11 @@ button.segment::after {
   white-space: nowrap;
   transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
 }
-.secondaryBtn:hover {
-  background: var(--ds-violet-tint);
-  color: var(--ds-violet-deep);
+@media (hover: hover) and (pointer: fine) {
+  .secondaryBtn:hover {
+    background: var(--ds-violet-tint);
+    color: var(--ds-violet-deep);
+  }
 }
 .secondaryBtn:active {
   transform: translateY(1px);

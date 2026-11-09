@@ -87,7 +87,12 @@
   text-decoration: none;
   transition: color var(--ds-dur-fast) ease, gap var(--ds-dur-fast) ease;
 }
-.back:hover { color: var(--ds-violet); gap: 11px; }
+/* Guard con trỏ thật: trên màn cảm ứng `:hover` DÍNH LẠI sau cú chạm nên
+   phần tử kẹt ở trạng thái "đang trỏ vào" — đo 10/11/2026. Lý lẽ và số đo
+   đầy đủ ở `.start` trong `components/code-visualizer/CodeVisualizer.module.css`. */
+@media (hover: hover) and (pointer: fine) {
+  .back:hover { color: var(--ds-violet); gap: 11px; }
+}
 .back:focus-visible {
   outline: var(--ds-bw-3) solid var(--ds-violet);
   outline-offset: 3px;
@@ -184,7 +189,9 @@
   color: var(--ds-on-action);
   background: var(--ds-action);
 }
-.btnPrimary:hover { background: var(--ds-violet); }
+@media (hover: hover) and (pointer: fine) {
+  .btnPrimary:hover { background: var(--ds-violet); }
+}
 .btnPrimary:focus-visible {
   outline: var(--ds-bw-3) solid var(--ds-violet);
   outline-offset: 3px;
@@ -195,7 +202,9 @@
   background: transparent;
   border: var(--ds-bw-2) solid var(--ds-ink);
 }
-.btnSecondary:hover { color: var(--ds-on-action); background: var(--ds-ink); }
+@media (hover: hover) and (pointer: fine) {
+  .btnSecondary:hover { color: var(--ds-on-action); background: var(--ds-ink); }
+}
 .btnSecondary:focus-visible {
   outline: var(--ds-bw-3) solid var(--ds-violet);
   outline-offset: 3px;
@@ -323,7 +332,9 @@
   border-radius: var(--ds-r-md);
   transition: background var(--ds-dur-fast) ease, border-color var(--ds-dur-fast) ease;
 }
-.lesson:hover { border-color: var(--ds-violet); background: var(--ds-violet-tint); }
+@media (hover: hover) and (pointer: fine) {
+  .lesson:hover { border-color: var(--ds-violet); background: var(--ds-violet-tint); }
+}
 .lesson:focus-visible {
   outline: var(--ds-bw-3) solid var(--ds-violet);
   outline-offset: 3px;

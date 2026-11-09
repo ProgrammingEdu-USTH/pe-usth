@@ -132,10 +132,15 @@
   color: var(--edu-t1);
   transition: border-color 0.15s, background 0.15s, transform 0.12s ease, box-shadow 0.15s ease;
 }
-.optionCard:hover:not(:disabled) {
-  border-color: var(--st-slot-border);
-  transform: translateY(-1px);
-  box-shadow: var(--st-shadow-sm);
+/* Guard con trỏ thật: trên màn cảm ứng `:hover` DÍNH LẠI sau cú chạm nên
+   phần tử kẹt ở trạng thái "đang trỏ vào" — đo 10/11/2026. Lý lẽ và số đo
+   đầy đủ ở `.start` trong `components/code-visualizer/CodeVisualizer.module.css`. */
+@media (hover: hover) and (pointer: fine) {
+  .optionCard:hover:not(:disabled) {
+    border-color: var(--st-slot-border);
+    transform: translateY(-1px);
+    box-shadow: var(--st-shadow-sm);
+  }
 }
 .optionCard:active:not(:disabled) {
   transform: translateY(0) scale(0.995);
@@ -285,9 +290,11 @@
   cursor: pointer;
   color: var(--edu-t1);
 }
-.chip:hover {
-  border-color: var(--st-slot-border);
-  background: var(--ds-violet-tint);
+@media (hover: hover) and (pointer: fine) {
+  .chip:hover {
+    border-color: var(--st-slot-border);
+    background: var(--ds-violet-tint);
+  }
 }
 
 /* ── Trạng thái sau khi bấm "Kiểm tra" ───────────────────────── */
@@ -363,10 +370,12 @@
   cursor: pointer;
   transition: transform 0.12s ease, box-shadow 0.15s ease;
 }
-.runBtn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  /* Bóng ấm duy nhất của bảng v2 thay cho quầng xanh. */
-  box-shadow: var(--ds-shadow-open);
+@media (hover: hover) and (pointer: fine) {
+  .runBtn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    /* Bóng ấm duy nhất của bảng v2 thay cho quầng xanh. */
+    box-shadow: var(--ds-shadow-open);
+  }
 }
 .runBtn:active:not(:disabled) {
   transform: translateY(1px);

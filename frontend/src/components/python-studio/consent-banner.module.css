@@ -92,8 +92,13 @@
   cursor: pointer;
 }
 
-.chon:hover:not(:disabled) {
-  border-color: var(--edu-t3);
+/* Guard con trỏ thật: trên màn cảm ứng `:hover` DÍNH LẠI sau cú chạm nên
+   phần tử kẹt ở trạng thái "đang trỏ vào" — đo 10/11/2026. Lý lẽ và số đo
+   đầy đủ ở `.start` trong `components/code-visualizer/CodeVisualizer.module.css`. */
+@media (hover: hover) and (pointer: fine) {
+  .chon:hover:not(:disabled) {
+    border-color: var(--edu-t3);
+  }
 }
 
 .chon:disabled {

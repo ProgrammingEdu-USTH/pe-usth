@@ -57,28 +57,6 @@ function thanCoBan(p, sel) {
     .map((r) => r.than).join(';');
 }
 
-const GUARD = '(hover: hover) and (pointer: fine)';
-
-/**
- * Rule `:hover` được phép NGOÀI guard, kèm lý do.
- *
- * Hai chiều như mọi danh sách khai khác: một rule `:hover` không guard mà
- * không có tên ở đây là LỖI, và một mục ở đây mà rule ấy đã vào guard (hoặc
- * không còn) cũng là LỖI — nếu không thì danh sách chỉ dài ra rồi thành chỗ
- * giấu rác (bài học `DAP_AN_MAU_KHONG_CHAY`).
- */
-const NGOAI_GUARD = {
-  // (trống — sáu rule của hai tệp đều đã vào guard ngày 10/11/2026)
-};
-
-/**
- * `@media` KHÔNG tính là guard, kèm lý do — chúng là OVERRIDE, không phải
- * trạng thái gốc. `prefers-reduced-motion` tắt `transform` cho người đã nói
- * "ít chuyển động"; nó không nói gì về việc có con trỏ hay không, nên một rule
- * `:hover` chỉ nằm trong đó thì vẫn dính sau cú chạm.
- */
-const KHONG_PHAI_GUARD = /prefers-reduced-motion|max-width|min-width|forced-colors/;
-
 test('thanh công cụ /ide: phép đọc tìm được hai tệp và các rule (tự kiểm)', () => {
   // Đọc hoặc duyệt trượt thì mọi luật dưới đạt RỖNG mà không chứng minh gì.
   for (const [p, rs] of Object.entries(RULES)) {
@@ -155,46 +133,11 @@ test('thanh công cụ /ide: "Xem từng bước" là nút PHỤ, không phải 
   );
 });
 
-test('thanh công cụ /ide: mọi `:hover` phải nằm trong guard con trỏ thật', () => {
-  const chuaGuard = [];
-  const daGuard = new Set();
-  for (const [p, rs] of Object.entries(RULES)) {
-    for (const r of rs) {
-      const sels = r.sels.filter((s) => s.includes(':hover'));
-      if (!sels.length) continue;
-      const laGuard = r.media !== null
-        && r.media.includes('hover: hover') && r.media.includes('pointer: fine');
-      for (const s of sels) {
-        if (laGuard) { daGuard.add(s); continue; }
-        // Trong một override đã khai (reduced-motion…) thì không tính là thiếu
-        // guard — nhưng nó cũng KHÔNG làm cho rule gốc được miễn.
-        if (r.media !== null && KHONG_PHAI_GUARD.test(r.media)) continue;
-        if (NGOAI_GUARD[s]) continue;
-        chuaGuard.push(`${p} → ${s}` + (r.media ? ` [@media ${r.media}]` : ''));
-      }
-    }
-  }
-  assert.deepEqual(
-    chuaGuard, [],
-    `RULE \`:hover\` KHÔNG NẰM TRONG \`@media ${GUARD}\`:\n   `
-    + chuaGuard.join('\n   ')
-    + '\n   Trên màn cảm ứng `:hover` DÍNH LẠI sau cú chạm — đo 10/11/2026: nút '
-    + 'không guard còn `:hover` true và `transform: matrix(1,0,0,1,0,-1)` sau khi '
-    + 'ngón tay rời. Bọc nó, hoặc khai vào `NGOAI_GUARD` kèm lý do.',
-  );
-  // Chiều hai: mục khai mà rule ấy đã vào guard là ngoại lệ LỖI THỜI.
-  const loiThoi = Object.keys(NGOAI_GUARD).filter((s) => daGuard.has(s));
-  assert.deepEqual(
-    loiThoi, [],
-    `NGOẠI LỆ ĐÃ LỖI THỜI — đã vào guard rồi: ${loiThoi.join(', ')}. Gỡ dòng khai.`,
-  );
-  // Và phép đếm phải THẬT SỰ thấy các rule đã guard, nếu không ca này đạt rỗng.
-  assert.ok(
-    daGuard.size >= 6,
-    `chỉ thấy ${daGuard.size} rule \`:hover\` đã guard — phép đọc \`@media\` trượt?`,
-  );
-});
-
+// Ca `:hover` của /ide đã DỜI sang `hover-cam-ung.test.mjs` ngày 10/11/2026.
+// Ở đây nó phủ 2 tệp; ca mới phủ MỌI `.css` trong `src/` (đo khi dời: 43 rule
+// `:hover` / 13 tệp, 7 đã guard). Giữ cả hai là để hai cổng hỏi cùng một câu
+// trên hai tập chồng nhau — không ai biết cái nào là thẩm quyền, và bản hẹp
+// hơn sẽ trôi khỏi bản rộng.
 test('thanh công cụ /ide: hai khung có dải tiêu đề, và nó ẤM — không phải bộ token lạnh của nhánh `test`', () => {
   /*
    * Port từ `tester/test` ngày 10/11/2026. Thứ đáng port là CẤU TRÚC (hai mặt

@@ -732,8 +732,13 @@
   cursor: pointer;
 }
 
-.theoryFigure figcaption a:hover {
-  text-decoration: underline;
+/* Guard con trỏ thật: trên màn cảm ứng `:hover` DÍNH LẠI sau cú chạm nên
+   phần tử kẹt ở trạng thái "đang trỏ vào" — đo 10/11/2026. Lý lẽ và số đo
+   đầy đủ ở `.start` trong `components/code-visualizer/CodeVisualizer.module.css`. */
+@media (hover: hover) and (pointer: fine) {
+  .theoryFigure figcaption a:hover {
+    text-decoration: underline;
+  }
 }
 
 .theorySource {
@@ -1006,9 +1011,11 @@
   cursor: pointer;
 }
 
-.traceOpen:hover {
-  border-color: var(--ds-violet);
-  color: var(--edu-t1);
+@media (hover: hover) and (pointer: fine) {
+  .traceOpen:hover {
+    border-color: var(--ds-violet);
+    color: var(--edu-t1);
+  }
 }
 
 .trace {
@@ -1514,9 +1521,11 @@
   cursor: pointer;
 }
 
-.practiceReveal:hover {
-  border-color: var(--ds-violet);
-  color: var(--ds-violet);
+@media (hover: hover) and (pointer: fine) {
+  .practiceReveal:hover {
+    border-color: var(--ds-violet);
+    color: var(--ds-violet);
+  }
 }
 
 /* Vòng focus: nút này trước đây chỉ có :hover, nên người dùng bàn phím Tab tới

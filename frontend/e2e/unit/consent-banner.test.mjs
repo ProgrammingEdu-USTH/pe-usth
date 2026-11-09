@@ -109,7 +109,12 @@ test('hai nút dùng CÙNG MỘT class — không có nút chính nổi hơn', (
 test('CSS của nút không có nền đậm/chữ trắng cho riêng một nút', () => {
   // `.chon` là class duy nhất của nút, nên mọi khác biệt về độ nổi phải đi qua
   // một selector thứ hai. Không có selector nào như thế là tính chất cần.
-  const selectorNut = CSS.match(/^\.chon[^{]*\{/gm) ?? [];
+  // `\s*` ở đầu, KHÔNG neo cứng vào cột 0: từ 10/11/2026 `.chon:hover` nằm
+  // trong `@media (hover: hover) and (pointer: fine)` nên nó THỤT VÀO (xem
+  // `hover-cam-ung.test.mjs`). Phép quét cũ neo `^\.chon` nên nó đếm 2 và ca đỏ
+  // vì một lý do KHÔNG liên quan tới điều nó canh — tính chất cần vẫn y nguyên:
+  // không có selector thứ hai nào làm MỘT trong hai nút nổi hơn.
+  const selectorNut = CSS.match(/^\s*\.chon[^{]*\{/gm) ?? [];
   // `.chon`, `.chon:hover:not(:disabled)`, `.chon:disabled` — ba cái, không hơn.
   assert.equal(selectorNut.length, 3, `selector nút lạ: ${selectorNut.join(' ')}`);
   assert.ok(/\.chon\s*\{[^}]*flex:\s*1/.test(CSS), 'hai nút phải chia đều chiều ngang');

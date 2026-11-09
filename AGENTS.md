@@ -6109,6 +6109,71 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   một bản sửa giao diện.
   **GIỚI HẠN:** trigger của `ci.yml` vẫn là `branches: [master]`, nên bước mới — như 41 bước
   kia — chưa chạy lần nào trên `main`. Lật nó là quyết định của chủ dự án.
+- **NÚT "▶ Chạy thử" CAO 38px — NẰM NGAY TRÊN một nút đã 44px từ hai vòng trước, cùng cột,
+  cùng font.** Và nó bị bỏ sót vì một lý do đo được: cổng `{chayDuoc && …}` không dựng nó
+  trên bài tôi chọn hôm ấy.
+  **PHÉP QUÉT MỞ VÒNG RA ĐỜI RỖNG, và đó là kết quả đúng.** Vòng trước tìm ra
+  `check-duong-toi` vắng khỏi CI bằng cách liệt kê rồi so; vòng này quét hệ thống **cả 21
+  lệnh** của bảng mốc nền so với `ci.yml`. Bản đo đầu báo **7 lệnh VẮNG** — và **5/7 là báo
+  oan**: `pe_tracer_test` · `check-pyodide` · `check-practice` · `check_vanphong` ·
+  `check-duong-toi` đều được CI gọi **QUA `check-moc-chay`**, nên phép grep theo đường dẫn
+  script không thấy. Hai cái còn lại (`gen_traces` ~20 phút cần numpy trên máy ·
+  `check-da-deploy` cần mạng) vắng CÓ CHỦ ĐÍCH. Nên khe duy nhất là cái vòng trước vừa
+  đóng. **Một phép quét ra 7 kết quả mà 5 là báo oan thì nó đang đo CÁCH GỌI, không đo ĐỘ
+  PHỦ** — muốn đo độ phủ thì phải theo cả đường gián tiếp.
+  **ĐO TRÊN BẢN DỰNG trước khi mở trình duyệt:** 63 câu luyện tập chạy được ở **62/179
+  bài** — một phần ba khoá. Khi khai `.practiceRun` là nợ ở #157 tôi không có con số này,
+  nên nó bị xếp ngang với mấy mục overlay chỉ hiện sau một mốc.
+  **ĐO TRÊN PRODUCTION** (NP06, `?lesson=23`, 390×844, `offsetHeight` trên màn đã lắng):
+
+  | lớp | kích thước | `min-height` |
+  |---|---|---|
+  | `.practiceRun` "▶ Chạy thử" | **117 × 38** | `auto` — dưới sàn |
+  | `.practiceReveal` "Viết thử rồi mới xem được" | 221 × **44** | `44px` ✓ sửa ở #157 |
+
+  Hai nút XẾP DỌC trong cùng một cột `align-self: flex-start`, một đạt sàn một không. CSS
+  của chúng khác nhau đúng **2px padding ngang** (`9px 18px` so với `9px 16px`), cùng font
+  14px — nên #157 đo cái dưới ra 37, sửa, và cái trên ở lại 38.
+  **VÌ SAO #157 KHÔNG THẤY, và đây là bài học dùng lại được:** lượt đi hôm ấy dùng SY05, và
+  **cả 5 câu luyện tập của nó không câu nào có `answerCode`** — nên cổng `{chayDuoc && …}`
+  không dựng nút, và một đích bấm không được RENDER thì không phép đo nào trên màn hình
+  thấy nó. Chính AGENTS.md đã ghi đúng điều kiện ấy vào dòng khai `CHUA_DO` ("chọn bài có
+  câu chạy được thì đo được") — nên lần này chỉ cần ĐỌC dòng khai rồi chọn bài theo nó.
+  Đó là lần đầu một dòng trong `CHUA_DO` trả lại đúng thứ nó được viết ra để trả: một
+  đường đi, không phải một tên.
+  **LƯỢT ĐI CŨNG LÀ MỘT PHÉP KIỂM DEPLOY, và cả bốn bản sửa trước đều đã live:**
+  `closeBtn` **44×44** (#156) · `backBtn` **44×44** (#156) · `practiceInput` font **16px**
+  (#155) · `primaryBtn` 48 · `.segment` 15×6 (ngoại lệ đã khai, vùng chạm 11×24 qua
+  `::after`). Một lượt quét thường cộng một con số CŨ để so là đủ thành phép kiểm deploy.
+  **GIÁ ĐÃ ĐO bằng cách tiêm trên trang thật:** nút 38 → 44, cột cha 337 → **343px**, không
+  tràn ngang, **0 phần tử ngoài mép**.
+  **ABLATE 3 chiều:** gỡ dòng sàn của `.practiceRun` → **2 đỏ** (phép độ phủ + ca ghim CU) ·
+  trả `.practiceRun` vào `CHUA_DO` → **1 đỏ** ("NGOẠI LỆ ĐÃ LỖI THỜI") · gỡ RIÊNG mục khỏi
+  `CU` → **0 đỏ**.
+  **Chiều thứ ba ra 0 và phải đọc cho đúng:** ca ghim CU là hàng rào CHỐNG HỒI QUY, không
+  phải thứ đang giữ xanh — khi sàn đã khai thì phép độ phủ tự đạt, nên chỉ lúc ai GỠ sàn nó
+  mới nói thêm được điều gì (và lúc đó nó là con đỏ thứ hai của chiều 1).
+  **BẪY EOL CẮN LẦN THỨ BA, ở một tệp mới:** `studio-chrome.module.css` là **LF**, trong khi
+  `studio.module.css` và `exercises.module.css` (cùng thư mục họ hàng) là **CRLF**. Phép
+  thay của tôi mang CRLF nên khớp **0 chỗ**, và `thay()` dừng đúng chỗ. Luật cũ ("đầu dòng
+  khác nhau theo từng tệp — dò, đừng đoán") vẫn đúng; cái mới là **dò cho TỪNG tệp, đừng
+  suy từ tệp cạnh nó**.
+  **SỐ ĐÃ ĐO:** `CHUA_DO` **7 → 6 mục** · `CU` ghim **16 → 17** nút · frontend unit giữ
+  **649 ca / 58 tệp** (sửa danh sách trong ca sẵn có, không thêm ca) · typecheck sạch · lint
+  **146 cảnh báo / 0 lỗi** · `npm run build` exit 0, CSS đã dựng có **16 chỗ**
+  `min-height:44px` · `check-moc-nen` 20 mục 0 lỗi · `check-moc-chay frontend` 0 lỗi ·
+  `check-nguong` 35 ngưỡng 0 lỗi · `check-duong-toi` 18/14/4 0 lỗi · `tai-nguyen-chet` /
+  `export-chet` 0 lỗi. **KHÔNG đụng một dòng nội dung nào**, nên `check-da-nap` giữ **62 bài
+  chờ**. KHÔNG bump `ASSET_VERSION` (tệp sửa là CSS module trong `src/`).
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** nút "▶ Chạy thử" của màn luyện tập cao hơn (38 → 44)
+  ở **62/179 bài**, và nay bằng đúng nút ngay dưới nó.
+  **CÒN LẠI 6 mục `CHUA_DO`**, và `.onGianCachTiep` nay gần đo được: lượt đi vòng này bấm
+  phương án đầu cho mọi câu trắc nghiệm và nhận "Đã xem đáp án →" **hai lần**, tức đã có
+  câu sai để màn ôn giãn cách rút ra ở một bài sau. Đo nó là chọn đúng bài tiếp theo của
+  cùng phiên, không phải mở một bài bất kỳ.
+  **MỘT LẦN GHI ĐÃ NÓI RA:** phép đo này mở một trang bài học trên production nên `apiFetch`
+  gặp 401 rồi `ensureGuest()` — một hàng `@guest.local`. Không chạm dữ liệu bài học, và đó
+  là đúng thứ mọi khách mở trang đều làm, nhưng nó là một lần GHI.
 - **NÚT "XEM TỪNG BƯỚC" CAO 34px, và danh sách nợ 11 mục là một danh sách KHÔNG CÓ ĐƯỜNG
   ĐI.** Lead vòng trước để lại `CHUA_DO` gồm 11 tên trần. Vòng này mở đúng bề mặt chứa chúng
   và phân loại cả 11 — vì một danh sách tên trần thì vòng sau phải đi tìm lại từ đầu "nút này

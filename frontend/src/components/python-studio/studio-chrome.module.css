@@ -1418,6 +1418,20 @@
    ĐẬM: đây là hành động CHÍNH của màn, còn "Xem đáp án" là đường thoát. Ngược
    lại thì người học bấm xem đáp án trước, và cả cổng mất nghĩa. */
 .practiceRun {
+  /* SÀN 44px. Đo trên production 09/11/2026 (NP06, 390×844, màn "Câu 2/3",
+     `offsetHeight` trên màn đã lắng): **117×38**, trong khi
+     `.practiceReveal` NGAY DƯỚI nó — cùng cột, cùng font 14px, chỉ
+     khác 2px padding ngang — đã là 44 từ vòng #157. Hai nút xếp dọc cạnh nhau,
+     một đạt sàn một không.
+
+     Vòng #157 đo và sửa `.practiceReveal` rồi BỎ SÓT cái này, vì lượt
+     đi hôm ấy (SY05) không có câu luyện tập nào CHẠY ĐƯỢC nên cổng
+     `{chayDuoc && …}` không dựng nút. Blast radius thật: 63 câu chạy
+     được ở **62/179 bài**, tức một phần ba khoá — không phải một ngóc nhỏ.
+
+     Giá đã đo bằng cách tiêm trên trang thật: cột cha 337 → 343px, không tràn
+     ngang, 0 phần tử ngoài mép. */
+  min-height: 44px;
   align-self: flex-start;
   padding: 9px 18px;
   border: none;

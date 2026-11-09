@@ -93,11 +93,7 @@ const CHUA_DO = {
     'ReadScreen.tsx — link nguồn trong chú thích hình, chỉ có ở bài mà hình mang '
     + 'link. Là thẻ `a` INLINE nên `min-height` không áp được: bản sửa ở đó phải '
     + 'là `display: inline-block` + padding, một quyết định khác hẳn.',
-  '.practiceRun':
-    'PracticeScreen.tsx:134 — nằm sau cổng `{chayDuoc && …}`, tức chỉ hiện ở câu '
-    + 'luyện tập CHẠY ĐƯỢC (AGENTS.md: 53/63 câu có `answerCode` + '
-    + '`answerExpected`). Năm màn luyện tập của SY05 không có cái nào, nên lượt '
-    + 'đi qua ngày 08/11 không gặp. Chọn bài có câu chạy được thì đo được.',
+
   '.onGianCachTiep':
     'OnGianCach.tsx — nút "tiếp" của màn ôn giãn cách, chỉ hiện SAU khi trả lời. '
     + 'Lượt đi qua bấm phương án rồi sang màn khác nên không kịp đo.',
@@ -399,6 +395,10 @@ test('đích bấm: năm nút đã đo không quay về dưới sàn', () => {
     '.chip': [24, 2], '.runBtn': [37, 2], '.optionCard': [53, 2],
     '.traceOpen': [34, 1], '.tracePredictGo': [36, 1],
     '.practiceReveal': [37, 1], '.onGianCachNut': [43, 1],
+    // Đo 09/11/2026 trên NP06 — nút NGAY TRÊN `.practiceReveal` trong cùng cột.
+    // #157 sửa cái dưới và bỏ sót cái này vì SY05 không có câu luyện tập nào
+    // chạy được, nên cổng `{chayDuoc && …}` không dựng nút để mà đo.
+    '.practiceRun': [38, 1],
     // `/ide`, đo 08/11/2026 ở 390×844. `.stop` KHÔNG đo trực tiếp (nó chỉ
     // hiện lúc đang chạy) — nó khai CÙNG `height: 42px` với `.run`, nên con
     // số suy ra từ khai báo chứ không từ màn hình, và nói ra ở đây.

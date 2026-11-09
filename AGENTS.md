@@ -84,7 +84,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
-| Frontend unit test | `cd frontend && npm run test:unit` → **649 ca** / 58 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **650 ca** / 58 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -104,7 +104,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **35 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 649 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366 · duongToi 18/14/4), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 650 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366 · duongToi 18/14/4), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -6239,6 +6239,108 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   `/ide` cho `.panel summary` · một bài có câu luyện tập chạy được cho `.practiceRun` · trả
   lời xong màn ôn giãn cách cho `.onGianCachTiep` · ép overlay hiện cho `.toast`/`.awards` ·
   bề mặt quản trị cho hai mục của `AdminAnswerKey`.
+
+- **CỔNG 44px IN "0 LỖI" TRONG KHI NÓ PHỦ 31/46 SELECTOR — và 15 cái ngoài tầm gồm HỘP ĐỒNG Ý,
+  vỏ MỌI màn bài học, và đề ôn tập chấm ở máy chủ.** Năm vòng liền (#156–#161) đo từng đích bấm
+  rồi áp sàn từng cái; vòng này hỏi câu khác: **cổng ấy phủ bao nhiêu phần của sản phẩm?**
+  **ĐO** — `cursor: pointer` trên toàn `frontend/src`, so với `TEP` của cổng:
+
+  | tệp | selector | trước vòng này |
+  |---|---|---|
+  | `studio-chrome.module.css` | 12 | phủ |
+  | `ide.module.css` | 7 | phủ |
+  | `LessonChrome.module.css` | 5 | phủ |
+  | `exercises.module.css` | 4 | phủ |
+  | `CodeVisualizer.module.css` | 3 | phủ |
+  | **`review-quiz.module.css`** | **3** | **NGOÀI** |
+  | **`scene.css`** | **3** | **NGOÀI** |
+  | **`CourseShell.module.css`** | **2** | **NGOÀI** |
+  | **`studio.module.css`** | **2** | **NGOÀI** |
+  | **`error.module.css`** | **2** | **NGOÀI** |
+  | **`ShellB.module.css`** | **1** | **NGOÀI** |
+  | **`consent-banner.module.css`** | **1** | **NGOÀI** |
+  | **`SiteHeader.module.css`** | **1** | **NGOÀI** |
+  | **TỔNG** | **46** | **31 phủ · 15 ngoài (33%)** |
+
+  **HAI ĐƠN VỊ, và tôi lẫn chúng trong phép đo mở vòng:** đếm KHAI BÁO `cursor: pointer` ra
+  **44**, đếm SELECTOR ra **46** — hai rule dùng chung một thân nên mang 2 selector mỗi cái.
+  Selector mới là đơn vị đúng, vì sàn áp cho TỪNG selector. Báo cáo con số nào thì nói ra nó
+  là con số của cái gì.
+  **BỐN RULE TRÊN ĐƯỜNG NGƯỜI HỌC KHÔNG CÓ SÀN NÀO:** `.onGianCachTiep` (9px 18px, 13px) ·
+  `.nutPhu` (8px 14px, 13px) · `.hintToggle` (8px 16px, 13px) · `.chon` (9px 14px, 13px).
+  Và cùng tệp với chúng đã có sàn từ trước: `.nut` 44 · `.theme` 48 · `.btn` 48 — **đúng khuôn
+  NỬA-ÁP-NỬA-KHÔNG** mà `LessonChrome` đã mắc ở #156 và `.practiceRun` ở #161.
+  **MỘT CON SỐ ĐO ĐƯỢC, ba cái còn lại là sàn KHAI BÁO** — nói ra vì đó là hai mức bằng chứng
+  khác nhau. `.onGianCachTiep` đo trên production (NP06, 390×844, sau khi trả lời câu ôn):
+  **106 × 36**, `min-height` là `0px`. Tôi **DỰ ĐOÁN 38** vì nó có CÙNG công thức CSS với
+  `.practiceRun` (`padding: 9px 18px`, font 14px) mà #161 đo ra 38 — đo ra **36**, vì chữ
+  "Vào bài →" không có glyph cao như "▶". **Một công thức CSS giống nhau cho một con số GẦN
+  nhau, không cho CÙNG con số** — nên đừng suy một kích thước từ một rule họ hàng.
+  Ba cái kia không mở được trong một lượt (`.nutPhu` cần xong ≥ 2 bài · `.hintToggle` cần màn
+  có panel gợi ý · `.chon` cần `consent?.shouldAsk` mà phiên khách đã trả lời xong), nhưng áp
+  sàn vẫn ĐÚNG: đó là thứ cổng VERIFY được, và nó MẠNH HƠN khai một khoản nợ — bài học #159
+  với `.retry`.
+  **HỘP ĐỒNG Ý LÀ BỀ MẶT PHÁP LÝ, nên ở đó sàn không phải tiện tay.** AGENTS.md đã ghi rằng
+  hai nút của nó phải CÙNG class và CÙNG cỡ (`flex: 1`), vì làm nút "Đồng ý" nổi hơn là lấy sự
+  đồng ý bằng ma sát. Một đích bấm dưới cỡ ngón tay là cùng một họ lỗi — nó làm một trong hai
+  lựa chọn khó bấm hơn. Cả hai nút dùng CHUNG lớp `.chon` nên sàn áp đều, không nghiêng bên nào.
+  **HAI RULE DO NỘI DUNG QUYẾT thì KHAI NỢ, không áp sàn mù:** `.phuongAn` (phương án của đề
+  ôn, hàng full-width nên bề cao do số dòng của câu quyết) và `.moduleHead` (hàng tiêu đề học
+  phần, chữ là một heading). Một sàn gieo mù ở đó vừa có thể là no-op vừa có thể che một vấn đề
+  thiết kế thật. Phép chia của vòng này: **nút pill cỡ cố định thì ÁP SÀN, hàng do nội dung
+  quyết thì KHAI NỢ kèm đường đo.**
+  **HAI TỆP KHAI NGOÀI TẦM, và cả hai là quyết định đã có chứ không phải nợ mới:**
+  `scene.css` (3) — Góc học, và ràng buộc đứng của vòng lặp nói thẳng KHÔNG đầu tư vào Góc học
+  / minigame / leaderboard; `studio.module.css` (2) — `PythonStudio`, component đã khai
+  CHẾT-MÀ-GIỮ ở #142 với bốn việc phải sửa nếu hồi sinh, trong đó đã có việc nâng hai ô gõ lên
+  16px. Sửa CSS của một component không ai tới là việc không có người dùng.
+
+  **PHÉP TỰ KIỂM BẮT ĐÚNG DANH SÁCH CỦA CHÍNH TÔI, ngay lần chạy đầu.** Nó đỏ với
+  *"`SiteHeader.module.css` (1 rule): TỆP CÓ ĐÍCH BẤM MÀ KHÔNG PHỦ LẪN KHÔNG KHAI"* — phép đếm
+  mở vòng CÓ kể nó, mà `TEP` thì tôi gõ thiếu. `.theme` của nó đã 48×48 kèm `flex: none` từ
+  trước nên thêm tệp ấy vào `TEP` không phải một bản sửa; nó là **bịt một lỗ trong lời khai độ
+  phủ**. Bài học: một cổng theo-độ-phủ phải đếm độ phủ của CHÍNH NÓ, vì danh sách tệp là thứ
+  người ta gõ bằng tay và gõ thiếu im lặng.
+  **SÀN TỰ KIỂM ĐẦU CỦA TÔI SAI THEO CHIỀU BÁO OAN:** tôi đặt `tep.length >= 20` theo cảm giác,
+  đo thật ra **17** (16 module + `scene.css`) ⇒ cổng đỏ với "phép duyệt CSS trượt" trong khi
+  phép duyệt đúng. Nay là 10 — sàn ấy chỉ để bắt "duyệt ra 0–1 tệp", còn con số 16 đã có
+  `check-moc-nen` canh riêng. **Ghim con số thật vào một phép tự kiểm là nuôi bản sao thứ hai**,
+  và nó sẽ đỏ oan vào ngày một đợt dọn tài nguyên chết xoá một module.
+
+  **VÀ ABLATE TÌM RA MỘT LỖ TRONG CHÍNH CỔNG VỪA DỰNG: hai danh sách CHỒNG NHAU được.** Khai
+  một tệp ĐANG được phủ vào `TEP_NGOAI_TAM` cho **0 đỏ**, vì nhánh `if (TEP.includes(p))` thắng
+  trước. Vô hại hôm nay, có hại ngày mai — ngày ai gỡ tệp ấy khỏi `TEP`, lời khai nằm sẵn ở đó
+  **HẤP THỤ** nó và cổng im lặng thay vì đỏ. Đúng lỗ mà #160 đã bắt giữa `CHUA_DO` và
+  `KHONG_CO_DUONG_TOI`: **hai hạng khai thay nhau được thì bản sửa không được cổng nào thi
+  hành.** Nay một tệp nằm trong cả hai là LỖI; ablate lại → **0 → 1 đỏ**.
+  **CẶP ĐỐI CHỨNG phải làm TAY, và nói ra vì sao:** `ablate.mjs` nhận MỘT `--tep` một cặp
+  chuỗi, mà cặp đối chứng ở đây cần hai chỗ cách xa nhau trong CÙNG tệp (gỡ khỏi `TEP` **và**
+  khai vào `TEP_NGOAI_TAM`). Làm tay kèm `assert` cho cả hai phép thay và kèm phép đọc số ca →
+  **0 đỏ / 7 ca**, tức luật đúng là "phủ HOẶC khai", không phải "phải phủ".
+
+  **ABLATE 7 chiều:** gỡ sàn `.onGianCachTiep` → **2 đỏ** (độ phủ + ca ghim CU) · gỡ sàn
+  `.nutPhu` → 1 · gỡ sàn `.hintToggle` → 1 · gỡ sàn `.chon` → 1 · gỡ một tệp khỏi `TEP` mà
+  không khai → 1 · tệp nằm trong CẢ HAI danh sách → 1 (trước khi siết: **0**) · CẶP ĐỐI CHỨNG
+  gỡ khỏi `TEP` + khai NGOÀI TẦM → **0**.
+  **MỘT PHÉP GIEO TRƯỢT và `ablate.mjs` từ chối in số:** tôi neo vào `.onGianCachTiep {\n  min-height`
+  trong khi giữa hai dòng ấy có một khối chú thích 6 dòng. Công cụ in "GIEO TRƯỢT: khớp 0 chỗ,
+  phải đúng 1" thay vì "0 đỏ". Neo vào DÒNG SÀN cộng hai dòng sau nó là xong.
+  **SỐ ĐÃ ĐO:** độ phủ cổng **31/46 → 41/46 selector** (5 khai NGOÀI TẦM, 0 chưa khai) ·
+  `TEP` **5 → 11 tệp** · `CHUA_DO` **6 → 7 mục** (gỡ `.onGianCachTiep` đã đo, thêm `.phuongAn`
+  + `.moduleHead`) · `CU` ghim **17 → 18** nút · frontend unit **649 → 650 ca** / 58 tệp · sổ
+  ngưỡng siết sàn 649 → 650 · typecheck sạch · lint **146 cảnh báo / 0 lỗi** · `npm run build`
+  exit 0, CSS đã dựng có **20 chỗ** `min-height:44px` (16 ở #161 + 4 mới) và cả bốn lớp có mặt ·
+  `check-moc-nen` 20 mục 0 lỗi · `check-moc-chay frontend` 650/650 · `check-nguong` 35 ngưỡng
+  0 lỗi · `tai-nguyen-chet` 2/2/0 · `export-chet` 0 lỗi · `duong-toi` 18/14/4 0 lỗi.
+  **KHÔNG đụng một dòng nội dung nào**, nên `check-da-nap` giữ **62 bài chờ**. KHÔNG bump
+  `ASSET_VERSION`: cả bốn tệp sửa là CSS module trong `src/`, đi qua bundler.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** trên điện thoại, nút "Vào bài →" của màn ôn giãn cách
+  cao hơn (36 → 44), và ba nút nữa có sàn — trong đó hai nút của hộp đồng ý và nút mở gợi ý của
+  vỏ mọi màn bài học.
+  **GIỚI HẠN PHẢI NÓI RA, hai cái.** (1) Ba trong bốn sàn CHƯA ĐO trên thiết bị — chúng là sàn
+  KHAI BÁO, tức cổng chứng minh được "đã khai 44px", không chứng minh "đo ra 44px". (2) Phép
+  độ phủ đếm `cursor: pointer`, nên nó vẫn MÙ với một CONTROL GỐC không khai nó — khoảng trống
+  này đã khai ở #159 (`input[type=range]` của `.scrub`) và vòng này không đóng nó.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

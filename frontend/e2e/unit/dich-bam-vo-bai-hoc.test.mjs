@@ -25,7 +25,7 @@
 // chủ đích) và là một lát riêng — nói ra ở đây để "0 lỗi" không bị đọc thành
 // "mọi đích bấm của màn bài học đã đạt".
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import test from 'node:test';
 
@@ -45,7 +45,50 @@ const TEP = [
   'src/components/lesson-chrome/exercises/exercises.module.css',
   'src/app/ide/ide.module.css',
   'src/components/code-visualizer/CodeVisualizer.module.css',
+  // Thêm 09/11/2026. Phép đo mở vòng ấy: đếm `cursor: pointer` trên TOÀN
+  // `frontend/src` ra **44 rule** trong khi cổng chỉ phủ **30** — tức 32%
+  // đích bấm của sản phẩm nằm ngoài, và trong số đó có HỘP ĐỒNG Ý (bề mặt
+  // PHÁP LÝ), vỏ MỌI màn bài học (`.hintToggle` của ShellB), và đề ôn tập
+  // chấm ở máy chủ. "0 lỗi" của cổng vì vậy đang được đọc rộng hơn thứ nó
+  // chứng minh.
+  //
+  // HAI ĐƠN VỊ, đừng lẫn: phép đo mở vòng đếm KHAI BÁO `cursor: pointer`
+  // (44), còn cổng đếm SELECTOR (46) — hai rule dùng chung một thân nên
+  // chúng mang 2 selector mỗi cái. Selector mới là đơn vị đúng, vì sàn áp
+  // cho từng selector. Con số của cổng sau vòng này: **41/46 phủ, 5 khai**.
+  'src/components/python-studio/review-quiz.module.css',
+  'src/components/lesson-chrome/ShellB.module.css',
+  'src/components/python-studio/consent-banner.module.css',
+  'src/components/CourseShell.module.css',
+  'src/app/error.module.css',
+  // Thêm vì PHÉP TỰ KIỂM ngay dưới bắt được: phép đếm mở vòng CÓ kể nó
+  // (SiteHeader 1 rule) mà danh sách này thì tôi gõ thiếu. `.theme` đã 48×48
+  // kèm `flex: none` từ trước nên nó tự đạt — tức tệp này vào `TEP` không
+  // phải một bản sửa, nó là bịt một lỗ trong lời khai độ phủ.
+  'src/components/SiteHeader.module.css',
 ];
+
+/**
+ * Tệp CÓ `cursor: pointer` mà cổng CỐ Ý không phủ, kèm lý do.
+ *
+ * Hai chiều, như mọi danh sách khai khác: một tệp có đích bấm mà không được
+ * phủ lẫn không được khai là LỖI; và một tệp khai ở đây mà nay KHÔNG còn
+ * `cursor: pointer` nào cũng là LỖI (ngoại lệ lỗi thời).
+ */
+const TEP_NGOAI_TAM = {
+  'src/components/goc-hoc/scene.css':
+    'Cảnh Góc học ở trang chủ. Ràng buộc đứng của vòng lặp nói thẳng KHÔNG đầu '
+    + 'tư vào Góc học / minigame / leaderboard (nghiên cứu kết luận bằng chứng '
+    + 'hướng âm hoặc không có), nên đo và sửa đích bấm ở đó là mở lại một phạm vi '
+    + 'đã đóng. 3 rule: `button` trần, `.snote` (đã có height 51px), `#hotHit .o`.',
+  'src/components/python-studio/studio.module.css':
+    'PythonStudio — component đã khai CHẾT-MÀ-GIỮ ở `check-tai-nguyen-chet.mjs` '
+    + 'từ vòng #142 (0 đường tới: `/lesson/python` trả 404 ở MỌI tham số). Sửa CSS '
+    + 'của một component không ai tới là việc không có người dùng; lời khai ở cổng '
+    + 'tài nguyên chết đã mang sẵn việc thứ (4) là nâng hai ô gõ lên 16px, nên '
+    + 'ngày hồi sinh thì cả hai việc nằm cùng một chỗ. 2 rule: `.studio button`, '
+    + '`.choice`.',
+};
 const CSS = readFileSync(join(GOC, TEP[0]), 'utf8');
 
 const SAN = 44;
@@ -89,14 +132,20 @@ const CHUA_DO = {
     + 'đáp án. Nó khai `width: 100%` nên trục ngang đạt sẵn; chỉ trục dọc chưa đo.',
 
 
+  // Hai mục dưới do NỘI DUNG quyết bề cao (hàng full-width, chữ xuống dòng
+  // được), nên một sàn gieo mù vừa có thể là no-op vừa che mất một vấn đề
+  // thiết kế thật. Phép chia của vòng #162: nút pill cỡ cố định thì ÁP SÀN,
+  // hàng do nội dung quyết thì KHAI NỢ kèm đường đo.
+  '.phuongAn':
+    'ReviewQuiz.tsx — phương án của đề ôn tập, hàng full-width `padding: 10px 12px` font 14px nên bề cao do số dòng của câu quyết. Đo được khi người học xong ≥ 2 bài: `MIN_POOL` đòi 5 câu và mỗi bài phát 3 câu.',
+  '.moduleHead':
+    'CourseDetail.tsx qua CourseShell.module.css — hàng tiêu đề học phần bấm được ở trang khoá học, `padding: 13px 4px` và chữ là một heading nên bề cao gần chắc đã ≥ 44 do nội dung. Đo được bằng cách mở `/courses/python_advanced` ở 390×844; chưa làm vì vòng này đã có một bản sửa đo được.',
   '.theoryFigure figcaption a':
     'ReadScreen.tsx — link nguồn trong chú thích hình, chỉ có ở bài mà hình mang '
     + 'link. Là thẻ `a` INLINE nên `min-height` không áp được: bản sửa ở đó phải '
     + 'là `display: inline-block` + padding, một quyết định khác hẳn.',
 
-  '.onGianCachTiep':
-    'OnGianCach.tsx — nút "tiếp" của màn ôn giãn cách, chỉ hiện SAU khi trả lời. '
-    + 'Lượt đi qua bấm phương án rồi sang màn khác nên không kịp đo.',
+
 };
 
 /**
@@ -278,7 +327,7 @@ test('đích bấm: `.closeBtn` không quay về 40px', () => {
   assert.ok(c >= SAN && r >= SAN, `.closeBtn nay ${r}×${c}, dưới sàn ${SAN}px`);
 });
 
-test('đích bấm: CẢ NĂM module — mọi rule `cursor: pointer` đạt sàn hoặc được KHAI', () => {
+test('đích bấm: MỌI tệp trong `TEP` — mọi rule `cursor: pointer` đạt sàn hoặc được KHAI', () => {
   // Mở rộng của ca trên sang `studio-chrome.module.css` và
   // `exercises.module.css`. Vẫn canh theo ĐỘ PHỦ: một nút MỚI thêm vào bất cứ
   // file nào trong ba file phải đạt sàn hoặc có tên trong một danh sách khai.
@@ -387,6 +436,84 @@ test('đích bấm: CẢ NĂM module — mọi rule `cursor: pointer` đạt sà
   }
 });
 
+test('đích bấm: ĐỘ PHỦ trên toàn `src/` — mọi tệp có đích bấm phải được phủ hoặc KHAI', () => {
+  // VÌ SAO CA NÀY TỒN TẠI: trước 09/11/2026 cổng phủ 5 tệp và in "0 lỗi", mà
+  // phép đếm trên toàn `src/` cho **46 selector** `cursor: pointer` — tức 15
+  // (33%) nằm ngoài, gồm hộp đồng ý, vỏ mọi màn bài học, và đề ôn tập. Không
+  // gì nói ra điều đó, nên "0 lỗi" đọc được thành "mọi đích bấm đã đạt".
+  //
+  // Ca này không đòi phủ HẾT — nó đòi mỗi tệp có đích bấm phải NẰM trong `TEP`
+  // hoặc có một dòng khai lý do. Đó là cùng hợp đồng mà `check-duong-toi.mjs`
+  // dùng cho bề mặt tối: "chưa phủ" được phép tồn tại, nhưng phải NÓI RA.
+  const tep = [];
+  const walk = (d) => {
+    for (const e of readdirSync(join(GOC, d), { withFileTypes: true })) {
+      const p = `${d}/${e.name}`;
+      if (e.isDirectory()) walk(p);
+      else if (e.name.endsWith(".css")) tep.push(p);
+    }
+  };
+  walk("src");
+  // Tự kiểm phép duyệt: trượt thì mọi luật dưới đạt RỖNG.
+  // Sàn 10 chỉ để bắt "duyệt ra 0–1 tệp". Đo 09/11/2026 được 17 tệp (16
+  // module + `scene.css`), và con số 16 đã có `check-moc-nen` canh riêng —
+  // ghim nó ở đây là nuôi bản sao thứ hai, và nó sẽ đỏ oan vào ngày một đợt
+  // dọn tài nguyên chết xoá một module.
+  assert.ok(tep.length >= 10, `phép duyệt CSS trượt, chỉ thấy ${tep.length} tệp`);
+
+  // HAI DANH SÁCH KHÔNG ĐƯỢC CHỒNG NHAU. Lỗ này lộ ra khi ablate chính ca này:
+  // khai một tệp ĐANG được phủ vào `TEP_NGOAI_TAM` cho **0 đỏ**, vì nhánh
+  // `if (TEP.includes(p))` thắng trước. Vô hại hôm nay, có hại ngày mai — ngày ai
+  // gỡ tệp ấy khỏi `TEP`, lời khai nằm sẵn ở đó HẤP THỤ nó và cổng im lặng thay
+  // vì đỏ. Đúng lỗ mà vòng #160 đã bắt giữa `CHUA_DO` và `KHONG_CO_DUONG_TOI`:
+  // hai hạng khai thay nhau được thì bản sửa không được cổng nào thi hành.
+  const chongNhau = TEP.filter((p) => TEP_NGOAI_TAM[p]);
+  assert.deepEqual(
+    chongNhau, [],
+    "TỆP NẰM TRONG CẢ HAI DANH SÁCH. `TEP` nghĩa là \"cổng VERIFY từng rule của "
+    + "tệp này\", `TEP_NGOAI_TAM` nghĩa là \"cổng KHÔNG xét tệp này\" — chọn một. "
+    + "Phủ thì mạnh hơn khai, nên gỡ dòng khai đi.\n   " + chongNhau.join("\n   "),
+  );
+
+  let tongRule = 0;
+  let phuRule = 0;
+  const chuaKhai = [];
+  const khaiMaHetBam = [];
+  for (const p of tep) {
+    const rules = moiRule(readFileSync(join(GOC, p), "utf8"));
+    const n = rules.filter((r) => /cursor\s*:\s*pointer/.test(r.than))
+      .reduce((s, r) => s + r.sels.length, 0);
+    if (!n) {
+      if (TEP_NGOAI_TAM[p]) khaiMaHetBam.push(p);
+      continue;
+    }
+    tongRule += n;
+    if (TEP.includes(p)) phuRule += n;
+    else if (!TEP_NGOAI_TAM[p]) chuaKhai.push(`${p} (${n} rule)`);
+  }
+
+  assert.deepEqual(
+    chuaKhai, [],
+    "TỆP CÓ ĐÍCH BẤM MÀ KHÔNG PHỦ LẪN KHÔNG KHAI. Thêm nó vào `TEP` (rồi mỗi "
+    + "rule phải đạt sàn hoặc vào một danh sách khai), hoặc thêm một dòng lý do "
+    + "vào `TEP_NGOAI_TAM`. Im lặng ở đây là thứ làm \"0 lỗi\" đọc được thành "
+    + "\"mọi đích bấm đã đạt\".\n   " + chuaKhai.join("\n   "),
+  );
+  assert.deepEqual(
+    khaiMaHetBam, [],
+    "NGOẠI LỆ ĐÃ LỖI THỜI: tệp dưới nay không còn `cursor: pointer` nào, gỡ nó "
+    + "khỏi `TEP_NGOAI_TAM`.\n   " + khaiMaHetBam.join("\n   "),
+  );
+  // SÀN MỘT CHIỀU, chỉ được NÂNG. Đo 09/11/2026: **41/46 selector** được phủ,
+  // 5 còn lại ở hai tệp đã khai (Góc học 3 · PythonStudio chết-mà-giữ 2). Ghim
+  // đúng con số thật thì thêm một nút mới là đỏ oan, nên sàn đặt thấp hơn một
+  // nhịp — cùng luật mà `ds-contrast` dùng cho sàn tương phản.
+  assert.ok(
+    phuRule >= 38,
+    `cổng chỉ còn phủ ${phuRule}/${tongRule} rule — sàn độ phủ CHỈ ĐƯỢC NÂNG`,
+  );
+});
+
 test('đích bấm: năm nút đã đo không quay về dưới sàn', () => {
   // Ghim riêng con số của năm nút ĐÃ ĐO trên thiết bị, kèm giá trị cũ — để một
   // bản "dọn cho gọn" gỡ `min-height` ra thì có chỗ nói rõ nó từng là bao nhiêu.
@@ -399,6 +526,10 @@ test('đích bấm: năm nút đã đo không quay về dưới sàn', () => {
     // #157 sửa cái dưới và bỏ sót cái này vì SY05 không có câu luyện tập nào
     // chạy được, nên cổng `{chayDuoc && …}` không dựng nút để mà đo.
     '.practiceRun': [38, 1],
+    // Đo 09/11/2026 sau khi trả lời câu ôn giãn cách trên NP06. Tôi DỰ ĐOÁN 38
+    // (cùng công thức CSS với `.practiceRun`) và đo ra 36 — một công thức giống
+    // nhau cho một con số GẦN nhau, không cho CÙNG con số.
+    '.onGianCachTiep': [36, 1],
     // `/ide`, đo 08/11/2026 ở 390×844. `.stop` KHÔNG đo trực tiếp (nó chỉ
     // hiện lúc đang chạy) — nó khai CÙNG `height: 42px` với `.run`, nên con
     // số suy ra từ khai báo chứ không từ màn hình, và nói ra ở đây.

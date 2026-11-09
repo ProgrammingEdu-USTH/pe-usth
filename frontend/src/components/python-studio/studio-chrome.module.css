@@ -1403,6 +1403,13 @@
 }
 
 .onGianCachTiep {
+  /* SÀN 44px. ĐO trên production 09/11/2026 (NP06, 390×844, sau khi trả lời
+     câu ôn): **106×36**, `min-height` là `0px`. Cùng công thức với
+     `.practiceRun` (`padding: 9px 18px`, font 14px,
+     `--ds-action`) mà vòng #161 đo ra 38 — khác 2px vì chữ "Vào bài →"
+     không có glyph cao như "▶". Tôi DỰ ĐOÁN 38 và đo ra 36: một công thức CSS
+     giống nhau cho một con số gần nhau, không cho CÙNG con số. */
+  min-height: 44px;
   padding: 9px 18px;
   border: none;
   border-radius: 999px;

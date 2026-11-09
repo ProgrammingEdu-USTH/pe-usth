@@ -55,6 +55,12 @@
 }
 
 .nutPhu {
+  /* SÀN 44px — xem lý lẽ ở `LessonChrome.module.css`. Nút này CHƯA ĐO trên
+     thiết bị: đề ôn chỉ phát khi người học xong ≥ 2 bài (MIN_POOL 5 câu ÷ 3
+     câu/bài). Áp sàn vẫn đúng vì nó là thứ cổng VERIFY được, và mạnh hơn khai
+     một khoản nợ (bài học #159 với `.retry`). Cùng file, `.nut` đã có sàn 44
+     từ trước — đây là khuôn NỬA-ÁP-NỬA-KHÔNG đã gặp ở `LessonChrome` (#156). */
+  min-height: 44px;
   margin-top: 10px;
   padding: 8px 14px;
   border: 1px solid var(--edu-sidebar-border);

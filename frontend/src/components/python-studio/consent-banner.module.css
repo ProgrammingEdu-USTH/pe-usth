@@ -73,6 +73,14 @@
 }
 
 .chon {
+  /* SÀN 44px, và ở đây nó không chỉ là tiện tay. Hộp này là bề mặt PHÁP LÝ:
+     AGENTS.md ghi hai nút phải CÙNG class và CÙNG cỡ (`flex: 1`) vì làm nút
+     "Đồng ý" nổi hơn là lấy sự đồng ý bằng ma sát. Một đích bấm dưới cỡ ngón
+     tay là cùng một họ lỗi: nó làm một trong hai lựa chọn khó bấm hơn. Vì cả
+     hai nút dùng CHUNG lớp này nên sàn áp đều, không nghiêng bên nào.
+     CHƯA ĐO trên thiết bị: hộp chỉ hiện khi `consent?.shouldAsk`, và phiên
+     khách của phép đo đã trả lời xong. */
+  min-height: 44px;
   flex: 1;
   padding: 9px 14px;
   border: 1px solid var(--edu-sidebar-border);

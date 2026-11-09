@@ -99,6 +99,11 @@
 }
 
 .hintToggle {
+  /* SÀN 44px. `ShellB` là vỏ của MỌI màn bài học, nên nút này hiện ở mọi bài
+     có gợi ý (143/179 bài khai `step_4.hints`). CHƯA ĐO trên thiết bị: lượt đi
+     09/11 qua 22 màn của NP06 không gặp nó, nên con số thật vẫn chưa có — đo
+     được thì phải mở màn có panel gợi ý. */
+  min-height: 44px;
   margin-top: 20px;
   display: inline-flex;
   align-items: center;

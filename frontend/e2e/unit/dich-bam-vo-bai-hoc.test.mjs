@@ -29,6 +29,11 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import test from 'node:test';
 
+// Phép bóc rule CSS DÙNG CHUNG với `ide-thanh-cong-cu.test.mjs`. Tách ra ngày
+// 10/11/2026 — không chép, vì chính `selCua` đã từng hỏng một lần và một bản
+// chép thứ hai sẽ giữ nguyên lớp lỗi ấy. Xem đầu `_css-rule.mjs`.
+import { moiRule, px, phanTram, selCua } from './_css-rule.mjs';
+
 const GOC = new URL('../../', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
 
 /**
@@ -191,52 +196,7 @@ const NGOAI_TAM = {
     + 'CSS. Và có đường đi tương đương: nút "Quay lại" lùi từng màn.',
 };
 
-const boChuThich = (s) => s.replace(/\/\*[\s\S]*?\*\//g, ' ');
 
-/**
- * Mọi rule trong file, kèm điều kiện `@media` nếu có.
- *
- * Phải cắt `@media` TRƯỚC khi duyệt rule: một `height: 44px` nằm trong
- * `@media (max-width: 560px)` là giá trị của KHỔ ĐIỆN THOẠI, còn `height: 40px`
- * ngoài đó là giá trị desktop. Gộp chúng lại là đọc sai cả hai.
- */
-/**
- * MỌI selector của một rule, không chỉ dòng cuối.
- *
- * Bản đầu lấy `.split(/[\n;]/).pop()` — tức DÒNG CUỐI — nên một rule viết
- * `.restoredAction,\n.restoredClose {` chỉ còn `.restoredClose`, và
- * `.restoredAction` RƠI KHỎI phép quét hoàn toàn. Một đích bấm không bao
- * giờ được kiểm trong khi cổng vẫn in 0 lỗi: đúng hình dạng "cổng rỗng"
- * mà file này đã bắt ba lần ở chỗ khác.
- *
- * Cắt sau dấu `;` CUỐI để bỏ các at-rule không có khối (`@import …;`) lọt
- * vào phần văn bản giữa hai dấu ngoặc.
- */
-function selCua(tho) {
-  return tho.slice(tho.lastIndexOf(';') + 1)
-    .split(',').map((s) => s.trim()).filter(Boolean);
-}
-
-function moiRule(van = CSS) {
-  const ma = boChuThich(van);
-  const ra = [];
-  for (const mm of ma.matchAll(/@media([^{]*)\{([\s\S]*?)\n\}/g)) {
-    for (const m of mm[2].matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
-      ra.push({ sels: selCua(m[1]), than: m[2], media: mm[1].trim() });
-    }
-  }
-  const ngoai = ma.replace(/@media[^{]*\{[\s\S]*?\n\}/g, ' ');
-  for (const m of ngoai.matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
-    ra.push({ sels: selCua(m[1]), than: m[2], media: null });
-  }
-  return ra;
-}
-
-const px = (than, prop) => {
-  const m = new RegExp(`(?:^|[;{\\s])${prop}\\s*:\\s*([\\d.]+)px`).exec(than);
-  return m ? parseFloat(m[1]) : null;
-};
-const phanTram = (than, prop) => new RegExp(`${prop}\\s*:\\s*100%`).test(than);
 
 /** Giá trị CÓ HIỆU LỰC ở khổ điện thoại: override trong `max-width` nếu có. */
 function hieuLuc(rules, sel, prop) {
@@ -254,7 +214,7 @@ test('đích bấm: phép đọc tìm được file và các rule (tự kiểm)'
   // Đọc hoặc duyệt trượt thì mọi luật dưới đạt RỖNG mà không chứng minh gì —
   // đúng cách một cổng tự khai khống độ phủ.
   assert.ok(CSS.length > 3000, `LessonChrome.module.css chỉ ${CSS.length} byte`);
-  const rules = moiRule();
+  const rules = moiRule(CSS);
   assert.ok(rules.length >= 40, `phép duyệt rule trượt, chỉ thấy ${rules.length}`);
   const bam = rules.filter((r) => /cursor\s*:\s*pointer/.test(r.than));
   assert.ok(bam.length >= 4, `chỉ thấy ${bam.length} rule \`cursor: pointer\` — trượt?`);
@@ -270,7 +230,7 @@ test('đích bấm: VỎ BÀI HỌC — nghiêm hơn, chỉ NGOAI_TAM miễn đ�
   // lối thoát DUY NHẤT là `NGOAI_TAM` (đã đo, sàn bất khả, kèm số). Không ai
   // dời được một đích bấm của vỏ bài học sang `CHUA_DO` — vỏ ấy hiện ở MỌI
   // màn của 179 bài, nên "chưa đo" không phải một lời khai đứng được ở đây.
-  const rules = moiRule();
+  const rules = moiRule(CSS);
   const loi = [];
   const dat = [];
   for (const r of rules) {
@@ -312,7 +272,7 @@ test('đích bấm: ngoại lệ phải NÓI RA lý do, và lý do phải mang s
     assert.match(vi, /\d/, `lý do cho \`${t}\` không có số đo nào`);
     // Và mục khai phải trỏ vào một selector CÓ THẬT trong file.
     assert.ok(
-      moiRule().some((r) => r.sels.includes(t)),
+      moiRule(CSS).some((r) => r.sels.includes(t)),
       `NGOAI_TAM khai \`${t}\` nhưng file không còn rule nào có selector đó`,
     );
   }
@@ -321,7 +281,7 @@ test('đích bấm: ngoại lệ phải NÓI RA lý do, và lý do phải mang s
 test('đích bấm: `.closeBtn` không quay về 40px', () => {
   // Nút này bị bỏ sót ở MỌI khổ trong khi cùng file đã nâng `.backBtn` lên 44 —
   // tức nó là chỗ dễ bị "dọn cho gọn" nhất. Ghim riêng con số.
-  const rules = moiRule();
+  const rules = moiRule(CSS);
   const c = hieuLuc(rules, '.closeBtn', 'height');
   const r = hieuLuc(rules, '.closeBtn', 'width');
   assert.ok(c >= SAN && r >= SAN, `.closeBtn nay ${r}×${c}, dưới sàn ${SAN}px`);
@@ -536,6 +496,10 @@ test('đích bấm: năm nút đã đo không quay về dưới sàn', () => {
     '.select': [42, 3], '.run': [42, 3], '.stop': [42, 3],
     '.restoredAction': [31, 3], '.restoredClose': [26, 3],
     // Code visualizer. `.ctrl` là năm nút bước, dưới sàn ở CẢ HAI trục.
+    // `.start`: 38 là phép đo LỊCH SỬ ở 390×844 trước khi có sàn. Nền DESKTOP
+    // của nó đã đi 38 → 42 ngày 10/11/2026 (nó đứng cùng hàng flex với `.run`,
+    // xem `ide-thanh-cong-cu.test.mjs`), nên một bản 'dọn cho gọn' gỡ sàn mobile
+    // ra thì nay rơi xuống 42, không phải 38.
     '.ctrl': [36, 4], '.start': [38, 4], '.scrub': [16, 4],
     '.detail summary': [16, 4],
   };

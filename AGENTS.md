@@ -87,7 +87,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
-| Frontend unit test | `cd frontend && npm run test:unit` → **651 ca** / 58 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **655 ca** / 59 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -107,7 +107,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **37 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 651 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366 · duongToi 18/14/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 655 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366 · duongToi 18/14/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -118,7 +118,7 @@ và mất bộ kiểm duy nhất chấm được code học viên. `frontend/pub
 thì bộ 172 bài dùng lại NGUYÊN VẸN: chính nó đặt `MPLBACKEND=Agg` và móc `Figure`, nên
 26 bài biểu đồ chạy được trong worker. Đừng dọn "cho gọn".
 
-**Con số 651 phải đo lại mỗi lần thêm/bớt ca, không được đoán, và nó ĐÃ TRÔI 59 đơn vị.**
+**Con số 655 phải đo lại mỗi lần thêm/bớt ca, không được đoán, và nó ĐÃ TRÔI 59 đơn vị.**
 Đo lại 09/11/2026 bằng cách chạy TỪNG tệp: bảng này cộng ra **592** trong khi bộ chạy ra
 **651**, tức nó đứng yên suốt chín vòng trong khi hàng "Frontend unit test" được sửa đúng
 mỗi lần. `check-moc-chay` chỉ đối chiếu HÀNG, không đối chiếu bảng phân rã, nên nó xanh cả
@@ -131,15 +131,18 @@ course-resume 9 · data-files 18 · dich-bam-vo-bai-hoc 7 · ds-contrast 17 · e
 feedback-link 9 · feedback-rank 3 · forum-xss 1 · goc-hoc-cho-so 7 · goc-hoc-hang-nut 4 ·
 goc-hoc-khung-cho 6 · goc-hoc-lo-trinh 9 · goc-hoc-man-con 3 · goc-hoc-nhan-mot 6 ·
 goc-hoc-thanh-cuon 5 · ide-brief-code 12 · ide-handoff 6 · ide-output-scroll 6 ·
-ide-partial-output 10 · ide-stop-autosave 27 · ide-trace 38 · inline-code 7 · insert-gate-sync 2 ·
-khoa-roi-giao-trinh 5 · label-version 2 · learning-events 48 · lesson-back 15 ·
-lesson-chrome-sticky 4 · lesson-load 7 · lien-ket-noi-bo 3 · mcq-code 9 ·
-mcq-next-after-wrong 23 · o-go-16px 5 · o-nhap-nhieu-dong 2 · phan-bai 8 · practice-contract 15 ·
-practice-run 9 · prewarm-gate 5 · read-diagram 12 · read-guess 19 · read-trace 16 ·
-read-try-it 20 · recap-recall 7 · review-quiz 34 · run-stale 15 · session-marker 5 ·
-spaced-review 14 · studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 · trang-404 6 ·
-trang-loi 12 · trap-leak 3 · worker-csp 7 = 651.
-Mốc trước là 583; thêm goc-hoc-nhan-mot 6 (RÊ VÀO "KHOÁ HỌC" hiện 28 NHÃN cùng lúc, 116 cặp chồng
+ide-partial-output 10 · ide-stop-autosave 27 · ide-thanh-cong-cu 4 · ide-trace 38 ·
+inline-code 7 · insert-gate-sync 2 · khoa-roi-giao-trinh 5 · label-version 2 ·
+learning-events 48 · lesson-back 15 · lesson-chrome-sticky 4 · lesson-load 7 · lien-ket-noi-bo 3 ·
+mcq-code 9 · mcq-next-after-wrong 23 · o-go-16px 5 · o-nhap-nhieu-dong 2 · phan-bai 8 ·
+practice-contract 15 · practice-run 9 · prewarm-gate 5 · read-diagram 12 · read-guess 19 ·
+read-trace 16 · read-try-it 20 · recap-recall 7 · review-quiz 34 · run-stale 15 ·
+session-marker 5 · spaced-review 14 · studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 ·
+trang-404 6 · trang-loi 12 · trap-leak 3 · worker-csp 7 = 655.
+Mốc trước là 651; thêm ide-thanh-cong-cu 4 (THANH CÔNG CỤ /ide: bốn control đứng CÙNG
+một hàng flex mà `.start` khai 38px trong khi ba cái kia 42 — cộng sáu rule `:hover`
+của hai tệp không có guard con trỏ, nên nút KẸT ở trạng thái nhấc sau cú chạm).
+Trước đó 583 → 651 qua nhiều vòng; mốc 583 thêm goc-hoc-nhan-mot 6 (RÊ VÀO "KHOÁ HỌC" hiện 28 NHÃN cùng lúc, 116 cặp chồng
 nhau — nay đúng 1 nhãn; cổng CHẠY THẬT `setOn`/`lightRoute` bóc ra khỏi engine.js).
 Trước đó 579 → 583; thêm goc-hoc-hang-nut 4 (HÀNG NÚT ĐIỀU HƯỚNG tràn 425px ở 360×640 ⇒ chỉ 2/5
 mục trong mép; nay XUỐNG HÀNG).
@@ -6543,6 +6546,130 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **GIỚI HẠN:** cổng đối chiếu SỐ CA theo tệp, không đối chiếu "tệp ấy canh đúng thứ đáng
   canh". Và nó chỉ phủ bộ FRONTEND — backend (35 bộ / 522 ca) vẫn chỉ có con số tổng, vì
   `jest --runInBand` in khuôn khác và chưa có bằng chứng con số ấy từng trôi.
+
+- **NHÁNH `test` CÓ BỐN COMMIT GIAO DIỆN MỚI, và thứ đáng port NHẤT không nằm trong
+  bất kỳ cái nào — nó là một khối CSS mà một lần REVERT đã cuốn đi.** Vòng này mở ra
+  theo yêu cầu "đọc nhánh test xem đã có push gì mới về giao diện chưa rồi cải tiến
+  dần". Đo trước: `tester/test` commit cuối **09/11/2026** (Cao Trí Thành, "cập nhật
+  giao diện mới"), **main đi trước 280 commit · test đi trước 14**. Bê nguyên một tệp
+  là viết đè ~280 commit bản sửa của main — đúng bẫy `4d5f86d`. Nên phép đo là
+  `git diff main...tester/test` theo TỪNG tệp TRONG PHẠM VI (bỏ dashboard / Góc học /
+  minigame / world-map theo ràng buộc đứng), rồi đọc từng khối.
+  **BA ỨNG VIÊN, và hai cái đầu ĐÃ CÓ hoặc KHÔNG đáng:**
+  · `studio-tokens.css` — test thêm khối `:root, body` cho bí danh `--st-*` (sửa một
+    lỗi ban đêm thật). **Main đã có nó từ dòng 189**, vào qua đợt port bảng v2;
+  · `StudioLesson.tsx` — `wide` cho màn `scaffold` và game `fill`. Bộ 179 bài có
+    **0** màn nào trong hai loại đó, nên nó là no-op cho khoá đang xuất bản;
+  · `.start` của CodeVisualizer — ứng viên THẬT, xem dưới.
+  **VÀ MỘT LỖI CỦA TÔI BỊ PHÉP ĐO CHẶN HAI LẦN, cùng một kiểu: bê CON SỐ của test.**
+  Test đặt `.start` cao **52px** và `font-size: var(--ds-fs-ui)`. Nhưng ở nhánh ấy cả
+  thanh công cụ đã thiết kế lại (nút Chạy cũng 52), còn `.run` của main là **42** —
+  bê 52 sang đây là làm lệch TO HƠN. Và `--ds-fs-ui` trên main là **17px** trong khi
+  `.run` là 15px, tức nút PHỤ sẽ to hơn nút CHÍNH. Test cũng dùng `var(--ds-ink)` cho
+  ink, mà `--ds-ink` là **#0F1B33 — navy LẠNH (B > R)** trên một trang giấy kem, trái
+  luật ấm của bảng lofi; tệp ấy vốn đã dùng `--edu-t1` (#2A2018). **Port QUYẾT ĐỊNH,
+  lấy SỐ của main** — đó là cả nội dung của việc bê từ một nhánh đi sau 280 commit.
+
+- **BỐN CONTROL ĐỨNG CÙNG MỘT HÀNG FLEX Ở HAI TỆP, và một cái khai 38px trong khi ba
+  cái kia 42.** `.visualizeSlot { display: contents }` nên nút "Xem từng bước" của
+  CodeVisualizer là con TRỰC TIẾP của `.actions`, cạnh `.select`, `.run`, `.stop`. Đo
+  trên production ở **1442px** ngày 10/11/2026:
+
+  | | cao | top | bot | nền | cỡ chữ |
+  |---|---|---|---|---|---|
+  | `.select` | 42 | 90 | 132 | trắng .55 | 14px |
+  | **`.start`** | **38** | **92** | **130** | `rgb(31,95,224)` | 14px |
+  | `.run` | 42 | 90 | 132 | `rgb(31,95,224)` | 15px |
+
+  Nút phụ thụt **2px mỗi mép**. Và nó cùng nền, cùng bóng, cùng bán kính với nút
+  chính — đo được CẢ HAI `rgb(31, 95, 224)`, tức hai nút trông chính ngang nhau trong
+  khi "Chạy" là việc của trang còn "Xem từng bước" là đọc lại thứ vừa chạy.
+  **KHỔ HẸP GIẤU LỖI NÀY:** lần đo đầu của tôi ở khổ mặc định cho cả ba **44px** —
+  vì sàn mobile của #159 đang áp VÀ thanh công cụ đã wrap (`.run` ở hàng khác, top
+  222 so với 166). Hai con số 42/38 chỉ hiện ở desktop. **Đo một hàng nút thì phải đo
+  ở khổ mà nó CÒN LÀ một hàng.**
+  **KHÔNG cổng nào phủ trục này:** `dich-bam-vo-bai-hoc.test.mjs` canh sàn 44px ở khổ
+  ĐIỆN THOẠI (`hieuLuc` cố ý giải giá trị trong `max-width`), `ds-contrast` canh màu.
+  Nay `ide-thanh-cong-cu.test.mjs` ghim QUAN HỆ (bốn cái BẰNG nhau), không ghim con
+  số — ghim 42 thì một đợt đổi thang là đỏ oan ở bốn chỗ, mà thứ hỏng thật chỉ xảy ra
+  khi chúng LỆCH nhau.
+  **Thứ bậc ghim bằng TÍNH CHẤT:** `.start` không được mang CÙNG `background` với
+  `.run`, phải có nền trong suốt, không `box-shadow` (bóng là dấu của mặt NỔI), và
+  không dùng `--ds-ink`. Đo sau khi sửa, trên bản dựng: ba control **cùng top 90 /
+  bot 132**, chữ+viền `#2A2018` **13,80:1** trên giấy kem ban ngày và `#E8EEFB`
+  **16,81:1** ban đêm, 0 tràn ngang; ở 390px cả ba vẫn **44** (sàn mobile còn thắng).
+
+- **SÁU RULE `:hover` KẸT SAU CÚ CHẠM — và khối guard từng CÓ, bị một lần revert cuốn
+  đi.** `grep` ra đúng **2 rule** `:hover` + `translateY` không guard trong phạm vi
+  (`.run`, `.start`; cái thứ ba ở `scene.css` là Góc học, ngoài phạm vi), và **6 rule
+  `:hover` tổng** trong hai tệp `/ide`, không cái nào có `(hover: hover) and
+  (pointer: fine)`. Merge-base của main và `tester/test` **CÓ** khối ấy kèm nguyên câu
+  giải thích; `git log -S` chỉ đúng thủ phạm: **`070886a`** — chính commit revert đưa
+  main về `2c12049` mà file này đã ghi là *"95 commit thiết kế bị gỡ theo"*. Nó là
+  **thiệt hại kèm của lần revert**, không phải chuyện chưa ai nghĩ tới.
+  **TÁI HIỆN, không tin cơ chế:** ở 390×844 cảm ứng, dựng hai nút thử cùng khuôn CSS
+  rồi chạm bằng CDP input thật. Nút KHÔNG guard: `:hover` còn **true**,
+  `transform: matrix(1,0,0,1,0,-1)`, `top` 299 thay vì 300 — **kẹt ở trạng thái nhấc
+  sau khi ngón tay rời**. Nút CÓ guard: `:hover` **false**, `transform: none`. Và
+  `(hover: hover) and (pointer: fine)` đo được **false** dưới cảm ứng, nên guard chặn
+  đúng chỗ; thiết bị lai (laptop có màn chạm) vẫn có con trỏ fine nên vẫn được hover.
+  **PHẦN ĐỔI MÀU PHẢI NẰM TRONG GUARD, và nhánh `test` làm sai nửa đó:** bên ấy đặt
+  `.start:hover { color/background đảo }` NGOÀI khối guard. Một nút kẹt ở màu nghịch
+  đảo còn dễ thấy hơn một nút kẹt lệch 1px.
+  **`prefers-reduced-motion` KHÔNG tính là guard** — nó là OVERRIDE, không phải trạng
+  thái gốc, và nó không nói gì về việc có con trỏ hay không. Cổng khai rõ điều đó
+  (`KHONG_PHAI_GUARD`), cộng danh sách `NGOAI_GUARD` hai chiều (nay RỖNG).
+
+- **TÁCH PARSER CSS RA MODULE DÙNG CHUNG, vì chính `selCua` đã từng hỏng một lần.**
+  Cổng mới cần đúng phép bóc rule mà `dich-bam-vo-bai-hoc.test.mjs` đang có. Chép nó
+  là nuôi bản thứ hai của một hàm mà #159 vừa tìm thấy lỗi (bản đầu lấy DÒNG CUỐI của
+  phần selector nên `.restoredAction,\n.restoredClose {` đánh rơi hẳn tên đầu, và rơi
+  IM LẶNG). Nay năm hàm thuần ở `frontend/e2e/unit/_css-rule.mjs`; tên tệp KHÔNG mang
+  `.test.mjs` nên glob `e2e/unit/*.test.mjs` của `package.json` và `dem-ca-test.mjs`
+  không chạy nó như một bộ rỗng. `moiRule(van)` bỏ tham số mặc định: một mặc định trỏ
+  vào một tệp cụ thể, trong một module dùng chung, là chỗ để gọi sai mà không ai thấy.
+  Phép tự kiểm sẵn có của cổng 44px (`selCua` deepEqual, `rules.length >= 40`) xác
+  nhận bản tách: **7/7 vẫn đạt**.
+  **VÀ TRẦN LINT DỰNG Ở #153 BẮT ĐÚNG TÔI:** sau khi tách, `boChuThich` không còn ai
+  gọi trong tệp cũ nhưng vẫn nằm trong dòng `import` — một cảnh báo
+  `no-unused-vars` thứ **147**, tức vỡ `--max-warnings 146`. Trước #153 thì `eslint`
+  thoát 0 với cảnh báo và chuyện này đi thẳng vào commit. Đếm bằng
+  `grep -c` ra **1 dòng** cho `boChuThich` — một ký hiệu chỉ xuất hiện trên chính dòng
+  import của nó là một ký hiệu không ai dùng.
+
+- **PHÉP ĐO ĐỌC GIỮA LÚC TRANSITION ĐANG CHẠY — lần thứ hai cùng họ, ở một thuộc tính
+  mới.** Kiểm chế độ đêm bằng cách đổi class trên `body` rồi đọc ngay: `border-color`
+  ra đúng `#E8EEFB` (đêm) trong khi `color` vẫn `#2A2018` (ngày) — **từ CÙNG một
+  `var(--edu-t1)` trong CÙNG một rule**, tương phản báo **1,23:1**. Một mâu thuẫn như
+  thế là dấu hiệu phép đo sai, không phải CSS sai: tôi vừa thêm `color` vào
+  `transition` còn `border-color` thì không, nên cái sau nhảy tức thì và cái trước
+  đang bò. Chờ 450 ms (> 150 ms transition) rồi đo lại: **13,80 / 16,81**.
+  Cùng luật đã ghi cho `getBoundingClientRect` dưới `.stepEnter`: **khi một phép đo
+  cho hai giá trị KHÔNG THỂ cùng đúng, nghi phép đo trước khi nghi sản phẩm** — và ở
+  đây thứ tố giác là chính cặp `color`/`border-color` phải bằng nhau theo cấu tạo.
+
+- **ABLATE 10 chiều** (`scripts/ablate.mjs --tu-so`, 9 chiều + 1 cặp đối chứng làm
+  tay): gỡ CẢ bản sửa CodeVisualizer về HEAD → **3 đỏ** · gỡ CẢ bản sửa
+  `ide.module.css` → 1 · `.start` về 38px → 1 · `.start` mượn lại nền nút chính → 1 ·
+  `.start` dùng `--ds-ink` → 1 · trả `box-shadow` về `.start` → 1 · gỡ guard của
+  `.run:hover` → 1 · `.visualizeSlot` thôi `display: contents` → 1 (tự kiểm — nó là
+  TIỀN ĐỀ của ca căn hàng) · phá phép đọc `@media` trong chính cổng → 1 (tự kiểm).
+  **CẶP ĐỐI CHỨNG** phải làm tay vì `ablate.mjs` nhận MỘT `--tep` mà cặp này cần hai
+  tệp: lệch chiều cao + GIỮ ca → **1 đỏ / 4 ca**; cùng lệch ấy + GỠ ca → **0 đỏ /
+  3 ca**. Con đỏ đến từ CA MỚI, không từ một ca sẵn có nào.
+  **SỐ ĐÃ ĐO:** frontend unit **651 → 655 ca / 58 → 59 tệp** · sổ ngưỡng siết sàn
+  650 → 655 · typecheck sạch · lint **146 cảnh báo / 0 lỗi** (đúng trần) ·
+  `npm run build` exit 0 · `check-moc-nen` 20 mục 0 lỗi · `check-moc-chay frontend`
+  655/655 · `check-nguong` 37 ngưỡng 0 lỗi · `tai-nguyen-chet` / `export-chet` /
+  `duong-toi` 0 lỗi. **KHÔNG đụng một dòng nội dung nào**, nên `check-da-nap` giữ
+  **62 bài chờ**. **KHÔNG bump `ASSET_VERSION`:** hai tệp sửa là CSS module trong
+  `src/`, đi qua bundler nên URL đã đổi theo nội dung.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** trên `/ide`, nút "Xem từng bước" nay thẳng
+  hàng với nút Chạy và đọc ra là nút PHỤ (viền, không nền đặc); và trên điện thoại,
+  sáu nút của trang thôi kẹt ở trạng thái "đang trỏ vào" sau mỗi cú chạm.
+  **CÒN LẠI, nói cho đúng:** `scene.css` còn một rule `:hover` + `translateY(-8px)`
+  không guard (Góc học — ngoài phạm vi theo ràng buộc đứng), và cổng mới chỉ phủ HAI
+  tệp của `/ide`. Mười một tệp CSS module khác có `:hover` chưa ai đo theo trục này.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

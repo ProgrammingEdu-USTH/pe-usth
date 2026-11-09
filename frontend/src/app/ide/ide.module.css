@@ -79,7 +79,12 @@
   box-shadow: 0 6px 18px rgba(42, 32, 23, 0.16);
   transition: transform 0.15s ease, opacity 0.15s ease;
 }
-.run:hover:not(:disabled) { transform: translateY(-1px); }
+/* Guard con trỏ thật: trên màn cảm ứng `:hover` dính lại sau cú chạm nên nút
+   kẹt ở trạng thái "đang trỏ vào". Lý lẽ và số đo ở `.start` trong
+   CodeVisualizer.module.css — cùng vòng, cùng phép tái hiện. */
+@media (hover: hover) and (pointer: fine) {
+  .run:hover:not(:disabled) { transform: translateY(-1px); }
+}
 .run:disabled { opacity: 0.6; cursor: progress; }
 
 /* Nút Dừng — CÙNG nút Chạy đổi vai, không phải nút thứ hai (xem IdeClient).
@@ -102,7 +107,10 @@
   cursor: pointer;
   transition: background 0.15s ease;
 }
-.stop:hover { background: color-mix(in srgb, crimson 26%, transparent); }
+/* Guard con trỏ thật — xem `.run:hover` phía trên. */
+@media (hover: hover) and (pointer: fine) {
+  .stop:hover { background: color-mix(in srgb, crimson 26%, transparent); }
+}
 .stop:focus-visible {
   outline: 2px solid var(--ds-violet);
   outline-offset: 2px;
@@ -283,8 +291,11 @@
 }
 .restoredAction { padding: 5px 14px; font-weight: 600; }
 .restoredClose { width: 26px; height: 26px; line-height: 1; }
-.restoredAction:hover,
-.restoredClose:hover { background: var(--edu-track-bg); }
+/* Guard con trỏ thật — xem `.run:hover` phía trên. */
+@media (hover: hover) and (pointer: fine) {
+  .restoredAction:hover,
+  .restoredClose:hover { background: var(--edu-track-bg); }
+}
 .restoredAction:focus-visible,
 .restoredClose:focus-visible {
   outline: 2px solid var(--ds-violet);
@@ -343,7 +354,10 @@
   border-radius: 999px;
   cursor: pointer;
 }
-.retry:hover { background: var(--edu-track-bg); }
+/* Guard con trỏ thật — xem `.run:hover` phía trên. */
+@media (hover: hover) and (pointer: fine) {
+  .retry:hover { background: var(--edu-track-bg); }
+}
 .retry:focus-visible {
   outline: 2px solid var(--ds-violet);
   outline-offset: 2px;

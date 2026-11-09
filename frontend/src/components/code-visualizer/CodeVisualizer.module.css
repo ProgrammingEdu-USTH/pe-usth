@@ -42,22 +42,61 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 38px;
-  padding: 0 18px;
+  /* 42px là ĐÚNG `height` của `.run` ở ide.module.css, và nó phải BẰNG chứ
+     không "gần bằng": `.visualizeSlot { display: contents }` nên nút này là
+     con TRỰC TIẾP của `.actions`, đứng CÙNG hàng flex với `.select` và
+     `.run`. Đo trên production ở 1442px ngày 10/11/2026: `.select` 42 ·
+     `.run` 42 · nút này **38** — top 92/bot 130 so với 90/132, tức nó thụt
+     2px ở cả hai mép.
+     Con số 42 lấy từ MAIN, KHÔNG từ nhánh `test`: ở đó thanh công cụ đã
+     thiết kế lại và nút cao 52, nên bê 52 sang đây là làm lệch TO HƠN —
+     đúng bẫy 4d5f86d ("bê giao diện từ nhánh khác là bê cả những bản sửa
+     mà nhánh đó chưa có"). */
+  height: 42px;
+  /* 20 + viền 2px = 22px, đúng `padding: 0 22px` của `.run` (border-box). */
+  padding: 0 20px;
   font: inherit;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  /* Cùng hợp đồng màu với nút Chạy ở ide.module.css — hai nút chính này đứng
-     cạnh nhau trên cùng thanh công cụ, nên lệch nhau là thấy ngay. */
-  color: var(--ds-on-action);
-  background: var(--ds-action);
-  border: 0;
+  /* NÚT PHỤ, không phải nút chính thứ hai. "Chạy" là việc của trang; "Xem
+     từng bước" là đọc lại thứ vừa chạy. Trước bản này cả hai cùng nền
+     --ds-action, cùng bóng, cùng bán kính — đo được CẢ HAI `rgb(31, 95,
+     224)`, tức hai nút trông chính ngang nhau. Viền + nền trong suốt nói ra
+     thứ bậc mà không thêm một màu nào vào bảng.
+     Ink là --edu-t1 (#2A2018, nâu ấm, đo 13,8:1 trên giấy kem #F4EEE3) chứ
+     KHÔNG --ds-ink (#0F1B33 — navy LẠNH, B>R): tệp này vốn đã dùng --edu-t1
+     cho chữ, và bảng lofi đòi kênh đỏ >= kênh xanh. Hai chế độ tự đảo đúng
+     vì cả --edu-t1 lẫn --edu-panel-bg-solid đều đổi theo body.dark, nên
+     không phải nuôi một cặp màu thứ hai sẽ trôi.
+     Bóng cũng bỏ: một mặt NỔI là dấu của nút chính. */
+  color: var(--edu-t1);
+  background: transparent;
+  border: 2px solid var(--edu-t1);
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(42, 32, 23, 0.16);
-  transition: transform 0.15s ease, opacity 0.15s ease;
+  transition: transform 0.15s ease, color 0.15s ease, background-color 0.15s ease;
 }
-.start:hover:not(:disabled) { transform: translateY(-1px); }
+/* GUARD CON TRỎ THẬT — và nó là thiệt hại kèm của một lần revert, không phải
+   chuyện chưa ai nghĩ tới. Merge-base của `main` và `tester/test` CÓ khối này
+   kèm đúng câu giải thích; `070886a` (đưa main về `2c12049`, "95 commit thiết
+   kế bị gỡ theo") gỡ nó đi và không ai trả lại.
+   TÁI HIỆN ngày 10/11/2026 ở 390×844 cảm ứng, trên hai nút thử cùng khuôn
+   CSS: chạm nút KHÔNG guard rồi đọc lại — `:hover` còn **true**,
+   `transform: matrix(1,0,0,1,0,-1)`, tức nút KẸT ở trạng thái nhấc sau khi
+   ngón tay rời; nút CÓ guard thì `:hover` false, `transform: none`. Và
+   `(hover: hover) and (pointer: fine)` đo được là **false** dưới cảm ứng,
+   nên guard chặn đúng chỗ. Thiết bị lai (laptop có màn chạm) vẫn có con trỏ
+   fine nên vẫn được hover.
+   Phần đổi MÀU phải nằm TRONG đây, không chỉ phần transform: một nút kẹt ở
+   màu nghịch đảo còn dễ thấy hơn một nút kẹt lệch 1px. Nhánh `test` đặt
+   phép đảo màu NGOÀI khối này — đó là nửa còn hỏng của bản bên đó. */
+@media (hover: hover) and (pointer: fine) {
+  .start:hover:not(:disabled) {
+    color: var(--edu-panel-bg-solid);
+    background: var(--edu-t1);
+    transform: translateY(-1px);
+  }
+}
 .start:disabled { opacity: 0.6; cursor: progress; }
 .start:focus-visible,
 .ctrl:focus-visible,
@@ -174,8 +213,11 @@
   border-radius: var(--ds-r-sm);
   cursor: pointer;
 }
-.ctrl:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--ds-mark-ochre) 18%, transparent);
+/* Guard con trỏ thật — lý lẽ và số đo ở `.start` phía trên. */
+@media (hover: hover) and (pointer: fine) {
+  .ctrl:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--ds-mark-ochre) 18%, transparent);
+  }
 }
 .ctrl:disabled { opacity: 0.45; cursor: default; }
 /* Đang tự chạy: nút phải nói ra là nó đang BẬT, không chỉ đổi ký tự ⏩ -> ⏸.

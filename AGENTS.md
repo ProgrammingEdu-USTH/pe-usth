@@ -96,7 +96,7 @@ học nó.
 | pe-da bảng từng bước | `py scripts/pe-da/gen_traces.py` → **56 vết / 359 khối đủ điều kiện** (303 bỏ qua — bảng từng ghi 356/300, đã CŨ từ trước 04/11: dựng lại từ HEAD cũng ra 359/303, và `check-moc-nen` không đối chiếu hàng này; phần lớn vì không ra được câu dự đoán nào ĐÁNG hỏi); build.py `return 1` nếu lệch |
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
 | Xuất hình cho người học | `node scripts/check-figures.mjs` → 16 ca, **0 hỏng** |
-| Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **17 mục, 14 có đường tới, 3 còn tối (đã khai lý do)**, 0 lỗi |
+| Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **18 mục, 14 có đường tới, 4 còn tối (đã khai lý do)**, 0 lỗi |
 | Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **2 mục chết, 2 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **16 CSS module trong `src/`** |
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
 | Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **117/179 khớp, 62 bài CHỜ NẠP** (năm lát văn phong 08/11 · hai lát alt text · năm lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
@@ -104,7 +104,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **35 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **7 mục** (frontend 649 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 649 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366 · duongToi 18/14/4), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -6022,6 +6022,93 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **CÒN LẠI 7 mục `CHUA_DO` chưa đo + 1 mục `KHONG_CO_DUONG_TOI`** (`.panel summary` nay
   biết đúng đường: đi tới màn sandbox của một bài có ca chấm). Và nửa độ phủ vẫn mù với
   control gốc không khai `cursor: pointer` — đã khai ở trên, chưa làm.
+- **`.panel summary` KHÔNG PHẢI "CHƯA ĐO" — hai khối renderer của `SandboxScreen` chưa bao
+  giờ hiện cho một người học nào, và cổng bắt đúng lỗi ấy thì KHÔNG CÓ TRONG CI.**
+  Vòng này mở ra để đo một mục `CHUA_DO`, và phép đo đổi hẳn việc — lần thứ ba liền.
+  **ĐO BẰNG CÁCH LIỆT KÊ MỌI KHOÁ `step_4` của HAI gói**, không bằng cách đọc lại chỗ dùng
+  trong TSX:
+
+  | khoá | pe-da (179 bài, đang xuất bản) | pe-v4 (48 bài, đã ẩn) | nghĩa |
+  |---|---|---|---|
+  | `contract` (SỐ ÍT) | **52** | — | hợp đồng CA CHẤM (mode · inputVariable · resultVariable · returnType) |
+  | `contracts` (SỐ NHIỀU) | **0** | 44 | mô tả HÀM cho người đọc — thứ renderer này dựng |
+  | `files` | **0** | 11 | KHÁC `dataFiles` (9 bài): gói pe-da cố ý chỉ nhúng TÊN file |
+
+  `SandboxScreen.tsx:88-89` đọc `four?.files` và `four?.contracts`, nên cả hai
+  `<details className={c.panel}>` là đường của **pe-v4**. `.panel summary` vì vậy thuộc hạng
+  `KHONG_CO_DUONG_TOI`, cùng hạng `.toggleBtn` — không phải "chưa đo".
+  **BẪY MỘT CHỮ CÁI, và nó nằm đúng chiều tự khen:** tra `contract` ra **52** rồi kết luận
+  "panel hiện ở 52 bài" là một con số có thật, đúng cú pháp, và sai hoàn toàn về thứ đang
+  hỏi. Hai khoá cách nhau một chữ `s`, ở hai gói, với hai nghĩa không liên quan.
+  **MỤC NÀY ĐÃ KHAI SAI HAI LẦN TRƯỚC KHI ĐÚNG, và cách sai mới là bài học:**
+  · #158 khai "CHƯA ĐO", lý do ghi *"panel từng bước của `/ide`"* — sai tệp;
+  · #159 sửa tệp thành `SandboxScreen.tsx:127`/`:148` (ĐÚNG) nhưng GIỮ hạng CHƯA ĐO và viết
+    *"nằm trên đường người học, 143 bài có ca chấm"* — cũng sai, vì `.panel` không đọc
+    `tests`. Tôi lấy con số của một khoá KHÁC trong cùng `step_4` làm blast radius.
+  Cả hai lần tôi đều ĐỌC LẠI chỗ dùng trong TSX và cả hai lần vẫn sai. Thứ sửa được là một
+  **phép ĐẾM trên bản dựng** — đọc renderer nói được "nó dựng từ khoá nào", không nói được
+  "khoá ấy có ai phát ra không".
+
+  **HAI DANH SÁCH KHAI THAY NHAU ĐƯỢC, và ablate tìm ra.** `CHUA_DO` và
+  `KHONG_CO_DUONG_TOI` nhận CÙNG một bộ phép kiểm (selector có thật · lý do > 80 ký tự ·
+  trỏ vào một `.tsx`), nên dời một mục từ hạng này sang hạng kia **không làm đỏ gì** — tức
+  bản sửa của vòng này không được cổng nào thi hành. Luật riêng duy nhất của hạng no-path là
+  `/\d+\/\d+/`, mà nó nhận cả `143/179`: một mục CÓ đường tới vẫn đậu được vào danh sách
+  KHÔNG-CÓ-ĐƯỜNG-TỚI. Nay siết thành `\b0\/\d+` — "không có đường" nghĩa là phép đếm ra
+  KHÔNG. Cặp đối chứng: luật siết + gieo `9/179` → **1 đỏ**; luật cũ + CÙNG seed → **0 đỏ**.
+  **KHE CÒN LẠI, khai ra vì nó KHÔNG đóng được ở đó:** chiều NGƯỢC — một mục thật sự không
+  có đường mà bị parked trong `CHUA_DO` — thì cổng mù, vì chỉ `ban-do-tinh-nang.mjs` biết
+  một bề mặt có đường hay không. Đòi mọi mục no-path phải có một mục tương ứng trong bản đồ
+  thì sẽ kêu oan: `.toggleBtn` không có mục nào ở đó (màn game của pe-v4 chưa ai khai).
+
+  **VÀ PHÁT HIỆN LỚN HƠN CẢ VIỆC ĐANG LÀM, thấy khi đang sửa chính hàng mốc nền:**
+  · ba con số của hàng "Bản đồ tính năng" (**mục · có đường tới · còn tối**) **KHÔNG ai
+    canh** — `check-moc-nen` không đọc hàng đó, `check-duong-toi` không đọc AGENTS.md. Bằng
+    chứng cứng: thêm một bề mặt tối thứ tư làm 17/3 thành 18/4 và `check-moc-nen` vẫn in
+    **0 lỗi**. Cùng lớp với hàng VĂN PHONG mà #149 phải đóng sau MƯỜI lát sửa tay;
+  · **và cổng ấy chưa bao giờ có một bước `- run:` nào trong `ci.yml`.** Đo bằng cách liệt
+    kê: **10/12** cổng `check-*.mjs` có trong CI. Hai cái thiếu là `check-da-deploy` (CỐ Ý —
+    cần mạng, và nó chỉ cảnh báo) và **`check-duong-toi`**, tức cổng dựng riêng để bắt LỖI
+    THỐNG TRỊ của repo này. Nó vẫn đúng suốt vì vòng lặp gọi nó bằng tay mỗi vòng; thứ thiếu
+    là ai thi hành GIỮA hai vòng. AGENTS.md **không** khai sai ở đây — nó chỉ chưa bao giờ
+    nói cổng ấy ở đâu, và không ai hỏi.
+  Nay `check-moc-chay` có **mục thứ TÁM** (`duongToi`) và `ci.yml` có bước gọi nó, đặt ngay
+  cạnh `check-tai-nguyen-chet` — cổng hỏi câu NGƯỢC với nó ("tệp này có ai tới được không"
+  so với "tính năng này có ai đi qua không"). Gọi qua `check-moc-chay` nên nó THAY một bước
+  trực tiếp, không thêm một lượt chạy.
+  **PHÉP TỰ XÁC NHẬN `sang + toi === muc`, và nó không phải trang trí:** nếu một nhóm của
+  regex `doc` trượt thì giá trị là `undefined`, và `undefined !== undefined` là **false** —
+  tức phép so BẰNG với bảng sẽ IM LẶNG ĐẠT trên một con số không đọc được. Ablate: phá regex
+  (`còn tối` → `ZZ tối`) → **1 đỏ**, và con đỏ ấy đến từ `themLuat`, không từ phép so số.
+
+  **ABLATE 10 chiều.** Bản đồ: `contracts` → `contract` (dem đi **0 → 52**, khai tối mà hoá
+  ra sáng) → **1 đỏ** · `thucHien` trỏ ký hiệu không còn → **1**. Cổng 44px: số đo `0/179` →
+  `9/179` → **1** · **CẶP ĐỐI CHỨNG** luật cũ + cùng seed → **0**. Mục `duongToi` mới: bảng
+  ghi 17 mục → **1** · bảng ghi 3 tối → **1** · đổi LỆNH mà regex neo vào → **1** ("KHÔNG
+  CÒN DÒNG") · phá regex `doc` → **1** · hàng `check-moc-chay` ghi 7 mục → **1**.
+  **Một chiều ra 0 đỏ và nó ĐÚNG, phải đọc cho đúng:** đổi NHÃN hàng ("Bản đồ tính năng" →
+  "Ban do tinh nang") không làm đỏ, vì regex neo vào LỆNH chứ không vào nhãn. Nhãn là văn
+  xuôi; lệnh là hợp đồng. Đừng đọc nó thành "cổng không bắt được việc đổi chữ".
+  **VÀ MỘT PHÉP GIEO CỦA TÔI VÔ HIỆU mà `ablate.mjs` KHÔNG bắt:** tôi thêm `toiThieu: 1,`
+  ngay sau `id:` trong khi mục ấy đã có `toiThieu: 0,` ở dưới — **khoá trùng trong object
+  literal thì cái SAU thắng**, nên văn bản ĐỔI mà hành vi không đổi, và bất biến "GIEO VÔ
+  HIỆU" (so nội dung trước/sau) đi qua được vì nội dung thật sự khác. Cách gieo đúng là sửa
+  CHÍNH dòng đang có hiệu lực. Ghi lại vì đây là một cách thứ SÁU để "0 đỏ" nói dối, và nó
+  nằm ngoài tầm năm bất biến hiện có.
+
+  **SỐ ĐÃ ĐO:** bản đồ tính năng **17 → 18 mục · 14 sáng · 3 → 4 tối**, 0 lỗi ·
+  `check-moc-chay` **7 → 8 mục** · `ci.yml` 41 → **42 bước run**, YAML parse OK, 7 job ·
+  `CHUA_DO` **8 → 7 mục** (`.panel summary` sang hạng khác), `KHONG_CO_DUONG_TOI` **1 → 2** ·
+  frontend unit giữ **649 ca / 58 tệp** (sửa assert trong ca sẵn có, không thêm ca) ·
+  typecheck sạch · lint **146 cảnh báo / 0 lỗi** · `check-moc-nen` 20 mục 0 lỗi ·
+  `check-nguong` 35 ngưỡng 0 lỗi · `check-doi-hoi` / `tai-nguyen-chet` / `export-chet` 0 lỗi.
+  **KHÔNG đụng một dòng nội dung nào**, nên `check-da-nap` giữ **62 bài chờ**. KHÔNG bump
+  `ASSET_VERSION` (không tệp nào trong `public/`).
+  **KHÔNG ĐỔI HÀNH VI NGƯỜI HỌC:** vòng này không sửa một pixel nào — nó đổi chỗ một lời
+  khai từ hạng sai sang hạng đúng, và nối một cổng vào CI. Nói ra để không ai đọc nó như
+  một bản sửa giao diện.
+  **GIỚI HẠN:** trigger của `ci.yml` vẫn là `branches: [master]`, nên bước mới — như 41 bước
+  kia — chưa chạy lần nào trên `main`. Lật nó là quyết định của chủ dự án.
 - **NÚT "XEM TỪNG BƯỚC" CAO 34px, và danh sách nợ 11 mục là một danh sách KHÔNG CÓ ĐƯỜNG
   ĐI.** Lead vòng trước để lại `CHUA_DO` gồm 11 tên trần. Vòng này mở đúng bề mặt chứa chúng
   và phân loại cả 11 — vì một danh sách tên trần thì vòng sau phải đi tìm lại từ đầu "nút này

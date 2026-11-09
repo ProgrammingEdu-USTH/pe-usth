@@ -216,6 +216,47 @@ const KIEM = {
   // nhất, tức một lời khai về THỨ TỰ. Nên mục này kiểm thêm rằng ba luật ấy VẪN
   // là ba luật nhiều lỗi nhất — ngày L2 vượt L3 thì con số có thể vẫn khớp trong
   // khi câu "dồn ở" đã sai, và một phép so BẰNG sẽ im lặng ở đúng chỗ đó.
+  // BẢN ĐỒ TÍNH NĂNG. Ba con số của hàng ấy (mục · có đường tới · còn tối)
+  // KHÔNG ai canh cho tới 09/11/2026: `check-moc-nen` không đọc hàng đó, và
+  // `check-duong-toi` không đọc AGENTS.md. Thấy khi đang SỬA chính hàng ấy —
+  // thêm một bề mặt tối thứ tư làm 17/3 thành 18/4, và không gì đỏ.
+  //
+  // VÀ PHÁT HIỆN KÈM, lớn hơn con số: cổng ấy KHÔNG có bước `- run:` nào trong
+  // `ci.yml`. Đo bằng cách liệt kê: 10/12 cổng `check-*.mjs` có trong CI; hai
+  // cái thiếu là `check-da-deploy` (cố ý — cần mạng, và nó chỉ cảnh báo) và
+  // `check-duong-toi`, tức cổng bắt đúng LỖI THỐNG TRỊ của repo này. Nó chạy
+  // mỗi vòng vì vòng lặp gọi nó bằng tay; giữa hai vòng thì không ai thi hành.
+  // Mục này THAY một bước CI mới (đặt cạnh `check-tai-nguyen-chet`, cổng hỏi
+  // câu NGƯỢC với nó) chứ không thêm một lượt chạy thứ hai.
+  duongToi: {
+    nhan: 'bản đồ tính năng',
+    lenh: 'node scripts/check-duong-toi.mjs',
+    cwd: '.',
+    luuY: 'Ba con số này ĐỔI mỗi lần thêm/bớt một mục trong '
+      + '`scripts/ban-do-tinh-nang.mjs`, và một bề mặt chuyển từ tối sang sáng '
+      + 'cũng đổi hai trong ba. Sửa bảng mốc nền trong CÙNG commit với bản đồ.',
+    bang: () => {
+      const m = MD.match(
+        /check-duong-toi\.mjs` → \*\*([\d  ]+) mục, ([\d  ]+) có đường tới, ([\d  ]+) còn tối/);
+      return m ? { muc: so(m[1]), sang: so(m[2]), toi: so(m[3]) } : null;
+    },
+    doc: (ra) => {
+      const m = ra.match(
+        /^(\d+) tính năng · (\d+) có đường tới · (\d+) còn tối · (\d+) lỗi/m);
+      if (!m) return null;
+      return {
+        muc: Number(m[1]), sang: Number(m[2]), toi: Number(m[3]),
+        truot: Number(m[4]),
+      };
+    },
+    // Phép so chéo TỰ XÁC NHẬN: sáng + tối phải BẰNG tổng mục. Thiếu nó thì một
+    // regex trượt một nhóm cho `undefined`, và `undefined !== undefined` là
+    // false nên phép so BẰNG sẽ im lặng đạt — đúng cách một cổng tự khai khống.
+    themLuat: (that) => (that.sang + that.toi === that.muc ? null
+      : `bản đồ in ${that.sang} sáng + ${that.toi} tối nhưng tổng là ${that.muc}`
+        + ' — một trong ba con số không đọc được, nên phép so BẰNG ở trên không'
+        + ' chứng minh gì. Kiểm lại regex của `doc`.'),
+  },
   vanphong: {
     nhan: 'bộ văn phong pe-da',
     lenh: `${process.platform === 'win32' ? 'py' : 'python'}`

@@ -246,6 +246,37 @@ export const BAN_DO = [
       'trong ngày đó nếu sau này có giao diện cho route ấy.',
   },
   {
+    // TÌM RA 09/11/2026 từ việc đo đích bấm, không từ một lượt soát bản đồ:
+    // `.panel summary` được khai là "CHƯA ĐO" ở vòng trước, và phép đo nói nó
+    // KHÔNG CÓ ĐƯỜNG TỚI. Hai khoá cách nhau MỘT CHỮ CÁI, hai gói khác nhau:
+    //   `contract`  (số ít)  — 52/179 bài pe-da: hợp đồng CA CHẤM (mode,
+    //                          inputVariable, resultVariable, returnType);
+    //   `contracts` (số nhiều) — 0/179 pe-da, 44/48 pe-v4: mô tả HÀM cho người
+    //                          đọc, tức thứ renderer này dựng;
+    //   `files`     — 0/179 pe-da, 11/48 pe-v4. KHÁC `dataFiles` (9 bài): gói
+    //                 pe-da cố ý chỉ nhúng TÊN file, không nhúng nội dung.
+    // Tra `contract` rồi đọc ra 52 là kết luận "panel hiện ở 52 bài" — sai.
+    id: 'panel-mo-ta-ham-va-file',
+    ten: 'Hai panel gập của màn bài tập: Mô tả hàm · File trong thư mục bài',
+    thucHien:
+      'frontend/src/components/python-studio/screens/SandboxScreen.tsx:contracts',
+    mount: 'frontend/src/components/python-studio/screens/SandboxScreen.tsx',
+    manHinh: 'sandbox',
+    // Đếm trên bản dựng THẬT, không trả hằng 0: ngày build phát `contracts`
+    // hoặc `files` thì con số lên và chiều hai của luật đỏ ngay.
+    dem: (ctx) =>
+      ctx.bai.filter(
+        (l) => l.content_json.step_4?.contracts || l.content_json.step_4?.files,
+      ).length,
+    toiThieu: 0,
+    chuaCoDuongToi:
+      'Cả hai panel đọc `four?.contracts` và `four?.files` — hai khoá mà khoá ' +
+      '179 bài KHÔNG phát ra lần nào (0/179), chúng là đường của pe-v4 (44 và ' +
+      '11 trong 48 bài). Đừng lẫn với `contract` SỐ ÍT, có ở 52/179 bài pe-da: ' +
+      'đó là hợp đồng ca chấm, một thứ khác hẳn. Giữ mã vì nó sống lại nguyên ' +
+      'vẹn vào ngày pe-v4 bật lại, cùng lý do AGENTS.md giữ `scripts/pe-v4/**`.',
+  },
+  {
     id: 'o-stdin',
     ten: 'Ô nhập dữ liệu (stdin) cho chương trình của người học',
     thucHien: 'frontend/src/components/python-studio/runner/types.ts:stdin',

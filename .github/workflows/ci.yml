@@ -444,6 +444,18 @@ jobs:
       # chế đang chạy. Xoá là việc MỘT LẦN; dòng này là thứ giữ cho nó đúng.
       - run: node scripts/check-tai-nguyen-chet.mjs
 
+      # BẢN ĐỒ TÍNH NĂNG — cổng bắt LỖI THỐNG TRỊ của repo ("dựng xong mà không
+      # có đường tới người dùng", đã xảy ra hơn mười lần). Nó CHƯA BAO GIỜ có
+      # bước nào ở đây: đo 09/11/2026 bằng cách liệt kê, 10/12 cổng check-*.mjs
+      # có trong CI, hai cái thiếu là check-da-deploy (cố ý — cần mạng, chỉ cảnh
+      # báo) và cái này. Vòng lặp gọi nó bằng tay mỗi vòng nên nó vẫn đúng; thứ
+      # thiếu là ai thi hành GIỮA hai vòng.
+      #
+      # Gọi qua check-moc-chay chứ không gọi trực tiếp: cổng đó CHẠY chính lệnh
+      # này rồi đối chiếu ba con số của nó với bảng mốc nền, nên nó THAY bước
+      # trực tiếp chứ không thêm một lượt.
+      - run: node scripts/check-moc-chay.mjs duongToi
+
       # CỔNG "ĐÃ NẠP DB CHƯA". check-duong-toi.mjs chứng minh được một màn có
       # MOUNT tính năng; nhưng nội dung bài đọc từ DB, không từ out/. Nên một
       # bài dựng xong, kiểm xong, CI xanh vẫn có thể KHÔNG tới người học vì

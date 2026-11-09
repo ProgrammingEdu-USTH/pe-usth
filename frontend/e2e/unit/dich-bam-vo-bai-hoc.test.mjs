@@ -87,16 +87,7 @@ const CHUA_DO = {
   '.answerKeyHead':
     'AdminAnswerKey.tsx — cùng bề mặt quản trị ấy, là tiêu đề bấm được của bảng '
     + 'đáp án. Nó khai `width: 100%` nên trục ngang đạt sẵn; chỉ trục dọc chưa đo.',
-  // ĐÍNH CHÍNH 08/11/2026: lý do cũ ghi `CodeVisualizer.tsx` và nó SAI.
-  // `styles.panel` trong CodeVisualizer.tsx:292 là `.panel` của module RIÊNG
-  // của nó (`CodeVisualizer.module.css`), không phải lớp này. Chủ thật là
-  // `SandboxScreen.tsx:127` và `:148` — hai panel gập của màn BÀI TẬP, tức nó
-  // nằm trên đường người học (143 bài có ca chấm), không ở `/ide`.
-  '.panel summary':
-    'SandboxScreen.tsx:127 và :148 — hai `<details>` của màn bài tập được chấm '
-    + '("Hợp đồng" và bảng ca chấm). Đo được nếu đi tới ĐÚNG màn sandbox: lượt '
-    + 'đi ngày 08/11 bấm qua 26 đoạn thanh tiến độ của SY05 mà không đoạn nào mở '
-    + 'được màn ấy, nên nó vẫn CHƯA ĐO.',
+
 
   '.theoryFigure figcaption a':
     'ReadScreen.tsx — link nguồn trong chú thích hình, chỉ có ở bài mà hình mang '
@@ -119,6 +110,22 @@ const CHUA_DO = {
  * sản phẩm hiện tại: không phải thiếu một lượt đi, mà là thiếu một màn.
  */
 const KHONG_CO_DUONG_TOI = {
+  // ĐÍNH CHÍNH 09/11/2026 — mục này đi qua HAI lần khai sai trước khi đúng:
+  //  · #158 khai nó là CHƯA ĐO và ghi lý do "panel từng bước của /ide";
+  //  · #159 sửa tệp thành `SandboxScreen.tsx` (đúng) nhưng GIỮ hạng CHƯA ĐO và
+  //    viết "nằm trên đường người học, 143 bài có ca chấm" — cũng sai, vì
+  //    `.panel` KHÔNG đọc `tests`.
+  // Thứ sửa được cả hai là một phép ĐẾM trên bản dựng, không phải đọc thêm một
+  // lần nữa chỗ dùng trong TSX.
+  '.panel summary':
+    'SandboxScreen.tsx:127 và :148 — hai `<details>` đọc `four?.contracts` và '
+    + '`four?.files`. Đếm MỌI khoá `step_4` của hai gói: pe-da phát `contracts` '
+    + '0/179 và `files` 0/179, còn pe-v4 (đã ẩn) phát 44/48 và 11/48. Nên hai '
+    + 'panel ấy chưa bao giờ hiện cho một người học nào — cùng hạng `.toggleBtn`, '
+    + 'không phải "chưa đo". ĐỪNG lẫn với `contract` SỐ ÍT (52/179 bài pe-da): '
+    + 'đó là hợp đồng ca chấm, và tra nhầm nó là kết luận panel hiện ở 52 bài. '
+    + 'Bề mặt tối này nay có một mục trong `scripts/ban-do-tinh-nang.mjs`, nên '
+    + '`check-duong-toi.mjs` sẽ đỏ vào ngày build phát một trong hai khoá.',
   '.toggleBtn':
     'TrueFalse.tsx, và người dùng duy nhất của nó là `TrueFalseGame.tsx` — một '
     + 'màn mini-game của pe-v4. Đo trên bản dựng: khoá 179 bài chỉ phát ra '
@@ -361,10 +368,26 @@ test('đích bấm: CẢ NĂM module — mọi rule `cursor: pointer` đạt sà
       assert.match(vi, /\.tsx|\.mjs/, `${ten}['${s}'] không nói ra tệp nào dựng nó`);
     }
   }
-  // `KHONG_CO_DUONG_TOI` phải mang SỐ ĐO chứng minh là không có đường, không
-  // chỉ một lời khẳng định — cùng mức bằng chứng mà `check-duong-toi.mjs` đòi.
+  // `KHONG_CO_DUONG_TOI` phải mang một số đo BẰNG KHÔNG — không chỉ một lời
+  // khẳng định, và không chỉ một tỉ lệ bất kỳ.
+  //
+  // VÌ SAO `0/<n>` chứ không `<n>/<m>`: hai danh sách khai nhận cùng một bộ phép
+  // kiểm, nên dời một mục từ `CHUA_DO` sang đây KHÔNG làm đỏ gì — ablate vòng
+  // 09/11 đo được đúng chuyện đó. Luật cũ nhận cả "143/179", tức một mục CÓ
+  // đường tới vẫn đậu được vào danh sách KHÔNG-CÓ-ĐƯỜNG-TỚI. "Không có đường"
+  // nghĩa là phép đếm ra KHÔNG, nên đó là thứ phân biệt được hai hạng.
+  //
+  // KHE CÒN LẠI, khai ra vì nó KHÔNG đóng được ở đây: chiều NGƯỢC — một mục
+  // thật sự không có đường mà bị parked trong `CHUA_DO` — thì cổng này mù, vì
+  // chỉ `scripts/ban-do-tinh-nang.mjs` biết một bề mặt có đường tới hay không.
+  // Đòi mọi mục ở đây phải có một mục tương ứng trong bản đồ thì sẽ kêu oan:
+  // `.toggleBtn` không có mục nào trong bản đồ (màn game của pe-v4 chưa ai khai).
   for (const [s, vi] of Object.entries(KHONG_CO_DUONG_TOI)) {
-    assert.match(vi, /\d+\/\d+/, `KHONG_CO_DUONG_TOI['${s}'] không có số đo dạng N/M`);
+    assert.match(
+      vi, /\b0\/\d+/,
+      `KHONG_CO_DUONG_TOI['${s}'] phải mang số đo dạng 0/<n> — một tỉ lệ khác 0 `
+      + 'nghĩa là nó CÓ đường tới, tức nó thuộc một hạng khác.',
+    );
   }
 });
 

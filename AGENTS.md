@@ -37,6 +37,9 @@ node scripts/check-tai-nguyen-chet.mjs  # TỆP/COMPONENT nào KHÔNG ai tới �
 node scripts/check-export-chet.mjs      # KÝ HIỆU nào được export ra mà không ai gọi
 node scripts/check-da-nap.mjs           # BÀI nào đã dựng mà CHƯA nạp vào DB
 node scripts/check-moc-nen.mjs          # BẢNG MỐC NỀN dưới đây có nói đúng không
+node scripts/dem-ca-test.mjs           # SỐ CA theo TỪNG TỆP trong MỘT lượt chạy;
+                                       # in đúng khuôn dòng phân rã ở bảng
+                                       # mốc nền, dán thẳng vào được
 node scripts/check-moc-chay.mjs         # MỐC phải CHẠY mới biết: frontend | backend | tracer | e2e | pyodide | practice
 node scripts/check-doi-hoi.mjs          # KHỐI CODE màn đọc nào chưa có lời đòi
 node scripts/check-nguong.mjs           # NGƯỠNG một chiều có ai nới ngược không
@@ -104,7 +107,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **37 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 651 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366 · duongToi 18/14/4), 0 trượt, 0 lỗi; nó CHẠY chính bảy lệnh đó nên THAY cả bảy bước trong CI — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 651 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366 · duongToi 18/14/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -6474,6 +6477,72 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   trên màn), nên không có bằng chứng ai đang bị. Khai nó đúng cách là buộc vào class
   `body.light`/`body.dark` chứ KHÔNG phải `color-scheme: light dark` — cái sau đi theo hệ điều
   hành và sẽ lệch với công tắc của chính trang.
+
+- **"KHÔNG DỰNG ĐƯỢC CỔNG VÌ ĐẮT" LÀ LỜI KHAI VỀ MỘT CÁCH LÀM — và tôi vừa viết đúng bài học
+  ấy vào file này rồi mắc lại nó một vòng sau.** Vòng #163 đo được dòng PHÂN RÃ số ca test đã
+  trôi **59 đơn vị** (cộng ra 592 trong lúc bộ chạy ra 651), sửa nó, rồi kết lại:
+  *"Chưa được CANH: dựng cổng cho nó đòi chạy 58 tệp riêng lẻ thay vì một lượt, tức đổi ~4
+  phút CI lấy một con số mà hàng tổng đã canh. Đó là lựa chọn, không phải bỏ sót."*
+  Câu ấy sai, và nó sai theo đúng khuôn mà mục dọn L4/L5/L6 đã gọi tên: **một lời khai
+  "không sửa được" là lời khai về CÁCH TIẾP CẬN đang nghĩ tới, không phải về bài toán.**
+  Cách tôi nghĩ tới là một vòng `for` gọi `node --test` từng tệp. Đo ba cách:
+
+  | cách | lấy được phân rã? | thời gian |
+  |---|---|---|
+  | vòng `for` 58 lượt `node --test` | có | ~4 phút (ước lượng của #163) |
+  | `--test-reporter=tap`, một lượt | **KHÔNG** — TAP làm phẳng, bỏ tên tệp | — |
+  | **`run()` của `node:test`, một lượt** | **CÓ** — `test:pass` mang `d.file` | **5,5 s** |
+
+  Sai gấp **~44 lần**, và lệnh đang dùng (`npm run test:unit`) thì mất **6,3 s** — tức bản
+  mới còn NHANH HƠN cái nó thay. Phép đo tốn hai lệnh.
+  **VÌ SAO `npm run test:unit` KHÔNG ĐỦ:** nó chỉ in con số TỔNG (`ℹ pass 651`), nên cổng
+  đọc nó mù với phân rã theo tệp. Đó là lý do dòng ấy trôi được **chín vòng** trong khi hàng
+  tổng được sửa đúng mỗi lần. Nay mục `frontend` của `check-moc-chay` gọi
+  `node scripts/dem-ca-test.mjs`, và `themLuat` của nó so **từng tệp** với khối phân rã.
+  **PHÂN RÃ LẤY TỪ CHÍNH LƯỢT CHẠY ẤY, không từ lượt thứ hai** — hai lượt là hai thứ có thể
+  lệch nhau, và khi chúng lệch thì không có gì nói cho người đọc biết họ đang nhìn cái nào.
+  **LUẬT HAI CHIỀU, và chiều thứ hai là chiều hay bị quên:** một tệp CHẠY RA mà không có
+  trong khối là lỗi, VÀ một mục trong khối mà không còn tệp nào tên đó cũng là lỗi. Thiếu
+  chiều sau thì khối chỉ dài ra rồi thành chỗ giấu rác — đúng bài học `DAP_AN_MAU_KHONG_CHAY`.
+  Cộng một phép tự xác nhận: khối phải tự cộng ra đúng con số nó tự ghi ở cuối.
+  **TỰ KIỂM PHÉP DUYỆT, vì phép đếm trả 0 là thứ phải nghi ngờ trước nhất:** `dem-ca-test.mjs`
+  thoát 1 khi glob tìm ra dưới 20 tệp. Không có nó thì glob hỏng cho ra "0 ca" và cổng đọc
+  con số ấy như một kết quả.
+  **MỘT PHÉP SỬA LÀM VỠ CHỖ KHÁC, bắt được vì chạy chứ không vì đọc:** bỏ `cwd: 'frontend'`
+  làm `join(ROOT, c.cwd)` nhận `undefined` và cả cổng ném `ERR_INVALID_ARG_TYPE`. Phải đặt
+  `cwd: '.'`. Và vì `ROOT` suy từ `import.meta.url` chứ không từ thư mục làm việc, bước CI
+  `node ../scripts/check-moc-chay.mjs frontend` (chạy từ `frontend/`) vẫn đúng — đã chạy thử
+  đúng cách CI gọi, không suy từ cây mã.
+  **ABLATE 8 chiều:** một mục trong khối ghi SAI (`ds-contrast 17 → 16`) → **1 đỏ** · GỠ một
+  tệp khỏi khối → 1 · KHAI một tệp không tồn tại → 1 · TỔNG của khối lệch với các mục → 1 ·
+  đổi CHỮ của khối (regex hết khớp) → 1 (nói "KHÔNG CÒN KHỐI", không im lặng xanh) · phá phép
+  duyệt tệp → 1 (tự kiểm bắn) · gieo một ca ĐỎ THẬT → **1 đỏ kèm đúng câu "1 ca TRƯỢT — con
+  số chỉ đúng khi bộ test xanh"**, KHÔNG kêu "bảng ghi sai" · **CẶP ĐỐI CHỨNG** cùng lệch
+  `ds-contrast` mà GỠ `themLuat` → **0 đỏ**, giữ `themLuat` → **1 đỏ**.
+  **Cặp đối chứng phải làm TAY và nói ra vì sao:** `ablate.mjs` nhận MỘT `--tep` một cặp
+  chuỗi, mà cặp này cần hai tệp khác nhau (AGENTS.md và cổng). Làm tay kèm `assert` cho cả
+  hai phép thay.
+  **BỐN PHÉP GIEO ĐẦU CỦA TÔI TRƯỢT VÌ EOL, và `ablate.mjs` từ chối in số cả bốn lần:**
+  AGENTS.md là **CRLF**, seed của tôi là LF. Bẫy "đầu dòng khác nhau theo từng tệp — dò, đừng
+  đoán" đã ghi ba lần; lần này nó cắn ở tệp mà tôi sửa nhiều nhất. Một seed thứ năm cũng
+  trượt vì tôi neo vào `trang-404 6 ·` mà chuỗi ấy đứng ĐẦU DÒNG sau khi bọc — phải neo kèm
+  mục đứng trước nó.
+  **HAI CÂU TRONG BẢNG ĐÃ LỖI THỜI TỪ #160, sửa nhân dịp:** hàng "Mốc phải CHẠY mới biết"
+  ghi **8 mục** nhưng vẫn nói *"chạy chính BẢY lệnh đó nên THAY cả BẢY bước"* — mục thứ tám
+  (`duongToi`) vào từ vòng ấy mà hai chữ số đếm thì không ai sửa.
+  **SỐ ĐÃ ĐO:** `check-moc-chay` giữ **8 mục**, mục `frontend` nay đối chiếu **58 tệp / 651
+  ca** theo từng tệp thay vì chỉ con số tổng · `dem-ca-test.mjs` **5,5 s** so với `npm run
+  test:unit` **6,3 s** · frontend unit **651 ca / 58 tệp** (KHÔNG đổi — vòng này không thêm
+  ca nào) · typecheck sạch · lint **146 cảnh báo / 0 lỗi** · `ci.yml` 7 job / **42 bước run**,
+  YAML parse OK · `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 37 ngưỡng 0 lỗi ·
+  `tai-nguyen-chet` / `export-chet` 0 lỗi · `duong-toi` 18/14/4 0 lỗi · `ablate-trung-thuc`
+  19/19. **KHÔNG đụng một dòng nội dung nào**, nên `check-da-nap` giữ **62 bài chờ**. KHÔNG
+  bump `ASSET_VERSION` (không tệp nào trong `public/`).
+  **KHÔNG ĐỔI HÀNH VI NGƯỜI HỌC:** vòng này không sửa một pixel nào — nó gắn răng cho một
+  con số đã trôi hai lần. Nói ra để không ai đọc nó như một bản sửa giao diện.
+  **GIỚI HẠN:** cổng đối chiếu SỐ CA theo tệp, không đối chiếu "tệp ấy canh đúng thứ đáng
+  canh". Và nó chỉ phủ bộ FRONTEND — backend (35 bộ / 522 ca) vẫn chỉ có con số tổng, vì
+  `jest --runInBand` in khuôn khác và chưa có bằng chứng con số ấy từng trôi.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

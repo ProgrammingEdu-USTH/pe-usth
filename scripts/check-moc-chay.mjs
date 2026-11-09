@@ -46,8 +46,13 @@ const so = (s) => Number(s.replace(/[\s ]/g, ''));
 const KIEM = {
   frontend: {
     nhan: 'ca test frontend',
-    lenh: 'npm run test:unit',
-    cwd: 'frontend',
+    // ĐỔI 09/11/2026 từ `npm run test:unit`. Không phải để chạy nhanh hơn (tuy
+    // nó nhanh hơn: 5,5 s so với 6,3 s) mà vì `npm run test:unit` CHỈ in con số
+    // TỔNG, nên cổng này mù với dòng PHÂN RÃ trong AGENTS.md — và dòng ấy đã
+    // trôi hai lần (5 đơn vị ở vòng 07/11, **59** ở vòng 09/11, khi nó cộng ra
+    // 592 trong lúc bộ chạy ra 651 và mười tệp test chưa bao giờ có mặt ở đó).
+    lenh: 'node scripts/dem-ca-test.mjs',
+    cwd: '.',  // script tự giải đường dẫn từ URL của nó, nên chạy từ GỐC repo
     bang: () => {
       const m = MD.match(/test:unit[^|\n]*?\*\*([\d  ]+) ca\*\*/);
       return m ? { ca: so(m[1]) } : null;
@@ -60,9 +65,41 @@ const KIEM = {
       return m ? { ca: so(m[1]) } : null;
     },
     doc: (ra) => {
-      const dat = [...ra.matchAll(/\bpass (\d+)[ \t\r]*$/gm)].at(-1);
-      const hong = [...ra.matchAll(/\bfail (\d+)[ \t\r]*$/gm)].at(-1);
-      return dat && hong ? { ca: Number(dat[1]), truot: Number(hong[1]) } : null;
+      const m = /^(\d+) tệp · (\d+) ca đạt · (\d+) trượt$/m.exec(ra);
+      if (!m) return null;
+      // Phân rã, để `themLuat` so với bảng. Lấy từ CHÍNH lượt chạy ấy chứ không
+      // từ một lượt thứ hai — hai lượt là hai thứ có thể lệch nhau.
+      const phanRa = {};
+      for (const [, t, c] of ra.matchAll(/([a-z0-9-]+) (\d+)(?= ·| =)/g)) phanRa[t] = Number(c);
+      return { ca: Number(m[2]), truot: Number(m[3]), soTep: Number(m[1]), phanRa };
+    },
+    // Dòng PHÂN RÃ — con số THỨ BA của bảng mốc nền mà trước hôm nay không ai
+    // canh. Vòng #163 đã đo nó trôi 59 đơn vị rồi KHÔNG dựng cổng, với lý lẽ
+    // "đòi chạy 58 tệp riêng lẻ thay vì một lượt". Lý lẽ ấy là một lời khai về
+    // MỘT CÁCH LÀM, không phải về bài toán: `run()` của `node:test` phát sự kiện
+    // `test:pass` KÈM `file`, nên một lượt cho cả tổng lẫn phân rã. (Reporter
+    // TAP thì không: nó làm phẳng và bỏ tên tệp — đã thử.)
+    themLuat: (that) => {
+      const k = /Phân rã hiện tại, ĐO chứ không cộng tay:([\s\S]*?)= (\d+)\./.exec(MD);
+      if (!k) return 'không còn khối "Phân rã hiện tại, ĐO chứ không cộng tay:" trong '
+        + 'AGENTS.md. Đổi CHỮ của khối thì sửa cổng này — im lặng xanh ở đây là cổng rỗng.';
+      const bang = {};
+      for (const [, t, c] of k[1].matchAll(/([a-z0-9-]+) (\d+)(?= ·|\s*$)/g)) bang[t] = Number(c);
+      const loi = [];
+      const tongBang = Object.values(bang).reduce((a, b) => a + b, 0);
+      if (tongBang !== Number(k[2]))
+        loi.push(`khối phân rã cộng ra ${tongBang} nhưng tự ghi tổng ${k[2]}`);
+      if (Number(k[2]) !== that.ca)
+        loi.push(`tổng của khối phân rã ghi ${k[2]}, bộ chạy ra ${that.ca}`);
+      for (const [t, c] of Object.entries(that.phanRa))
+        if (!(t in bang)) loi.push(`tệp \`${t}\` (${c} ca) KHÔNG có trong khối phân rã`);
+        else if (bang[t] !== c) loi.push(`\`${t}\`: khối ghi ${bang[t]}, chạy ra ${c}`);
+      for (const t of Object.keys(bang))
+        if (!(t in that.phanRa)) loi.push(`khối phân rã khai \`${t}\` mà không còn tệp nào tên đó`);
+      if (!loi.length) return null;
+      return `${loi.length} lệch ở DÒNG PHÂN RÃ (chạy \`node scripts/dem-ca-test.mjs\` rồi `
+        + `dán lại cả khối):\n     ${loi.slice(0, 12).join('\n     ')}`
+        + (loi.length > 12 ? `\n     … và ${loi.length - 12} dòng nữa` : '');
     },
   },
   backend: {

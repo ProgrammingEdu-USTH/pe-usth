@@ -32,8 +32,10 @@
  * `TRAN_CHO_MS`, backend chết thì không ai phải nhìn màn hình trống), rồi dựng.
  */
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
+import LofiWorkspace, { type LofiScreenType } from './LofiWorkspace';
 import { apiFetchSessionOnly, asList, findEnrollment } from '@/lib/api';
 import { completedLessonSet, hasStoredSession, LS_ACCESS, LS_LEGACY_REFRESH } from '@/lib/course-progress';
 import {
@@ -53,6 +55,8 @@ const TRAN_CHO_MS = 3000;
 
 /** Tên hiển thị người test tự đặt — xem màn Xếp hạng. Chỉ nằm trong máy họ. */
 const LS_TEN = 'pe_goc_hoc_ten';
+const LS_CHILL_DONE = 'pe_chill_done_lessons';
+const LS_CHILL_XP = 'pe_chill_xp';
 
 export type StudyRoomProps = {
   courseId: string;
@@ -68,6 +72,25 @@ function lsGet(key: string): string | null {
   } catch {
     return null;
   }
+}
+
+function readLocalChillProgress(total: number): { done: number[]; xp: number | null } {
+  const rawDone = lsGet(LS_CHILL_DONE);
+  let done: number[] = [];
+  if (rawDone) {
+    try {
+      const parsed = JSON.parse(rawDone) as unknown;
+      if (Array.isArray(parsed)) {
+        done = [...completedLessonSet(parsed, total)];
+      }
+    } catch {
+      /* bỏ qua dữ liệu lỗi */
+    }
+  }
+  const rawXp = lsGet(LS_CHILL_XP);
+  const numXp = rawXp !== null ? Number(rawXp) : NaN;
+  const xp = Number.isFinite(numXp) && numXp >= 0 ? numXp : null;
+  return { done, xp };
 }
 
 /** Một lượt gọi "chỉ-phiên": lỗi mạng, 4xx hay JSON rác đều thành `null`. */
@@ -101,12 +124,26 @@ type KetQua = { user: RoomUser; done: number[] };
  *  · `/api/leaderboard`   → bảng xếp hạng theo XP.
  */
 async function laySo(courseId: string, total: number): Promise<KetQua> {
+  const local = readLocalChillProgress(total);
   const session = {
     access: lsGet(LS_ACCESS),
     legacyRefresh: lsGet(LS_LEGACY_REFRESH),
     cookie: typeof document === 'undefined' ? null : document.cookie,
   };
-  if (!hasStoredSession(session)) return { user: EMPTY_USER, done: [] };
+  if (!hasStoredSession(session)) {
+    if (local.done.length === 0 && local.xp === null) {
+      return { user: EMPTY_USER, done: [] };
+    }
+    return {
+      user: {
+        ...EMPTY_USER,
+        signedIn: true,
+        xp: local.xp ?? 0,
+        lessonsDone: local.done.length,
+      },
+      done: local.done,
+    };
+  }
 
   const [done, xp, name, badges, board] = await Promise.all([
     doc<number[]>('/api/enrolled', (data) => {
@@ -138,12 +175,19 @@ async function laySo(courseId: string, total: number): Promise<KetQua> {
     }),
   ]);
 
+  const mergedDone = [...new Set([...(done ?? []), ...local.done])];
+  const hasDone = done !== null || local.done.length > 0;
+  const mergedXp =
+    xp !== null && local.xp !== null
+      ? Math.max(xp, local.xp)
+      : xp ?? local.xp;
+
   return {
     user: {
       signedIn: true,
       name,
-      xp,
-      lessonsDone: done ? done.length : null,
+      xp: mergedXp,
+      lessonsDone: hasDone ? mergedDone.length : null,
       badges: badges
         ? { done: badges.filter((b) => b.unlocked).length, total: badges.length }
         : null,
@@ -153,12 +197,25 @@ async function laySo(courseId: string, total: number): Promise<KetQua> {
     },
     // Tập bài đã xong đi RIÊNG khỏi `user`: nó không phải một con số để hiện ra
     // mà là nguyên liệu dựng trạng thái của từng cuốn sách trên kệ.
-    done: done ?? [],
+    done: mergedDone,
   };
 }
 
+type ChillMountState = {
+  screen: LofiScreenType;
+  lessonIdx: number;
+  mountEl: HTMLElement;
+} | null;
+
+type EngineControl = {
+  switchRoute: (targetRoute: string, routeOpts?: Record<string, unknown>) => void;
+  syncProgress: (doneNums: number[], newXp: number) => void;
+};
+
 export default function StudyRoom(props: StudyRoomProps) {
   const hostRef = useRef<HTMLDivElement>(null);
+  const engineCtrlRef = useRef<EngineControl | null>(null);
+  const [chillMount, setChillMount] = useState<ChillMountState>(null);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -187,6 +244,12 @@ export default function StudyRoom(props: StudyRoomProps) {
       dispose = initStudyRoom(host, {
         content,
         user,
+        onChillRoute: (nextState: ChillMountState) => {
+          if (!huy) setChillMount(nextState);
+        },
+        onEngineReady: (ctrl: EngineControl) => {
+          engineCtrlRef.current = ctrl;
+        },
         ten: {
           doc: () => lsGet(LS_TEN),
           ghi: (v: string) => {
@@ -203,10 +266,34 @@ export default function StudyRoom(props: StudyRoomProps) {
 
     return () => {
       huy = true;
+      setChillMount(null);
+      engineCtrlRef.current = null;
       if (dispose) dispose();
       host.innerHTML = '';
     };
   }, [props.courseId, props.courseName, props.lessonUrl, props.modules, props.meta]);
 
-  return <div ref={hostRef} />;
+  return (
+    <>
+      <div ref={hostRef} />
+      {chillMount &&
+        createPortal(
+          <LofiWorkspace
+            embedded
+            initialScreen={chillMount.screen}
+            initialLessonIdx={chillMount.lessonIdx}
+            onEmbeddedSwitch={(nextScreen, nextLessonIdx) => {
+              engineCtrlRef.current?.switchRoute(
+                nextScreen === 'lesson' ? 'learn' : nextScreen,
+                nextLessonIdx != null ? { lessonIdx: nextLessonIdx } : {},
+              );
+            }}
+            onProgressChange={(doneNums, newXp) => {
+              engineCtrlRef.current?.syncProgress(doneNums, newXp);
+            }}
+          />,
+          chillMount.mountEl,
+        )}
+    </>
+  );
 }

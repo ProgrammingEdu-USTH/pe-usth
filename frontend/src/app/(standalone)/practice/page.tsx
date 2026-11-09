@@ -8,18 +8,11 @@
 // câu đều bị tính sai và điểm luôn 0.
 //
 // Server component: chỉ dựng <title>/description. Toàn bộ phần tương tác (gọi
-// API có JWT, chọn phương án, chấm) nằm ở PracticeClient.
+// API có JWT, chọn phương án, chấm) nằm ở giao diện Lofi Sổ tay Giấy nhớ.
 import type { Metadata } from 'next';
 
+import LofiWorkspace from '@/components/goc-hoc/LofiWorkspace';
 import PageStyles from '@/components/PageStyles';
-
-import PracticeClient from './PracticeClient';
-
-// Cùng tổ hợp CSS với trang bài học: edu-theme.css cho font và token --edu-*,
-// studio-tokens.css cho bảng token màu/cỡ chữ v2 (--ds-*) mà trang này dùng.
-// studio-tokens.css chỉ khai biến, không có quy tắc nào, nên nạp ở đây không
-// đụng tới bố cục của trang bài học.
-const PRACTICE_CSS = ['/static/css/edu-theme.css', '/static/css/studio-tokens.css'];
 
 export const metadata: Metadata = {
   title: 'Ôn tập của tôi – Programming EDU',
@@ -31,8 +24,8 @@ export const metadata: Metadata = {
 export default function PracticePage() {
   return (
     <>
-      <PageStyles hrefs={PRACTICE_CSS} />
-      <PracticeClient />
+      <PageStyles hrefs={[]} />
+      <LofiWorkspace initialScreen="practice" />
     </>
   );
 }

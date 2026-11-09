@@ -347,7 +347,10 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .tab[aria-current="page"]{background:var(--ink);color:#2a1a26;font-weight:600}
 .tab:not([aria-current="page"]):hover{color:var(--ink);background:rgba(255,255,255,.08)}
 .top .pill{background:var(--glass);border:1px solid var(--line)}
-.stagearea{position:relative;flex:1;min-height:0;overflow:auto;padding:8px max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.stagearea{position:relative;flex:1;min-height:0;overflow:hidden;scrollbar-width:none;-ms-overflow-style:none;padding:8px max(16px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.stagearea.scroll{overflow-y:auto;overflow-x:hidden}
+.stagearea::-webkit-scrollbar{display:none;width:0;height:0}
+.chill-stage-mount{width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .pg{max-width:1080px;margin:0 auto}
 .pghead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:8px 4px 18px;flex-wrap:wrap}
 .pghead h1{font-family:var(--f-display);font-weight:700;font-size:34px;line-height:1;margin:0}
@@ -376,7 +379,7 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 
 /* roadmap */
 .paperwrap{display:flex;justify-content:center}
-.paper{position:relative;width:min(1000px,100%);aspect-ratio:1000/600;background:var(--paper);border-radius:6px;transform-origin:0 0;color:var(--paper-ink);
+.paper{position:relative;width:min(1000px,100%);max-height:calc(100vh - 175px);aspect-ratio:1000/600;background:var(--paper);border-radius:6px;transform-origin:0 0;color:var(--paper-ink);
   background-image:radial-gradient(circle at 20% 30%,rgba(160,120,70,.10),transparent 40%),radial-gradient(circle at 80% 70%,rgba(160,120,70,.12),transparent 45%),repeating-linear-gradient(0deg,transparent 0 3px,rgba(120,90,50,.035) 3px 4px);
   box-shadow:0 30px 60px rgba(0,0,0,.45),inset 0 0 40px rgba(150,110,60,.25)}
 .paper svg{position:absolute;inset:0;width:100%;height:100%}
@@ -466,7 +469,8 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .seg{display:flex;background:#d6e2f4;border-radius:999px;padding:3px}
 .seg button{flex:1;text-align:center;font-size:13px;padding:7px;border-radius:999px;color:#4a5a80}
 .seg button[aria-selected="true"]{background:#fff;color:#1c2540;font-weight:600;box-shadow:0 2px 6px rgba(30,50,90,.12)}
-.pv{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column}
+.pv{flex:1;min-height:0;overflow:auto;scrollbar-width:none;-ms-overflow-style:none;display:flex;flex-direction:column}
+.pv::-webkit-scrollbar{display:none;width:0;height:0}
 .prof{padding:6px 18px 18px;display:flex;flex-direction:column;gap:12px}
 .prof .who{display:flex;gap:12px;align-items:center}
 .prof .who .a{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(150deg,#ffcf9a,#ff9db8);color:#3a1d2a;font-family:var(--f-display);font-weight:700;font-size:22px}

@@ -83,7 +83,6 @@ export const SHELL_HTML = /* html */ `
     <div class="pills">
       <div class="pill glass dn" title="Bài đã hoàn thành"><svg class="i"><use href="#i-check"/></svg><span id="pillDone">—</span></div>
       <div class="pill glass xpp" title="Tổng XP"><svg class="i"><use href="#i-bolt"/></svg><span id="pillXp">—</span>&nbsp;XP</div>
-      <div class="pill glass bd" title="Huy hiệu"><svg class="i"><use href="#i-medal"/></svg><span id="pillBadge">—</span></div>
       <span class="sp"></span>
       <button class="ib glass" id="bellBtn" aria-label="Ghi chú trên bàn"><svg class="i"><use href="#i-bell"/></svg><span class="badge" id="badge">0</span></button>
       <button class="ib glass" id="demoBtn" aria-label="Tùy chỉnh khung cảnh" aria-expanded="false"><svg class="i"><use href="#i-sliders"/></svg></button>
@@ -95,6 +94,7 @@ export const SHELL_HTML = /* html */ `
       <div class="row"><div class="prog"><i id="heroProg"></i></div><span class="pct" id="heroPct">—</span><span class="play"><svg class="i"><use href="#i-play"/></svg></span></div>
     </button>
     <nav class="menu" aria-label="Điều hướng">
+      <button class="mi glass" data-go="ide"><span class="ic c-book"><svg class="i"><use href="#i-play"/></svg></span><span><b>Bàn thí nghiệm</b><small id="navIde">Soạn và chạy thử mã Python</small></span><svg class="i chev"><use href="#i-right"/></svg></button>
       <button class="mi glass" data-go="roadmap"><span class="ic c-map"><svg class="i"><use href="#i-map"/></svg></span><span><b>Lộ trình</b><small id="navRoadmap"></small></span><svg class="i chev"><use href="#i-right"/></svg></button>
       <button class="mi glass" data-go="courses"><span class="ic c-book"><svg class="i"><use href="#i-book"/></svg></span><span><b>Khoá học</b><small id="navCourses"></small></span><svg class="i chev"><use href="#i-right"/></svg></button>
       <button class="mi glass" data-go="practice"><span class="ic c-pen"><svg class="i"><use href="#i-pen"/></svg></span><span><b>Ôn tập</b><small id="navPractice"></small></span><svg class="i chev"><use href="#i-right"/></svg></button>

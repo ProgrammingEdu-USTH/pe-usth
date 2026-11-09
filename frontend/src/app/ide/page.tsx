@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
-import IdeClient from './IdeClient';
+import LofiWorkspace from '@/components/goc-hoc/LofiWorkspace';
+import PageStyles from '@/components/PageStyles';
 
 // Tiêu đề tab là "Bàn thí nghiệm", không phải "Python IDE": bảng thuật ngữ của
 // bản thiết kế v2 chốt MỘT tên cho trình soạn code, và tiêu đề tab là chỗ người
@@ -18,5 +19,10 @@ export const metadata: Metadata = {
 };
 
 export default function IdePage() {
-  return <IdeClient />;
+  return (
+    <>
+      <PageStyles hrefs={[]} />
+      <LofiWorkspace initialScreen="ide" />
+    </>
+  );
 }

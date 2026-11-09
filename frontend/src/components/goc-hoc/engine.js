@@ -89,7 +89,7 @@ const KIND = {laptop:'laptop',notebook:'notebook',phone:'phone',mug:'mug',calend
   cupTop:'trophy',cupLow:'trophy',medalTop:'medal',medalLow:'medal',medalHang:'medal'};
 const ORIGIN = {calendar:'126px 38px',mug:'50% 85%',medalTop:'50% 22%',medalLow:'50% 20%',medalHang:'50% 14%',corkboard:'50% 0',phone:'50% 50%',notebook:'50% 80%'};
 const GROUPS = [
-  {g:'learn', route:'learn', label:'Laptop · ' + (CUR ? 'Học tiếp bài ' + CUR.l.no : 'Mở bài học'), keys:['laptop']},
+  {g:'ide', route:'ide', label:'Laptop · Bàn thí nghiệm', keys:['laptop']},
   {g:'roadmap', route:'roadmap', label:'Bảng ghim · Lộ trình ' + MODULES.length + ' học phần', keys:['corkboard']},
   {g:'calendar', route:'calendar', label:'Lịch · Hôm nay', keys:['calendar']},
   {g:'practice', route:'practice', label:'Cuốn sổ · Ôn tập', keys:['notebook']},
@@ -208,12 +208,12 @@ GROUPS.forEach(G=>{
 hotHit.prepend(GROUPS.find(G=>G.g==='window').hit);
 
 const FOCUS = {
-  learn:[806,1050,1126,1300], roadmap:[462,388,725,1040], book:[1955,495,2335,716],
+  learn:[806,1050,1126,1300], ide:[806,1050,1126,1300], roadmap:[462,388,725,1040], book:[1955,495,2335,716],
   practice:[1280,1265,1625,1385], achievements:[1920,360,2170,950], phone:[1683,1300,1845,1386],
   pb:[1990,990,2350,1230], tb:[1990,1255,2350,1505], courses:[1945,480,2400,1520], calendar:[745,520,960,800]
 };
-const ROUTES = ['learn','roadmap','courses','practice','achievements','phone'];
-const NAMES = {learn:'Học tiếp',roadmap:'Lộ trình',courses:'Khoá học',practice:'Ôn tập',achievements:'Thành tựu',phone:'Điện thoại'};
+const ROUTES = ['learn','ide','roadmap','courses','practice','achievements','phone'];
+const NAMES = {learn:'Học tiếp',ide:'Bàn thí nghiệm',roadmap:'Lộ trình',courses:'Khoá học',practice:'Ôn tập',achievements:'Thành tựu',phone:'Điện thoại'};
 
 /* ---------- ambient ---------- */
 const stars = $('#stars');
@@ -397,7 +397,7 @@ function lightRoute(r, on){
 }
 host.querySelectorAll('[data-go]').forEach(b=>{ const r=b.dataset.go;
   b.addEventListener('pointerenter',()=>lightRoute(r,true)); b.addEventListener('pointerleave',()=>lightRoute(r,false));
-  b.addEventListener('click',()=>{ lightRoute(r,false); go(r, r==='phone'?{tab:b.dataset.tab||'rank', pick:'phone'} : r==='practice'?{pick:'notebook'}:{}); }); });
+  b.addEventListener('click',()=>{ lightRoute(r,false); go(r, r==='phone'?{tab:b.dataset.tab||'rank', pick:'phone'} : {}); }); });
 $('#profile').addEventListener('click',()=>go('phone',{tab:'me', pick:'phone'}));
 function activate(G, key){
   if (app.classList.contains('intro')) return;
@@ -406,8 +406,8 @@ function activate(G, key){
   if (G.route==='mug') return sipMug();
   /* Không còn nhánh "bài bị khoá": khoá này không khoá bài nào, mọi bài đều mở
      được từ trang khoá học. G.s là chỉ số HỌC PHẦN (S.mi), không phải chỉ số kệ. */
-  if (G.route==='book') return go('learn',{shelf:G.s, lesson:G.i, from:'book', pick:G.keys[0]});
-  const pk = {phone:'phone', practice:'notebook', achievements: key || G.keys[0]}[G.route];
+  if (G.route==='book') return go('learn',{shelf:G.s, lesson:G.i, from:'book'});
+  const pk = {phone:'phone', achievements: key || G.keys[0]}[G.route];
   go(G.route, Object.assign(G.route==='phone'?{tab:'me'}:{}, pk?{pick:pk}:{}));
 }
 function hideBook(i, hide){
@@ -632,45 +632,8 @@ function body(r){
     </svg><div class="note" id="note">${CUR?`<b>${esc(CUR.m.short)}</b>${esc(CUR.l.title)}<br>${modStats(CUR.m).sub}<br><button class="btn" data-tab="learn">Xem bài</button>`:'Giáo trình chưa có học phần nào'}</div></div></div></div></div>`;
   }
 
-  if (r==='learn'){
-    const mi = opts.shelf ?? CUR_OPTS.shelf, li = opts.lesson ?? CUR_OPTS.lesson;
-    const m = MODULES[mi], l = lessonAt(mi, li);
-    if (!m || !l) return `<div class="pg">${trong('Không tìm thấy bài', 'Giáo trình không có bài ở vị trí này.')}</div>`;
-    /* Khung bên phải KHÔNG dựng lại nội dung bài: nội dung thật (lý thuyết, mã
-       chạy được, các màn luyện) nằm ở /lesson/python_advanced và chỉ có ở đó.
-       Bản gốc gõ sẵn một đoạn C++ cho mỗi "bài" — tức một bài học bịa nằm ngay
-       trong trang chủ. Thay bằng MỤC LỤC thật của học phần, và một nút mở bài
-       thật. */
-    const muc = m.lessons.map((x)=>`${String(x.no).padStart(2,' ')}  ${x.state==='done'?'✓':x.state==='cur'?'→':'·'} ${x.title}`).join('\n');
-    return `<div class="pg"><div class="lesson" id="lesson">
-    <div class="lx"><div class="eyebrow">${esc(m.name)} · Bài ${l.no}/${TOTAL}</div><h2>${esc(l.title)}</h2>
-      ${l.state==='done'?'<p><span class="done-chip"><svg class="i"><use href="#i-check"/></svg>Đã học</span></p>':''}
-      <p class="facts">${l.minutes?`${l.minutes} phút`:''}${l.minutes&&l.xp?' · ':''}${l.xp?`+${l.xp} XP`:''}${l.code?` · mã bài ${esc(l.code)}`:''}</p>
-      <p>Bài học thật mở ở màn học: lý thuyết ngắn, ví dụ chạy được trong trình duyệt, rồi các màn luyện. Căn phòng này là lối vào, không phải nơi chứa bài.</p>
-      <p><a class="btn" href="${lessonHref(l.no)}">Mở bài ${l.no}</a></p>
-      <div class="dots">${m.lessons.map(x=>`<i class="${x.state==='done'?'d':x.state==='cur'?'c':''}"></i>`).join('')}<span>${esc(m.short)} · ${m.lessons.length} bài</span></div></div>
-    <div class="edx"><div class="bar"><b>${esc(m.short)}</b><span>mục lục học phần</span></div>
-      <div class="code"><div class="gut">${m.lessons.map((_,i)=>i+1).join('\n')}</div><pre>${esc(muc)}</pre></div>
-      <div class="out"><small>Dấu</small><pre>✓ đã xong   → đang gợi ý học   · chưa học</pre></div></div></div></div>`;
-  }
-
-  if (r==='practice'){
-    /* Luật THẬT của /practice: backend đòi kho câu ≥ 5 mà mỗi bài góp 3 câu,
-       nên phải xong 2 bài mới sinh được đề (xem lib/practice-plan.ts). Nói
-       trước điều đó thay vì để người học bấm rồi nhận lỗi 400. */
-    const done = USER.lessonsDone;
-    const xong = MODULES.flatMap(m=>m.lessons).filter(l=>l.state==='done');
-    const moDuoc = done != null && done >= 2;
-    return `<div class="pg"><div class="pghead"><div><h1>Ôn tập</h1><p>Câu hỏi lấy từ chính những bài bạn đã xong — xong càng nhiều thì kho câu càng rộng</p></div></div>
-    <div class="spread" id="spread"><div class="leafp l"><h3>Mở được chưa?</h3>
-      <p class="hw">${done == null ? 'Chưa đọc được tiến độ của bạn, nên chưa biết. Mở một bài học là máy có phiên và chỗ này tự có số.'
-        : moDuoc ? `Rồi. Bạn đã xong ${done} bài, đủ để sinh một đề ôn.`
-        : `Chưa. Cần xong 2 bài (bạn đang có ${done}) vì mỗi bài chỉ góp 3 câu, mà một đề cần ít nhất 5 câu.`}</p>
-      <p class="hw" style="margin-top:12px"><a class="btn" href="/practice">Mở trang Ôn tập</a></p></div>
-      <div class="leafp r"><h3>Bài đã xong</h3>
-      ${xong.length ? `<ul class="plist">${xong.slice(-6).reverse().map(l=>`<li><span class="s d"></span><span>${esc(l.title)}<small>Bài ${l.no}${l.code?` · ${esc(l.code)}`:''}</small></span><span class="x">+${l.xp||0}</span></li>`).join('')}</ul>`
-        : `<p class="hw">${done == null ? 'Chưa có phiên học trên máy này.' : 'Chưa có bài nào. Xong bài đầu tiên là nó hiện ở đây.'}</p>`}
-      </div><div class="flip" id="flip"></div></div></div>`;
+  if (r==='learn' || r==='ide' || r==='practice'){
+    return `<div id="chillStageMount" class="chill-stage-mount"></div>`;
   }
 
   if (r==='achievements'){
@@ -788,11 +751,13 @@ async function back(){
     const bd = RM?0:(r==='learn'?950:r==='achievements'?500:250);
     anim(blurFull,[{opacity:1},{opacity:0}],{duration:RM?1:700, delay:bd}); anim(scrim,[{opacity:1},{opacity:0}],{duration:RM?1:700, delay:bd});
     if (RM){ page.innerHTML=''; } else { await pickConceal(r); }
+    if (state.onChillRoute) state.onChillRoute(null);
     page.innerHTML=''; page.classList.remove('live'); await camBack; pickEnd();
     route = null; placeUI(); uiIn(); app.classList.remove('away'); HITEL.forEach(h=>h.setAttribute('tabindex','0')); notesEl.style.pointerEvents='';
     busy = false; return;
   }
   await conceal(r);
+  if (state.onChillRoute) state.onChillRoute(null);
   page.innerHTML=''; page.classList.remove('live');
   anim(blurFull,[{opacity:1},{opacity:0}],{duration:RM?1:500}); anim(scrim,[{opacity:1},{opacity:0}],{duration:RM?1:600});
   const p = tweenCam({tx:0,ty:0,k:1}, RM?0:950); anim(blurHole,[{opacity:1},{opacity:0}],{duration:RM?1:900,delay:RM?0:150});
@@ -805,6 +770,7 @@ async function sibling(r, o={}){
   const content = page.querySelector('.stagearea');
   await anim(content,[{opacity:1,transform:'none'},{opacity:0,transform:`translateX(${dir*60}px)`}],{duration:RM?1:320});
   if (opts.pick) pickEnd();
+  if (state.onChillRoute) state.onChillRoute(null);
   route = r; opts = o; ghiHash(r); const fk = focusKey(r,o); setHole(fk); FOCUS._cur = fk;
   content.remove();
   page.querySelectorAll('.tab').forEach(t=>{ if (t.dataset.tab===r) t.setAttribute('aria-current','page'); else t.removeAttribute('aria-current'); });
@@ -815,17 +781,33 @@ async function sibling(r, o={}){
 
 function bookRect(k){ const ps=DATA.hits[k].flat(); const xs=ps.map(p=>p[0]), ys=ps.map(p=>p[1]); return rectS([Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys)]); }
 async function reveal(r, fresh){
-  if (fresh){ page.innerHTML = topBar(r) + `<div class="stagearea">${body(r)}</div>`; }
-  else { const sa = document.createElement('div'); sa.className='stagearea'; sa.innerHTML = body(r); page.appendChild(sa); }
+  const saCls = r === 'courses' ? 'stagearea scroll' : 'stagearea';
+  if (fresh){ page.innerHTML = topBar(r) + `<div class="${saCls}">${body(r)}</div>`; }
+  else { const sa = document.createElement('div'); sa.className=saCls; sa.innerHTML = body(r); page.appendChild(sa); }
   page.classList.add('live'); wirePage(r, fresh);
   const top = $('#topbar'); if (fresh) anim(top,[{opacity:0,transform:'translateY(-12px)'},{opacity:1,transform:'none'}],{duration:RM?1:600,delay:RM?0:250}); else top.style.opacity=1;
   const sa = page.querySelector('.stagearea');
+  if (r==='learn' || r==='ide' || r==='practice'){
+    const mi = opts.shelf ?? CUR_OPTS.shelf, li = opts.lesson ?? CUR_OPTS.lesson;
+    const lObj = lessonAt(mi, li);
+    const lessonIdx = opts.lessonIdx != null ? opts.lessonIdx : (lObj ? Math.max(0, lObj.no - 1) : 0);
+    const mountEl = sa.querySelector('#chillStageMount');
+    if (state.onChillRoute && mountEl) {
+      state.onChillRoute({
+        screen: r === 'learn' ? 'lesson' : r,
+        lessonIdx,
+        mountEl,
+      });
+    }
+    if (RM){ await anim(sa,[{opacity:0},{opacity:1}],{duration:200}); return; }
+    await anim(sa,[{opacity:0,transform:'translateY(12px) scale(.985)'},{opacity:1,transform:'none'}],{duration:380});
+    return;
+  }
+  if (state.onChillRoute) state.onChillRoute(null);
   if (RM){ await anim(sa,[{opacity:0},{opacity:1}],{duration:200}); return; }
   const head = sa.querySelector('.pghead'); if (head) anim(head,[{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:600,delay:450});
   if (opts.pick && PK.clone){
     await pickHandoff(r, sa);
-    if (r==='practice'){ const flip=$('#flip'); await flip.animate([{transform:'rotateY(0deg)'},{transform:'rotateY(-180deg)'}],{duration:900,easing:'cubic-bezier(.45,0,.25,1)',fill:'forwards'}).finished; flip.style.display='none';
-      sa.querySelectorAll('.leafp .hw li, .plist li').forEach((li,i)=>li.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:450,delay:i*60,easing:EASE,fill:'backwards'})); }
     if (r==='phone') sa.querySelectorAll('.pv:not([hidden]) .lb li, .pv:not([hidden]) .me, .pv:not([hidden]) .prof > *').forEach((li,i)=>li.animate([{opacity:0,transform:'translateY(14px)'},{opacity:1,transform:'none'}],{duration:450,delay:i*55,easing:EASE,fill:'backwards'}));
     if (r==='achievements'){ const tr=$('#trophy'); if (!tr) return; tr.style.opacity=''; await anim(tr,[{opacity:0,transform:'translateY(18px)'},{opacity:1,transform:'none'}],{duration:500});
       const tw = tr.getBoundingClientRect(); $('#sweep').animate([{left:'-30%'},{left:'110%'}],{duration:1300,easing:'ease-in-out',fill:'forwards'});
@@ -844,22 +826,6 @@ async function reveal(r, fresh){
         {transform:`translate(${dx}px,${dy}px) scale(${kx},${ky})`, backgroundColor:BOOKCOL(k), offset:0},
         {transform:`translate(${dx}px,${dy-28}px) scale(${kx},${ky})`, backgroundColor:BOOKCOL(k), offset:.24},
         {transform:'none', backgroundColor:COVER(k), offset:1}],{duration:1100,delay:i*70,easing:EASE,fill:'backwards'}).finished; }));
-  } else if (r==='learn'){
-    const les = $('#lesson'); const lr = les.getBoundingClientRect();
-    if (opts.from==='book' && bookKeyOf(opts.shelf||0, opts.lesson)){
-      const k = bookKeyOf(opts.shelf||0, opts.lesson); const s = bookRect(k);
-      const sp = document.createElement('div'); sp.className='spine'; Object.assign(sp.style,{width:lr.width+'px',height:lr.height+'px',background:COVER(k)}); document.body.appendChild(sp); spines.add(sp);
-      les.style.opacity = 0;
-      await sp.animate([{transform:`translate(${s.x}px,${s.y}px) scale(${s.w/lr.width},${s.h/lr.height})`,backgroundColor:BOOKCOL(k)},
-        {transform:`translate(${s.x}px,${s.y-40}px) scale(${s.w/lr.width*1.1},${s.h/lr.height})`,backgroundColor:BOOKCOL(k),offset:.3},
-        {transform:`translate(${lr.left}px,${lr.top}px) scale(1,1)`,backgroundColor:'#121725',borderRadius:'18px'}],{duration:1050,easing:EASE,fill:'forwards'}).finished;
-      les.style.opacity = ''; les.animate([{opacity:0},{opacity:1}],{duration:300}); sp.animate([{opacity:1},{opacity:0}],{duration:300}).finished.then(()=>{ sp.remove(); spines.delete(sp); });
-    } else {
-      const s = rectS([806,1066,1110,1262]);
-      $('#flash').animate([{opacity:0},{opacity:.85,offset:.35},{opacity:0}],{duration:800,easing:'ease-out'});
-      await les.animate([{transform:`translate(${s.x-lr.left}px,${s.y-lr.top}px) scale(${s.w/lr.width},${s.h/lr.height})`,opacity:.3,filter:'brightness(2)'},
-        {transform:'none',opacity:1,filter:'brightness(1)'}],{duration:900,easing:EASE,fill:'backwards'}).finished;
-    }
   } else if (r==='roadmap'){
     const board = $('#board'), paper = $('#paper'); const s = rectS([456,354,721,1057]); const br = board.getBoundingClientRect();
     paper.style.opacity = 0;
@@ -873,13 +839,6 @@ async function reveal(r, fresh){
     str.style.strokeDasharray=L2; str.animate([{strokeDashoffset:L2},{strokeDashoffset:0}],{duration:1100,delay:450,easing:'ease-in-out',fill:'both'});
     sa.querySelectorAll('.node').forEach((n,i)=>n.animate([{opacity:0,transform:'scale(1.8) translateY(-10px)'},{opacity:1,transform:'none'}],{duration:500,delay:150+i*120,easing:EASE,fill:'backwards'}));
     $('#note').animate([{opacity:0,transform:'translateY(20px) rotate(6deg)'},{opacity:1,transform:'none'}],{duration:700,delay:1300,easing:EASE,fill:'backwards'});
-  } else if (r==='practice'){
-    const sp = $('#spread'); const s = rectS([1280,1265,1625,1385]); const rr = sp.getBoundingClientRect();
-    await sp.animate([{transform:`translate(${s.x-rr.left}px,${s.y-rr.top}px) scale(${s.w/rr.width},${s.h/rr.height})`,opacity:.5},{transform:'none',opacity:1}],{duration:900,easing:EASE,fill:'backwards'}).finished;
-    const flip = $('#flip');
-    await flip.animate([{transform:'rotateY(0deg)'},{transform:'rotateY(-180deg)'}],{duration:900,easing:'cubic-bezier(.45,0,.25,1)',fill:'forwards'}).finished;
-    flip.style.display='none';
-    sa.querySelectorAll('.leafp .hw li, .plist li').forEach((li,i)=>li.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:450,delay:i*60,easing:EASE,fill:'backwards'}));
   } else if (r==='achievements'){
     const tr = $('#trophy');
     /* Không có kệ để vẽ: màn Thành tựu đang là khối 'chưa có số' (chưa đọc được
@@ -1134,7 +1093,6 @@ function apDungSo(){
   const ring = $('#avaRing'); if (ring) ring.setAttribute('stroke-dasharray', `${(PCT/100*150.8).toFixed(1)} 150.8`);
   T('pillDone', USER.lessonsDone == null ? '—' : `${USER.lessonsDone}/${TOTAL}`);
   T('pillXp', SO(USER.xp));
-  T('pillBadge', USER.badges ? String(USER.badges.done) : '—');
 
   T('heroEyebrow', CUR ? CUR.m.name : CONTENT.course.name);
   T('heroTitle', USER.lessonsDone ? 'Học tiếp' : 'Bắt đầu học');
@@ -1155,7 +1113,17 @@ function apDungSo(){
     : `Đang ở học phần ${CUR ? CUR.m.short : '—'}.`);
   T('courseName', CONTENT.course.name);
   T('courseSub', CUR ? `Bài tiếp theo: ${CUR.l.title}` : '');
-  const cl = $('#courseLink'); if (cl) cl.href = `/courses/${CONTENT.course.id}`;
+  const cl = $('#courseLink');
+  if (cl) {
+    cl.href = '#courses';
+    if (!cl.dataset.wired) {
+      cl.dataset.wired = '1';
+      cl.addEventListener('click', (e) => {
+        e.preventDefault();
+        go('courses', {});
+      });
+    }
+  }
 
   T('calPopT', new Date().toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' }));
   /* Lịch chỉ khoanh hôm nay: API trả đúng một con số `streak`, không trả tập
@@ -1205,7 +1173,11 @@ layout();
  * và `hashchange` lái cảnh theo URL.
  * `pushState` KHÔNG bắn `hashchange`, nên không có vòng lặp: chỉ Back/Forward
  * của trình duyệt mới gọi `laiTheoHash`. */
-const hashRoute = () => { const h = location.hash.replace(/^#/, ''); return ROUTES.includes(h) ? h : null; };
+const hashRoute = () => {
+  const h = location.hash.replace(/^#/, '');
+  if (h === 'lesson') return 'learn';
+  return ROUTES.includes(h) ? h : null;
+};
 function ghiHash(r){
   const want = r ? '#' + r : '';
   if ((location.hash || '') === want) return;
@@ -1239,6 +1211,42 @@ const start = () => {
   if (h){ finishIntro(); countUp(); drawCal(); go(h, h === 'learn' ? { ...CUR_OPTS } : {}); }
   else runIntro();
 };
+if (state.onEngineReady) {
+  state.onEngineReady({
+    switchRoute: (targetRoute, routeOpts = {}) => {
+      if (dead) return;
+      const r = targetRoute === 'lesson' ? 'learn' : targetRoute;
+      if (!ROUTES.includes(r)) return;
+      if (route) sibling(r, routeOpts);
+      else go(r, routeOpts);
+    },
+    syncProgress: (doneNums, newXp) => {
+      if (dead) return;
+      if (Array.isArray(doneNums)) {
+        USER.lessonsDone = doneNums.length;
+        const doneSet = new Set(doneNums);
+        MODULES.forEach((m) => {
+          m.lessons.forEach((l) => {
+            if (doneSet.has(l.no)) l.state = 'done';
+          });
+        });
+      }
+      if (typeof newXp === 'number' && isFinite(newXp)) {
+        USER.xp = newXp;
+      }
+      apDungSo();
+      const topDn = page.querySelector('#topbar .pill.dn');
+      if (topDn) {
+        topDn.innerHTML = `<svg class="i"><use href="#i-check"/></svg>${USER.lessonsDone == null ? '—' : USER.lessonsDone + '/' + TOTAL}`;
+      }
+      const topXp = page.querySelector('#topbar .pill.xpp');
+      if (topXp) {
+        topXp.innerHTML = `<svg class="i"><use href="#i-bolt"/></svg>${SO(USER.xp)}`;
+      }
+    },
+  });
+}
+
 if (img.complete) start(); else on(img, 'load', start);
 return function dispose(){
   dead = true;

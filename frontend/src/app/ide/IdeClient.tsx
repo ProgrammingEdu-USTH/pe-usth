@@ -651,6 +651,11 @@ export default function IdeClient() {
 
           <div className={styles.split}>
             <section className={styles.editorPane} aria-label="Trình soạn thảo mã Python">
+              {/* Tên tệp là chỉ dẫn cho MẮT. Vùng này đã mang `aria-label` nói đúng
+                  điều đó, nên dải ẩn với trình đọc màn hình thay vì bắt nó đọc một
+                  nhãn thứ hai cho cùng một khung. */}
+              <div className={styles.paneHead} aria-hidden="true">main.py</div>
+              <div className={styles.editorBody}>
               {editorPhase === 'failed' ? (
                 <PlainEditor code={code} onChange={updateCode} onRun={run} onRetry={retryEditor} />
               ) : (
@@ -668,7 +673,15 @@ export default function IdeClient() {
                   }}
                   options={{
                     minimap: { enabled: false },
-                    fontSize: 14,
+                    // 14 -> 15 và lineHeight 24: ba trên bốn người trả lời khảo sát
+                    // 29/10 chọn "nhiều chỗ chữ quá nhỏ", và repo đã nâng ba ô gõ của
+                    // bài học lên 16px vì cùng lý do. KHÔNG lấy kèm hai tuỳ chọn còn
+                    // lại của nhánh `test` (`renderLineHighlight: none`,
+                    // `overviewRulerLanes: 0`): chúng GỠ hai chỉ dẫn định hướng —
+                    // dòng đang đứng và vạch đánh dấu trên thanh cuộn — chứ không
+                    // thêm gì, và không có bằng chứng nào nói người học muốn mất chúng.
+                    fontSize: 15,
+                    lineHeight: 24,
                     tabSize: 4,
                     insertSpaces: true,
                     scrollBeyondLastLine: false,
@@ -676,6 +689,7 @@ export default function IdeClient() {
                   }}
                 />
               )}
+              </div>
             </section>
 
             <section
@@ -685,7 +699,12 @@ export default function IdeClient() {
               aria-live="polite"
               aria-busy={running}
             >
-              <Output state={state} />
+              {/* `aria-hidden` cùng lý do như dải bên trái: section đã tên là "Kết
+                  quả", nên một dải chữ y hệt chỉ làm trình đọc màn hình nói hai lần. */}
+              <div className={styles.paneHead} aria-hidden="true">Kết quả</div>
+              <div className={styles.outputBody}>
+                <Output state={state} />
+              </div>
             </section>
           </div>
 

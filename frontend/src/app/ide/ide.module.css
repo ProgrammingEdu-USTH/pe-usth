@@ -165,8 +165,44 @@
   border-radius: 16px;
   box-shadow: var(--edu-card-shadow);
 }
-.editorPane { padding: 8px 0; }
-.outputPane { padding: 16px 18px; overflow: auto; }
+/* Hai khung là HAI mặt phẳng trắng cạnh nhau, và trước bản này KHÔNG có gì gọi
+   tên chúng — nhánh `test` gọi đúng: "hai tấm thẻ trắng trống không". Thanh tiêu
+   đề nói ra đây là tệp đang soạn, đây là kết quả.
+
+   Pane thành cột flex và padding dời xuống phần THÂN: để padding trên chính pane
+   thì dải tiêu đề bị thụt vào, không chạm được hai mép. `overflow: hidden` của
+   rule dùng chung ở trên giữ nguyên nên bo góc 16px cắt đúng hai đầu dải —
+   `.outputPane` thôi tự đặt `overflow: auto`, phần cuộn nay là `.outputBody`. */
+.editorPane,
+.outputPane { display: flex; flex-direction: column; padding: 0; }
+.editorBody { flex: 1 1 auto; min-height: 0; padding: 8px 0; }
+.outputBody { flex: 1 1 auto; min-height: 0; padding: 16px 18px; overflow: auto; }
+
+/* Dải TRẦM, không phải một nhãn nhấn: nền lấy GIẤY nên nó chìm hơn mặt thẻ trắng
+   ngay dưới, và ĐƯỜNG KẺ mới là thứ chia hai mặt — đo được dải so với thẻ chỉ
+   **1,15:1**, đúng bài học của hai thanh sticky ("ở khoảng sáng này màu nền
+   không tách được hai mặt phẳng; chỉ đường kẻ mới tách").
+
+   KHÔNG dùng bộ token của nhánh `test` (`--ds-tint` #E8F0FE · `--ds-soft`
+   #3A4A66 · `--ds-line` #CFD9E8): cả ba LẠNH (B > R) trên trang giấy kem
+   #F4EEE3 — đó là nửa bảng v2 mà main đã warm đi, và bê nguyên là dán một dải
+   xanh ngang đầu cả hai khung. Lần thứ HAI cùng lỗi ấy chặn được một bản port
+   mù từ nhánh đó (lần trước: `--ds-ink`). Chữ `--edu-t2` trên dải: **9,30:1**.
+
+   Và KHÔNG có chấm tròn `--ds-action` như bên `test`: trong một trình soạn thảo,
+   chấm cạnh tên tệp NGHĨA LÀ "chưa lưu". Ở đây mã tự lưu vào localStorage nên
+   chấm ấy không bao giờ nói điều gì — một đốm brand xanh làm cảnh. */
+.paneHead {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  padding: 10px 18px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--edu-t2);
+  background: var(--edu-bg-solid);
+  border-bottom: 1px solid var(--edu-card-line);
+}
 
 .editorLoading,
 .hint {

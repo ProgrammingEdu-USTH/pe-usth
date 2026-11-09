@@ -194,3 +194,87 @@ test('thanh công cụ /ide: mọi `:hover` phải nằm trong guard con trỏ t
     `chỉ thấy ${daGuard.size} rule \`:hover\` đã guard — phép đọc \`@media\` trượt?`,
   );
 });
+
+test('thanh công cụ /ide: hai khung có dải tiêu đề, và nó ẤM — không phải bộ token lạnh của nhánh `test`', () => {
+  /*
+   * Port từ `tester/test` ngày 10/11/2026. Thứ đáng port là CẤU TRÚC (hai mặt
+   * phẳng trắng cạnh nhau mà không gì gọi tên chúng — "hai tấm thẻ trắng trống
+   * không"); thứ KHÔNG đáng port là bảng màu, vì cả ba token bên ấy dùng đều
+   * LẠNH trên trang giấy kem #F4EEE3 của main:
+   *
+   *   --ds-tint  #E8F0FE   --ds-soft  #3A4A66   --ds-line  #CFD9E8
+   *
+   * Đây là lần THỨ HAI cùng lớp lỗi chặn được một bản port mù từ nhánh đó —
+   * lần trước là `--ds-ink` #0F1B33 cho nút "Xem từng bước". Ca này ghim
+   * QUYẾT ĐỊNH ấy, không ghim mã màu: luật là kênh đỏ >= kênh xanh dương,
+   * cùng khuôn ca "nền code phải ẤM" của `ds-contrast`.
+   */
+  const CSS_IDE = doc(TEP_IDE);
+  const TSX = readFileSync(join(GOC, 'src/app/ide/IdeClient.tsx'), 'utf8');
+
+  // 1. cả HAI khung phải dựng một dải — một cái thôi là nửa bản sửa
+  const n = TSX.split('styles.paneHead').length - 1;
+  assert.equal(
+    n, 2,
+    `\`styles.paneHead\` dựng ${n} lần trong IdeClient.tsx, phải 2 (khung soạn `
+    + 'thảo và khung kết quả). Một dải thôi là nửa bản sửa — khung kia lại thành '
+    + 'một tấm thẻ trắng không tên.',
+  );
+  // và cả hai phải ẩn với trình đọc màn hình: hai `<section>` ĐÃ có aria-label
+  // nói đúng điều dải nói, nên để nó đọc được là bắt nó đọc hai lần.
+  const an = TSX.split('className={styles.paneHead} aria-hidden="true"').length - 1;
+  assert.equal(an, 2, `chỉ ${an}/2 dải mang \`aria-hidden\` — xem chú thích tại chỗ.`);
+
+  // 2. dải KHÔNG được mang bộ token lạnh của nhánh `test`
+  const than = thanCoBan(TEP_IDE, '.paneHead');
+  assert.ok(than, '`.paneHead` không có rule nào ở tầng gốc của ide.module.css');
+  for (const t of ['--ds-tint', '--ds-soft', '--ds-line']) {
+    assert.ok(
+      !than.includes(`var(${t})`),
+      `\`.paneHead\` dùng \`var(${t})\` — đó là bộ token LẠNH của nhánh \`test\` `
+      + '(#E8F0FE · #3A4A66 · #CFD9E8, B > R) trên một trang giấy kem #F4EEE3. '
+      + 'Dùng `--edu-t2` / `--edu-bg-solid` / `--edu-card-line`.',
+    );
+  }
+
+  // 3. ba màu nó DÙNG phải ẤM — đọc giá trị thật từ edu-theme.css, không ghim mã
+  const THEME = readFileSync(join(GOC, 'public/static/css/edu-theme.css'), 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, '');   // bỏ chú thích: một câu văn xuôi nhắc
+  const NGAY = THEME.slice(0, THEME.indexOf('body.dark {'));  // tên token đã làm
+  const mau = (ten) => {                                       // cổng đỏ oan 3 lần
+    const i = NGAY.indexOf(ten + ':');
+    assert.ok(i >= 0, `khối NGÀY của edu-theme.css không khai ${ten}`);
+    const m = /^\s*(#[0-9a-fA-F]{6})\s*;/.exec(NGAY.slice(i + ten.length + 1, i + ten.length + 40));
+    assert.ok(m, `${ten} ở khối NGÀY không phải một mã màu`);
+    return [1, 3, 5].map((k) => parseInt(m[1].slice(k, k + 2), 16));
+  };
+  for (const ten of ['--edu-t2', '--edu-bg-solid', '--edu-card-line']) {
+    assert.ok(
+      than.includes(`var(${ten})`),
+      `\`.paneHead\` thôi dùng \`var(${ten})\` — ba màu của dải phải đến từ bảng ấm.`,
+    );
+    const [r, , b] = mau(ten);
+    assert.ok(
+      r >= b,
+      `${ten} nay có kênh xanh dương (${b}) cao hơn kênh đỏ (${r}) — dải tiêu đề `
+      + 'của /ide đọc màu từ nó, và bảng lofi đòi ẤM.',
+    );
+  }
+
+  // 4. phần cuộn phải ở THÂN, không ở pane: pane giữ `overflow: hidden` của rule
+  //    dùng chung để bo góc 16px cắt đúng hai đầu dải.
+  assert.ok(
+    !/overflow\s*:\s*auto/.test(thanCoBan(TEP_IDE, '.outputPane')),
+    '`.outputPane` lại tự đặt `overflow: auto` — nó đè `hidden` của rule dùng '
+    + 'chung, và khi đó dải tiêu đề thò ra ngoài bo góc. Phần cuộn thuộc `.outputBody`.',
+  );
+  assert.match(
+    thanCoBan(TEP_IDE, '.outputBody'), /overflow\s*:\s*auto/,
+    '`.outputBody` phải là chỗ cuộn — nếu không thì kết quả dài đẩy vỡ khung.',
+  );
+  // và phép đọc phải THẬT SỰ thấy ba rule, nếu không mọi luật trên đạt rỗng
+  for (const sel of ['.paneHead', '.editorBody', '.outputBody']) {
+    assert.ok(thanCoBan(TEP_IDE, sel).length > 10, `không đọc được rule \`${sel}\``);
+  }
+  assert.ok(CSS_IDE.length > 3000, 'ide.module.css quá ngắn — đọc trượt?');
+});

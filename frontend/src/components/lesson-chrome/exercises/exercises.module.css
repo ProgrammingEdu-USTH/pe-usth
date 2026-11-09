@@ -474,6 +474,14 @@
   .caret {
     animation: none;
   }
+  /* Băng phản hồi sau khi chấm: `feedbackIn` trượt lên 12px trong 0,3 s. Đó là
+     CHUYỂN ĐỘNG do tương tác (WCAG 2.3.3), và nó hiện ở MỌI lần nộp bài được
+     chấm — 143 bài. Bằng chứng mạnh nhất nằm ngay trên: `consoleIn` chỉ trượt
+     **4px** mà khối này ĐÃ tắt nó, nên một cú trượt 12px không tắt là lệch với
+     chính quyết định của file. Cổng: `giam-chuyen-dong.test.mjs`. */
+  .feedbackBanner {
+    animation: none;
+  }
 }
 
 /* Chữ chỉ dành cho trình đọc màn hình (gợi ý bàn phím, nhãn kết quả chấm).

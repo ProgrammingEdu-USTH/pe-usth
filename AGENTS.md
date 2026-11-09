@@ -87,7 +87,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
-| Frontend unit test | `cd frontend && npm run test:unit` → **658 ca** / 60 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **661 ca** / 61 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -107,7 +107,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **37 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 658 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366 · duongToi 18/14/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 661 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366 · duongToi 18/14/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -118,7 +118,7 @@ và mất bộ kiểm duy nhất chấm được code học viên. `frontend/pub
 thì bộ 172 bài dùng lại NGUYÊN VẸN: chính nó đặt `MPLBACKEND=Agg` và móc `Figure`, nên
 26 bài biểu đồ chạy được trong worker. Đừng dọn "cho gọn".
 
-**Con số 658 phải đo lại mỗi lần thêm/bớt ca, không được đoán, và nó ĐÃ TRÔI 59 đơn vị.**
+**Con số 661 phải đo lại mỗi lần thêm/bớt ca, không được đoán, và nó ĐÃ TRÔI 59 đơn vị.**
 Đo lại 09/11/2026 bằng cách chạy TỪNG tệp: bảng này cộng ra **592** trong khi bộ chạy ra
 **651**, tức nó đứng yên suốt chín vòng trong khi hàng "Frontend unit test" được sửa đúng
 mỗi lần. `check-moc-chay` chỉ đối chiếu HÀNG, không đối chiếu bảng phân rã, nên nó xanh cả
@@ -128,18 +128,21 @@ và mười tệp test mới (`ablate-trung-thuc`, `dich-bam-vo-bai-hoc`, `khoa-
 Phân rã hiện tại, ĐO chứ không cộng tay:
 ablate-trung-thuc 19 · catalog-duration 2 · catalog-naming 3 · consent-banner 15 ·
 course-resume 9 · data-files 18 · dich-bam-vo-bai-hoc 7 · ds-contrast 17 · editor-load-gate 14 ·
-feedback-link 9 · feedback-rank 3 · forum-xss 1 · goc-hoc-cho-so 7 · goc-hoc-hang-nut 4 ·
-goc-hoc-khung-cho 6 · goc-hoc-lo-trinh 9 · goc-hoc-man-con 3 · goc-hoc-nhan-mot 6 ·
-goc-hoc-thanh-cuon 5 · hover-cam-ung 3 · ide-brief-code 12 · ide-handoff 6 · ide-output-scroll 6 ·
-ide-partial-output 10 · ide-stop-autosave 27 · ide-thanh-cong-cu 4 · ide-trace 38 ·
-inline-code 7 · insert-gate-sync 2 · khoa-roi-giao-trinh 5 · label-version 2 ·
+feedback-link 9 · feedback-rank 3 · forum-xss 1 · giam-chuyen-dong 3 · goc-hoc-cho-so 7 ·
+goc-hoc-hang-nut 4 · goc-hoc-khung-cho 6 · goc-hoc-lo-trinh 9 · goc-hoc-man-con 3 ·
+goc-hoc-nhan-mot 6 · goc-hoc-thanh-cuon 5 · hover-cam-ung 3 · ide-brief-code 12 · ide-handoff 6 ·
+ide-output-scroll 6 · ide-partial-output 10 · ide-stop-autosave 27 · ide-thanh-cong-cu 4 ·
+ide-trace 38 · inline-code 7 · insert-gate-sync 2 · khoa-roi-giao-trinh 5 · label-version 2 ·
 learning-events 48 · lesson-back 15 · lesson-chrome-sticky 4 · lesson-load 7 · lien-ket-noi-bo 3 ·
 mcq-code 9 · mcq-next-after-wrong 23 · o-go-16px 5 · o-nhap-nhieu-dong 2 · phan-bai 8 ·
 practice-contract 15 · practice-run 9 · prewarm-gate 5 · read-diagram 12 · read-guess 19 ·
 read-trace 16 · read-try-it 20 · recap-recall 7 · review-quiz 34 · run-stale 15 ·
 session-marker 5 · spaced-review 14 · studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 ·
-trang-404 6 · trang-loi 12 · trap-leak 3 · worker-csp 7 = 658.
-Mốc trước là 656; thêm hover-cam-ung 3 và ide-thanh-cong-cu 5 → 4 (ca `:hover` DỜI từ
+trang-404 6 · trang-loi 12 · trap-leak 3 · worker-csp 7 = 661.
+Mốc trước là 658; thêm giam-chuyen-dong 3 (HOẠT ẢNH DỊCH CHUYỂN phải tắt được dưới
+`prefers-reduced-motion` — WCAG 2.3.3; đo được 1 khe thật: băng phản hồi sau khi chấm
+trượt 12px mà không tắt, trong khi `consoleIn` chỉ trượt 4px đã được tắt).
+Trước đó 656 → 658; thêm hover-cam-ung 3 và ide-thanh-cong-cu 5 → 4 (ca `:hover` DỜI từ
 cổng /ide — phủ 2 tệp — sang một cổng phủ MỌI `.css` trong `src/`; hai cổng hỏi cùng
 một câu trên hai tập chồng nhau thì bản hẹp sẽ trôi khỏi bản rộng).
 Trước đó 655 → 656; ide-thanh-cong-cu 4 → 5 (THANH TIÊU ĐỀ hai khung /ide — port CẤU TRÚC từ
@@ -6851,6 +6854,93 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **LUẬT: Python có backtick thì GHI RA TỆP rồi `py -I <tệp>`, không bao giờ `-c`.** Và
   mỗi phép vá như thế tự `assert` rằng chuỗi backtick CÒN trong file sau khi ghi — đó là
   thứ duy nhất biến một lỗi im lặng thành một lỗi to tiếng.
+
+- **BẢNG XẾP HẠNG ĐÃ CẠN PHẦN CỦA VÒNG LẶP — soát lại 13 mục rồi mới tự chọn.**
+  `reports/Hướng đi tối ưu tiếp theo.md` là nơi LOOP.md bảo lấy việc khi hàng đợi rỗng,
+  và tôi đã tự chọn nhiều vòng mà chưa đọc lại nó. Soát: mục **1** (nạp DB) và **13**
+  (xác minh pháp lý) là việc của CHỦ DỰ ÁN · **2** (phễu `lesson_progress`) và **3**
+  (tên đơn vị "tài khoản khách") đã làm · **5** (phản hồi có giải thích) đã làm, pha 4
+  của `check-practice` · **4** đã ĐO RỒI BỎ (PY01 vốn CÓ bài tập được chấm — phép đếm
+  đầu của tôi đọc nhầm tầng; TH07 thì chính văn nói nó không có ca chấm) · **6** (74
+  khối im lặng) là quyết định của chủ dự án, AGENTS.md ghi "trần dòng chỉ được HẠ,
+  KHÔNG tự đổi" · **7** còn đúng một mảnh là "đặt file test chỉ-đọc", mà ImpossibleBench
+  đo được nó **không** chặn special-casing và nó sẽ chặn chính nếp ship-tính-năng-kèm-cổng
+  của repo này · **8, 9** đã là nếp (`check-moc-chay` 8 mục, `check-duong-toi` vào CI ở
+  #160) · **10–12** là "đừng làm".
+  **Ghi lại để vòng sau không phải soát lại:** bảng ấy nay là một bản ghi, không còn là
+  một hàng đợi. Việc tiếp theo phải đến từ một phép ĐO trên cây mã, như ba vòng vừa rồi.
+
+- **PHÉP QUÉT ĐẦU CỦA TÔI BÁO OAN 10/11 CHỖ, và cả hai lỗi đều đã có tên trong file này.**
+  Đo độ phủ `prefers-reduced-motion`: bản đầu báo **4 keyframe hở ở `studio-chrome`**,
+  1 ở `exercises`, 1 ở `CodeVisualizer`, 15 ở `scene.css`. Đọc từng chỗ thì:
+  · nó chỉ nhận `animation: none`, bỏ sót **`animation-duration: 0.01ms`** — đúng cách
+    `studio-chrome` tắt bốn keyframe ấy ở dòng 605;
+  · nó lấy **DÒNG CUỐI** của phần selector (`m.group(1).split('\n')[-1]`) — chính lỗi
+    `selCua` đã mắc một lần và #159 đã sửa.
+  Đo lại bằng CHÍNH parser đã gỡ lỗi (`_css-rule.mjs`): `studio-chrome` **đủ**,
+  `CodeVisualizer` **đủ**. Còn `exercises` 1 và `scene.css` 9.
+  **Luật: khi đo một chiều mới, dùng parser ĐÃ CÓ của repo thay vì viết lại một bản gần
+  đúng** — bản gần đúng sẽ mang lại đúng những lỗi bản cũ đã trả giá để sửa.
+
+- **LUẬT PHẢI NHẮM VÀO *DỊCH CHUYỂN*, KHÔNG NHẮM MỌI `@keyframes` — và một ca cụ thể dạy
+  điều đó.** Ý tưởng đầu là "mọi keyframe phải tắt được dưới `prefers-reduced-motion`".
+  Nó báo oan ngay ở `pe-burst-life`: keyframe ấy là `from { opacity: 1 } to { opacity: 1 }`
+  — nó **không đổi một pixel nào**, nó là một bộ đếm thời gian 1,8 s dùng `forwards` để
+  JS biết lúc nào gỡ phần tử. Bắt nó khai ngoại lệ là bắt người ta khai một thứ không
+  phải chuyển động. `blink` (chỉ `opacity`) cũng vậy — một chỗ nhấp nháy không gây chóng
+  mặt.
+  Nên luật là: keyframe đổi `transform` (hoặc `top`/`left`/`right`/`bottom`/`width`/
+  `height`/`margin`) mới bị đòi. Với luật ấy, **7 tệp có keyframe dịch chuyển · 6 đủ ·
+  1 khe thật**. Ablate chiều "nới thành MỌI keyframe" → **2 đỏ**, tức luật hẹp này đang
+  gánh tải thật chứ không phải một phép lọc cho đẹp.
+
+- **MỘT KHE THẬT: băng phản hồi sau khi chấm trượt 12px và không tắt được.**
+  `.feedbackBanner` chạy `feedbackIn` — `translateY(12px) → none` trong 0,3 s — và nó
+  hiện ở **MỌI lần nộp bài được chấm, 143 bài**. WCAG 2.3.3 (Animation from
+  Interactions): chuyển động do tương tác phải tắt được.
+  **Bằng chứng không phải một nguyên tắc nhập khẩu — nó nằm ngay trong chính file ấy:**
+  `consoleIn` chỉ trượt **4px** và khối `prefers-reduced-motion` ở dòng 467 ĐÃ tắt nó.
+  Một cú trượt 12px không tắt là lệch với quyết định mà tác giả file đã ra, chứ không
+  phải một tiêu chuẩn tôi mang từ ngoài vào.
+  **`scene.css` KHÔNG hở thật, và lý do đáng ghi:** 9 keyframe dịch chuyển của nó tắt qua
+  một class `.rm` do nút "Giảm chuyển động" trong cảnh bật (`animation-play-state:
+  paused`, dòng 623+), chứ không qua media query — nên một cổng quét theo `@media` MÙ với
+  nó. Khai NGOÀI TẦM kèm đúng lý do ấy, không phải "Góc học nên bỏ qua".
+
+- **ABLATE 10 chiều** (9 qua `--tu-so` + 1 cặp đối chứng làm tay), và hai chiều trong đó
+  là **phép kiểm NGƯỢC** — thứ chứng minh cổng không kêu oan:
+  gỡ bản sửa `.feedbackBanner` → **1 đỏ** · **gỡ một selector ĐANG tắt mà keyframe của nó
+  chỉ đổi `opacity` (`.caret`/`blink`) → 0 đỏ, đúng** · gỡ guard của `.consoleRow*` (chạy
+  `consoleIn`, trượt 4px) → 1 · gỡ khối RM của `CodeVisualizer` → 1 · gỡ mục `NGOAI_TAM`
+  của `scene.css` → 1 · khai `NGOAI_TAM` cho một tệp đã tắt hết → 1 ("lỗi thời") · nới
+  luật thành MỌI keyframe → **2** · phá phép duyệt tệp → **2** (tự kiểm) · phép đọc khối
+  RM thôi nhận `animation-duration` → 1 (tự kiểm). CẶP ĐỐI CHỨNG: bỏ bản sửa + GIỮ ca →
+  **1 đỏ / 3 ca**; cùng thế + GỠ ca → **0 đỏ / 2 ca**.
+  **MỘT CHIỀU "KHÔNG NHƯ KHAI" HOÁ RA LÀ MỘT PHÁT HIỆN:** tôi gieo "gỡ guard của `.trace`"
+  và mong 1 đỏ, ra **0**. Đo lại: `.trace` có HAI rule trong `studio-chrome.module.css`
+  và **không rule nào khai `animation`** — tức dòng `animation: none` cho nó trong khối
+  reduced-motion là một **no-op**. Cổng đúng khi im. Giữ nguyên dòng ấy (nó là hàng rào
+  cho một hoạt ảnh `.trace` ngày mai), nhưng đổi chiều ablate sang `.consoleRow*` — một
+  chiều có thông tin.
+
+- **BUILD THOÁT 134 KHI CHẠY NỐI ĐUÔI SAU LINT, và đó KHÔNG phải lỗi mã.** `npm run build`
+  trong một chuỗi `typecheck && lint && build && dem-ca` ném `RtlUserThreadStart` rồi
+  "Next.js build worker exited with code: 134". 134 là SIGABRT, và trên máy này nó là
+  **V8 OOM** (ghi chú `tai-nguyen-may`: máy chạy song song nhiều dự án). Chạy `build`
+  MỘT MÌNH → exit 0. Cùng họ với bẫy "tranh CPU sinh ĐỎ GIẢ" của `npx jest --ci`: một mã
+  thoát lạ sau một chuỗi lệnh là tín hiệu về TÀI NGUYÊN trước khi nó là tín hiệu về mã.
+  **SỐ ĐÃ ĐO:** 7 tệp có keyframe dịch chuyển · 6 đủ · 1 khe → **0 khe** sau bản sửa ·
+  frontend unit **658 → 661 ca / 60 → 61 tệp** · sổ ngưỡng siết sàn 658 → 661 · typecheck
+  sạch · lint **146 cảnh báo / 0 lỗi** · `npm run build` exit 0 (chạy riêng). **KHÔNG
+  đụng nội dung bài** → `check-da-nap` giữ **62 bài chờ**. **KHÔNG bump `ASSET_VERSION`**
+  (tệp sửa là CSS module trong `src/`).
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** người đã bật "giảm chuyển động" ở mức hệ điều hành
+  nay không còn thấy băng phản hồi trượt lên sau mỗi lần nộp bài — ở 143 bài có ca chấm.
+  **GIỚI HẠN:** cổng quét `src/**.css` và chỉ thấy khối `@media (prefers-reduced-motion)`.
+  Nó KHÔNG thấy cơ chế tắt bằng CLASS (như `.rm` của Góc học), không phủ
+  `public/static/css`, và không phủ hoạt ảnh dựng bằng JS (Web Animations API) — chính
+  `CodeVisualizer.tsx` có một chỗ như thế, và chú thích tại chỗ đã nói ra rằng media query
+  không với tới nó.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

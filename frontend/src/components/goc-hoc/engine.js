@@ -1,4 +1,5 @@
 import { DATA, CAL, KEYS, ROAD, ROAD_DOC, SCODE, nhanLoTrinh } from './scene-data';
+import { datGiaoDien, docGiaoDien } from '@/lib/giao-dien';
 
 /*
  * Góc học PE — động cơ cảnh, port từ artifact cùng tên.
@@ -1169,6 +1170,9 @@ $('#tReal').addEventListener('click',()=>setReal(!realTime));
 $('#tWin').addEventListener('click',()=>toggleWindow());
 tog($('#tRain'), v=>app.classList.toggle('rain',v));
 const tRm = $('#tRm'); tRm.setAttribute('aria-pressed',String(RM)); tog(tRm, v=>{ RM=v; app.classList.toggle('rm',v); if (v) clearInterval(leafTimer); });
+// Giao diện của BÀI HỌC (không phải của cảnh này): chỉ ghi lựa chọn, bài học và trang khoá
+// học đọc nó khi mở. Nguồn sự thật là `lib/giao-dien.ts` — cùng nơi script trước-paint đọc.
+const tTv = $('#tTv'); tTv.setAttribute('aria-pressed',String(docGiaoDien()==='thien-van')); tog(tTv, v=>datGiaoDien(v?'thien-van':'lofi'));
 $('#tIntro').addEventListener('click',()=>{ closeDemo(); runIntro(); });
 let playing=false; $('#musicBtn').addEventListener('click',()=>{ playing=!playing; $('#music').classList.toggle('playing',playing);
   $('#musicBtn').innerHTML = `<svg class="i"><use href="#i-${playing?'pause':'play'}"/></svg>`; $('#musicBtn').setAttribute('aria-label', playing?'Tắt nhạc lofi':'Phát nhạc lofi');

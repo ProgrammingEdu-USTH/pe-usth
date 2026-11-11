@@ -7087,7 +7087,35 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **GIỚI HẠN PHẢI NÓI RA:** vòng này mới chạm TOKEN. Màn bài học đã đổi màu giấy/mực/thanh cuộn, nhưng CHƯA có thước
   đồng, đĩa đồng A/B/C, EB Garamond, hay chuyển động riêng — đó là B3–B9. Cổng đọc CSS TĨNH: nó chứng minh "token
   khai đúng", không chứng minh "bề mặt nào đổi màu" (phần đó là ảnh chụp trình duyệt từng vòng). Chưa đo trên thiết
-  bị cảm ứng thật. Tiến độ cả nhánh nằm ở Kanzo `pe-usth#202`.
+  bị cảm ứng thật. Tiến độ cả nhánh nằm ở Kanzo `pe-usth#202`.
+
+  **B2 (cùng ngày) — ba đường tới nút chọn, và chủ dự án chỉ ra đường thứ ba.** Ngoài thanh bài học (≥ 861px), nút
+  nay còn ở (a) đầu hàng "Tất cả khoá học" của trang khoá, và (b) panel "Tùy chỉnh khung cảnh" của TRANG CHỦ — mục
+  "Giao diện bài học" với một công tắc "Đài thiên văn" (`#tTv` trong `goc-hoc/shell.js`, gắn ở `engine.js` theo khuôn
+  `tog(...)` của các công tắc cảnh). (b) là gợi ý của chủ dự án ("chỗ setting theme này được mà"), và nó đúng hơn tôi
+  nghĩ: panel vào được trên điện thoại — đúng nơi thanh bài học không còn chỗ. Trang chủ KHÔNG đổi theo vì cảnh Góc học
+  không dùng token `--ds/--edu/--st` nào; công tắc chỉ GHI lựa chọn, bài học và trang khoá đọc khi mở (có dòng chú giải
+  trong panel nói đúng điều đó, nếu không người dùng bật xong thấy không gì đổi).
+  · **Không đổi một pixel bố cục lofi — đã đo, không suy.** Chỗ đặt nút ở header trang khoá bị loại ngay: 195px tên +
+  nút sáng/tối 48px đã chiếm hàng ở 320–390px, thêm nút nữa đẩy nó xuống hàng. Nút nằm ở đầu hàng liên kết bằng vị trí
+  TUYỆT ĐỐI trong một khối bọc `position: relative` (khối bọc không thêm chiều cao). So production với bản dựng, cùng
+  cửa sổ: header `[170,0,1180,86]` · liên kết `[194,78,147,34]` · lưới `top 124,4` · cao trang `3449` — **trùng từng số**.
+  `top: 50%` ban đầu đặt nút lệch xuống ~10px (hàng cao 34px nhưng `.back` có margin −8px/12px nên tâm HỘP thấp hơn tâm
+  CHỮ) và chạm mép thẻ; `top: -13px` đưa tâm nút về đúng 95/95 và cách thẻ 7px;
+  · trang khoá dùng `--ds-ink/--ds-soft/--ds-paper/--ds-tint` (không phải `--edu-t*`), nên theme phải ghi đè thêm bốn
+    token — nếu không trang khoá có chữ navy lạnh `#0F1B33` trên giấy kem, hai bảng màu cùng một khung nhìn. Mực ≥ 7,8:1
+    trên cả bốn nền phụ, ngày lẫn đêm;
+  · nút ở trang khoá gọi `<ThemePicker cheDo={false} />`: không hiện nhóm sáng/tối vì nút trăng/mặt trời của
+    `SiteHeader` đã ở ngay trên đầu — hai chỗ đổi cùng một thứ là hai nơi người dùng không biết cái nào đúng;
+  · gỡ id công tắc khỏi `shell.js` mà `engine.js` vẫn gọi `$('#tTv')` thì **trang chủ ném lỗi lúc khởi tạo** (không
+    phải im lặng): cổng bắt nó ở ca "đường tới" trước khi tới người dùng. Id viết tay trong `engine.js` cũng được đối
+    chiếu với danh sách (gõ `thien-vam` thì công tắc ghi một giá trị bị whitelist loại, không lỗi nào hiện);
+  · đã xem thật ở 1280, 320: nút 44×44 trúng đích (`elementFromPoint`), không tràn ngang, không chồng lên liên kết.
+  **ABLATE 7 chiều, cả 7 đỏ (mỗi chiều 1 ca):** gỡ `data-tv-surface` khỏi trang khoá · gỡ `<ThemePicker cheDo={false} />` ·
+  đổi id ở `shell.js` · gõ sai id ở `engine.js` · bỏ import `datGiaoDien` · mực ngày `#A09070` · quên khai `--ds-ink` ở
+  khối đêm. Số ca không đổi (668): chỉ thêm khẳng định vào ca sẵn có. `ASSET_VERSION` → `2026-11-12b`: `theme-thien-van.css`
+  đổi SAU khi B1 đã push, mà tệp `public/` được cache `immutable` theo `?v=` — không bump thì người đã tải bản B1 giữ
+  CSS cũ (thiếu bốn token trang khoá).
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

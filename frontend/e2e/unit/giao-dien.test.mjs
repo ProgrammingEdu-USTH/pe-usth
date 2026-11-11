@@ -217,6 +217,19 @@ test('đường tới: nút chọn mount ở khung bài học, bề mặt khai d
   assert.ok(hang('theme-thien-van.css') > hang('studio-tokens.css'), 'theme phải nạp SAU studio-tokens (cùng đặc hiệu thì file sau thắng)');
   assert.ok(hang('theme-thien-van.css') < hang('edu-responsive.css'), 'lớp co giãn phải vẫn cuối cùng');
   assert.match(ps, /co\(THEME_CSS,/, 'PageStyles không tự thêm tệp theme vào mọi trang');
+
+  // đường tới thứ hai: trang khoá học (nhận theme + có nút) và panel cài đặt của trang chủ
+  const khoa = boChuThich(doc('src/app/(standalone)/courses/[courseId]/CourseDetail.tsx'));
+  assert.match(khoa, /<ThemePicker\s+cheDo=\{false\}\s*\/>/, 'CourseDetail không dựng <ThemePicker cheDo={false} />');
+  assert.match(khoa, /data-tv-surface/, 'trang khoá học thiếu data-tv-surface: chọn theme mà không đổi gì');
+  const shell = doc('src/components/goc-hoc/shell.js');
+  const engine = doc('src/components/goc-hoc/engine.js');
+  assert.match(shell, /id="tTv"/, 'panel cài đặt của trang chủ thiếu công tắc giao diện (#tTv)');
+  assert.match(engine, /import \{[^}]*datGiaoDien[^}]*\} from '@\/lib\/giao-dien'/, 'engine.js không lấy datGiaoDien từ lib/giao-dien');
+  // id viết tay trong engine.js phải là id THẬT — gõ sai thì công tắc im lặng ghi một giá trị bị whitelist loại
+  const idEngine = [...engine.matchAll(/datGiaoDien\([^)]*?'([a-z-]+)'[^)]*?'([a-z-]+)'/g)].flatMap((m) => [m[1], m[2]]);
+  assert.ok(idEngine.length >= 2, 'không đọc được hai id trong lời gọi datGiaoDien của engine.js');
+  for (const id of idEngine) assert.ok(laGiaoDien(id), `engine.js dùng id giao diện "${id}" không có trong danh sách`);
 });
 
 test('cấu trúc tệp token: mọi selector mở bằng html[data-theme], ngày không var()/--st-*, đêm không thanh cuộn', () => {
@@ -259,6 +272,13 @@ test('tương phản NGÀY: thang chữ, tint, chip code, thanh cuộn', () => {
       assert.ok(r >= SAN_CHU_NGAY, `ngày: --edu-${b} trên ${tn} chỉ ${r.toFixed(2)}:1 (sàn ${SAN_CHU_NGAY})`);
     }
   }
+  // mực và nền phụ mà TRANG KHOÁ HỌC / SiteHeader dùng (--ds-*, không phải --edu-t*)
+  for (const m of ['--ds-ink', '--ds-soft']) {
+    for (const n of ['--ds-card', '--ds-paper', '--ds-page', '--ds-tint']) {
+      const r = tuongPhan(mau(m, 'ngay'), mau(n, 'ngay'));
+      assert.ok(r >= SAN_CHU_NGAY, `ngày: ${m} trên ${n} chỉ ${r.toFixed(2)}:1 (sàn ${SAN_CHU_NGAY})`);
+    }
+  }
   const trang = mau('--ds-card', 'ngay');
   for (const [fg, bg] of [['--ds-ochre', '--ds-ochre-tint'], ['--ds-sanguine', '--ds-sanguine-tint'], ['--ds-violet-deep', '--ds-violet-tint'], ['--ds-violet', '--ds-violet-tint']]) {
     const r = tuongPhan(mau(fg, 'ngay'), mau(bg, 'ngay'));
@@ -279,6 +299,13 @@ test('tương phản ĐÊM: thang chữ, tint (lofi-đêm vô hình trên thẻ 
     for (const [tn, nm] of nen) {
       const r = tuongPhan(mau(`--edu-${b}`, 'dem'), nm);
       assert.ok(r >= SAN_CHU_DEM, `đêm: --edu-${b} trên ${tn} chỉ ${r.toFixed(2)}:1 (sàn ${SAN_CHU_DEM})`);
+    }
+  }
+  // mực và nền phụ mà TRANG KHOÁ HỌC / SiteHeader dùng (--ds-*, không phải --edu-t*)
+  for (const m of ['--ds-ink', '--ds-soft']) {
+    for (const n of ['--ds-card', '--ds-paper', '--ds-page', '--ds-tint']) {
+      const r = tuongPhan(mau(m, 'dem'), mau(n, 'dem'));
+      assert.ok(r >= SAN_CHU_DEM, `đêm: ${m} trên ${n} chỉ ${r.toFixed(2)}:1 (sàn ${SAN_CHU_DEM})`);
     }
   }
   const the = mau('--ds-card', 'dem');

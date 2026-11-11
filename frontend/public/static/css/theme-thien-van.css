@@ -38,6 +38,13 @@ html[data-theme="thien-van"]:has([data-tv-surface]) {
   --ds-card: #FBF5E3;
   --ds-desk: #E3D7BC;
   --ds-line: #DCCFA6;
+  /* mực và nền phụ của TRANG KHOÁ HỌC / SiteHeader: chúng dùng --ds-ink (navy
+     lạnh #0F1B33 của lofi) và --ds-paper/--ds-tint thay vì --edu-t*. Không đổi
+     thì trang khoá có chữ navy trên giấy kem — hai bảng màu cùng một khung nhìn. */
+  --ds-ink: #241B10;
+  --ds-soft: #4A3F22;
+  --ds-paper: #F6F0E4;
+  --ds-tint: #EADFC5;
   /* tint "đang chọn / thông tin": #D6E3FA trên thẻ #FBF5E3 chỉ 1,13:1 — đúng
      mức của lofi (#E8F0FE trên trắng 1,12:1); trạng thái chọn còn có viền riêng. */
   --ds-violet-tint: #D6E3FA;
@@ -86,6 +93,10 @@ html[data-theme="thien-van"]:has([data-tv-surface]) body.dark {
   --ds-card: #2A2416;
   --ds-desk: #3A3220;
   --ds-line: #574B2A;
+  --ds-ink: #E8EEF7;
+  --ds-soft: #AFBDD2;
+  --ds-paper: #221C10;
+  --ds-tint: #332B1B;
   --ds-violet-tint: #2C3A5E;
   /* tint của lofi ban đêm (#10291F, #33202A) trên thẻ nâu #2A2416 chỉ 1,00–1,01:1
      — vô hình. Ba tint này tách ≥ 1,14:1 mà chữ vẫn ≥ 5,9:1. */

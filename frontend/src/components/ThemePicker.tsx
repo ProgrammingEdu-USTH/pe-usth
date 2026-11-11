@@ -37,7 +37,13 @@ function chup(): string {
 }
 const CHUP_MAY_CHU = `${GIAO_DIEN_MAC_DINH}|sang`;
 
-export default function ThemePicker() {
+/**
+ * `cheDo`: có hiện nhóm "Chế độ" (sáng/tối) không. Trong BÀI HỌC phải có — ở đó
+ * không còn chỗ nào khác đổi sáng/tối. Ở trang khoá học thì KHÔNG: nút trăng/mặt
+ * trời của `SiteHeader` đã nằm ngay trên đầu trang, và hai chỗ đổi cùng một thứ
+ * là hai nơi người dùng không biết cái nào mới đúng.
+ */
+export default function ThemePicker({ cheDo: hienCheDo = true }: { cheDo?: boolean } = {}) {
   const [mo, setMo] = useState(false);
   const goc = useRef<HTMLDivElement>(null);
   const nut = useRef<HTMLButtonElement>(null);
@@ -105,6 +111,7 @@ export default function ThemePicker() {
               </label>
             ))}
           </fieldset>
+          {hienCheDo && (
           <fieldset className={styles.group}>
             <legend className={styles.legend}>Chế độ</legend>
             {([false, true] as const).map((toi) => (
@@ -120,6 +127,7 @@ export default function ThemePicker() {
               </label>
             ))}
           </fieldset>
+          )}
         </div>
       )}
     </div>

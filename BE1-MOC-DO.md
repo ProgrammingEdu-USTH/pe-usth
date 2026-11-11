@@ -174,6 +174,37 @@ Lỗi này có hai vấn đề:
 Lần chạy chính thức (bảng trên) không gặp 5xx nào. Bộ đo được dặn thử lại một lần khi gặp 5xx và
 ghi số lỗi; số lỗi ghi được là 0.
 
+## Sau BE3: `POST /api/lessons/:n/complete`
+
+Đo ngày 11/11/2026 trên nhánh `test`, cùng branch Neon `ep-late-hill`. **Trước** là `test` ngay
+trước BE3 (`d0ede61^`), **sau** là `test` có cả hai phần của BE3. Hai bản chạy cùng lúc ở hai
+cổng và được gọi **xen kẽ từng lượt** (trước, sau, trước, sau…), mỗi ca 30 lượt, để độ trôi
+của mạng chia đều cho hai bên. Mạng hôm nay chậm hơn hôm đo BE1 (bản "trước" ra p50 1 092 ms
+so với 881 ms), nên **chỉ so trước/sau trong cùng bảng này**, đừng so với bảng mốc phía trên.
+
+| Ca đo | Số truy vấn trước → sau | Vòng trước → sau | p50 trước → sau (ms) | p95 trước → sau (ms) |
+|---|---|---|---|---|
+| hoàn thành lần đầu, bài 1–30 | 16 → **15** | 13 → **11** | 1 092 → **921** | 1 702 → **1 568** |
+| làm lại bài đã xong, có `quizScore` | 11 → 11 | 11 → **10** | 980 → **768** | 1 694 → **1 034** |
+
+Cách tính giống bảng mốc: đã cộng 1 cho `BEGIN` ẩn, chưa tính khoản cộng thêm (cache user,
+trao thành tích). Từng lượt lệch nhau đúng như cũ (máy đếm ra 15/16/17/18 trước và 14/15/16/17
+sau); lượt nào cũng giảm đúng 1 truy vấn ở ca hoàn thành lần đầu.
+
+**Bớt ở đâu, xác nhận từ log:**
+- `SELECT courses` và `SELECT enrollments` nay chạy song song (cùng bắt đầu, mỗi câu ~137 ms
+  trong lượt mẫu), và chỉ lấy `id, lessons` / `user_id, course_id`, không còn kéo `content_meta`.
+  Bớt 1 vòng ở cả hai ca.
+- Nhật ký XP còn đúng một câu
+  `INSERT INTO user_daily_xp_logs … ON CONFLICT ("user_id","log_date") DO UPDATE`. Prisma dịch
+  thẳng thành upsert gốc của Postgres, không quay về kiểu SELECT rồi mới ghi. Bớt 1 truy vấn
+  và 1 vòng **trong transaction**, tức connection của pool được trả sớm hơn một vòng.
+- Sau 30 lượt hoàn thành bài, mỗi khách thử chỉ có **1 hàng** nhật ký XP trong ngày, đúng như
+  unique `uq_daily_xp_user_date` đòi hỏi.
+
+Ca làm lại bài không ghi nhật ký XP nên chỉ được lợi từ phần song song. Phần còn lại của route
+(10 vòng trong transaction ở ca lần đầu) không thuộc BE3.
+
 ## Đo lại sau mỗi task
 
 1. Trỏ `.env` vào branch Neon đo (đã có sẵn dữ liệu ở trên, chỉ thiếu người dùng đo).

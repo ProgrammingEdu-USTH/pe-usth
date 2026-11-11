@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { StreakService, toStudyDate } from 'src/common/streak/streak.service';
+import { addDailyXp } from 'src/common/xp/daily-xp-log';
 import { AchievementsService } from 'src/achievements/achievements.service';
 import { TX_OPTIONS } from 'src/common/prisma-tx.options';
 
@@ -176,20 +177,9 @@ export class StatsService {
       });
 
       // Bước 3: log XP theo ngày + trao achievement trong cùng transaction.
-      const logDate = toStudyDate(today);
-      const existing = await tx.userDailyXpLog.findFirst({
-        where: { userId, logDate },
-      });
-      if (existing) {
-        await tx.userDailyXpLog.update({
-          where: { id: existing.id },
-          data: { xpEarned: { increment: xpGain } },
-        });
-      } else {
-        await tx.userDailyXpLog.create({
-          data: { userId, logDate, xpEarned: xpGain },
-        });
-      }
+      // Một câu upsert (BE3) — bản "findFirst rồi create" cũ nay sẽ NÉM P2002
+      // khi chạy đua với completeLesson của cùng người, vì bảng đã có unique.
+      await addDailyXp(tx, userId, toStudyDate(today), xpGain);
 
       return {
         xp_earned: xpGain,

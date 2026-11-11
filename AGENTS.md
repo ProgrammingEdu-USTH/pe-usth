@@ -36,7 +36,7 @@ mức này:
 | Hạng mục | Mốc | Đo ngày |
 |---|---|---|
 | Backend typecheck | sạch | 02/11/2026 |
-| Backend test | 36 bộ, 415 ca, tất cả đạt | 02/11/2026 |
+| Backend test | 37 bộ, 424 ca, tất cả đạt | 11/11/2026 |
 | Backend lint | 155 lỗi, 2 cảnh báo — **mốc trần trong CI là 170, chỉ được hạ** | 02/11/2026 |
 | Frontend typecheck | sạch | 15/10/2026 |
 | Frontend lint | 0 lỗi, 118 cảnh báo | 19/10/2026 |

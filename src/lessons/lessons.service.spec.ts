@@ -32,6 +32,13 @@ type UserUpdateArg = {
   data: { xp: { increment: number } };
 };
 
+/** Đối số `userDailyXpLog.upsert()` — xem src/common/xp/daily-xp-log.ts. */
+type DailyXpUpsertArg = {
+  where: { userId_logDate: { userId: number; logDate: Date } };
+  update: { xpEarned: { increment: number } };
+  create: { userId: number; logDate: Date; xpEarned: number };
+};
+
 type PrismaMock = {
   course: { findUnique: AsyncMock };
   enrollment: { findUnique: AsyncMock };
@@ -42,11 +49,7 @@ type PrismaMock = {
     count: AsyncMock;
   };
   user: { findUnique: AsyncMock; update: AsyncMock<[UserUpdateArg]> };
-  userDailyXpLog: {
-    findFirst: AsyncMock;
-    create: AsyncMock;
-    update: AsyncMock;
-  };
+  userDailyXpLog: { upsert: AsyncMock<[DailyXpUpsertArg]> };
   $transaction: AsyncMock<[(tx: PrismaMock) => Promise<unknown>]>;
 };
 
@@ -76,9 +79,7 @@ describe('LessonsService.completeLesson', () => {
         update: asyncMock<[UserUpdateArg]>().mockResolvedValue({}),
       },
       userDailyXpLog: {
-        findFirst: asyncMock().mockResolvedValue(null),
-        create: asyncMock().mockResolvedValue({}),
-        update: asyncMock().mockResolvedValue({}),
+        upsert: asyncMock<[DailyXpUpsertArg]>().mockResolvedValue({}),
       },
       $transaction: jest.fn<
         Promise<unknown>,
@@ -129,7 +130,7 @@ describe('LessonsService.completeLesson', () => {
       expect(prisma.$transaction).not.toHaveBeenCalled();
       expect(prisma.lessonProgress.createMany).not.toHaveBeenCalled();
       expect(prisma.user.update).not.toHaveBeenCalled();
-      expect(prisma.userDailyXpLog.create).not.toHaveBeenCalled();
+      expect(prisma.userDailyXpLog.upsert).not.toHaveBeenCalled();
     });
 
     it('ĐÃ ghi danh -> chạy bình thường, có cộng XP', async () => {
@@ -179,21 +180,28 @@ describe('LessonsService.completeLesson', () => {
       const enrollmentDaGoi = new Promise<void>((r) => {
         baoEnrollmentDaGoi = r;
       });
+      let hetHan: NodeJS.Timeout | undefined;
       prisma.course.findUnique.mockImplementation(async () => {
-        await Promise.race([
-          enrollmentDaGoi,
-          new Promise((_, reject) =>
-            setTimeout(
-              () =>
-                reject(
-                  new Error(
-                    'course.findUnique chờ mãi mà enrollment chưa được gọi — hai truy vấn đang NỐI ĐUÔI',
+        try {
+          await Promise.race([
+            enrollmentDaGoi,
+            new Promise((_, reject) => {
+              hetHan = setTimeout(
+                () =>
+                  reject(
+                    new Error(
+                      'course.findUnique chờ mãi mà enrollment chưa được gọi — hai truy vấn đang NỐI ĐUÔI',
+                    ),
                   ),
-                ),
-              1000,
-            ),
-          ),
-        ]);
+                1000,
+              );
+            }),
+          ]);
+        } finally {
+          // Không dọn thì đồng hồ còn treo sau khi ca đã đạt, Jest báo
+          // "worker failed to exit gracefully".
+          clearTimeout(hetHan);
+        }
         return COURSE;
       });
       prisma.enrollment.findUnique.mockImplementation(() => {
@@ -241,6 +249,44 @@ describe('LessonsService.completeLesson', () => {
         service.completeLesson(1, 999999, { courseId: 'python' }),
       ).rejects.toThrow(ForbiddenException);
       expect(prisma.$transaction).not.toHaveBeenCalled();
+    });
+  });
+
+  // ---------- BE3 ----------
+  // Nhật ký XP theo ngày: MỘT câu upsert trên unique (user_id, log_date), không
+  // còn "findFirst rồi update/create" (thêm một vòng, và chạy đua thì sinh hàng
+  // trùng — nay thì ném P2002 vì bảng đã có unique).
+  describe('nhật ký XP theo ngày ghi bằng một câu upsert', () => {
+    beforeEach(() => {
+      prisma.course.findUnique.mockResolvedValue(COURSE);
+      prisma.enrollment.findUnique.mockResolvedValue({ userId: 1 });
+      prisma.lesson.findFirst.mockResolvedValue({ id: 10, xpReward: 0 });
+    });
+
+    it('hoàn thành lần đầu -> upsert đúng (user, ngày), cộng dồn đúng số XP server tính', async () => {
+      await service.completeLesson(7, 1, { courseId: 'python' });
+
+      expect(prisma.userDailyXpLog.upsert).toHaveBeenCalledTimes(1);
+      const arg = prisma.userDailyXpLog.upsert.mock.calls[0][0];
+      const logDate = arg.where.userId_logDate.logDate;
+      // toStudyDate(): UTC midnight của cột @db.Date — lệch là ghi sang ngày khác.
+      expect(logDate.getUTCHours()).toBe(0);
+      expect(logDate.getUTCMinutes()).toBe(0);
+      expect(arg).toEqual({
+        where: { userId_logDate: { userId: 7, logDate } },
+        update: { xpEarned: { increment: 50 } },
+        create: { userId: 7, logDate, xpEarned: 50 },
+      });
+    });
+
+    it('làm lại bài đã xong -> KHÔNG ghi nhật ký XP', async () => {
+      prisma.lessonProgress.createMany.mockResolvedValue({ count: 0 });
+      prisma.lessonProgress.updateMany.mockResolvedValue({ count: 0 });
+
+      const res = await service.completeLesson(7, 1, { courseId: 'python' });
+
+      expect(res.xpGained).toBe(0);
+      expect(prisma.userDailyXpLog.upsert).not.toHaveBeenCalled();
     });
   });
 

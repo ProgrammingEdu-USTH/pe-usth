@@ -8,6 +8,7 @@ import {
 import { Prisma } from 'src/generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { StreakService, toStudyDate } from 'src/common/streak/streak.service';
+import { addDailyXp } from 'src/common/xp/daily-xp-log';
 import { AchievementsService } from 'src/achievements/achievements.service';
 import { CoursesService } from 'src/courses/courses.service';
 import { TX_OPTIONS } from 'src/common/prisma-tx.options';
@@ -464,21 +465,8 @@ export class LessonsService {
           },
         });
 
-        // Bước 6: log XP theo ngày (cộng dồn nếu đã có bản ghi hôm nay).
-        const logDate = toStudyDate(today);
-        const existingLog = await tx.userDailyXpLog.findFirst({
-          where: { userId, logDate },
-        });
-        if (existingLog) {
-          await tx.userDailyXpLog.update({
-            where: { id: existingLog.id },
-            data: { xpEarned: { increment: xpGain } },
-          });
-        } else {
-          await tx.userDailyXpLog.create({
-            data: { userId, logDate, xpEarned: xpGain },
-          });
-        }
+        // Bước 6: log XP theo ngày — một câu upsert, xem addDailyXp (BE3).
+        await addDailyXp(tx, userId, toStudyDate(today), xpGain);
       }
 
       return {

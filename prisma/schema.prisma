@@ -334,7 +334,11 @@ model UserDailyXpLog {
   user User @relation(fields: [userId], references: [id])
 
   // Leaderboard tuần: SUM(xp_earned) theo (user_id, khoảng log_date).
+  // Thừa từ khi có unique bên dưới, nhưng GIỮ: migration chỉ được THÊM (AGENTS.md).
   @@index([userId, logDate], map: "idx_daily_xp_user_date")
+  // Mỗi người MỘT hàng mỗi ngày — để addDailyXp() upsert được (BE3, migration
+  // 20261111000000_daily_xp_log_unique).
+  @@unique([userId, logDate], map: "uq_daily_xp_user_date")
   @@map("user_daily_xp_logs")
 }
 

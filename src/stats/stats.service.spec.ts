@@ -131,3 +131,91 @@ describe('getReviewQuizStatus — mở khoá đếm lại từ 0 mỗi ngày', (
     expect(res.is_unlocked).toBe(false);
   });
 });
+
+// ---------- BE3 ----------
+/** Đối số `userDailyXpLog.upsert()` — xem src/common/xp/daily-xp-log.ts. */
+type DailyXpUpsertArg = {
+  where: { userId_logDate: { userId: number; logDate: Date } };
+  update: { xpEarned: { increment: number } };
+  create: { userId: number; logDate: Date; xpEarned: number };
+};
+
+/** Chỉ những bảng/hàm mà completeMission() gọi tới. */
+type MissionPrismaMock = {
+  mission: { findUnique: AsyncMock; updateMany: AsyncMock };
+  user: { findUnique: AsyncMock; update: AsyncMock };
+  userDailyXpLog: { upsert: AsyncMock<[DailyXpUpsertArg]> };
+  $transaction: AsyncMock<[(tx: MissionPrismaMock) => Promise<unknown>]>;
+};
+
+describe('completeMission — nhật ký XP ghi bằng một câu upsert (BE3)', () => {
+  let service: StatsService;
+  let prisma: MissionPrismaMock;
+
+  beforeEach(async () => {
+    prisma = {
+      mission: {
+        findUnique: asyncMock().mockResolvedValue({
+          isActive: true,
+          correctCondition: null,
+          xpReward: 30,
+        }),
+        updateMany: asyncMock().mockResolvedValue({ count: 1 }),
+      },
+      user: {
+        findUnique: asyncMock().mockResolvedValue({
+          streak: 0,
+          lastStudyDate: null,
+        }),
+        update: asyncMock().mockResolvedValue({}),
+      },
+      userDailyXpLog: {
+        upsert: asyncMock<[DailyXpUpsertArg]>().mockResolvedValue({}),
+      },
+      $transaction: jest.fn<
+        Promise<unknown>,
+        [(tx: MissionPrismaMock) => Promise<unknown>]
+      >((cb) => cb(prisma)),
+    };
+
+    const mod = await Test.createTestingModule({
+      providers: [
+        StatsService,
+        { provide: PrismaService, useValue: prisma },
+        {
+          provide: StreakService,
+          useValue: { computeNewStreak: jest.fn().mockReturnValue(1) },
+        },
+        {
+          provide: AchievementsService,
+          useValue: {
+            checkAndAwardAchievements: jest.fn().mockResolvedValue([]),
+          },
+        },
+      ],
+    }).compile();
+    service = mod.get(StatsService);
+  });
+
+  it('nhận thưởng -> upsert đúng (user, ngày) với XP của nhiệm vụ', async () => {
+    await service.completeMission(5, { course_id: 'python' });
+
+    expect(prisma.userDailyXpLog.upsert).toHaveBeenCalledTimes(1);
+    const arg = prisma.userDailyXpLog.upsert.mock.calls[0][0];
+    const logDate = arg.where.userId_logDate.logDate;
+    expect(arg).toEqual({
+      where: { userId_logDate: { userId: 5, logDate } },
+      update: { xpEarned: { increment: 30 } },
+      create: { userId: 5, logDate, xpEarned: 30 },
+    });
+  });
+
+  it('thua tranh chấp (nhiệm vụ đã bị nhận) -> KHÔNG ghi nhật ký XP', async () => {
+    prisma.mission.updateMany.mockResolvedValue({ count: 0 });
+
+    await expect(
+      service.completeMission(5, { course_id: 'python' }),
+    ).rejects.toThrow('Không tìm thấy nhiệm vụ đang hoạt động');
+    expect(prisma.userDailyXpLog.upsert).not.toHaveBeenCalled();
+  });
+});

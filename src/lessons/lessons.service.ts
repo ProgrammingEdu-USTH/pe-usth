@@ -299,10 +299,27 @@ export class LessonsService {
     const lessonTitle = body.lessonTitle ?? body.title;
     const quizScore = body.quizScore ?? body.quiz_score;
 
-    // Bước 1: course phải tồn tại.
-    const course = await this.prisma.course.findUnique({
-      where: { id: courseId },
-    });
+    // Bước 1 + 1a: course và enrollment đọc SONG SONG, mỗi bên chỉ lấy cột cần.
+    //
+    // BE3. Đo ngày 10/11/2026 (BE1-MOC-DO.md): hai câu này từng chạy NỐI ĐUÔI
+    // — enrollment chờ course dù không cần kết quả của nó — tức hai vòng tới
+    // Neon trước khi transaction kịp mở; course còn lấy cả hàng, gồm JSONB
+    // `content_meta` mà hàm này không đọc. Song song bớt một vòng cho MỌI lượt
+    // hoàn thành bài.
+    //
+    // THỨ TỰ KIỂM giữ nguyên: không có khoá → 404, chưa ghi danh → 403, rồi mới
+    // tới lessonNo → 400. Giá phải trả: khoá không tồn tại vẫn tốn một truy vấn
+    // enrollment bị bỏ — không lộ gì, vì 404 ném trước khi kết quả được dùng.
+    const [course, enrolled] = await Promise.all([
+      this.prisma.course.findUnique({
+        where: { id: courseId },
+        select: { id: true, lessonCount: true },
+      }),
+      this.prisma.enrollment.findUnique({
+        where: { userId_courseId: { userId, courseId } },
+        select: { userId: true },
+      }),
+    ]);
     if (!course) throw new NotFoundException('Không tìm thấy khóa học');
 
     // Bước 1a: PHẢI đã ghi danh khoá này (lỗ hổng BB2-7, MEDIUM, đã chứng
@@ -319,9 +336,6 @@ export class LessonsService {
     // Cùng thông điệp/kiểu lỗi với courses.service.ts#rateCourse (chỗ khác
     // đã có sẵn đúng kiểm tra này) để giữ nhất quán trải nghiệm lỗi trong
     // toàn hệ thống.
-    const enrolled = await this.prisma.enrollment.findUnique({
-      where: { userId_courseId: { userId, courseId } },
-    });
     if (!enrolled) {
       throw new ForbiddenException(
         'Bạn cần đăng ký khoá học trước khi hoàn thành bài học',

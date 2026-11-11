@@ -167,6 +167,83 @@ describe('LessonsService.completeLesson', () => {
     });
   });
 
+  // ---------- BE3 ----------
+  // Hai câu đọc trước transaction từng chạy NỐI ĐUÔI (2 vòng tới Neon, đo trong
+  // BE1-MOC-DO.md). Gộp song song thì phải giữ nguyên thứ tự lỗi 404 → 403 → 400.
+  describe('course + enrollment đọc song song, thứ tự lỗi giữ nguyên', () => {
+    it('enrollment được gọi khi course CHƯA trả về (song song thật, không nối đuôi)', async () => {
+      // course.findUnique chỉ trả về SAU KHI enrollment.findUnique đã được gọi.
+      // Code nối đuôi (await course rồi mới gọi enrollment) không bao giờ gọi
+      // tới enrollment, nên course chờ mãi và hết hạn bên dưới ném lỗi.
+      let baoEnrollmentDaGoi!: () => void;
+      const enrollmentDaGoi = new Promise<void>((r) => {
+        baoEnrollmentDaGoi = r;
+      });
+      prisma.course.findUnique.mockImplementation(async () => {
+        await Promise.race([
+          enrollmentDaGoi,
+          new Promise((_, reject) =>
+            setTimeout(
+              () =>
+                reject(
+                  new Error(
+                    'course.findUnique chờ mãi mà enrollment chưa được gọi — hai truy vấn đang NỐI ĐUÔI',
+                  ),
+                ),
+              1000,
+            ),
+          ),
+        ]);
+        return COURSE;
+      });
+      prisma.enrollment.findUnique.mockImplementation(() => {
+        baoEnrollmentDaGoi();
+        return Promise.resolve({ userId: 1 });
+      });
+      prisma.lesson.findFirst.mockResolvedValue({ id: 10, xpReward: 0 });
+
+      const res = await service.completeLesson(1, 1, { courseId: 'python' });
+      expect(res.ok).toBe(true);
+    });
+
+    it('chỉ lấy cột cần dùng — không kéo JSONB content_meta của course', async () => {
+      prisma.course.findUnique.mockResolvedValue(COURSE);
+      prisma.enrollment.findUnique.mockResolvedValue({ userId: 1 });
+      prisma.lesson.findFirst.mockResolvedValue({ id: 10, xpReward: 0 });
+
+      await service.completeLesson(1, 1, { courseId: 'python' });
+
+      expect(prisma.course.findUnique).toHaveBeenCalledWith({
+        where: { id: 'python' },
+        select: { id: true, lessonCount: true },
+      });
+      expect(prisma.enrollment.findUnique).toHaveBeenCalledWith({
+        where: { userId_courseId: { userId: 1, courseId: 'python' } },
+        select: { userId: true },
+      });
+    });
+
+    it('khoá KHÔNG tồn tại và cũng chưa ghi danh -> vẫn 404, không phải 403', async () => {
+      prisma.course.findUnique.mockResolvedValue(null);
+      prisma.enrollment.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.completeLesson(1, 1, { courseId: 'khong-co' }),
+      ).rejects.toThrow(NotFoundException);
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+    });
+
+    it('chưa ghi danh VÀ lessonNo ngoài khoảng -> 403 trước 400', async () => {
+      prisma.course.findUnique.mockResolvedValue(COURSE);
+      prisma.enrollment.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.completeLesson(1, 999999, { courseId: 'python' }),
+      ).rejects.toThrow(ForbiddenException);
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+    });
+  });
+
   // Các chốt chặn có sẵn phải còn nguyên sau khi thêm kiểm tra ghi danh —
   // và phải chặn TRƯỚC khi kiểm tra ghi danh hoặc ngay sau, miễn là vẫn chặn.
   describe('các chốt chặn khác vẫn giữ nguyên', () => {

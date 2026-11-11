@@ -3,3 +3,6 @@ export * from './LofiCard';
 export * from './LofiProgressBar';
 export * from './LofiFeedbackBanner';
 export * from './LofiHeader';
+export * from './LofiInput';
+export * from './LofiTabs';
+export * from './LofiPhoneMockup';

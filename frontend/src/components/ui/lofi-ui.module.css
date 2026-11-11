@@ -1,0 +1,363 @@
+/* ══════════════════════════════════════════════════════════════════════
+   LOFI UI SYSTEM — Thư viện Component dùng chung (Phase 1)
+   Phong cách Lofi Room, Glassmorphism, bo góc mềm mại, token chuẩn
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ──────────────────────────────────
+   1. NÚT BẤM (BUTTON)
+   ────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid transparent;
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  box-sizing: border-box;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Biến thể nút */
+.btnGlass {
+  background: var(--glass, rgba(30, 21, 42, 0.58));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-color: var(--line, rgba(255, 236, 220, 0.12));
+  color: var(--ink, #fff6ee);
+}
+.btnGlass:hover:not(:disabled) {
+  background: var(--glass-hi, rgba(52, 38, 68, 0.66));
+  border-color: var(--line-hi, rgba(255, 236, 220, 0.26));
+}
+
+.btnPrimary {
+  background: linear-gradient(135deg, var(--amber, #ffc97a), #f59e0b);
+  color: #2b1803;
+  font-weight: 700;
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
+}
+.btnPrimary:hover:not(:disabled) {
+  filter: brightness(1.06);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35);
+}
+
+.btnSecondary {
+  background: linear-gradient(135deg, rgba(255, 157, 184, 0.16), rgba(201, 179, 255, 0.18));
+  border-color: rgba(255, 157, 184, 0.3);
+  color: var(--ink, #fff6ee);
+}
+.btnSecondary:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(255, 157, 184, 0.24), rgba(201, 179, 255, 0.28));
+  border-color: rgba(255, 157, 184, 0.45);
+}
+
+.btnDanger {
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+.btnDanger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #fee2e2;
+}
+
+.btnGhost {
+  background: transparent;
+  color: var(--faint, rgba(255, 240, 230, 0.65));
+}
+.btnGhost:hover:not(:disabled) {
+  color: var(--ink, #fff6ee);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Kích cỡ nút */
+.sizeSm {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 12.5px;
+  border-radius: 10px;
+}
+.sizeMd {
+  height: 40px;
+  padding: 0 16px;
+  font-size: 13.5px;
+  border-radius: 12px;
+}
+.sizeLg {
+  height: 48px;
+  padding: 0 22px;
+  font-size: 15px;
+  border-radius: 14px;
+}
+.iconOnly {
+  padding: 0 !important;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ──────────────────────────────────
+   2. KHUNG THẺ (CARD)
+   ────────────────────────────────── */
+.card {
+  position: relative;
+  border-radius: 20px;
+  box-sizing: border-box;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: hidden;
+}
+
+.cardGlass {
+  background: var(--glass, rgba(26, 18, 36, 0.62));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--line, rgba(255, 236, 220, 0.12));
+  color: var(--ink, #fff6ee);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+}
+
+.cardPaper {
+  background: var(--paper, #f2e7cf);
+  color: var(--paper-ink, #3a2a1f);
+  border: 1px solid rgba(139, 90, 43, 0.18);
+  box-shadow: 0 6px 20px rgba(45, 30, 20, 0.12);
+}
+
+.cardHighlight {
+  border-color: rgba(255, 201, 122, 0.35);
+  box-shadow: 0 0 24px rgba(255, 201, 122, 0.12), 0 8px 32px rgba(0, 0, 0, 0.28);
+}
+
+.cardInteractive:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-hi, rgba(255, 236, 220, 0.26));
+}
+
+.padNone { padding: 0; }
+.padSm { padding: 12px 16px; }
+.padMd { padding: 20px 24px; }
+.padLg { padding: 28px 32px; }
+
+/* ──────────────────────────────────
+   3. THANH TIẾN ĐỘ (PROGRESS BAR)
+   ────────────────────────────────── */
+.progressWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.progressLabelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--faint, rgba(255, 240, 230, 0.7));
+}
+
+.progressTrack {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progressTrackThick {
+  height: 12px;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fillGradient {
+  background: linear-gradient(90deg, var(--sky, #9ad8ff), var(--lilac, #c9b3ff));
+}
+.fillAmber {
+  background: linear-gradient(90deg, var(--amber, #ffc97a), #f59e0b);
+}
+.fillOk {
+  background: linear-gradient(90deg, var(--ok, #8be3a8), #34d399);
+}
+
+/* ──────────────────────────────────
+   4. HỘP PHẢN HỒI (FEEDBACK BANNER)
+   ────────────────────────────────── */
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.bannerIcon {
+  flex-shrink: 0;
+  font-size: 16px;
+  margin-top: 1px;
+}
+
+.bannerContent {
+  flex: 1;
+}
+
+.bannerTitle {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.bannerSuccess {
+  background: rgba(139, 227, 168, 0.12);
+  border: 1px solid rgba(139, 227, 168, 0.3);
+  color: #8be3a8;
+}
+
+.bannerWarning {
+  background: rgba(255, 201, 122, 0.12);
+  border: 1px solid rgba(255, 201, 122, 0.3);
+  color: #ffc97a;
+}
+
+.bannerError {
+  background: rgba(255, 157, 184, 0.14);
+  border: 1px solid rgba(255, 157, 184, 0.35);
+  color: #ff9db8;
+}
+
+.bannerInfo {
+  background: rgba(154, 216, 255, 0.12);
+  border: 1px solid rgba(154, 216, 255, 0.3);
+  color: #9ad8ff;
+}
+
+/* ──────────────────────────────────
+   5. THANH ĐIỀU HƯỚNG LOFI (HEADER)
+   ────────────────────────────────── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  background: rgba(13, 11, 19, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--line, rgba(255, 236, 220, 0.12));
+  color: var(--ink, #fff6ee);
+  box-sizing: border-box;
+}
+
+.headerBrand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--ink, #fff6ee);
+  font-weight: 700;
+  font-size: 15px;
+  transition: opacity 0.2s ease;
+}
+.headerBrand:hover {
+  opacity: 0.85;
+}
+
+.brandLogo {
+  font-size: 20px;
+}
+
+.headerNav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--glass, rgba(30, 21, 42, 0.58));
+  padding: 4px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--line, rgba(255, 236, 220, 0.12));
+}
+
+.navLink {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--faint, rgba(255, 240, 230, 0.65));
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.navLink:hover {
+  color: var(--ink, #fff6ee);
+  background: rgba(255, 255, 255, 0.08);
+}
+.navLinkActive {
+  color: var(--ink, #fff6ee);
+  background: rgba(255, 255, 255, 0.16);
+  font-weight: 700;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.statPill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--glass, rgba(30, 21, 42, 0.58));
+  border: 1px solid var(--line, rgba(255, 236, 220, 0.12));
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink, #fff6ee);
+}
+.statDone {
+  color: var(--ok, #8be3a8);
+}
+.statXp {
+  color: var(--sky, #9ad8ff);
+}

@@ -87,7 +87,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
-| Frontend unit test | `cd frontend && npm run test:unit` → **661 ca** / 61 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **668 ca** / 62 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -99,15 +99,15 @@ học nó.
 | pe-da bảng từng bước | `py scripts/pe-da/gen_traces.py` → **56 vết / 359 khối đủ điều kiện** (303 bỏ qua — bảng từng ghi 356/300, đã CŨ từ trước 04/11: dựng lại từ HEAD cũng ra 359/303, và `check-moc-nen` không đối chiếu hàng này; phần lớn vì không ra được câu dự đoán nào ĐÁNG hỏi); build.py `return 1` nếu lệch |
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
 | Xuất hình cho người học | `node scripts/check-figures.mjs` → 16 ca, **0 hỏng** |
-| Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **18 mục, 14 có đường tới, 4 còn tối (đã khai lý do)**, 0 lỗi |
-| Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **2 mục chết, 2 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **16 CSS module trong `src/`** |
+| Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **19 mục, 15 có đường tới, 4 còn tối (đã khai lý do)**, 0 lỗi |
+| Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **2 mục chết, 2 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **17 CSS module trong `src/`** |
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
 | Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **114/179 khớp, 65 bài CHỜ NẠP** (năm lát văn phong 08/11 · hai lát alt text · năm lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
-| Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **37 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
+| Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **43 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 661 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/365 · duongToi 18/14/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 668 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/365 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -118,7 +118,7 @@ và mất bộ kiểm duy nhất chấm được code học viên. `frontend/pub
 thì bộ 172 bài dùng lại NGUYÊN VẸN: chính nó đặt `MPLBACKEND=Agg` và móc `Figure`, nên
 26 bài biểu đồ chạy được trong worker. Đừng dọn "cho gọn".
 
-**Con số 661 phải đo lại mỗi lần thêm/bớt ca, không được đoán, và nó ĐÃ TRÔI 59 đơn vị.**
+**Con số 668 phải đo lại mỗi lần thêm/bớt ca, không được đoán, và nó ĐÃ TRÔI 59 đơn vị.**
 Đo lại 09/11/2026 bằng cách chạy TỪNG tệp: bảng này cộng ra **592** trong khi bộ chạy ra
 **651**, tức nó đứng yên suốt chín vòng trong khi hàng "Frontend unit test" được sửa đúng
 mỗi lần. `check-moc-chay` chỉ đối chiếu HÀNG, không đối chiếu bảng phân rã, nên nó xanh cả
@@ -128,18 +128,22 @@ và mười tệp test mới (`ablate-trung-thuc`, `dich-bam-vo-bai-hoc`, `khoa-
 Phân rã hiện tại, ĐO chứ không cộng tay:
 ablate-trung-thuc 19 · catalog-duration 2 · catalog-naming 3 · consent-banner 15 ·
 course-resume 9 · data-files 18 · dich-bam-vo-bai-hoc 7 · ds-contrast 17 · editor-load-gate 14 ·
-feedback-link 9 · feedback-rank 3 · forum-xss 1 · giam-chuyen-dong 3 · goc-hoc-cho-so 7 ·
-goc-hoc-hang-nut 4 · goc-hoc-khung-cho 6 · goc-hoc-lo-trinh 9 · goc-hoc-man-con 3 ·
-goc-hoc-nhan-mot 6 · goc-hoc-thanh-cuon 5 · hover-cam-ung 3 · ide-brief-code 12 · ide-handoff 6 ·
-ide-output-scroll 6 · ide-partial-output 10 · ide-stop-autosave 27 · ide-thanh-cong-cu 4 ·
-ide-trace 38 · inline-code 7 · insert-gate-sync 2 · khoa-roi-giao-trinh 5 · label-version 2 ·
-learning-events 48 · lesson-back 15 · lesson-chrome-sticky 4 · lesson-load 7 · lien-ket-noi-bo 3 ·
-mcq-code 9 · mcq-next-after-wrong 23 · o-go-16px 5 · o-nhap-nhieu-dong 2 · phan-bai 8 ·
-practice-contract 15 · practice-run 9 · prewarm-gate 5 · read-diagram 12 · read-guess 19 ·
-read-trace 16 · read-try-it 20 · recap-recall 7 · review-quiz 34 · run-stale 15 ·
-session-marker 5 · spaced-review 14 · studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 ·
-trang-404 6 · trang-loi 12 · trap-leak 3 · worker-csp 7 = 661.
-Mốc trước là 658; thêm giam-chuyen-dong 3 (HOẠT ẢNH DỊCH CHUYỂN phải tắt được dưới
+feedback-link 9 · feedback-rank 3 · forum-xss 1 · giam-chuyen-dong 3 · giao-dien 7 ·
+goc-hoc-cho-so 7 · goc-hoc-hang-nut 4 · goc-hoc-khung-cho 6 · goc-hoc-lo-trinh 9 ·
+goc-hoc-man-con 3 · goc-hoc-nhan-mot 6 · goc-hoc-thanh-cuon 5 · hover-cam-ung 3 ·
+ide-brief-code 12 · ide-handoff 6 · ide-output-scroll 6 · ide-partial-output 10 ·
+ide-stop-autosave 27 · ide-thanh-cong-cu 4 · ide-trace 38 · inline-code 7 · insert-gate-sync 2 ·
+khoa-roi-giao-trinh 5 · label-version 2 · learning-events 48 · lesson-back 15 ·
+lesson-chrome-sticky 4 · lesson-load 7 · lien-ket-noi-bo 3 · mcq-code 9 ·
+mcq-next-after-wrong 23 · o-go-16px 5 · o-nhap-nhieu-dong 2 · phan-bai 8 · practice-contract 15 ·
+practice-run 9 · prewarm-gate 5 · read-diagram 12 · read-guess 19 · read-trace 16 ·
+read-try-it 20 · recap-recall 7 · review-quiz 34 · run-stale 15 · session-marker 5 ·
+spaced-review 14 · studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 · trang-404 6 ·
+trang-loi 12 · trap-leak 3 · worker-csp 7 = 668.
+Mốc trước là 661; thêm giao-dien 7 (GIAO DIỆN THỨ HAI "Đài thiên văn": script trước-paint chạy
+trong `node:vm`, ba nơi khớp id, cấu trúc tệp token, luật "đêm không rò", và hai bảng tương
+phản ngày/đêm tính từ chính tệp CSS).
+Trước đó 658; thêm giam-chuyen-dong 3 (HOẠT ẢNH DỊCH CHUYỂN phải tắt được dưới
 `prefers-reduced-motion` — WCAG 2.3.3; đo được 1 khe thật: băng phản hồi sau khi chấm
 trượt 12px mà không tắt, trong khi `consoleIn` chỉ trượt 4px đã được tắt).
 Trước đó 656 → 658; thêm hover-cam-ung 3 và ide-thanh-cong-cu 5 → 4 (ca `:hover` DỜI từ
@@ -7008,6 +7012,82 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   nằm ở `scripts/pe-da/`. Nó in `MODULE_NOT_FOUND` + `Node.js v24.15.0`, mà đuôi ấy TRÔNG
   GIỐNG một crash dump OOM. **Hai nguyên nhân rất khác nhau có cùng hình dạng đầu ra —
   đọc dòng `code:` trước khi quy cho tài nguyên.**
+
+- **GIAO DIỆN THỨ HAI "ĐÀI THIÊN VĂN" — vòng B1: một TRỤC chọn riêng, token ở TỆP RIÊNG, và bản design
+  KHÔNG phải thứ tôi tưởng.** Chủ dự án muốn theme chiêm tinh cho màn bài học, người dùng được CHỌN, và nó phải
+  "có animation như lofi đang làm". Đọc design trước khi dựng thì ra ba điều đảo hướng:
+  · màn bài học của canvas "Đài thiên văn — concept" là **giấy dưới đèn**, không phải nền trời sao: nền sheet
+    `#EFE6D4`, thẻ vellum `#FBF5E3` xếp lớp như tập giấy, mực nâu, ĐỒNG `#8A6D1E`/`#C9A646`, tiêu đề EB Garamond,
+    nút chính vẫn xanh `#1F5FE0`. Bản đồ sao cũ (`070886a^`, nhánh `chiem-tinh`) **chưa từng chạm màn bài học**
+    (grep `sky-|star-map|nebula` trong lesson-chrome/python-studio rỗng) và gắn cứng vào 48 bài/8 module của pe-v4;
+  · **nhánh `test` không có gì để bê**: bộ `Lofi*` (`d834674`, +734 dòng) có **0 chỗ mount** trên chính nhánh đó, dùng
+    token phòng-đêm của Góc học (`--glass`, `--sky`, `--lilac`) chỉ khai trong `scene.css`, và vào `src/` là đỏ BA cổng
+    (8 `:hover` không guard · `@keyframes spin` không tắt · đích bấm 30–40px). `206708e` thay cả trang bài học bằng
+    `<LofiWorkspace>` 2 057 dòng, gọi `apiFetch` lúc mount. Ba Ý còn lại (thanh tiến độ khoá, `aria-busy` cho nút
+    chính) nằm ở nhánh A của kế hoạch, dựng lại trên component của main;
+  · **"như lofi" nghĩa là gì, ĐO trên production (trang chủ, 504×732): 133 animation vô hạn** = `breathe` 39 · `twk` ~55 ·
+    `tw` 25 · `city` 5 · `steam` 4 · `blink` 1. Màn bài học lofi thì chuyển động theo SỰ KIỆN (`stepIn`, `feedbackIn`,
+    `consoleIn`, `pop`/`burst`/`awards`). Luật motion của theme nay: mọi chuyển động sự kiện lofi có bản chiêm tinh,
+    cộng nền sống có NGÂN SÁCH ≤ 12 animation vô hạn (≤ 4 dưới 561px), chỉ `opacity`/`transform`, tắt dưới
+    `prefers-reduced-motion`. Lý do con số 12: 133 animation tốn ~11% luồng chính ở GPU rời nhưng 62–98% ở điện thoại
+    + CPU 4× (mục "ĐO ĐỘ GIẬT CỦA TRANG CHỦ"). Luật cũ trong kế hoạch ("không vòng lặp khi đứng yên", lấy từ nếp của
+    bản đồ sao) bị chủ dự án bác — ĐÃ BỎ.
+  **KIẾN TRÚC, đã phản biện với mã thật trước khi viết (hai lượt đọc, 8 điểm sửa):**
+  · `data-theme="thien-van"` trên `<html>` (VẮNG = lofi) + khoá `pe-giao-dien`; sáng/tối vẫn là `body.dark`, nên có
+    BỐN tổ hợp. `lib/giao-dien.ts` là NGUỒN DUY NHẤT (id, whitelist, chuỗi script trước-paint, hàm áp), không import
+    gì vì test nạp thẳng `.ts`. Tên không phải `theme.ts`: `check-duong-toi` so theo basename và `LessonChrome.tsx`
+    đã chứa chữ "theme";
+  · token ở `public/static/css/theme-thien-van.css` (RANK 55, tự thêm vào mọi trang như `studio-tokens.css`), KHÔNG
+    ở `edu-theme.css`: `ds-contrast.test.mjs` đọc file đó bằng neo chuỗi (đếm ĐÚNG hai khai báo mỗi token, luật ấm R ≥ B,
+    `DEM` cắt từ `body.dark` tới CUỐI tệp). Mọi selector mở bằng `html[data-theme="thien-van"]:has([data-tv-surface])`,
+    nên trang chưa thiết kế (java, htmlcss, db_design, /interface) **không đổi nửa vời**. Đã đo: trang khoá học khi
+    theme đã chọn vẫn ra token lofi nguyên vẹn;
+  · **`--st-*` KHÔNG ghi đè ở khối `html`** — studio-tokens.css khai lại chúng trên `body` dưới dạng `var(--ds-*)`,
+    nên chúng tự đi theo `--ds-*` và một khai báo `--st-*` ở `html` là code chết. Khối đêm phải khai lại MỌI token mà
+    `body.dark` của lofi cũng khai (đặc hiệu của nó nằm trên `html[…]`), nên có luật "đêm không rò";
+  · `--edu-scrollbar-thumb` chỉ MỘT giá trị cho cả hai chế độ (`scrollbar-color` tính trên `<html>`, giá trị ở
+    `body.dark` không bao giờ tới). `#8A6D1E`: 3,95:1 trên nền ngày, 3,82:1 trên nền đêm.
+  **MÀU ĐÃ TÍNH LẠI — bản design có chỗ không qua nổi, và tôi suýt chép nó:** đồng `#8A6D1E` làm CHỮ chỉ 3,95–4,50
+  (eyebrow phải dùng mực `#5C4F2C`, 7,2:1) · đồng `#C9A646` trên thanh chỉ 2,05:1 (vạch thước ngày phải `#8A6D1E`) ·
+  tint ok/lỗi của lofi-ĐÊM trên thẻ nâu `#2A2416` là **1,00–1,01:1** — vô hình, nên theme khai tint riêng
+  (`#1B3A2C` · `#4A2229` · `#2C3A5E`, tách 1,14–1,38:1, chữ ≥ 5,9:1) · `--edu-card-bg` trắng 55% trên vellum chỉ 1,05:1
+  nên mất hẳn mặt phẳng, theme dùng nền ĐỤC.
+  **NÚT CHỌN Ở ĐÂU — đã hỏi chủ dự án, vì số đo làm lộ một đánh đổi:** thanh trên của màn bài học KHÔNG còn pixel
+  trống nào dưới 861px (ở 390px mỗi đoạn thanh tiến độ rộng 11,1px; thêm một nút 44px ép nó 7,7px, mẹo chồng lên nhãn
+  "n/N" còn 9,3px). Trả lời: nút nằm trong lề phải 90px đã chừa sẵn (`right: 23px`, 23+44 < 90, **không reflow**) và CHỈ
+  từ 861px; dưới đó ẩn, người dùng điện thoại đổi giao diện ở trang khoá học (vòng B2). Đã đo ở 320px: nút ẩn, không
+  tràn ngang, thanh tiến độ giữ 110px. Trong bài học trước giờ KHÔNG có chỗ đổi sáng/tối (nút chỉ ở `SiteHeader`,
+  header đó không dựng trên trang bài học) nên bảng chọn gồm cả hai nhóm radio THẬT (`<input type="radio">`, mũi tên
+  và đọc màn hình đúng sẵn).
+  **BA LỖI CỦA CHÍNH TÔI, hai cái đã có tên trong file này:**
+  · dựng regex từ template literal (`\s` thành chữ `s`) — bẫy ca trang 404, vấp lần thứ ba;
+  · bộ bóc chú thích `/\/\*[\s\S]*?\*\//` NUỐT MẤT bảng `RANK` của `PageStyles.tsx`: dòng chú thích
+    `// các file pages/*.inline.css → 30` chứa `/*` và mở một khối giả chạy tới `*/` kế tiếp. Test tra RANK trên văn
+    bản THÔ. Cùng họ "một phép đọc trả về rỗng là thứ phải nghi ngờ trước nhất";
+  · `npm run lint:tokens` dùng `!` ở đầu lệnh — KHÔNG chạy được trong cmd của Windows (`'!' is not recognized`) và
+    `grep` của nó cũng bắt chú thích. Chạy thẳng `grep -rnE '#[0-9a-fA-F]{3,8}' src/ --include=*.module.css`: toàn bộ
+    kết quả là chú thích cũ, 0 mã màu trong khai báo.
+  **CỔNG `giao-dien.test.mjs` (7 ca), và ABLATE 14 chiều đều đỏ:** chạy script trong `node:vm` với giá trị bơm vào
+  localStorage (`"><script>`, `__proto__`, `THIEN-VAN`, chuỗi có dấu cách…) → 0 thuộc tính · khớp BA nơi (id ⇔ script ⇔
+  CSS ⇔ nút) · cấu trúc tệp (mọi selector mở bằng `html[data-theme]`, ngày không `var()`/`--st-*`, đêm không thanh
+  cuộn) · đêm không rò · tương phản ngày/đêm TÍNH từ chính tệp CSS. Số đỏ: xoá `--edu-t3` khỏi đêm **2** · `--st-*` ở khối
+  html **1** · thanh cuộn ở đêm **1** · script nhận chuỗi bất kỳ **1** · gỡ `<ThemePicker />` **1** · gõ sai id **5** ·
+  tint đêm về giá trị lofi **1** · theme nạp trước studio-tokens **1** · gỡ `data-tv-surface` **1** · PageStyles không
+  tự thêm tệp **1** · quy tắc `body {` trần **2** · nút 40px (cổng 44px) **1** · mất dòng reduced-motion **1** ·
+  bản đồ tính năng `toiThieu: 1700` **1**. Chiều đối chứng (không gieo gì) bị `ablate.mjs` TỪ CHỐI với "GIEO VÔ HIỆU"
+  — đúng. **Một phép thử cho 0 đỏ và đúng:** đổi tên khoá localStorage — khoá do MỘT hằng sinh ra ở cả script lẫn nút
+  nên không thể lệch; không dựng ca cho một bất biến đã đúng theo cấu tạo.
+  **SỐ ĐÃ ĐO:** frontend unit **661 → 668 ca / 61 → 62 tệp** · sổ ngưỡng **37 → 43** (sáu sàn `san-*-thien-van`, chỉ
+  được NÂNG) · bản đồ tính năng **18 → 19 mục, 15 có đường tới** · CSS module trong `src/` **16 → 17** · typecheck sạch ·
+  lint **146 cảnh báo** (đúng trần) · `npm run build` exit 0 · `check-moc-nen` / `check-nguong` / `check-tai-nguyen-chet` /
+  `check-export-chet` / `check-duong-toi` / `check-moc-chay frontend` 0 lỗi. Xem THẬT trong Chrome trên `next build` +
+  `next start` (chặn mọi `fetch` ra ngoài bằng `initScript` để KHÔNG ghi gì lên production — khung bài học vẫn dựng ở
+  trạng thái "đang tải"): ngày nền `rgb(239,230,212)`, đêm `rgb(11,18,32)` + `color-scheme: dark`, bảng chọn 4 hàng
+  44px, lofi y nguyên. `ASSET_VERSION` → `2026-11-12a`. **KHÔNG đụng nội dung bài** nên `check-da-nap` giữ 65 bài chờ.
+  **GIỚI HẠN PHẢI NÓI RA:** vòng này mới chạm TOKEN. Màn bài học đã đổi màu giấy/mực/thanh cuộn, nhưng CHƯA có thước
+  đồng, đĩa đồng A/B/C, EB Garamond, hay chuyển động riêng — đó là B3–B9. Cổng đọc CSS TĨNH: nó chứng minh "token
+  khai đúng", không chứng minh "bề mặt nào đổi màu" (phần đó là ảnh chụp trình duyệt từng vòng). Chưa đo trên thiết
+  bị cảm ứng thật. Tiến độ cả nhánh nằm ở Kanzo `pe-usth#202`.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

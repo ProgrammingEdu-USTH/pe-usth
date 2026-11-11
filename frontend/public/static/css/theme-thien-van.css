@@ -1,0 +1,129 @@
+/* GIAO DIỆN "ĐÀI THIÊN VĂN" — lớp ghi đè TOKEN, không một quy tắc nào áp lên phần tử.
+
+   Nguồn thiết kế: canvas "Đài thiên văn — concept" (màn bài học). Nó KHÔNG phải
+   nền trời sao tối: màn học là tờ giấy kem dưới đèn (nền "sheet", thẻ "vellum"),
+   mực nâu, ĐỒNG làm điểm nhấn; bản tối đổi nền sang xanh đêm và thẻ sang nâu
+   đậm. Nút chính giữ xanh `--edu-accent` của lofi (chữ trắng lên nó 5,57:1).
+
+   VÌ SAO LÀ TỆP RIÊNG, KHÔNG PHẢI THÊM KHỐI VÀO edu-theme.css.
+   `ds-contrast.test.mjs` đọc edu-theme.css bằng neo chuỗi: mỗi token phải khai
+   ĐÚNG hai lần, nhiều token phải "ấm" (R ≥ B), và `docThemeToken` lấy lần khai
+   ĐẦU TIÊN tính tới CUỐI tệp. Một khối mới ở đó hoặc làm đỏ cổng, hoặc bị cổng
+   bỏ qua — cả hai đều sai. Tệp này có cổng riêng: `giao-dien.test.mjs`.
+
+   CẤU TRÚC — ba khối, và thứ tự không tuỳ ý:
+   · khối NGÀY  `html[…]:has([data-tv-surface])`          — nguyên tố, chỉ giá trị trần
+   · khối ĐÊM   `html[…]:has([data-tv-surface]) body.dark` — nguyên tố, chỉ giá trị trần
+   · khối color-scheme
+   Mọi selector mở đầu bằng `html[data-theme="thien-van"]` nên người dùng lofi
+   và mọi trang di sản KHÔNG đổi một pixel. `:has([data-tv-surface])` giới hạn
+   vào những bề mặt ĐÃ thiết kế (hiện là khung bài học): chọn theme không làm
+   java / htmlcss / db_design / /interface đổi màu nửa vời.
+
+   Vì sao không ghi đè `--st-*`: chúng được khai lại trên `body` dưới dạng
+   `var(--ds-*)` (studio-tokens.css), nên đổi `--ds-*` là chúng tự đi theo. Một
+   khai báo `--st-*` ở khối `html` sẽ bị bí danh trên `body` che mất — là code chết.
+
+   LUẬT ĐÊM KHÔNG RÒ: bất kỳ token nào khối NGÀY đặt mà `body.dark` của lofi
+   cũng khai thì khối ĐÊM PHẢI khai lại (đặc hiệu của `body.dark` lofi nằm trên
+   `html[…]` nên nếu quên, ban đêm lofi tràn vào đúng token đó). Test canh.
+
+   `--edu-scrollbar-thumb` chỉ có MỘT giá trị cho cả hai chế độ: `scrollbar-color`
+   tính trên <html>, nên một giá trị đặt ở `body.dark` không bao giờ tới nó.
+   Đồng `#8A6D1E` trên nền sheet 3,95:1 và trên nền đêm 3,82:1 (WCAG 1.4.11 đòi 3:1). */
+
+html[data-theme="thien-van"]:has([data-tv-surface]) {
+  /* ── nền trang và thẻ ── */
+  --ds-page: #EFE6D4;
+  --ds-card: #FBF5E3;
+  --ds-desk: #E3D7BC;
+  --ds-line: #DCCFA6;
+  /* tint "đang chọn / thông tin": #D6E3FA trên thẻ #FBF5E3 chỉ 1,13:1 — đúng
+     mức của lofi (#E8F0FE trên trắng 1,12:1); trạng thái chọn còn có viền riêng. */
+  --ds-violet-tint: #D6E3FA;
+  --ds-ochre: #046A4E;
+  --ds-ochre-tint: #E4F3EC;
+  --ds-sanguine: #AE1A2C;
+  --ds-sanguine-tint: #FDF0EE;
+  /* thẻ nằm trên TẬP giấy: hai nét dày 1px/3px rồi bóng đổ xa */
+  --ds-shadow-open: 0 1px 0 #F3EBD2, 0 3px 0 #E7DBB7, 0 22px 38px -18px rgba(36, 27, 16, .32);
+
+  --edu-bg-solid: #EFE6D4;
+  --edu-bg-image:
+    radial-gradient(760px 540px at 1% -12%, rgba(255, 250, 236, .92), rgba(255, 250, 236, 0) 68%),
+    linear-gradient(180deg, #EFE6D4 0%, #EAE0CB 100%);
+
+  /* thang chữ: mọi bậc ≥ 5,3:1 trên thẻ, thanh và nền trang (đo bằng công thức WCAG) */
+  --edu-t1: #241B10;
+  --edu-t2: #4A3F22;
+  --edu-t3: #5C4F2C;
+  --edu-t4: #66573A;
+  --edu-t5: #6B5B36;
+  --edu-t6: #5C4F2C;
+
+  /* thẻ lồng trong thẻ (bảng, hộp gợi ý, giải thưởng): ĐỤC — nền trắng 55% của
+     lofi trên vellum chỉ còn 1,05:1 nên mất hẳn mặt phẳng */
+  --edu-card-bg: #F3EAD0;
+  --edu-card-border: #DCCFA6;
+  --edu-card-line: #DCCFA6;
+  --edu-card-shadow: 0 1px 0 #F3EBD2, 0 3px 0 #E7DBB7, 0 22px 38px -18px rgba(36, 27, 16, .32);
+  --edu-panel-bg: rgba(246, 240, 228, .97);
+  --edu-panel-bg-solid: #F6F0E4;
+  --edu-panel-shadow: 0 20px 50px rgba(36, 27, 16, .22);
+  --edu-sidebar-border: #DCCFA6;
+  --edu-track-bg: rgba(138, 109, 30, .18);
+  /* chip `code nội tuyến`: 1,37:1 so với thẻ (sàn của lofi là 1,35), chữ t1 11,4:1 */
+  --edu-code-inline-bg: #E3D2AC;
+  --edu-scrollbar-thumb: #8A6D1E;
+
+  /* riêng của giao diện — chỉ khai khi đã có bề mặt dùng nó */
+  --tv-brass: #8A6D1E;
+  --tv-rule: #DCCFA6;
+}
+
+html[data-theme="thien-van"]:has([data-tv-surface]) body.dark {
+  --ds-page: #0B1220;
+  --ds-card: #2A2416;
+  --ds-desk: #3A3220;
+  --ds-line: #574B2A;
+  --ds-violet-tint: #2C3A5E;
+  /* tint của lofi ban đêm (#10291F, #33202A) trên thẻ nâu #2A2416 chỉ 1,00–1,01:1
+     — vô hình. Ba tint này tách ≥ 1,14:1 mà chữ vẫn ≥ 5,9:1. */
+  --ds-ochre: #4FD0A0;
+  --ds-ochre-tint: #1B3A2C;
+  --ds-sanguine: #FF8798;
+  --ds-sanguine-tint: #4A2229;
+  --ds-shadow-open: 0 1px 0 #3A3220, 0 3px 0 #1F1A10, 0 22px 38px -18px rgba(0, 0, 0, .6);
+
+  --edu-bg-solid: #0B1220;
+  --edu-bg-image:
+    radial-gradient(1100px 620px at 16% -12%, rgba(201, 166, 70, .16), rgba(201, 166, 70, 0) 66%),
+    linear-gradient(180deg, #0B1220 0%, #0B1220 100%);
+
+  --edu-t1: #E8EEF7;
+  --edu-t2: #C9D3E4;
+  --edu-t3: #AFBDD2;
+  --edu-t4: #ABB8CD;
+  --edu-t5: #A8B5CA;
+  --edu-t6: #B8C4D8;
+
+  --edu-card-bg: #332B1B;
+  --edu-card-border: #574B2A;
+  --edu-card-line: #574B2A;
+  --edu-card-shadow: 0 1px 0 #3A3220, 0 3px 0 #1F1A10, 0 22px 38px -18px rgba(0, 0, 0, .6);
+  --edu-panel-bg: rgba(42, 36, 22, .97);
+  --edu-panel-bg-solid: #2A2416;
+  --edu-panel-shadow: 0 20px 50px rgba(0, 0, 0, .6);
+  --edu-sidebar-border: #574B2A;
+  --edu-track-bg: rgba(201, 166, 70, .22);
+  --edu-code-inline-bg: #4A3B20;
+
+  --tv-brass: #C9A646;
+  --tv-rule: #574B2A;
+}
+
+/* Ban đêm của giao diện này là TỐI thật: thanh cuộn, ô nhập gốc, nền canvas mặc
+   định của trình duyệt phải theo. Lofi không khai color-scheme (đo 12/11/2026). */
+html[data-theme="thien-van"]:has([data-tv-surface]):has(> body.dark) {
+  color-scheme: dark;
+}

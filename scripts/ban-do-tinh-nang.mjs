@@ -213,6 +213,19 @@ export const BAN_DO = [
       ctx.bai.reduce((n, l) => n + (l.content_json.step_2?.mcq?.length ?? 0), 0),
     toiThieu: 400,
   },
+  {
+    id: 'chon-giao-dien',
+    ten: 'Chọn giao diện — lofi chill / Đài thiên văn, và sáng/tối, ngay trong bài học',
+    thucHien: 'frontend/src/lib/giao-dien.ts:datGiaoDien',
+    mount: 'frontend/src/components/lesson-chrome/LessonChrome.tsx',
+    manHinh: 'thanh trên của mọi màn (từ 861px)',
+    duLieu: 'ThemePicker',
+    // Nút nằm ở khung chung `LessonChrome` — mọi bài của khoá dựng nó, nên số
+    // chỗ tới được là số bài. Phần CÓ THỂ hỏng không nằm ở đây mà ở ngưỡng 861px:
+    // dưới ngưỡng đó nút bị ẩn có chủ đích (xem `.themeSlot`).
+    dem: (ctx) => ctx.bai.length,
+    toiThieu: 170,
+  },
 
   // ---- ĐÃ DỰNG MÀ CHƯA CÓ ĐƯỜNG TỚI — khai ra, không để im lặng -----------
   {

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 
 import { ALL_PRECEDENCES } from '@/components/PageStyles';
 import { withAssetVersion } from '@/lib/assetVersion';
+import { SCRIPT_TRUOC_PAINT } from '@/lib/giao-dien';
 
 // Root layout TỐI THIỂU — không import CSS global nào ở đây.
 // Mỗi page/layout con tự import ĐÚNG tổ hợp CSS của template gốc
@@ -169,15 +170,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             quy tắc gắn với `body.light`. Chỉ 3 file CSS của khóa CSDL dùng
             `body.light` nên thêm class này ở mọi trang không đổi gì chỗ khác.
 
-            Phải nằm trong <body> (không phải <head>) vì cần document.body. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "(function(){try{var d=localStorage.getItem('theme')==='dark';" +
-              "document.body.classList.toggle('dark',d);" +
-              "document.body.classList.toggle('light',!d);}catch(e){}})();",
-          }}
-        />
+            Phải nằm trong <body> (không phải <head>) vì cần document.body.
+
+            Chuỗi script nay sinh từ `lib/giao-dien.ts` — nơi đó còn đặt thêm
+            `data-theme` lên <html> cho giao diện thứ hai ("Đài thiên văn"),
+            kèm WHITELIST. Hai nơi (script, CSS) phải khớp id nên chúng chung
+            một nguồn; `giao-dien.test.mjs` canh. <html> đã có
+            suppressHydrationWarning nên thuộc tính thêm lúc này không gây
+            lệch hydrate. */}
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_TRUOC_PAINT }} />
         {children}
         {/* Hiệu ứng chuột xanh–đỏ (đèn bám con trỏ, nghiêng 3D ô khóa học). Chỉ đổi biến CSS,
             không chèn DOM nên không gây lỗi hydration; tự tắt trên cảm ứng/giảm chuyển động. */}

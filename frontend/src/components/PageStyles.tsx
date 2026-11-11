@@ -54,6 +54,9 @@ const RANK: Record<string, number> = {
   'edu-card.css': 47,
   // token riêng của Python Studio — sau edu-theme, trước lớp co giãn
   'studio-tokens.css': 50,
+  // giao diện thứ hai "Đài thiên văn" — CHỈ ghi đè token, sau studio-tokens
+  // (cùng độ ưu tiên thì file sau thắng) và trước lớp co giãn
+  'theme-thien-van.css': 55,
   // lớp co giãn điện thoại/tablet — PHẢI cuối cùng, xem RESPONSIVE_CSS bên dưới
   'edu-responsive.css': 60,
 };
@@ -90,6 +93,22 @@ const RESPONSIVE_CSS = '/static/css/edu-responsive.css';
  */
 const TOKENS_CSS = '/static/css/studio-tokens.css';
 
+/**
+ * Token của giao diện "Đài thiên văn", cũng tự thêm vào MỌI trang vì cùng lý do
+ * với bảng token ở trên (bỏ sót một trang là trang đó chọn theme mà không đổi).
+ *
+ * File này CHỈ KHAI BIẾN và mọi khối đều bắt đầu bằng
+ * `html[data-theme="thien-van"]:has([data-tv-surface])` — tức nó không áp gì
+ * lên trang nào trừ khi người dùng đã chọn theme VÀ trang có bề mặt đã thiết
+ * kế (`data-tv-surface`). Người dùng lofi trả đúng một request nhỏ, không đổi
+ * pixel nào. Không đặt token trong `edu-theme.css`: `ds-contrast.test.mjs` đọc
+ * file ấy bằng neo chuỗi (đếm ĐÚNG hai khai báo mỗi token, luật "ấm" R ≥ B).
+ *
+ * Đường dẫn phải được viết ĐẦY ĐỦ ở đây: `check-tai-nguyen-chet.mjs` chỉ coi
+ * một tệp public là sống khi `src/` nhắc đúng đường dẫn đó.
+ */
+const THEME_CSS = '/static/css/theme-thien-van.css';
+
 /** Tên nhóm precedence — React xếp <head> theo thứ tự nhóm được đăng ký. */
 export function cssPrecedence(href: string): string {
   const file = href.split('/').pop() || href;
@@ -107,7 +126,7 @@ export const ALL_PRECEDENCES: string[] = Array.from(
 export default function PageStyles({ hrefs }: { hrefs: string[] }) {
   // Lọc trùng phòng khi một trang đã tự liệt kê file co giãn.
   const co = (f: string, ds: string[]) => (ds.includes(f) ? ds : [...ds, f]);
-  const all = co(RESPONSIVE_CSS, co(TOKENS_CSS, hrefs));
+  const all = co(RESPONSIVE_CSS, co(THEME_CSS, co(TOKENS_CSS, hrefs)));
   return (
     <>
       {all.map((href) => (

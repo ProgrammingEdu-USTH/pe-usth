@@ -71,6 +71,7 @@
 }
 /* Frame 1440: nút × ở x=56, pill streak kết thúc ở x=1350. */
 .topBarInner {
+  position: relative;
   max-width: 1440px;
   height: 100%;
   margin: 0 auto;
@@ -78,6 +79,28 @@
   display: flex;
   align-items: center;
   gap: 14px;
+}
+
+/* NÚT CHỌN GIAO DIỆN — nằm trong LỀ PHẢI 90px mà `.topBarInner` đã chừa (pill
+   streak kết thúc ở x=1350 trên frame 1440), nên KHÔNG đổi một pixel bố cục.
+   Đặt `right: 23px` cho nút 44px: 23 + 44 = 67 < 90, còn 23px đệm bên trái.
+
+   CHỈ TỪ 861px. Dưới đó padding phải về 16px và không còn chỗ trống: đo ở 390px
+   thanh tiến độ rộng 179px (11,1px mỗi đoạn của bài 15 màn), thêm một nút 44px
+   trong dòng chảy ép nó còn 7,7px, và mẹo chồng lên nhãn "n/N" còn 9,3px. Lofi
+   cũng nằm trong thanh này, nên không đánh đổi thanh tiến độ của lofi lấy nút
+   của theme khác. Người dùng điện thoại đổi giao diện ở trang khoá học. */
+.themeSlot {
+  display: none;
+}
+@media (min-width: 861px) {
+  .themeSlot {
+    display: block;
+    position: absolute;
+    right: 23px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
 }
 
 .closeBtn {

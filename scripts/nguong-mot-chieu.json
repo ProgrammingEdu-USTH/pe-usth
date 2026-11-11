@@ -231,7 +231,7 @@
       "tep": "AGENTS.md",
       "re": "test:unit[^|\\n]*?\\*\\*(\\d+) ca\\*\\*",
       "chieu": "nang",
-      "moc": 661,
+      "moc": 668,
       "vi": "Số ca test frontend trong bảng mốc nền. Hai cổng canh con số này vì chúng bắt HAI lỗi khác nhau: `check-moc-chay.mjs` CHẠY bộ test và bắt \"số trong bảng SAI\" (nó từng ghi 204 trong khi cây mã chỉ có 134), còn mục sổ này bắt \"ai đó HẠ số trong bảng cho khớp một bộ đã bị cắt bớt\" — ablate đã đo: xoá một ca thật rồi sửa bảng từ 573 xuống 572 thì cổng chạy-bộ-test XANH, chỉ sổ này đỏ. Khi nào con số vượt 1000 thì nó sẽ mang dấu cách ngăn nhóm nghìn kiểu Việt và regex `(\\d+)` hết khớp — lúc đó sửa cả regex, đừng bỏ mục này."
     },
     {
@@ -305,6 +305,54 @@
       "chieu": "nang",
       "moc": 3.6,
       "vi": "Thanh cuon la THANH PHAN GIAO DIEN nen WCAG 1.4.11 doi 3:1 so voi nen. Truoc 09/11/2026 no mang `scrollbar-color: var(--edu-accent)` (#2563eb) va mot thumb `linear-gradient(xanh -> do)` — be mat LON NHAT con mang brand tien-lofi, chay gan het mep phai tren trang khoa hoc (cuon 5 354px). Do: chi #7C6551 (4,74/3,57) va #806853 (4,52/3,75) vuot 3:1 o CA HAI che do voi MOT gia tri. Ablate: tra ve brand -> 1 do; thumb qua nhat -> 1 do; thumb dam (9,3 ngay nhung 1,82 dem) -> 1 do. NHUNG noi chinh SAN nay roi tra thumb nhat ve -> 0 do, tuc muc so nay la thu canh chieu cua con so ay."
+    },
+    {
+      "ten": "san-chu-thien-van-ngay",
+      "tep": "frontend/e2e/unit/giao-dien.test.mjs",
+      "re": "const SAN_CHU_NGAY = ([\\d.]+);",
+      "chieu": "nang",
+      "moc": 5.3,
+      "vi": "Sàn tương phản của MỌI bậc chữ (t1–t6) trên bốn mặt nền, chế độ NGÀY của giao diện Đài thiên văn. Đo 5,34:1 ở bậc thấp nhất (t5 trên nền trang). Hạ nó là cho chữ phụ chìm vào giấy kem."
+    },
+    {
+      "ten": "san-chu-thien-van-dem",
+      "tep": "frontend/e2e/unit/giao-dien.test.mjs",
+      "re": "const SAN_CHU_DEM = ([\\d.]+);",
+      "chieu": "nang",
+      "moc": 6.2,
+      "vi": "Sàn tương phản của MỌI bậc chữ trên bốn mặt nền, chế độ ĐÊM của giao diện Đài thiên văn. Mặt nền thấp nhất là thẻ lồng #332B1B."
+    },
+    {
+      "ten": "san-chip-thien-van-ngay",
+      "tep": "frontend/e2e/unit/giao-dien.test.mjs",
+      "re": "const SAN_CHIP_NGAY = ([\\d.]+);",
+      "chieu": "nang",
+      "moc": 1.35,
+      "vi": "Sàn tách nền chip `code nội tuyến` khỏi thẻ vellum, ngày. Cùng mức lofi (1,35): chip là lần thứ TƯ của họ lỗi \"trắng trên trắng\"."
+    },
+    {
+      "ten": "san-chip-thien-van-dem",
+      "tep": "frontend/e2e/unit/giao-dien.test.mjs",
+      "re": "const SAN_CHIP_DEM = ([\\d.]+);",
+      "chieu": "nang",
+      "moc": 1.4,
+      "vi": "Sàn tách nền chip khỏi thẻ nâu, đêm. Cùng mức lofi-đêm (1,4)."
+    },
+    {
+      "ten": "san-tint-thien-van-dem",
+      "tep": "frontend/e2e/unit/giao-dien.test.mjs",
+      "re": "const SAN_TINT_DEM = ([\\d.]+);",
+      "chieu": "nang",
+      "moc": 1.12,
+      "vi": "Sàn tách ba tint (đúng/lỗi/đang chọn) khỏi thẻ nâu #2A2416 ban đêm. Tint của lofi-đêm trên thẻ này chỉ 1,00–1,01:1 — vô hình; đây là lý do theme phải khai tint riêng. Đo 1,14:1 ở tint lỗi."
+    },
+    {
+      "ten": "san-thanh-cuon-thien-van",
+      "tep": "frontend/e2e/unit/giao-dien.test.mjs",
+      "re": "const SAN_THANH_CUON = ([\\d.]+);",
+      "chieu": "nang",
+      "moc": 3.6,
+      "vi": "Sàn thanh cuộn (WCAG 1.4.11 đòi 3:1) trên nền trang ngày (3,95) và đêm (3,82). Một giá trị cho cả hai chế độ vì scrollbar-color tính trên <html>."
     }
   ]
 }

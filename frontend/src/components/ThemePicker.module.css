@@ -1,0 +1,130 @@
+/* Nút chọn giao diện + bảng. Chỉ dùng token (lint:tokens cấm mã màu thô ở
+   *.module.css). Đích bấm 44px: `dich-bam-vo-bai-hoc.test.mjs` canh cả hai quy tắc
+   `cursor: pointer` của file này. */
+
+.root {
+  position: relative;
+}
+
+.trigger {
+  /* 44, không bớt: luật đích bấm của repo. Cố định cả hai trục vì bề rộng một
+     nút chỉ có icon không do nội dung quyết. */
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--edu-card-line);
+  background: var(--edu-panel-bg-solid);
+  color: var(--edu-t3);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+/* Guard con trỏ thật: trên màn cảm ứng `:hover` dính lại sau cú chạm — lý lẽ và
+   số đo ở `.start` trong components/code-visualizer/CodeVisualizer.module.css. */
+@media (hover: hover) and (pointer: fine) {
+  .trigger:hover {
+    background: var(--ds-violet-tint);
+    color: var(--edu-t1);
+  }
+}
+.trigger[aria-expanded='true'] {
+  color: var(--tv-brass, var(--ds-violet));
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 60;
+  width: 248px;
+  padding: 8px 12px 12px;
+  border: 1px solid var(--edu-card-line);
+  border-radius: 16px;
+  background: var(--edu-panel-bg-solid);
+  box-shadow: var(--edu-panel-shadow);
+  color: var(--edu-t1);
+  font-size: 15px;
+  /* hiện dần + trượt xuống 6px, một lần — tắt dưới giảm chuyển động */
+  animation: bangVao 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes bangVao {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.legend {
+  padding: 8px 0 4px;
+  color: var(--edu-t3);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.opt {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+@media (hover: hover) and (pointer: fine) {
+  .opt:hover {
+    background: var(--ds-violet-tint);
+  }
+}
+/* radio thật, ẩn khỏi mắt nhưng vẫn nhận focus và phím mũi tên */
+.radio {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+}
+.optText {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 500;
+}
+.optText::after {
+  content: '';
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--edu-t4);
+}
+.radio:checked + .optText {
+  font-weight: 700;
+}
+.radio:checked + .optText::after {
+  border-color: var(--tv-brass, var(--ds-violet));
+  background: var(--tv-brass, var(--ds-violet));
+}
+.radio:focus-visible + .optText {
+  outline: 3px solid var(--ds-violet);
+  outline-offset: 6px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+  .trigger {
+    transition: none;
+  }
+}

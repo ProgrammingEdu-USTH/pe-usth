@@ -8,6 +8,8 @@
 // components/python-studio; ăn theo token --edu-*/--st-* đã gom ở
 // edu-theme.css + studio-tokens.css (--st-chrome-h/--st-action-h/--st-col/
 // --st-card-radius được tạo sẵn từ trước, dùng ở đây).
+import ThemePicker from '@/components/ThemePicker';
+
 import styles from './LessonChrome.module.css';
 
 export interface LessonChromeProps {
@@ -96,7 +98,12 @@ export default function LessonChrome({
         ? styles.primaryBtnErr
         : styles.primaryBtn;
   return (
-    <div className={styles.chrome}>
+    // data-tv-surface: bề mặt NÀY đã được thiết kế cho giao diện "Đài thiên văn".
+    // `theme-thien-van.css` chỉ ghi đè token khi trang có ít nhất một phần tử
+    // mang thuộc tính này (`html[data-theme]:has([data-tv-surface])`), nên trang
+    // chưa thiết kế không đổi màu nửa vời. Gắn ở gốc khung (không ở `.main`)
+    // vì overlay/toast dựng ở `document.body` cần token từ phần tử <html>.
+    <div className={styles.chrome} data-tv-surface="">
       <header className={styles.topBar}>
         <div className={styles.topBarInner}>
           <button
@@ -175,6 +182,12 @@ export default function LessonChrome({
           >
             <span aria-hidden="true">🔥</span>
             <span>{streak}</span>
+          </div>
+
+          {/* Chọn giao diện + sáng/tối. Nằm ngoài dòng chảy (xem `.themeSlot`):
+              dưới 861px không còn pixel nào trống trên thanh này. */}
+          <div className={styles.themeSlot}>
+            <ThemePicker />
           </div>
         </div>
       </header>

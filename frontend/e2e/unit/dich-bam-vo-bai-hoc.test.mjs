@@ -71,6 +71,10 @@ const TEP = [
   // kèm `flex: none` từ trước nên nó tự đạt — tức tệp này vào `TEP` không
   // phải một bản sửa, nó là bịt một lỗ trong lời khai độ phủ.
   'src/components/SiteHeader.module.css',
+  // Thêm 12/11/2026 cùng nút chọn giao diện (ThemePicker): `.trigger` 44×44 và
+  // `.opt` cao 44, bề rộng 100%. Nút này mount ở thanh trên của MỌI màn bài học
+  // (từ 861px) nên không được đứng ngoài cổng đích bấm.
+  'src/components/ThemePicker.module.css',
 ];
 
 /**

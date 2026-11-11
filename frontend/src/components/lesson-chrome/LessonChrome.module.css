@@ -351,6 +351,138 @@ button.segment::after {
   }
 }
 
+/* ── GIAO DIỆN "ĐÀI THIÊN VĂN": CHUYỂN ĐỘNG ─────────────────────────────────
+   Yêu cầu của chủ dự án: theme chiêm tinh phải "sống" như lofi trên production.
+   Đo trang chủ lofi (12/11/2026, 504×732): 133 animation vô hạn — breathe 39,
+   twk ~55, tw 25, city 5, steam 4, blink 1. Màn BÀI HỌC lofi thì chuyển động
+   theo SỰ KIỆN (stepIn, feedbackIn, consoleIn, pop/burst/awards).
+
+   Không sao chép con số 133: nó tốn ~11% luồng chính ở GPU rời nhưng 62–98% ở
+   điện thoại + CPU 4× (AGENTS.md, mục độ giật của trang chủ). Theme này có:
+     · SỰ KIỆN — `tvSlip`: vào màn như một phiếu giấy được đặt xuống;
+     · NỀN SỐNG, NGÂN SÁCH ≤ 12 vô hạn (≤ 4 dưới 561px), hôm nay 3:
+       quầng đèn thở (`tvLamp`) + hai lớp sao nhấp nháy ngược pha
+       (`tvStarsA`/`tvStarsB`, chỉ ban đêm).
+   `giao-dien-chuyen-dong.test.mjs` canh ngân sách, "chỉ opacity/transform",
+   "mọi hoạt ảnh tắt dưới prefers-reduced-motion" và "không fill both/forwards".
+   Tên keyframe viết camelCase: cổng `giam-chuyen-dong` khớp bằng `` nên tên
+   có dấu gạch nối bị gộp nhầm với tên khác. Mọi hoạt ảnh khai bằng shorthand
+   `animation:` vì cổng không đọc longhand. */
+:global(html[data-theme="thien-van"]) .stepEnter {
+  animation: tvSlip 0.52s var(--tv-ease) backwards;
+}
+@keyframes tvSlip {
+  from {
+    opacity: 0;
+    transform: translateY(20px) rotate(-0.5deg);
+  }
+}
+
+/* `isolation` để lớp nền (z-index âm) nằm TRÊN nền của chính `.chrome` mà vẫn
+   DƯỚI nội dung. Không có nó, lớp z-index âm rơi xuống dưới nền `.chrome`. */
+:global(html[data-theme="thien-van"]) .chrome {
+  isolation: isolate;
+}
+/* Quầng đèn: một lớp phủ viewport, chỉ đổi opacity (compositor). */
+:global(html[data-theme="thien-van"]) .chrome::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(760px 540px at 1% -12%, var(--tv-lamp), transparent 68%);
+  animation: tvLamp 9s ease-in-out infinite;
+}
+@keyframes tvLamp {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+/* Hai lớp sao: mỗi lớp là MỘT phần tử 2×2px mang 14 chấm bằng box-shadow, nên
+   14 ngôi sao chỉ là một animation. Hai lớp chạy ngược pha để không nhấp nháy
+   cùng nhịp. `display` đi theo token: ban ngày `none` ⇒ phần tử không dựng và
+   animation không tồn tại (đo bằng `document.getAnimations()`). */
+:global(html[data-theme="thien-van"]) .chrome::after {
+  content: '';
+  display: var(--tv-star-display, none);
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--tv-star);
+  box-shadow:
+    6vw 9vh var(--tv-star),
+    14vw 31vh var(--tv-star),
+    22vw 14vh var(--tv-star),
+    31vw 5vh var(--tv-star),
+    44vw 22vh var(--tv-star),
+    57vw 8vh var(--tv-star),
+    66vw 27vh var(--tv-star),
+    73vw 12vh var(--tv-star),
+    82vw 4vh var(--tv-star),
+    90vw 24vh var(--tv-star),
+    96vw 11vh var(--tv-star),
+    11vw 58vh var(--tv-star),
+    4vw 76vh var(--tv-star),
+    93vw 63vh var(--tv-star);
+  animation: tvStarsA 7s ease-in-out infinite;
+}
+:global(html[data-theme="thien-van"]) .main::before {
+  content: '';
+  display: var(--tv-star-display, none);
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--tv-star);
+  box-shadow:
+    9vw 19vh var(--tv-star),
+    18vw 7vh var(--tv-star),
+    27vw 26vh var(--tv-star),
+    38vw 11vh var(--tv-star),
+    51vw 4vh var(--tv-star),
+    62vw 17vh var(--tv-star),
+    70vw 6vh var(--tv-star),
+    79vw 21vh var(--tv-star),
+    87vw 9vh var(--tv-star),
+    98vw 35vh var(--tv-star),
+    3vw 45vh var(--tv-star),
+    8vw 88vh var(--tv-star),
+    95vw 80vh var(--tv-star),
+    91vw 52vh var(--tv-star);
+  animation: tvStarsB 11s ease-in-out infinite;
+}
+@keyframes tvStarsA {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes tvStarsB {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
 .bottomBar {
   height: var(--st-action-h);
   position: sticky;
@@ -536,6 +668,18 @@ button.segment:focus-visible,
   }
   .segmentFill {
     transition: none;
+  }
+  :global(html[data-theme="thien-van"]) .stepEnter {
+    animation: none;
+  }
+  :global(html[data-theme="thien-van"]) .chrome::before {
+    animation: none;
+  }
+  :global(html[data-theme="thien-van"]) .chrome::after {
+    animation: none;
+  }
+  :global(html[data-theme="thien-van"]) .main::before {
+    animation: none;
   }
 }
 

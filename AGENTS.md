@@ -87,7 +87,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
-| Frontend unit test | `cd frontend && npm run test:unit` → **668 ca** / 62 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **673 ca** / 63 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -104,10 +104,10 @@ học nó.
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
 | Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **114/179 khớp, 65 bài CHỜ NẠP** (năm lát văn phong 08/11 · hai lát alt text · năm lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
-| Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **43 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
+| Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **45 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 668 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/365 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 673 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/365 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -118,7 +118,7 @@ và mất bộ kiểm duy nhất chấm được code học viên. `frontend/pub
 thì bộ 172 bài dùng lại NGUYÊN VẸN: chính nó đặt `MPLBACKEND=Agg` và móc `Figure`, nên
 26 bài biểu đồ chạy được trong worker. Đừng dọn "cho gọn".
 
-**Con số 668 phải đo lại mỗi lần thêm/bớt ca, không được đoán, và nó ĐÃ TRÔI 59 đơn vị.**
+**Con số 673 phải đo lại mỗi lần thêm/bớt ca, không được đoán, và nó ĐÃ TRÔI 59 đơn vị.**
 Đo lại 09/11/2026 bằng cách chạy TỪNG tệp: bảng này cộng ra **592** trong khi bộ chạy ra
 **651**, tức nó đứng yên suốt chín vòng trong khi hàng "Frontend unit test" được sửa đúng
 mỗi lần. `check-moc-chay` chỉ đối chiếu HÀNG, không đối chiếu bảng phân rã, nên nó xanh cả
@@ -129,18 +129,20 @@ Phân rã hiện tại, ĐO chứ không cộng tay:
 ablate-trung-thuc 19 · catalog-duration 2 · catalog-naming 3 · consent-banner 15 ·
 course-resume 9 · data-files 18 · dich-bam-vo-bai-hoc 7 · ds-contrast 17 · editor-load-gate 14 ·
 feedback-link 9 · feedback-rank 3 · forum-xss 1 · giam-chuyen-dong 3 · giao-dien 7 ·
-goc-hoc-cho-so 7 · goc-hoc-hang-nut 4 · goc-hoc-khung-cho 6 · goc-hoc-lo-trinh 9 ·
-goc-hoc-man-con 3 · goc-hoc-nhan-mot 6 · goc-hoc-thanh-cuon 5 · hover-cam-ung 3 ·
-ide-brief-code 12 · ide-handoff 6 · ide-output-scroll 6 · ide-partial-output 10 ·
-ide-stop-autosave 27 · ide-thanh-cong-cu 4 · ide-trace 38 · inline-code 7 · insert-gate-sync 2 ·
-khoa-roi-giao-trinh 5 · label-version 2 · learning-events 48 · lesson-back 15 ·
-lesson-chrome-sticky 4 · lesson-load 7 · lien-ket-noi-bo 3 · mcq-code 9 ·
-mcq-next-after-wrong 23 · o-go-16px 5 · o-nhap-nhieu-dong 2 · phan-bai 8 · practice-contract 15 ·
-practice-run 9 · prewarm-gate 5 · read-diagram 12 · read-guess 19 · read-trace 16 ·
-read-try-it 20 · recap-recall 7 · review-quiz 34 · run-stale 15 · session-marker 5 ·
-spaced-review 14 · studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 · trang-404 6 ·
-trang-loi 12 · trap-leak 3 · worker-csp 7 = 668.
-Mốc trước là 661; thêm giao-dien 7 (GIAO DIỆN THỨ HAI "Đài thiên văn": script trước-paint chạy
+giao-dien-chuyen-dong 5 · goc-hoc-cho-so 7 · goc-hoc-hang-nut 4 · goc-hoc-khung-cho 6 ·
+goc-hoc-lo-trinh 9 · goc-hoc-man-con 3 · goc-hoc-nhan-mot 6 · goc-hoc-thanh-cuon 5 ·
+hover-cam-ung 3 · ide-brief-code 12 · ide-handoff 6 · ide-output-scroll 6 ·
+ide-partial-output 10 · ide-stop-autosave 27 · ide-thanh-cong-cu 4 · ide-trace 38 ·
+inline-code 7 · insert-gate-sync 2 · khoa-roi-giao-trinh 5 · label-version 2 ·
+learning-events 48 · lesson-back 15 · lesson-chrome-sticky 4 · lesson-load 7 · lien-ket-noi-bo 3 ·
+mcq-code 9 · mcq-next-after-wrong 23 · o-go-16px 5 · o-nhap-nhieu-dong 2 · phan-bai 8 ·
+practice-contract 15 · practice-run 9 · prewarm-gate 5 · read-diagram 12 · read-guess 19 ·
+read-trace 16 · read-try-it 20 · recap-recall 7 · review-quiz 34 · run-stale 15 ·
+session-marker 5 · spaced-review 14 · studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 ·
+trang-404 6 · trang-loi 12 · trap-leak 3 · worker-csp 7 = 673.
+Mốc trước là 668; thêm giao-dien-chuyen-dong 5 (NGÂN SÁCH chuyển động của theme chiêm tinh: ≤ 12 vô
+hạn, chỉ opacity/transform, mọi hoạt ảnh tắt dưới reduced-motion, và lời hứa "theme phải có animation").
+Trước đó 661; thêm giao-dien 7 (GIAO DIỆN THỨ HAI "Đài thiên văn": script trước-paint chạy
 trong `node:vm`, ba nơi khớp id, cấu trúc tệp token, luật "đêm không rò", và hai bảng tương
 phản ngày/đêm tính từ chính tệp CSS).
 Trước đó 658; thêm giam-chuyen-dong 3 (HOẠT ẢNH DỊCH CHUYỂN phải tắt được dưới
@@ -7115,7 +7117,46 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   đổi id ở `shell.js` · gõ sai id ở `engine.js` · bỏ import `datGiaoDien` · mực ngày `#A09070` · quên khai `--ds-ink` ở
   khối đêm. Số ca không đổi (668): chỉ thêm khẳng định vào ca sẵn có. `ASSET_VERSION` → `2026-11-12b`: `theme-thien-van.css`
   đổi SAU khi B1 đã push, mà tệp `public/` được cache `immutable` theo `?v=` — không bump thì người đã tải bản B1 giữ
-  CSS cũ (thiếu bốn token trang khoá).
+  CSS cũ (thiếu bốn token trang khoá).
+
+  **BM (cùng ngày) — theme chiêm tinh CÓ chuyển động, và nó có NGÂN SÁCH.** Chủ dự án nhấn lại: theme phải "có animation
+  như programmingedu.io.vn đang làm với lofi". Số đo đã ghi ở trên (lofi trang chủ: 133 animation vô hạn); điều tôi đo
+  thêm là **màn BÀI HỌC lofi lúc đứng yên có 0 animation đang chạy** — lofi "sống" ở trang chủ, còn bài học chỉ chuyển động
+  theo sự kiện. Theme chiêm tinh ở bài học vì vậy có CẢ HAI, nhưng nền sống chỉ 3:
+  · **sự kiện** `tvSlip`: vào màn như một phiếu giấy được đặt xuống (`translateY(20px) rotate(-0.5deg)` → thẳng, 520 ms,
+    `cubic-bezier(.22,1,.36,1)` của bản Góc học, fill `backwards`);
+  · **nền sống** `tvLamp` (quầng đèn thở, 9 s) + `tvStarsA`/`tvStarsB` (hai lớp sao ngược pha, 7 s / 11 s, CHỈ ban đêm).
+  **ĐO THẬT, 390×844 + CPU 4× (nhịp trống bằng `MessageChannel`, không rAF — rAF tự ép khung):** lofi 0 animation ·
+  chiêm tinh ngày **1** (`tvLamp`) · chiêm tinh đêm **3**. Nhịp trống/giây: lofi 2 472 · ngày 3 016 · đêm 3 771 / 2 217 —
+  **trong nhiễu của máy** (hai mẫu cùng chế độ lệch nhau ~70%), nên kết luận trung thực là "không phân biệt được với lofi",
+  KHÔNG phải "nhanh hơn". Dưới `prefers-reduced-motion`: **0 animation chạy**, mọi `animation-name` về `none`.
+  **THIẾT KẾ: tránh hai cái bẫy của chính việc làm nền sống.**
+  · lớp nền z-index ÂM phải nằm TRÊN nền của `.chrome` mà DƯỚI nội dung. Không có `isolation: isolate` ở `.chrome` thì lớp
+    ấy rơi xuống dưới nền opaque của nó (thứ tự vẽ: nền gốc → z-index âm → nền khối trong dòng) và quầng đèn biến mất;
+  · sao đi theo token `--tv-star-display` (ngày `none`, đêm `block`): phần tử `display: none` KHÔNG dựng nên animation
+    không tồn tại — đo được ngày có đúng 1 animation. Nếu chỉ để `opacity: 0` ban ngày thì hai lớp sao vẫn chạy vô ích;
+  · mỗi lớp sao là MỘT phần tử 2×2px mang 14 chấm bằng `box-shadow` ⇒ 14 ngôi sao = 1 animation, không phải 14.
+  **CỔNG `giao-dien-chuyen-dong.test.mjs` (5 ca) — và vì sao không dựa vào `giam-chuyen-dong`:** cổng cũ chỉ đòi tắt keyframe
+  DỊCH CHUYỂN và coi hoạt ảnh chỉ-opacity là vô hại. Đúng với một lần nhấp nháy, SAI với một vòng lặp vô hạn (vẫn chiếm một
+  lớp compositor và một lượt tính style mỗi khung). Cổng mới đòi: ≤ 12 vô hạn (≤ 4 dưới 561px) · chỉ `opacity`/`transform` ·
+  MỌI hoạt ảnh của theme tắt dưới reduced-motion kể cả chỉ-opacity · không `forwards`/`both` (giữ trạng thái cuối đè
+  style nội tuyến của màn) · không longhand `animation-name` (cổng chỉ đọc shorthand) · tệp token công khai không chứa
+  animation (để mọi hoạt ảnh đi qua các cổng quét `src/`). **Hai ca TỰ KIỂM là lời hứa với chủ dự án**: theme phải có chuyển
+  động vào màn và ≥ 3 hoạt ảnh nền — gỡ hết animation để "cho xanh" thì ĐỎ.
+  **CỔNG BẮT LỖI CỦA CHÍNH TÔI ngay lần chạy đầu:** luật "không `var()` trong `animation`" của bản đầu đỏ trên
+  `var(--tv-ease)` ở vị trí easing — hợp lệ, vì tên keyframe vẫn đọc được. Luật quá tay; bỏ. Còn ca "mọi hoạt ảnh phải tìm
+  thấy @keyframes" giữ nguyên chính là thứ phát hiện được tên keyframe nằm trong var().
+  **ABLATE 9 chiều, cả 9 đỏ:** gỡ `tvLamp` (còn 2 < 3) **1** · gỡ chuyển động vào màn **2** · lớp sao B không tắt dưới RM **1** ·
+  keyframe đổi `margin` **1** · fill `both` **1** · longhand `animation-name` **1** · hạ ngân sách tổng xuống 2 **1** · hạ ngân
+  sách điện thoại xuống 2 **1** · khai animation trong tệp token công khai **1**.
+  **SỐ ĐÃ ĐO:** frontend unit **668 → 673 ca / 62 → 63 tệp** · sổ ngưỡng **43 → 45** (hai trần `tran-chuyen-dong-*`, chỉ
+  được HẠ) · `ASSET_VERSION` → `2026-11-12c`.
+  **GIỚI HẠN PHẢI NÓI RA:** (1) chuyển động `tvSlip` chưa xem được trên MỘT MÀN CÓ NỘI DUNG — API bị chặn để không ghi gì
+  lên production nên khung dựng ở trạng thái "đang tải"; tên keyframe, thời lượng và việc tắt dưới RM đã đo, còn "trông
+  thế nào khi lật sang màn thứ hai" thì chưa. (2) Nhiễu của phép đo nhịp trống (±30–70%) lớn hơn khác biệt cần phát hiện;
+  nó chỉ bắt được một lớp nền gây sụt LỚN (như 133 animation của trang chủ), không bắt được +15%. Muốn bắt mức đó phải đo
+  bằng vết DevTools (câu "AI", không phải "BAO LÂU" — xem mục đo hiệu năng) hoặc lặp ≥ 10 lần. (3) Chưa có chuyển động
+  cho thanh tiến độ, phương án, phản hồi, overlay — đó là B4, B5, B8 và dùng phần ngân sách còn lại (hôm nay 3/12).
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

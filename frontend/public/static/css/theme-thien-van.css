@@ -86,6 +86,13 @@ html[data-theme="thien-van"]:has([data-tv-surface]) {
   /* riêng của giao diện — chỉ khai khi đã có bề mặt dùng nó */
   --tv-brass: #8A6D1E;
   --tv-rule: #DCCFA6;
+  /* chuyển động: cùng đường cong với bản Góc học (ease-out dài) */
+  --tv-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* quầng đèn ở góc trên-trái của tờ giấy (bản design: radial-gradient góc trái) */
+  --tv-lamp: rgba(255, 250, 236, 0.92);
+  /* sao chỉ có ban đêm: `none` thì lớp sao KHÔNG được dựng, nên không có animation nào chạy */
+  --tv-star: #8A6D1E;
+  --tv-star-display: none;
 }
 
 html[data-theme="thien-van"]:has([data-tv-surface]) body.dark {
@@ -131,6 +138,10 @@ html[data-theme="thien-van"]:has([data-tv-surface]) body.dark {
 
   --tv-brass: #C9A646;
   --tv-rule: #574B2A;
+  --tv-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --tv-lamp: rgba(201, 166, 70, 0.16);
+  --tv-star: #E8EEF7;
+  --tv-star-display: block;
 }
 
 /* Ban đêm của giao diện này là TỐI thật: thanh cuộn, ô nhập gốc, nền canvas mặc

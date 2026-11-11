@@ -231,7 +231,7 @@
       "tep": "AGENTS.md",
       "re": "test:unit[^|\\n]*?\\*\\*(\\d+) ca\\*\\*",
       "chieu": "nang",
-      "moc": 668,
+      "moc": 673,
       "vi": "Số ca test frontend trong bảng mốc nền. Hai cổng canh con số này vì chúng bắt HAI lỗi khác nhau: `check-moc-chay.mjs` CHẠY bộ test và bắt \"số trong bảng SAI\" (nó từng ghi 204 trong khi cây mã chỉ có 134), còn mục sổ này bắt \"ai đó HẠ số trong bảng cho khớp một bộ đã bị cắt bớt\" — ablate đã đo: xoá một ca thật rồi sửa bảng từ 573 xuống 572 thì cổng chạy-bộ-test XANH, chỉ sổ này đỏ. Khi nào con số vượt 1000 thì nó sẽ mang dấu cách ngăn nhóm nghìn kiểu Việt và regex `(\\d+)` hết khớp — lúc đó sửa cả regex, đừng bỏ mục này."
     },
     {
@@ -353,6 +353,22 @@
       "chieu": "nang",
       "moc": 3.6,
       "vi": "Sàn thanh cuộn (WCAG 1.4.11 đòi 3:1) trên nền trang ngày (3,95) và đêm (3,82). Một giá trị cho cả hai chế độ vì scrollbar-color tính trên <html>."
+    },
+    {
+      "ten": "tran-chuyen-dong-vo-han-thien-van",
+      "tep": "frontend/e2e/unit/giao-dien-chuyen-dong.test.mjs",
+      "re": "const BUDGET_VO_HAN = (\\d+);",
+      "chieu": "ha",
+      "moc": 12,
+      "vi": "Trần số animation VÔ HẠN của giao diện Đài thiên văn trên màn bài học (hôm nay 3: quầng đèn + hai lớp sao). Lofi trang chủ có 133 animation vô hạn — tốn ~11% luồng chính ở GPU rời nhưng 62–98% ở điện thoại + CPU 4×. Nới trần là sao chép đúng lỗi đó vào theme mới."
+    },
+    {
+      "ten": "tran-chuyen-dong-dien-thoai-thien-van",
+      "tep": "frontend/e2e/unit/giao-dien-chuyen-dong.test.mjs",
+      "re": "const BUDGET_DIEN_THOAI = (\\d+);",
+      "chieu": "ha",
+      "moc": 4,
+      "vi": "Trần số animation vô hạn còn chạy dưới 561px. Khổ điện thoại là nơi 133 animation của lofi ăn 62–98% luồng chính."
     }
   ]
 }

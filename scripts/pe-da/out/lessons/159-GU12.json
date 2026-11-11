@@ -370,7 +370,24 @@
      },
      {
       "type": "paragraph",
-      "text": "Chạy bằng `python projects/quay_app.py --data duong-dan/quan.pkl.gz`. Nếu file chưa tồn tại, ứng dụng bắt đầu rỗng; nếu dữ liệu hỏng, nó báo lỗi và không tự ghi đè file đó. Bài kiểm tra tự động đi kèm xác nhận model, lượng trung bình, save/load và callback cơ bản. Quy trình giao diện thật, độ dễ dùng và bố cục còn cần kiểm tra thủ công theo rubric. Quán giờ có một màn hình cho người không viết code; hai chặng cuối ôn lại các chi tiết đã đi nhanh."
+      "text": "Chạy bằng `python projects/quay_app.py --data duong-dan/quan.pkl.gz`. Hai tình huống của file dữ liệu ở bảng dưới. Bài kiểm tra tự động đi kèm xác nhận model, lượng trung bình, save/load và callback cơ bản. Quy trình giao diện thật, độ dễ dùng và bố cục còn cần kiểm tra thủ công theo rubric. Quán giờ có một màn hình cho người không viết code; hai chặng cuối ôn lại các chi tiết đã đi nhanh."
+     },
+     {
+      "type": "table",
+      "headers": [
+       "Tình huống",
+       "Ứng dụng làm gì"
+      ],
+      "rows": [
+       [
+        "file chưa tồn tại",
+        "bắt đầu rỗng"
+       ],
+       [
+        "dữ liệu hỏng",
+        "báo lỗi, và không tự ghi đè file đó"
+       ]
+      ]
      }
     ]
    ],

@@ -91,10 +91,10 @@ học nó.
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
-| Giáo trình pe-da (đang chạy) | **179 bài, 11 module**, 567 màn đọc, **537 câu trắc nghiệm**, 669 câu luyện tập, **143 bài tập được chấm / 480 ca**, 2 439 phút; 139 bài chạy trong trình duyệt / 15 hỗn hợp / 25 trên máy |
+| Giáo trình pe-da (đang chạy) | **179 bài, 11 module**, 567 màn đọc, **537 câu trắc nghiệm**, 669 câu luyện tập, **143 bài tập được chấm / 480 ca**, 2 438 phút; 139 bài chạy trong trình duyệt / 15 hỗn hợp / 25 trên máy |
 | pe-da chấm nội dung | `node scripts/pe-da/check-pyodide.mjs` → 154 bài, 420 đoạn code, **0 hỏng**, **0 cảnh báo**, 30–85 s (BIẾN THIÊN theo tải máy — xem bẫy "trần 5 giây là trần của đường khác"); trần pha 1 là **15 000 ms** (`/ide`), trần pha 2 là **5 000 ms** (ô chạy trong bài), và mỗi pha in biên riêng; **pha 2: 52/53 đáp án mẫu màn luyện tập chạy đúng, 1 ngoại lệ đã khai, 10 câu bỏ qua (bài chạy trên máy)** |
 | pe-da chấm BÀI TẬP | `node scripts/pe-da/check-practice.mjs` → 143 bài, **480 ca đạt**, 773 biến thể sai đều trượt, **pha 3 cổng file dữ liệu 7 bài / 0 lỗi**, **pha 4: 2 372 ca trượt / 0 ca im lặng / 7 nhánh phản hồi**, ~12 s |
-| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **71 lỗi · 366 cảnh báo**, dồn ở L3 27 (câu ≥ 3 dấu phẩy) · L1 21 (câu > 30 tiếng) · L8 17 (mật độ thuật ngữ) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì những lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
+| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **68 lỗi · 365 cảnh báo**, dồn ở L3 24 (câu ≥ 3 dấu phẩy) · L1 21 (câu > 30 tiếng) · L8 17 (mật độ thuật ngữ) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì những lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
 | pe-da ĐỘ PHỦ văn phong | `node scripts/pe-da/check-phu-van-phong.mjs` → **99 chuỗi NGOÀI TẦM / 4 mục đã khai**, 0 lỗi. Bộ văn phong đọc `source/course.json` (cố ý), nên chữ do `build.py` SINH RA thì không luật nào thấy: **80 `figure.alt`** · 19 chuỗi của `diagram`. NỢ ẨN đã đo: L3 32 → 41 · L13 cb 217 → 229 · §4-A cb 23 → 30 · L14 0 → 3 lỗi — tức tín hiệu dừng báo THIẾU ~20%. Trần 99 CHỈ ĐƯỢC HẠ (108 → 99 ngày 08/11: 9 đoạn `paragraph.text` đã về gói nguồn) |
 | pe-da bảng từng bước | `py scripts/pe-da/gen_traces.py` → **56 vết / 359 khối đủ điều kiện** (303 bỏ qua — bảng từng ghi 356/300, đã CŨ từ trước 04/11: dựng lại từ HEAD cũng ra 359/303, và `check-moc-nen` không đối chiếu hàng này; phần lớn vì không ra được câu dự đoán nào ĐÁNG hỏi); build.py `return 1` nếu lệch |
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
@@ -102,12 +102,12 @@ học nó.
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **18 mục, 14 có đường tới, 4 còn tối (đã khai lý do)**, 0 lỗi |
 | Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **2 mục chết, 2 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **16 CSS module trong `src/`** |
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
-| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **117/179 khớp, 62 bài CHỜ NẠP** (năm lát văn phong 08/11 · hai lát alt text · năm lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
+| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **114/179 khớp, 65 bài CHỜ NẠP** (năm lát văn phong 08/11 · hai lát alt text · năm lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **37 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 661 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 71/366 · duongToi 18/14/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 661 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/365 · duongToi 18/14/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -6941,6 +6941,73 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   `public/static/css`, và không phủ hoạt ảnh dựng bằng JS (Web Animations API) — chính
   `CodeVisualizer.tsx` có một chỗ như thế, và chú thích tại chỗ đã nói ra rằng media query
   không với tới nó.
+
+- **ĐO 320px (WCAG 1.4.10 Reflow) VÀ KHÔNG TÌM RA GÌ — một kết quả ÂM, ghi lại để không
+  ai đo lại.** Ba vòng trước đo đích bấm, hover và giảm chuyển động ở **390**; chưa vòng
+  nào đo ở **320**, tức đúng ngưỡng của 1.4.10. Đo trên production:
+  · `/courses/python_advanced` → `scrollWidth 320`, **0 phần tử ngoài mép**;
+  · `/ide` → `scrollWidth 320`; 38 phần tử "ngoài mép" đều là DOM NỘI BỘ của Monaco
+    (`lines-content` rộng 16 777 216px, bị chính container của nó cắt) — và mã nguồn là
+    ngoại lệ 1.4.10 nêu đích danh;
+  · bài SY05 màn 0–3 và NP02 màn 0–3 (**gồm cả màn có khối `table`**) → tràn 0, ngoài mép 0;
+  · bài PD03 màn 2 — **bảng từng bước**: bảng rộng **616px** trong khung **214px** và nó
+    cuộn ngang NỘI BỘ, nhưng TRANG thì `tràn 0`. Bảng dữ liệu cũng là ngoại lệ 1.4.10. Và
+    hàng cao nhất đo được **58px**, chứ không phải 621 như lỗi 360px đã sửa trước đây.
+  **Chuỗi khung ở 320 lành:** `320 → 288 (gutter 16) → 252 (thẻ 18) → 250px chữ`, tức 78%
+  bề rộng dành cho nội dung. Không có chỗ nào ăn mất bề rộng một cách vô lý.
+  **Kết luận: việc làm ở 360/390 đã TỔNG QUÁT xuống 320.** Không có gì để sửa ở chiều này.
+
+- **BA CÂU LIỆT KÊ CỦA L3 THÀNH BẢNG — và chữ MỚI của tôi vi phạm chính luật đang hạ.**
+  Lát L3 thứ sáu (43 → 41 → 39 → 36 → 32 → 29 → 27 → **24**). Chọn theo tiêu chí của lát
+  #148 — câu phải là LIỆT KÊ CÓ NGHĨA ĐI KÈM — và ba câu rơi đúng một hình dạng *"hai
+  trường hợp, mỗi cái một luật"*, nên cột thứ hai không phải bịa:
+  · **VZ11** *"Với cột biểu diễn lượng, giữ mốc 0; với đường cần xem biến động nhỏ, có thể
+    thu hẹp trục nhưng phải hiển thị mốc rõ."* → bảng `Loại hình | Trục đứng`;
+  · **SY21** *"Để trao đổi dữ liệu với hệ khác, JSON thường tiện hơn; để lưu state Python
+    trong lab, pickle có thể phù hợp…"* → bảng `Dùng để | Chọn`;
+  · **GU12** *"Nếu file chưa tồn tại, ứng dụng bắt đầu rỗng; nếu dữ liệu hỏng, nó báo lỗi
+    và không tự ghi đè file đó."* → bảng `Tình huống | Ứng dụng làm gì`.
+  **L4 ĐI 0 → 1 VÌ MỘT TIÊU ĐỀ CỘT TÔI VỪA GÕ.** Bản đầu đặt tiêu đề `"Việc cần làm"`, mà
+  L4 cấm mở bằng danh-từ-hoá (`Việc/Sự/Quá trình/Khả năng…`) — và ô bảng nay NẰM TRONG tầm
+  quét từ vòng bịt điểm mù ô-bảng. Đổi thành `"Dùng để"` thì L4 về 0. Đúng bài học #148
+  (*"chữ MỚI của một lát sửa phải đi qua chính bộ luật mà lát ấy đang hạ"*), lần này nó
+  cắn ở chỗ dễ quên nhất: một tiêu đề cột không đọc ra như một câu, nhưng bộ kiểm thì coi
+  nó là một.
+  **CHÈN SAU đoạn văn, KHÔNG thay đoạn** — và lần này đo được bằng một con số: `màn đọc`
+  giữ **567** trước và sau. (#148 đã đo: THAY đoạn bằng bảng thì nó tụt 567 → 565, tức xoá
+  hai ranh giới màn.)
+  **SỐ ĐÃ ĐO:** L3 **27 → 24** · L12 cảnh báo **17 → 16** · L4 0 → 1 → **0** · tổng khoá
+  **71 → 68 lỗi · 366 → 365 cảnh báo** · câu phần giảng 2 732 → **2 750** · trung vị
+  15 → **14 tiếng** · câu > 30 tiếng 30 → **29** · `màn đọc` **567** (không đổi) · `table`
+  16 → **19** · thời lượng **2 439 → 2 438 phút** · `check.py --strict` 0/0 ·
+  `check-pyodide` 154 bài / 420 đoạn / 0 hỏng / 52-53 đáp án mẫu · `check-practice` 143
+  bài / 480 ca đạt / 773 biến thể sai đều trượt · `check-phu-van-phong` 99 chuỗi / trần 99
+  / 0 lỗi · frontend unit **661** (bảng đếm khối `table` 16 → 19 trong
+  `studio-lesson.test.mjs` phải sửa cùng commit) · ratchet 18 luật 0 lỗi, 2 mục đã ghi sổ.
+  **ABLATE** (gỡ bản sửa nguồn về HEAD rồi dựng lại): ratchet **8 đỏ** — **3 HỒI QUY**
+  (`L3 24 → 27` · `L12 TỔNG 16 → 17` · `TL 0 → 4`) và **5 SỔ SÁCH** (§11 ba hàng + dòng
+  tổng + §12). Tổng khoá quay về **75 lỗi / 366 cảnh báo** — 75 chứ không 71 vì bốn lỗi TL
+  cũng được đếm vào tổng, đúng cascade đã ghi.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` **62 → 65 bài CHỜ NẠP**.
+
+- **`ablate.mjs` CHẠY LỆNH QUA cmd.exe TRÊN WINDOWS, không qua Git Bash — và cả hai cú
+  pháp chuyển hướng đều hỏng.** `spawnSync(lenh, { shell: true })` dùng shell MẶC ĐỊNH của
+  hệ điều hành. Thử `>/dev/null` → *"The system cannot find the path specified"*; thử
+  `>nul 2>&1 && …` → cùng một câu. Nên một lệnh ablate nhiều bước (dựng rồi đo) phải viết
+  bằng cú pháp cmd, hoặc làm TAY.
+  Làm tay thì phải tự mang theo ba bất biến mà công cụ vốn giữ: `assert` nội dung sau khi
+  gieo KHÁC nguyên bản (chống GIEO VÔ HIỆU), `sys.exit` khi không đọc được con số (chống
+  đọc rỗng thành "0 đỏ"), và phục hồi trong `finally` **kèm một lần DỰNG LẠI** — với một
+  lát nội dung thì khôi phục tệp nguồn chưa đủ, `out/` vẫn mang bản gieo.
+
+- **HAI LẦN OOM TRONG MỘT VÒNG, và cả hai ở lệnh chạy NỐI ĐUÔI.** `check-practice.mjs` và
+  `check-phu-van-phong.mjs` ném V8 crash dump khi nối sau một lệnh khác; chạy MỘT MÌNH thì
+  cả hai xanh. Cùng tín hiệu với `build` thoát 134 ở vòng trước. **Với bộ kiểm nặng
+  (Pyodide, Next build), chạy từng lệnh một — nối `&&` là tự tạo đỏ giả.**
+  Và một lỗi của tôi đi kèm: tôi gọi `node scripts/check-phu-van-phong.mjs` trong khi tệp
+  nằm ở `scripts/pe-da/`. Nó in `MODULE_NOT_FOUND` + `Node.js v24.15.0`, mà đuôi ấy TRÔNG
+  GIỐNG một crash dump OOM. **Hai nguyên nhân rất khác nhau có cùng hình dạng đầu ra —
+  đọc dòng `code:` trước khi quy cho tài nguyên.**
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

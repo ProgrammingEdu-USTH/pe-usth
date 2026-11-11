@@ -22,7 +22,24 @@
     [
      {
       "type": "paragraph",
-      "text": "Màu đã chọn xong rồi, nhưng trục mới là chỗ một hình nói sai sự thật. Hai cột 98 và 100 có thể trông chênh nhau rất lớn nếu trục đứng bắt đầu từ 97. Giới hạn trục thay đổi cảm nhận về hình nhưng không thay đổi dữ liệu. Với cột biểu diễn lượng, giữ mốc 0; với đường cần xem biến động nhỏ, có thể thu hẹp trục nhưng phải hiển thị mốc rõ."
+      "text": "Màu đã chọn xong rồi, nhưng trục mới là chỗ một hình nói sai sự thật. Hai cột 98 và 100 có thể trông chênh nhau rất lớn nếu trục đứng bắt đầu từ 97. Giới hạn trục thay đổi cảm nhận về hình nhưng không thay đổi dữ liệu. Trục đứng đặt theo loại hình, xem bảng dưới."
+     },
+     {
+      "type": "table",
+      "headers": [
+       "Loại hình",
+       "Trục đứng"
+      ],
+      "rows": [
+       [
+        "cột biểu diễn lượng",
+        "giữ mốc 0"
+       ],
+       [
+        "đường cần xem biến động nhỏ",
+        "được thu hẹp, nhưng phải hiển thị mốc rõ"
+       ]
+      ]
      },
      {
       "type": "code",

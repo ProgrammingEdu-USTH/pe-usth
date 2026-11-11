@@ -938,7 +938,7 @@ test('fixture bài đọc: bản dựng pe-da đúng hình dạng ReadBlock/Prac
     code: 508,
     terminal: 17,
     figure: 80,
-    table: 16,
+    table: 19,
     diagram: 3,
   });
   // Câu luyện tập là câu MỞ kèm lời giải mẫu — không có phương án sai nào để

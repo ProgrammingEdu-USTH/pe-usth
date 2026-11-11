@@ -21226,7 +21226,24 @@
       [
        {
         "type": "paragraph",
-        "text": "Màu đã chọn xong rồi, nhưng trục mới là chỗ một hình nói sai sự thật. Hai cột 98 và 100 có thể trông chênh nhau rất lớn nếu trục đứng bắt đầu từ 97. Giới hạn trục thay đổi cảm nhận về hình nhưng không thay đổi dữ liệu. Với cột biểu diễn lượng, giữ mốc 0; với đường cần xem biến động nhỏ, có thể thu hẹp trục nhưng phải hiển thị mốc rõ."
+        "text": "Màu đã chọn xong rồi, nhưng trục mới là chỗ một hình nói sai sự thật. Hai cột 98 và 100 có thể trông chênh nhau rất lớn nếu trục đứng bắt đầu từ 97. Giới hạn trục thay đổi cảm nhận về hình nhưng không thay đổi dữ liệu. Trục đứng đặt theo loại hình, xem bảng dưới."
+       },
+       {
+        "type": "table",
+        "headers": [
+         "Loại hình",
+         "Trục đứng"
+        ],
+        "rows": [
+         [
+          "cột biểu diễn lượng",
+          "giữ mốc 0"
+         ],
+         [
+          "đường cần xem biến động nhỏ",
+          "được thu hẹp, nhưng phải hiển thị mốc rõ"
+         ]
+        ]
        },
        {
         "type": "code",
@@ -33258,13 +33275,13 @@
    "sort_order": 124,
    "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
    "title": "SY21 · Pickle, JSON và khôi phục trạng thái",
-   "subtitle": "Trung cấp · M5 · 16 phút",
-   "estimated_minutes": 16,
-   "xp_reward": 10,
+   "subtitle": "Trung cấp · M5 · 15 phút",
+   "estimated_minutes": 15,
+   "xp_reward": 9,
    "content_json": {
     "schema": "studio-lesson/v2",
     "title": "SY21 · Pickle, JSON và khôi phục trạng thái",
-    "subtitle": "Trung cấp · M5 · 16 phút",
+    "subtitle": "Trung cấp · M5 · 15 phút",
     "source": {
      "kind": "python-da",
      "filename": "course.json#SY21",
@@ -33371,7 +33388,24 @@
       [
        {
         "type": "paragraph",
-        "text": "Chỉ unpickle dữ liệu do bạn tạo và tin cậy: unpickle có thể thực thi mã. Đuôi .dat hay nén `gzip` không làm file lạ an toàn. Để trao đổi dữ liệu với hệ khác, JSON thường tiện hơn; để lưu state Python trong lab, pickle có thể phù hợp nếu bạn quản lý phiên bản schema và nơi tạo file."
+        "text": "Chỉ unpickle dữ liệu do bạn tạo và tin cậy: unpickle có thể thực thi mã. Đuôi .dat hay nén `gzip` không làm file lạ an toàn. Chọn định dạng theo việc cần làm, xem bảng dưới."
+       },
+       {
+        "type": "table",
+        "headers": [
+         "Dùng để",
+         "Chọn"
+        ],
+        "rows": [
+         [
+          "trao đổi dữ liệu với hệ khác",
+          "JSON — thường tiện hơn"
+         ],
+         [
+          "lưu state Python trong lab",
+          "pickle — nếu bạn quản lý phiên bản schema và nơi tạo file"
+         ]
+        ]
        },
        {
         "type": "paragraph",
@@ -44194,7 +44228,24 @@
        },
        {
         "type": "paragraph",
-        "text": "Chạy bằng `python projects/quay_app.py --data duong-dan/quan.pkl.gz`. Nếu file chưa tồn tại, ứng dụng bắt đầu rỗng; nếu dữ liệu hỏng, nó báo lỗi và không tự ghi đè file đó. Bài kiểm tra tự động đi kèm xác nhận model, lượng trung bình, save/load và callback cơ bản. Quy trình giao diện thật, độ dễ dùng và bố cục còn cần kiểm tra thủ công theo rubric. Quán giờ có một màn hình cho người không viết code; hai chặng cuối ôn lại các chi tiết đã đi nhanh."
+        "text": "Chạy bằng `python projects/quay_app.py --data duong-dan/quan.pkl.gz`. Hai tình huống của file dữ liệu ở bảng dưới. Bài kiểm tra tự động đi kèm xác nhận model, lượng trung bình, save/load và callback cơ bản. Quy trình giao diện thật, độ dễ dùng và bố cục còn cần kiểm tra thủ công theo rubric. Quán giờ có một màn hình cho người không viết code; hai chặng cuối ôn lại các chi tiết đã đi nhanh."
+       },
+       {
+        "type": "table",
+        "headers": [
+         "Tình huống",
+         "Ứng dụng làm gì"
+        ],
+        "rows": [
+         [
+          "file chưa tồn tại",
+          "bắt đầu rỗng"
+         ],
+         [
+          "dữ liệu hỏng",
+          "báo lỗi, và không tự ghi đè file đó"
+         ]
+        ]
        }
       ]
      ],

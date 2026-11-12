@@ -87,7 +87,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
-| Frontend unit test | `cd frontend && npm run test:unit` → **677 ca** / 64 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **681 ca** / 65 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -104,10 +104,10 @@ học nó.
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
 | Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **114/179 khớp, 65 bài CHỜ NẠP** (năm lát văn phong 08/11 · hai lát alt text · năm lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
-| Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **46 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
+| Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **47 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 677 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/365 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 681 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/365 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -118,7 +118,7 @@ và mất bộ kiểm duy nhất chấm được code học viên. `frontend/pub
 thì bộ 172 bài dùng lại NGUYÊN VẸN: chính nó đặt `MPLBACKEND=Agg` và móc `Figure`, nên
 26 bài biểu đồ chạy được trong worker. Đừng dọn "cho gọn".
 
-**Con số 677 phải đo lại mỗi lần thêm/bớt ca, không được đoán, và nó ĐÃ TRÔI 59 đơn vị.**
+**Con số 681 phải đo lại mỗi lần thêm/bớt ca, không được đoán, và nó ĐÃ TRÔI 59 đơn vị.**
 Đo lại 09/11/2026 bằng cách chạy TỪNG tệp: bảng này cộng ra **592** trong khi bộ chạy ra
 **651**, tức nó đứng yên suốt chín vòng trong khi hàng "Frontend unit test" được sửa đúng
 mỗi lần. `check-moc-chay` chỉ đối chiếu HÀNG, không đối chiếu bảng phân rã, nên nó xanh cả
@@ -129,18 +129,19 @@ Phân rã hiện tại, ĐO chứ không cộng tay:
 ablate-trung-thuc 19 · catalog-duration 2 · catalog-naming 3 · consent-banner 15 ·
 course-resume 9 · data-files 18 · dich-bam-vo-bai-hoc 7 · ds-contrast 17 · editor-load-gate 14 ·
 feedback-link 9 · feedback-rank 3 · forum-xss 1 · giam-chuyen-dong 3 · giao-dien 7 ·
-giao-dien-chuyen-dong 5 · giao-dien-trang-chu 4 · goc-hoc-cho-so 7 · goc-hoc-hang-nut 4 ·
-goc-hoc-khung-cho 6 · goc-hoc-lo-trinh 9 · goc-hoc-man-con 3 · goc-hoc-nhan-mot 6 ·
-goc-hoc-thanh-cuon 5 · hover-cam-ung 3 · ide-brief-code 12 · ide-handoff 6 · ide-output-scroll 6 ·
-ide-partial-output 10 · ide-stop-autosave 27 · ide-thanh-cong-cu 4 · ide-trace 38 ·
-inline-code 7 · insert-gate-sync 2 · khoa-roi-giao-trinh 5 · label-version 2 ·
+giao-dien-chuyen-dong 5 · giao-dien-monaco 4 · giao-dien-trang-chu 4 · goc-hoc-cho-so 7 ·
+goc-hoc-hang-nut 4 · goc-hoc-khung-cho 6 · goc-hoc-lo-trinh 9 · goc-hoc-man-con 3 ·
+goc-hoc-nhan-mot 6 · goc-hoc-thanh-cuon 5 · hover-cam-ung 3 · ide-brief-code 12 · ide-handoff 6 ·
+ide-output-scroll 6 · ide-partial-output 10 · ide-stop-autosave 27 · ide-thanh-cong-cu 4 ·
+ide-trace 38 · inline-code 7 · insert-gate-sync 2 · khoa-roi-giao-trinh 5 · label-version 2 ·
 learning-events 48 · lesson-back 15 · lesson-chrome-sticky 4 · lesson-load 7 · lien-ket-noi-bo 3 ·
 mcq-code 9 · mcq-next-after-wrong 23 · o-go-16px 5 · o-nhap-nhieu-dong 2 · phan-bai 8 ·
 practice-contract 15 · practice-run 9 · prewarm-gate 5 · read-diagram 12 · read-guess 19 ·
 read-trace 16 · read-try-it 20 · recap-recall 7 · review-quiz 34 · run-stale 15 ·
 session-marker 5 · spaced-review 14 · studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 ·
-trang-404 6 · trang-loi 12 · trap-leak 3 · worker-csp 7 = 677.
-Mốc trước là 673; thêm giao-dien-trang-chu 4 (LỚP KHOÁC của theme chiêm tinh lên trang chủ: đường tới, cấu trúc, token có thật, tương phản HUD).
+trang-404 6 · trang-loi 12 · trap-leak 3 · worker-csp 7 = 681.
+Mốc trước là 677; thêm giao-dien-monaco 4 (theme Monaco của /ide + ba bề mặt khai `data-tv-surface`: nền khớp `--ds-card`, tương phản cú pháp, đường tới).
+Trước đó 673; thêm giao-dien-trang-chu 4 (LỚP KHOÁC của theme chiêm tinh lên trang chủ: đường tới, cấu trúc, token có thật, tương phản HUD).
 Trước đó 668; thêm giao-dien-chuyen-dong 5 (NGÂN SÁCH chuyển động của theme chiêm tinh: ≤ 12 vô
 hạn, chỉ opacity/transform, mọi hoạt ảnh tắt dưới reduced-motion, và lời hứa "theme phải có animation").
 Trước đó 661; thêm giao-dien 7 (GIAO DIỆN THỨ HAI "Đài thiên văn": script trước-paint chạy
@@ -7175,6 +7176,16 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **Hai bẫy của chính vòng này:** (1) chú thích CSS chứa `src/**/*.css` có `*/` ở giữa — đóng chú thích sớm, Turbopack
   báo lỗi cú pháp và máy chủ dev treo ở 4,3 GB; (2) `taskkill //IM node.exe` bị chặn đúng: máy chạy song song nhiều dự án,
   chỉ tắt đúng PID của mình (`netstat -ano | grep :3000`).
+
+- **THEME CHIÊM TINH Ở /ide, 404, TRANG LỖI — và MONACO KHÔNG ĐỌC CSS (vòng H2, 12/11/2026).** Ba bề mặt dùng token
+  `--edu-*` sẵn có nên chỉ cần `data-tv-surface`. Nhưng `/ide` ban đêm lộ ra: ô mã xám trung tính `#1E1E1E` cạnh khung
+  kết quả nâu `#2A2416`, ban ngày trắng `#FFFFFF` trên vellum `#FBF5E3` — vì `theme={dark ? 'vs-dark' : 'light'}` là
+  chuỗi của Monaco, không phải biến CSS. `lib/monaco-thien-van.ts` định nghĩa hai theme riêng (gọi ở `beforeMount`);
+  nền của chúng là BẢN CHÉP của `--ds-card`, nên `giao-dien-monaco.test.mjs` đòi hai bên bằng nhau (ablate nền đêm
+  về `#1E1E1E` → 1 đỏ) và canh tương phản cú pháp (đo thấp nhất 5,51:1, chuỗi/chú thích ban ngày trên dòng đang đứng;
+  sàn 5,4 — bản đầu tôi đặt 5,8 theo cảm giác và chính số đo bác nó). Ô soạn mã của MÀN BÀI HỌC là `<textarea>`, đi
+  theo token, không cần theme Monaco. **Chưa làm:** trang `/card` (db_design di sản), `/courses/db_design*`, java/htmlcss/
+  `/interface` — mỗi trang phải xem bằng mắt rồi mới khai `data-tv-surface`, nếu không là đổi nửa vời.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

@@ -44,8 +44,10 @@ import {
   warmIdeRunner,
 } from '@/lib/ide-runner';
 import { EDITOR_LOAD_TIMEOUT_MS, editorLoadPhase } from '@/lib/editor-load-gate';
+import { dangKyGiaoDien, docGiaoDien } from '@/lib/giao-dien';
 import { ideCodeHref, readIdeCodeFromHash } from '@/lib/ide-handoff';
 import { canKeoKetQua } from '@/lib/ide-output-scroll';
+import { dinhNghiaThemeThienVan, MONACO_THIEN_VAN_DEM, MONACO_THIEN_VAN_NGAY } from '@/lib/monaco-thien-van';
 
 import { DEFAULT_CODE, IDE_EXAMPLES } from './examples';
 import styles from './ide.module.css';
@@ -241,6 +243,10 @@ export default function IdeClient() {
   const [code, setCode] = useState(opening.code);
   const [state, setState] = useState<RunState>({ status: 'idle' });
   const dark = useSyncExternalStore(subscribeTheme, getDark, getDarkServer);
+  // Giao diện "Đài thiên văn": Monaco không đọc CSS, nên nền ô mã phải được theme
+  // RIÊNG (xem lib/monaco-thien-van.ts). Máy chủ luôn là lofi; client đọc thuộc tính
+  // trên <html> sau hydrate.
+  const thienVan = useSyncExternalStore(dangKyGiaoDien, () => docGiaoDien() === 'thien-van', () => false);
   // Nội dung editor MỚI NHẤT, cập nhật đồng bộ trong onChange. Ctrl+Enter được gắn
   // MỘT lần lúc Monaco mount; nếu run() đọc state `code` (chỉ mới sau render kế)
   // thì gõ xong bấm phím tắt ngay có thể chạy bản cũ vài ký tự — đã đo được.
@@ -554,7 +560,8 @@ export default function IdeClient() {
   return (
     <>
       <PageStyles hrefs={['/static/css/edu-theme.css']} />
-      <div className={styles.page}>
+      {/* data-tv-surface: /ide nhận giao diện "Đài thiên văn" ở mức token (H2). */}
+      <div className={styles.page} data-tv-surface="">
         <SiteHeader />
         <main className={styles.main}>
           <div className={styles.toolbar}>
@@ -662,7 +669,8 @@ export default function IdeClient() {
                 <Editor
                   height="100%"
                   language="python"
-                  theme={dark ? 'vs-dark' : 'light'}
+                  theme={thienVan ? (dark ? MONACO_THIEN_VAN_DEM : MONACO_THIEN_VAN_NGAY) : dark ? 'vs-dark' : 'light'}
+                  beforeMount={dinhNghiaThemeThienVan}
                   value={code}
                   onChange={(v) => updateCode(v ?? '')}
                   onMount={(editor, monaco) => {

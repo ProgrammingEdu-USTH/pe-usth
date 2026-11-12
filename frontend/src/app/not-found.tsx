@@ -40,7 +40,7 @@ export default function NotFound() {
   return (
     <>
       <PageStyles hrefs={['/static/css/edu-theme.css']} />
-      <main className={styles.wrap}>
+      <main className={styles.wrap} data-tv-surface="">
         <p className={styles.ma}>404</p>
         <h1 className={styles.tieuDe}>Không có trang này</h1>
         <p className={styles.than}>

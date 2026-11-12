@@ -5,8 +5,20 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { readdirSync, readFileSync } from 'fs';
+import { join } from 'path';
+import { Prisma } from 'src/generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { QuizzesService } from './quizzes.service';
+
+/** `jsonb -> 'step_2'`: khoá con của một object, còn lại là NULL. */
+function step2Of(contentJson: unknown): unknown {
+  return typeof contentJson === 'object' &&
+    contentJson !== null &&
+    !Array.isArray(contentJson)
+    ? ((contentJson as Record<string, unknown>).step_2 ?? null)
+    : null;
+}
 
 const SNAPSHOT = [
   { question: 'Q1', options: ['a', 'b'], correct: 0, explanation: 'vì a' },
@@ -65,9 +77,18 @@ type QuizCreateArg = {
   };
 };
 
-/** Đối số `prisma.lesson.findMany({ where: { id: { in } } })`. */
-type LessonFindManyArg = {
-  where: { id: { in: number[] } };
+/**
+ * Bài học viết theo hình dạng cũ của `lesson.findMany` (kèm cả `contentJson`).
+ * `mockLessons()` đổi nó sang đúng hàng mà SQL của `layStep2()` trả về, để các
+ * ca có sẵn giữ nguyên fixture.
+ */
+type LessonFixture = {
+  id?: number;
+  courseId?: string;
+  title?: string;
+  module?: string;
+  course?: { title: string };
+  contentJson: unknown;
 };
 
 /**
@@ -91,7 +112,7 @@ const asyncMock = <A extends unknown[] = unknown[]>(): AsyncMock<A> =>
 /** Chỉ những bảng/hàm mà QuizzesService thật sự gọi. */
 type PrismaMock = {
   lessonProgress: { findMany: AsyncMock };
-  lesson: { findMany: AsyncMock<[LessonFindManyArg]> };
+  $queryRaw: AsyncMock<[Prisma.Sql]>;
   quiz: {
     create: AsyncMock<[QuizCreateArg]>;
     findUnique: AsyncMock;
@@ -113,7 +134,7 @@ describe('QuizzesService', () => {
   beforeEach(async () => {
     prisma = {
       lessonProgress: { findMany: asyncMock() },
-      lesson: { findMany: asyncMock<[LessonFindManyArg]>() },
+      $queryRaw: asyncMock<[Prisma.Sql]>(),
       quiz: {
         create: asyncMock<[QuizCreateArg]>(),
         findUnique: asyncMock(),
@@ -138,11 +159,27 @@ describe('QuizzesService', () => {
     service = mod.get(QuizzesService);
   });
 
+  /** Mô phỏng `content_json->'step_2'`: DB chỉ trả phần `step_2`. */
+  const mockLessons = (rows: LessonFixture[]) =>
+    prisma.$queryRaw.mockResolvedValue(
+      rows.map((r) => ({
+        id: r.id,
+        courseId: r.courseId,
+        title: r.title ?? null,
+        module: r.module ?? null,
+        courseTitle: r.course?.title ?? null,
+        step2: step2Of(r.contentJson),
+      })),
+    );
+
+  /** Câu SQL của lần gọi `$queryRaw` thứ `i`. */
+  const sqlCall = (i = 0) => prisma.$queryRaw.mock.calls[i][0];
+
   // ---------- Task 135 ----------
   describe('KHÔNG BAO GIỜ lộ đáp án ở mọi nhánh', () => {
     it('generateQuiz: response không chứa correct/explanation, nhưng DB có', async () => {
       prisma.lessonProgress.findMany.mockResolvedValue([{ lessonId: 1 }]);
-      prisma.lesson.findMany.mockResolvedValue([
+      mockLessons([
         {
           contentJson: {
             step_2: { mcq: [...SNAPSHOT, ...SNAPSHOT, ...SNAPSHOT] },
@@ -165,7 +202,7 @@ describe('QuizzesService', () => {
 
     it('câu hỏi PE v3 (correct ở cấp câu hỏi + cờ trong từng lựa chọn) không lộ gì', async () => {
       prisma.lessonProgress.findMany.mockResolvedValue([{ lessonId: 1 }]);
-      prisma.lesson.findMany.mockResolvedValue([
+      mockLessons([
         {
           id: 1,
           courseId: 'python',
@@ -283,7 +320,7 @@ describe('QuizzesService', () => {
         { lessonId: 1 },
         { lessonId: 2 },
       ]);
-      prisma.lesson.findMany.mockResolvedValue([
+      mockLessons([
         {
           id: 1,
           contentJson: {
@@ -411,7 +448,7 @@ describe('QuizzesService', () => {
         { lessonId: 1 },
         { lessonId: 2 },
       ]);
-      prisma.lesson.findMany.mockResolvedValue([
+      mockLessons([
         {
           id: 1,
           courseId: 'python',
@@ -518,7 +555,7 @@ describe('QuizzesService', () => {
         { lessonId: 2, completedAt: HOM_NAY },
         { lessonId: 9, completedAt: HOM_KIA },
       ]);
-      prisma.lesson.findMany.mockResolvedValue([
+      mockLessons([
         {
           id: 1,
           courseId: 'python',
@@ -545,8 +582,7 @@ describe('QuizzesService', () => {
 
       // lessonProgress trả 3 dòng nhưng chỉ 2 dòng là của hôm nay -> chỉ 2
       // lessonId được đưa vào truy vấn lesson.
-      const ids = prisma.lesson.findMany.mock.calls[0][0].where.id.in;
-      expect(ids.sort()).toEqual([1, 2]);
+      expect(sqlCall().values).toContainEqual([1, 2]);
 
       expect(res.count).toBe(2);
       expect(res.questions_available).toBe(6);
@@ -567,7 +603,7 @@ describe('QuizzesService', () => {
       const res = await service.getTodayLessons(1);
       expect(res.count).toBe(0);
       expect(res.can_quiz).toBe(false);
-      expect(prisma.lesson.findMany).not.toHaveBeenCalled();
+      expect(prisma.$queryRaw).not.toHaveBeenCalled();
     });
 
     it('sinh đề chỉ từ bài hôm nay, không lộ đáp án', async () => {
@@ -602,7 +638,7 @@ describe('QuizzesService', () => {
       prisma.lessonProgress.findMany.mockResolvedValue([
         { lessonId: 1, completedAt: HOM_NAY },
       ]);
-      prisma.lesson.findMany.mockResolvedValue([
+      mockLessons([
         {
           id: 1,
           courseId: 'python',
@@ -634,7 +670,7 @@ describe('QuizzesService', () => {
 
     it('quy đổi sang dạng chuẩn: options thành chuỗi, correct thành vị trí', async () => {
       prisma.lessonProgress.findMany.mockResolvedValue([{ lessonId: 1 }]);
-      prisma.lesson.findMany.mockResolvedValue([
+      mockLessons([
         {
           id: 1,
           courseId: 'db_design',
@@ -692,7 +728,7 @@ describe('QuizzesService', () => {
 
     it('câu không có lựa chọn nào đánh dấu đúng -> bỏ qua, không nhận bừa', async () => {
       prisma.lessonProgress.findMany.mockResolvedValue([{ lessonId: 1 }]);
-      prisma.lesson.findMany.mockResolvedValue([
+      mockLessons([
         {
           id: 1,
           courseId: 'db_design',
@@ -720,5 +756,113 @@ describe('QuizzesService', () => {
       questionsJson: SNAPSHOT,
     });
     await expect(service.getQuiz(1, 9)).rejects.toThrow(NotFoundException);
+  });
+
+  // ---------- BE4 ----------
+  describe('BE4: ôn tập chỉ đọc step_2, không kéo cả content_json', () => {
+    const q = (n: string) => ({
+      question: n,
+      options: ['a', 'b'],
+      correct: 0,
+      explanation: 'vì a',
+    });
+    const NAM_CAU = {
+      step_2: { mcq: [q('1'), q('2'), q('3'), q('4'), q('5')] },
+    };
+
+    it('SQL chỉ lấy content_json->step_2, không lấy nguyên cột', async () => {
+      prisma.lessonProgress.findMany.mockResolvedValue([{ lessonId: 7 }]);
+      mockLessons([{ id: 7, courseId: 'python', contentJson: NAM_CAU }]);
+      prisma.quiz.create.mockResolvedValue({ id: 1 });
+
+      await service.generateQuiz(1, 'python');
+
+      const sql = sqlCall().sql;
+      expect(sql).toContain(`content_json->'step_2'`);
+      // Bỏ đúng chỗ đọc step_2 đi thì không được còn chỗ nào nhắc tới cột này.
+      expect(sql.replaceAll(`content_json->'step_2'`, '')).not.toContain(
+        'content_json',
+      );
+    });
+
+    it('đề theo khoá vẫn lọc course_id; đề hằng ngày thì không', async () => {
+      prisma.lessonProgress.findMany.mockResolvedValue([{ lessonId: 7 }]);
+      mockLessons([{ id: 7, courseId: 'python', contentJson: NAM_CAU }]);
+      prisma.quiz.create.mockResolvedValue({ id: 1 });
+      prisma.reviewQuizResult.findFirst.mockResolvedValue(null);
+      prisma.reviewQuizResult.findMany.mockResolvedValue([]);
+
+      await service.generateQuiz(1, 'python');
+      await service.generateDailyReviewQuiz(1);
+
+      expect(sqlCall(0).sql).toContain('l.course_id =');
+      expect(sqlCall(0).values).toContain('python');
+      expect(sqlCall(1).sql).not.toContain('l.course_id =');
+      expect(sqlCall(1).values).not.toContain('python');
+    });
+
+    it('bài không có step_2 (DB trả NULL) -> không sinh câu, không vỡ', async () => {
+      prisma.lessonProgress.findMany.mockResolvedValue([
+        { lessonId: 1, completedAt: new Date() },
+        { lessonId: 2, completedAt: new Date() },
+      ]);
+      mockLessons([
+        { id: 1, courseId: 'python', contentJson: NAM_CAU },
+        { id: 2, courseId: 'python', contentJson: { step_1: {} } },
+      ]);
+
+      const res = await service.getTodayLessons(1);
+      expect(res.questions_available).toBe(5);
+      expect(res.lessons.map((l) => l.question_count).sort()).toEqual([0, 5]);
+    });
+
+    it('tên khoá lấy từ JOIN courses trong cùng câu SQL', async () => {
+      prisma.lessonProgress.findMany.mockResolvedValue([
+        { lessonId: 1, completedAt: new Date() },
+      ]);
+      mockLessons([
+        {
+          id: 1,
+          courseId: 'python_advanced',
+          course: { title: 'Python nâng cao' },
+          contentJson: NAM_CAU,
+        },
+      ]);
+
+      const res = await service.getTodayLessons(1);
+      expect(res.lessons[0].course_title).toBe('Python nâng cao');
+      expect(sqlCall().sql).toContain('JOIN courses');
+      expect(prisma.$queryRaw).toHaveBeenCalledTimes(1);
+    });
+
+    it('trên 48 bài thật: chỉ đưa step_2 cho ra ĐÚNG bộ câu như cả content_json', () => {
+      // Hình dạng thật đang seed vào DB (xem AGENTS.md: fixture phải giống thật).
+      const dir = join(__dirname, '../../scripts/pe-v4/out-advanced/lessons');
+      const files = readdirSync(dir).filter((f) => f.endsWith('.json'));
+      expect(files.length).toBeGreaterThan(0);
+
+      type Bai = { id: number; courseId: string; contentJson: unknown };
+      const svc = service as unknown as {
+        collectQuestions(l: Bai[]): unknown[];
+      };
+      const gom = (l: Bai[]) => svc.collectQuestions(l);
+
+      let tong = 0;
+      files.forEach((f, i) => {
+        const raw = JSON.parse(readFileSync(join(dir, f), 'utf8')) as {
+          content_json: unknown;
+        };
+        const ca = { id: i + 1, courseId: 'python_advanced' };
+        const cu = gom([{ ...ca, contentJson: raw.content_json }]);
+        const moi = gom([
+          { ...ca, contentJson: { step_2: step2Of(raw.content_json) } },
+        ]);
+        expect(moi).toEqual(cu);
+        tong += cu.length;
+      });
+      // 46 bài 3 câu + 2 bài 4 câu (AGENTS.md) — chặn trường hợp cả hai bên
+      // cùng rỗng mà vẫn "bằng nhau".
+      expect(tong).toBeGreaterThanOrEqual(files.length * 3);
+    });
   });
 });

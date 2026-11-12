@@ -49,6 +49,19 @@ interface QuizQuestion {
   courseId: string;
 }
 
+/**
+ * Bài học đúng như `collectQuestions()` cần: `contentJson` CHỈ còn `step_2`.
+ * Giữ tên field `contentJson` để hàm gom câu chạy nguyên không sửa.
+ */
+type BaiOnTap = {
+  id: number;
+  courseId: string;
+  title: string | null;
+  module: string | null;
+  courseTitle: string | null;
+  contentJson: { step_2: unknown };
+};
+
 @Injectable()
 export class QuizzesService {
   constructor(private readonly prisma: PrismaService) {}
@@ -178,17 +191,7 @@ export class QuizzesService {
       };
     }
 
-    const lessons = await this.prisma.lesson.findMany({
-      where: { id: { in: rows.map((r) => r.lessonId) } },
-      select: {
-        id: true,
-        courseId: true,
-        title: true,
-        module: true,
-        contentJson: true,
-        course: { select: { title: true } },
-      },
-    });
+    const lessons = await this.layStep2(rows.map((r) => r.lessonId));
 
     const pool = this.collectQuestions(lessons);
     const byLesson = new Map<number, number>();
@@ -203,7 +206,7 @@ export class QuizzesService {
         id: l.id,
         title: l.title ?? l.module ?? `Bài ${l.id}`,
         course_id: l.courseId,
-        course_title: l.course?.title ?? l.courseId,
+        course_title: l.courseTitle ?? l.courseId,
         completed_at: doneAt.get(l.id) ?? null,
         question_count: byLesson.get(l.id) ?? 0,
       }))
@@ -239,10 +242,7 @@ export class QuizzesService {
       );
     }
 
-    const lessons = await this.prisma.lesson.findMany({
-      where: { id: { in: rows.map((r) => r.lessonId) } },
-      select: { id: true, courseId: true, contentJson: true },
-    });
+    const lessons = await this.layStep2(rows.map((r) => r.lessonId));
 
     const pool = this.collectQuestions(lessons);
     if (pool.length < MIN_POOL) {
@@ -389,11 +389,10 @@ export class QuizzesService {
       );
     }
 
-    const lessons = await this.prisma.lesson.findMany({
-      where: { id: { in: done.map((d) => d.lessonId) }, courseId },
-      // `id`/`courseId` cần để gắn nhãn cho từng câu hỏi (xem QuizQuestion).
-      select: { id: true, courseId: true, contentJson: true },
-    });
+    const lessons = await this.layStep2(
+      done.map((d) => d.lessonId),
+      courseId,
+    );
 
     // Bước 2: gom pool câu hỏi, hỗ trợ 2 dạng cấu trúc.
     const pool = this.collectQuestions(lessons);
@@ -420,10 +419,7 @@ export class QuizzesService {
       );
     }
 
-    const lessons = await this.prisma.lesson.findMany({
-      where: { id: { in: done.map((d) => d.lessonId) } },
-      select: { id: true, courseId: true, contentJson: true },
-    });
+    const lessons = await this.layStep2(done.map((d) => d.lessonId));
 
     const pool = this.collectQuestions(lessons);
     if (pool.length < MIN_POOL) {
@@ -571,6 +567,42 @@ export class QuizzesService {
       w.splice(idx, 1);
     }
     return picked;
+  }
+
+  /**
+   * Đọc riêng `step_2` của các bài, thay cho `lesson.findMany` kèm cả
+   * `content_json`.
+   *
+   * Ôn tập chỉ cần câu trắc nghiệm ở `step_2`, nhưng bản cũ kéo NGUYÊN
+   * `content_json` của mọi bài đã học: đo trong BE1 là ~1,38 MB mỗi request với
+   * người đã học 172 bài, trong khi `step_2` chỉ là một phần nhỏ của nó.
+   * Prisma không chọn được một khoá con trong cột JSONB, nên phải dùng SQL thô
+   * (tham số hoá bằng `Prisma.sql`, như `LeaderboardService`).
+   *
+   * JOIN `courses` ngay trong câu này: `getTodayLessons()` cần tên khoá, và
+   * quan hệ lồng của Prisma là một vòng tuần tự riêng tới Neon.
+   */
+  private async layStep2(
+    ids: number[],
+    courseId?: string,
+  ): Promise<BaiOnTap[]> {
+    if (ids.length === 0) return [];
+
+    const rows = await this.prisma.$queryRaw<
+      Array<Omit<BaiOnTap, 'contentJson'> & { step2: unknown }>
+    >(Prisma.sql`
+      SELECT l.id, l.course_id AS "courseId", l.title, l.module,
+             co.title AS "courseTitle", l.content_json->'step_2' AS step2
+      FROM lessons l
+      JOIN courses co ON co.id = l.course_id
+      WHERE l.id = ANY(${ids}::int[])
+      ${courseId === undefined ? Prisma.empty : Prisma.sql`AND l.course_id = ${courseId}`}
+    `);
+
+    return rows.map(({ step2, ...r }) => ({
+      ...r,
+      contentJson: { step_2: step2 },
+    }));
   }
 
   /**

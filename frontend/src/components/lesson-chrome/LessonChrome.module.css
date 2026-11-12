@@ -3,15 +3,9 @@
    680px (--st-col), bottom bar 88px trắng với nút CTA 480px ở giữa. */
 
 /* Trang bài học không nạp CSS reset: bỏ lề 8px mặc định của body để khung
-   tràn viền như Figma.
-   Nền: edu-theme.css vẽ cho body một dải gradient xanh (--edu-bg-image). Bản
-   thiết kế v2 chốt nền KEM phẳng; `.chrome` đã tự tô nền nhưng dải gradient
-   vẫn lọt ra ở phần body cao hơn khung (và lúc cuộn quá đà trên iOS), nên
-   phải tắt ngay ở body. */
+   tràn viền như Figma. */
 :global(body):has(.chrome) {
   margin: 0;
-  background: var(--ds-page);
-  background-image: none;
 }
 
 /* Hai thanh trên/dưới dùng border-box để số đo khớp đúng frame Figma. */
@@ -26,13 +20,36 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  color: var(--ds-ink);
+  color: var(--edu-t1);
   font-family: var(--edu-font);
-  /* Mọi chữ không tự khai cỡ (phương án trắc nghiệm, đoạn văn trong màn…)
-     đều thừa từ đây. Trước lần này không có dòng nào, nên chúng rơi về 16px
-     mặc định của trình duyệt — dưới mức thân ≥ 17px của bản thiết kế v2. */
-  font-size: var(--ds-fs-body);
   background: var(--st-page-bg);
+}
+
+/* Ô NHẬP NHIỀU DÒNG của mọi màn bài học tính bề rộng GỒM CẢ padding/viền.
+   Trang bài học không nạp `style.css` (chỗ duy nhất có `* { box-sizing:
+   border-box }`), nên <textarea> giữ mặc định content-box — mà cả bốn ô ở đây
+   đều viết `width: 100%` kèm padding. Đo trên production 390×844 (PY06):
+   · ô soạn mã bài tập (SandboxEditor) rộng 349px trong thẻ 317px: 32px phải bị
+     `overflow:hidden` của thẻ code CẮT — mất padding phải và ~2 ký tự cuối của
+     mỗi dòng gãy, con trỏ gõ ở cuối dòng chui vào chỗ bị cắt;
+   · ô trả lời màn luyện tập (.practiceInput) thò 30px ra ngoài thẻ trắng.
+   Đặt Ở ĐÂY một lần thay vì vá bốn chỗ: ô thứ năm sẽ lại viết `width: 100%`. */
+.chrome textarea {
+  box-sizing: border-box;
+}
+
+/* GIỮ CHỖ CHO THANH CUỘN — chỉ ở trang có khung bài học.
+   Khung "Đang tải bài học…" ngắn hơn màn hình nên KHÔNG có thanh cuộn; nội dung
+   thật cao hơn nên thanh cuộn hiện ra và mọi thứ dời sang trái: đo trên
+   production (1440×900, Windows) cột nội dung 360 → 352px, nút chính 480 → 472,
+   pill chuỗi ngày 1230 → 1215 — đúng bề rộng 15px của thanh cuộn. Mỗi lần mở
+   bài là một cú giật ngang.
+   KHÔNG đặt trên `html` cho cả site: trang chủ Góc học là cảnh tràn màn hình
+   `overflow:hidden`, mà `scrollbar-gutter:stable` vẫn chừa rãnh khi overflow là
+   hidden — tức một dải trống 15px dọc mép phải cảnh. Nên chỉ bật khi trong
+   trang CÓ khung bài học. Điện thoại dùng thanh cuộn nổi, rãnh bằng 0. */
+:global(html):has(.chrome) {
+  scrollbar-gutter: stable;
 }
 
 .topBar {
@@ -40,12 +57,21 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  background: var(--ds-paper);
+  background: var(--edu-panel-bg-solid);
   flex-shrink: 0;
+  /* ĐƯỜNG KẺ, không phải trang trí: thanh này STICKY và nội dung cuộn LỌT
+     xuống dưới nó. Nền thanh là --edu-panel-bg-solid #ffffff, mà thẻ nội
+     dung cũng #ffffff — đo được tương phản **1,000:1**, tức cùng một màu.
+     Không cạnh, không bóng ⇒ chữ trôi vào thanh rồi biến mất, không có gì
+     nói ranh giới ở đâu.
+     ĐÃ ĐO VÀ BỎ một cách sửa khác: chuyển thanh sang tầng "paper" #F7FAFD
+     của bảng lofi chỉ cho 1,048:1 so với thẻ — vẫn không ai thấy. Màu nền
+     không tách được hai mặt phẳng ở khoảng này; chỉ một đường kẻ mới tách. */
+  border-bottom: 1px solid var(--edu-card-line);
 }
-/* Frame 1440: nút × ở x=56, mục cuối cùng của thanh kết thúc ở x=1350 (trước
-   đây là pill chuỗi ngày, nay là nhãn bước / ô điểm). */
+/* Frame 1440: nút × ở x=56, pill streak kết thúc ở x=1350. */
 .topBarInner {
+  position: relative;
   max-width: 1440px;
   height: 100%;
   margin: 0 auto;
@@ -55,22 +81,62 @@
   gap: 14px;
 }
 
+/* NÚT CHỌN GIAO DIỆN — nằm trong LỀ PHẢI 90px mà `.topBarInner` đã chừa (pill
+   streak kết thúc ở x=1350 trên frame 1440), nên KHÔNG đổi một pixel bố cục.
+   Đặt `right: 23px` cho nút 44px: 23 + 44 = 67 < 90, còn 23px đệm bên trái.
+
+   CHỈ TỪ 861px. Dưới đó padding phải về 16px và không còn chỗ trống: đo ở 390px
+   thanh tiến độ rộng 179px (11,1px mỗi đoạn của bài 15 màn), thêm một nút 44px
+   trong dòng chảy ép nó còn 7,7px, và mẹo chồng lên nhãn "n/N" còn 9,3px. Lofi
+   cũng nằm trong thanh này, nên không đánh đổi thanh tiến độ của lofi lấy nút
+   của theme khác. Người dùng điện thoại đổi giao diện ở trang khoá học. */
+.themeSlot {
+  display: none;
+}
+@media (min-width: 861px) {
+  .themeSlot {
+    display: block;
+    position: absolute;
+    right: 23px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
 .closeBtn {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--ds-r-round);
+  /* 44px, KHÔNG 40: luật đích bấm tối thiểu của repo (ghi ở
+   * `not-found.module.css` / `error.module.css`: "Repo đã phải sửa một đích
+   * 13×6px một lần"). Đo trên production 08/11/2026 ở 390×844, vùng chạm bằng
+   * `elementFromPoint`: nút này ra **39×39** — dưới sàn ở CẢ HAI trục, và ở MỌI
+   * khổ, vì nó không có override mobile nào. `@media (max-width: 560px)` của
+   * file này ĐÃ nâng `.backBtn` lên 44 và cho `.primaryBtn` một `min-width`,
+   * nên quy ước có — nút này bị bỏ sót.
+   *
+   * 44 vừa trong thanh trên (đo được cao 56px), nên không có rủi ro bố cục.
+   * `dich-bam-vo-bai-hoc.test.mjs` canh sàn này cho MỌI rule `cursor: pointer`
+   * của file. */
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 0;
   background: transparent;
-  color: var(--ds-soft);
+  color: var(--edu-t5);
   cursor: pointer;
   transition: background 0.15s, transform 0.1s;
 }
-.closeBtn:hover {
-  background: var(--ds-violet-tint);
+/* Guard con trỏ thật: trên màn cảm ứng `:hover` DÍNH LẠI sau cú chạm nên
+   phần tử kẹt ở trạng thái "đang trỏ vào" — đo 10/11/2026. Lý lẽ và số đo
+   đầy đủ ở `.start` trong `components/code-visualizer/CodeVisualizer.module.css`. */
+@media (hover: hover) and (pointer: fine) {
+  /* Bảng lofi (studio-tokens.css): tint ĐỤC thay cho --edu-accent-soft — một
+     lớp 10% alpha của chính màu nhấn, khuôn đã làm hai chip trang chủ trượt AA. */
+  .closeBtn:hover {
+    background: var(--ds-violet-tint);
+  }
 }
 .closeBtn:active {
   transform: scale(0.95);
@@ -81,8 +147,8 @@
   flex: 0 1 285px;
   min-width: 0;
   overflow: hidden;
-  color: var(--ds-soft);
-  font-size: var(--ds-fs-ui);
+  color: var(--edu-t2);
+  font-size: 16px;
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -104,13 +170,32 @@
   height: 6px;
   border-radius: 0;
   background: var(--st-track);
-  overflow: hidden;
-  /* Đoạn có thể bấm được render thành <button> — bỏ style mặc định của nút,
-     và nới vùng chạm lên 20px bằng padding ảo để ngón tay bấm trúng. */
+  /* KHÔNG overflow: hidden. Nó từng ở đây để cắt góc của thẻ fill theo bo góc
+     hai đầu thanh — và nó cắt luôn cả ::after nới vùng chạm bên dưới: trình
+     duyệt không hit-test phần con nằm ngoài hộp overflow:hidden. Đo bằng
+     elementFromPoint trên production (390×844): vùng bấm thật 13×7px trong khi
+     chú thích cũ hứa 20px. Góc của fill nay theo `border-radius: inherit`. */
+  /* Đoạn có thể bấm được render thành <button> — bỏ style mặc định của nút. */
   padding: 0;
   border: 0;
   display: block;
 }
+/* Ranh giới giữa ba phần của bài (lý thuyết / thực hành / bài tập).
+   6px là khe hở nhỏ nhất còn đọc được thành "hai khối" trên dải cao 6px; lớn
+   hơn thì ở bài 19 màn (CT03 — dài nhất) hai khe hở ăn mất chiều ngang của
+   chính các đoạn. Bo góc hai bên khe để mỗi khối trông liền mạch, cùng cách
+   `:first-child`/`:last-child` bo hai đầu thanh. */
+.segmentDauPhan {
+  margin-left: 6px;
+  border-radius: 3px 0 0 3px;
+}
+.segmentDauPhan + .segment {
+  border-radius: 0;
+}
+.segment:has(+ .segmentDauPhan) {
+  border-radius: 0 3px 3px 0;
+}
+
 .segment:first-child {
   border-radius: 3px 0 0 3px;
 }
@@ -124,53 +209,70 @@ button.segment {
   cursor: pointer;
   position: relative;
 }
+/* Nới vùng chạm DỌC lên 6 + 2×9 = 24px (WCAG 2.5.8) mà rãnh vẫn mảnh 6px.
+   Chỉ nới theo chiều dọc: các đoạn ghép sát nhau, nới ngang là chồng lên đoạn
+   bên cạnh. Bề ngang ở bài nhiều màn vẫn ~13px — đường quay lại tương đương là
+   nút "← Quay lại" ở thanh dưới (ngoại lệ "Equivalent" của 2.5.8). */
 button.segment::after {
   content: '';
   position: absolute;
-  inset: -7px 0;
+  inset: -9px 0;
 }
-/* Luôn render thẻ fill (kể cả khi còn rỗng) để có giá trị cũ mà nội suy — nếu
-   chỉ gắn/gỡ thẻ theo bước thì trình duyệt không có gì để chuyển tiếp.
-   Chạy bằng `transform: scaleX()`, KHÔNG bằng `width`: đoạn chỉ có hai trạng
-   thái (rỗng / đầy) nên scaleX cho đúng hình ảnh đó, mà transform thì chạy trên
-   compositor — đổi `width` là trình duyệt phải layout lại mỗi khung hình, với
-   tới 8 đoạn cùng chạy 450 ms. */
+/* Luôn render thẻ fill (kể cả rộng 0) để width có thể transition — nếu chỉ
+   gắn/gỡ thẻ theo bước thì trình duyệt không có giá trị cũ để nội suy. */
+/* Thanh tiến độ là VỊ TRÍ ("bạn ở đây") ⇒ họ violet của bảng lofi.
+   Đo trên rãnh --st-track (--ds-desk): violet 5,28:1 ngày / 5,63:1 đêm —
+   bản cũ --edu-accent chỉ 4,07:1. */
 .segmentFill {
-  width: 100%;
+  width: 0;
   height: 100%;
-  background: var(--ds-ink);
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform var(--ds-dur-page) cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-.segmentFillOn {
-  transform: scaleX(1);
+  /* Thay cho overflow:hidden của .segment: fill tự bo theo đúng góc của đoạn
+     chứa nó (đầu thanh, hai bên khe giữa các phần). */
+  border-radius: inherit;
+  background: var(--ds-violet);
+  transition: width 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 .segmentCurrent .segmentFill {
   background: var(--ds-violet);
 }
-/* Đã xong nhưng nằm sau màn đang xem lại. */
-/* Sau khi gom bảng màu, `--edu-accent` và `--edu-accent-3` thành CÙNG một
-   màu tím, nên đoạn "đã xong nhưng nằm sau màn đang xem lại" mất hẳn dấu hiệu
-   riêng. Bản thiết kế chốt: đã xong = `ink`, đang ở = `violet`; đoạn vượt
-   trước dùng `soft` (7,07:1 trên rãnh `desk`). */
+/* Đã xong nhưng nằm sau màn đang xem lại. Bảng v2 không có bậc "violet
+   nhạt" nên pha bằng color-mix trên chính token, không viết mã màu.
+   75% là SỐ ĐO, không phải ước lượng: trên rãnh 3,13:1 ngày / 3,62:1 đêm
+   (WCAG 1.4.11; bản cũ --edu-accent-3 chỉ 2,51:1), cách đoạn violet đậm 1,69:1 —
+   ngang mức tách cũ (1,62:1) nên hai loại đoạn vẫn phân biệt được. Thấp
+   hơn 75% thì tụt dưới 3:1 trên rãnh ban ngày. */
 .segmentAhead .segmentFill {
-  background: var(--ds-soft);
+  background: color-mix(in srgb, var(--ds-violet) 75%, var(--ds-card));
 }
 
-/* `margin-left: auto` chứ không phải 1px: pill chuỗi ngày (🔥) từng là mục neo
-   mép phải của thanh, gỡ nó đi thì mọi thứ dồn sang trái và chừa một khoảng
-   trống ~230px bên phải. Nay nhãn bước hút hết khoảng trống đó, nên bố cục vẫn
-   là "đóng bài · tên bài · thanh tiến độ ——— mục bên phải" như Figma. */
 .stepLabel {
-  margin-left: auto;
+  margin-left: 1px;
   min-width: 56px;
-  font-size: var(--ds-fs-label);
+  font-size: 14px;
   font-weight: 600;
-  color: var(--ds-soft);
+  color: var(--edu-t3);
   white-space: nowrap;
   flex-shrink: 0;
   font-variant-numeric: tabular-nums;
+}
+
+.streakPill {
+  margin-left: auto;
+  min-width: 120px;
+  height: 34px;
+  background: var(--st-streak-bg);
+  /* --st-streak-bg là --ds-violet-tint; chữ violet-deep trên nó 10,26:1
+     ngày / 9,21:1 đêm (cặp SiteHeader đang dùng). */
+  color: var(--ds-violet-deep);
+  border-radius: 17px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
 /* ── VÌ SAO KHÔNG CĂN GIỮA Ở ĐÂY NỮA ─────────────────────────────────────
@@ -249,13 +351,149 @@ button.segment::after {
   }
 }
 
+/* ── GIAO DIỆN "ĐÀI THIÊN VĂN": CHUYỂN ĐỘNG ─────────────────────────────────
+   Yêu cầu của chủ dự án: theme chiêm tinh phải "sống" như lofi trên production.
+   Đo trang chủ lofi (12/11/2026, 504×732): 133 animation vô hạn — breathe 39,
+   twk ~55, tw 25, city 5, steam 4, blink 1. Màn BÀI HỌC lofi thì chuyển động
+   theo SỰ KIỆN (stepIn, feedbackIn, consoleIn, pop/burst/awards).
+
+   Không sao chép con số 133: nó tốn ~11% luồng chính ở GPU rời nhưng 62–98% ở
+   điện thoại + CPU 4× (AGENTS.md, mục độ giật của trang chủ). Theme này có:
+     · SỰ KIỆN — `tvSlip`: vào màn như một phiếu giấy được đặt xuống;
+     · NỀN SỐNG, NGÂN SÁCH ≤ 12 vô hạn (≤ 4 dưới 561px), hôm nay 3:
+       quầng đèn thở (`tvLamp`) + hai lớp sao nhấp nháy ngược pha
+       (`tvStarsA`/`tvStarsB`, chỉ ban đêm).
+   `giao-dien-chuyen-dong.test.mjs` canh ngân sách, "chỉ opacity/transform",
+   "mọi hoạt ảnh tắt dưới prefers-reduced-motion" và "không fill both/forwards".
+   Tên keyframe viết camelCase: cổng `giam-chuyen-dong` khớp bằng `` nên tên
+   có dấu gạch nối bị gộp nhầm với tên khác. Mọi hoạt ảnh khai bằng shorthand
+   `animation:` vì cổng không đọc longhand. */
+:global(html[data-theme="thien-van"]) .stepEnter {
+  animation: tvSlip 0.52s var(--tv-ease) backwards;
+}
+@keyframes tvSlip {
+  from {
+    opacity: 0;
+    transform: translateY(20px) rotate(-0.5deg);
+  }
+}
+
+/* `isolation` để lớp nền (z-index âm) nằm TRÊN nền của chính `.chrome` mà vẫn
+   DƯỚI nội dung. Không có nó, lớp z-index âm rơi xuống dưới nền `.chrome`. */
+:global(html[data-theme="thien-van"]) .chrome {
+  isolation: isolate;
+}
+/* Quầng đèn: một lớp phủ viewport, chỉ đổi opacity (compositor). */
+:global(html[data-theme="thien-van"]) .chrome::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(760px 540px at 1% -12%, var(--tv-lamp), transparent 68%);
+  animation: tvLamp 9s ease-in-out infinite;
+}
+@keyframes tvLamp {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+/* Hai lớp sao: mỗi lớp là MỘT phần tử 2×2px mang 14 chấm bằng box-shadow, nên
+   14 ngôi sao chỉ là một animation. Hai lớp chạy ngược pha để không nhấp nháy
+   cùng nhịp. `display` đi theo token: ban ngày `none` ⇒ phần tử không dựng và
+   animation không tồn tại (đo bằng `document.getAnimations()`). */
+:global(html[data-theme="thien-van"]) .chrome::after {
+  content: '';
+  display: var(--tv-star-display, none);
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--tv-star);
+  box-shadow:
+    6vw 9vh var(--tv-star),
+    14vw 31vh var(--tv-star),
+    22vw 14vh var(--tv-star),
+    31vw 5vh var(--tv-star),
+    44vw 22vh var(--tv-star),
+    57vw 8vh var(--tv-star),
+    66vw 27vh var(--tv-star),
+    73vw 12vh var(--tv-star),
+    82vw 4vh var(--tv-star),
+    90vw 24vh var(--tv-star),
+    96vw 11vh var(--tv-star),
+    11vw 58vh var(--tv-star),
+    4vw 76vh var(--tv-star),
+    93vw 63vh var(--tv-star);
+  animation: tvStarsA 7s ease-in-out infinite;
+}
+:global(html[data-theme="thien-van"]) .main::before {
+  content: '';
+  display: var(--tv-star-display, none);
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--tv-star);
+  box-shadow:
+    9vw 19vh var(--tv-star),
+    18vw 7vh var(--tv-star),
+    27vw 26vh var(--tv-star),
+    38vw 11vh var(--tv-star),
+    51vw 4vh var(--tv-star),
+    62vw 17vh var(--tv-star),
+    70vw 6vh var(--tv-star),
+    79vw 21vh var(--tv-star),
+    87vw 9vh var(--tv-star),
+    98vw 35vh var(--tv-star),
+    3vw 45vh var(--tv-star),
+    8vw 88vh var(--tv-star),
+    95vw 80vh var(--tv-star),
+    91vw 52vh var(--tv-star);
+  animation: tvStarsB 11s ease-in-out infinite;
+}
+@keyframes tvStarsA {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes tvStarsB {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
 .bottomBar {
   height: var(--st-action-h);
   position: sticky;
   bottom: 0;
   z-index: 50;
-  background: var(--ds-paper);
+  background: var(--edu-panel-bg-solid);
   flex-shrink: 0;
+  /* Cùng lý do như .topBar ở trên, chỉ ngược chiều: nội dung cuộn lên khỏi
+     thanh dưới. Phần ghi đè ở @media (max-width: 560px) chỉ đổi chiều cao
+     nên không cần nhắc lại cạnh ở đó. */
+  border-top: 1px solid var(--edu-card-line);
 }
 /* Ba cột: trạng thái lưu | nút chính 480px đúng giữa (x=480–960 ở frame 1440) | nút phụ. */
 .bottomBarInner {
@@ -269,29 +507,67 @@ button.segment::after {
   gap: 16px;
 }
 
-/* Cột trái của thanh dưới: nút "Màn trước" + nhãn lưu. Khoảng đệm 129px
-   trước đây nằm trên .saveLabel, nay chuyển lên ô bọc để nút lùi đứng đúng chỗ
-   nhãn lưu từng đứng. */
+/* Ô trái của lưới 3 cột: nút quay lại + nhãn lưu. Phần đệm 129px của bản
+   Figma chuyển lên đây — nó canh ô trái, không canh riêng nhãn lưu. */
 .leftSlot {
   justify-self: start;
   min-width: 0;
+  /* Giữ đúng chiều cao nút "Quay lại" (40px) kể cả khi nút CHƯA có — nút chỉ
+     dựng khi nội dung đã về và step > 1, nên trước đó ô cao 17px và nhãn "Tiến
+     độ tự lưu" nhảy lên 12px đúng lúc bài hiện ra (đo: 56,848 → 56,836). */
+  min-height: 40px;
+  padding-left: 129px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding-left: 129px;
-}
-
-.prevBtn {
-  composes: secondaryBtn;
+  gap: 12px;
 }
 
 .saveLabel {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--ds-soft);
-  font-size: var(--ds-fs-label);
+  color: var(--edu-t3);
+  font-size: 13px;
   white-space: nowrap;
+}
+
+/* Nút "Quay lại". Dáng viền mảnh, KHÔNG tô nền đặc: nó không được tranh mắt
+   với nút chính — người học vẫn phải đi tới, quay lại chỉ là lối thoát. */
+.backBtn {
+  flex-shrink: 0;
+  /* `min-width`, không chỉ `height`: bề rộng của nút này do NỘI DUNG quyết
+   * (`padding` + chữ "Quay lại"), nên nó đo được **41,6px** ở 390×844 trong khi
+   * `@media (max-width: 560px)` dưới đây đã nâng chiều CAO lên 44. Một nút đạt
+   * một trục là chưa đạt — và `height` không bảo đảm được trục kia. */
+  min-width: 44px;
+  height: 40px;
+  padding: 0 16px 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--edu-sidebar-border);
+  background: var(--edu-panel-bg-solid);
+  color: var(--edu-t2);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .backBtn:hover {
+    background: var(--ds-violet-tint);
+    color: var(--ds-violet-deep);
+  }
+}
+.backBtn:active {
+  transform: translateY(1px);
+}
+.backBtn:focus-visible {
+  outline: 2px solid var(--ds-violet);
+  outline-offset: 2px;
 }
 
 .secondarySlot {
@@ -304,34 +580,35 @@ button.segment::after {
   height: 52px;
   border-radius: 26px;
   border: 0;
+  /* --ds-action + --ds-on-action là cặp DUY NHẤT bảng v2 cho phép đặt chữ
+     lên nền nhấn đậm (cùng cặp với nút chính của CourseShell/trang chủ).
+     Chữ KHÔNG còn trắng cứng: ở Ban đêm --ds-action đổi sang bản sáng, chữ
+     trắng trên đó chỉ ~2,3:1; --ds-on-action đổi theo (7,98:1). Ngày: chữ
+     trắng trên --ds-action đo được 5,57:1 (chú thích trong studio-tokens.css
+     ghi 7,33 — số đó không khớp giá trị thật của token).
+     Hai biến thể Ok/Err bên dưới compose lớp này nên cũng thừa hưởng chữ
+     --ds-on-action: trước đây Ban đêm là chữ trắng trên --ds-ochre bản đêm,
+     tức 1,93:1. (Không viết mã màu trong chú thích: lint:tokens grep cả
+     chú thích.) */
   background: var(--ds-action);
-  /* Chữ đọc được trên nền nút ở CẢ HAI chế độ: --ds-on-action là trắng ở bản
-     ngày (7,33:1 trên --ds-action) và gần như đen ở bản đêm (8,36:1). Trước
-     đây màu chữ viết thẳng là mã màu trắng, nên bản đêm — nền nút sáng lên —
-     thành chữ trắng trên nền sáng. Đó cũng là mã màu hex cuối cùng còn sót
-     trong *.module.css mà `npm run lint:tokens` cấm. */
   color: var(--ds-on-action);
-  font-size: var(--ds-fs-ui);
-  font-weight: 800;
+  font-size: 16px;
+  font-weight: 700;
   font-family: inherit;
   cursor: pointer;
   transition: transform 0.15s ease, filter 0.15s ease;
 }
-.primaryBtn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  filter: brightness(1.05);
+@media (hover: hover) and (pointer: fine) {
+  .primaryBtn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+  }
 }
 .primaryBtn:active:not(:disabled) {
   transform: translateY(1px);
 }
-/* Trạng thái tắt KHÔNG làm mờ bằng opacity: `opacity: .5` trộn chữ trắng với
-   nền tím rồi với nền trang, còn ≈4,2:1 — đây là cách nhanh nhất để chữ tụt
-   dưới ngưỡng AA. Bản thiết kế v2 chốt: hạ cấp MÀU (nền `desk`, chữ `soft`,
-   viền `sketch`), giữ nguyên độ đục. soft/desk = 7,07:1. */
 .primaryBtn:disabled {
-  background: var(--ds-desk);
-  color: var(--ds-soft);
-  box-shadow: inset 0 0 0 2px var(--ds-sketch);
+  opacity: 0.5;
   cursor: not-allowed;
 }
 /* Nút chính đổi màu theo kết quả chấm — xanh khi đúng, đỏ khi sai. */
@@ -346,17 +623,19 @@ button.segment::after {
 
 .secondaryBtn {
   flex-shrink: 0;
+  /* Cùng lý do như `.backBtn`: chiều cao đã đủ (52/48), bề rộng thì do nội dung
+   * — và nhãn của nút này đổi theo màn (`cta.ts` sinh ra nó), nên một màn có
+   * nhãn ngắn là một đích dưới sàn mà không ai thấy. `min-width` bảo đảm nó. */
+  min-width: 44px;
   height: 52px;
   padding: 0 20px;
-  border-radius: var(--ds-r-pill);
-  /* Viền `line` chỉ 1,36:1 trên thẻ — không đủ để nhận ra một thứ bấm được
-     (WCAG 1.4.11 đòi ≥ 3:1). Bản thiết kế chốt nút phụ = viền `ink` 2px. */
-  border: 2px solid var(--ds-ink);
-  background: transparent;
-  color: var(--ds-ink);
+  border-radius: 999px;
+  border: 1px solid var(--edu-sidebar-border);
+  background: var(--edu-panel-bg-solid);
+  color: var(--edu-t2);
   font-family: inherit;
-  font-size: var(--ds-fs-ui);
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -364,9 +643,11 @@ button.segment::after {
   white-space: nowrap;
   transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
 }
-.secondaryBtn:hover {
-  background: var(--ds-violet-tint);
-  color: var(--ds-violet-deep);
+@media (hover: hover) and (pointer: fine) {
+  .secondaryBtn:hover {
+    background: var(--ds-violet-tint);
+    color: var(--ds-violet-deep);
+  }
 }
 .secondaryBtn:active {
   transform: translateY(1px);
@@ -376,32 +657,7 @@ button.segment::after {
 button.segment:focus-visible,
 .primaryBtn:focus-visible,
 .secondaryBtn:focus-visible {
-  outline: 3px solid var(--ds-violet);
-  outline-offset: 3px;
-}
-
-/* ── VÒNG TIÊU ĐIỂM DỰ PHÒNG CHO CẢ MÀN HỌC BÀI (WCAG 2.4.7) ──────────────
-   Lỗi đang chữa: trang bài học `/lesson/python_advanced` chỉ nạp
-   `edu-theme.css` + `studio-tokens.css` (xem STUDIO_CSS trong
-   `app/(standalone)/lesson/python_advanced/page.tsx`). Quy tắc
-   `button:focus-visible` toàn cục thì nằm ở `public/static/css/auth.css` và
-   `lesson_db_design.css` — HAI file màn học bài KHÔNG nạp, và layout gốc cũng
-   không import CSS global nào. Hệ quả đo được: chỉ bốn nút của khung này (đóng
-   bài, đoạn tiến độ, CTA chính, nút phụ) cộng vài chỗ tự khai (ô soạn mã,
-   SoQuyGame, nút mở hình lý thuyết) là có vòng tiêu điểm. MỌI thứ còn lại trong
-   16 loại màn — thẻ token của "Phân loại", ô trống ①②③ của "Lắp ghép khung mã",
-   dòng lệnh trong kho của "Ghép code", phương án trắc nghiệm, dòng code của
-   "Săn lỗi", nút "Đặt lại các ô"/"Gỡ dòng cuối" — Tab tới được nhưng KHÔNG VẼ
-   GÌ. Người dùng bàn phím đi được nhưng không biết mình đang ở đâu: cả bài học
-   thành một mê cung không con trỏ.
-
-   Viết bằng `:where()` cho CẢ hai vế nên độ đặc hiệu chỉ là (0,1,0) của
-   `:focus-visible` — mọi quy tắc tự khai ở trên và ở các module khác
-   (`.closeBtn:focus-visible`, `textarea.codeBody:focus-visible`,
-   `.playBtn:focus-visible`…) đều THẮNG. Đây là lưới an toàn, không phải lớp đè.
-   Bọc trong `.chrome` nên không rò sang trang khác. */
-:where(.chrome)
-  :where(button, a, input, textarea, select, summary, [tabindex]):focus-visible {
+  /* violet trên thanh trắng 6,70:1 (bản cũ --edu-accent-3: 3,19:1 — sát ngưỡng 3:1). */
   outline: 3px solid var(--ds-violet);
   outline-offset: 3px;
 }
@@ -412,6 +668,18 @@ button.segment:focus-visible,
   }
   .segmentFill {
     transition: none;
+  }
+  :global(html[data-theme="thien-van"]) .stepEnter {
+    animation: none;
+  }
+  :global(html[data-theme="thien-van"]) .chrome::before {
+    animation: none;
+  }
+  :global(html[data-theme="thien-van"]) .chrome::after {
+    animation: none;
+  }
+  :global(html[data-theme="thien-van"]) .main::before {
+    animation: none;
   }
 }
 
@@ -429,7 +697,11 @@ button.segment:focus-visible,
   }
   .lessonContext {
     flex-basis: 180px;
-    font-size: var(--ds-fs-label);
+    font-size: 14px;
+  }
+  .streakPill {
+    min-width: 0;
+    padding: 0 12px;
   }
 }
 
@@ -459,44 +731,49 @@ button.segment:focus-visible,
   }
   .saveLabel {
     max-width: 96px;
-    font-size: var(--ds-fs-label);
+    font-size: 11px;
     line-height: 1.3;
     white-space: normal;
+  }
+  /* Điện thoại: nút co về đúng mũi tên. Chữ "Quay lại" ẩn bằng clip chứ KHÔNG
+     display:none — display:none là bỏ khỏi cây hỗ trợ tiếp cận, nút sẽ không
+     còn tên để đọc. */
+  .backText {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .backBtn {
+    height: 44px;
+    padding: 0 12px;
+  }
+  .leftSlot {
+    gap: 8px;
+    /* Nút cao 44px ở khổ này — giữ chỗ đúng bằng nó (xem .leftSlot gốc). */
+    min-height: 44px;
   }
   .primaryBtn {
     flex: 1;
     min-width: 132px;
     height: 48px;
-    font-size: var(--ds-fs-ui);
+    font-size: 14px;
   }
   .secondarySlot {
     order: -1;
   }
-  /* Điện thoại: nút lùi chỉ còn mũi tên (tên vẫn đọc qua aria-label), nhãn
-     lưu nhường chỗ — 320px không đủ cho cả nút lùi, nút chính và nút phụ. */
-  .leftSlot {
-    gap: 8px;
-  }
-  .prevText {
-    display: none;
-  }
-  .prevBtn ~ .saveLabel {
-    display: none;
-  }
   .secondaryBtn {
     height: 48px;
     padding: 0 12px;
-    /* Nút phụ trên điện thoại là chỗ duy nhất trong khung dùng cỡ NHÃN thay
-       vì cỡ nút: ở bề ngang 320px, nút chính (tối thiểu 132px) cộng nút phụ
-       ở 17px không còn đủ chỗ. 15px vẫn nằm trong mức "nhãn/chip 14–15px". */
-    font-size: var(--ds-fs-label);
+    font-size: 12px;
   }
 }
 
-/* Ô điểm của khoá có mini-game, đứng cuối thanh. Không đặt `margin-left: auto`
-   nữa (nhãn bước đã giữ việc đó): hai mục cùng `auto` thì khoảng trống bị CHIA
-   ĐÔI, "3/8" rơi vào giữa thanh thay vì nằm cạnh ô điểm. */
+/* Ô điểm của khoá có mini-game: cùng dáng pill streak, đứng ngay trước nó. */
 .scorePill {
+  margin-left: auto;
   height: 34px;
   background: var(--ds-violet-tint);
   color: var(--ds-violet-deep);
@@ -505,7 +782,7 @@ button.segment:focus-visible,
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: var(--ds-fs-label);
+  font-size: 14px;
   font-weight: 700;
   white-space: nowrap;
 }

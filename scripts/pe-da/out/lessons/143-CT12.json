@@ -1,0 +1,294 @@
+{
+ "lesson_code": "CT12",
+ "sort_order": 143,
+ "module": "M6 · Hệ điều hành, tiến trình và đa luồng",
+ "title": "CT12 · Race condition, Lock và tránh deadlock",
+ "subtitle": "Nâng cao · M6 · 16 phút",
+ "estimated_minutes": 16,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "CT12 · Race condition, Lock và tránh deadlock",
+  "subtitle": "Nâng cao · M6 · 16 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#CT12",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 296-297; Python — subprocess; Python — threading"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Hai luồng ở bài trước dùng chung bộ nhớ, như hai quầy dùng chung một máy xay. Hai worker cùng đọc bộ đếm là 0 rồi mỗi worker ghi thêm 1. Nếu lần ghi sau đè lần ghi trước, kết quả có thể chỉ là 1 dù có hai lượt tăng. Mô phỏng thứ tự xen kẽ đó:"
+     },
+     {
+      "type": "code",
+      "code": "count = 0\nread_a = count\nread_b = count\ncount = read_a + 1\ncount = read_b + 1\nprint(count)",
+      "expected": "1",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "read_b",
+        "prompt": "Sau khi chạy xong, `read_b` bằng mấy?",
+        "answer": "0"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "count",
+           "0"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "read_a",
+           "0"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "read_b",
+           "0"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "set": [
+          [
+           "count",
+           "1"
+          ]
+         ]
+        },
+        {
+         "line": 5
+        },
+        {
+         "line": 6,
+         "out": "1"
+        },
+        {
+         "line": 6,
+         "ret": "None"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Race condition phụ thuộc thứ tự thực thi khi nhiều luồng truy cập dữ liệu chung. Phép tăng là một chuỗi đọc, tính và ghi theo ý nghĩa ứng dụng. Cần bảo vệ toàn bộ chuỗi bằng cùng một khóa."
+     },
+     {
+      "type": "code",
+      "code": "from threading import Thread, Lock\nlock = Lock()\nstate = {\"count\": 0}\ndef work():\n    for _ in range(100):\n        with lock:\n            state[\"count\"] += 1\nthreads = [Thread(target=work) for _ in range(2)]\nfor t in threads: t.start()\nfor t in threads: t.join()\nprint(state[\"count\"])",
+      "expected": "200"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Chỉ một thread giữ lock tại một thời điểm. `with lock` tự acquire khi vào và release khi rời khối, kể cả khi có ngoại lệ. Các thread phải tuân cùng một lock cho dữ liệu đó; khóa riêng không phối hợp với nhau."
+     },
+     {
+      "type": "code",
+      "code": "from threading import Lock\nlock = Lock()\nlock.acquire()\ntry:\n    print(lock.acquire(blocking=False))\nfinally:\n    lock.release()\nprint(lock.locked())",
+      "expected": "False\nFalse"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Lock thông thường không cho thread đang giữ tự lấy lại lần nữa. Ví dụ dùng `blocking=False` để quan sát thất bại mà không treo. Nếu A giữ khóa X chờ Y trong khi B giữ Y chờ X, cả hai có thể deadlock. Dùng thứ tự lấy khóa nhất quán, thu nhỏ vùng tới hạn và tránh giữ khóa khi chờ lâu. CPython build có GIL dùng một khóa của interpreter, nhưng khóa đó không bảo vệ trọn quy tắc chuyển tiền hay cập nhật nhiều giá trị của ứng dụng. EX05 giải thích riêng mô hình GIL này."
+     },
+     {
+      "type": "paragraph",
+      "text": "Bộ đếm bị tranh ở đây chính là hình dạng của lỗi khi hai quầy cùng ghi vào một cuốn sổ."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "CT11 · Kế thừa Thread và truyền trạng thái"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "counter += 1 có nên mặc định coi là giao dịch an toàn nhờ GIL không?",
+     "options": [
+      {
+       "text": "Không; thread không được dùng chung biến nào",
+       "detail": "Có thể chia sẻ biến nếu tổ chức đồng bộ đúng."
+      },
+      {
+       "text": "Không; cần đồng bộ thao tác cập nhật chung",
+       "detail": "Tính đúng ứng dụng cần bảo vệ cả đoạn đọc–sửa–ghi theo hợp đồng dữ liệu.",
+       "correct": true
+      },
+      {
+       "text": "Có; GIL thay mọi Lock",
+       "detail": "GIL không cung cấp hợp đồng giao dịch cho mọi cập nhật của ứng dụng."
+      }
+     ],
+     "explanation": "Tính đúng ứng dụng cần bảo vệ cả đoạn đọc–sửa–ghi theo hợp đồng dữ liệu."
+    },
+    {
+     "question": "Hai worker đọc 0 rồi đều ghi 1 có thể để counter bằng bao nhiêu sau hai lượt tăng?",
+     "options": [
+      {
+       "text": "1",
+       "detail": "Một lần ghi có thể đè kết quả lần kia; đó là cập nhật bị mất do xen kẽ.",
+       "correct": true
+      },
+      {
+       "text": "Bắt buộc 0",
+       "detail": "Chưa đúng. Một lần ghi có thể đè kết quả lần kia; đó là cập nhật bị mất do xen kẽ."
+      },
+      {
+       "text": "Bắt buộc 2",
+       "detail": "Chưa đúng. Một lần ghi có thể đè kết quả lần kia; đó là cập nhật bị mất do xen kẽ."
+      }
+     ],
+     "explanation": "Một lần ghi có thể đè kết quả lần kia; đó là cập nhật bị mất do xen kẽ."
+    },
+    {
+     "question": "Để bảo vệ một lần tăng theo mô hình đọc–tính–ghi, khóa phần nào?",
+     "options": [
+      {
+       "text": "Chỉ lệnh print sau cùng",
+       "detail": "Chưa đúng. Ranh giới vùng tới hạn phải bao trọn thao tác mà ứng dụng cần coi là một đơn vị."
+      },
+      {
+       "text": "Chỉ lúc tạo biến tên counter",
+       "detail": "Chưa đúng. Ranh giới vùng tới hạn phải bao trọn thao tác mà ứng dụng cần coi là một đơn vị."
+      },
+      {
+       "text": "Toàn bộ chuỗi cập nhật cần nhất quán",
+       "detail": "Ranh giới vùng tới hạn phải bao trọn thao tác mà ứng dụng cần coi là một đơn vị.",
+       "correct": true
+      }
+     ],
+     "explanation": "Ranh giới vùng tới hạn phải bao trọn thao tác mà ứng dụng cần coi là một đơn vị."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Vì sao mô phỏng hai lần tăng lại cho 1?",
+     "answer": "Cả hai lần đọc lấy cùng giá trị 0; lần ghi thứ hai đè cập nhật đầu."
+    },
+    {
+     "prompt": "Lock nên chỉ bảo vệ phép ghi hay cả đọc-tính-ghi?",
+     "answer": "Cả thao tác read-modify-write liên quan."
+    },
+    {
+     "prompt": "Hai thread lấy hai khóa theo thứ tự ngược nhau có rủi ro gì?",
+     "answer": "Deadlock: mỗi thread giữ một khóa và chờ khóa mà thread kia đang giữ."
+    },
+    {
+     "prompt": "Vì sao với lock: thường an toàn hơn acquire rồi quên release? Nếu tạo mỗi worker một lock mới thì có cùng bảo vệ state không?",
+     "answer": "with tự acquire/release kể cả khi có ngoại lệ. Mọi worker liên quan phải dùng cùng lock cho cùng quy tắc dữ liệu; lock riêng không tạo loại trừ giữa chúng."
+    },
+    {
+     "prompt": "Có GIL thì có thể bỏ khóa cho thao tác chuyển tiền gồm đọc hai số dư rồi ghi lại không?",
+     "answer": "Không. GIL không biến cả quy tắc ứng dụng thành một thao tác nguyên tử; bảo vệ toàn bộ read-modify-write bằng cùng khóa hoặc thiết kế trao đổi thông điệp."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "solve(data) nhận list số nguyên không âm, mỗi số là số lượt tăng của một worker. Tạo đúng một Lock và count chung; mỗi Thread tăng count từng lượt trong with lock. Start tất cả, join tất cả rồi trả count. Số lượt mỗi worker nhỏ để bài tập chạy nhanh.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "[15, 20, 7]"
+     },
+     {
+      "label": "trả về",
+      "value": "42"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import threading\ndef solve(data):\n    lock = threading.Lock()\n    shared = {'count':0}\n    def increment(times):\n        for _ in range(times):\n            with lock: shared['count'] += 1\n    workers = [threading.Thread(target=increment, args=(times,)) for times in data]\n    for thread in workers: thread.start()\n    for thread in workers: thread.join()\n    return shared['count']\n",
+   "tests": [
+    {
+     "name": "ba worker",
+     "input": [
+      15,
+      20,
+      7
+     ],
+     "expected": 42
+    },
+    {
+     "name": "worker không việc",
+     "input": [
+      0,
+      8
+     ],
+     "expected": 8
+    },
+    {
+     "name": "không worker",
+     "input": [],
+     "expected": 0
+    },
+    {
+     "name": "chỉ một worker có việc",
+     "input": [
+      0,
+      0,
+      3
+     ],
+     "expected": 3
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "env": "Bài tập dưới đây chấm được ngay trong trình duyệt. Nhưng code trong phần bài đọc thì không: bản Pyodide này không bật thread thật. Muốn chạy lại các đoạn đó thì mở Python trên máy."
+  }
+ },
+ "_mode": "mixed",
+ "_blocked": [
+  {
+   "block": 1,
+   "reason": "bản Pyodide này không bật thread thật"
+  },
+  {
+   "block": 2,
+   "reason": "bản Pyodide này không bật thread thật"
+  }
+ ],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 1,
+  "co": 1,
+  "bo": 0,
+  "loi": []
+ }
+}

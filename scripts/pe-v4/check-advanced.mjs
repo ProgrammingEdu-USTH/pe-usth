@@ -1,6 +1,6 @@
 /**
  * pe-v4: chấm thử các mini-game CHẠY CODE của khoá Python Advanced (48 bài) bằng
- * CHÍNH Pyodide 0.27.7 + thư viện tự lưu trữ trong frontend/public/pyodide/v0.27.7/
+ * CHÍNH Pyodide 314.0.7 + thư viện tự lưu trữ trong frontend/public/pyodide/v314.0.7/
  * và CHÍNH bộ chấm của trình duyệt (studio-harness.py). Bài có step_4.packages được
  * tải + import sẵn trước, như worker làm:
  *
@@ -25,7 +25,44 @@ const bundle = JSON.parse(readFileSync(join(HERE, 'out-advanced', 'lessons.json'
 const onlyArg = process.argv.slice(2).find((a) => !a.startsWith('--'));
 const only = onlyArg ? new Set(onlyArg.split(',')) : null;
 
-const py = await loadPyodide({ indexURL: join(ROOT, 'frontend', 'public', 'pyodide', 'v0.27.7') + '/' });
+const RUNTIME = join(ROOT, 'frontend', 'public', 'pyodide', 'v314.0.7') + '/';
+// Gói runtime này THẬT SỰ tải được. `sqlite3` là wheel riêng ở Pyodide 0.27.7
+// nhưng vào stdlib ở 314, nên loadPackage(['sqlite3']) ném "No known package" và
+// giết cả bộ chấm ngay bài đầu — lọc trước, để `import` tự nói có hay không.
+const coTrongLock = new Set(
+  Object.keys(JSON.parse(readFileSync(join(RUNTIME, 'pyodide-lock.json'), 'utf8')).packages),
+);
+// CẤM ĐI MẠNG — chỉ được dùng đúng các file trong repo. Giấu thử một wheel đi
+// thì `loadPackage` KHÔNG ném: nó lặng lẽ tải từ cdn.jsdelivr.net rồi báo thành
+// công. Tức bộ chấm này chưa bao giờ chứng minh được các wheel trong
+// frontend/public/pyodide/ dùng được — xoá nhầm một cái vẫn xanh CI. Trình duyệt
+// thì ngược lại: CSP `connect-src 'self'` chặn đường đó, nên cùng một wheel
+// thiếu là hỏng cứng với học viên. Chặn ở đây để hai môi trường nói cùng chuyện.
+const fetchThat = globalThis.fetch;
+globalThis.fetch = (u, ...r) => {
+  const dia = String(typeof u === 'string' ? u : (u?.url ?? u));
+  if (/^https?:\/\//i.test(dia)) {
+    return Promise.reject(new Error(`bộ chấm không được đi mạng: ${dia}`));
+  }
+  return fetchThat(u, ...r);
+};
+
+// FILE DỮ LIỆU (`step_4.dataFiles`) — bộ chấm NÀY không nạp được. Cùng lý lẽ
+// với scripts/pe-v4/check-pyodide.mjs: pe-v4 đã đóng băng, nên chỗ đúng để nói
+// điều đó là một câu lỗi rõ ràng chứ không phải một nhánh không ai gọi. Ở đây
+// đọc được TẬN content_json, nên luật chạm đúng thứ sẽ vào DB.
+const khaiDuLieu = (bundle.lessons || [])
+  .filter((b) => ((b.content_json?.step_4 || {}).dataFiles || []).length)
+  .map((b) => b.lesson_code);
+if (khaiDuLieu.length) {
+  console.error(
+    `bộ chấm pe-v4 chưa nạp được file dữ liệu, mà ${khaiDuLieu.join(', ')} có khai.\n`
+    + '  → chép nhánh đọc-từ-đĩa trong scripts/pe-da/check-pyodide.mjs sang đây trước.',
+  );
+  process.exit(1);
+}
+
+const py = await loadPyodide({ indexURL: RUNTIME });
 await py.runPythonAsync(harness);
 const grade = py.globals.get('_studio_main');
 const preload = py.globals.get('_studio_preload');
@@ -51,7 +88,7 @@ for (const row of bundle.lessons) {
   lessons += 1;
   const content = row.content_json;
   const four = content.step_4;
-  const missing = (four.packages || []).filter((p) => !warmed.has(p));
+  const missing = (four.packages || []).filter((p) => coTrongLock.has(p) && !warmed.has(p));
   if (missing.length) {
     await py.loadPackage(missing, { messageCallback: () => {} });
     preload(JSON.stringify(missing));

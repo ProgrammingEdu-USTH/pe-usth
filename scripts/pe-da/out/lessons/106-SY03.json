@@ -1,0 +1,243 @@
+{
+ "lesson_code": "SY03",
+ "sort_order": 106,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY03 · Tìm và sửa mẫu văn bản bằng regex",
+ "subtitle": "Trung cấp · M5 · 12 phút",
+ "estimated_minutes": 12,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY03 · Tìm và sửa mẫu văn bản bằng regex",
+  "subtitle": "Trung cấp · M5 · 12 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY03",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 330; Python — re"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Mẫu ngẫu nhiên ở bài trước lấy cả dòng; có lúc bạn chỉ cần một mẩu trong dòng. Trong ghi chú \"Paid by S012 today\", bạn muốn lấy mã khách thay vì dựa vào vị trí ký tự cố định. Regex mô tả dạng của mã:"
+     },
+     {
+      "type": "code",
+      "code": "import re\nmatch = re.search(r\"\\bS\\d{3}\\b\", \"Paid by S012 today\")\nprint(match.group(0) if match else None)",
+      "expected": "S012",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`S` là chữ phải có; `\\d{3}` là ba chữ số; `\\b` đánh dấu ranh giới từ. Chữ r trước dấu nháy tạo raw string, giúp dấu gạch chéo được truyền đúng vào regex. `search` tìm khớp đầu tiên và trả Match; không thấy thì trả `None`."
+     },
+     {
+      "type": "code",
+      "code": "import re\ntext = \"An   paid\\t today\"\nclean = re.sub(r\"\\s+\", \" \", text)\nprint(clean)",
+      "expected": "An paid today",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "clean",
+        "prompt": "Sau khi chạy xong, `clean` bằng mấy?",
+        "answer": "'An paid today'"
+       },
+       "rows": [
+        {
+         "line": 1
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "text",
+           "'An paid\\t today'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "clean",
+           "'An paid today'"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "out": "An paid today"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`sub` thay các đoạn khớp, ở đây gộp khoảng trắng liên tiếp thành một dấu cách. Khác search, kết quả của sub là chuỗi mới. Dấu chấm trong regex thường khớp một ký tự bất kỳ trừ newline; muốn tìm dấu chấm thật thì escape nó hoặc dùng re.escape cho toàn chuỗi literal."
+     },
+     {
+      "type": "code",
+      "code": "import re\nprint(re.search(r\"\\bS\\d{3}\\b\", \"S12\") is None)\nprint(re.search(re.escape(\"a.b\"), \"a-b\") is None)\nprint(re.search(r\"\\d{4}-\\d{2}-\\d{2}\", \"2024-02-31\") is not None)",
+      "expected": "True\nTrue\nTrue",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "Dòng cuối khớp cấu trúc ngày nhưng ngày 31/02 không tồn tại. Sau bước tìm chuỗi, hãy dùng datetime.strptime để xác nhận ngày. Một mẫu khớp không tự chứng minh dữ liệu có ý nghĩa đúng."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "SY02 · Lấy mẫu ngẫu nhiên và đếm tần suất"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Mẫu r\"a.b\" có khớp chuỗi \"a-b\" không?",
+     "options": [
+      {
+       "text": "Không, vì thiếu dấu chấm thật",
+       "detail": "Muốn dấu chấm thật cần escape; dấu chấm không escape mang nghĩa mẫu."
+      },
+      {
+       "text": "Chỉ khớp khi chuỗi bắt đầu bằng số",
+       "detail": "Mẫu không có yêu cầu chữ số nào."
+      },
+      {
+       "text": "Có",
+       "detail": "Dấu chấm trong regex khớp một ký tự bất kỳ, trừ newline trong chế độ mặc định.",
+       "correct": true
+      }
+     ],
+     "explanation": "Dấu chấm trong regex khớp một ký tự bất kỳ, trừ newline trong chế độ mặc định."
+    },
+    {
+     "question": "Không tìm thấy mã trong ghi chú, re.search trả gì?",
+     "options": [
+      {
+       "text": "Match có nội dung 0",
+       "detail": "Chưa đúng. search trả Match khi thấy mẫu, nếu không thấy thì trả None. Cần kiểm trước group."
+      },
+      {
+       "text": "None",
+       "detail": "search trả Match khi thấy mẫu, nếu không thấy thì trả None. Cần kiểm trước group.",
+       "correct": true
+      },
+      {
+       "text": "Chuỗi rỗng",
+       "detail": "Chưa đúng. search trả Match khi thấy mẫu, nếu không thấy thì trả None. Cần kiểm trước group."
+      }
+     ],
+     "explanation": "search trả Match khi thấy mẫu, nếu không thấy thì trả None. Cần kiểm trước group."
+    },
+    {
+     "question": "Muốn tìm đúng dấu chấm trong mã a.b, cách nào rõ nghĩa?",
+     "options": [
+      {
+       "text": "re.search(re.escape(\"a.b\"), text)",
+       "detail": "Dấu chấm regex có nghĩa đặc biệt; escape biến chuỗi cần tìm thành mẫu nguyên văn.",
+       "correct": true
+      },
+      {
+       "text": "re.search(r\"a.b\", text)",
+       "detail": "Chưa đúng. Dấu chấm regex có nghĩa đặc biệt; escape biến chuỗi cần tìm thành mẫu nguyên văn."
+      },
+      {
+       "text": "re.search(r\"a*b\", text)",
+       "detail": "Chưa đúng. Dấu chấm regex có nghĩa đặc biệt; escape biến chuỗi cần tìm thành mẫu nguyên văn."
+      }
+     ],
+     "explanation": "Dấu chấm regex có nghĩa đặc biệt; escape biến chuỗi cần tìm thành mẫu nguyên văn."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "search không thấy gì trả về gì?",
+     "answer": "None. Kiểm match trước khi gọi match.group(0)."
+    },
+    {
+     "prompt": "Viết cách gộp các khoảng trắng trong \"A   B\".",
+     "answer": "re.sub(r\"\\s+\", \" \", \"A   B\") trả \"A B\"."
+    },
+    {
+     "prompt": "Viết extract_id(text) trả mã S và đúng ba chữ số, hoặc None.",
+     "answer": "m = re.search(r\"\\bS\\d{3}\\b\", text); return m.group(0) if m else None. Thử S012, S12, S0123 và chuỗi không có mã."
+    },
+    {
+     "prompt": "re.search(r\"a.b\", \"a-b\") có khớp không? Muốn tìm đúng literal a.b và thay mọi khoảng trắng liên tiếp cần viết gì?",
+     "answer": "Có vì dấu chấm regex khớp một ký tự. Dùng re.search(re.escape(\"a.b\"), text) cho literal; re.sub(r\"\\s+\", \" \", text) tạo chuỗi mới. Import re trước khi gọi; search không thấy trả None."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Ghi chú giao hàng chứa mã P và đúng bốn chữ số, đứng thành một từ riêng. Viết solve(data) nhận chuỗi, trả mã khớp đầu tiên hoặc None. Không nhận P12 hay P12345.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "'paid P2048 today'"
+     },
+     {
+      "label": "trả về",
+      "value": "'P2048'"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import re\ndef solve(data):\n    match = re.search(r'\\bP\\d{4}\\b', data)\n    return match.group(0) if match else None\n",
+   "tests": [
+    {
+     "name": "có mã",
+     "input": "paid P2048 today",
+     "expected": "P2048"
+    },
+    {
+     "name": "quá dài",
+     "input": "P12345 then P0007",
+     "expected": "P0007"
+    },
+    {
+     "name": "không có mã",
+     "input": "P12 pending",
+     "expected": null
+    },
+    {
+     "name": "mã toàn chữ số 0",
+     "input": "ship P0000 now",
+     "expected": "P0000"
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 1,
+  "bo": 2,
+  "loi": []
+ }
+}

@@ -1,0 +1,8355 @@
+{
+ "note": "Sinh bằng scripts/pe-da/gen_traces.py — ĐỪNG sửa tay.",
+ "lessons": {
+  "CT01": {
+   "codeHash": "57bd71986b548033",
+   "blocks": {
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "CT02": {
+   "codeHash": "9315d5964d6b9b17",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "final",
+      "var": "fork_returns",
+      "prompt": "Sau khi chạy xong, `fork_returns` bằng mấy?",
+      "answer": "{'parent': 101, 'child': 0}"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "new_child_pid",
+         "101"
+        ],
+        [
+         "parent_pid",
+         "100"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "fork_returns",
+         "{'parent': 101, 'child': 0}"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "out": "101 0"
+      }
+     ]
+    },
+    "1": {
+     "predict": {
+      "kind": "final",
+      "var": "process",
+      "prompt": "Sau khi chạy xong, `process` bằng mấy?",
+      "answer": "{'pid': 101, 'program': 'analysis'}"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "process",
+         "{'pid': 101, 'program': 'shell'}"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "process",
+         "{'pid': 101, 'program': 'analysis'}"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "out": "101 analysis"
+      },
+      {
+       "line": 3,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "CT03": {
+   "codeHash": "c2179c68d75fed66",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "final",
+      "var": "current",
+      "prompt": "Sau khi chạy xong, `current` bằng mấy?",
+      "answer": "'A'"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "queues",
+         "{'job': ['A', 'B', 'C'], 'ready': ['A', 'B'], 'disk': ['C']}"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "current",
+         "'A'"
+        ],
+        [
+         "queues",
+         "{'job': ['A', 'B', 'C'], 'ready': ['B'], 'disk': ['C']}"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "out": "A ['C']"
+      }
+     ]
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "CT04": {
+   "codeHash": "8ecce0c2ae94de16",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "final",
+      "var": "clock",
+      "prompt": "Sau khi chạy xong, `clock` bằng mấy?",
+      "answer": "9"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "jobs",
+         "[('A', 6), ('B', 2), ('C', 1)]"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "clock",
+         "0"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "burst",
+         "6"
+        ],
+        [
+         "name",
+         "'A'"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "out": "A 0"
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "clock",
+         "6"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "burst",
+         "2"
+        ],
+        [
+         "name",
+         "'B'"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "out": "B 6"
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "clock",
+         "8"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "burst",
+         "1"
+        ],
+        [
+         "name",
+         "'C'"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "out": "C 8"
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "clock",
+         "9"
+        ]
+       ]
+      },
+      {
+       "line": 3
+      }
+     ]
+    },
+    "1": {
+     "predict": {
+      "kind": "final",
+      "var": "clock",
+      "prompt": "Sau khi chạy xong, `clock` bằng mấy?",
+      "answer": "9"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "clock",
+         "0"
+        ]
+       ]
+      },
+      {
+       "line": 3
+      },
+      {
+       "line": 3,
+       "fn": "<lambda>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "job",
+         "('A', 6)"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<lambda>",
+       "depth": 1
+      },
+      {
+       "line": 3,
+       "fn": "<lambda>",
+       "depth": 1,
+       "ret": "6",
+       "set": [
+        [
+         "job",
+         "('B', 2)"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<lambda>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "job",
+         "('B', 2)"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<lambda>",
+       "depth": 1
+      },
+      {
+       "line": 3,
+       "fn": "<lambda>",
+       "depth": 1,
+       "ret": "2",
+       "set": [
+        [
+         "job",
+         "('C', 1)"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<lambda>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "job",
+         "('C', 1)"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<lambda>",
+       "depth": 1
+      },
+      {
+       "line": 3,
+       "fn": "<lambda>",
+       "depth": 1,
+       "ret": "1"
+      },
+      {
+       "line": 4,
+       "out": "C 0"
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "clock",
+         "1"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "burst",
+         "2"
+        ],
+        [
+         "name",
+         "'B'"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "out": "B 1"
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "clock",
+         "3"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "burst",
+         "6"
+        ],
+        [
+         "name",
+         "'A'"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "out": "A 3"
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "clock",
+         "9"
+        ]
+       ]
+      },
+      {
+       "line": 3
+      }
+     ]
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "CT05": {
+   "codeHash": "d5570ab55254cb30",
+   "blocks": {
+    "0": {
+     "skip": "chỉ 2 bước — bảng không nói thêm gì"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "predict": {
+      "kind": "final",
+      "var": "queues",
+      "prompt": "Sau khi chạy xong, `queues` bằng mấy?",
+      "answer": "{'high': [], 'low': ['B', 'A']}"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "queues",
+         "{'high': ['A'], 'low': ['B']}"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "queues",
+         "{'high': [], 'low': ['B']}"
+        ],
+        [
+         "unfinished",
+         "'A'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "queues",
+         "{'high': [], 'low': ['B', 'A']}"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "out": "[] ['B', 'A']"
+      },
+      {
+       "line": 4,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "CT06": {
+   "codeHash": "f58d1192f2763a57",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "final",
+      "var": "remaining",
+      "prompt": "Sau khi chạy xong, `remaining` bằng mấy?",
+      "answer": "1"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "deque",
+         "<lớp deque>"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "ready",
+         "deque: deque([('A', 3), ('B', 2)])"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "trace",
+         "[]"
+        ]
+       ]
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "name",
+         "'A'"
+        ],
+        [
+         "ready",
+         "deque: deque([('B', 2)])"
+        ],
+        [
+         "remaining",
+         "3"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "used",
+         "1"
+        ]
+       ]
+      },
+      {
+       "line": 7,
+       "set": [
+        [
+         "trace",
+         "['A']"
+        ]
+       ]
+      },
+      {
+       "line": 8
+      },
+      {
+       "line": 9,
+       "set": [
+        [
+         "ready",
+         "deque: deque([('B', 2), ('A', 2)])"
+        ]
+       ]
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "name",
+         "'B'"
+        ],
+        [
+         "ready",
+         "deque: deque([('A', 2)])"
+        ],
+        [
+         "remaining",
+         "2"
+        ]
+       ]
+      },
+      {
+       "line": 6
+      },
+      {
+       "line": 7,
+       "set": [
+        [
+         "trace",
+         "['A', 'B']"
+        ]
+       ]
+      },
+      {
+       "line": 8
+      },
+      {
+       "line": 9,
+       "set": [
+        [
+         "ready",
+         "deque: deque([('A', 2), ('B', 1)])"
+        ]
+       ]
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "name",
+         "'A'"
+        ],
+        [
+         "ready",
+         "deque: deque([('B', 1)])"
+        ]
+       ]
+      },
+      {
+       "line": 6
+      },
+      {
+       "line": 7,
+       "set": [
+        [
+         "trace",
+         "['A', 'B', 'A']"
+        ]
+       ]
+      },
+      {
+       "line": 8
+      },
+      {
+       "line": 9,
+       "set": [
+        [
+         "ready",
+         "deque: deque([('B', 1), ('A', 1)])"
+        ]
+       ]
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "name",
+         "'B'"
+        ],
+        [
+         "ready",
+         "deque: deque([('A', 1)])"
+        ],
+        [
+         "remaining",
+         "1"
+        ]
+       ]
+      },
+      {
+       "line": 6
+      },
+      {
+       "line": 7,
+       "set": [
+        [
+         "trace",
+         "['A', 'B', 'A', 'B']"
+        ]
+       ]
+      },
+      {
+       "line": 8
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "name",
+         "'A'"
+        ],
+        [
+         "ready",
+         "deque: deque([])"
+        ]
+       ]
+      },
+      {
+       "line": 6
+      },
+      {
+       "line": 7,
+       "set": [
+        [
+         "trace",
+         "['A', 'B', 'A', 'B', 'A']"
+        ]
+       ]
+      },
+      {
+       "line": 8
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 10,
+       "out": "['A', 'B', 'A', 'B', 'A']"
+      }
+     ]
+    },
+    "1": {
+     "predict": {
+      "kind": "count",
+      "line": 5,
+      "prompt": "Dòng 5 chạy bao nhiêu lần?",
+      "answer": "3"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "ready",
+         "deque: deque([('A', 3), ('B', 2)])"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "trace",
+         "[]"
+        ]
+       ]
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "ready",
+         "deque: deque([('B', 2)])"
+        ],
+        [
+         "remaining",
+         "3"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "used",
+         "2"
+        ]
+       ]
+      },
+      {
+       "line": 7,
+       "set": [
+        [
+         "trace",
+         "[('A', 2)]"
+        ]
+       ]
+      },
+      {
+       "line": 8,
+       "set": [
+        [
+         "ready",
+         "deque: deque([('B', 2), ('A', 1)])"
+        ]
+       ]
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "name",
+         "'B'"
+        ],
+        [
+         "ready",
+         "deque: deque([('A', 1)])"
+        ],
+        [
+         "remaining",
+         "2"
+        ]
+       ]
+      },
+      {
+       "line": 6
+      },
+      {
+       "line": 7,
+       "set": [
+        [
+         "trace",
+         "[('A', 2), ('B', 2)]"
+        ]
+       ]
+      },
+      {
+       "line": 8
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "name",
+         "'A'"
+        ],
+        [
+         "ready",
+         "deque: deque([])"
+        ],
+        [
+         "remaining",
+         "1"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "used",
+         "1"
+        ]
+       ]
+      },
+      {
+       "line": 7,
+       "set": [
+        [
+         "trace",
+         "[('A', 2), ('B', 2), ('A', 1)]"
+        ]
+       ]
+      },
+      {
+       "line": 8
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 9,
+       "out": "[('A', 2), ('B', 2), ('A', 1)]"
+      }
+     ]
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "CT09": {
+   "codeHash": "864a9305bdae1c99",
+   "blocks": {
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "CT12": {
+   "codeHash": "37589c6a09fcbb4b",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "final",
+      "var": "read_b",
+      "prompt": "Sau khi chạy xong, `read_b` bằng mấy?",
+      "answer": "0"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "count",
+         "0"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "read_a",
+         "0"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "read_b",
+         "0"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "count",
+         "1"
+        ]
+       ]
+      },
+      {
+       "line": 5
+      },
+      {
+       "line": 6,
+       "out": "1"
+      },
+      {
+       "line": 6,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "CT13": {
+   "codeHash": "dd5decf2bb6aef1c",
+   "blocks": {
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "CT15": {
+   "codeHash": "d015264112f7c4c1",
+   "blocks": {
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "EX01": {
+   "codeHash": "d126d2fa1311a686",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "EX02": {
+   "codeHash": "1133a090d2451da4",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "EX03": {
+   "codeHash": "5a308c41473bd951",
+   "blocks": {
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "EX04": {
+   "codeHash": "d487d225b251f033",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "EX05": {
+   "codeHash": "95540ff99ddb2b44",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "mid",
+      "var": "alias",
+      "line": 2,
+      "prompt": "Ngay sau khi dòng 2 chạy, `alias` bằng mấy?",
+      "answer": "[6, 8]"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "values",
+         "[6, 8]"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "alias",
+         "[6, 8]"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "alias",
+         "[6, 8, 10]"
+        ],
+        [
+         "values",
+         "[6, 8, 10]"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "out": "True"
+      },
+      {
+       "line": 5,
+       "out": "[6, 8, 10]"
+      }
+     ]
+    },
+    "1": {
+     "predict": {
+      "kind": "mid",
+      "var": "a",
+      "line": 5,
+      "prompt": "Ngay sau khi dòng 5 chạy, `a` bằng mấy?",
+      "answer": "Node()"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "gc",
+         "<thư viện gc>"
+        ],
+        [
+         "weakref",
+         "<thư viện weakref>"
+        ]
+       ]
+      },
+      {
+       "line": 2
+      },
+      {
+       "line": 2,
+       "fn": "Node",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 2,
+       "fn": "Node",
+       "depth": 1
+      },
+      {
+       "line": 3,
+       "fn": "Node",
+       "depth": 1
+      },
+      {
+       "line": 3,
+       "fn": "Node",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "make_cycle",
+         "<hàm make_cycle>"
+        ]
+       ]
+      },
+      {
+       "line": 8
+      },
+      {
+       "line": 4,
+       "fn": "make_cycle",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 5,
+       "fn": "make_cycle",
+       "depth": 1,
+       "set": [
+        [
+         "a",
+         "Node()"
+        ],
+        [
+         "b",
+         "Node()"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "fn": "make_cycle",
+       "depth": 1,
+       "set": [
+        [
+         "a",
+         "Node(peer=Node(peer=<tự tham chiếu>))"
+        ],
+        [
+         "b",
+         "Node(peer=Node(peer=<tự tham chiếu>))"
+        ]
+       ]
+      },
+      {
+       "line": 7,
+       "fn": "make_cycle",
+       "depth": 1
+      },
+      {
+       "line": 7,
+       "fn": "make_cycle",
+       "depth": 1,
+       "ret": "ReferenceType: <weakref; to 'Node'>"
+      },
+      {
+       "line": 9,
+       "set": [
+        [
+         "reference",
+         "ReferenceType: <weakref; dead>"
+        ]
+       ]
+      },
+      {
+       "line": 10,
+       "out": "True"
+      },
+      {
+       "line": 10,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "EX06": {
+   "codeHash": "b339da503bd112e5",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "final",
+      "var": "restored",
+      "prompt": "Sau khi chạy xong, `restored` bằng mấy?",
+      "answer": "{'so_coc': [6, 8]}"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "gzip",
+         "<thư viện gzip>"
+        ],
+        [
+         "pickle",
+         "<thư viện pickle>"
+        ],
+        [
+         "tempfile",
+         "<thư viện tempfile>"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "Path",
+         "<lớp Path>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "data",
+         "{'so_coc': [6, 8]}"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "folder",
+         "'C:\\\\Users\\\\sonkh\\\\AppData\\\\Local\\\\Temp\\\\tmp_mb_vsfm'"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "path",
+         "WindowsPath: WindowsPath('C:/Users/sonkh/AppData/Local/Temp/tmp_mb_vsfm…"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "f",
+         "GzipFile(mode='wb', fileobj=BufferedWriter(), _buffer=BufferedWriter(),…"
+        ]
+       ]
+      },
+      {
+       "line": 7
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "f",
+         "GzipFile(mode='wb', fileobj=None, _buffer=BufferedWriter(), myfileobj=N…"
+        ]
+       ]
+      },
+      {
+       "line": 8,
+       "set": [
+        [
+         "f",
+         "GzipFile(mode='rb', fileobj=BufferedReader(), _buffer=BufferedReader(),…"
+        ]
+       ]
+      },
+      {
+       "line": 9,
+       "set": [
+        [
+         "restored",
+         "{'so_coc': [6, 8]}"
+        ]
+       ]
+      },
+      {
+       "line": 8,
+       "set": [
+        [
+         "f",
+         "GzipFile(mode='rb', fileobj=None, _buffer=BufferedReader(), myfileobj=N…"
+        ]
+       ]
+      },
+      {
+       "line": 10,
+       "out": "True True"
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 4,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "EX07": {
+   "codeHash": "7040d870d8e419fc",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "mid",
+      "var": "namespace",
+      "line": 3,
+      "prompt": "Ngay sau khi dòng 3 chạy, `namespace` bằng mấy?",
+      "answer": "{}"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "CodeType",
+         "<lớp code>"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "program",
+         "code: <code object <module>, file \"example.py\", line 1>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "namespace",
+         "{}"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "namespace",
+         "{'__builtins__': {'__name__': 'builtins', '__doc__': \"Built-in function…"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "out": "True"
+      },
+      {
+       "line": 6,
+       "out": "21"
+      }
+     ]
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "predict": {
+      "kind": "final",
+      "var": "source",
+      "prompt": "Sau khi chạy xong, `source` bằng mấy?",
+      "answer": "'if True:\\n\\tprint(1)\\n print(2)'"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "sources",
+         "['if True:\\nprint(1)', 'if True:\\n\\tprint(1)\\n print(2)']"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "source",
+         "'if True:\\nprint(1)'"
+        ]
+       ]
+      },
+      {
+       "line": 3
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 4,
+       "exc": "IndentationError: expected an indented block after 'if' statement on li…"
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "error",
+         "IndentationError()"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "out": "IndentationError"
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "source",
+         "'if True:\\n\\tprint(1)\\n print(2)'"
+        ]
+       ]
+      },
+      {
+       "line": 3
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 4,
+       "exc": "TabError: inconsistent use of tabs and spaces in indentation (example.p…"
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "error",
+         "TabError()"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "out": "TabError"
+      },
+      {
+       "line": 2
+      },
+      {
+       "line": 2,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "EX08": {
+   "codeHash": "85507d9914ce48d7",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "GU01": {
+   "codeHash": "b80426b19346efef",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "final",
+      "var": "price",
+      "prompt": "Sau khi chạy xong, `price` bằng mấy?",
+      "answer": "20"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "total",
+         "<hàm total>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "command",
+         "'3 20'"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "cups",
+         "3"
+        ],
+        [
+         "price",
+         "20"
+        ]
+       ]
+      },
+      {
+       "line": 5
+      },
+      {
+       "line": 1,
+       "fn": "total",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "cups",
+         "3"
+        ],
+        [
+         "price",
+         "20"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "total",
+       "depth": 1
+      },
+      {
+       "line": 2,
+       "fn": "total",
+       "depth": 1,
+       "ret": "60",
+       "out": "60"
+      },
+      {
+       "line": 5,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "GU12": {
+   "codeHash": "0149d528a5a4a73d",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "final",
+      "var": "luong",
+      "prompt": "Sau khi chạy xong, `luong` bằng mấy?",
+      "answer": "['14.29', '16.00']"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "Decimal",
+         "<lớp Decimal>"
+        ],
+        [
+         "ROUND_FLOOR",
+         "'ROUND_FLOOR'"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "luong",
+         "['14.29', '16.00']"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "x",
+         "'14.29'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "x",
+         "'16.00'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "Decimal",
+         "<lớp Decimal>"
+        ],
+        [
+         "ROUND_FLOOR",
+         "'ROUND_FLOOR'"
+        ],
+        [
+         "luong",
+         "['14.29', '16.00']"
+        ],
+        [
+         "normalized",
+         "[14.2, 16.0]"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "out": "[14.2, 16.0]"
+      }
+     ]
+    },
+    "1": {
+     "predict": {
+      "kind": "mid",
+      "var": "gam",
+      "line": 3,
+      "prompt": "Ngay sau khi dòng 3 chạy, `gam` bằng mấy?",
+      "answer": "14.0"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "luong",
+         "{'ca-phe-hat': 14.0, 'sua-tuoi': 18.0}"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "so_coc",
+         "{'ca-phe-hat': 2, 'sua-tuoi': 3, 'duong': 1}"
+        ]
+       ]
+      },
+      {
+       "line": 3
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         ".0",
+         "dict_itemiterator: <dict_itemiterator object>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "set": [
+        [
+         "gam",
+         "14.0"
+        ],
+        [
+         "ten",
+         "'ca-phe-hat'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "28.0"
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         ".0",
+         "dict_itemiterator: <dict_itemiterator object>"
+        ],
+        [
+         "gam",
+         "14.0"
+        ],
+        [
+         "ten",
+         "'ca-phe-hat'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "set": [
+        [
+         "gam",
+         "18.0"
+        ],
+        [
+         "ten",
+         "'sua-tuoi'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "54.0"
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         ".0",
+         "dict_itemiterator: <dict_itemiterator object>"
+        ],
+        [
+         "gam",
+         "18.0"
+        ],
+        [
+         "ten",
+         "'sua-tuoi'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 4,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         ".0",
+         "dict_keyiterator: <dict_keyiterator object>"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "set": [
+        [
+         "ten",
+         "'ca-phe-hat'"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "2"
+      },
+      {
+       "line": 4,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         ".0",
+         "dict_keyiterator: <dict_keyiterator object>"
+        ],
+        [
+         "ten",
+         "'ca-phe-hat'"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "set": [
+        [
+         "ten",
+         "'sua-tuoi'"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "3"
+      },
+      {
+       "line": 4,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         ".0",
+         "dict_keyiterator: <dict_keyiterator object>"
+        ],
+        [
+         "ten",
+         "'sua-tuoi'"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "fn": "<genexpr>",
+       "depth": 1
+      },
+      {
+       "line": 4,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 5,
+       "out": "16.4"
+      }
+     ]
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP01": {
+   "codeHash": "f0cbc8c4034e8530",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "chỉ 2 bước — bảng không nói thêm gì"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP02": {
+   "codeHash": "40d419cbb83afca2",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "chỉ 2 bước — bảng không nói thêm gì"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP03": {
+   "codeHash": "bb168b796fe5502b",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "chỉ 2 bước — bảng không nói thêm gì"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP04": {
+   "codeHash": "dd669003dad232da",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "chỉ 2 bước — bảng không nói thêm gì"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP05": {
+   "codeHash": "8657dd4834c400cf",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "chỉ 1 bước — bảng không nói thêm gì"
+    },
+    "2": {
+     "skip": "chỉ 2 bước — bảng không nói thêm gì"
+    }
+   }
+  },
+  "NP06": {
+   "codeHash": "da4f59f1ec6658e5",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "chỉ 2 bước — bảng không nói thêm gì"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP07": {
+   "codeHash": "85cc283ca0d84a8c",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "chỉ 2 bước — bảng không nói thêm gì"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP08": {
+   "codeHash": "f0c60bc23a0cc98c",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "chỉ 2 bước — bảng không nói thêm gì"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP09": {
+   "codeHash": "dd7e8a19a247049a",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP10": {
+   "codeHash": "613287a10eb41626",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "chỉ 2 bước — bảng không nói thêm gì"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP11": {
+   "codeHash": "5dc9f6e338b05226",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "chỉ 2 bước — bảng không nói thêm gì"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP12": {
+   "codeHash": "f821d15c560cbcac",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "chỉ 2 bước — bảng không nói thêm gì"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP13": {
+   "codeHash": "4ea213c1f11d3121",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "chỉ 2 bước — bảng không nói thêm gì"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP14": {
+   "codeHash": "343b2f542a18d52c",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP15": {
+   "codeHash": "d2fb89d9a9a892b6",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "chỉ 2 bước — bảng không nói thêm gì"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP16": {
+   "codeHash": "08882467e876d8ef",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "chỉ 2 bước — bảng không nói thêm gì"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP17": {
+   "codeHash": "d74917351392350c",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "chỉ 2 bước — bảng không nói thêm gì"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP18": {
+   "codeHash": "4b6201db2886abb0",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP19": {
+   "codeHash": "d7737564266b15bb",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP20": {
+   "codeHash": "258034914a7fc05c",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "chỉ 2 bước — bảng không nói thêm gì"
+    },
+    "2": {
+     "skip": "chỉ 2 bước — bảng không nói thêm gì"
+    }
+   }
+  },
+  "NP21": {
+   "codeHash": "baa9187079fe86da",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP22": {
+   "codeHash": "f2d0ff71fb06f761",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "NP23": {
+   "codeHash": "abfdf261b040b4f4",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD01": {
+   "codeHash": "5ee447679a901254",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD02": {
+   "codeHash": "b73347ad4fa450ae",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD03": {
+   "codeHash": "57001bdd80ab0c3b",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "predict": {
+      "kind": "mid",
+      "var": "error",
+      "line": 5,
+      "prompt": "Ngay sau khi dòng 5 chạy, `error` bằng mấy?",
+      "answer": "KeyError()"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 2
+      },
+      {
+       "line": 3
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 4,
+       "exc": "KeyError: 'C99'"
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "error",
+         "KeyError()"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "out": "KeyError"
+      },
+      {
+       "line": 7
+      },
+      {
+       "line": 8
+      },
+      {
+       "line": 8,
+       "exc": "IndexError: single positional indexer is out-of-bounds"
+      },
+      {
+       "line": 9,
+       "set": [
+        [
+         "error",
+         "IndexError()"
+        ]
+       ]
+      },
+      {
+       "line": 10,
+       "out": "IndexError"
+      },
+      {
+       "line": 10,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "PD04": {
+   "codeHash": "dc9abddf9bda397e",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD05": {
+   "codeHash": "74e2a968ef8c6b71",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD06": {
+   "codeHash": "09c314364dd56eb0",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD07": {
+   "codeHash": "cbfe50c800265e62",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD08": {
+   "codeHash": "568cec41bb93fb63",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD09": {
+   "codeHash": "dbea797fc46e127f",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD10": {
+   "codeHash": "a976daaba92b41e3",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD11": {
+   "codeHash": "786aa7909365438d",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD12": {
+   "codeHash": "e20c4e9ad9f71b24",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "predict": {
+      "kind": "final",
+      "var": "text",
+      "prompt": "Sau khi chạy xong, `text` bằng mấy?",
+      "answer": "'order,amount\\r\\nA,10\\r\\nB,20\\r\\n'"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 2
+      },
+      {
+       "line": 3
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "text",
+         "'order,amount\\r\\nA,10\\r\\nB,20\\r\\n'"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "back",
+         "DataFrame(_mgr=BlockManager(), _attrs={}, _flags=Flags(_allows_duplicat…"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "out": "order,amount"
+      },
+      {
+       "line": 7,
+       "out": "30"
+      },
+      {
+       "line": 7,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "PD13": {
+   "codeHash": "60f915262a24091b",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD14": {
+   "codeHash": "c1c6864fd496a488",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD15": {
+   "codeHash": "d61a15536e557100",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD16": {
+   "codeHash": "66135a127f15015f",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD17": {
+   "codeHash": "51c8057d85d890d4",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD18": {
+   "codeHash": "ac566f3ce1137948",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD19": {
+   "codeHash": "d0d7b6f1aa9990f5",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD20": {
+   "codeHash": "8d46a6ea17fb0d49",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD21": {
+   "codeHash": "f754d7cd315cba78",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD22": {
+   "codeHash": "87c40b03eecf6973",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD23": {
+   "codeHash": "660dfada34bd8630",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD24": {
+   "codeHash": "a2d21705279c9a69",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD25": {
+   "codeHash": "6d8ef4815e363916",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD26": {
+   "codeHash": "72e76bb98dd96cc6",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD27": {
+   "codeHash": "4e667a40d3d74dc3",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD28": {
+   "codeHash": "4ccd488b8683b304",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD29": {
+   "codeHash": "3fddb8ef35a6a9a0",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD30": {
+   "codeHash": "e3a1b66e4783e815",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD31": {
+   "codeHash": "301f95784585acca",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "predict": {
+      "kind": "final",
+      "var": "iqr",
+      "prompt": "Sau khi chạy xong, `iqr` bằng mấy?",
+      "answer": "2.0"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "amount",
+         "Series(_mgr=SingleBlockManager(axes=[RangeIndex(_range=range: range(0, …"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "q1",
+         "11.0"
+        ],
+        [
+         "q3",
+         "13.0"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "iqr",
+         "2.0"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "flag",
+         "Series(_mgr=SingleBlockManager(axes=[RangeIndex(_range=range: range(0, …"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "out": "11.0 13.0"
+      },
+      {
+       "line": 7,
+       "out": "[100]"
+      }
+     ]
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "PD32": {
+   "codeHash": "76c5ab47b5a9ab9c",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "RC01": {
+   "codeHash": "aa6df3611991b043",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "predict": {
+      "kind": "mid",
+      "var": "threads",
+      "line": 3,
+      "prompt": "Ngay sau khi dòng 3 chạy, `threads` bằng mấy?",
+      "answer": "['T1', 'T2']"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "worker_model",
+         "{'P1': ['T1', 'T2'], 'P2': ['T3', 'T4']}"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "out": "2"
+      },
+      {
+       "line": 3
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "set": [
+        [
+         "threads",
+         "['T1', 'T2']"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "2"
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "threads",
+         "['T1', 'T2']"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "set": [
+        [
+         "threads",
+         "['T3', 'T4']"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "2"
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "threads",
+         "['T3', 'T4']"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "None",
+       "out": "4"
+      }
+     ]
+    },
+    "2": {
+     "predict": {
+      "kind": "mid",
+      "var": "a",
+      "line": 3,
+      "prompt": "Ngay sau khi dòng 3 chạy, `a` bằng mấy?",
+      "answer": "'browser-main'"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 2
+      },
+      {
+       "line": 1,
+       "set": [
+        [
+         "links",
+         "[('browser-main', 'browser-io', 'inside-process'), ('browser', 'rendere…"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "a",
+         "'browser-main'"
+        ],
+        [
+         "b",
+         "'browser-io'"
+        ],
+        [
+         "kind",
+         "'inside-process'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "a",
+         "'browser'"
+        ],
+        [
+         "b",
+         "'renderer'"
+        ],
+        [
+         "kind",
+         "'IPC'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "links",
+         "[('browser-main', 'browser-io', 'inside-process'), ('browser', 'rendere…"
+        ]
+       ],
+       "out": "['IPC']"
+      },
+      {
+       "line": 3,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "RD01": {
+   "codeHash": "7ee959ae86eaa2c6",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "RD02": {
+   "codeHash": "e4509e810a3cd29c",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "RD03": {
+   "codeHash": "0e938676e9f56514",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "RD04": {
+   "codeHash": "b500ff49f19e12a3",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "RD05": {
+   "codeHash": "b8a21314f0f7e709",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "SY01": {
+   "codeHash": "9f934af248fbd3d9",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "SY02": {
+   "codeHash": "50ed36f469cc18e9",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "predict": {
+      "kind": "final",
+      "var": "values",
+      "prompt": "Sau khi chạy xong, `values` bằng mấy?",
+      "answer": "[2, 2, 3, 3, 3]"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 2
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "_",
+         "0"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "_",
+         "1"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "_",
+         "2"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "_",
+         "3"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "_",
+         "4"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "random",
+         "<thư viện random>"
+        ],
+        [
+         "rng",
+         "Random(gauss_next=None)"
+        ],
+        [
+         "values",
+         "[2, 2, 3, 3, 3]"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "out": "5"
+      },
+      {
+       "line": 5
+      },
+      {
+       "line": 5,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 5,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "set": [
+        [
+         "x",
+         "2"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "True"
+      },
+      {
+       "line": 5
+      },
+      {
+       "line": 5,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "x",
+         "2"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "<genexpr>",
+       "depth": 1
+      },
+      {
+       "line": 5,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "True"
+      },
+      {
+       "line": 5
+      },
+      {
+       "line": 5,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "x",
+         "2"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "set": [
+        [
+         "x",
+         "3"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "True"
+      },
+      {
+       "line": 5
+      },
+      {
+       "line": 5,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "x",
+         "3"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "<genexpr>",
+       "depth": 1
+      },
+      {
+       "line": 5,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "True"
+      },
+      {
+       "line": 5
+      },
+      {
+       "line": 5,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "x",
+         "3"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "<genexpr>",
+       "depth": 1
+      },
+      {
+       "line": 5,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "True"
+      },
+      {
+       "line": 5
+      },
+      {
+       "line": 5,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "x",
+         "3"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "<genexpr>",
+       "depth": 1
+      },
+      {
+       "line": 5,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "None",
+       "out": "True"
+      }
+     ]
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "SY03": {
+   "codeHash": "bfd55f5dc63a0b38",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "predict": {
+      "kind": "final",
+      "var": "clean",
+      "prompt": "Sau khi chạy xong, `clean` bằng mấy?",
+      "answer": "'An paid today'"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "text",
+         "'An paid\\t today'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "clean",
+         "'An paid today'"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "out": "An paid today"
+      }
+     ]
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "SY05": {
+   "codeHash": "5f57389c11a9932e",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "mid",
+      "var": "self",
+      "line": 2,
+      "prompt": "Ngay sau khi dòng 2 chạy, `self` bằng mấy?",
+      "answer": "Item()"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 1,
+       "fn": "Item",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 1,
+       "fn": "Item",
+       "depth": 1
+      },
+      {
+       "line": 2,
+       "fn": "Item",
+       "depth": 1,
+       "set": [
+        [
+         "__init__",
+         "<hàm __init__>"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "fn": "Item",
+       "depth": 1,
+       "set": [
+        [
+         "label",
+         "<hàm label>"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "fn": "Item",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 8
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "code",
+         "'latte'"
+        ],
+        [
+         "group",
+         "'Ca phe'"
+        ],
+        [
+         "name",
+         "'Latte'"
+        ],
+        [
+         "self",
+         "Item()"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "Item(code='latte')"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "Item(code='latte', name='Latte')"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "Item(code='latte', name='Latte', group='Ca phe')"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "__init__",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 9
+      },
+      {
+       "line": 6,
+       "fn": "label",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "self",
+         "Item(code='latte', name='Latte', group='Ca phe')"
+        ]
+       ]
+      },
+      {
+       "line": 7,
+       "fn": "label",
+       "depth": 1
+      },
+      {
+       "line": 7,
+       "fn": "label",
+       "depth": 1,
+       "ret": "'latte: Latte'",
+       "out": "latte: Latte"
+      }
+     ]
+    },
+    "1": {
+     "predict": {
+      "kind": "mid",
+      "var": "self",
+      "line": 2,
+      "prompt": "Ngay sau khi dòng 2 chạy, `self` bằng mấy?",
+      "answer": "Item()"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 1,
+       "fn": "Item",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 1,
+       "fn": "Item",
+       "depth": 1
+      },
+      {
+       "line": 2,
+       "fn": "Item",
+       "depth": 1,
+       "set": [
+        [
+         "__init__",
+         "<hàm __init__>"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "Item",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "name",
+         "'Latte'"
+        ],
+        [
+         "self",
+         "Item()"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "Item(name='Latte')"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "__init__",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 5
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "name",
+         "'Mocha'"
+        ],
+        [
+         "self",
+         "Item()"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "Item(name='Mocha')"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "__init__",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "first",
+         "Item(name='Latte da')"
+        ]
+       ]
+      },
+      {
+       "line": 7,
+       "out": "Latte da Mocha"
+      }
+     ]
+    },
+    "2": {
+     "predict": {
+      "kind": "mid",
+      "var": "self",
+      "line": 2,
+      "prompt": "Ngay sau khi dòng 2 chạy, `self` bằng mấy?",
+      "answer": "Item()"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 1,
+       "fn": "Item",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 1,
+       "fn": "Item",
+       "depth": 1
+      },
+      {
+       "line": 2,
+       "fn": "Item",
+       "depth": 1,
+       "set": [
+        [
+         "__init__",
+         "<hàm __init__>"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "Item",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "name",
+         "'Latte'"
+        ],
+        [
+         "self",
+         "Item()"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "Item(name='Latte')"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "__init__",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "alias",
+         "Item(name='Latte')"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "alias",
+         "Item(name='Latte da')"
+        ],
+        [
+         "first",
+         "Item(name='Latte da')"
+        ]
+       ]
+      },
+      {
+       "line": 7,
+       "out": "Latte da"
+      },
+      {
+       "line": 8,
+       "out": "True"
+      },
+      {
+       "line": 8,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "SY06": {
+   "codeHash": "2f14edd4d36b9f78",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "mid",
+      "var": "self",
+      "line": 2,
+      "prompt": "Ngay sau khi dòng 2 chạy, `self` bằng mấy?",
+      "answer": "Cups()"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 1,
+       "fn": "Cups",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 1,
+       "fn": "Cups",
+       "depth": 1
+      },
+      {
+       "line": 2,
+       "fn": "Cups",
+       "depth": 1,
+       "set": [
+        [
+         "__init__",
+         "<hàm __init__>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "Cups",
+       "depth": 1,
+       "set": [
+        [
+         "__str__",
+         "<hàm __str__>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "Cups",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "self",
+         "Cups()"
+        ],
+        [
+         "value",
+         "8"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "Cups(value=8)"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 3,
+       "fn": "__str__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "self",
+         "Cups(value=8)"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "__str__",
+       "depth": 1
+      },
+      {
+       "line": 3,
+       "fn": "__str__",
+       "depth": 1,
+       "ret": "'8 coc'",
+       "out": "8 coc"
+      }
+     ]
+    },
+    "1": {
+     "predict": {
+      "kind": "mid",
+      "var": "self",
+      "line": 2,
+      "prompt": "Ngay sau khi dòng 2 chạy, `self` bằng mấy?",
+      "answer": "Cups()"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 1,
+       "fn": "Cups",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 1,
+       "fn": "Cups",
+       "depth": 1
+      },
+      {
+       "line": 2,
+       "fn": "Cups",
+       "depth": 1,
+       "set": [
+        [
+         "__init__",
+         "<hàm __init__>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "Cups",
+       "depth": 1,
+       "set": [
+        [
+         "__lt__",
+         "<hàm __lt__>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "Cups",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 6
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "self",
+         "Cups()"
+        ],
+        [
+         "value",
+         "5"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "Cups(value=5)"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "ret": "None",
+       "set": [
+        [
+         "self",
+         "Cups()"
+        ],
+        [
+         "value",
+         "8"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "self",
+         "Cups()"
+        ],
+        [
+         "value",
+         "8"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "Cups(value=8)"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 3,
+       "fn": "__lt__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "other",
+         "Cups(value=8)"
+        ],
+        [
+         "self",
+         "Cups(value=5)"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "fn": "__lt__",
+       "depth": 1
+      },
+      {
+       "line": 5,
+       "fn": "__lt__",
+       "depth": 1
+      },
+      {
+       "line": 5,
+       "fn": "__lt__",
+       "depth": 1,
+       "ret": "True",
+       "out": "True"
+      },
+      {
+       "line": 7
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "self",
+         "Cups()"
+        ],
+        [
+         "value",
+         "8"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "Cups(value=8)"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "ret": "None",
+       "set": [
+        [
+         "self",
+         "Cups()"
+        ],
+        [
+         "value",
+         "5"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "self",
+         "Cups()"
+        ],
+        [
+         "value",
+         "5"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "Cups(value=5)"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 3,
+       "fn": "__lt__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "other",
+         "Cups(value=8)"
+        ],
+        [
+         "self",
+         "Cups(value=5)"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "fn": "__lt__",
+       "depth": 1
+      },
+      {
+       "line": 5,
+       "fn": "__lt__",
+       "depth": 1
+      },
+      {
+       "line": 5,
+       "fn": "__lt__",
+       "depth": 1,
+       "ret": "True"
+      },
+      {
+       "line": 7,
+       "set": [
+        [
+         "c",
+         "Cups(value=8)"
+        ]
+       ]
+      },
+      {
+       "line": 7,
+       "set": [
+        [
+         "Cups",
+         "<lớp Cups>"
+        ]
+       ],
+       "out": "[5, 8]"
+      }
+     ]
+    },
+    "2": {
+     "predict": {
+      "kind": "mid",
+      "var": "self",
+      "line": 2,
+      "prompt": "Ngay sau khi dòng 2 chạy, `self` bằng mấy?",
+      "answer": "Cups()"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 1,
+       "fn": "Cups",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 1,
+       "fn": "Cups",
+       "depth": 1
+      },
+      {
+       "line": 2,
+       "fn": "Cups",
+       "depth": 1,
+       "set": [
+        [
+         "__init__",
+         "<hàm __init__>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "Cups",
+       "depth": 1,
+       "set": [
+        [
+         "__lt__",
+         "<hàm __lt__>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "Cups",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 6
+      },
+      {
+       "line": 7
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "self",
+         "Cups()"
+        ],
+        [
+         "value",
+         "5"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "Cups(value=5)"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 3,
+       "fn": "__lt__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "other",
+         "'8'"
+        ],
+        [
+         "self",
+         "Cups(value=5)"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "fn": "__lt__",
+       "depth": 1
+      },
+      {
+       "line": 4,
+       "fn": "__lt__",
+       "depth": 1,
+       "ret": "NotImplementedType: NotImplemented"
+      },
+      {
+       "line": 7,
+       "exc": "TypeError: '<' not supported between instances of 'Cups' and 'str'"
+      },
+      {
+       "line": 8
+      },
+      {
+       "line": 9,
+       "out": "Khong cung loai de so sanh"
+      },
+      {
+       "line": 9,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "SY07": {
+   "codeHash": "480d7cb1a0372aed",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "SY08": {
+   "codeHash": "4fb743430dd04a8c",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "SY09": {
+   "codeHash": "6062e17710e514d6",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "predict": {
+      "kind": "mid",
+      "var": "self",
+      "line": 4,
+      "prompt": "Ngay sau khi dòng 4 chạy, `self` bằng mấy?",
+      "answer": "ReportService()"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 1,
+       "fn": "TextExporter",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 1,
+       "fn": "TextExporter",
+       "depth": 1
+      },
+      {
+       "line": 2,
+       "fn": "TextExporter",
+       "depth": 1,
+       "set": [
+        [
+         "export",
+         "<hàm export>"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "TextExporter",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 3
+      },
+      {
+       "line": 3,
+       "fn": "ReportService",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 3,
+       "fn": "ReportService",
+       "depth": 1
+      },
+      {
+       "line": 4,
+       "fn": "ReportService",
+       "depth": 1,
+       "set": [
+        [
+         "__init__",
+         "<hàm __init__>"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "ReportService",
+       "depth": 1,
+       "set": [
+        [
+         "build",
+         "<hàm build>"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "ReportService",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 6
+      },
+      {
+       "line": 4,
+       "fn": "__init__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "exporter",
+         "TextExporter()"
+        ],
+        [
+         "self",
+         "ReportService()"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "ReportService(exporter=TextExporter())"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "fn": "__init__",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 5,
+       "fn": "build",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "rows",
+         "['A', 'B']"
+        ],
+        [
+         "self",
+         "ReportService(exporter=TextExporter())"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "build",
+       "depth": 1
+      },
+      {
+       "line": 2,
+       "fn": "export",
+       "depth": 2,
+       "enter": true,
+       "set": [
+        [
+         "rows",
+         "['A', 'B']"
+        ],
+        [
+         "self",
+         "TextExporter()"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "export",
+       "depth": 2
+      },
+      {
+       "line": 2,
+       "fn": "export",
+       "depth": 2,
+       "ret": "'A,B'"
+      },
+      {
+       "line": 5,
+       "fn": "build",
+       "depth": 1,
+       "ret": "'A,B'",
+       "out": "A,B"
+      },
+      {
+       "line": 6,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "SY10": {
+   "codeHash": "a17e79545c5ed064",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "mid",
+      "var": "self",
+      "line": 2,
+      "prompt": "Ngay sau khi dòng 2 chạy, `self` bằng mấy?",
+      "answer": "Cups()"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 1,
+       "fn": "Cups",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 1,
+       "fn": "Cups",
+       "depth": 1
+      },
+      {
+       "line": 2,
+       "fn": "Cups",
+       "depth": 1,
+       "set": [
+        [
+         "__init__",
+         "<hàm __init__>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "Cups",
+       "depth": 1,
+       "set": [
+        [
+         "get_value",
+         "<hàm get_value>"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "fn": "Cups",
+       "depth": 1,
+       "set": [
+        [
+         "set_value",
+         "<hàm set_value>"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "fn": "Cups",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 7
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "self",
+         "Cups()"
+        ],
+        [
+         "value",
+         "8"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1
+      },
+      {
+       "line": 4,
+       "fn": "set_value",
+       "depth": 2,
+       "enter": true,
+       "set": [
+        [
+         "self",
+         "Cups()"
+        ],
+        [
+         "value",
+         "8"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "set_value",
+       "depth": 2
+      },
+      {
+       "line": 6,
+       "fn": "set_value",
+       "depth": 2,
+       "set": [
+        [
+         "self",
+         "Cups(_value=8)"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "fn": "set_value",
+       "depth": 2,
+       "ret": "None"
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 8
+      },
+      {
+       "line": 3,
+       "fn": "get_value",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "self",
+         "Cups(_value=8)"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "get_value",
+       "depth": 1
+      },
+      {
+       "line": 3,
+       "fn": "get_value",
+       "depth": 1,
+       "ret": "8",
+       "out": "8"
+      }
+     ]
+    },
+    "1": {
+     "predict": {
+      "kind": "mid",
+      "var": "self",
+      "line": 2,
+      "prompt": "Ngay sau khi dòng 2 chạy, `self` bằng mấy?",
+      "answer": "Revenue()"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 1,
+       "fn": "Revenue",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 1,
+       "fn": "Revenue",
+       "depth": 1
+      },
+      {
+       "line": 2,
+       "fn": "Revenue",
+       "depth": 1,
+       "set": [
+        [
+         "__init__",
+         "<hàm __init__>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "Revenue",
+       "depth": 1,
+       "set": [
+        [
+         "get_value",
+         "<hàm get_value>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "Revenue",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "self",
+         "Revenue()"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "Revenue(_Revenue__value=100)"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 5
+      },
+      {
+       "line": 3,
+       "fn": "get_value",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "self",
+         "Revenue(_Revenue__value=100)"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "get_value",
+       "depth": 1
+      },
+      {
+       "line": 3,
+       "fn": "get_value",
+       "depth": 1,
+       "ret": "100",
+       "out": "100"
+      },
+      {
+       "line": 6,
+       "out": "True"
+      }
+     ]
+    },
+    "2": {
+     "predict": {
+      "kind": "mid",
+      "var": "self",
+      "line": 2,
+      "prompt": "Ngay sau khi dòng 2 chạy, `self` bằng mấy?",
+      "answer": "Cups()"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 1,
+       "fn": "Cups",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 1,
+       "fn": "Cups",
+       "depth": 1
+      },
+      {
+       "line": 2,
+       "fn": "Cups",
+       "depth": 1,
+       "set": [
+        [
+         "__init__",
+         "<hàm __init__>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "Cups",
+       "depth": 1
+      },
+      {
+       "line": 4,
+       "fn": "Cups",
+       "depth": 1
+      },
+      {
+       "line": 3,
+       "fn": "Cups",
+       "depth": 1
+      },
+      {
+       "line": 4,
+       "fn": "Cups",
+       "depth": 1,
+       "set": [
+        [
+         "value",
+         "property: <property object>"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "Cups",
+       "depth": 1
+      },
+      {
+       "line": 6,
+       "fn": "Cups",
+       "depth": 1
+      },
+      {
+       "line": 5,
+       "fn": "Cups",
+       "depth": 1
+      },
+      {
+       "line": 6,
+       "fn": "Cups",
+       "depth": 1
+      },
+      {
+       "line": 6,
+       "fn": "Cups",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 9
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "self",
+         "Cups()"
+        ],
+        [
+         "value",
+         "8"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "Cups(_value=8)"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 10
+      },
+      {
+       "line": 5,
+       "fn": "value",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "self",
+         "Cups(_value=8)"
+        ],
+        [
+         "value",
+         "11"
+        ]
+       ]
+      },
+      {
+       "line": 7,
+       "fn": "value",
+       "depth": 1
+      },
+      {
+       "line": 7,
+       "fn": "value",
+       "depth": 1,
+       "exc": "ValueError: cups"
+      },
+      {
+       "line": 7,
+       "fn": "value",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 10,
+       "exc": "ValueError: cups"
+      },
+      {
+       "line": 11,
+       "out": "Tu choi"
+      },
+      {
+       "line": 12
+      },
+      {
+       "line": 3,
+       "fn": "value",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "self",
+         "Cups(_value=8)"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "fn": "value",
+       "depth": 1
+      },
+      {
+       "line": 4,
+       "fn": "value",
+       "depth": 1,
+       "ret": "8",
+       "out": "8"
+      },
+      {
+       "line": 12,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "SY11": {
+   "codeHash": "d1fb65e34be5cc0b",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "SY12": {
+   "codeHash": "f062d71a30ada583",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "SY13": {
+   "codeHash": "ac1cefffdae3a118",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "predict": {
+      "kind": "mid",
+      "var": "x",
+      "line": 2,
+      "prompt": "Ngay sau khi dòng 2 chạy, `x` bằng mấy?",
+      "answer": "{'id': 'ca-phe-den', 'doanh_thu': 7.5}"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "mon",
+         "[{'id': 'ca-phe-den', 'doanh_thu': 7.5}, {'id': 'latte', 'doanh_thu': 8…"
+        ]
+       ]
+      },
+      {
+       "line": 2
+      },
+      {
+       "line": 2,
+       "fn": "<lambda>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "x",
+         "{'id': 'ca-phe-den', 'doanh_thu': 7.5}"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "<lambda>",
+       "depth": 1
+      },
+      {
+       "line": 2,
+       "fn": "<lambda>",
+       "depth": 1,
+       "ret": "7.5",
+       "set": [
+        [
+         "x",
+         "{'id': 'latte', 'doanh_thu': 8.0}"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "<lambda>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "x",
+         "{'id': 'latte', 'doanh_thu': 8.0}"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "<lambda>",
+       "depth": 1
+      },
+      {
+       "line": 2,
+       "fn": "<lambda>",
+       "depth": 1,
+       "ret": "8.0"
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "m",
+         "{'id': 'latte', 'doanh_thu': 8.0}"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "m",
+         "{'id': 'ca-phe-den', 'doanh_thu': 7.5}"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "mon",
+         "[{'id': 'ca-phe-den', 'doanh_thu': 7.5}, {'id': 'latte', 'doanh_thu': 8…"
+        ],
+        [
+         "ranked",
+         "[{'id': 'latte', 'doanh_thu': 8.0}, {'id': 'ca-phe-den', 'doanh_thu': 7…"
+        ]
+       ],
+       "out": "['latte', 'ca-phe-den']"
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "m",
+         "{'id': 'ca-phe-den', 'doanh_thu': 7.5}"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "m",
+         "{'id': 'latte', 'doanh_thu': 8.0}"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "mon",
+         "[{'id': 'ca-phe-den', 'doanh_thu': 7.5}, {'id': 'latte', 'doanh_thu': 8…"
+        ],
+        [
+         "ranked",
+         "[{'id': 'latte', 'doanh_thu': 8.0}, {'id': 'ca-phe-den', 'doanh_thu': 7…"
+        ]
+       ],
+       "out": "['ca-phe-den', 'latte']"
+      },
+      {
+       "line": 4,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "SY15": {
+   "codeHash": "1eb5b8ebe897e031",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "mid",
+      "var": "f",
+      "line": 5,
+      "prompt": "Ngay sau khi dòng 5 chạy, `f` bằng mấy?",
+      "answer": "TextIOWrapper(mode='w')"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "tempfile",
+         "<thư viện tempfile>"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "Path",
+         "<lớp Path>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "folder",
+         "'C:\\\\Users\\\\sonkh\\\\AppData\\\\Local\\\\Temp\\\\tmpyh2jnqry'"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "path",
+         "WindowsPath: WindowsPath('C:/Users/sonkh/AppData/Local/Temp/tmpyh2jnqry…"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "f",
+         "TextIOWrapper(mode='w')"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "f",
+         "TextIOWrapper(mode='r')"
+        ]
+       ],
+       "out": "12"
+      },
+      {
+       "line": 7,
+       "out": "True"
+      },
+      {
+       "line": 3
+      }
+     ]
+    },
+    "1": {
+     "predict": {
+      "kind": "mid",
+      "var": "f",
+      "line": 5,
+      "prompt": "Ngay sau khi dòng 5 chạy, `f` bằng mấy?",
+      "answer": "TextIOWrapper(mode='w')"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 2
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "folder",
+         "'C:\\\\Users\\\\sonkh\\\\AppData\\\\Local\\\\Temp\\\\tmpz377huqr'"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "path",
+         "WindowsPath: WindowsPath('C:/Users/sonkh/AppData/Local/Temp/tmpz377huqr…"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "f",
+         "TextIOWrapper(mode='w')"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "f",
+         "TextIOWrapper(mode='a')"
+        ]
+       ]
+      },
+      {
+       "line": 7,
+       "out": "['A', 'B']"
+      },
+      {
+       "line": 3
+      }
+     ]
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "SY16": {
+   "codeHash": "637f7a951bbec5cf",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "predict": {
+      "kind": "final",
+      "var": "blob",
+      "prompt": "Sau khi chạy xong, `blob` bằng mấy?",
+      "answer": "b'c\\xc3\\xa0 ph\\xc3\\xaa'"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "text",
+         "'cà phê'"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "blob",
+         "b'c\\xc3\\xa0 ph\\xc3\\xaa'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "out": "6"
+      },
+      {
+       "line": 4,
+       "out": "8"
+      },
+      {
+       "line": 5,
+       "out": "cà phê"
+      },
+      {
+       "line": 5,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "SY17": {
+   "codeHash": "a2f46caff6519015",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "SY18": {
+   "codeHash": "bfaf9c4cc96cc39d",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "SY19": {
+   "codeHash": "f3fd2372913b484c",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "predict": {
+      "kind": "final",
+      "var": "data",
+      "prompt": "Sau khi chạy xong, `data` bằng mấy?",
+      "answer": "b'c\\xc3\\xa0 ph\\xc3\\xaa'"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "bz2",
+         "<thư viện bz2>"
+        ],
+        [
+         "lzma",
+         "<thư viện lzma>"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "data",
+         "b'c\\xc3\\xa0 ph\\xc3\\xaa'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "out": "cà phê"
+      },
+      {
+       "line": 4,
+       "out": "cà phê"
+      }
+     ]
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "SY20": {
+   "codeHash": "5d1d6753202661aa",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "predict": {
+      "kind": "final",
+      "var": "name",
+      "prompt": "Sau khi chạy xong, `name` bằng mấy?",
+      "answer": "'recipe.txt'"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 2
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "files",
+         "{'items.txt': b'A', 'ingredients.txt': b'B', 'recipe.txt': b'C'}"
+        ]
+       ]
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "archive",
+         "ZipFile(_allowZip64=True, _didModify=True, debug=0, NameToInfo={}, file…"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "archive",
+         "ZipFile(_allowZip64=True, _didModify=True, debug=0, NameToInfo={'items.…"
+        ],
+        [
+         "data",
+         "b'A'"
+        ],
+        [
+         "name",
+         "'items.txt'"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "data",
+         "b'B'"
+        ],
+        [
+         "name",
+         "'ingredients.txt'"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "data",
+         "b'C'"
+        ],
+        [
+         "name",
+         "'recipe.txt'"
+        ]
+       ]
+      },
+      {
+       "line": 6
+      },
+      {
+       "line": 5
+      },
+      {
+       "line": 7,
+       "set": [
+        [
+         "archive",
+         "ZipFile(_allowZip64=True, _didModify=False, debug=0, NameToInfo={'items…"
+        ]
+       ]
+      },
+      {
+       "line": 8,
+       "set": [
+        [
+         "name",
+         "'items.txt'"
+        ]
+       ]
+      },
+      {
+       "line": 8,
+       "set": [
+        [
+         "name",
+         "'ingredients.txt'"
+        ]
+       ]
+      },
+      {
+       "line": 8,
+       "set": [
+        [
+         "name",
+         "'recipe.txt'"
+        ]
+       ]
+      },
+      {
+       "line": 8,
+       "set": [
+        [
+         "BytesIO",
+         "<lớp BytesIO>"
+        ],
+        [
+         "archive",
+         "ZipFile(_allowZip64=True, _didModify=False, debug=0, NameToInfo={'items…"
+        ],
+        [
+         "buffer",
+         "BytesIO()"
+        ],
+        [
+         "data",
+         "b'C'"
+        ],
+        [
+         "files",
+         "{'items.txt': b'A', 'ingredients.txt': b'B', 'recipe.txt': b'C'}"
+        ],
+        [
+         "restored",
+         "{'items.txt': b'A', 'ingredients.txt': b'B', 'recipe.txt': b'C'}"
+        ],
+        [
+         "zipfile",
+         "<thư viện zipfile>"
+        ]
+       ]
+      },
+      {
+       "line": 7
+      },
+      {
+       "line": 9,
+       "out": "True"
+      },
+      {
+       "line": 9,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "SY21": {
+   "codeHash": "b680eaaa2c0dccdb",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "final",
+      "var": "b",
+      "prompt": "Sau khi chạy xong, `b` bằng mấy?",
+      "answer": "['DH-001', [8, 9]]"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "json",
+         "<thư viện json>"
+        ],
+        [
+         "pickle",
+         "<thư viện pickle>"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "record",
+         "('DH-001', [8, 9])"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "a",
+         "('DH-001', [8, 9])"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "b",
+         "['DH-001', [8, 9]]"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "out": "tuple list"
+      },
+      {
+       "line": 6,
+       "out": "True"
+      }
+     ]
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "SY22": {
+   "codeHash": "5cdfd7c3e3abbdf3",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "SY24": {
+   "codeHash": "09558d1da1e89242",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "SY25": {
+   "codeHash": "910fc7703f6a96d1",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "predict": {
+      "kind": "mid",
+      "var": "ing",
+      "line": 2,
+      "prompt": "Ngay sau khi dòng 2 chạy, `ing` bằng mấy?",
+      "answer": "'ca-phe-hat'"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "ingredient_lines",
+         "<hàm ingredient_lines>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "items",
+         "{'latte': {'name': 'Latte', 'group': 'Ca phe'}, 'mocha': {'name': 'Moch…"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "recipe",
+         "{('latte', 'ca-phe-hat'): 8, ('mocha', 'ca-phe-hat'): 0, ('latte', 'sua…"
+        ]
+       ]
+      },
+      {
+       "line": 5
+      },
+      {
+       "line": 1,
+       "fn": "ingredient_lines",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "ingredient_id",
+         "'ca-phe-hat'"
+        ],
+        [
+         "items",
+         "{'latte': {'name': 'Latte', 'group': 'Ca phe'}, 'mocha': {'name': 'Moch…"
+        ],
+        [
+         "recipe",
+         "{('latte', 'ca-phe-hat'): 8, ('mocha', 'ca-phe-hat'): 0, ('latte', 'sua…"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "ingredient_lines",
+       "depth": 1,
+       "set": [
+        [
+         "amount",
+         "8"
+        ],
+        [
+         "iid",
+         "'latte'"
+        ],
+        [
+         "ing",
+         "'ca-phe-hat'"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "ingredient_lines",
+       "depth": 1,
+       "set": [
+        [
+         "amount",
+         "0"
+        ],
+        [
+         "iid",
+         "'mocha'"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "ingredient_lines",
+       "depth": 1,
+       "set": [
+        [
+         "amount",
+         "7"
+        ],
+        [
+         "iid",
+         "'latte'"
+        ],
+        [
+         "ing",
+         "'sua-tuoi'"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "ingredient_lines",
+       "depth": 1
+      },
+      {
+       "line": 2,
+       "fn": "ingredient_lines",
+       "depth": 1,
+       "ret": "[('latte', 'Latte', 8), ('mocha', 'Mocha', 0)]",
+       "out": "[('latte', 'Latte', 8), ('mocha', 'Mocha', 0)]"
+      }
+     ]
+    },
+    "2": {
+     "predict": {
+      "kind": "mid",
+      "var": "prompt",
+      "line": 9,
+      "prompt": "Ngay sau khi dòng 9 chạy, `prompt` bằng mấy?",
+      "answer": "'Ma mon: '"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "read_item",
+         "<hàm read_item>"
+        ]
+       ]
+      },
+      {
+       "line": 8,
+       "set": [
+        [
+         "answers",
+         "list_iterator: <list_iterator object>"
+        ]
+       ]
+      },
+      {
+       "line": 9
+      },
+      {
+       "line": 1,
+       "fn": "read_item",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "ask",
+         "<hàm <lambda>>"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "read_item",
+       "depth": 1
+      },
+      {
+       "line": 9,
+       "fn": "<lambda>",
+       "depth": 2,
+       "enter": true,
+       "set": [
+        [
+         "prompt",
+         "'Ma mon: '"
+        ]
+       ]
+      },
+      {
+       "line": 9,
+       "fn": "<lambda>",
+       "depth": 2
+      },
+      {
+       "line": 9,
+       "fn": "<lambda>",
+       "depth": 2,
+       "ret": "'latte'"
+      },
+      {
+       "line": 3,
+       "fn": "read_item",
+       "depth": 1
+      },
+      {
+       "line": 9,
+       "fn": "<lambda>",
+       "depth": 2,
+       "enter": true,
+       "set": [
+        [
+         "prompt",
+         "'Ten mon: '"
+        ]
+       ]
+      },
+      {
+       "line": 9,
+       "fn": "<lambda>",
+       "depth": 2
+      },
+      {
+       "line": 9,
+       "fn": "<lambda>",
+       "depth": 2,
+       "ret": "'Latte'"
+      },
+      {
+       "line": 4,
+       "fn": "read_item",
+       "depth": 1
+      },
+      {
+       "line": 9,
+       "fn": "<lambda>",
+       "depth": 2,
+       "enter": true,
+       "set": [
+        [
+         "prompt",
+         "'Nhom mon: '"
+        ]
+       ]
+      },
+      {
+       "line": 9,
+       "fn": "<lambda>",
+       "depth": 2
+      },
+      {
+       "line": 9,
+       "fn": "<lambda>",
+       "depth": 2,
+       "ret": "'Ca phe'"
+      },
+      {
+       "line": 5,
+       "fn": "read_item",
+       "depth": 1
+      },
+      {
+       "line": 6,
+       "fn": "read_item",
+       "depth": 1
+      },
+      {
+       "line": 7,
+       "fn": "read_item",
+       "depth": 1
+      },
+      {
+       "line": 7,
+       "fn": "read_item",
+       "depth": 1,
+       "ret": "('latte', {'name': 'Latte', 'group': 'Ca phe'})"
+      },
+      {
+       "line": 10,
+       "out": "latte Latte Ca phe"
+      },
+      {
+       "line": 10,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "SY26": {
+   "codeHash": "10050ccef850f361",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "mid",
+      "var": "self",
+      "line": 2,
+      "prompt": "Ngay sau khi dòng 2 chạy, `self` bằng mấy?",
+      "answer": "Item()"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 1,
+       "fn": "Item",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 1,
+       "fn": "Item",
+       "depth": 1
+      },
+      {
+       "line": 2,
+       "fn": "Item",
+       "depth": 1,
+       "set": [
+        [
+         "__init__",
+         "<hàm __init__>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "Item",
+       "depth": 1,
+       "set": [
+        [
+         "describe",
+         "<hàm describe>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "Item",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 4,
+       "fn": "Ingredient",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 4,
+       "fn": "Ingredient",
+       "depth": 1
+      },
+      {
+       "line": 5,
+       "fn": "Ingredient",
+       "depth": 1,
+       "set": [
+        [
+         "__init__",
+         "<hàm __init__>"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "fn": "Ingredient",
+       "depth": 1,
+       "set": [
+        [
+         "describe",
+         "<hàm describe>"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "fn": "Ingredient",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 7
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "code",
+         "'latte'"
+        ],
+        [
+         "group",
+         "'Ca phe'"
+        ],
+        [
+         "name",
+         "'Latte'"
+        ],
+        [
+         "self",
+         "Item()"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "Item(code='latte', name='Latte', group='Ca phe')"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "__init__",
+       "depth": 1,
+       "ret": "None",
+       "set": [
+        [
+         "code",
+         "'ca-phe-hat'"
+        ],
+        [
+         "name",
+         "'Ca phe hat'"
+        ],
+        [
+         "self",
+         "Ingredient()"
+        ],
+        [
+         "unit",
+         "'g'"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "__init__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "code",
+         "'ca-phe-hat'"
+        ],
+        [
+         "name",
+         "'Ca phe hat'"
+        ],
+        [
+         "self",
+         "Ingredient()"
+        ],
+        [
+         "unit",
+         "'g'"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "Ingredient(code='ca-phe-hat', name='Ca phe hat', unit='g')"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "__init__",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 8
+      },
+      {
+       "line": 3,
+       "fn": "describe",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "self",
+         "Item(code='latte', name='Latte', group='Ca phe')"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "describe",
+       "depth": 1
+      },
+      {
+       "line": 3,
+       "fn": "describe",
+       "depth": 1,
+       "ret": "'latte: Latte (Ca phe)'",
+       "out": "latte: Latte (Ca phe)"
+      },
+      {
+       "line": 7,
+       "set": [
+        [
+         "row",
+         "Ingredient(code='ca-phe-hat', name='Ca phe hat', unit='g')"
+        ]
+       ]
+      },
+      {
+       "line": 8
+      },
+      {
+       "line": 6,
+       "fn": "describe",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "self",
+         "Ingredient(code='ca-phe-hat', name='Ca phe hat', unit='g')"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "fn": "describe",
+       "depth": 1
+      },
+      {
+       "line": 6,
+       "fn": "describe",
+       "depth": 1,
+       "ret": "'ca-phe-hat: Ca phe hat'",
+       "out": "ca-phe-hat: Ca phe hat"
+      },
+      {
+       "line": 7
+      }
+     ]
+    },
+    "1": {
+     "predict": {
+      "kind": "mid",
+      "var": "self",
+      "line": 4,
+      "prompt": "Ngay sau khi dòng 4 chạy, `self` bằng mấy?",
+      "answer": "RecipeLine()"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "math",
+         "<thư viện math>"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "np",
+         "<thư viện numpy>"
+        ]
+       ]
+      },
+      {
+       "line": 3
+      },
+      {
+       "line": 3,
+       "fn": "RecipeLine",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 3,
+       "fn": "RecipeLine",
+       "depth": 1
+      },
+      {
+       "line": 4,
+       "fn": "RecipeLine",
+       "depth": 1,
+       "set": [
+        [
+         "__init__",
+         "<hàm __init__>"
+        ]
+       ]
+      },
+      {
+       "line": 7,
+       "fn": "RecipeLine",
+       "depth": 1,
+       "set": [
+        [
+         "set_amount",
+         "<hàm set_amount>"
+        ]
+       ]
+      },
+      {
+       "line": 7,
+       "fn": "RecipeLine",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 13
+      },
+      {
+       "line": 4,
+       "fn": "__init__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "amount",
+         "8.79"
+        ],
+        [
+         "ingredient_id",
+         "'ca-phe-hat'"
+        ],
+        [
+         "item_id",
+         "'latte'"
+        ],
+        [
+         "self",
+         "RecipeLine()"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "RecipeLine(item_id='latte', ingredient_id='ca-phe-hat')"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "fn": "__init__",
+       "depth": 1
+      },
+      {
+       "line": 7,
+       "fn": "set_amount",
+       "depth": 2,
+       "enter": true,
+       "set": [
+        [
+         "amount",
+         "8.79"
+        ],
+        [
+         "self",
+         "RecipeLine(item_id='latte', ingredient_id='ca-phe-hat')"
+        ]
+       ]
+      },
+      {
+       "line": 8,
+       "fn": "set_amount",
+       "depth": 2
+      },
+      {
+       "line": 10,
+       "fn": "set_amount",
+       "depth": 2
+      },
+      {
+       "line": 12,
+       "fn": "set_amount",
+       "depth": 2,
+       "set": [
+        [
+         "self",
+         "RecipeLine(item_id='latte', ingredient_id='ca-phe-hat', amount=8.7)"
+        ]
+       ]
+      },
+      {
+       "line": 12,
+       "fn": "set_amount",
+       "depth": 2,
+       "ret": "None"
+      },
+      {
+       "line": 6,
+       "fn": "__init__",
+       "depth": 1,
+       "ret": "None",
+       "set": [
+        [
+         "amount",
+         "6.29"
+        ],
+        [
+         "item_id",
+         "'mocha'"
+        ],
+        [
+         "self",
+         "RecipeLine()"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "fn": "__init__",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "amount",
+         "6.29"
+        ],
+        [
+         "ingredient_id",
+         "'ca-phe-hat'"
+        ],
+        [
+         "item_id",
+         "'mocha'"
+        ],
+        [
+         "self",
+         "RecipeLine()"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "__init__",
+       "depth": 1,
+       "set": [
+        [
+         "self",
+         "RecipeLine(item_id='mocha', ingredient_id='ca-phe-hat')"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "fn": "__init__",
+       "depth": 1
+      },
+      {
+       "line": 7,
+       "fn": "set_amount",
+       "depth": 2,
+       "enter": true,
+       "set": [
+        [
+         "amount",
+         "6.29"
+        ],
+        [
+         "self",
+         "RecipeLine(item_id='mocha', ingredient_id='ca-phe-hat')"
+        ]
+       ]
+      },
+      {
+       "line": 8,
+       "fn": "set_amount",
+       "depth": 2
+      },
+      {
+       "line": 10,
+       "fn": "set_amount",
+       "depth": 2
+      },
+      {
+       "line": 12,
+       "fn": "set_amount",
+       "depth": 2,
+       "set": [
+        [
+         "self",
+         "RecipeLine(item_id='mocha', ingredient_id='ca-phe-hat', amount=6.2)"
+        ]
+       ]
+      },
+      {
+       "line": 12,
+       "fn": "set_amount",
+       "depth": 2,
+       "ret": "None"
+      },
+      {
+       "line": 6,
+       "fn": "__init__",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 14,
+       "set": [
+        [
+         "row",
+         "RecipeLine(item_id='latte', ingredient_id='ca-phe-hat', amount=8.7)"
+        ]
+       ]
+      },
+      {
+       "line": 14,
+       "set": [
+        [
+         "row",
+         "RecipeLine(item_id='mocha', ingredient_id='ca-phe-hat', amount=6.2)"
+        ]
+       ]
+      },
+      {
+       "line": 14,
+       "set": [
+        [
+         "RecipeLine",
+         "<lớp RecipeLine>"
+        ],
+        [
+         "amounts",
+         "ndarray: array([8.7, 6.2])"
+        ],
+        [
+         "math",
+         "<thư viện math>"
+        ],
+        [
+         "np",
+         "<thư viện numpy>"
+        ],
+        [
+         "row",
+         "Ingredient(code='ca-phe-hat', name='Ca phe hat', unit='g')"
+        ],
+        [
+         "rows",
+         "[RecipeLine(item_id='latte', ingredient_id='ca-phe-hat', amount=8.7), R…"
+        ]
+       ]
+      },
+      {
+       "line": 15,
+       "set": [
+        [
+         "cups",
+         "ndarray: array([3, 1])"
+        ]
+       ]
+      },
+      {
+       "line": 16,
+       "out": "[8.7, 6.2]"
+      },
+      {
+       "line": 17,
+       "out": "8.07"
+      }
+     ]
+    },
+    "2": {
+     "predict": {
+      "kind": "mid",
+      "var": "name",
+      "line": 3,
+      "prompt": "Ngay sau khi dòng 3 chạy, `name` bằng mấy?",
+      "answer": "'input.py'"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "files",
+         "{'input.py': 'doc du lieu', 'output.py': 'curses output', 'domains/item…"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "out": "curses output"
+      },
+      {
+       "line": 3
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "set": [
+        [
+         "name",
+         "'input.py'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "set": [
+        [
+         "name",
+         "'output.py'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "set": [
+        [
+         "name",
+         "'domains/item.py'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "'domains/item.py'"
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "name",
+         "'domains/item.py'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "set": [
+        [
+         "name",
+         "'domains/ingredient.py'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "'domains/ingredient.py'"
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "name",
+         "'domains/ingredient.py'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "set": [
+        [
+         "name",
+         "'domains/recipe.py'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "'domains/recipe.py'"
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "name",
+         "'domains/recipe.py'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "set": [
+        [
+         "name",
+         "'domains/registry.py'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "'domains/registry.py'"
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "name",
+         "'domains/registry.py'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "set": [
+        [
+         "name",
+         "'domains/__init__.py'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "'domains/__init__.py'"
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "name",
+         "'domains/__init__.py'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "set": [
+        [
+         "name",
+         "'main.py'"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1
+      },
+      {
+       "line": 3,
+       "fn": "<genexpr>",
+       "depth": 1,
+       "ret": "None",
+       "out": "['domains/__init__.py', 'domains/ingredient.py', 'domains/item.py', 'domains/recipe.py', 'domains/registry.py']"
+      },
+      {
+       "line": 3,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "SY27": {
+   "codeHash": "aa4a8593b945d522",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "predict": {
+      "kind": "final",
+      "var": "name",
+      "prompt": "Sau khi chạy xong, `name` bằng mấy?",
+      "answer": "'recipe.txt'"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "BytesIO",
+         "<lớp BytesIO>"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "zipfile",
+         "<thư viện zipfile>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "texts",
+         "{'items.txt': 'id,name,group\\nlatte,Latte,Ca phe\\n', 'ingredients.txt':…"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "buffer",
+         "BytesIO()"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "archive",
+         "ZipFile(_allowZip64=True, _didModify=True, debug=0, NameToInfo={}, file…"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "archive",
+         "ZipFile(_allowZip64=True, _didModify=True, debug=0, NameToInfo={'items.…"
+        ],
+        [
+         "name",
+         "'items.txt'"
+        ],
+        [
+         "text",
+         "'id,name,group\\nlatte,Latte,Ca phe\\n'"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "name",
+         "'ingredients.txt'"
+        ],
+        [
+         "text",
+         "'id,name,unit\\nca-phe-hat,Ca phe hat,g\\n'"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "name",
+         "'recipe.txt'"
+        ],
+        [
+         "text",
+         "'item_id,ingredient_id,amount\\nlatte,ca-phe-hat,8.7\\n'"
+        ]
+       ]
+      },
+      {
+       "line": 6
+      },
+      {
+       "line": 5
+      },
+      {
+       "line": 7,
+       "set": [
+        [
+         "archive",
+         "ZipFile(_allowZip64=True, _didModify=False, debug=0, NameToInfo={'items…"
+        ]
+       ]
+      },
+      {
+       "line": 8,
+       "set": [
+        [
+         "name",
+         "'items.txt'"
+        ]
+       ]
+      },
+      {
+       "line": 8,
+       "set": [
+        [
+         "name",
+         "'ingredients.txt'"
+        ]
+       ]
+      },
+      {
+       "line": 8,
+       "set": [
+        [
+         "name",
+         "'recipe.txt'"
+        ]
+       ]
+      },
+      {
+       "line": 8,
+       "set": [
+        [
+         "BytesIO",
+         "<lớp BytesIO>"
+        ],
+        [
+         "archive",
+         "ZipFile(_allowZip64=True, _didModify=False, debug=0, NameToInfo={'items…"
+        ],
+        [
+         "buffer",
+         "BytesIO()"
+        ],
+        [
+         "restored",
+         "{'items.txt': 'id,name,group\\nlatte,Latte,Ca phe\\n', 'ingredients.txt':…"
+        ],
+        [
+         "text",
+         "'item_id,ingredient_id,amount\\nlatte,ca-phe-hat,8.7\\n'"
+        ],
+        [
+         "texts",
+         "{'items.txt': 'id,name,group\\nlatte,Latte,Ca phe\\n', 'ingredients.txt':…"
+        ],
+        [
+         "zipfile",
+         "<thư viện zipfile>"
+        ]
+       ]
+      },
+      {
+       "line": 7
+      },
+      {
+       "line": 9,
+       "out": "True"
+      }
+     ]
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "SY28": {
+   "codeHash": "acfaada60159f874",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "predict": {
+      "kind": "final",
+      "var": "loaded",
+      "prompt": "Sau khi chạy xong, `loaded` bằng mấy?",
+      "answer": "{'version': 1, 'amounts': (8, 9)}"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "tempfile",
+         "<thư viện tempfile>"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "Path",
+         "<lớp Path>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "folder",
+         "'C:\\\\Users\\\\sonkh\\\\AppData\\\\Local\\\\Temp\\\\tmp8h0yw9hn'"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "path",
+         "WindowsPath: WindowsPath('C:/Users/sonkh/AppData/Local/Temp/tmp8h0yw9hn…"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "f",
+         "GzipFile(mode='wb', fileobj=None, _buffer=BufferedWriter(), myfileobj=N…"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "f",
+         "GzipFile(mode='rb', fileobj=None, _buffer=BufferedReader(), myfileobj=N…"
+        ],
+        [
+         "loaded",
+         "{'version': 1, 'amounts': (8, 9)}"
+        ]
+       ]
+      },
+      {
+       "line": 7,
+       "out": "tuple"
+      },
+      {
+       "line": 8,
+       "out": "1"
+      },
+      {
+       "line": 3
+      }
+     ]
+    },
+    "2": {
+     "predict": {
+      "kind": "mid",
+      "var": "state",
+      "line": 1,
+      "prompt": "Ngay sau khi dòng 1 chạy, `state` bằng mấy?",
+      "answer": "{'version': 2}"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "validate_version",
+         "<hàm validate_version>"
+        ]
+       ]
+      },
+      {
+       "line": 5
+      },
+      {
+       "line": 6
+      },
+      {
+       "line": 1,
+       "fn": "validate_version",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "state",
+         "{'version': 2}"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "validate_version",
+       "depth": 1
+      },
+      {
+       "line": 3,
+       "fn": "validate_version",
+       "depth": 1
+      },
+      {
+       "line": 3,
+       "fn": "validate_version",
+       "depth": 1,
+       "exc": "ValueError: unsupported schema"
+      },
+      {
+       "line": 3,
+       "fn": "validate_version",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 6,
+       "exc": "ValueError: unsupported schema"
+      },
+      {
+       "line": 7
+      },
+      {
+       "line": 8,
+       "out": "Can chuyen doi du lieu"
+      },
+      {
+       "line": 9
+      },
+      {
+       "line": 1,
+       "fn": "validate_version",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "state",
+         "{'version': 1}"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "fn": "validate_version",
+       "depth": 1
+      },
+      {
+       "line": 4,
+       "fn": "validate_version",
+       "depth": 1
+      },
+      {
+       "line": 4,
+       "fn": "validate_version",
+       "depth": 1,
+       "ret": "{'version': 1}",
+       "out": "1"
+      },
+      {
+       "line": 9,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "VZ01": {
+   "codeHash": "186609a3ce8c7c18",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ02": {
+   "codeHash": "4d329ce58b9641cd",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ03": {
+   "codeHash": "b9aa4c62223075e2",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "predict": {
+      "kind": "final",
+      "var": "sales",
+      "prompt": "Sau khi chạy xong, `sales` bằng mấy?",
+      "answer": "[8, nan, 7]"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 2
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "np",
+         "<thư viện numpy>"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "sales",
+         "[8, nan, 7]"
+        ]
+       ]
+      },
+      {
+       "line": 5
+      },
+      {
+       "line": 6
+      },
+      {
+       "line": 7,
+       "out": "2"
+      },
+      {
+       "line": 8
+      },
+      {
+       "line": 8,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "VZ04": {
+   "codeHash": "314bcc0b11ff9cd6",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "predict": {
+      "kind": "final",
+      "var": "names",
+      "prompt": "Sau khi chạy xong, `names` bằng mấy?",
+      "answer": "('Cocoa', 'Tea', 'Coffee')"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 2
+      },
+      {
+       "line": 3
+      },
+      {
+       "line": 3,
+       "fn": "<lambda>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "row",
+         "('Tea', 18)"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<lambda>",
+       "depth": 1
+      },
+      {
+       "line": 3,
+       "fn": "<lambda>",
+       "depth": 1,
+       "ret": "18",
+       "set": [
+        [
+         "row",
+         "('Coffee', 30)"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<lambda>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "row",
+         "('Coffee', 30)"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<lambda>",
+       "depth": 1
+      },
+      {
+       "line": 3,
+       "fn": "<lambda>",
+       "depth": 1,
+       "ret": "30",
+       "set": [
+        [
+         "row",
+         "('Cocoa', 12)"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<lambda>",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "row",
+         "('Cocoa', 12)"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "fn": "<lambda>",
+       "depth": 1
+      },
+      {
+       "line": 3,
+       "fn": "<lambda>",
+       "depth": 1,
+       "ret": "12"
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "cups",
+         "(12, 18, 30)"
+        ],
+        [
+         "names",
+         "('Cocoa', 'Tea', 'Coffee')"
+        ]
+       ]
+      },
+      {
+       "line": 5
+      },
+      {
+       "line": 6
+      },
+      {
+       "line": 7,
+       "out": "Coffee"
+      },
+      {
+       "line": 8
+      }
+     ]
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ05": {
+   "codeHash": "17726a986d0ef0f2",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ06": {
+   "codeHash": "fcea99777af0cad6",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ07": {
+   "codeHash": "928b59cf330c13b3",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ08": {
+   "codeHash": "681867152412a33b",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "predict": {
+      "kind": "count",
+      "line": 7,
+      "prompt": "Dòng 7 chạy bao nhiêu lần?",
+      "answer": "4"
+     },
+     "rows": [
+      {
+       "line": 1
+      },
+      {
+       "line": 2
+      },
+      {
+       "line": 3
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "counts",
+         "ndarray: array([[2, 5], [4, 1]])"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "im",
+         "AxesImage(_extent=[-0.5, 1.5, 1.5, -0.5], _stale=True, stale_callback=<…"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "col",
+         "0"
+        ],
+        [
+         "row",
+         "0"
+        ],
+        [
+         "value",
+         "int64: np.int64(2)"
+        ]
+       ]
+      },
+      {
+       "line": 7
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "col",
+         "1"
+        ],
+        [
+         "value",
+         "int64: np.int64(5)"
+        ]
+       ]
+      },
+      {
+       "line": 7
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "col",
+         "0"
+        ],
+        [
+         "row",
+         "1"
+        ],
+        [
+         "value",
+         "int64: np.int64(4)"
+        ]
+       ]
+      },
+      {
+       "line": 7
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "col",
+         "1"
+        ],
+        [
+         "value",
+         "int64: np.int64(1)"
+        ]
+       ]
+      },
+      {
+       "line": 7
+      },
+      {
+       "line": 6
+      },
+      {
+       "line": 6,
+       "exc": "StopIteration:"
+      },
+      {
+       "line": 8
+      },
+      {
+       "line": 9
+      },
+      {
+       "line": 10,
+       "out": "12"
+      },
+      {
+       "line": 11
+      }
+     ]
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ09": {
+   "codeHash": "ed2b4ea1bf67494d",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ10": {
+   "codeHash": "224a0b75058180b5",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ11": {
+   "codeHash": "08747de778639bb4",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ12": {
+   "codeHash": "4a42ba4eeb5c2485",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "final",
+      "var": "values",
+      "prompt": "Sau khi chạy xong, `values` bằng mấy?",
+      "answer": "[4, 6, 5]"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "plt",
+         "<thư viện matplotlib.pyplot>"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "axes",
+         "ndarray: array([<Axes: >, <Axes: >], dtype=object)"
+        ],
+        [
+         "fig",
+         "Figure(_stale=True, stale_callback=<hàm _auto_draw_if_interactive>, _pa…"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "ax",
+         "Axes(_stale=True, stale_callback=<hàm _stale_figure_callback>, _axes=<t…"
+        ],
+        [
+         "name",
+         "'Store A'"
+        ],
+        [
+         "values",
+         "[8, 10, 7]"
+        ]
+       ]
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "axes",
+         "ndarray: array([<Axes: title={'center': 'Store A'}, xlabel='Day'>, <Axe…"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "name",
+         "'Store B'"
+        ],
+        [
+         "values",
+         "[4, 6, 5]"
+        ]
+       ]
+      },
+      {
+       "line": 4
+      },
+      {
+       "line": 5
+      },
+      {
+       "line": 3
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "axes",
+         "ndarray: array([<Axes: title={'center': 'Store A'}, xlabel='Day', ylabe…"
+        ]
+       ]
+      },
+      {
+       "line": 7,
+       "out": "2"
+      },
+      {
+       "line": 8
+      }
+     ]
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ13": {
+   "codeHash": "414c189fb0a1e952",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ14": {
+   "codeHash": "67c0f12aade8325d",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ15": {
+   "codeHash": "b741ee2ad0f6df2e",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ23": {
+   "codeHash": "ec8de78ccc6c6584",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "mid",
+      "var": "store",
+      "line": 3,
+      "prompt": "Ngay sau khi dòng 3 chạy, `store` bằng mấy?",
+      "answer": "'A'"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "pd",
+         "<thư viện pandas>"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "data",
+         "DataFrame(_mgr=BlockManager(), _attrs={}, _flags=Flags(_allows_duplicat…"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "summarize",
+         "<hàm summarize>"
+        ]
+       ]
+      },
+      {
+       "line": 6
+      },
+      {
+       "line": 3,
+       "fn": "summarize",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "store",
+         "'A'"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "fn": "summarize",
+       "depth": 1,
+       "set": [
+        [
+         "chosen",
+         "DataFrame(_mgr=BlockManager(), _attrs={}, _flags=Flags(_allows_duplicat…"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "summarize",
+       "depth": 1
+      },
+      {
+       "line": 5,
+       "fn": "summarize",
+       "depth": 1,
+       "ret": "(18, 2)",
+       "out": "(18, 2)"
+      },
+      {
+       "line": 7
+      },
+      {
+       "line": 3,
+       "fn": "summarize",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "store",
+         "'All'"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "fn": "summarize",
+       "depth": 1,
+       "set": [
+        [
+         "chosen",
+         "DataFrame(_mgr=BlockManager(), _attrs={}, _flags=Flags(_allows_duplicat…"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "fn": "summarize",
+       "depth": 1
+      },
+      {
+       "line": 5,
+       "fn": "summarize",
+       "depth": 1,
+       "ret": "(23, 3)",
+       "out": "(23, 3)"
+      },
+      {
+       "line": 7,
+       "ret": "None"
+      }
+     ]
+    }
+   }
+  },
+  "VZ24": {
+   "codeHash": "1ee7816f1b20474c",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ25": {
+   "codeHash": "0a3dc67dd4913a26",
+   "blocks": {
+    "0": {
+     "skip": "vết chạm trần: byte-limit"
+    },
+    "1": {
+     "skip": "vết chạm trần: byte-limit"
+    },
+    "2": {
+     "skip": "vết chạm trần: byte-limit"
+    }
+   }
+  },
+  "VZ26": {
+   "codeHash": "10ed359f5593e63b",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ27": {
+   "codeHash": "fc2a607fd4538d9b",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ28": {
+   "codeHash": "0f0a8dc7ed9a5463",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "final",
+      "var": "method",
+      "prompt": "Sau khi chạy xong, `method` bằng mấy?",
+      "answer": "'pcolormesh'"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "plt",
+         "<thư viện matplotlib.pyplot>"
+        ]
+       ]
+      },
+      {
+       "line": 2,
+       "set": [
+        [
+         "np",
+         "<thư viện numpy>"
+        ]
+       ]
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "axes",
+         "ndarray: array([<Axes: >, <Axes: >], dtype=object)"
+        ],
+        [
+         "fig",
+         "Figure(_stale=True, stale_callback=<hàm _auto_draw_if_interactive>, _pa…"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "z",
+         "ndarray: array([[1, 2], [3, 4]])"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "ax",
+         "Axes(_stale=True, stale_callback=<hàm _stale_figure_callback>, _axes=<t…"
+        ],
+        [
+         "method",
+         "'pcolor'"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "im",
+         "PolyQuadMesh(_coordinates=MaskedArray(_fill_value=None, _hardmask=False…"
+        ]
+       ]
+      },
+      {
+       "line": 7,
+       "set": [
+        [
+         "axes",
+         "ndarray: array([<Axes: title={'center': 'pcolor'}, xlabel='x (m)', ylab…"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "method",
+         "'pcolormesh'"
+        ]
+       ]
+      },
+      {
+       "line": 6,
+       "set": [
+        [
+         "im",
+         "QuadMesh(_coordinates=MaskedArray(_fill_value=None, _hardmask=False, _s…"
+        ]
+       ]
+      },
+      {
+       "line": 7
+      },
+      {
+       "line": 5
+      },
+      {
+       "line": 8
+      },
+      {
+       "line": 9,
+       "out": "(2, 2)"
+      },
+      {
+       "line": 10
+      }
+     ]
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ29": {
+   "codeHash": "8cff5df942836b3c",
+   "blocks": {
+    "0": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  },
+  "VZ30": {
+   "codeHash": "c212ba80c3ace87e",
+   "blocks": {
+    "0": {
+     "predict": {
+      "kind": "final",
+      "var": "cid",
+      "prompt": "Sau khi chạy xong, `cid` bằng mấy?",
+      "answer": "12"
+     },
+     "rows": [
+      {
+       "line": 1,
+       "set": [
+        [
+         "matplotlib",
+         "<thư viện matplotlib>"
+        ]
+       ]
+      },
+      {
+       "line": 2
+      },
+      {
+       "line": 3,
+       "set": [
+        [
+         "plt",
+         "<thư viện matplotlib.pyplot>"
+        ]
+       ]
+      },
+      {
+       "line": 4,
+       "set": [
+        [
+         "ax",
+         "Axes(_stale=True, stale_callback=<hàm _stale_figure_callback>, _axes=<t…"
+        ],
+        [
+         "fig",
+         "Figure(_stale=True, stale_callback=<hàm _auto_draw_if_interactive>, _pa…"
+        ]
+       ]
+      },
+      {
+       "line": 5,
+       "set": [
+        [
+         "SimpleNamespace",
+         "<lớp SimpleNamespace>"
+        ]
+       ]
+      },
+      {
+       "line": 6
+      },
+      {
+       "line": 7
+      },
+      {
+       "line": 8,
+       "set": [
+        [
+         "state",
+         "{'point': None}"
+        ]
+       ]
+      },
+      {
+       "line": 9,
+       "set": [
+        [
+         "on_click",
+         "<hàm on_click>"
+        ]
+       ]
+      },
+      {
+       "line": 12,
+       "set": [
+        [
+         "cid",
+         "12"
+        ]
+       ]
+      },
+      {
+       "line": 13
+      },
+      {
+       "line": 9,
+       "fn": "on_click",
+       "depth": 1,
+       "enter": true,
+       "set": [
+        [
+         "event",
+         "SimpleNamespace(inaxes=Axes(_stale=True, stale_callback=<hàm _stale_fig…"
+        ]
+       ]
+      },
+      {
+       "line": 10,
+       "fn": "on_click",
+       "depth": 1
+      },
+      {
+       "line": 11,
+       "fn": "on_click",
+       "depth": 1
+      },
+      {
+       "line": 11,
+       "fn": "on_click",
+       "depth": 1,
+       "ret": "None"
+      },
+      {
+       "line": 14,
+       "out": "(2.0, 10.0)"
+      },
+      {
+       "line": 15
+      },
+      {
+       "line": 16,
+       "set": [
+        [
+         "Path",
+         "<lớp Path>"
+        ]
+       ]
+      },
+      {
+       "line": 17,
+       "set": [
+        [
+         "gettempdir",
+         "<hàm gettempdir>"
+        ]
+       ]
+      },
+      {
+       "line": 18,
+       "set": [
+        [
+         "out",
+         "WindowsPath: WindowsPath('C:/Users/sonkh/AppData/Local/Temp/python-da-v…"
+        ]
+       ]
+      },
+      {
+       "line": 19
+      },
+      {
+       "line": 20,
+       "set": [
+        [
+         "ax",
+         "Axes(_stale=False, stale_callback=<hàm _stale_figure_callback>, _axes=<…"
+        ]
+       ]
+      },
+      {
+       "line": 21
+      }
+     ]
+    },
+    "1": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    },
+    "2": {
+     "skip": "không có câu dự đoán nào bảng trả lời được"
+    }
+   }
+  }
+ }
+}

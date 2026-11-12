@@ -1,0 +1,276 @@
+{
+ "lesson_code": "VZ26",
+ "sort_order": 99,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ26 · Dự án: từ câu hỏi phân tích đến báo cáo có thể kiểm tra",
+ "subtitle": "Nâng cao · M4 · 17 phút",
+ "estimated_minutes": 17,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "VZ26 · Dự án: từ câu hỏi phân tích đến báo cáo có thể kiểm tra",
+  "subtitle": "Nâng cao · M4 · 17 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#VZ26",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas aggregation; Plotly export"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Mọi loại hình ở các bài trước nay dùng để trả lời một câu hỏi của quán. Bạn được hỏi: “Trong dữ liệu mẫu, loại đồ uống nào đóng góp doanh thu cao nhất?” Cần thống nhất doanh thu bằng số lượng nhân đơn giá, loại bỏ dòng không hợp lệ theo quy tắc công khai rồi mới tổng hợp. Ví dụ dưới giữ ba dòng có lượng và giá không âm; đây là dữ liệu minh họa, không phải kết quả kinh doanh thật."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\norders = pd.DataFrame({\"drink\":[\"Coffee\", \"Tea\", \"Coffee\"], \"so_coc\":[2, 3, 1], \"price\":[20, 12, 20]})\nvalid = orders.loc[orders[\"so_coc\"].ge(0) & orders[\"price\"].ge(0)].copy()\nvalid[\"revenue\"] = valid[\"so_coc\"] * valid[\"price\"]\ntotals = valid.groupby(\"drink\")[\"revenue\"].sum().sort_values()\ntotals.plot.barh(ax=ax)\nax.set(xlabel=\"Revenue (thousand VND)\", ylabel=\"Drink\", title=\"Coffee contributes more revenue in this sample\")\nprint(totals.to_dict())\nplt.show()",
+      "expected": "{'Tea': 36, 'Coffee': 60}",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ26-1.png",
+      "alt": "Biểu đồ cột ngang, tiêu đề \"Coffee contributes more revenue in this sample\", trục ngang \"Revenue (thousand VND)\", trục dọc \"Drink\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Lời kết luận cần bám vào số đã vẽ: cà phê đạt 60 trong tổng 96 nghìn đồng, tức 62.5%. Chưa có chi phí nên không gọi đó là lợi nhuận; chỉ ba đơn nên không suy ra tỷ trọng dài hạn. Bảng tóm tắt hoặc phần mô tả chữ giúp người đọc kiểm tra kết luận ngay cạnh biểu đồ."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\ntotals = pd.Series({\"Coffee\":60, \"Tea\":36})\nshare = totals / totals.sum() * 100\nbars = ax.bar(share.index, share.values)\nax.bar_label(bars, fmt=\"%.1f%%\")\nax.set(ylabel=\"Revenue share (%)\", title=\"Coffee accounts for 62.5% of sample revenue\", ylim=(0, 100))\nprint(round(float(share[\"Coffee\"]), 1))\nplt.show()",
+      "expected": "62.5",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ26-2.png",
+      "alt": "Biểu đồ cột, tiêu đề \"Coffee accounts for 62.5% of sample revenue\", trục dọc \"Revenue share (%)\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Một bản giao có hình tĩnh cho báo cáo và HTML để xem giá trị chi tiết, kèm dữ liệu, công thức chỉ số và mô tả phạm vi. Kiểm tra tổng trước và sau lọc, tiêu đề có khớp dữ liệu, nhãn không bị cắt và file mở được. Trong dự án thật, thêm một kỳ so sánh có cùng quy tắc; không viết nguyên nhân tăng trưởng nếu dữ liệu chỉ cho thấy chênh lệch."
+     },
+     {
+      "type": "terminal",
+      "code": "import pandas as pd\nimport plotly.express as px\nsummary = pd.DataFrame({\"drink\":[\"Coffee\", \"Tea\"], \"revenue\":[60, 36], \"orders\":[2, 1]})\nassert summary[\"revenue\"].sum() == 96\nfig = px.bar(summary, x=\"drink\", y=\"revenue\", hover_data=[\"orders\"], labels={\"drink\":\"Drink\", \"revenue\":\"Revenue (thousand VND)\", \"orders\":\"Order rows\"}, title=\"Synthetic sample: three orders, total revenue 96\")\nprint(int(summary[\"orders\"].sum()), int(summary[\"revenue\"].sum()))\nfig.show()",
+      "expected": "Chạy với frontend Plotly hỗ trợ: biểu đồ tương tác mở, hover/legend hoặc bộ chọn hoạt động theo bài; stdout vẫn là phần kết quả số phía dưới. Backend trình duyệt phải được quan sát trực tiếp, không suy từ lần chạy headless."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "VZ15 · Từ DataFrame đến biểu đồ: pandas plotting, VZ22 · Chia sẻ HTML tương tác và kiểm tra dữ liệu trong file, VZ24 · Nhận ra biểu đồ gây hiểu lầm, PD14 · Groupby: tổng hợp theo nhóm"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Chỉ có so_coc và price, đã tính revenue. Có gọi nhóm revenue cao nhất là lợi nhuận cao nhất không?",
+     "options": [
+      {
+       "text": "Không, còn thiếu chi phí",
+       "detail": "Đúng: doanh thu không phải lợi nhuận.",
+       "correct": true
+      },
+      {
+       "text": "Có nếu vẽ bằng barh",
+       "detail": "Loại hình không thay định nghĩa chỉ số."
+      },
+      {
+       "text": "Có, hai từ cùng nghĩa",
+       "detail": "Lợi nhuận cần trừ chi phí theo định nghĩa phù hợp."
+      }
+     ],
+     "explanation": "Lời kết luận phải bám vào số đã được tính và đơn vị của dữ liệu."
+    },
+    {
+     "question": "Tính doanh thu cho 2 cà phê giá 20 và 3 trà giá 12.\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\norders = pd.DataFrame({\"drink\":[\"Coffee\", \"Tea\", \"Coffee\"], \"so_coc\":[2, 3, 1], \"price\":[20, 12, 20]})\nvalid = orders.loc[orders[\"so_coc\"].ge(0) & orders[\"price\"].ge(0)].copy()\nvalid[\"revenue\"] = valid[\"so_coc\"] * valid[\"price\"]\ntotals = valid.groupby(\"drink\")[\"revenue\"].sum().sort_values()\ntotals.plot.barh(ax=ax)\nax.set(xlabel=\"Revenue (thousand VND)\", ylabel=\"Drink\", title=\"Coffee contributes more revenue in this sample\")\nprint(totals.to_dict())\nplt.show()",
+     "options": [
+      {
+       "text": "Tổng 32 vì chỉ cộng hai đơn giá.",
+       "detail": "32 chỉ cộng hai đơn giá và bỏ số lượng."
+      },
+      {
+       "text": "Cà phê 40, trà 36; tổng 76 theo cùng đơn vị giá. Phải ghi rõ đơn vị và quy tắc lượng, giá.",
+       "detail": "Cà phê 40, trà 36; tổng 76 theo cùng đơn vị giá. Phải ghi rõ đơn vị và quy tắc lượng, giá.",
+       "correct": true
+      },
+      {
+       "text": "Tổng 5 vì chỉ đếm số lượng.",
+       "detail": "5 chỉ cộng số lượng, chưa dùng đơn giá."
+      }
+     ],
+     "explanation": "Cà phê 40, trà 36; tổng 76 theo cùng đơn vị giá. Phải ghi rõ đơn vị và quy tắc lượng, giá."
+    },
+    {
+     "question": "Dữ liệu chỉ có doanh thu, có gọi loại doanh thu cao nhất là lợi nhuận cao nhất không?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\ntotals = pd.Series({\"Coffee\":60, \"Tea\":36})\nshare = totals / totals.sum() * 100\nbars = ax.bar(share.index, share.values)\nax.bar_label(bars, fmt=\"%.1f%%\")\nax.set(ylabel=\"Revenue share (%)\", title=\"Coffee accounts for 62.5% of sample revenue\", ylim=(0, 100))\nprint(round(float(share[\"Coffee\"]), 1))\nplt.show()",
+     "options": [
+      {
+       "text": "Có; chi phí luôn bằng 0 trong mọi dữ liệu.",
+       "detail": "Không được tự giả định chi phí mọi đơn đều bằng 0."
+      },
+      {
+       "text": "Có; doanh thu và lợi nhuận là một khái niệm.",
+       "detail": "Hai đại lượng có công thức khác nhau khi có chi phí."
+      },
+      {
+       "text": "Không. Cần chi phí để tính lợi nhuận.",
+       "detail": "Không. Cần chi phí để tính lợi nhuận.",
+       "correct": true
+      }
+     ],
+     "explanation": "Không. Cần chi phí để tính lợi nhuận."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Tính doanh thu cho 2 cà phê giá 20 và 3 trà giá 12.",
+     "answer": "Cà phê 40, trà 36; tổng 76 theo cùng đơn vị giá. Phải ghi rõ đơn vị và quy tắc lượng, giá."
+    },
+    {
+     "prompt": "Dữ liệu chỉ có doanh thu, có gọi loại doanh thu cao nhất là lợi nhuận cao nhất không?",
+     "answer": "Không. Cần chi phí để tính lợi nhuận."
+    },
+    {
+     "prompt": "Tự làm báo cáo ba đơn ở ví dụ, cần giao những gì?",
+     "answer": "Bảng đã kiểm tra, công thức revenue=so_coc*price, tổng 96, hình có đơn vị, mô tả Coffee=60/96=62.5%, file PNG/SVG và HTML mở được, cùng giới hạn mẫu nhỏ. Không gán nguyên nhân kinh doanh."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.rows chứa category,so_coc,price. Quy tắc mẫu: bỏ dòng so_coc<0 hoặc price<0; các hàng còn lại tính revenue=so_coc*price. Có ít nhất một hàng hợp lệ. Tổng hợp category, sắp tăng theo tên rồi vẽ cột. Trả totals là dictionary category→doanh thu, drawnTotal là tổng chiều cao các cột, rejected là số dòng bị loại. Không gọi số đó là lợi nhuận. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'rows': [{'category': 'Book', 'so_coc': 2, 'price': 12}, {'category': 'Pen', 'so_coc': 3, 'price': 4}, {'category': 'Book', 'so_coc': -1, 'price': 12}]}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'totals': {'Book': 24, 'Pen': 12}, 'drawnTotal': 36.0, 'rejected': 1}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\nimport pandas as pd\n\ndef solve(data):\n     orders = pd.DataFrame(data['rows'])\n     valid = orders.loc[(orders['so_coc'] >= 0) & (orders['price'] >= 0)].copy()\n     valid['revenue'] = valid['so_coc'] * valid['price']\n     totals = valid.groupby('category')['revenue'].sum().sort_index()\n     fig, ax = plt.subplots()\n     bars = ax.bar(totals.index,totals.values)\n     result = {'totals':totals.to_dict(),'drawnTotal':float(sum(b.get_height() for b in bars)),'rejected':len(orders)-len(valid)}\n     plt.close(fig)\n     return result\n",
+   "tests": [
+    {
+     "name": "loại dòng âm",
+     "input": {
+      "rows": [
+       {
+        "category": "Book",
+        "so_coc": 2,
+        "price": 12
+       },
+       {
+        "category": "Pen",
+        "so_coc": 3,
+        "price": 4
+       },
+       {
+        "category": "Book",
+        "so_coc": -1,
+        "price": 12
+       }
+      ]
+     },
+     "expected": {
+      "totals": {
+       "Book": 24,
+       "Pen": 12
+      },
+      "drawnTotal": 36.0,
+      "rejected": 1
+     }
+    },
+    {
+     "name": "nhóm có nhiều đơn",
+     "input": {
+      "rows": [
+       {
+        "category": "Tea",
+        "so_coc": 1,
+        "price": 5
+       },
+       {
+        "category": "Tea",
+        "so_coc": 2,
+        "price": 5
+       }
+      ]
+     },
+     "expected": {
+      "totals": {
+       "Tea": 15
+      },
+      "drawnTotal": 15.0,
+      "rejected": 0
+     }
+    },
+    {
+     "name": "0 vẫn hợp lệ",
+     "input": {
+      "rows": [
+       {
+        "category": "X",
+        "so_coc": 0,
+        "price": 10
+       },
+       {
+        "category": "Y",
+        "so_coc": 1,
+        "price": -2
+       }
+      ]
+     },
+     "expected": {
+      "totals": {
+       "X": 0
+      },
+      "drawnTotal": 0.0,
+      "rejected": 1
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Loại cả số lượng âm lẫn giá âm trước khi tính doanh thu."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Tính báo cáo có thể đối chiếu và vẽ đúng bảng tổng hợp."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy",
+    "pandas"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 2,
+  "co": 0,
+  "bo": 2,
+  "loi": []
+ }
+}

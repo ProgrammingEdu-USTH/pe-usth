@@ -1,0 +1,475 @@
+{
+ "lesson_code": "VZ30",
+ "sort_order": 103,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ30 · Tương tác với Matplotlib và nối sang GUI",
+ "subtitle": "Nâng cao · M4 · 19 phút",
+ "estimated_minutes": 19,
+ "xp_reward": 11,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "VZ30 · Tương tác với Matplotlib và nối sang GUI",
+  "subtitle": "Nâng cao · M4 · 19 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#VZ30",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "Tương tác với Matplotlib và nối sang GUI"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Mọi hình tới đây đều là hình tĩnh; ở bài này bạn bấm được vào nó. Một cửa sổ xem hình có thể cho bạn bấm vào điểm để đọc dữ liệu. Matplotlib gửi sự kiện qua canvas; callback nhận thông tin như `Axes` đang bấm và tọa độ dữ liệu. Cơ chế này cần backend tương tác khi dùng chuột thật, nhưng phần xử lý có thể được kiểm tra riêng mà không mở cửa sổ."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib\nmatplotlib.use(\"Agg\")\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nfrom types import SimpleNamespace\nax.scatter([1, 2, 3], [8, 10, 7])\nax.set(xlabel=\"Day\", ylabel=\"Cups\", title=\"A click can be translated into data coordinates\")\nstate = {\"point\":None}\ndef on_click(event):\n    if event.inaxes is ax and event.xdata is not None:\n        state[\"point\"] = (round(event.xdata, 1), round(event.ydata, 1))\ncid = fig.canvas.mpl_connect(\"button_press_event\", on_click)\non_click(SimpleNamespace(inaxes=ax, xdata=2.0, ydata=10.0))\nprint(state[\"point\"])\nfig.canvas.mpl_disconnect(cid)\nfrom pathlib import Path\nfrom tempfile import gettempdir\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\nfig.savefig(out / \"VZ30-1.png\", dpi=130)\nplt.close(fig)",
+      "expected": "(2.0, 10.0)",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "cid",
+        "prompt": "Sau khi chạy xong, `cid` bằng mấy?",
+        "answer": "12"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "matplotlib",
+           "<thư viện matplotlib>"
+          ]
+         ]
+        },
+        {
+         "line": 2
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "plt",
+           "<thư viện matplotlib.pyplot>"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "set": [
+          [
+           "ax",
+           "Axes(_stale=True, stale_callback=<hàm _stale_figure_callback>, _axes=<t…"
+          ],
+          [
+           "fig",
+           "Figure(_stale=True, stale_callback=<hàm _auto_draw_if_interactive>, _pa…"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "set": [
+          [
+           "SimpleNamespace",
+           "<lớp SimpleNamespace>"
+          ]
+         ]
+        },
+        {
+         "line": 6
+        },
+        {
+         "line": 7
+        },
+        {
+         "line": 8,
+         "set": [
+          [
+           "state",
+           "{'point': None}"
+          ]
+         ]
+        },
+        {
+         "line": 9,
+         "set": [
+          [
+           "on_click",
+           "<hàm on_click>"
+          ]
+         ]
+        },
+        {
+         "line": 12,
+         "set": [
+          [
+           "cid",
+           "12"
+          ]
+         ]
+        },
+        {
+         "line": 13
+        },
+        {
+         "line": 9,
+         "fn": "on_click",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "event",
+           "SimpleNamespace(inaxes=Axes(_stale=True, stale_callback=<hàm _stale_fig…"
+          ]
+         ]
+        },
+        {
+         "line": 10,
+         "fn": "on_click",
+         "depth": 1
+        },
+        {
+         "line": 11,
+         "fn": "on_click",
+         "depth": 1
+        },
+        {
+         "line": 11,
+         "fn": "on_click",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 14,
+         "out": "(2.0, 10.0)"
+        },
+        {
+         "line": 15
+        },
+        {
+         "line": 16,
+         "set": [
+          [
+           "Path",
+           "<lớp Path>"
+          ]
+         ]
+        },
+        {
+         "line": 17,
+         "set": [
+          [
+           "gettempdir",
+           "<hàm gettempdir>"
+          ]
+         ]
+        },
+        {
+         "line": 18,
+         "set": [
+          [
+           "out",
+           "WindowsPath: WindowsPath('C:/Users/sonkh/AppData/Local/Temp/python-da-v…"
+          ]
+         ]
+        },
+        {
+         "line": 19
+        },
+        {
+         "line": 20,
+         "set": [
+          [
+           "ax",
+           "Axes(_stale=False, stale_callback=<hàm _stale_figure_callback>, _axes=<…"
+          ]
+         ]
+        },
+        {
+         "line": 21
+        }
+       ]
+      }
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ30-1.png",
+      "alt": "Biểu đồ điểm phân tán, tiêu đề \"A click can be translated into data coordinates\", trục ngang \"Day\", trục dọc \"Cups\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Callback nên xử lý trường hợp người xem bấm ngoài `Axes`, khi xdata và ydata có thể không có giá trị. Đừng cho một cú bấm chỉ vào khoảng trống biến thành một quan sát có thật. Ví dụ tiếp chỉ nhận một hàng đã có trong dữ liệu và đổi nhãn của điểm đang chọn."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib\nmatplotlib.use(\"Agg\")\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\ndays, cups = [1, 2, 3], [8, 10, 7]\nax.scatter(days, cups)\nlabel = ax.text(0.03, 0.95, \"No selection\", transform=ax.transAxes, va=\"top\")\ndef select(index):\n    if not 0 <= index < len(days):\n        raise IndexError(\"Observation not found\")\n    label.set_text(f\"Day {days[index]}: {cups[index]} cups\")\n    fig.canvas.draw_idle()\nselect(1)\nax.set(xlabel=\"Day\", ylabel=\"Cups\", title=\"Only select an existing observation\")\nprint(label.get_text())\nfrom pathlib import Path\nfrom tempfile import gettempdir\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\nfig.savefig(out / \"VZ30-2.png\", dpi=130)\nplt.close(fig)",
+      "expected": "Day 2: 10 cups",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ30-2.png",
+      "alt": "Biểu đồ điểm phân tán, tiêu đề \"Only select an existing observation\", trục ngang \"Day\", trục dọc \"Cups\", chú thích trên hình: \"No selection\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Khi đóng hoặc tạo lại giao diện, ngắt các callback không còn dùng để tránh nhiều lần xử lý cho một thao tác. Tách hàm tạo biểu đồ khỏi callback giúp bạn dùng cùng code cho báo cáo tĩnh, notebook và GUI. Backend Agg trong ví dụ chỉ dùng để kiểm tra logic và lưu ảnh; muốn bấm chuột thật, chạy với backend tương tác và gọi `plt.show()`."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib\nmatplotlib.use(\"Agg\")\nimport matplotlib.pyplot as plt\nfrom matplotlib.figure import Figure\ndef build_sales_chart(days, cups):\n    if len(days) != len(cups):\n        raise ValueError(\"Lengths must match\")\n    figure = Figure(figsize=(6, 3.5))\n    axes = figure.subplots()\n    axes.plot(days, cups, marker=\"o\")\n    axes.set(xlabel=\"Day\", ylabel=\"Cups\", title=\"A chart function reusable in a GUI\")\n    return figure\nfig = build_sales_chart([1, 2, 3], [8, 10, 7])\nprint(len(fig.axes), len(fig.axes[0].lines))\nfrom pathlib import Path\nfrom tempfile import gettempdir\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\nfig.savefig(out / \"VZ30-3.png\", dpi=130)\nplt.close(fig)",
+      "expected": "1 1",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ30-3.png",
+      "alt": "Biểu đồ đường, tiêu đề \"A chart function reusable in a GUI\", trục ngang \"Day\", trục dọc \"Cups\"."
+     },
+     {
+      "type": "paragraph",
+      "text": "Số của quán đã cho người khác đọc được; chặng sau gom code rời thành một hệ thống."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "VZ23 · Dashboard đầu tiên: hàm dữ liệu, widget và callback, VZ25 · Animation: cập nhật đối tượng và xuất vòng lặp HTML"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Bấm ngoài Axes thì xdata có thể là gì?",
+     "options": [
+      {
+       "text": "None",
+       "detail": "Đúng: cần kiểm tra trước khi dùng như một số.",
+       "correct": true
+      },
+      {
+       "text": "Luôn bằng 0",
+       "detail": "Khoảng trống không phải một quan sát ở x=0."
+      },
+      {
+       "text": "Điểm gần nhất tự được chọn",
+       "detail": "Không có quy tắc mặc định đó trong callback đang học."
+      }
+     ],
+     "explanation": "Một sự kiện chuột không tự tương ứng với một bản ghi dữ liệu."
+    },
+    {
+     "question": "Bấm ngoài Axes có nên lấy xdata làm số để tính ngay không?\n\nimport matplotlib\nmatplotlib.use(\"Agg\")\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nfrom types import SimpleNamespace\nax.scatter([1, 2, 3], [8, 10, 7])\nax.set(xlabel=\"Day\", ylabel=\"Cups\", title=\"A click can be translated into data coordinates\")\nstate = {\"point\":None}\ndef on_click(event):\n    if event.inaxes is ax and event.xdata is not None:\n        state[\"point\"] = (round(event.xdata, 1), round(event.ydata, 1))\ncid = fig.canvas.mpl_connect(\"button_press_event\", on_click)\non_click(SimpleNamespace(inaxes=ax, xdata=2.0, ydata=10.0))\nprint(state[\"point\"])\nfig.canvas.mpl_disconnect(cid)\nfrom pathlib import Path\nfrom tempfile import gettempdir\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\nfig.savefig(out / \"VZ30-1.png\", dpi=130)\nplt.close(fig)",
+     "options": [
+      {
+       "text": "Có; bấm ngoài Axes luôn lấy điểm gần nhất.",
+       "detail": "Cần tự chọn chính sách nếu muốn tìm điểm gần nhất; sự kiện không làm thay bước đó."
+      },
+      {
+       "text": "Có; None tự được đổi thành 0 trong mọi phép tính.",
+       "detail": "None không tự trở thành số 0 an toàn trong mọi phép tính."
+      },
+      {
+       "text": "Không. Kiểm tra event.inaxes và xdata/ydata trước vì chúng có thể là None.",
+       "detail": "Không. Kiểm tra event.inaxes và xdata/ydata trước vì chúng có thể là None.",
+       "correct": true
+      }
+     ],
+     "explanation": "Không. Kiểm tra event.inaxes và xdata/ydata trước vì chúng có thể là None."
+    },
+    {
+     "question": "Agg có tạo một cửa sổ để bấm chuột không?\n\nimport matplotlib\nmatplotlib.use(\"Agg\")\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\ndays, cups = [1, 2, 3], [8, 10, 7]\nax.scatter(days, cups)\nlabel = ax.text(0.03, 0.95, \"No selection\", transform=ax.transAxes, va=\"top\")\ndef select(index):\n    if not 0 <= index < len(days):\n        raise IndexError(\"Observation not found\")\n    label.set_text(f\"Day {days[index]}: {cups[index]} cups\")\n    fig.canvas.draw_idle()\nselect(1)\nax.set(xlabel=\"Day\", ylabel=\"Cups\", title=\"Only select an existing observation\")\nprint(label.get_text())\nfrom pathlib import Path\nfrom tempfile import gettempdir\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\nfig.savefig(out / \"VZ30-2.png\", dpi=130)\nplt.close(fig)",
+     "options": [
+      {
+       "text": "Có; Agg tự tạo một cửa sổ Tkinter.",
+       "detail": "Agg không tự mở một cửa sổ Tkinter để nhận chuột."
+      },
+      {
+       "text": "Không. Agg là backend raster không tương tác; dùng backend phù hợp khi cần cửa sổ và show().",
+       "detail": "Không. Agg là backend raster không tương tác; dùng backend phù hợp khi cần cửa sổ và show().",
+       "correct": true
+      },
+      {
+       "text": "Có; chỉ cần import pyplot là backend nào cũng nhận bấm chuột.",
+       "detail": "Khả năng nhận sự kiện thật phụ thuộc backend tương tác phù hợp."
+      }
+     ],
+     "explanation": "Không. Agg là backend raster không tương tác; dùng backend phù hợp khi cần cửa sổ và show()."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Bấm ngoài Axes có nên lấy xdata làm số để tính ngay không?",
+     "answer": "Không. Kiểm tra event.inaxes và xdata/ydata trước vì chúng có thể là None."
+    },
+    {
+     "prompt": "Agg có tạo một cửa sổ để bấm chuột không?",
+     "answer": "Không. Agg là backend raster không tương tác; dùng backend phù hợp khi cần cửa sổ và show()."
+    },
+    {
+     "prompt": "Vì sao tách build_sales_chart khỏi callback?",
+     "answer": "Để kiểm tra dữ liệu và Figure độc lập, dùng lại cho báo cáo hay GUI và giảm công việc trong hàm xử lý sự kiện."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.events là list {inside:bool,x:số hoặc None,y:số hoặc None}. Tạo Figure/Axes và callback như bài: chỉ khi inside=True, x và y đều có số thì cập nhật state.point thành [x,y]. Có thể dùng SimpleNamespace giả lập đối tượng event để kiểm callback; nối mpl_connect rồi ngắt sau các sự kiện. Trả point cuối hoặc None nếu chưa có sự kiện hợp lệ. Đây không chứng minh đã thao tác chuột thật. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'events': [{'inside': True, 'x': 2, 'y': 6}, {'inside': False, 'x': 9, 'y': 8}]}"
+     },
+     {
+      "label": "trả về",
+      "value": "[2.0, 6.0]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\nfrom types import SimpleNamespace\n\ndef solve(data):\n     fig, ax = plt.subplots()\n     state = {'point':None}\n     def on_click(event):\n         if event.inaxes is ax and event.xdata is not None and event.ydata is not None:\n             state['point'] = [float(event.xdata),float(event.ydata)]\n     cid = fig.canvas.mpl_connect('button_press_event',on_click)\n     for e in data['events']:\n         on_click(SimpleNamespace(inaxes=ax if e['inside'] else None,xdata=e['x'],ydata=e['y']))\n     fig.canvas.mpl_disconnect(cid)\n     plt.close(fig)\n     return state['point']\n",
+   "tests": [
+    {
+     "name": "bỏ sự kiện ngoài vùng",
+     "input": {
+      "events": [
+       {
+        "inside": true,
+        "x": 2,
+        "y": 6
+       },
+       {
+        "inside": false,
+        "x": 9,
+        "y": 8
+       }
+      ]
+     },
+     "expected": [
+      2.0,
+      6.0
+     ]
+    },
+    {
+     "name": "chưa có tọa độ hợp lệ",
+     "input": {
+      "events": [
+       {
+        "inside": false,
+        "x": null,
+        "y": null
+       },
+       {
+        "inside": true,
+        "x": null,
+        "y": 3
+       }
+      ]
+     },
+     "expected": null
+    },
+    {
+     "name": "giữ lựa chọn mới nhất",
+     "input": {
+      "events": [
+       {
+        "inside": true,
+        "x": 0,
+        "y": 0
+       },
+       {
+        "inside": true,
+        "x": 4.5,
+        "y": 7
+       }
+      ]
+     },
+     "expected": [
+      4.5,
+      7.0
+     ]
+    },
+    {
+     "name": "bỏ tọa độ y thiếu",
+     "input": {
+      "events": [
+       {
+        "inside": true,
+        "x": 1,
+        "y": 4
+       },
+       {
+        "inside": true,
+        "x": 2,
+        "y": null
+       }
+      ]
+     },
+     "expected": [
+      1.0,
+      4.0
+     ]
+    },
+    {
+     "name": "tọa độ 0 vẫn là lựa chọn hợp lệ",
+     "input": {
+      "events": [
+       {
+        "inside": false,
+        "x": 1,
+        "y": 1
+       },
+       {
+        "inside": true,
+        "x": 0,
+        "y": 0
+       }
+      ]
+     },
+     "expected": [
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Sự kiện phải thuộc đúng Axes đang xét; kiểm tra đối tượng vùng vẽ của event."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Callback chỉ nhận sự kiện trong đúng Axes và có tọa độ hợp lệ."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 1,
+  "bo": 2,
+  "loi": []
+ }
+}

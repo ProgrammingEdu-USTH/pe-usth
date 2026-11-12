@@ -1,0 +1,325 @@
+{
+ "lesson_code": "PD31",
+ "sort_order": 72,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD31 · EDA: từ câu hỏi đến bảng kết quả",
+ "subtitle": "Nâng cao · M3 · 12 phút",
+ "estimated_minutes": 12,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PD31 · EDA: từ câu hỏi đến bảng kết quả",
+  "subtitle": "Nâng cao · M3 · 12 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PD31",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas · Descriptive statistics and correlation"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Quy trình làm sạch đã chạy được rồi, giờ bạn hỏi bảng của quán một câu thật. Phân tích khám phá dữ liệu, thường gọi là EDA, bắt đầu từ câu hỏi bạn muốn trả lời. Ở đây, bạn muốn so sánh giá trị đơn giữa hai kênh bán. Trước khi tính hoặc vẽ, cần xác định mỗi hàng là một đơn hay chỉ là một sản phẩm trong đơn; đếm nhầm đơn sẽ làm lệch kết quả so sánh."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\norders = pd.DataFrame({'order': ['A', 'B', 'C', 'D'], 'channel': ['web', 'web', 'shop', 'shop'], 'amount': [10, 30, 20, 100]})\nassert orders['order'].is_unique\nsummary = orders.groupby('channel')['amount'].agg(['count', 'mean', 'median'])\nprint(summary.to_dict('index'))",
+      "expected": "{'shop': {'count': 2, 'mean': 60.0, 'median': 60.0}, 'web': {'count': 2, 'mean': 20.0, 'median': 20.0}}",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Mỗi kênh mới có hai đơn, nên chênh lệch trung bình chưa chứng minh khác biệt ổn định. Báo cáo cần kèm số quan sát và khoảng thời gian. Khi xem các giá trị bất thường, bạn có thể dùng tứ phân vị thứ nhất Q1 (phân vị 25%) và thứ ba Q3 (phân vị 75%). Hiệu Q3 − Q1 gọi là khoảng tứ phân vị, viết tắt IQR."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\namount = pd.Series([10, 11, 12, 13, 100])\nq1, q3 = amount.quantile([0.25, 0.75])\niqr = q3 - q1\nflag = (amount < q1 - 1.5 * iqr) | (amount > q3 + 1.5 * iqr)\nprint(q1, q3)\nprint(amount.loc[flag].tolist())",
+      "expected": "11.0 13.0\n[100]",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "iqr",
+        "prompt": "Sau khi chạy xong, `iqr` bằng mấy?",
+        "answer": "2.0"
+       },
+       "rows": [
+        {
+         "line": 1
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "amount",
+           "Series(_mgr=SingleBlockManager(axes=[RangeIndex(_range=range: range(0, …"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "q1",
+           "11.0"
+          ],
+          [
+           "q3",
+           "13.0"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "set": [
+          [
+           "iqr",
+           "2.0"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "set": [
+          [
+           "flag",
+           "Series(_mgr=SingleBlockManager(axes=[RangeIndex(_range=range: range(0, …"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "out": "11.0 13.0"
+        },
+        {
+         "line": 7,
+         "out": "[100]"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Quy tắc 1.5 IQR chỉ gắn cờ điểm cần kiểm tra. Đơn 100 có thể là khách mua nhiều thật, không phải lỗi để tự xóa. Giữ dữ liệu gốc và ghi lý do nếu bạn loại một hàng."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'ad_spend': [1, 2, 3, 4], 'sales': [10, 20, 30, 40]})\nprint(round(df['ad_spend'].corr(df['sales']), 2))\nprint(df[['ad_spend', 'sales']].dropna().shape[0])",
+      "expected": "1.0\n4",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "Tương quan Pearson bằng 1 trong bốn điểm minh họa này chỉ cho thấy quan hệ tuyến tính của dữ liệu đã quan sát. Nó không chứng minh chi quảng cáo làm doanh thu tăng. Mùa vụ hoặc yếu tố khác có thể ảnh hưởng cả hai. Dùng biểu đồ phân tán, kiểm tra giá trị thiếu và lượng dữ liệu trước khi diễn giải."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "PD30 · Một quy trình làm sạch có kiểm tra"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Một điểm bị gắn cờ 1.5 IQR có bắt buộc là lỗi để xóa không?",
+     "options": [
+      {
+       "text": "Có, quy tắc đã chứng minh dữ liệu sai",
+       "detail": "IQR không xác nhận nguyên nhân của điểm xa."
+      },
+      {
+       "text": "Chỉ cần đổi điểm đó thành mean",
+       "detail": "Đây là thay dữ liệu mà chưa có căn cứ."
+      },
+      {
+       "text": "Không, cần kiểm nguồn và ngữ cảnh",
+       "detail": "Đúng: đó có thể là quan sát hiếm nhưng có thật.",
+       "correct": true
+      }
+     ],
+     "explanation": "Gắn cờ là bước tìm hiểu, không phải kết luận về tính đúng sai."
+    },
+    {
+     "question": "Trước khi tính giá trị đơn trung bình, cần kiểm tra điều gì về mỗi hàng?\n\nimport pandas as pd\norders = pd.DataFrame({'order': ['A', 'B', 'C', 'D'], 'channel': ['web', 'web', 'shop', 'shop'], 'amount': [10, 30, 20, 100]})\nassert orders['order'].is_unique\nsummary = orders.groupby('channel')['amount'].agg(['count', 'mean', 'median'])\nprint(summary.to_dict('index'))",
+     "options": [
+      {
+       "text": "Có thể bỏ qua ý nghĩa hàng nếu cột amount là số.",
+       "detail": "Cột số vẫn có thể được cộng/lấy mean ở sai mức quan sát."
+      },
+      {
+       "text": "Mỗi hàng có đúng là một đơn hay cần tổng hợp các sản phẩm trong cùng đơn trước.",
+       "detail": "Mỗi hàng có đúng là một đơn hay cần tổng hợp các sản phẩm trong cùng đơn trước.",
+       "correct": true
+      },
+      {
+       "text": "Chỉ cần biết có bao nhiêu cột.",
+       "detail": "Số cột không đủ xác định đơn vị quan sát của bảng."
+      }
+     ],
+     "explanation": "Mỗi hàng có đúng là một đơn hay cần tổng hợp các sản phẩm trong cùng đơn trước."
+    },
+    {
+     "question": "Một điểm bị gắn cờ IQR có bắt buộc xóa không?\n\nimport pandas as pd\namount = pd.Series([10, 11, 12, 13, 100])\nq1, q3 = amount.quantile([0.25, 0.75])\niqr = q3 - q1\nflag = (amount < q1 - 1.5 * iqr) | (amount > q3 + 1.5 * iqr)\nprint(q1, q3)\nprint(amount.loc[flag].tolist())",
+     "options": [
+      {
+       "text": "Không; cần kiểm tra nguồn và nghiệp vụ.",
+       "detail": "Không; cần kiểm tra nguồn và nghiệp vụ.",
+       "correct": true
+      },
+      {
+       "text": "Có; xóa tự động sẽ luôn làm báo cáo chính xác hơn.",
+       "detail": "Xóa một quan sát thật có thể làm báo cáo kém chính xác hơn."
+      },
+      {
+       "text": "Có; cứ ngoài 1.5 IQR là dữ liệu sai.",
+       "detail": "Ngưỡng IQR không tự xác định lỗi nhập liệu."
+      }
+     ],
+     "explanation": "Không; cần kiểm tra nguồn và nghiệp vụ."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Trước khi tính giá trị đơn trung bình, cần kiểm tra điều gì về mỗi hàng?",
+     "answer": "Mỗi hàng có đúng là một đơn hay cần tổng hợp các sản phẩm trong cùng đơn trước."
+    },
+    {
+     "prompt": "Một điểm bị gắn cờ IQR có bắt buộc xóa không?",
+     "answer": "Không; cần kiểm tra nguồn và nghiệp vụ."
+    },
+    {
+     "prompt": "Tính count và mean theo channel=[web,web,shop], amount=[10,20,30].",
+     "answer": "shop có 1 đơn, mean 30; web có 2 đơn, mean 15.",
+     "answerCode": "import pandas as pd\ndf = pd.DataFrame({'channel': ['web', 'web', 'shop'], 'amount': [10, 20, 30]})\nprint(df.groupby('channel')['amount'].agg(['count', 'mean']).to_dict('index'))",
+     "answerExpected": "{'shop': {'count': 1, 'mean': 30.0}, 'web': {'count': 2, 'mean': 15.0}}"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.rows là các đơn với channel và amount (đã biết, mỗi hàng là một đơn). Trả dictionary mỗi channel chứa count, mean, median. Cần có số quan sát bên cạnh các số tóm tắt, không suy ra nhân quả.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'rows': [{'channel': 'app', 'amount': 4}, {'channel': 'app', 'amount': 8}, {'channel': 'store', 'amount': 20}]}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'app': {'count': 2, 'mean': 6.0, 'median': 6.0}, 'store': {'count': 1, 'mean': 20.0, 'median': 20.0}}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     df = pd.DataFrame(data['rows'])\n     return df.groupby('channel')['amount'].agg(['count','mean','median']).to_dict('index')\n",
+   "tests": [
+    {
+     "name": "cỡ mẫu khác nhau",
+     "input": {
+      "rows": [
+       {
+        "channel": "app",
+        "amount": 4
+       },
+       {
+        "channel": "app",
+        "amount": 8
+       },
+       {
+        "channel": "store",
+        "amount": 20
+       }
+      ]
+     },
+     "expected": {
+      "app": {
+       "count": 2,
+       "mean": 6.0,
+       "median": 6.0
+      },
+      "store": {
+       "count": 1,
+       "mean": 20.0,
+       "median": 20.0
+      }
+     }
+    },
+    {
+     "name": "mean khác median",
+     "input": {
+      "rows": [
+       {
+        "channel": "web",
+        "amount": 0
+       },
+       {
+        "channel": "web",
+        "amount": 3
+       },
+       {
+        "channel": "web",
+        "amount": 30
+       }
+      ]
+     },
+     "expected": {
+      "web": {
+       "count": 3,
+       "mean": 11.0,
+       "median": 3.0
+      }
+     }
+    },
+    {
+     "name": "một đơn",
+     "input": {
+      "rows": [
+       {
+        "channel": "phone",
+        "amount": 7
+       }
+      ]
+     },
+     "expected": {
+      "phone": {
+       "count": 1,
+       "mean": 7.0,
+       "median": 7.0
+      }
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Khoảng tứ phân vị là độ dài đoạn từ Q1 đến Q3."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Kèm số quan sát và kiểm ngoại lệ trước khi diễn giải trung bình."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 1,
+  "bo": 2,
+  "loi": []
+ }
+}

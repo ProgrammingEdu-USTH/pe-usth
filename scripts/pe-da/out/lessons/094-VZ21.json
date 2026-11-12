@@ -1,0 +1,159 @@
+{
+ "lesson_code": "VZ21",
+ "sort_order": 94,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ21 · Plotly: lọc dữ liệu, dropdown và facet",
+ "subtitle": "Nâng cao · M4 · 15 phút",
+ "estimated_minutes": 15,
+ "xp_reward": 9,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "VZ21 · Plotly: lọc dữ liệu, dropdown và facet",
+  "subtitle": "Nâng cao · M4 · 15 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#VZ21",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "Dropdown menus; Facets"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Báo cáo có thể cho người xem chọn cửa hàng thay vì vẽ mọi đường chồng lên nhau. Có hai cách: lọc `DataFrame` trước khi tạo `Figure`, hoặc giữ nhiều trace rồi cho nút chọn thay đổi trace đang hiện. Cách thứ hai vẫn chứa toàn bộ các trace trong file."
+     },
+     {
+      "type": "terminal",
+      "code": "import pandas as pd\nimport plotly.express as px\ndata = pd.DataFrame({\"store\":[\"A\", \"A\", \"B\"], \"day\":[1, 2, 1], \"cups\":[8, 10, 5]})\nselected = data.loc[data[\"store\"].eq(\"A\")]\nfig = px.line(selected, x=\"day\", y=\"cups\", markers=True, title=\"Store A only\", labels={\"day\":\"Day\", \"cups\":\"Cups\"})\nprint(len(selected))\nfig.show()",
+      "expected": "Chạy với frontend Plotly hỗ trợ: biểu đồ tương tác mở, hover/legend hoặc bộ chọn hoạt động theo bài; stdout vẫn là phần kết quả số phía dưới. Backend trình duyệt phải được quan sát trực tiếp, không suy từ lần chạy headless."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Dropdown dưới đây có một trạng thái hiện cả hai cửa hàng và hai trạng thái chỉ hiện một cửa hàng. visible phải có một giá trị cho mỗi trace. Tham số method (cách Plotly cập nhật hình) đặt thành `\"update\"` thì đổi được đồng thời dữ liệu hiển thị và tiêu đề. Nhờ vậy tiêu đề luôn khớp bộ lọc."
+     },
+     {
+      "type": "terminal",
+      "code": "import plotly.graph_objects as go\nfig = go.Figure()\nfig.add_scatter(x=[1, 2], y=[8, 10], name=\"A\", mode=\"lines+markers\")\nfig.add_scatter(x=[1, 2], y=[5, 6], name=\"B\", mode=\"lines+markers\")\nbuttons = [\n    {\"label\":\"All\", \"method\":\"update\", \"args\":[{\"visible\":[True, True]}, {\"title\":{\"text\":\"All stores\"}}]},\n    {\"label\":\"A\", \"method\":\"update\", \"args\":[{\"visible\":[True, False]}, {\"title\":{\"text\":\"Store A\"}}]},\n    {\"label\":\"B\", \"method\":\"update\", \"args\":[{\"visible\":[False, True]}, {\"title\":{\"text\":\"Store B\"}}]}\n]\nfig.update_layout(title=\"All stores\", xaxis_title=\"Day\", yaxis_title=\"Cups\", updatemenus=[{\"buttons\":buttons}])\nprint(len(buttons))\nfig.show()",
+      "expected": "Chạy với frontend Plotly hỗ trợ: biểu đồ tương tác mở, hover/legend hoặc bộ chọn hoạt động theo bài; stdout vẫn là phần kết quả số phía dưới. Backend trình duyệt phải được quan sát trực tiếp, không suy từ lần chạy headless."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Nếu người đọc cần so sánh trực tiếp cả hai nhóm, facet thường thuận tiện hơn thao tác bật tắt. facet_col chia cửa hàng thành các ô với cùng cách mã hóa dữ liệu. Giữ ít ô để chữ và điểm vẫn đọc được trên màn hình nhỏ."
+     },
+     {
+      "type": "terminal",
+      "code": "import pandas as pd\nimport plotly.express as px\ndata = pd.DataFrame({\"store\":[\"A\", \"A\", \"B\", \"B\"], \"day\":[1, 2, 1, 2], \"cups\":[8, 10, 5, 6]})\nfig = px.line(data, x=\"day\", y=\"cups\", facet_col=\"store\", markers=True, title=\"Compare stores side by side\", labels={\"day\":\"Day\", \"cups\":\"Cups\"})\nprint(len(fig.data))\nfig.show()",
+      "expected": "Chạy với frontend Plotly hỗ trợ: biểu đồ tương tác mở, hover/legend hoặc bộ chọn hoạt động theo bài; stdout vẫn là phần kết quả số phía dưới. Backend trình duyệt phải được quan sát trực tiếp, không suy từ lần chạy headless."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "VZ20 · Plotly: Figure tương tác, hover và legend, VZ12 · Subplot, thang chung và bố trí hình, PD05 · Lọc hàng theo điều kiện"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Figure có hai trace A,B. visible=[False,True] hiện trace nào?",
+     "options": [
+      {
+       "text": "A",
+       "detail": "Cờ đầu đang False."
+      },
+      {
+       "text": "B",
+       "detail": "Đúng: cờ thứ hai ứng với trace thứ hai.",
+       "correct": true
+      },
+      {
+       "text": "Cả hai",
+       "detail": "Muốn hiện cả hai cần [True,True]."
+      }
+     ],
+     "explanation": "visible có một giá trị cho mỗi trace, theo đúng thứ tự."
+    },
+    {
+     "question": "Hai trace thì visible cần mấy giá trị?\n\nimport pandas as pd\nimport plotly.express as px\ndata = pd.DataFrame({\"store\":[\"A\", \"A\", \"B\"], \"day\":[1, 2, 1], \"cups\":[8, 10, 5]})\nselected = data.loc[data[\"store\"].eq(\"A\")]\nfig = px.line(selected, x=\"day\", y=\"cups\", markers=True, title=\"Store A only\", labels={\"day\":\"Day\", \"cups\":\"Cups\"})\nprint(len(selected))\nfig.show()",
+     "options": [
+      {
+       "text": "Hai giá trị, theo đúng thứ tự trace; [True, False] chỉ hiện trace đầu.",
+       "detail": "Hai giá trị, theo đúng thứ tự trace; [True, False] chỉ hiện trace đầu.",
+       "correct": true
+      },
+      {
+       "text": "Ba giá trị vì cần thêm giá trị cho Figure.",
+       "detail": "Figure không cần thêm một phần tử visible ngoài các trace."
+      },
+      {
+       "text": "Một giá trị cho cả hai trace bất kể thứ tự.",
+       "detail": "Một giá trị riêng lẻ không mô tả tường minh hai trace trong ví dụ."
+      }
+     ],
+     "explanation": "Hai giá trị, theo đúng thứ tự trace; [True, False] chỉ hiện trace đầu."
+    },
+    {
+     "question": "Đổi bộ lọc mà không đổi tiêu đề gây vấn đề gì?\n\nimport plotly.graph_objects as go\nfig = go.Figure()\nfig.add_scatter(x=[1, 2], y=[8, 10], name=\"A\", mode=\"lines+markers\")\nfig.add_scatter(x=[1, 2], y=[5, 6], name=\"B\", mode=\"lines+markers\")\nbuttons = [\n    {\"label\":\"All\", \"method\":\"update\", \"args\":[{\"visible\":[True, True]}, {\"title\":{\"text\":\"All stores\"}}]},\n    {\"label\":\"A\", \"method\":\"update\", \"args\":[{\"visible\":[True, False]}, {\"title\":{\"text\":\"Store A\"}}]},\n    {\"label\":\"B\", \"method\":\"update\", \"args\":[{\"visible\":[False, True]}, {\"title\":{\"text\":\"Store B\"}}]}\n]\nfig.update_layout(title=\"All stores\", xaxis_title=\"Day\", yaxis_title=\"Cups\", updatemenus=[{\"buttons\":buttons}])\nprint(len(buttons))\nfig.show()",
+     "options": [
+      {
+       "text": "Không có vấn đề vì hình vẫn có dữ liệu.",
+       "detail": "Hình còn dữ liệu nhưng tiêu đề sai vẫn gây diễn giải sai phạm vi."
+      },
+      {
+       "text": "Chỉ thay màu chú giải là tiêu đề sẽ tự đúng.",
+       "detail": "Đổi màu không tự sửa các dòng chữ mô tả bộ lọc."
+      },
+      {
+       "text": "Người xem có thể tưởng hình vẫn là toàn bộ dữ liệu; tiêu đề, KPI và chú thích phải khớp bộ lọc.",
+       "detail": "Người xem có thể tưởng hình vẫn là toàn bộ dữ liệu; tiêu đề, KPI và chú thích phải khớp bộ lọc.",
+       "correct": true
+      }
+     ],
+     "explanation": "Người xem có thể tưởng hình vẫn là toàn bộ dữ liệu; tiêu đề, KPI và chú thích phải khớp bộ lọc."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Hai trace thì visible cần mấy giá trị?",
+     "answer": "Hai giá trị, theo đúng thứ tự trace; [True, False] chỉ hiện trace đầu."
+    },
+    {
+     "prompt": "Đổi bộ lọc mà không đổi tiêu đề gây vấn đề gì?",
+     "answer": "Người xem có thể tưởng hình vẫn là toàn bộ dữ liệu; tiêu đề, KPI và chú thích phải khớp bộ lọc."
+    },
+    {
+     "prompt": "Muốn so sánh hai cửa hàng cùng lúc nên chọn dropdown hay facet?",
+     "answer": "Facet giúp nhìn cả hai cùng lúc. Dropdown phù hợp khi cần tập trung một nhóm hoặc có ít diện tích."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Chạy trên máy của bạn",
+    "body": "Bài này không chạy được trong trình duyệt: bài này là các lệnh gõ trong terminal. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
+   },
+   "procedure": [
+    "Mở terminal tại thư mục làm việc của bạn.",
+    "Tạo môi trường: py -m venv .venv",
+    "Cài thư viện bài cần: .venv\\Scripts\\python -m pip install <tên gói>",
+    "Lưu đoạn code vào một file .py rồi chạy: .venv\\Scripts\\python ten_file.py"
+   ]
+  }
+ },
+ "_mode": "local",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "khong: plotly chưa có wheel trong /pyodide/v314.0.7/",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

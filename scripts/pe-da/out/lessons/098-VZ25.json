@@ -1,0 +1,272 @@
+{
+ "lesson_code": "VZ25",
+ "sort_order": 98,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ25 · Animation: cập nhật đối tượng và xuất vòng lặp HTML",
+ "subtitle": "Nâng cao · M4 · 19 phút",
+ "estimated_minutes": 19,
+ "xp_reward": 11,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "VZ25 · Animation: cập nhật đối tượng và xuất vòng lặp HTML",
+  "subtitle": "Nâng cao · M4 · 19 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#VZ25",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "Animation: cập nhật đối tượng và xuất vòng lặp HTML"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bài trước nói về hình dễ gây hiểu lầm; bài này vẫn là hình, nhưng động. Để minh họa một đường được vẽ dần, bạn không cần tạo `Figure` mới ở mỗi khung hình. Tạo Line2D một lần rồi gọi set_data để thay các điểm đang hiển thị. Hàm update nhận chỉ số khung và trả các đối tượng vừa đổi; nó chỉ cập nhật hình, không chạy lại chương trình dữ liệu từ đầu."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib\nmatplotlib.use(\"Agg\")\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nline, = ax.plot([], [], marker=\"o\")\nax.set(xlim=(1, 3), ylim=(0, 12), xlabel=\"Day\", ylabel=\"Cups\", title=\"Reveal observations one at a time\")\nx, y = [1, 2, 3], [8, 10, 7]\ndef update(frame):\n    line.set_data(x[:frame+1], y[:frame+1])\n    return (line,)\nupdate(1)\nprint(list(line.get_ydata()))\nfrom pathlib import Path\nfrom tempfile import gettempdir\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\nfig.savefig(out / \"VZ25-1.png\", dpi=130)\nplt.close(fig)",
+      "expected": "[8, 10]",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ25-1.png",
+      "alt": "Biểu đồ đường, tiêu đề \"Reveal observations one at a time\", trục ngang \"Day\", trục dọc \"Cups\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "FuncAnimation gọi update theo frames và interval tính bằng mili giây. Giữ biến ani để đối tượng animation còn tồn tại. to_jshtml xuất bộ điều khiển và các khung vào HTML; với vài khung nhỏ nó chạy không cần bộ mã hóa video. Hình PNG tĩnh cạnh ví dụ là một khung, còn HTML mới chứa chuyển động."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib\nmatplotlib.use(\"Agg\")\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nfrom matplotlib.animation import FuncAnimation\nfrom pathlib import Path\nfrom tempfile import gettempdir\nline, = ax.plot([], [], marker=\"o\")\nax.set(xlim=(1, 3), ylim=(0, 12), xlabel=\"Day\", ylabel=\"Cups\", title=\"Three-frame teaching animation\")\nx, y = [1, 2, 3], [8, 10, 7]\ndef update(frame):\n    line.set_data(x[:frame+1], y[:frame+1])\n    return (line,)\nani = FuncAnimation(fig, update, frames=3, interval=600, repeat=True)\nhtml = ani.to_jshtml()\nhtml += '<style>.anim-buttons{display:flex;flex-wrap:wrap;gap:4px}.anim-buttons button{width:auto;min-height:28px}.anim-buttons button::after{content:attr(title);font:12px sans-serif;padding:3px}.anim-buttons .fa{display:none}</style>'\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\n(out / \"VZ25-motion.html\").write_text(html, encoding=\"utf-8\")\nupdate(2)\nprint(\"<script\" in html)\nfrom pathlib import Path\nfrom tempfile import gettempdir\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\nfig.savefig(out / \"VZ25-2.png\", dpi=130)\nplt.close(fig)",
+      "expected": "True",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ25-2.png",
+      "alt": "Biểu đồ đường, tiêu đề \"Three-frame teaching animation\", trục ngang \"Day\", trục dọc \"Cups\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Animation cần có nút dừng và hình tĩnh để người học xem lại; tốc độ chạy không nên che con số hoặc chỉ dựa vào nhấp nháy. Dòng style trong ví dụ giữ nhãn chữ trên nút điều khiển kể cả khi không tải được font icon từ mạng. Lặp lại chỉ là cách trình chiếu, không có nghĩa dữ liệu quay về thời điểm đầu. Ví dụ cuối tạo một cột thay đổi chiều cao, giữ nguyên thang để độ cao không bị tự co giãn ở mỗi khung."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib\nmatplotlib.use(\"Agg\")\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nbars = ax.bar([\"Coffee\"], [0])\nax.set(ylim=(0, 12), ylabel=\"Cups\", title=\"Stable axes while the value changes\")\nvalues = [8, 10, 7]\ndef update(frame):\n    bars[0].set_height(values[frame])\n    return (bars[0],)\nupdate(2)\nprint(bars[0].get_height())\nfrom pathlib import Path\nfrom tempfile import gettempdir\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\nfig.savefig(out / \"VZ25-3.png\", dpi=130)\nplt.close(fig)",
+      "expected": "7",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ25-3.png",
+      "alt": "Biểu đồ cột, tiêu đề \"Stable axes while the value changes\", trục dọc \"Cups\"."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "VZ14 · Xuất PNG/SVG, độ phân giải và vòng đời Figure"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "update(frame) của animation có cần tạo Figure mới mỗi lần không?",
+     "options": [
+      {
+       "text": "Không, có thể đổi Line2D đã tạo bằng set_data",
+       "detail": "Đúng: đối tượng hình được giữ và chỉ dữ liệu hiển thị đổi.",
+       "correct": true
+      },
+      {
+       "text": "Chỉ đổi title, dữ liệu không đổi được",
+       "detail": "Line2D có set_data để đổi dữ liệu."
+      },
+      {
+       "text": "Có, mọi khung bắt buộc là một Figure mới",
+       "detail": "Điều đó không cần thiết và làm quản lý hình phức tạp."
+      }
+     ],
+     "explanation": "Tách dữ liệu gốc khỏi phần đang được trình chiếu ở một khung."
+    },
+    {
+     "question": "interval=600 có nghĩa mỗi khung kéo dài bao lâu?\n\nimport matplotlib\nmatplotlib.use(\"Agg\")\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nline, = ax.plot([], [], marker=\"o\")\nax.set(xlim=(1, 3), ylim=(0, 12), xlabel=\"Day\", ylabel=\"Cups\", title=\"Reveal observations one at a time\")\nx, y = [1, 2, 3], [8, 10, 7]\ndef update(frame):\n    line.set_data(x[:frame+1], y[:frame+1])\n    return (line,)\nupdate(1)\nprint(list(line.get_ydata()))\nfrom pathlib import Path\nfrom tempfile import gettempdir\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\nfig.savefig(out / \"VZ25-1.png\", dpi=130)\nplt.close(fig)",
+     "options": [
+      {
+       "text": "0.006 giây.",
+       "detail": "600 mili giây bằng 0.6 giây, không phải 0.006."
+      },
+      {
+       "text": "600 mili giây, tương đương 0.6 giây theo lịch phát; thời gian thực có thể lệch tùy trình duyệt và máy.",
+       "detail": "600 mili giây, tương đương 0.6 giây theo lịch phát; thời gian thực có thể lệch tùy trình duyệt và máy.",
+       "correct": true
+      },
+      {
+       "text": "600 giây.",
+       "detail": "600 giây lớn hơn thời gian được khai báo 1000 lần."
+      }
+     ],
+     "explanation": "600 mili giây, tương đương 0.6 giây theo lịch phát; thời gian thực có thể lệch tùy trình duyệt và máy."
+    },
+    {
+     "question": "Vì sao giữ nguyên ylim khi cột thay đổi?\n\nimport matplotlib\nmatplotlib.use(\"Agg\")\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nfrom matplotlib.animation import FuncAnimation\nfrom pathlib import Path\nfrom tempfile import gettempdir\nline, = ax.plot([], [], marker=\"o\")\nax.set(xlim=(1, 3), ylim=(0, 12), xlabel=\"Day\", ylabel=\"Cups\", title=\"Three-frame teaching animation\")\nx, y = [1, 2, 3], [8, 10, 7]\ndef update(frame):\n    line.set_data(x[:frame+1], y[:frame+1])\n    return (line,)\nani = FuncAnimation(fig, update, frames=3, interval=600, repeat=True)\nhtml = ani.to_jshtml()\nhtml += '<style>.anim-buttons{display:flex;flex-wrap:wrap;gap:4px}.anim-buttons button{width:auto;min-height:28px}.anim-buttons button::after{content:attr(title);font:12px sans-serif;padding:3px}.anim-buttons .fa{display:none}</style>'\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\n(out / \"VZ25-motion.html\").write_text(html, encoding=\"utf-8\")\nupdate(2)\nprint(\"<script\" in html)\nfrom pathlib import Path\nfrom tempfile import gettempdir\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\nfig.savefig(out / \"VZ25-2.png\", dpi=130)\nplt.close(fig)",
+     "options": [
+      {
+       "text": "Để mọi cột luôn cao bằng nhau dù giá trị khác nhau.",
+       "detail": "Dữ liệu khác nhau vẫn phải có chiều cao khác nhau trên cùng thang."
+      },
+      {
+       "text": "Để dữ liệu gốc không được cập nhật.",
+       "detail": "Giữ thang không ngăn cập nhật dữ liệu của artist."
+      },
+      {
+       "text": "Để cùng độ cao luôn biểu diễn cùng lượng, tránh hình tự co giãn làm thay đổi cảm nhận.",
+       "detail": "Để cùng độ cao luôn biểu diễn cùng lượng, tránh hình tự co giãn làm thay đổi cảm nhận.",
+       "correct": true
+      }
+     ],
+     "explanation": "Để cùng độ cao luôn biểu diễn cùng lượng, tránh hình tự co giãn làm thay đổi cảm nhận."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "interval=600 có nghĩa mỗi khung kéo dài bao lâu?",
+     "answer": "600 mili giây, tương đương 0.6 giây theo lịch phát; thời gian thực có thể lệch tùy trình duyệt và máy."
+    },
+    {
+     "prompt": "Vì sao giữ nguyên ylim khi cột thay đổi?",
+     "answer": "Để cùng độ cao luôn biểu diễn cùng lượng, tránh hình tự co giãn làm thay đổi cảm nhận."
+    },
+    {
+     "prompt": "Muốn tạo video MP4 có dùng luôn to_jshtml được không?",
+     "answer": "Không. to_jshtml tạo HTML. MP4 cần bộ ghi và bộ mã hóa phù hợp như FFmpeg; phải kiểm tra môi trường trước."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.x,data.y cùng độ dài; data.frame là chỉ số hợp lệ. Tạo Line2D rỗng một lần, viết update(frame) dùng set_data hiện từ đầu tới frame (gồm frame), gọi update với frame đã cho. Trả shownY đọc từ line và lineCount=len(ax.lines). Không tạo line mới bên trong update. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'x': [1, 2, 3, 4], 'y': [3, 7, 5, 9], 'frame': 1}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'shownY': [3, 7], 'lineCount': 1}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     fig, ax = plt.subplots()\n     line, = ax.plot([],[])\n     def update(frame):\n         line.set_data(data['x'][:frame+1],data['y'][:frame+1])\n         return (line,)\n     update(data['frame'])\n     result = {'shownY':list(line.get_ydata()),'lineCount':len(ax.lines)}\n     plt.close(fig)\n     return result\n",
+   "tests": [
+    {
+     "name": "khung giữa",
+     "input": {
+      "x": [
+       1,
+       2,
+       3,
+       4
+      ],
+      "y": [
+       3,
+       7,
+       5,
+       9
+      ],
+      "frame": 1
+     },
+     "expected": {
+      "shownY": [
+       3,
+       7
+      ],
+      "lineCount": 1
+     }
+    },
+    {
+     "name": "khung đầu",
+     "input": {
+      "x": [
+       1,
+       2
+      ],
+      "y": [
+       0,
+       6
+      ],
+      "frame": 0
+     },
+     "expected": {
+      "shownY": [
+       0
+      ],
+      "lineCount": 1
+     }
+    },
+    {
+     "name": "khung cuối",
+     "input": {
+      "x": [
+       2,
+       4,
+       6
+      ],
+      "y": [
+       5,
+       2,
+       8
+      ],
+      "frame": 2
+     },
+     "expected": {
+      "shownY": [
+       5,
+       2,
+       8
+      ],
+      "lineCount": 1
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cần thay chiều cao cột đang có, không tạo cột mới."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Cập nhật cùng một artist thay vì tạo hình mới mỗi khung."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

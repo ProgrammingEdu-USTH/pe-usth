@@ -34,10 +34,17 @@
      sanguine = chú ý (đoán trước, ngộ nhận, cẩn thận, CHƯA ĐÚNG)
      ochre    = đã có (đúng, đã xong, XP, kết quả in ra)
      action   = CHỈ dùng làm nền nút chính
-   Bảng v2 không có màu xanh lá, nên "đúng/chưa đúng" KHÔNG được phân biệt
-   chỉ bằng màu: mọi chỗ chấm bài đều phải kèm icon + chữ (WCAG 1.4.1).
-   Vì vậy --st-ok-* nay là ochre và --st-err-* là sanguine, chứ không còn
-   là xanh lá / đỏ hồng.
+   "đúng/chưa đúng" KHÔNG được phân biệt chỉ bằng màu: mọi chỗ chấm bài đều
+   phải kèm icon + chữ (WCAG 1.4.1). Vì vậy --st-ok-* là ochre, --st-err-* là
+   sanguine.
+
+   ĐÍNH CHÍNH 04/11/2026 — câu cũ ở đây ghi "bảng v2 không có màu xanh lá",
+   và nó SAI VỚI CHÍNH BẢNG NÀY: --ds-ochre là #047857, một màu XANH LÁ đậm
+   (chỉ --ds-mark-ochre #E0B062 mới là hổ phách). Một agent đọc câu ấy rồi
+   viết vào mô tả commit rằng "đúng/sai đổi từ xanh-lá sang hổ phách" — tức
+   chép CÂU thay vì đọc GIÁ TRỊ, đúng họ lỗi mà AGENTS.md gọi là "đọc câu,
+   không đọc màu". Thay đổi thật nhỏ hơn hẳn: ok #1f9d59 -> #047857 (xanh
+   đậm hơn), err #d0344b -> #CF2338 (đỏ, gần như cũ).
 
    Mọi cặp chữ/nền trong bảng này đã đo lại bằng công thức độ chói WCAG 2.x
    và đều đạt AA (chữ ≥ 4,5:1; viền và đồ hoạ cần nhận ra ≥ 3:1).
@@ -62,25 +69,15 @@
   --ds-on-ink-soft: #BFD0E8;   /* 10,94:1 trên ink */   /* chữ phụ, nhãn · 8,20:1 trên page */
 
   /* ── BẢNG TOKEN v2 · bốn họ nhấn ──────────────────────────── */
-  --ds-violet:      #1D4ED8;   /* vị trí, lựa chọn, liên kết · 7,63:1 */
+  --ds-violet:      #1D4ED8;   /* vị trí, lựa chọn, liên kết · 6,70:1 trên trắng (đo lại 04/11 — bản cũ ghi 7,63 là SAI) */
   --ds-violet-deep: #15337A;   /* chữ tím trên nền tím nhạt · 10,09:1 */
   --ds-violet-tint: #E8F0FE;
-  --ds-action:      #1F5FE0;   /* CHỈ nền nút chính · chữ trắng 7,33:1 */
+  --ds-action:      #1F5FE0;   /* CHỈ nền nút chính · chữ trắng 5,57:1 (đo lại 04/11 — bản cũ ghi 7,33 là SAI; đạt AA 4,5, KHÔNG đạt AAA 7) */
   --ds-on-action:   #FFFFFF;   /* chữ/hình đặt trên nền màu nhấn đậm */
   --ds-sanguine:    #CF2338;   /* chú ý, chưa đúng · 6,41:1 */
   --ds-sanguine-tint: #FFF1F3;
   --ds-ochre:       #047857;   /* đã có, đúng, đã xong · 5,53:1 */
   --ds-ochre-tint:  #E7F6F0;
-
-  /* ── HÌNH MINH HOẠ · vàng tơ của chặng đa luồng (M2) ────────
-     Bảng minh hoạ TÁCH khỏi xanh–đỏ của giao diện (design/v3/quyet-dinh.md
-     mục 2): mini-game "Sổ quỹ chung" của bài T05 vẽ bằng ba token này. Mã gốc
-     #C9A646 của báo cáo bản đồ chỉ 2,33:1 trên thẻ — không đủ cho nét mang
-     nghĩa (cửa, khoá, nhân vật cần ≥ 3:1) — nên nó lùi về mảng trang trí,
-     còn nét dùng bản đậm. Đã đo, cặp nằm trong e2e/unit/ds-contrast.mjs. */
-  --ds-silk:        #8A6D1E;   /* nét hình · 4,50:1 trên silk-tint */
-  --ds-silk-soft:   #C9A646;   /* mảng trang trí, không mang nghĩa */
-  --ds-silk-tint:   #FBF5E3;   /* nền sân khấu · chữ ink 15,73:1 */
 
   /* ── BẢNG TOKEN v2 · khung code (tối ở cả hai chế độ) ─────── */
   --ds-code-bg:     #221A13;
@@ -176,7 +173,21 @@
   --ds-fs-h3:       22px;  /* câu hỏi, tiêu đề thẻ */
   --ds-fs-h2:       28px;  /* tiêu đề mục */
   --ds-fs-h1:       36px;  /* tiêu đề màn */
+}
 
+/* ── BÍ DANH --st-* — khai trên CẢ :root lẫn body ──────────────
+   var() trong một custom property được thế giá trị NGAY tại phần tử khai
+   nó, rồi con cháu thừa hưởng KẾT QUẢ đã thế. Trước đây khối này nằm trong
+   :root (thẻ <html>), nên mọi --st-* bị chốt bằng bảng NGÀY; body.dark đổi
+   --ds-* ở <body> nhưng không ai tính lại --st-*. Ở Ban đêm, mọi chỗ đọc
+   --st-* vẫn ra màu ngày: nền vùng bài học (.chrome → --st-page-bg) sáng
+   trong khi thanh trên (--ds-paper) tối, băng phản hồi hồng nhạt với chữ
+   sáng (--ds-ink) gần như không đọc được — ảnh chụp ngày 18/10/2026.
+   Khai lại trên `body` thì var() được thế ở chính <body>, nơi body.dark có
+   hiệu lực. Bộ đo tương phản (ds-contrast.mjs) vốn đã GIẢ ĐỊNH bí danh đi
+   theo bảng tối, nên trước bản sửa nó đo đúng trên giấy mà sai trên trang. */
+:root,
+body {
   /* ── phản hồi bài làm — BÍ DANH, không còn mã màu riêng ───────
      "ok" là ochre (đã có / đúng), "err" và "warn" là sanguine (chú ý).
      Hai cái sau trùng màu LÀ CÓ Ý: bảng v2 chỉ cho sanguine một vai. */
@@ -194,6 +205,10 @@
   --st-info-line:   var(--ds-violet);
 
   /* ── khối code ────────────────────────────────────────────── */
+  /* --st-streak-bg KHÔNG có trong bảng của nhánh test, nhưng
+     LessonChrome.module.css:177 đang dùng. Giữ lại, trỏ vào tông tím của
+     bảng v2 (vai "vị trí / đang chọn") thay vì mã màu cũ #e6eefd. */
+  --st-streak-bg:   var(--ds-violet-tint);
   --st-code-bg:     var(--ds-code-bg);
   --st-code-radius: var(--ds-r-lg);
   /* Trước đây là rgba(255,255,255,.28) và bị dùng LÀM MÀU CHỮ cho số
@@ -240,8 +255,9 @@
 }
 
 /* ── Ban đêm ──────────────────────────────────────────────────
-   Chỉ đổi BẢNG --ds-*; mọi bí danh --st-* ở trên là var() nên tự đi theo,
-   không phải khai lại lần nữa. Bốn họ nhấn đổi sang bản sáng hơn: bản ngày
+   Chỉ đổi BẢNG --ds-*; mọi bí danh --st-* ở trên tự đi theo, không phải
+   khai lại — NHƯNG chỉ vì khối bí danh khai cả trên `body` (xem chú thích
+   ở khối đó). Đưa nó về riêng :root là Ban đêm lại vỡ. Bốn họ nhấn đổi sang bản sáng hơn: bản ngày
    đặt lên nền #16120E chỉ còn 2,28:1 (đúng chỗ bản thiết kế bắt lỗi ở màn
    Main). Khung code KHÔNG đổi — nó đã tối ở cả hai chế độ. */
 body.dark {
@@ -253,13 +269,7 @@ body.dark {
   --ds-line:        #233049;
   --ds-sketch:      #8FA0BC;
   --ds-ink:         #E8EEF7;   /* 15,71:1 trên page */
-  --ds-soft:        #AFBDD2;
-  /* Bản tối của chữ phụ TRÊN NỀN ink. Ở chế độ tối `ink` lật thành màu SÁNG
-     (#E8EEF7), nên chữ đặt trên nó phải lật thành màu tối. Bảng này thiếu
-     dòng này từ ngày khai token (774e7d5): chữ phụ #BFD0E8 trên ink sáng
-     chỉ còn 1,34:1. Không ai thấy vì chưa màn nào dùng token đó, và bộ đo
-     tương phản không có cặp nào cho nó. */
-  --ds-on-ink-soft: #3A4A66;   /* 7,66:1 trên ink của bản tối */   /* 9,31:1 trên card */
+  --ds-soft:        #AFBDD2;   /* 9,31:1 trên card */
 
   --ds-violet:      #7FA8FF;   /* 7,56:1 — thay #6E2BA8 (2,28:1) */
   --ds-violet-deep: #B9D0FF;
@@ -270,10 +280,6 @@ body.dark {
   --ds-sanguine-tint: #33202A;
   --ds-ochre:       #4FD0A0;   /* 8,47:1 */
   --ds-ochre-tint:  #10291F;
-  /* Vàng tơ ban đêm: mã gốc đủ sáng làm nét (6,63:1 trên silk-tint đêm). */
-  --ds-silk:        #C9A646;
-  --ds-silk-soft:   #7A6427;
-  --ds-silk-tint:   #2A2416;   /* chữ ink đêm 13,22:1 */
 
   --ds-shadow-open: 0 6px 22px rgba(0, 0, 0, .45);
 }

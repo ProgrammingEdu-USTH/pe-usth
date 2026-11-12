@@ -13,12 +13,6 @@
  * cũ, đọc một lần để chuyển phiên sang cookie rồi xoá.
  */
 
-import {
-  healthProbeUrls,
-  readProbeDb,
-  type HealthProbe,
-} from '@/lib/lesson-load-error';
-
 const LS_ACCESS = 'pe_access';
 const LS_LEGACY_REFRESH = 'pe_refresh';
 
@@ -53,6 +47,40 @@ function callRefresh(): Promise<Response> {
     body: JSON.stringify(legacy ? { refresh: legacy } : {}),
   });
 }
+/**
+ * Hạn DỰ PHÒNG cho cookie mốc `pe_has_session`, chỉ dùng khi máy chủ không nói.
+ *
+ * Khớp mặc định `JWT_REFRESH_EXPIRES='8h'` trong `src/config/env.validation.ts`.
+ * CỐ Ý chọn ngắn: đoán dài hơn hạn thật là trang công khai hiện "Tiếp tục ở bài
+ * X" cho một phiên đã chết — bấm vào thì `apiFetch` refresh không được, rơi
+ * xuống `ensureGuest()` và người học nhận một tài khoản khách MỚI, tức mất tiến
+ * độ. Đoán ngắn hơn thì chỉ mất cái badge, tiến độ còn nguyên.
+ */
+export const HAN_DU_PHONG_GIAY = 8 * 3600;
+
+/**
+ * Ghi cookie mốc "đang có phiên" cho proxy.ts của Next đọc (nó không đọc được
+ * localStorage, và `pe_refresh` thì httpOnly).
+ *
+ * `giay` lấy từ `refreshExpiresIn` trong response của /auth/*. Trước đây bốn
+ * chỗ ghi cứng `max-age=28800` trong khi production đặt
+ * `JWT_REFRESH_EXPIRES=24h` — đo được `Set-Cookie: … Max-Age=86400`. Lệch 3
+ * lần, và hệ quả thấy được: từ giờ thứ 8 tới giờ thứ 24 phiên còn sống nhưng
+ * cookie mốc đã hết, nên trang chủ hiện "chưa đăng nhập".
+ */
+// Xuất ra ngoài CHỈ để test được: nó quyết hạn của cookie mốc, và chính con số
+// đó từng lệch 3 lần so với máy chủ mà không có ca nào bắt.
+export function danhDauPhien(giay?: unknown): void {
+  const n = typeof giay === 'number' && Number.isFinite(giay) && giay > 0
+    ? Math.floor(giay)
+    : HAN_DU_PHONG_GIAY;
+  try {
+    document.cookie = `pe_has_session=1; path=/; max-age=${n}; SameSite=Lax`;
+  } catch {
+    /* non-browser */
+  }
+}
+
 
 function refreshAccess(): Promise<string | null> {
   if (typeof window !== 'undefined') {
@@ -92,11 +120,7 @@ function refreshAccess(): Promise<string | null> {
       } catch {
         /* private mode */
       }
-      try {
-        document.cookie = 'pe_has_session=1; path=/; max-age=28800; SameSite=Lax';
-      } catch {
-        /* non-browser */
-      }
+      danhDauPhien(d.refreshExpiresIn);
       return d.access as string;
     })
     .catch(() => null);
@@ -132,11 +156,7 @@ function ensureGuest(): Promise<string | null> {
       } catch {
         /* private mode: vẫn dùng được access trong phiên này */
       }
-      try {
-        document.cookie = 'pe_has_session=1; path=/; max-age=28800; SameSite=Lax';
-      } catch {
-        /* non-browser */
-      }
+      danhDauPhien(d.refreshExpiresIn);
       return d.access as string;
     })
     .catch(() => null)
@@ -146,11 +166,7 @@ function ensureGuest(): Promise<string | null> {
   return guesting;
 }
 
-async function request(
-  path: string,
-  opts: RequestInit,
-  allowGuest: boolean,
-): Promise<Response> {
+export async function apiFetch(path: string, opts: RequestInit = {}): Promise<Response> {
   const base = origin();
   const send = (access: string | null) => {
     const headers = new Headers(opts.headers || {});
@@ -162,66 +178,10 @@ async function request(
   if (res.status === 401) {
     // Thứ tự: refresh phiên cũ trước (giữ tiến độ của khách đã học hôm qua),
     // chỉ khi không còn phiên nào mới tạo khách mới.
-    const access = (await refreshAccess()) ?? (allowGuest ? await ensureGuest() : null);
+    const access = (await refreshAccess()) ?? (await ensureGuest());
     if (access) res = await send(access);
   }
   return res;
-}
-
-export function apiFetch(path: string, opts: RequestInit = {}): Promise<Response> {
-  return request(path, opts, true);
-}
-
-/**
- * Như apiFetch nhưng TUYỆT ĐỐI không tạo tài khoản khách — chỉ thử refresh
- * phiên đã có, hết phiên thì trả nguyên 401 cho nơi gọi tự xử.
- *
- * Vì sao cần một biến thể riêng: `ensureGuest()` ở trên hợp lý cho trang BÀI
- * HỌC (ai mở link cũng học được ngay), nhưng sẽ là tai hoạ ở trang CÔNG KHAI
- * như /courses/:id — mọi khách vãng lai và mọi con bot mở trang đều sinh một
- * tài khoản khách, làm phình bảng `users` và ăn hết quota THROTTLE_GUEST_LIMIT
- * (mặc định 120 lượt/giờ/IP), nên cả phòng máy chung một NAT sẽ bị 429 đúng
- * lúc cần tài khoản thật. Trang công khai dùng hàm này.
- */
-export function apiFetchSessionOnly(path: string, opts: RequestInit = {}): Promise<Response> {
-  return request(path, opts, false);
-}
-
-/**
- * Dò `/health` để biết VÌ SAO một lượt gọi vừa hỏng.
- *
- * Vì sao cần: mã HTTP của chính lượt hỏng không đủ. Khi DB chết, `/auth/guest`
- * trả 500, `ensureGuest()` ở trên chỉ `return null`, và nơi gọi nhận lại
- * response 401 của lượt ĐẦU — tức một mã nói về PHIÊN cho một sự cố của MÁY
- * CHỦ. Cả lý do phân nhánh nằm ở `lib/lesson-load-error.ts`.
- *
- * Hai đường, một lượt dò: `{origin}/health` (đúng gốc API mà `request()` dùng)
- * và `{host}/health`. Lệch nhau ⇒ gốc API cấu hình sai. Gốc đúng thì hai URL
- * trùng nhau nên chỉ đi một request.
- *
- * KHÔNG gửi token và KHÔNG `credentials: 'include'`: đây là đường công khai,
- * và lượt dò không được phép tự chạm vào phiên của ai. Mọi lỗi mạng đều thành
- * `null` — nơi gọi hiểu `null` là "không nói được gì".
- */
-export async function probeApiHealth(): Promise<HealthProbe | null> {
-  const { originUrl, rootUrl } = healthProbeUrls(origin());
-  const ask = async (url: string): Promise<{ status: number; body: unknown }> => {
-    try {
-      const r = await fetch(url, { method: 'GET' });
-      return { status: r.status, body: await r.json().catch(() => null) };
-    } catch {
-      return { status: 0, body: null };
-    }
-  };
-  const first = await ask(originUrl);
-  const second = originUrl === rootUrl ? first : await ask(rootUrl);
-  if (!first.status && !second.status) return null;
-  return {
-    originStatus: first.status,
-    rootStatus: second.status,
-    // `db` lấy từ lượt nào trả lời được; gốc sai thì chỉ lượt thứ hai có body.
-    db: first.status === 200 ? readProbeDb(first.body) : readProbeDb(second.body),
-  };
 }
 
 /**

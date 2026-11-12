@@ -1,0 +1,245 @@
+{
+ "lesson_code": "PY11",
+ "sort_order": 11,
+ "module": "M1 · Python nền tảng",
+ "title": "PY11 · Tuple, bytes và lựa chọn collection",
+ "subtitle": "Cơ bản · M1 · 15 phút",
+ "estimated_minutes": 15,
+ "xp_reward": 9,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PY11 · Tuple, bytes và lựa chọn collection",
+  "subtitle": "Cơ bản · M1 · 15 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PY11",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 64-66, 81-82; Python — Tutorial"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Dãy số cốc bạn vừa dựng là nhiều giá trị cùng loại. Một dòng bán hàng thì khác. Nó gồm số cốc và đơn giá, hai thứ khác hẳn nhau, và không ô nào được sửa sau khi đã chốt đơn. Bạn muốn giữ hai con số đó thành một bản ghi rồi tách ra khi cần:"
+     },
+     {
+      "type": "code",
+      "code": "dong = (10, 20)\nso_coc, don_gia = dong\nprint(so_coc, don_gia)\nprint(type((10)).__name__, type((10,)).__name__)",
+      "expected": "10 20\nint tuple",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`tuple` có thứ tự và đọc theo chỉ số như `list`, nên `dong[0]` là 10 cốc. Nó không cho gán lại các vị trí, vì vậy một dòng đã chốt không bị sửa nhầm. Nếu một phần tử trỏ tới một `list` thì `list` đó vẫn đổi được; tính bất biến của `tuple` không tự đóng băng object con."
+     },
+     {
+      "type": "paragraph",
+      "text": "Dấu phẩy mới là thứ tạo `tuple` một phần tử: `(10,)` là `tuple`, còn `(10)` vẫn là số 10. Phép `so_coc, don_gia = dong` được gọi là unpacking: mỗi phần tử vào một tên, và dạng cơ bản cần số tên bằng số phần tử."
+     },
+     {
+      "type": "code",
+      "code": "dong = (10, 20)\ntry:\n    dong[0] = 30\nexcept TypeError as error:\n    print(type(error).__name__)",
+      "expected": "TypeError",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Collection là cách gom nhiều object vào một cấu trúc, và quán cần vài kiểu gom khác nhau. `list` phù hợp khi còn thêm và sửa, như số cốc mỗi ngày. `tuple` phù hợp cho bản ghi đã chốt, như một dòng hoá đơn. String, `list`, `tuple` và range đều là sequence: có thứ tự và đọc theo vị trí."
+     },
+     {
+      "type": "paragraph",
+      "text": "Hai cấu trúc còn lại trả lời câu hỏi khác. `set` giữ các thành viên không trùng và không có chỉ số, như tập món đã bán trong ngày. Còn `dict` tra giá trị theo khóa, như bảng giá tra theo tên món. Bạn chọn theo thao tác cần làm, không theo cách nó được in ra."
+     },
+     {
+      "type": "code",
+      "code": "raw = b\"AB\"\neditable = bytearray(raw)\neditable[0] = 67\nprint(raw)\nprint(bytes(editable))",
+      "expected": "b'AB'\nb'CB'",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Máy in hoá đơn và máy đọc mã vạch trên bao cà phê không nhận chữ. Chúng nhận từng byte (tám bit, đơn vị dữ liệu nhỏ nhất). `bytes` và `bytearray` cũng là sequence, nhưng chứa giá trị byte thay vì ký tự văn bản."
+     },
+     {
+      "type": "paragraph",
+      "text": "`bytes` bất biến, còn bytearray cho đổi từng byte. Đừng coi mỗi byte là một ký tự tiếng Việt. Để chuyển giữa chuỗi và `bytes` khi đọc hay ghi văn bản, bạn phải chọn cách mã hóa (encoding). Chỗ này bạn chưa cần tới khi ghi sổ bán hàng mỗi ngày, nhưng nó quay lại ngay khi quán nối với một thiết bị thật."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PY10 · List: lấy, thêm và xóa phần tử"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Biểu thức nào tạo tuple có đúng một phần tử 7?",
+     "options": [
+      {
+       "text": "(7,)",
+       "detail": "Đúng. Dấu phẩy tạo tuple một phần tử.",
+       "correct": true
+      },
+      {
+       "text": "(7)",
+       "detail": "Đây vẫn là số 7 được bọc ngoặc."
+      },
+      {
+       "text": "[7]",
+       "detail": "Đây là list, không phải tuple."
+      }
+     ],
+     "explanation": "Đúng. Dấu phẩy tạo tuple một phần tử."
+    },
+    {
+     "question": "Tách hai tọa độ. Kết quả ở lệnh print cuối có giá trị nào?\n\npoint = (4, 9)\nx, y = point\nprint(x + y)",
+     "options": [
+      {
+       "text": "9",
+       "detail": "Biểu thức dùng cả x lẫn y."
+      },
+      {
+       "text": "13",
+       "detail": "Unpack gán 4 cho x và 9 cho y.",
+       "correct": true
+      },
+      {
+       "text": "49",
+       "detail": "x và y là số nên được cộng."
+      }
+     ],
+     "explanation": "Unpack gán 4 cho x và 9 cho y."
+    },
+    {
+     "question": "Dấu phẩy tạo tuple chỉ có một phần tử. Kết quả ở lệnh print cuối có giá trị nào?\n\nitem = (7,)\nprint(type(item).__name__)",
+     "options": [
+      {
+       "text": "'int'",
+       "detail": "(7) không dấu phẩy mới là int."
+      },
+      {
+       "text": "'list'",
+       "detail": "List dùng dấu ngoặc vuông."
+      },
+      {
+       "text": "'tuple'",
+       "detail": "Dấu phẩy là chi tiết quyết định tuple một phần tử.",
+       "correct": true
+      }
+     ],
+     "explanation": "Dấu phẩy là chi tiết quyết định tuple một phần tử."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "dong = (10) có phải tuple một phần tử không?",
+     "answer": "Không. Dùng dong = (10,)."
+    },
+    {
+     "prompt": "Cần ghi thêm số cốc mỗi ngày, chọn list hay tuple?",
+     "answer": "List thường phù hợp hơn vì có thể thêm và sửa phần tử."
+    },
+    {
+     "prompt": "bytes và bytearray khác nhau ở điểm nào?",
+     "answer": "bytes bất biến; bytearray cho phép cập nhật từng byte. Cả hai dùng cho dữ liệu nhị phân, không thay quy tắc mã hóa văn bản."
+    },
+    {
+     "prompt": "Cần dãy có thể trùng và thêm được, tập tên món duy nhất, tra giá theo tên món, và một cặp số cốc với đơn giá cố định: chọn collection nào? Chúng khác sequence ở đâu?",
+     "answer": "Lần lượt list, set, dict và tuple. Sequence có thứ tự và truy cập theo vị trí; list/tuple/range/str/bytes/bytearray là ví dụ. Không dùng vị trí để truy cập set; dict tra khóa."
+    },
+    {
+     "prompt": "dong=(10,20): dong[1] trả gì và dong[0]=30 gây lỗi gì? Nếu tuple chứa một list thì list bên trong có bị đóng băng không?",
+     "answer": "Trả 20; phép gán vị trí trong tuple gây TypeError. Tuple cố định tham chiếu ở các vị trí, không tự làm list bên trong bất biến."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Hệ thống cung cấp coordinates là một cặp [x, y]. Tạo swapped là tuple (y, x). Bạn không cần sửa từng phần tử của cặp đầu vào.",
+    "io": [
+     {
+      "label": "coordinates =",
+      "value": "[3, 8]"
+     },
+     {
+      "label": "swapped =",
+      "value": "[8, 3]"
+     }
+    ]
+   },
+   "starterCode": "# Hệ thống cung cấp coordinates là một cặp [x, y].\n# Hệ thống cung cấp coordinates; gán kết quả vào swapped.\n",
+   "solutionCode": "x, y = coordinates\nswapped = (y, x)\n",
+   "tests": [
+    {
+     "name": "Cặp thông thường",
+     "input": [
+      3,
+      8
+     ],
+     "expected": [
+      8,
+      3
+     ]
+    },
+    {
+     "name": "Có tọa độ âm",
+     "input": [
+      -2,
+      5
+     ],
+     "expected": [
+      5,
+      -2
+     ]
+    },
+    {
+     "name": "Hai tọa độ bằng nhau",
+     "input": [
+      0,
+      0
+     ],
+     "expected": [
+      0,
+      0
+     ]
+    }
+   ],
+   "contract": {
+    "mode": "script",
+    "inputVariable": "coordinates",
+    "resultVariable": "swapped",
+    "returnType": "tuple"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Unpacking giúp đặt tên x và y cho hai phần tử đầu vào."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Tạo tuple mới với thứ tự y trước x; không sửa từng vị trí tuple."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

@@ -1,0 +1,246 @@
+{
+ "lesson_code": "PY09",
+ "sort_order": 9,
+ "module": "M1 · Python nền tảng",
+ "title": "PY09 · Điều kiện, so sánh và khối lệnh",
+ "subtitle": "Cơ bản · M1 · 14 phút",
+ "estimated_minutes": 14,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PY09 · Điều kiện, so sánh và khối lệnh",
+  "subtitle": "Cơ bản · M1 · 14 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PY09",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 50-51, 53-57; Python — Tutorial"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Sổ đã sạch sau bước trước, giờ để chương trình tự quyết một việc nhỏ thay bạn. Bạn muốn nó nhắc theo số cốc còn pha được trong bình:"
+     },
+     {
+      "type": "table",
+      "headers": [
+       "Số cốc còn",
+       "Nhắc gì"
+      ],
+      "rows": [
+       [
+        "từ 8 trở lên",
+        "đủ hàng"
+       ],
+       [
+        "từ 5 đến dưới 8",
+        "sắp hết"
+       ],
+       [
+        "dưới 5",
+        "phải pha thêm ngay"
+       ]
+      ]
+     },
+     {
+      "type": "paragraph",
+      "text": "Ba mức đó viết thành điều kiện:"
+     },
+     {
+      "type": "code",
+      "code": "cups = 7\nif cups >= 8:\n    print(\"Du hang\")\nelif cups >= 5:\n    print(\"Sap het\")\nelse:\n    print(\"Pha them\")",
+      "expected": "Sap het",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Python xét các nhánh từ trên xuống và chỉ chạy nhánh đầu tiên có điều kiện đúng. Vì vậy 7 cốc ra `Sap het`, dù nó cũng nhỏ hơn 8. Dấu `:` mở một khối, còn thụt lề cho biết lệnh thuộc nhánh nào. Lệnh viết trở lại mức thụt lề ngoài sẽ chạy sau cả cấu trúc `if`."
+     },
+     {
+      "type": "paragraph",
+      "text": "Dùng nhất quán bốn dấu cách, và đừng trộn tab với space. Thụt lề sai gây `IndentationError`; trộn tab với space không đều gây `TabError`."
+     },
+     {
+      "type": "code",
+      "code": "cups, machine_on = 7, True\nprint(cups >= 5 and machine_on)\nprint(not machine_on)\nprint(cups != 10)",
+      "expected": "True\nFalse\nTrue",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Ba từ này ghép các điều kiện của quầy lại với nhau. `and` đòi cả hai điều kiện đúng: còn ít nhất 5 cốc và máy đang bật thì mới nhận đơn. `or` chỉ cần một điều kiện đúng. `not` đảo đúng thành sai."
+     },
+     {
+      "type": "paragraph",
+      "text": "Bốn phép so sánh còn lại đọc thẳng như trong tiếng Việt. `==` so bằng, `!=` so khác, còn một dấu `=` là phép gán — nhầm hai thứ này là lỗi hay gặp nhất của người mới. Với dữ liệu vô hướng, `and` và `or` có thể dừng sớm khi kết quả đã rõ."
+     },
+     {
+      "type": "code",
+      "code": "cups = 9\nif 0 <= cups <= 20:\n    if cups >= 8:\n        print(\"Du hang\")\nelse:\n    print(\"So khong hop le\")",
+      "expected": "Du hang",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "Ở ví dụ lồng nhau, phép kiểm số liệu hợp lệ được xét trước: một bình không chứa được -3 cốc. `else` thẳng hàng với `if` nào thì thuộc `if` đó. Ở đây nó thuộc phép kiểm `0 <= cups <= 20`, không thuộc phép kiểm `cups >= 8`. Giảm mức thụt lề là kết thúc khối bên trong. Dòng trống và chú thích không mở hay đóng khối nào. Nếu một nhánh chưa viết xong, đặt `pass` vào đó; một nhánh chỉ có chú thích vẫn là thiếu câu lệnh."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PY08 · Chuẩn hóa và định dạng văn bản"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "score = 8. Kiểm >=8 trước rồi mới >=5 thì nhãn nào được chọn?",
+     "options": [
+      {
+       "text": "Cả Good và Pass",
+       "detail": "Một chuỗi if/elif chỉ chạy nhánh đúng đầu tiên."
+      },
+      {
+       "text": "Good",
+       "detail": "Đúng. Nhánh đầu đã đúng, không xét tiếp nhánh >=5.",
+       "correct": true
+      },
+      {
+       "text": "Pass",
+       "detail": "Điểm 8 cũng >=5, nhưng nhánh >=8 đứng trước và đã được chọn."
+      }
+     ],
+     "explanation": "Đúng. Nhánh đầu đã đúng, không xét tiếp nhánh >=5."
+    },
+    {
+     "question": "Điểm bằng đúng ngưỡng tốt. Kết quả ở lệnh print cuối có giá trị nào?\n\nscore = 8\nif score >= 8:\n    result = \"Good\"\nelif score >= 5:\n    result = \"Pass\"\nelse:\n    result = \"Retry\"\nprint(result)",
+     "options": [
+      {
+       "text": "'Pass'",
+       "detail": "Nhánh đầu đã đúng, nên elif không được xét tiếp."
+      },
+      {
+       "text": "'Retry'",
+       "detail": "Điểm 8 không rơi vào else."
+      },
+      {
+       "text": "'Good'",
+       "detail": "Điều kiện >= nhận cả giá trị bằng 8.",
+       "correct": true
+      }
+     ],
+     "explanation": "Điều kiện >= nhận cả giá trị bằng 8."
+    },
+    {
+     "question": "Điểm đạt mức qua môn nhưng chưa tốt. Kết quả ở lệnh print cuối có giá trị nào?\n\nscore = 6\nif score >= 8:\n    result = \"Good\"\nelif score >= 5:\n    result = \"Pass\"\nelse:\n    result = \"Retry\"\nprint(result)",
+     "options": [
+      {
+       "text": "'Pass'",
+       "detail": "Sau điều kiện đầu sai, Python chọn elif đúng.",
+       "correct": true
+      },
+      {
+       "text": "'Retry'",
+       "detail": "Điều kiện elif đã đúng."
+      },
+      {
+       "text": "'Good'",
+       "detail": "6 không đạt điều kiện >=8."
+      }
+     ],
+     "explanation": "Sau điều kiện đầu sai, Python chọn elif đúng."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Với cups = 8, đoạn đầu chạy nhánh nào?",
+     "answer": "Du hang, vì điều kiện đầu đã đúng."
+    },
+    {
+     "prompt": "Dùng phép so sánh nào cho điều kiện ít nhất 5 cốc và không quá 20?",
+     "answer": "Viết 5 <= cups <= 20, hoặc cups >= 5 and cups <= 20."
+    },
+    {
+     "prompt": "Vì sao if True: rồi chỉ có một dòng chú thích chưa phải khối hoàn chỉnh?",
+     "answer": "Chú thích không phải câu lệnh. Cần một câu lệnh thực hoặc pass, với thụt lề đúng."
+    },
+    {
+     "prompt": "Nếu if ngoài kiểm số cốc trong 0..20 và if trong kiểm >= 8, else thẳng hàng với if ngoài chạy khi nào? Đặt print(\"xong\") sau toàn bộ cấu trúc có bị bỏ qua không?",
+     "answer": "else ngoài chạy khi số cốc không hợp lệ. print ở ngoài mọi nhánh chạy sau cấu trúc khi không có ngoại lệ hay thoát sớm. Chú thích và dòng trống không đổi quan hệ khối; mức thụt lề quyết định."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Hệ thống cung cấp score trong khoảng 0–10. Gán label bằng \"high\" nếu score từ 8, \"ready\" nếu từ 5 đến dưới 8, còn lại \"retry\".",
+    "io": [
+     {
+      "label": "score =",
+      "value": "8"
+     },
+     {
+      "label": "label =",
+      "value": "'high'"
+     }
+    ]
+   },
+   "starterCode": "# Hệ thống cung cấp score trong khoảng 0–10.\n# Hệ thống cung cấp score; gán kết quả vào label.\n",
+   "solutionCode": "if score >= 8:\n    label = \"high\"\nelif score >= 5:\n    label = \"ready\"\nelse:\n    label = \"retry\"\n",
+   "tests": [
+    {
+     "name": "Đúng ngưỡng cao",
+     "input": 8,
+     "expected": "high"
+    },
+    {
+     "name": "Đúng ngưỡng sẵn sàng",
+     "input": 5,
+     "expected": "ready"
+    },
+    {
+     "name": "Chưa tới ngưỡng",
+     "input": 4,
+     "expected": "retry"
+    },
+    {
+     "name": "Ở trong khoảng giữa",
+     "input": 7.5,
+     "expected": "ready"
+    }
+   ],
+   "contract": {
+    "mode": "script",
+    "inputVariable": "score",
+    "resultVariable": "label"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Xét ngưỡng cao trước để điểm 8 không bị nhận nhãn ready."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Dùng if/elif/else; các biên 8 và 5 đều được nhận ở nhánh phía trên."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

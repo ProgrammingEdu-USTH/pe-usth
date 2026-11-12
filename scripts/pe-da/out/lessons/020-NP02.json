@@ -1,0 +1,264 @@
+{
+ "lesson_code": "NP02",
+ "sort_order": 20,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP02 · Lấy một phần tử",
+ "subtitle": "Cơ bản · M2 · 10 phút",
+ "estimated_minutes": 10,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "NP02 · Lấy một phần tử",
+  "subtitle": "Cơ bản · M2 · 10 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#NP02",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "Advanced-Python-Tai-Lieu-Mon-Hoc.pdf tr. 112-114; NumPy · Lấy phần tử và cắt dữ liệu"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Giả sử, bạn có một array chứa số lượng cà phê bán ra mỗi ngày, theo thứ tự thứ Hai, thứ Ba và thứ Tư. Để xem số cốc bán vào thứ Ba, bạn viết:"
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\n\ncups = np.array([12, 15, 9])\nprint(cups[1])",
+      "expected": "15",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Bạn có thể sử dụng chỉ số để lấy ra một phần tử trong array. Một index (chỉ số) đại diện cho một vị trí trong array. Chỉ số bắt đầu bằng 0: `a[0]` lấy phần tử đầu tiên, `a[1]` lấy phần tử thứ hai. `a[-1]` lấy phần tử cuối cùng."
+     },
+     {
+      "type": "paragraph",
+      "text": "Chỉ số cho bạn biết vị trí chứ không phải giá trị. Ví dụ, phần tử có giá trị 8 trong array `[6, 8, 10]` có index là 1."
+     },
+     {
+      "type": "table",
+      "headers": [
+       "Chỉ số",
+       "0",
+       "1",
+       "2"
+      ],
+      "rows": [
+       [
+        "Giá trị",
+        "6",
+        "8",
+        "10"
+       ]
+      ]
+     },
+     {
+      "type": "code",
+      "code": "a = np.array([6, 8, 10])\nprint(a[1])",
+      "expected": "8",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Bạn cũng có thể đếm từ cuối dãy bằng chỉ số âm:"
+     },
+     {
+      "type": "code",
+      "code": "a = np.array([6, 8, 10])\nprint(a[-1])",
+      "expected": "10",
+      "tryIt": true
+     },
+     {
+      "type": "diagram",
+      "title": "Một dãy, hai cách đếm — từ đầu và từ cuối",
+      "lanes": [
+       {
+        "label": "Đếm từ ĐẦU",
+        "steps": [
+         "a[1]",
+         "bỏ qua 1 phần tử tính từ trái",
+         "8"
+        ],
+        "note": "Chỉ số dương bắt đầu từ `0`, nên `a[1]` là phần tử THỨ HAI."
+       },
+       {
+        "label": "Đếm từ CUỐI",
+        "steps": [
+         "a[-1]",
+         "phần tử đầu tiên tính từ phải",
+         "10"
+        ],
+        "note": "Chỉ số âm bắt đầu từ `-1`, không có `-0` — nên `a[-1]` là phần tử CUỐI, không phải phần tử kế cuối."
+       }
+      ]
+     },
+     {
+      "type": "paragraph",
+      "text": "Nếu sử dụng một chỉ số không tồn tại, bạn sẽ nhận một `IndexError`. Array ba phần tử ở trên có các chỉ số từ 0 đến 2, nên `a[3]` không lấy được phần tử nào."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "NP01 · Array là gì?"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "prices = np.array([18, 27, 35]). prices[1] trả gì?",
+     "options": [
+      {
+       "text": "1",
+       "detail": "Chỉ số xác định vị trí, không phải giá trị trả về."
+      },
+      {
+       "text": "18",
+       "detail": "18 ở chỉ số 0."
+      },
+      {
+       "text": "27",
+       "detail": "Đúng. Chỉ số 1 là phần tử thứ hai.",
+       "correct": true
+      }
+     ],
+     "explanation": "Đúng. Chỉ số 1 là phần tử thứ hai."
+    },
+    {
+     "question": "Đọc lượng bán ngày đầu. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\ncups = np.array([9, 14, 11])\nprint(cups[0])",
+     "options": [
+      {
+       "text": "0",
+       "detail": "Chỉ số 0 là vị trí, không phải giá trị được trả."
+      },
+      {
+       "text": "9",
+       "detail": "Vị trí đầu tiên có index 0 và giá trị 9.",
+       "correct": true
+      },
+      {
+       "text": "14",
+       "detail": "14 ở vị trí thứ hai, chỉ số 1."
+      }
+     ],
+     "explanation": "Vị trí đầu tiên có index 0 và giá trị 9."
+    },
+    {
+     "question": "Số 8 nằm ở vị trí thứ hai. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\na = np.array([6, 8, 10])\nprint(a[1])",
+     "options": [
+      {
+       "text": "1",
+       "detail": "1 là chỉ số đã dùng, không phải phần tử nhận được."
+      },
+      {
+       "text": "8",
+       "detail": "a[1] đọc phần tử ở vị trí 1, tức giá trị 8.",
+       "correct": true
+      },
+      {
+       "text": "10",
+       "detail": "10 nằm ở chỉ số 2."
+      }
+     ],
+     "explanation": "a[1] đọc phần tử ở vị trí 1, tức giá trị 8."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Dùng `a = np.array([6, 8, 10])`. `a[0]` trả về giá trị nào?",
+     "answer": "Trả về 6, vì chỉ số 0 trỏ đến phần tử đầu tiên."
+    },
+    {
+     "prompt": "Với cùng array `a`, điền chỉ số để `a[___]` trả về giá trị 10.",
+     "answer": "Điền `2` hoặc `-1`. Cả hai đều lấy giá trị 10 trong array này."
+    },
+    {
+     "prompt": "Nếu có các giá `[15, 25, 35]`, bạn lấy giá thứ hai như thế nào?",
+     "answer": "Dùng chỉ số 1 để lấy giá thứ hai:",
+     "answerCode": "import numpy as np\n\nprices = np.array([15, 25, 35])\nprint(prices[1])",
+     "answerExpected": "25"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận list giá không rỗng. Tạo array rồi trả giá cuối cùng. Đừng cố định một chỉ số dương vì các list có độ dài khác nhau.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "[18, 27, 35]"
+     },
+     {
+      "label": "trả về",
+      "value": "35"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    prices = np.array(data)\n    return prices[-1]\n",
+   "tests": [
+    {
+     "name": "Ba giá",
+     "input": [
+      18,
+      27,
+      35
+     ],
+     "expected": 35
+    },
+    {
+     "name": "Một giá",
+     "input": [
+      6
+     ],
+     "expected": 6
+    },
+    {
+     "name": "Nhiều giá",
+     "input": [
+      2,
+      4,
+      8,
+      16,
+      32
+     ],
+     "expected": 32
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Độ dài list thay đổi nên một chỉ số dương cố định có thể sai."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Chỉ số -1 lấy phần tử cuối của array không rỗng."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

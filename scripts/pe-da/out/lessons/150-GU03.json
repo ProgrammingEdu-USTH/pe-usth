@@ -1,0 +1,186 @@
+{
+ "lesson_code": "GU03",
+ "sort_order": 150,
+ "module": "M8 · Tkinter: từ form nhỏ đến màn hình nhận đơn",
+ "title": "GU03 · Frame, Label và thuộc tính widget",
+ "subtitle": "Trung cấp · M8 · 15 phút",
+ "estimated_minutes": 15,
+ "xp_reward": 9,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "GU03 · Frame, Label và thuộc tính widget",
+  "subtitle": "Trung cấp · M8 · 15 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#GU03",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 310-311; Python · tkinter"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Màn hình nhận đơn của quán có vùng chọn món và vùng nhập số cốc. Khung (frame) nhóm các widget của từng vùng để bạn bố trí và quản lý chúng cùng nhau."
+     },
+     {
+      "type": "code",
+      "code": "import tkinter as tk\nroot=tk.Tk();root.withdraw()\npanel=tk.Frame(root, width=300, height=100, bg='white')\nlabel=tk.Label(panel, text='Mon', bg='white')\nprint(label.cget('text'))\nprint(label.master is panel)\nroot.destroy()",
+      "expected": "Mon\nTrue"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Label hiển thị chữ, còn Frame chứa widget con. cget đọc cấu hình; configure thay cấu hình sau khi tạo. Không phải cứ tạo widget là nó đã xuất hiện: bạn còn cần pack, grid hoặc place."
+     },
+     {
+      "type": "code",
+      "code": "import tkinter as tk\nroot=tk.Tk();root.withdraw()\nlabel=tk.Label(root, text='Chua chon', width=20, height=2, bg='white')\nlabel.configure(text='Da chon latte')\nprint(label.cget('text'))\nprint(label.cget('width'), label.cget('height'))\nroot.destroy()",
+      "expected": "Da chon latte\n20 2"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "width và height không luôn có đơn vị pixel: Label chứa chữ thường dùng đơn vị ký tự và dòng; Frame thường dùng khoảng cách màn hình. bg đặt màu nền cho widget Tk cổ điển. ttk có cơ chế Style riêng, nên không phải mọi thuộc tính của tk.Label đều dùng được với ttk.Label."
+     },
+     {
+      "type": "code",
+      "code": "import tkinter as tk\nroot=tk.Tk();root.withdraw()\nmenu=tk.Menu(root, tearoff=False)\nmenu.add_command(label='Luu', command=lambda: print('save'))\nroot.configure(menu=menu)\nmenu.invoke(0)\nroot.destroy()",
+      "expected": "save"
+     },
+     {
+      "type": "paragraph",
+      "text": "Menu được slide liệt kê nhưng không triển khai riêng. Đoạn cuối là phần bổ sung: add_command thêm một thao tác, command nhận hàm xử lý, còn invoke gọi mục menu bằng code để kiểm tra. Quan sát menu thật vẫn cần mở cửa sổ."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "GU02 · Cửa sổ chính và cửa sổ phụ"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "tk.Label(frame, ...) thuộc vùng chứa nào?",
+     "options": [
+      {
+       "text": "Bất kỳ Frame được tạo gần nhất",
+       "detail": "Tkinter không suy đoán parent theo thời điểm tạo gần nhất."
+      },
+      {
+       "text": "frame",
+       "detail": "Parent xác định cây widget, không chỉ màu nền của widget.",
+       "correct": true
+      },
+      {
+       "text": "Tự chuyển vào root dù truyền frame",
+       "detail": "Widget được tạo với frame làm parent theo quan hệ đã truyền."
+      }
+     ],
+     "explanation": "Parent xác định cây widget, không chỉ màu nền của widget."
+    },
+    {
+     "question": "Frame chủ yếu dùng để làm gì?",
+     "options": [
+      {
+       "text": "Tự thay mọi phép tính Python",
+       "detail": "Chưa đúng. Frame tạo vùng chứa để tổ chức cây widget và bố cục theo nhóm."
+      },
+      {
+       "text": "Chỉ chứa được văn bản không có nút",
+       "detail": "Chưa đúng. Frame tạo vùng chứa để tổ chức cây widget và bố cục theo nhóm."
+      },
+      {
+       "text": "Nhóm và chứa widget con",
+       "detail": "Frame tạo vùng chứa để tổ chức cây widget và bố cục theo nhóm.",
+       "correct": true
+      }
+     ],
+     "explanation": "Frame tạo vùng chứa để tổ chức cây widget và bố cục theo nhóm."
+    },
+    {
+     "question": "Label phù hợp nhất với việc nào?",
+     "options": [
+      {
+       "text": "Hiển thị trạng thái \"Đã lưu\"",
+       "detail": "Label hiển thị văn bản; Entry mới dành cho nhập một dòng.",
+       "correct": true
+      },
+      {
+       "text": "Đọc nội dung người dùng đang gõ",
+       "detail": "Chưa đúng. Label hiển thị văn bản; Entry mới dành cho nhập một dòng."
+      },
+      {
+       "text": "Giữ một pipe giữa process",
+       "detail": "Chưa đúng. Label hiển thị văn bản; Entry mới dành cho nhập một dòng."
+      }
+     ],
+     "explanation": "Label hiển thị văn bản; Entry mới dành cho nhập một dòng."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Frame và Label có vai trò gì?",
+     "answer": "Frame chứa các widget; Label hiển thị nội dung chữ hoặc ảnh."
+    },
+    {
+     "prompt": "width=20 của Label chứa chữ có nhất thiết là 20 pixel không?",
+     "answer": "Không; thường là khoảng rộng theo ký tự."
+    },
+    {
+     "prompt": "Tạo Label Pending rồi sửa thành Ready và in nội dung.",
+     "answer": "Dùng configure.",
+     "answerCode": "import tkinter as tk\nr=tk.Tk();r.withdraw()\nx=tk.Label(r,text='Pending');x.configure(text='Ready')\nprint(x.cget('text'))\nr.destroy()",
+     "answerExpected": "Ready"
+    },
+    {
+     "prompt": "Frame(width=300,height=100,bg=\"white\") và Label(width=20,height=2) có cùng đơn vị kích thước không?",
+     "answer": "Không. Frame thường dùng khoảng cách màn hình; Label chữ thường dùng ký tự/dòng. bg đặt nền widget Tk cổ điển; Frame chứa widget con còn Label hiển thị chữ."
+    },
+    {
+     "prompt": "Menu có được slide dạy một ví dụ hoàn chỉnh không? Đoạn add_command trong bài thuộc phạm vi nào?",
+     "answer": "Slide chỉ liệt kê Menu. Ví dụ add_command/command trong bài là phần bổ sung và phải được ghi như vậy, không quy thành mã ví dụ gốc của USTH."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Chạy trên máy của bạn",
+    "body": "Bài này không chạy được trong trình duyệt: Tkinter cần hệ cửa sổ của máy. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
+   },
+   "procedure": [
+    "Mở terminal tại thư mục làm việc của bạn.",
+    "Tạo môi trường: py -m venv .venv",
+    "Cài thư viện bài cần: .venv\\Scripts\\python -m pip install <tên gói>",
+    "Lưu đoạn code vào một file .py rồi chạy: .venv\\Scripts\\python ten_file.py"
+   ]
+  }
+ },
+ "_mode": "local",
+ "_blocked": [
+  {
+   "block": 0,
+   "reason": "Tkinter cần hệ cửa sổ của máy"
+  },
+  {
+   "block": 1,
+   "reason": "Tkinter cần hệ cửa sổ của máy"
+  },
+  {
+   "block": 2,
+   "reason": "Tkinter cần hệ cửa sổ của máy"
+  }
+ ],
+ "_so_mcq": 3,
+ "_bai_tap": "khong co",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

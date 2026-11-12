@@ -1,0 +1,246 @@
+{
+ "lesson_code": "PD01",
+ "sort_order": 42,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD01 · Series: một cột dữ liệu có nhãn",
+ "subtitle": "Cơ bản · M3 · 10 phút",
+ "estimated_minutes": 10,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PD01 · Series: một cột dữ liệu có nhãn",
+  "subtitle": "Cơ bản · M3 · 10 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PD01",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas · Series"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bảng số ở phần trước mất tên món ngay khi bạn sắp lại thứ tự. Một quán cà phê ghi số cốc bán được trong ba ngày: 12, 15 và 9. Bạn có thể lưu dãy số này bằng `Series`. Mỗi giá trị đi cùng một nhãn để xác định nó thuộc ngày nào."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ncups = pd.Series([12, 15, 9])\nprint(cups.tolist())\nprint(cups.index.tolist())",
+      "expected": "[12, 15, 9]\n[0, 1, 2]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Khi chưa đặt nhãn, pandas dùng các số 0, 1, 2. Đây là index (dãy nhãn của các hàng) của `Series`. Giá trị 15 nằm ở nhãn 1; số 1 là nhãn, không phải số cốc bán được. Bạn có thể thay các nhãn này bằng tên ngày."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ncups = pd.Series([12, 15, 9], index=['Mon', 'Tue', 'Wed'])\nprint(cups.loc['Tue'])",
+      "expected": "15",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`loc` chọn dữ liệu theo nhãn. Vì đã gắn nhãn Tue, bạn lấy được số cốc thứ Ba mà không phải nhớ nó đứng ở vị trí nào. `Series` cũng có các phép tính cho cả cột."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ncups = pd.Series([12, 15, 9], index=['Mon', 'Tue', 'Wed'])\nprint(cups.sum())\nprint(len(cups))",
+      "expected": "36\n3",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "Tổng ba ngày là 36 cốc. `len(cups)` cho biết `Series` có ba phần tử. Trong các bài sau, `tolist()` được dùng để in giá trị gọn thành `list`; dữ liệu ban đầu vẫn là `Series`."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "NP01 · Array là gì?, NP02 · Lấy một phần tử, NP03 · Kiểu dữ liệu của array"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "s = pd.Series([4, 9], index=[\"AM\", \"PM\"]). s.loc[\"PM\"] trả gì?",
+     "options": [
+      {
+       "text": "1",
+       "detail": "1 là vị trí của PM, không phải giá trị cần lấy."
+      },
+      {
+       "text": "4",
+       "detail": "4 đi cùng nhãn AM, không phải PM."
+      },
+      {
+       "text": "9",
+       "detail": "Đúng: nhãn PM đi cùng giá trị 9.",
+       "correct": true
+      }
+     ],
+     "explanation": "loc dùng nhãn, không dùng vị trí số của phần tử."
+    },
+    {
+     "question": "Trong ví dụ đầu, giá trị 15 có nhãn nào?\n\nimport pandas as pd\ncups = pd.Series([12, 15, 9])\nprint(cups.tolist())\nprint(cups.index.tolist())",
+     "options": [
+      {
+       "text": "Nhãn 0.",
+       "detail": "Nhãn 0 thuộc phần tử đầu, có giá trị 12."
+      },
+      {
+       "text": "Nhãn 1, vì pandas tạo nhãn mặc định từ 0.",
+       "detail": "Nhãn 1, vì pandas tạo nhãn mặc định từ 0.",
+       "correct": true
+      },
+      {
+       "text": "Nhãn 15.",
+       "detail": "15 là số cốc, không phải nhãn mặc định."
+      }
+     ],
+     "explanation": "Nhãn 1, vì pandas tạo nhãn mặc định từ 0."
+    },
+    {
+     "question": "Với index Mon, Tue, Wed, viết biểu thức lấy số cốc thứ Tư.\n\nimport pandas as pd\ncups = pd.Series([12, 15, 9], index=['Mon', 'Tue', 'Wed'])\nprint(cups.loc['Tue'])",
+     "options": [
+      {
+       "text": "Dùng cups.loc['Wed'], nhận 9.",
+       "detail": "Dùng cups.loc['Wed'], nhận 9.",
+       "correct": true
+      },
+      {
+       "text": "cups.loc['Tue'], nhận 15.",
+       "detail": "Tue là thứ Ba; đề đang hỏi thứ Tư."
+      },
+      {
+       "text": "cups.loc[2], vì Wed là ngày thứ ba.",
+       "detail": "Series đã dùng nhãn ngày; số 2 không phải một nhãn trong Series đó."
+      }
+     ],
+     "explanation": "Dùng cups.loc['Wed'], nhận 9."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Trong ví dụ đầu, giá trị 15 có nhãn nào?",
+     "answer": "Nhãn 1, vì pandas tạo nhãn mặc định từ 0."
+    },
+    {
+     "prompt": "Với index Mon, Tue, Wed, viết biểu thức lấy số cốc thứ Tư.",
+     "answer": "Dùng cups.loc['Wed'], nhận 9."
+    },
+    {
+     "prompt": "Tạo Series [4, 6] có nhãn A, B và in tổng.",
+     "answer": "Tổng là 10.",
+     "answerCode": "import pandas as pd\ns = pd.Series([4, 6], index=['A', 'B'])\nprint(s.sum())",
+     "answerExpected": "10"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Một quán ghi số cốc bán theo ca. data gồm values, labels và pick; nhãn là duy nhất và pick có trong labels. Tạo Series và trả dictionary có selected (số cốc của nhãn pick), total (tổng cốc), count (số ca).",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'values': [7, 12, 5], 'labels': ['AM', 'PM', 'Late'], 'pick': 'Late'}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'selected': 5, 'total': 24, 'count': 3}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     s = pd.Series(data['values'], index=data['labels'])\n     return {'selected': int(s.loc[data['pick']]), 'total': int(s.sum()), 'count': len(s)}\n",
+   "tests": [
+    {
+     "name": "ba ca mới",
+     "input": {
+      "values": [
+       7,
+       12,
+       5
+      ],
+      "labels": [
+       "AM",
+       "PM",
+       "Late"
+      ],
+      "pick": "Late"
+     },
+     "expected": {
+      "selected": 5,
+      "total": 24,
+      "count": 3
+     }
+    },
+    {
+     "name": "đổi thứ tự nhãn",
+     "input": {
+      "values": [
+       20,
+       3
+      ],
+      "labels": [
+       "PM",
+       "AM"
+      ],
+      "pick": "AM"
+     },
+     "expected": {
+      "selected": 3,
+      "total": 23,
+      "count": 2
+     }
+    },
+    {
+     "name": "ca chưa bán được cốc nào",
+     "input": {
+      "values": [
+       0
+      ],
+      "labels": [
+       "Only"
+      ],
+      "pick": "Only"
+     },
+     "expected": {
+      "selected": 0,
+      "total": 0,
+      "count": 1
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Ô vuông đang chứa nhãn PM, không chứa vị trí số."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Tạo Series có nhãn và lấy một giá trị bằng loc."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

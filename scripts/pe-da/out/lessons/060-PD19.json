@@ -1,0 +1,264 @@
+{
+ "lesson_code": "PD19",
+ "sort_order": 60,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD19 · Pivot và melt: đổi hình dạng bảng",
+ "subtitle": "Trung cấp · M3 · 11 phút",
+ "estimated_minutes": 11,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PD19 · Pivot và melt: đổi hình dạng bảng",
+  "subtitle": "Trung cấp · M3 · 11 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PD19",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas · Pivot and melt"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Các lô dữ liệu của quán đã ghép thành một bảng rồi, giờ đổi hình dạng để dễ đọc. Doanh thu mỗi cửa hàng hiện là một hàng cho từng tháng. Để so sánh tháng bên cạnh nhau, bạn có thể chuyển tên tháng thành cột."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B', 'B'], 'month': ['Jan', 'Feb', 'Jan', 'Feb'], 'revenue': [10, 20, 30, 40]})\nwide = df.pivot(index='store', columns='month', values='revenue')\nprint(wide.loc['A', 'Feb'])\nprint(wide.loc['B', 'Jan'])",
+      "expected": "20\n30",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Bảng đầu là dạng dài: store, month xác định một quan sát. Bảng sau là dạng rộng: mỗi tháng trở thành cột. pivot chỉ đổi vị trí dữ liệu, không cộng các hàng trùng."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nwide = pd.DataFrame({'store': ['A', 'B'], 'Jan': [10, 30], 'Feb': [20, 40]})\nlong = wide.melt(id_vars='store', var_name='month', value_name='revenue')\nprint(long.to_dict('records'))",
+      "expected": "[{'store': 'A', 'month': 'Jan', 'revenue': 10}, {'store': 'B', 'month': 'Jan', 'revenue': 30}, {'store': 'A', 'month': 'Feb', 'revenue': 20}, {'store': 'B', 'month': 'Feb', 'revenue': 40}]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "melt làm chiều ngược lại: giữ cột định danh bằng id_vars, rồi chuyển các cột đo thành hai cột tên và giá trị. Dạng dài thường thuận tiện để `groupby` hoặc đưa vào thư viện vẽ biểu đồ."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A'], 'month': ['Jan', 'Jan'], 'revenue': [10, 20]})\ntry:\n    df.pivot(index='store', columns='month', values='revenue')\nexcept ValueError as error:\n    print(type(error).__name__)",
+      "expected": "ValueError",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "Hai giá trị cho cùng ô A–Jan khiến pivot không xác định được giá trị cần đặt vào. Nếu chúng là hai giao dịch hợp lệ, bạn cần tổng hợp trước hoặc dùng pivot_table ở bài tiếp theo; không tự bỏ một hàng."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "PD18 · Concat: ghép các lô dữ liệu"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Hai hàng A-Jan có 5 và 8. pivot có tự trả 13 không?",
+     "options": [
+      {
+       "text": "Có, luôn tự cộng",
+       "detail": "pivot chỉ đổi vị trí, không tự cộng."
+      },
+      {
+       "text": "Không, pivot báo lỗi vì một ô có hai giá trị",
+       "detail": "Đúng: cần tổng hợp trước hoặc dùng pivot_table.",
+       "correct": true
+      },
+      {
+       "text": "Giữ 8",
+       "detail": "Không tự bỏ giá trị 5 mà không có quy tắc."
+      }
+     ],
+     "explanation": "Đổi hình dạng không tự xác định quy tắc tổng hợp."
+    },
+    {
+     "question": "pivot có tự tính tổng các giao dịch cùng store–month không?\n\nimport pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B', 'B'], 'month': ['Jan', 'Feb', 'Jan', 'Feb'], 'revenue': [10, 20, 30, 40]})\nwide = df.pivot(index='store', columns='month', values='revenue')\nprint(wide.loc['A', 'Feb'])\nprint(wide.loc['B', 'Jan'])",
+     "options": [
+      {
+       "text": "Không; nó yêu cầu mỗi ô được xác định duy nhất.",
+       "detail": "Không; nó yêu cầu mỗi ô được xác định duy nhất.",
+       "correct": true
+      },
+      {
+       "text": "Có; pivot luôn lấy trung bình các giao dịch trùng.",
+       "detail": "Pivot không mặc định lấy trung bình cho ô bị trùng."
+      },
+      {
+       "text": "Có; pivot luôn cộng mọi giao dịch trùng.",
+       "detail": "Phép cộng cần bước tổng hợp hoặc pivot_table."
+      }
+     ],
+     "explanation": "Không; nó yêu cầu mỗi ô được xác định duy nhất."
+    },
+    {
+     "question": "Trong melt, id_vars có nghĩa gì?\n\nimport pandas as pd\nwide = pd.DataFrame({'store': ['A', 'B'], 'Jan': [10, 30], 'Feb': [20, 40]})\nlong = wide.melt(id_vars='store', var_name='month', value_name='revenue')\nprint(long.to_dict('records'))",
+     "options": [
+      {
+       "text": "Các cột cần xóa khỏi bảng.",
+       "detail": "Các cột định danh không phải các cột cần xóa."
+      },
+      {
+       "text": "Các cột số tự động được cộng lại.",
+       "detail": "Melt thay hình dạng, không cộng các cột số."
+      },
+      {
+       "text": "Các cột định danh được giữ, không chuyển thành cột giá trị đo.",
+       "detail": "Các cột định danh được giữ, không chuyển thành cột giá trị đo.",
+       "correct": true
+      }
+     ],
+     "explanation": "Các cột định danh được giữ, không chuyển thành cột giá trị đo."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "pivot có tự tính tổng các giao dịch cùng store–month không?",
+     "answer": "Không; nó yêu cầu mỗi ô được xác định duy nhất."
+    },
+    {
+     "prompt": "Trong melt, id_vars có nghĩa gì?",
+     "answer": "Các cột định danh được giữ, không chuyển thành cột giá trị đo."
+    },
+    {
+     "prompt": "Melt bảng id=[1], Jan=[5], Feb=[8] rồi in cột value.",
+     "answer": "Kết quả [5, 8].",
+     "answerCode": "import pandas as pd\ndf = pd.DataFrame({'id': [1], 'Jan': [5], 'Feb': [8]})\nprint(df.melt(id_vars='id')['value'].tolist())",
+     "answerExpected": "[5, 8]"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.rows có store, month, revenue, mỗi cặp store–month duy nhất. data.store và data.month xác định ô có trong dữ liệu. Pivot rồi trả giá trị của ô đó dưới dạng số.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'rows': [{'store': 'X', 'month': 'Mar', 'revenue': 6}, {'store': 'X', 'month': 'Apr', 'revenue': 11}], 'store': 'X', 'month': 'Apr'}"
+     },
+     {
+      "label": "trả về",
+      "value": "11.0"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     df = pd.DataFrame(data['rows'])\n     wide = df.pivot(index='store', columns='month', values='revenue')\n     return float(wide.loc[data['store'], data['month']])\n",
+   "tests": [
+    {
+     "name": "tháng mới",
+     "input": {
+      "rows": [
+       {
+        "store": "X",
+        "month": "Mar",
+        "revenue": 6
+       },
+       {
+        "store": "X",
+        "month": "Apr",
+        "revenue": 11
+       }
+      ],
+      "store": "X",
+      "month": "Apr"
+     },
+     "expected": 11.0
+    },
+    {
+     "name": "hai cửa hàng",
+     "input": {
+      "rows": [
+       {
+        "store": "A",
+        "month": "May",
+        "revenue": 3
+       },
+       {
+        "store": "B",
+        "month": "May",
+        "revenue": 8
+       }
+      ],
+      "store": "B",
+      "month": "May"
+     },
+     "expected": 8.0
+    },
+    {
+     "name": "giá trị 0",
+     "input": {
+      "rows": [
+       {
+        "store": "C",
+        "month": "Jun",
+        "revenue": 0
+       }
+      ],
+      "store": "C",
+      "month": "Jun"
+     },
+     "expected": 0.0
+    },
+    {
+     "name": "ô khác trong cùng cửa hàng mang số 0",
+     "input": {
+      "rows": [
+       {
+        "store": "D",
+        "month": "Jul",
+        "revenue": 0
+       },
+       {
+        "store": "D",
+        "month": "Aug",
+        "revenue": 5
+       }
+      ],
+      "store": "D",
+      "month": "Aug"
+     },
+     "expected": 5.0
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cột store vẫn là khóa của từng dòng sau khi chuyển bảng rộng thành bảng dài."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Đổi bảng dài thành rộng khi mỗi cặp khóa là duy nhất."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

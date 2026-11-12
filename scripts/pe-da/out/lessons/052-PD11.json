@@ -1,0 +1,236 @@
+{
+ "lesson_code": "PD11",
+ "sort_order": 52,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD11 · Sắp xếp và nhìn nhanh phân bố",
+ "subtitle": "Cơ bản · M3 · 11 phút",
+ "estimated_minutes": 11,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PD11 · Sắp xếp và nhìn nhanh phân bố",
+  "subtitle": "Cơ bản · M3 · 11 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PD11",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas · Descriptive statistics"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bảng đã bỏ dòng trùng rồi, giờ xếp lại để xem quầy nào của quán dẫn đầu. Bạn có doanh thu ba cửa hàng và muốn xem cửa hàng cao nhất trước. Sắp xếp giúp đọc thứ tự; nó không thay đổi ý nghĩa của nhãn hàng."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'store': ['A', 'B', 'C'], 'revenue': [100, 300, 200]})\nprint(df.sort_values('revenue', ascending=False)['store'].tolist())\nprint(df.nlargest(2, 'revenue')['store'].tolist())",
+      "expected": "['B', 'C', 'A']\n['B', 'C']",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`ascending=False` xếp giảm dần; nlargest chỉ lấy một số hàng lớn nhất. Nếu cần sắp xếp theo nhãn index thay vì giá trị cột, dùng sort_index. Với cột phân loại, đếm số lần xuất hiện thường hữu ích hơn sắp xếp."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nstatus = pd.Series(['paid', 'paid', 'cancelled', None], dtype='string')\nprint(status.value_counts().to_dict())\nprint(status.count())\nprint(status.size)",
+      "expected": "{'paid': 2, 'cancelled': 1}\n3\n4",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "value_counts mặc định bỏ ô thiếu; thêm `dropna=False` nếu cần đếm cả chúng. count đếm giá trị không thiếu, còn size đếm tất cả phần tử. Với cột số, describe cho các thống kê như count, mean, std, min, các tứ phân vị và max."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\namount = pd.Series([10, 20, 30, 100])\nsummary = amount.describe()\nprint(summary['min'], summary['max'])\nprint(amount.mean(), amount.median())",
+      "expected": "10.0 100.0\n40.0 25.0",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "Số 100 kéo trung bình lên 40 trong khi trung vị là 25. Hai con số trả lời khác nhau về vị trí trung tâm; bạn cần xem phân bố và các giá trị lớn trước khi chọn một số để báo cáo."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PD10 · Dòng trùng và khóa của bảng"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Series [10, None, 30] có count và size thế nào?",
+     "options": [
+      {
+       "text": "3 và 3",
+       "detail": "count không tính ô thiếu."
+      },
+      {
+       "text": "2 và 3",
+       "detail": "Đúng: count bỏ thiếu, size đếm tất cả phần tử.",
+       "correct": true
+      },
+      {
+       "text": "3 và 2",
+       "detail": "Bạn đã đảo count với size."
+      }
+     ],
+     "explanation": "Số ô trong cột khác số giá trị có thể dùng để tính."
+    },
+    {
+     "question": "count và size khác gì khi có ô thiếu?\n\nimport pandas as pd\ndf = pd.DataFrame({'store': ['A', 'B', 'C'], 'revenue': [100, 300, 200]})\nprint(df.sort_values('revenue', ascending=False)['store'].tolist())\nprint(df.nlargest(2, 'revenue')['store'].tolist())",
+     "options": [
+      {
+       "text": "count bỏ ô thiếu; size vẫn đếm chúng.",
+       "detail": "count bỏ ô thiếu; size vẫn đếm chúng.",
+       "correct": true
+      },
+      {
+       "text": "Cả hai luôn bỏ ô thiếu.",
+       "detail": "count bỏ ô thiếu, còn size tính các vị trí."
+      },
+      {
+       "text": "size bỏ ô thiếu, count giữ chúng.",
+       "detail": "Vai trò count và size đã bị đảo ngược."
+      }
+     ],
+     "explanation": "count bỏ ô thiếu; size vẫn đếm chúng."
+    },
+    {
+     "question": "Muốn lấy ba doanh thu cao nhất, có thể dùng hàm nào?\n\nimport pandas as pd\nstatus = pd.Series(['paid', 'paid', 'cancelled', None], dtype='string')\nprint(status.value_counts().to_dict())\nprint(status.count())\nprint(status.size)",
+     "options": [
+      {
+       "text": "df.head(3) luôn là ba doanh thu lớn nhất.",
+       "detail": "Ba hàng đầu chưa chắc có ba doanh thu lớn nhất."
+      },
+      {
+       "text": "df.sort_index().head(3) luôn sắp theo revenue.",
+       "detail": "sort_index sắp nhãn hàng chứ không sắp revenue."
+      },
+      {
+       "text": "df.nlargest(3, \"revenue\").",
+       "detail": "df.nlargest(3, \"revenue\").",
+       "correct": true
+      }
+     ],
+     "explanation": "df.nlargest(3, \"revenue\")."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "count và size khác gì khi có ô thiếu?",
+     "answer": "count bỏ ô thiếu; size vẫn đếm chúng."
+    },
+    {
+     "prompt": "Muốn lấy ba doanh thu cao nhất, có thể dùng hàm nào?",
+     "answer": "df.nlargest(3, \"revenue\")."
+    },
+    {
+     "prompt": "Với [10, 20, 30], in trung bình và trung vị.",
+     "answer": "Cả hai bằng 20.0.",
+     "answerCode": "import pandas as pd\ns = pd.Series([10, 20, 30])\nprint(s.mean(), s.median())",
+     "answerExpected": "20.0 20.0"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.values có số hoặc None, có ít nhất một số. Trả count, size, mean, median từ một Series. Dùng các đại lượng này để thấy số rất lớn có thể kéo mean khác median.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'values': [2, 4, 6, 40]}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'count': 4, 'size': 4, 'mean': 13.0, 'median': 5.0}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     s = pd.Series(data['values'], dtype=float)\n     return {'count': int(s.count()), 'size': int(s.size), 'mean': float(s.mean()), 'median': float(s.median())}\n",
+   "tests": [
+    {
+     "name": "giá trị xa",
+     "input": {
+      "values": [
+       2,
+       4,
+       6,
+       40
+      ]
+     },
+     "expected": {
+      "count": 4,
+      "size": 4,
+      "mean": 13.0,
+      "median": 5.0
+     }
+    },
+    {
+     "name": "một ô thiếu",
+     "input": {
+      "values": [
+       0,
+       null,
+       10
+      ]
+     },
+     "expected": {
+      "count": 2,
+      "size": 3,
+      "mean": 5.0,
+      "median": 5.0
+     }
+    },
+    {
+     "name": "một số",
+     "input": {
+      "values": [
+       7
+      ]
+     },
+     "expected": {
+      "count": 1,
+      "size": 1,
+      "mean": 7.0,
+      "median": 7.0
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cần giữ cả nhóm giá trị thiếu khi đếm tần suất."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Đếm giá trị đã biết và đọc trung bình cùng trung vị."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

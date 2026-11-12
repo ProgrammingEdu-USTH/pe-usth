@@ -15,7 +15,23 @@ import { createHash } from 'crypto';
 import { validateStudioLesson } from './studio-lesson.schema';
 
 export const ADVANCED_COURSE_ID = 'python_advanced';
-export const ADVANCED_LESSON_TOTAL = 48;
+/**
+ * SÀN, không phải con số chính xác — và đó là bản sửa sau LẦN THỨ BA con số này
+ * đi lạc.
+ *
+ * Nó từng là 48 (bộ pe-v4), rồi 172 (bộ pe-da). Mỗi lần khoá đổi số bài mà
+ * quên sửa ở đây thì `selectLessons()` từ chối MỌI gói, tức **mất hẳn đường nạp
+ * an toàn** — đường duy nhất sửa nội dung bài mà không xoá tiến độ người học.
+ * Lần thứ ba (module 11, 172 → 179) bị bắt bởi Jest, nhưng hai lần trước thì
+ * không: một hằng ghi cứng hỏng theo chiều CHẶN HẾT, nên nó đắt hơn hẳn thứ nó
+ * canh.
+ *
+ * Thứ nó canh là "gói bị cắt ngắn". Phép kiểm `sort_order === i + 1` ngay dưới
+ * đã đòi dãy LIÊN TỤC từ 1, nên một gói thiếu bài ở giữa đã đỏ ở đó; con số này
+ * chỉ còn bắt phần đuôi bị cắt. Sàn làm đúng việc đó mà không hỏng khi khoá dài
+ * ra. CHỈ ĐƯỢC NÂNG, cùng luật với mốc trần lint trong CI.
+ */
+export const ADVANCED_LESSON_MIN = 172;
 
 /** Một hàng của gói, đúng hình dạng build_advanced.py ghi ra. */
 export interface BundleRow {
@@ -79,10 +95,10 @@ export function parseCodesArg(argv: readonly string[]): string[] {
 /**
  * Kiểm CẢ gói rồi mới chọn bài. Có lỗi là trả `rows: []` — hoặc đủ, hoặc không gì cả.
  *
- * Vì sao đòi gói đủ 48 bài, sort_order 1..48 dù chỉ cập nhật vài bài: bài trong DB
+ * Vì sao đòi gói đủ 172 bài, sort_order 1..172 dù chỉ cập nhật vài bài: bài trong DB
  * được tra theo `(course_id, sort_order)` (xem AGENTS.md). Gói dựng thiếu (`--partial`,
- * `--only`) có thể dồn thứ tự, khi đó sort_order 14 của gói không còn là G01 và ta sẽ
- * ghi nội dung G01 đè lên bài khác.
+ * `--only`) có thể dồn thứ tự, khi đó sort_order 14 của gói không còn là
+ * đúng bài đó và ta sẽ ghi nội dung đè lên bài khác.
  */
 export function selectLessons(
   bundle: unknown,
@@ -100,12 +116,12 @@ export function selectLessons(
   }
   if (bundle.partial) {
     errors.push(
-      'Gói là bản dựng THIẾU bài (--partial/--only) — dựng lại đủ 48 bài.',
+      `Gói là bản dựng THIẾU bài (--partial/--only) — dựng lại đủ bộ, ít nhất ${ADVANCED_LESSON_MIN} bài.`,
     );
   }
-  if (lessons.length !== ADVANCED_LESSON_TOTAL) {
+  if (lessons.length < ADVANCED_LESSON_MIN) {
     errors.push(
-      `Gói có ${lessons.length} bài, cần đúng ${ADVANCED_LESSON_TOTAL}.`,
+      `Gói chỉ có ${lessons.length} bài, cần ít nhất ${ADVANCED_LESSON_MIN} — bản dựng bị cắt?`,
     );
   }
   lessons.forEach((row, i) => {
@@ -133,9 +149,17 @@ export function selectLessons(
     .map((code) => byCode.get(code))
     .filter((row): row is BundleRow => row !== undefined);
   for (const row of rows) {
-    if (!isObject(row.content_json) || !row.content_json.play) {
+    // Bài phải mang ĐÚNG MỘT trong hai hình dạng. Luật này bắt lỗi "nạp nhầm
+    // gói nửa chừng": bộ pe-v4 có `play` do build_advanced.py sinh ra, bộ pe-da
+    // có `step_1.read` do pe-da/build.py sinh ra. Gói thiếu cả hai là gói dựng
+    // dở, và nạp nó vào là bài mở ra trắng trơn mà không lỗi nào được ném.
+    const noiDung = isObject(row.content_json) ? row.content_json : null;
+    const coPlay = Boolean(noiDung?.play);
+    const coBaiDoc =
+      isObject(noiDung?.step_1) && Array.isArray(noiDung.step_1.read);
+    if (!coPlay && !coBaiDoc) {
       errors.push(
-        `${row.lesson_code}: thiếu khối play (gói chưa qua build_advanced.py?).`,
+        `${row.lesson_code}: không có khối play (pe-v4) lẫn step_1.read (pe-da) — gói dựng dở?`,
       );
     }
     const invalid = validateStudioLesson(row.content_json);

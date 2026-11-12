@@ -1,0 +1,258 @@
+{
+ "lesson_code": "PY05",
+ "sort_order": 5,
+ "module": "M1 · Python nền tảng",
+ "title": "PY05 · Phép toán và thứ tự tính",
+ "subtitle": "Cơ bản · M1 · 13 phút",
+ "estimated_minutes": 13,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PY05 · Phép toán và thứ tự tính",
+  "subtitle": "Cơ bản · M1 · 13 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PY05",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 34-36, 44-45; Python — Tutorial"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Số đã về đúng kiểu ở bài trước, giờ tính tiền cho một hoá đơn thật. Một khách gọi 3 cốc, mỗi cốc 15 nghìn, và bạn giảm 5 nghìn cho cả hoá đơn. Thứ tự tính quyết định số tiền thu được:"
+     },
+     {
+      "type": "code",
+      "code": "print(3 * 15 - 5)\nprint(3 * (15 - 5))",
+      "expected": "40\n30",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Hai con số khác nhau vì dấu ngoặc đổi thứ tự tính. Cách thứ nhất giảm 5 nghìn một lần cho cả hoá đơn, đúng điều bạn muốn. Cách thứ hai giảm 5 nghìn cho từng cốc, nên quán mất thêm 10 nghìn. Trong Python, nhân và chia tính trước cộng và trừ; khi ý nghĩa chưa rõ, hãy thêm ngoặc."
+     },
+     {
+      "type": "code",
+      "code": "print(7 / 2)\nprint(7 // 2, 7 % 2)\nprint(-7 // 2)",
+      "expected": "3.5\n3 1\n-4",
+      "tryIt": true
+     },
+     {
+      "type": "diagram",
+      "title": "Thứ tự phép tính — hai cách đọc cùng một dãy số",
+      "lanes": [
+       {
+        "label": "Không có ngoặc",
+        "steps": [
+         "3 * 15 - 5",
+         "45 - 5",
+         "40"
+        ],
+        "note": "Nhân chạy trước vì `*` ưu tiên hơn `-`: giảm 5 nghìn MỘT lần cho cả hoá đơn."
+       },
+       {
+        "label": "Có ngoặc",
+        "steps": [
+         "3 * (15 - 5)",
+         "3 * 10",
+         "30"
+        ],
+        "note": "Ngoặc chạy trước mọi thứ: giảm 5 nghìn cho TỪNG cốc, nên hoá đơn rẻ hơn 10 nghìn."
+       },
+       {
+        "label": "Chia thực `/`",
+        "steps": [
+         "7 / 2",
+         "3.5"
+        ],
+        "note": "`/` luôn trả số thực, kể cả khi chia hết — `4 / 2` ra `2.0`."
+       },
+       {
+        "label": "Chia lấy thương `//`",
+        "steps": [
+         "7 // 2",
+         "3"
+        ],
+        "note": "`//` làm tròn XUỐNG, nên `-7 // 2` ra `-4` chứ không phải `-3`."
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Cuối buổi bạn còn 7 chiếc bánh và 2 khay để xếp. `7 / 2` cho 3.5: đúng về số học, nhưng nửa chiếc bánh không xếp được thành khay. `7 // 2` cho 3, tức mỗi khay 3 chiếc, vì phép này lấy thương rồi làm tròn xuống. `7 % 2` cho 1, tức phần dư — đúng một chiếc còn thừa sau khi chia đều."
+     },
+     {
+      "type": "paragraph",
+      "text": "Hướng làm tròn xuống đáng nhớ vì nó không đổi khi số âm vào cuộc. Nó luôn đi về phía âm vô cùng, nên `-7 // 2` cho -4 chứ không phải -3. Ở sổ của quán, một con âm thường là dấu hiệu bạn đã trừ nhầm chiều."
+     },
+     {
+      "type": "code",
+      "code": "total = 10\ntotal += 5\nprint(total)\nprint(2 ** 3)\nprint(99 / 100)",
+      "expected": "15\n8\n0.99",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Trong lúc bán, bạn cộng dồn vào một biến thay vì tính lại từ đầu. `total += 5` cộng 5 rồi gán lại, tương đương `total = total + 5` với số ở ví dụ này. Trong `total + 5`, giá trị `total` hiện tại và 5 là hai toán hạng. `**` là lũy thừa, nên `2 ** 3` bằng 8."
+     },
+     {
+      "type": "paragraph",
+      "text": "Phép chia còn một chi tiết dễ vấp khi bạn đọc tài liệu cũ. Python 3 cho `99 / 100` bằng 0.99 dù hai toán hạng đều là `int`. Trộn `int` với `float` như `2 + 3.0` thường cho `float`. Đừng chép kết quả chia của Python 2 vào bảng tính của quán."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PY04 · Biến, tên hợp lệ và kiểu dữ liệu"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Một gói hàng có 4 sản phẩm giá 12, phí giao cả gói là 3. Tổng tiền là biểu thức nào?",
+     "options": [
+      {
+       "text": "4 * 12 + 3",
+       "detail": "Đúng. Phí giao cộng một lần sau tiền bốn sản phẩm.",
+       "correct": true
+      },
+      {
+       "text": "4 + 12 * 3",
+       "detail": "Cách này nhân đơn giá với phí giao, không phản ánh đề bài."
+      },
+      {
+       "text": "4 * (12 + 3)",
+       "detail": "Cách này thu phí giao bốn lần."
+      }
+     ],
+     "explanation": "Đúng. Phí giao cộng một lần sau tiền bốn sản phẩm."
+    },
+    {
+     "question": "Bán 4 món giá 10, trừ 3 phí chung. Kết quả ở lệnh print cuối có giá trị nào?\n\nprint(4 * 10 - 3)",
+     "options": [
+      {
+       "text": "28",
+       "detail": "4 * (10 - 3) trừ phí bốn lần."
+      },
+      {
+       "text": "37",
+       "detail": "Phép nhân tính tiền bán trước khi trừ một lần phí chung.",
+       "correct": true
+      },
+      {
+       "text": "43",
+       "detail": "Bài đang trừ phí, không cộng thêm."
+      }
+     ],
+     "explanation": "Phép nhân tính tiền bán trước khi trừ một lần phí chung."
+    },
+    {
+     "question": "Chia đều 9 lít cho 2 bình. Kết quả ở lệnh print cuối có giá trị nào?\n\nprint(9 / 2)",
+     "options": [
+      {
+       "text": "1",
+       "detail": "Đó là số dư khi chia 9 cho 2."
+      },
+      {
+       "text": "4",
+       "detail": "Đó là phần nguyên của phép chia, không phải /. "
+      },
+      {
+       "text": "4.5",
+       "detail": "/ thực hiện chia thực trong Python 3.",
+       "correct": true
+      }
+     ],
+     "explanation": "/ thực hiện chia thực trong Python 3."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Vì sao hai phép tính đầu cho kết quả khác nhau?",
+     "answer": "Một phép giảm cho cả hóa đơn, một phép giảm trên từng cốc; dấu ngoặc xác định phần được tính trước."
+    },
+    {
+     "prompt": "Điền kết quả 7 // 2 và 7 % 2.",
+     "answer": "3 và 1."
+    },
+    {
+     "prompt": "Viết doanh thu 4 sản phẩm giá 12, trừ 6 phí chung.",
+     "answer": "4 * 12 - 6 cho 42. Dùng 4 * (12 - 6) sẽ trừ phí bốn lần."
+    },
+    {
+     "prompt": "Trong x = x + 2 với x ban đầu là 5, toán hạng là gì và x cuối cùng là bao nhiêu? 2 ** 3 và 2 + 3 * 4.0 bằng bao nhiêu?",
+     "answer": "Hai toán hạng của + là giá trị x cũ (5) và 2; phép gán gắn x tới kết quả 7. Hai biểu thức sau là 8 và 14.0; phép nhân thực hiện trước cộng và có float tham gia."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Hệ thống cung cấp quantity là số sản phẩm trong một gói. Mỗi sản phẩm giá 12, phí giao mỗi gói là 3. Gán tổng tiền vào total, kể cả gói có quantity bằng 0 vẫn có phí giao.",
+    "io": [
+     {
+      "label": "quantity =",
+      "value": "4"
+     },
+     {
+      "label": "total =",
+      "value": "51"
+     }
+    ]
+   },
+   "starterCode": "# Hệ thống cung cấp quantity là số sản phẩm trong một gói.\n# Hệ thống cung cấp quantity; gán kết quả vào total.\n",
+   "solutionCode": "total = quantity * 12 + 3\n",
+   "tests": [
+    {
+     "name": "Bốn sản phẩm",
+     "input": 4,
+     "expected": 51
+    },
+    {
+     "name": "Một sản phẩm",
+     "input": 1,
+     "expected": 15
+    },
+    {
+     "name": "Gói chỉ thu phí",
+     "input": 0,
+     "expected": 3
+    }
+   ],
+   "contract": {
+    "mode": "script",
+    "inputVariable": "quantity",
+    "resultVariable": "total"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Phí giao tính một lần cho cả gói, không phải một lần mỗi sản phẩm."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Tính quantity nhân 12 trước, rồi cộng thêm 3 và gán vào total."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

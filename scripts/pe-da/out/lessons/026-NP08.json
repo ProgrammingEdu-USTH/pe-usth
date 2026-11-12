@@ -1,0 +1,288 @@
+{
+ "lesson_code": "NP08",
+ "sort_order": 26,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP08 · Xếp lại bằng reshape",
+ "subtitle": "Cơ bản · M2 · 10 phút",
+ "estimated_minutes": 10,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "NP08 · Xếp lại bằng reshape",
+  "subtitle": "Cơ bản · M2 · 10 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#NP08",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "Advanced-Python-Tai-Lieu-Mon-Hoc.pdf tr. 109-111; NumPy · reshape"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bảng của quán không phải lúc nào cũng về sẵn hai chiều như bài trước. Một file xuất số bán thành dãy `[12, 15, 9, 10, 8, 14]`. Quy ước của file cho biết ba số đầu thuộc cửa hàng A, ba số sau thuộc cửa hàng B. Bạn có thể xếp lại thành bảng 2 hàng, 3 cột:"
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\n\nvalues = np.array([12, 15, 9, 10, 8, 14])\nsales = values.reshape(2, 3)\nprint(sales)",
+      "expected": "[[12 15  9]\n [10  8 14]]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`reshape(2, 3)` đổi cách xếp sáu phần tử. Trong cách dùng ở đây, các số được điền lần lượt hết hàng đầu rồi sang hàng tiếp theo. `reshape` không tự biết cửa hàng nào là A hay B; thứ tự này phải đến từ quy ước dữ liệu."
+     },
+     {
+      "type": "paragraph",
+      "text": "Bạn cũng có thể tạo sáu số bằng `arange` rồi xếp thành bảng:"
+     },
+     {
+      "type": "code",
+      "code": "a = np.arange(1, 7)\nprint(a.reshape(2, 3))",
+      "expected": "[[1 2 3]\n [4 5 6]]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Sáu số xếp vừa bảng 2 × 3 vì 2 × 3 = 6. Cũng sáu số đó có thể xếp thành bảng 3 × 2:"
+     },
+     {
+      "type": "code",
+      "code": "a = np.arange(1, 7)\nprint(a.reshape(3, 2))",
+      "expected": "[[1 2]\n [3 4]\n [5 6]]",
+      "tryIt": true
+     },
+     {
+      "type": "diagram",
+      "title": "Cùng sáu con số, hai hình dạng",
+      "lanes": [
+       {
+        "label": "2 hàng × 3 cột",
+        "steps": [
+         "a.reshape(2, 3)",
+         "sáu số xếp thành 2 hàng",
+         "[[1 2 3] [4 5 6]]"
+        ],
+        "note": "Đọc theo HÀNG: lấp đầy hàng thứ nhất rồi mới xuống hàng sau."
+       },
+       {
+        "label": "3 hàng × 2 cột",
+        "steps": [
+         "a.reshape(3, 2)",
+         "sáu số xếp thành 3 hàng",
+         "[[1 2] [3 4] [5 6]]"
+        ],
+        "note": "Vẫn đúng sáu số và đúng thứ tự — chỉ chỗ XUỐNG DÒNG đổi. Tích hai số phải bằng 6, nếu không numpy báo lỗi."
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Số phần tử trước và sau phải bằng nhau. Nếu gọi `reshape(4, 2)` cho sáu số, NumPy báo `ValueError` vì bảng cần 8 ô."
+     },
+     {
+      "type": "paragraph",
+      "text": "Khi đã biết một chiều, bạn có thể để NumPy tính chiều còn lại bằng `-1`. Chẳng hạn, `a.reshape(-1, 3)` với sáu số sẽ có 2 hàng. Chỉ để một chiều là `-1`, và các số vẫn phải chia vừa theo chiều đã cho."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "NP05 · Tạo dãy bằng arange, NP07 · Đọc shape, ndim và size"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Có 8 số. Cách xếp nào vừa đủ?",
+     "options": [
+      {
+       "text": "reshape(4,2)",
+       "detail": "Đúng. 4×2=8.",
+       "correct": true
+      },
+      {
+       "text": "reshape(2,3)",
+       "detail": "Cách này chỉ có 6 ô, không giữ đủ 8 số."
+      },
+      {
+       "text": "reshape(3,3)",
+       "detail": "Cách này cần 9 số."
+      }
+     ],
+     "explanation": "Đúng. 4×2=8."
+    },
+    {
+     "question": "Sáu giá trị điền lần lượt theo hàng. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\na = np.arange(1, 7)\nprint(a.reshape(2, 3))",
+     "options": [
+      {
+       "text": "[[1, 3, 5], [2, 4, 6]]",
+       "detail": "reshape mặc định điền theo hàng, không lấy xen kẽ."
+      },
+      {
+       "text": "[[1, 2], [3, 4], [5, 6]]",
+       "detail": "Đó là reshape(3,2)."
+      },
+      {
+       "text": "[[1, 2, 3], [4, 5, 6]]",
+       "detail": "Hai hàng, mỗi hàng ba giá trị, giữ thứ tự dãy ban đầu.",
+       "correct": true
+      }
+     ],
+     "explanation": "Hai hàng, mỗi hàng ba giá trị, giữ thứ tự dãy ban đầu."
+    },
+    {
+     "question": "Cũng sáu số nhưng mỗi hàng hai ô. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\na = np.arange(1, 7)\nprint(a.reshape(3, 2))",
+     "options": [
+      {
+       "text": "[[1, 4], [2, 5], [3, 6]]",
+       "detail": "Không phải chuyển vị của bảng trước."
+      },
+      {
+       "text": "[[1, 2], [3, 4], [5, 6]]",
+       "detail": "reshape chia dãy lần lượt thành ba hàng có hai cột.",
+       "correct": true
+      },
+      {
+       "text": "[[1, 2, 3], [4, 5, 6]]",
+       "detail": "Đó là hai hàng ba cột."
+      }
+     ],
+     "explanation": "reshape chia dãy lần lượt thành ba hàng có hai cột."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Có thể xếp 6 số thành bảng 2 hàng, 4 cột không? Vì sao?",
+     "answer": "Không. Bảng 2 × 4 cần 8 số, nhưng chỉ có 6 số."
+    },
+    {
+     "prompt": "Có 12 số, muốn mỗi hàng có 4 cột: `reshape(___, 4)` cần điền gì?",
+     "answer": "Điền `3`, vì 3 × 4 = 12."
+    },
+    {
+     "prompt": "Xếp `np.arange(1, 9)` thành bảng 4 hàng, 2 cột. Giải thích vì sao số phần tử vừa đủ.",
+     "answer": "Có 8 số, vừa đủ bảng 4 × 2:",
+     "answerCode": "import numpy as np\n\na = np.arange(1, 9)\nprint(a.reshape(4, 2))",
+     "answerExpected": "[[1 2]\n [3 4]\n [5 6]\n [7 8]]"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận dictionary có values là dãy số và columns là số cột. Các dãy đều chia vừa. Trả bảng xếp lần lượt theo hàng với đúng số cột được yêu cầu.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'values': [1, 2, 3, 4, 5, 6], 'columns': 3}"
+     },
+     {
+      "label": "trả về",
+      "value": "[[1, 2, 3], [4, 5, 6]]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    values = np.array(data[\"values\"])\n    return values.reshape(-1, data[\"columns\"])\n",
+   "tests": [
+    {
+     "name": "Sáu số ba cột",
+     "input": {
+      "values": [
+       1,
+       2,
+       3,
+       4,
+       5,
+       6
+      ],
+      "columns": 3
+     },
+     "expected": [
+      [
+       1,
+       2,
+       3
+      ],
+      [
+       4,
+       5,
+       6
+      ]
+     ]
+    },
+    {
+     "name": "Bốn số hai cột",
+     "input": {
+      "values": [
+       8,
+       6,
+       4,
+       2
+      ],
+      "columns": 2
+     },
+     "expected": [
+      [
+       8,
+       6
+      ],
+      [
+       4,
+       2
+      ]
+     ]
+    },
+    {
+     "name": "Một số một cột",
+     "input": {
+      "values": [
+       0
+      ],
+      "columns": 1
+     },
+     "expected": [
+      [
+       0
+      ]
+     ]
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Số cột đã được cho; số hàng được suy ra từ tổng số phần tử."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "reshape cho phép để đúng một chiều là -1."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

@@ -1,0 +1,235 @@
+{
+ "lesson_code": "PY04",
+ "sort_order": 4,
+ "module": "M1 · Python nền tảng",
+ "title": "PY04 · Biến, tên hợp lệ và kiểu dữ liệu",
+ "subtitle": "Cơ bản · M1 · 17 phút",
+ "estimated_minutes": 17,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PY04 · Biến, tên hợp lệ và kiểu dữ liệu",
+  "subtitle": "Cơ bản · M1 · 17 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PY04",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 29-33, 38-45; Python — Tutorial"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Ô code bạn vừa chạy ở bài trước giữ được số liệu giữa các lần bấm. Nhưng số liệu của quán đến từ nhiều chỗ, và không chỗ nào cũng đưa cho bạn một con số. Bạn gõ giá bán vào một ô nhập trên máy tính tiền, và nó trả về chuỗi \"15\" chứ không phải số 15. Trước khi tính doanh thu, bạn phải đổi chuỗi đó thành số:"
+     },
+     {
+      "type": "code",
+      "code": "raw = \"15\"\nprice = int(raw)\nprint(price * 2)\nprint(type(raw).__name__, type(price).__name__)",
+      "expected": "30\nstr int",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Bốn kiểu dữ liệu sau đủ cho sổ của quán lúc này. `int` là số nguyên, dùng cho số cốc. `float` là số thực, dùng cho khối lượng cà phê đã xay. `str` là chuỗi, dùng cho tên món. `bool` chỉ có `True` hoặc `False`, dùng cho câu hỏi kiểu đơn đã thanh toán hay chưa."
+     },
+     {
+      "type": "paragraph",
+      "text": "Số nguyên Python không bị chặn ở 32 hay 64 bit, nên tổng tiền cả năm vẫn viết thẳng được. Giới hạn thật nằm ở bộ nhớ máy. `int(raw)` tạo một giá trị số từ chuỗi phù hợp, còn chuỗi ban đầu vẫn là chuỗi. Nếu nhân viên gõ \"mười lăm\", phép đổi gây `ValueError`."
+     },
+     {
+      "type": "code",
+      "code": "value = \"15\"\nvalue = 15.5\nprint(type(value).__name__)\nprint(2e4)",
+      "expected": "float\n20000.0",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Cùng một tên có thể trỏ sang thứ khác: `value` vừa giữ chuỗi giá, giờ giữ một số thực. Python dùng kiểu động, nên một tên được gán tới một đối tượng (object) khác kiểu mà không phải khai lại. Điều đó không biến object chuỗi cũ thành số thực. `2e4` là cách viết số thực 2 × 10 mũ 4, tiện khi ghi doanh thu lớn."
+     },
+     {
+      "type": "code",
+      "code": "import keyword\nprint(\"total_cups\".isidentifier())\nprint(\"2cups\".isidentifier())\nprint(keyword.iskeyword(\"for\"))",
+      "expected": "True\nFalse\nTrue",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Tên biến trong sổ cũng phải theo luật của Python. Tên gồm chữ, số và gạch dưới, và không bắt đầu bằng số. Không dùng từ khóa như `for` làm tên. `total cups` hay `total-cups` không phải tên vì có dấu cách và dấu trừ. `cups` và `Cups` là hai tên khác nhau, nên đừng ghi số cốc vào một cái rồi đọc cái kia."
+     },
+     {
+      "type": "paragraph",
+      "text": "`keyword.iskeyword` kiểm một tên, còn `keyword.kwlist` cho danh sách từ khóa của Python đang chạy. Chọn tên gợi rõ nội dung giúp bạn không nhầm số lượng với đơn giá — hai cột rất dễ lẫn trong một sổ bán hàng."
+     },
+     {
+      "type": "paragraph",
+      "text": "Phép đổi kiểu không tự xảy ra cho mọi phép tính. `\"15\" + 2` gây `TypeError` vì đang cộng chuỗi với số. `float(\"12.5\")` cho 12.5, còn `int(\"12.5\")` gây `ValueError`. Khi số liệu đến từ ô nhập hay từ file máy tính tiền xuất ra, bạn chọn phép đổi theo ý nghĩa của cột. Số cốc dùng `int`, khối lượng dùng `float`."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PY03 · REPL, notebook và trạng thái đã chạy"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "raw = \"12.5\". Biểu thức nào tính tiền của hai cốc?",
+     "options": [
+      {
+       "text": "float(raw) * 2",
+       "detail": "Đúng. Chuỗi có phần thập phân cần đổi sang float trước.",
+       "correct": true
+      },
+      {
+       "text": "raw * 2",
+       "detail": "Nhân chuỗi lặp lại văn bản, không nhân giá."
+      },
+      {
+       "text": "int(raw) * 2",
+       "detail": "int(\"12.5\") không đổi trực tiếp được chuỗi có dấu thập phân."
+      }
+     ],
+     "explanation": "Đúng. Chuỗi có phần thập phân cần đổi sang float trước."
+    },
+    {
+     "question": "Giá một cốc gõ vào ô nhập là chuỗi. Kết quả ở lệnh print cuối có giá trị nào?\n\nraw = \"18\"\nprice = int(raw)\nprint(price * 2)",
+     "options": [
+      {
+       "text": "20",
+       "detail": "Phép tính là nhân giá với hai cốc, không cộng 2."
+      },
+      {
+       "text": "36",
+       "detail": "int(\"18\") tạo số nguyên 18 trước phép nhân.",
+       "correct": true
+      },
+      {
+       "text": "1818",
+       "detail": "Giá đã được đổi thành int trước khi nhân."
+      }
+     ],
+     "explanation": "int(\"18\") tạo số nguyên 18 trước phép nhân."
+    },
+    {
+     "question": "Giá có phần lẻ. Kết quả ở lệnh print cuối có giá trị nào?\n\nraw = \"7.5\"\nprice = float(raw)\nprint(price * 2)",
+     "options": [
+      {
+       "text": "'7.57.5'",
+       "detail": "float đã chuyển chuỗi thành số."
+      },
+      {
+       "text": "14",
+       "detail": "Không cắt 7.5 xuống 7."
+      },
+      {
+       "text": "15.0",
+       "detail": "float giữ phần thập phân; hai giá 7.5 cộng lại là 15.",
+       "correct": true
+      }
+     ],
+     "explanation": "float giữ phần thập phân; hai giá 7.5 cộng lại là 15."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Sau value = \"15\" rồi value = 15.5, kiểu hiện tại là gì?",
+     "answer": "float; tên value đang tham chiếu object số thực."
+    },
+    {
+     "prompt": "Tên nào dùng được: 2price, total_price, for?",
+     "answer": "total_price. 2price bắt đầu bằng số; for là từ khóa."
+    },
+    {
+     "prompt": "Chuyển \"12.5\" thành số rồi nhân 2.",
+     "answer": "float(\"12.5\") * 2 cho 25.0. int(\"12.5\") không chuyển trực tiếp được chuỗi có dấu thập phân."
+    },
+    {
+     "prompt": "Sau cups = 12; Cups = 9; cups = 15, hai tên giữ gì? \"coffee\" và 'coffee' có khác giá trị không?",
+     "answer": "cups giữ 15, Cups giữ 9 vì tên phân biệt hoa thường. Hai literal chuỗi khác kiểu dấu nháy này có cùng giá trị coffee; 12 và 15 là literal số."
+    },
+    {
+     "prompt": "Kiểm các tên total cups, total-cups, for, total_cups và tra danh sách từ khóa của Python đang chạy thế nào?",
+     "answer": "Chỉ total_cups là tên biến hợp lệ trong các lựa chọn. Hai tên đầu có dấu cách/dấu trừ; for là keyword. Dùng import keyword; keyword.kwlist hoặc keyword.iskeyword(name) khi kiểm một tên."
+    },
+    {
+     "prompt": "True, 20000, 2e4 và \"A\" có kiểu gì? \"15\" + 2 và float(\"abc\") gây lỗi gì?",
+     "answer": "Lần lượt bool, int, float và str; Python không có char riêng. Phép cộng gây TypeError; phép đổi chuỗi không biểu diễn số gây ValueError."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Hệ thống cung cấp raw là giá một cốc dưới dạng chuỗi, ví dụ \"7.5\". Gán tiền hai cốc vào total; đầu vào là chuỗi số hợp lệ, không âm.",
+    "io": [
+     {
+      "label": "raw =",
+      "value": "'7.5'"
+     },
+     {
+      "label": "total =",
+      "value": "15.0"
+     }
+    ]
+   },
+   "starterCode": "# raw là giá một cốc dưới dạng chuỗi, ví dụ \"7.5\".\n# Gán tiền hai cốc vào total.\n",
+   "solutionCode": "price = float(raw)\ntotal = price * 2\n",
+   "tests": [
+    {
+     "name": "Giá thập phân",
+     "input": "7.5",
+     "expected": 15.0
+    },
+    {
+     "name": "Giá nguyên viết dạng chuỗi",
+     "input": "12",
+     "expected": 24.0
+    },
+    {
+     "name": "Vé miễn phí",
+     "input": "0",
+     "expected": 0.0
+    },
+    {
+     "name": "Giá nhỏ hơn một đơn vị",
+     "input": "0.25",
+     "expected": 0.5
+    }
+   ],
+   "contract": {
+    "mode": "script",
+    "inputVariable": "raw",
+    "resultVariable": "total"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "raw vẫn là chuỗi. Chọn phép đổi giữ được phần thập phân trước khi nhân."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Dùng float để có giá số, rồi gán kết quả nhân 2 vào total."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

@@ -1,0 +1,257 @@
+{
+ "lesson_code": "NP07",
+ "sort_order": 25,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP07 · Đọc shape, ndim và size",
+ "subtitle": "Cơ bản · M2 · 10 phút",
+ "estimated_minutes": 10,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "NP07 · Đọc shape, ndim và size",
+  "subtitle": "Cơ bản · M2 · 10 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#NP07",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "Advanced-Python-Tai-Lieu-Mon-Hoc.pdf tr. 109-111; NumPy · shape"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bảng hai quầy của quán vừa dựng xong cần được kiểm hình dạng trước khi tính. Bạn nhận một bảng được mô tả là dữ liệu của hai cửa hàng trong ba ngày. Trước khi cộng số bán, hãy kiểm tra bảng có đúng kích thước đó không:"
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\n\nsales = np.array([[12, 15, 9],\n                  [10,  8, 14]])\nprint(sales.shape)\nprint(sales.size)",
+      "expected": "(2, 3)\n6",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`shape` mô tả hình dạng của array. Với bảng hai chiều, `(2, 3)` nghĩa là 2 hàng và 3 cột. `size` đếm tất cả phần tử: bảng này có 2 × 3 = 6 ô."
+     },
+     {
+      "type": "paragraph",
+      "text": "`ndim` cho biết số chiều. `len(a)` cho biết độ dài chiều đầu tiên; với bảng hai chiều, đó là số hàng:"
+     },
+     {
+      "type": "code",
+      "code": "a = np.array([[1, 2, 3], [4, 5, 6]])\nprint(a.shape, a.ndim, a.size, len(a))",
+      "expected": "(2, 3) 2 6 2",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Bốn kết quả lần lượt là: hình dạng `(2, 3)`, số chiều 2, tổng số phần tử 6 và số hàng 2. Vì vậy, không dùng `len(a)` để đếm tất cả ô của một bảng."
+     },
+     {
+      "type": "paragraph",
+      "text": "So sánh với một array một chiều:"
+     },
+     {
+      "type": "code",
+      "code": "a = np.array([4, 5, 6])\nprint(a.shape, a.ndim, a.size)",
+      "expected": "(3,) 1 3",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "`(3,)` nghĩa là một chiều có độ dài 3. Dấu phẩy là cách Python viết `tuple` có một phần tử. Array này không phải bảng 1 hàng × 3 cột; bảng như vậy có `shape` là `(1, 3)` và `ndim` là 2."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "NP06 · Array hai chiều"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "a có shape (3,2). a.size bằng bao nhiêu?",
+     "options": [
+      {
+       "text": "2",
+       "detail": "2 là số chiều hoặc số cột trong ví dụ, không phải tổng số ô."
+      },
+      {
+       "text": "3",
+       "detail": "3 là độ dài chiều đầu, cũng là len(a) ở bảng này."
+      },
+      {
+       "text": "6",
+       "detail": "Đúng. Có 3×2 ô.",
+       "correct": true
+      }
+     ],
+     "explanation": "Đúng. Có 3×2 ô."
+    },
+    {
+     "question": "Bảng có hai cửa hàng và ba ngày. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\na = np.array([[1, 2, 3], [4, 5, 6]])\nprint(a.shape)",
+     "options": [
+      {
+       "text": "(2, 3)",
+       "detail": "Có hai list con, mỗi list ba phần tử nên shape là (2,3).",
+       "correct": true
+      },
+      {
+       "text": "6",
+       "detail": "6 là size, không phải shape."
+      },
+      {
+       "text": "[3, 2]",
+       "detail": "shape ghi số hàng trước số cột."
+      }
+     ],
+     "explanation": "Có hai list con, mỗi list ba phần tử nên shape là (2,3)."
+    },
+    {
+     "question": "Đếm tất cả số đo trong bảng. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\na = np.array([[1, 2, 3], [4, 5, 6]])\nprint(a.size)",
+     "options": [
+      {
+       "text": "2",
+       "detail": "2 là số hàng."
+      },
+      {
+       "text": "3",
+       "detail": "3 là số cột."
+      },
+      {
+       "text": "6",
+       "detail": "size bằng 2 × 3, tức sáu phần tử.",
+       "correct": true
+      }
+     ],
+     "explanation": "size bằng 2 × 3, tức sáu phần tử."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Một bảng 3 hàng, 2 cột có `size` bằng bao nhiêu?",
+     "answer": "Có 3 × 2 = 6 phần tử."
+    },
+    {
+     "prompt": "Với `a.shape` là `(4, 3)`, `len(a)` và `a.size` lần lượt bằng bao nhiêu?",
+     "answer": "`len(a)` là 4; `a.size` là 4 × 3 = 12."
+    },
+    {
+     "prompt": "Vẽ bảng có `shape` là `(2, 4)`, rồi ghi `ndim` và `size`.",
+     "answer": "Vẽ 2 hàng, mỗi hàng 4 ô. Bảng có `ndim=2` và `size=8`."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận bảng số không rỗng. Trả dictionary có shape, ndim và size của array được tạo từ bảng. Bạn có thể trả tuple ở shape; hệ thống sẽ hiển thị thành dãy.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "[[1, 2], [3, 4], [5, 6]]"
+     },
+     {
+      "label": "trả về",
+      "value": "{'shape': [3, 2], 'ndim': 2, 'size': 6}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    a = np.array(data)\n    return {\"shape\": a.shape, \"ndim\": a.ndim, \"size\": a.size}\n",
+   "tests": [
+    {
+     "name": "Bảng ba hàng hai cột",
+     "input": [
+      [
+       1,
+       2
+      ],
+      [
+       3,
+       4
+      ],
+      [
+       5,
+       6
+      ]
+     ],
+     "expected": {
+      "shape": [
+       3,
+       2
+      ],
+      "ndim": 2,
+      "size": 6
+     }
+    },
+    {
+     "name": "Một hàng",
+     "input": [
+      [
+       2,
+       4,
+       6
+      ]
+     ],
+     "expected": {
+      "shape": [
+       1,
+       3
+      ],
+      "ndim": 2,
+      "size": 3
+     }
+    },
+    {
+     "name": "Một ô",
+     "input": [
+      [
+       0
+      ]
+     ],
+     "expected": {
+      "shape": [
+       1,
+       1
+      ],
+      "ndim": 2,
+      "size": 1
+     }
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Ba đại lượng trả lời ba câu khác nhau: hình dạng, số chiều và số ô."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Đọc a.shape, a.ndim và a.size sau khi tạo array."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

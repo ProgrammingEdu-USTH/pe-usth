@@ -1,0 +1,269 @@
+{
+ "lesson_code": "PD20",
+ "sort_order": 61,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD20 · Pivot table và bảng đếm chéo",
+ "subtitle": "Trung cấp · M3 · 11 phút",
+ "estimated_minutes": 11,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PD20 · Pivot table và bảng đếm chéo",
+  "subtitle": "Trung cấp · M3 · 11 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PD20",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas · Pivot tables"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bảng báo cáo của quán ở bài trước giả định mỗi ô chỉ có một giá trị. Một cửa hàng có nhiều giao dịch trong tháng. Báo cáo cần một ô tổng doanh thu cho mỗi cửa hàng và tháng, nên lần này phải tổng hợp dữ liệu khi đổi hình dạng."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'month': ['Jan', 'Jan', 'Feb'], 'amount': [10, 20, 40]})\ntable = df.pivot_table(index='store', columns='month', values='amount', aggfunc='sum', fill_value=0)\nprint(table.loc['A', 'Jan'])\nprint(table.loc['A', 'Feb'])",
+      "expected": "30\n0",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "aggfunc=\"sum\" nêu rõ cách tính; mặc định pivot_table thường dùng mean nên không nên bỏ trống khi báo cáo tổng. fill_value=0 điền ô chưa có tổ hợp sau tổng hợp, chỉ phù hợp nếu không có giao dịch nghĩa là 0."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'channel': ['web', 'web', 'shop'], 'paid': ['yes', 'no', 'yes']})\ncounts = pd.crosstab(df['channel'], df['paid'])\nrates = pd.crosstab(df['channel'], df['paid'], normalize='index')\nprint(counts.loc['web', 'yes'])\nprint(rates.loc['web', 'yes'])",
+      "expected": "1\n0.5",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "crosstab đếm tổ hợp phân loại. normalize=\"index\" chia trong từng hàng: web có một đơn đã thanh toán trên hai đơn, nên tỷ lệ là 0.5. `margins=True` có thể thêm hàng và cột tổng."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nwide = pd.DataFrame({'Jan': [10, 30], 'Feb': [20, 40]}, index=['A', 'B'])\nlong = wide.stack()\nprint(long.loc[('A', 'Feb')])\nprint(long.unstack().equals(wide))",
+      "expected": "20\nTrue",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "`stack` đưa tên cột thành một tầng index; `unstack` đưa tầng index trở lại thành cột. Chúng hữu ích khi dữ liệu đã có nhãn hàng, khác melt thường giữ các định danh trong cột."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "PD19 · Pivot và melt: đổi hình dạng bảng"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "A-Jan có 5 và 15. pivot_table mặc định dùng mean trả gì?",
+     "options": [
+      {
+       "text": "10",
+       "detail": "Đúng: mean của 5 và 15 bằng 10.",
+       "correct": true
+      },
+      {
+       "text": "15",
+       "detail": "Mặc định không lấy bản cuối."
+      },
+      {
+       "text": "20",
+       "detail": "Muốn 20 phải ghi aggfunc=\"sum\"."
+      }
+     ],
+     "explanation": "Tên báo cáo tổng doanh thu cần đi cùng phép tổng, không dựa vào mặc định mean."
+    },
+    {
+     "question": "Muốn doanh thu tổng trong pivot_table, phải chỉ rõ tham số nào?\n\nimport pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'month': ['Jan', 'Jan', 'Feb'], 'amount': [10, 20, 40]})\ntable = df.pivot_table(index='store', columns='month', values='amount', aggfunc='sum', fill_value=0)\nprint(table.loc['A', 'Jan'])\nprint(table.loc['A', 'Feb'])",
+     "options": [
+      {
+       "text": "normalize=\"sum\".",
+       "detail": "normalize dùng để chuẩn hóa tỷ lệ, không phải tham số chọn phép cộng của pivot_table."
+      },
+      {
+       "text": "fill_value=\"sum\".",
+       "detail": "fill_value quyết định giá trị điền cho ô vắng, không chọn phép cộng."
+      },
+      {
+       "text": "aggfunc=\"sum\".",
+       "detail": "aggfunc=\"sum\".",
+       "correct": true
+      }
+     ],
+     "explanation": "aggfunc=\"sum\"."
+    },
+    {
+     "question": "Tỷ lệ web–yes=0.5 khi normalize=\"index\" dùng mẫu số nào?\n\nimport pandas as pd\ndf = pd.DataFrame({'channel': ['web', 'web', 'shop'], 'paid': ['yes', 'no', 'yes']})\ncounts = pd.crosstab(df['channel'], df['paid'])\nrates = pd.crosstab(df['channel'], df['paid'], normalize='index')\nprint(counts.loc['web', 'yes'])\nprint(rates.loc['web', 'yes'])",
+     "options": [
+      {
+       "text": "Tổng số đơn của toàn bảng.",
+       "detail": "Mẫu số toàn bảng thuộc cách chuẩn hóa khác."
+      },
+      {
+       "text": "Tổng số đơn trong hàng web.",
+       "detail": "Tổng số đơn trong hàng web.",
+       "correct": true
+      },
+      {
+       "text": "Tổng số đơn trong cột yes.",
+       "detail": "Chuẩn hóa theo cột phải dùng mẫu số của cột, không phải index."
+      }
+     ],
+     "explanation": "Tổng số đơn trong hàng web."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Muốn doanh thu tổng trong pivot_table, phải chỉ rõ tham số nào?",
+     "answer": "aggfunc=\"sum\"."
+    },
+    {
+     "prompt": "Tỷ lệ web–yes=0.5 khi normalize=\"index\" dùng mẫu số nào?",
+     "answer": "Tổng số đơn trong hàng web."
+    },
+    {
+     "prompt": "Đếm tổ hợp g=[A,A,B], status=[ok,ok,no], rồi lấy ô A–ok.",
+     "answer": "Có 2 hàng.",
+     "answerCode": "import pandas as pd\ndf = pd.DataFrame({'g': ['A', 'A', 'B'], 'status': ['ok', 'ok', 'no']})\nprint(pd.crosstab(df['g'], df['status']).loc['A', 'ok'])",
+     "answerExpected": "2"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.rows là giao dịch store, month, amount. Tháng và cửa hàng được hỏi đều xuất hiện trong bảng; giao dịch của cặp đó có thể vắng và được quy ước là 0. Pivot_table với sum, fill_value=0 rồi trả tổng cho data.store và data.month.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'rows': [{'store': 'X', 'month': 'Mar', 'amount': 3}, {'store': 'X', 'month': 'Mar', 'amount': 9}], 'store': 'X', 'month': 'Mar'}"
+     },
+     {
+      "label": "trả về",
+      "value": "12.0"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     table = pd.DataFrame(data['rows']).pivot_table(index='store', columns='month', values='amount', aggfunc='sum', fill_value=0)\n     return float(table.loc[data['store'], data['month']])\n",
+   "tests": [
+    {
+     "name": "cộng nhiều giao dịch",
+     "input": {
+      "rows": [
+       {
+        "store": "X",
+        "month": "Mar",
+        "amount": 3
+       },
+       {
+        "store": "X",
+        "month": "Mar",
+        "amount": 9
+       }
+      ],
+      "store": "X",
+      "month": "Mar"
+     },
+     "expected": 12.0
+    },
+    {
+     "name": "ô vắng quy ước 0",
+     "input": {
+      "rows": [
+       {
+        "store": "A",
+        "month": "Jan",
+        "amount": 2
+       },
+       {
+        "store": "B",
+        "month": "Feb",
+        "amount": 8
+       }
+      ],
+      "store": "A",
+      "month": "Feb"
+     },
+     "expected": 0.0
+    },
+    {
+     "name": "một đơn 0",
+     "input": {
+      "rows": [
+       {
+        "store": "C",
+        "month": "Apr",
+        "amount": 0
+       }
+      ],
+      "store": "C",
+      "month": "Apr"
+     },
+     "expected": 0.0
+    },
+    {
+     "name": "ô có số dù bảng còn ô vắng",
+     "input": {
+      "rows": [
+       {
+        "store": "A",
+        "month": "Jan",
+        "amount": 2
+       },
+       {
+        "store": "A",
+        "month": "Feb",
+        "amount": 0
+       },
+       {
+        "store": "B",
+        "month": "Jan",
+        "amount": 5
+       }
+      ],
+      "store": "A",
+      "month": "Jan"
+     },
+     "expected": 2.0
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Các bản ghi trùng cặp khóa phải được cộng lại."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Tổng hợp các giao dịch khi chuyển tháng thành cột."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

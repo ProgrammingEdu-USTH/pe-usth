@@ -1,0 +1,263 @@
+{
+ "lesson_code": "PY10",
+ "sort_order": 10,
+ "module": "M1 · Python nền tảng",
+ "title": "PY10 · List: lấy, thêm và xóa phần tử",
+ "subtitle": "Cơ bản · M1 · 17 phút",
+ "estimated_minutes": 17,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PY10 · List: lấy, thêm và xóa phần tử",
+  "subtitle": "Cơ bản · M1 · 17 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PY10",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 64-78, 330; Python — Tutorial"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Mấy bài trước bạn chỉ giữ một con số cho một ngày. Sang tuần thứ hai, quán cần cả dãy để so ngày này với ngày khác. Bạn ghi số cốc bán ba ngày đầu vào một `list`, rồi hết ngày thứ tư thì thêm con số mới vào cuối:"
+     },
+     {
+      "type": "code",
+      "code": "cups = [12, 15, 9]\ncups.append(11)\nprint(cups)\nprint(cups[-2:])",
+      "expected": "[12, 15, 9, 11]\n[9, 11]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`list` có thứ tự, cho phép giá trị trùng — hai ngày bán đúng 12 cốc là chuyện thường — và sửa được sau khi tạo. `append` thêm đúng một phần tử. Khi muốn nối nhiều con số từ một dãy khác, dùng `extend`:"
+     },
+     {
+      "type": "code",
+      "code": "a = [1, 2]\na.append([3, 4])\nb = [1, 2]\nb.extend([3, 4])\nb.insert(0, 0)\nprint(a)\nprint(b)",
+      "expected": "[1, 2, [3, 4]]\n[0, 1, 2, 3, 4]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Giả sử sổ hai ngày đang là `[1, 2]` và bạn nhận thêm hai ngày `[3, 4]`. `append([3, 4])` thêm một phần tử là `list` con, nên sổ có ba ô và ô thứ ba lại là một dãy. `extend([3, 4])` thêm hai con số riêng, đúng ý \"ghi tiếp hai ngày\". `a + b` tạo một `list` mới, còn `a += b` mở rộng chính `a`. `insert(0, 0)` chèn số 0 ở đầu."
+     },
+     {
+      "type": "paragraph",
+      "text": "Bạn cũng sửa được sổ tại chỗ khi đếm lại và thấy lệch. `b[0] = 7` thay một ô. `b[1:3] = [8, 9]` thay cả đoạn ở chỉ số 1 và 2. Lát cắt rỗng như `b[1:1] = [6]` chèn thêm một ngày trước vị trí 1 mà không xoá ngày nào."
+     },
+     {
+      "type": "code",
+      "code": "values = [3, 1, 2, 1]\nvalues.remove(1)\nlast = values.pop()\ndel values[0]\nvalues.sort()\nvalues.reverse()\nprint(last, values)",
+      "expected": "1 [2]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Năm thao tác dưới đây hay dùng khi dọn một dãy đếm nháp. `remove(x)` xoá lần xuất hiện đầu tiên khớp `x`. `pop()` xoá và trả về phần tử cuối, còn `pop(index)` chọn vị trí cần lấy. `del` xoá theo vị trí hoặc theo lát cắt. `sort` sắp tại chỗ và `reverse` đảo tại chỗ; cả hai trả `None` chứ không trả `list` đã đổi."
+     },
+     {
+      "type": "paragraph",
+      "text": "Khi chỉ muốn đọc mà không xoá gì, dùng lát cắt. `values[1::2]` lấy các vị trí 1, 3, 5 và tiếp như vậy. `values[-5:]` lấy tối đa năm phần tử cuối, tức năm ngày gần nhất."
+     },
+     {
+      "type": "paragraph",
+      "text": "Còn một cái bẫy khi bạn muốn giữ lại bản gốc. Gán `b = a` không sao chép `list`: hai tên cùng trỏ vào một dãy, nên sửa `b` là sửa cả sổ gốc. Dùng `a.copy()` để có một bản sao nông. Với dữ liệu lồng nhau, vẫn phải xem hai bản có dùng chung object con hay không."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PY09 · Điều kiện, so sánh và khối lệnh"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "a=[1,2]; a.append([3,4]). a có bao nhiêu phần tử?",
+     "options": [
+      {
+       "text": "2",
+       "detail": "append làm list thay đổi, không chỉ tạo bản xem."
+      },
+      {
+       "text": "3",
+       "detail": "Đúng. List [3,4] được thêm như một phần tử.",
+       "correct": true
+      },
+      {
+       "text": "4",
+       "detail": "extend([3,4]) mới thêm hai số riêng."
+      }
+     ],
+     "explanation": "Đúng. List [3,4] được thêm như một phần tử."
+    },
+    {
+     "question": "Thêm một nhóm vào cuối danh sách. Kết quả ở lệnh print cuối có giá trị nào?\n\nvalues = [1, 2]\nvalues.append([3, 4])\nprint(values)",
+     "options": [
+      {
+       "text": "[1, 2, [3, 4]]",
+       "detail": "append thêm đối số như một phần tử duy nhất.",
+       "correct": true
+      },
+      {
+       "text": "[3, 4, 1, 2]",
+       "detail": "append thêm ở cuối, không ở đầu."
+      },
+      {
+       "text": "[1, 2, 3, 4]",
+       "detail": "extend mới thêm từng phần tử của list nhận vào."
+      }
+     ],
+     "explanation": "append thêm đối số như một phần tử duy nhất."
+    },
+    {
+     "question": "Thêm từng mã mới. Kết quả ở lệnh print cuối có giá trị nào?\n\nvalues = [1, 2]\nvalues.extend([3, 4])\nprint(values)",
+     "options": [
+      {
+       "text": "[3, 4]",
+       "detail": "extend không bỏ các phần tử đã có."
+      },
+      {
+       "text": "[1, 2, [3, 4]]",
+       "detail": "Đó là kết quả của append một list."
+      },
+      {
+       "text": "[1, 2, 3, 4]",
+       "detail": "extend đưa từng phần tử của iterable vào list hiện tại.",
+       "correct": true
+      }
+     ],
+     "explanation": "extend đưa từng phần tử của iterable vào list hiện tại."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "append([3, 4]) và extend([3, 4]) khác nhau thế nào? a + b có sửa a giống a += b không?",
+     "answer": "append thêm một list con; extend thêm các phần tử 3 và 4 riêng. Với list, a + b tạo kết quả mới; a += b mở rộng a tại chỗ, nên các tên khác cùng tham chiếu a cũng thấy thay đổi."
+    },
+    {
+     "prompt": "Phương thức nào xóa và trả phần tử cuối? Với a=[1,2,3], a[1:1]=[8] rồi a.pop(0) trả gì và còn list nào?",
+     "answer": "pop() lấy phần tử cuối. Trong trường hợp được hỏi, slice rỗng chèn 8 tạo [1,8,2,3]; pop(0) trả 1 và a còn [8,2,3]."
+    },
+    {
+     "prompt": "Lưu bản gốc [3, 1, 2], tạo bản riêng rồi sắp tăng.",
+     "answer": "original = [3, 1, 2]; ordered = original.copy(); ordered.sort(). original vẫn [3, 1, 2], ordered là [1, 2, 3]."
+    },
+    {
+     "prompt": "Với a=[1,2,3,4], chạy a[1]=8 rồi a[2:4]=[9] được list nào? Nếu tiếp tục a[1:1]=[7] thì sao?",
+     "answer": "Sau hai phép gán là [1,8,9]; slice rỗng chèn 7 trước chỉ số 1, được [1,7,8,9]."
+    },
+    {
+     "prompt": "Với a=[3,1,2,1], remove(1), pop(0), reverse() lần lượt làm gì? sort() trả list mới hay None?",
+     "answer": "remove(1) xóa số 1 đầu tiên: [3,2,1]. pop(0) trả 3 và còn [2,1]. reverse đảo tại chỗ thành [1,2]. sort cũng sửa tại chỗ và trả None; del a[0] xóa theo vị trí mà không trả phần tử."
+    },
+    {
+     "prompt": "Với list(range(10)), [1::2] và [-5:] chọn gì?",
+     "answer": "Lần lượt [1,3,5,7,9] và [5,6,7,8,9]. Đây là đọc slice, không xóa phần tử."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Hệ thống cung cấp readings là list các số đo. Tạo ordered là bản sắp tăng; không sắp trực tiếp readings vì còn cần giữ thứ tự thu thập. Cuối cùng gán result = [readings, ordered] để đối chiếu bản gốc và bản đã xếp.",
+    "io": [
+     {
+      "label": "readings =",
+      "value": "[3, 1, 2]"
+     },
+     {
+      "label": "result =",
+      "value": "[[3, 1, 2], [1, 2, 3]]"
+     }
+    ]
+   },
+   "starterCode": "# Hệ thống cung cấp readings là list các số đo.\n# Hệ thống cung cấp readings; gán kết quả vào result.\n",
+   "solutionCode": "ordered = readings.copy()\nordered.sort()\nresult = [readings, ordered]\n",
+   "tests": [
+    {
+     "name": "Số đo chưa xếp",
+     "input": [
+      3,
+      1,
+      2
+     ],
+     "expected": [
+      [
+       3,
+       1,
+       2
+      ],
+      [
+       1,
+       2,
+       3
+      ]
+     ]
+    },
+    {
+     "name": "Số đo trùng và âm",
+     "input": [
+      2,
+      -1,
+      2
+     ],
+     "expected": [
+      [
+       2,
+       -1,
+       2
+      ],
+      [
+       -1,
+       2,
+       2
+      ]
+     ]
+    },
+    {
+     "name": "Chưa có số đo",
+     "input": [],
+     "expected": [
+      [],
+      []
+     ]
+    }
+   ],
+   "contract": {
+    "mode": "script",
+    "inputVariable": "readings",
+    "resultVariable": "result"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Chỉ đặt một tên mới cho readings chưa tạo bản sao."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Gọi copy trước khi sort. result cần chứa cả readings và ordered để đối chiếu."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

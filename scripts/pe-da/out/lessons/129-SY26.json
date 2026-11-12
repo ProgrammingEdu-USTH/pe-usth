@@ -1,0 +1,1101 @@
+{
+ "lesson_code": "SY26",
+ "sort_order": 129,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY26 · PW2–PW4: chuyển sang object rồi chia package",
+ "subtitle": "Trung cấp · M5 · 16 phút",
+ "estimated_minutes": 16,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY26 · PW2–PW4: chuyển sang object rồi chia package",
+  "subtitle": "Trung cấp · M5 · 16 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY26",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 109-110, 132, 150-151; Python — Classes; Python — Packages"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bước trước giữ dữ liệu trong các collection rời nhau. PW1 đã có cùng một dữ liệu đi qua nhiều hàm. Bây giờ chuyển hồ sơ món của quán thành object nhưng giữ các chức năng người dùng đang có. Mỗi Item vẫn cần mã, tên và nhóm:"
+     },
+     {
+      "type": "code",
+      "code": "class Item:\n    def __init__(self, code, name, group): self.code, self.name, self.group = code, name, group\n    def describe(self): return f\"{self.code}: {self.name} ({self.group})\"\nclass Ingredient:\n    def __init__(self, code, name, unit): self.code, self.name, self.unit = code, name, unit\n    def describe(self): return f\"{self.code}: {self.name}\"\nfor row in [Item(\"latte\", \"Latte\", \"Ca phe\"), Ingredient(\"ca-phe-hat\", \"Ca phe hat\", \"g\")]:\n    print(row.describe())",
+      "expected": "latte: Latte (Ca phe)\nca-phe-hat: Ca phe hat",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "self",
+        "line": 2,
+        "prompt": "Ngay sau khi dòng 2 chạy, `self` bằng mấy?",
+        "answer": "Item()"
+       },
+       "rows": [
+        {
+         "line": 1
+        },
+        {
+         "line": 1,
+         "fn": "Item",
+         "depth": 1,
+         "enter": true
+        },
+        {
+         "line": 1,
+         "fn": "Item",
+         "depth": 1
+        },
+        {
+         "line": 2,
+         "fn": "Item",
+         "depth": 1,
+         "set": [
+          [
+           "__init__",
+           "<hàm __init__>"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "Item",
+         "depth": 1,
+         "set": [
+          [
+           "describe",
+           "<hàm describe>"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "Item",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 4
+        },
+        {
+         "line": 4,
+         "fn": "Ingredient",
+         "depth": 1,
+         "enter": true
+        },
+        {
+         "line": 4,
+         "fn": "Ingredient",
+         "depth": 1
+        },
+        {
+         "line": 5,
+         "fn": "Ingredient",
+         "depth": 1,
+         "set": [
+          [
+           "__init__",
+           "<hàm __init__>"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "fn": "Ingredient",
+         "depth": 1,
+         "set": [
+          [
+           "describe",
+           "<hàm describe>"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "fn": "Ingredient",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 7
+        },
+        {
+         "line": 2,
+         "fn": "__init__",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "code",
+           "'latte'"
+          ],
+          [
+           "group",
+           "'Ca phe'"
+          ],
+          [
+           "name",
+           "'Latte'"
+          ],
+          [
+           "self",
+           "Item()"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "__init__",
+         "depth": 1,
+         "set": [
+          [
+           "self",
+           "Item(code='latte', name='Latte', group='Ca phe')"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "__init__",
+         "depth": 1,
+         "ret": "None",
+         "set": [
+          [
+           "code",
+           "'ca-phe-hat'"
+          ],
+          [
+           "name",
+           "'Ca phe hat'"
+          ],
+          [
+           "self",
+           "Ingredient()"
+          ],
+          [
+           "unit",
+           "'g'"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "__init__",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "code",
+           "'ca-phe-hat'"
+          ],
+          [
+           "name",
+           "'Ca phe hat'"
+          ],
+          [
+           "self",
+           "Ingredient()"
+          ],
+          [
+           "unit",
+           "'g'"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "__init__",
+         "depth": 1,
+         "set": [
+          [
+           "self",
+           "Ingredient(code='ca-phe-hat', name='Ca phe hat', unit='g')"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "__init__",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 8
+        },
+        {
+         "line": 3,
+         "fn": "describe",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "self",
+           "Item(code='latte', name='Latte', group='Ca phe')"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "describe",
+         "depth": 1
+        },
+        {
+         "line": 3,
+         "fn": "describe",
+         "depth": 1,
+         "ret": "'latte: Latte (Ca phe)'",
+         "out": "latte: Latte (Ca phe)"
+        },
+        {
+         "line": 7,
+         "set": [
+          [
+           "row",
+           "Ingredient(code='ca-phe-hat', name='Ca phe hat', unit='g')"
+          ]
+         ]
+        },
+        {
+         "line": 8
+        },
+        {
+         "line": 6,
+         "fn": "describe",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "self",
+           "Ingredient(code='ca-phe-hat', name='Ca phe hat', unit='g')"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "fn": "describe",
+         "depth": 1
+        },
+        {
+         "line": 6,
+         "fn": "describe",
+         "depth": 1,
+         "ret": "'ca-phe-hat: Ca phe hat'",
+         "out": "ca-phe-hat: Ca phe hat"
+        },
+        {
+         "line": 7
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Vòng lặp gọi cùng describe trên hai loại object. Đây là một cách thấy đa hình ở thao tác listing. Trong ứng dụng hoàn chỉnh, Registry quản lý dữ liệu và kiểm mã tham chiếu; RecipeLine giữ mã món/nguyên liệu và lượng. Không đặt việc gọi input ngay trong __init__ nếu còn muốn tạo object từ file."
+     },
+     {
+      "type": "code",
+      "code": "import math\nimport numpy as np\nclass RecipeLine:\n    def __init__(self, item_id, ingredient_id, amount):\n        self.item_id, self.ingredient_id = item_id, ingredient_id\n        self.set_amount(amount)\n    def set_amount(self, amount):\n        if type(amount) not in (int, float) or not math.isfinite(amount):\n            raise ValueError(\"amount\")\n        if not 0 <= amount <= 50:\n            raise ValueError(\"amount\")\n        self.amount = math.floor(amount * 10) / 10\nrows = [RecipeLine(\"latte\", \"ca-phe-hat\", 8.79), RecipeLine(\"mocha\", \"ca-phe-hat\", 6.29)]\namounts = np.array([row.amount for row in rows])\ncups = np.array([3, 1])\nprint(amounts.tolist())\nprint(round(float((amounts * cups).sum() / cups.sum()), 2))",
+      "expected": "[8.7, 6.2]\n8.07",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "self",
+        "line": 4,
+        "prompt": "Ngay sau khi dòng 4 chạy, `self` bằng mấy?",
+        "answer": "RecipeLine()"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "math",
+           "<thư viện math>"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "np",
+           "<thư viện numpy>"
+          ]
+         ]
+        },
+        {
+         "line": 3
+        },
+        {
+         "line": 3,
+         "fn": "RecipeLine",
+         "depth": 1,
+         "enter": true
+        },
+        {
+         "line": 3,
+         "fn": "RecipeLine",
+         "depth": 1
+        },
+        {
+         "line": 4,
+         "fn": "RecipeLine",
+         "depth": 1,
+         "set": [
+          [
+           "__init__",
+           "<hàm __init__>"
+          ]
+         ]
+        },
+        {
+         "line": 7,
+         "fn": "RecipeLine",
+         "depth": 1,
+         "set": [
+          [
+           "set_amount",
+           "<hàm set_amount>"
+          ]
+         ]
+        },
+        {
+         "line": 7,
+         "fn": "RecipeLine",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 13
+        },
+        {
+         "line": 4,
+         "fn": "__init__",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "amount",
+           "8.79"
+          ],
+          [
+           "ingredient_id",
+           "'ca-phe-hat'"
+          ],
+          [
+           "item_id",
+           "'latte'"
+          ],
+          [
+           "self",
+           "RecipeLine()"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "__init__",
+         "depth": 1,
+         "set": [
+          [
+           "self",
+           "RecipeLine(item_id='latte', ingredient_id='ca-phe-hat')"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "fn": "__init__",
+         "depth": 1
+        },
+        {
+         "line": 7,
+         "fn": "set_amount",
+         "depth": 2,
+         "enter": true,
+         "set": [
+          [
+           "amount",
+           "8.79"
+          ],
+          [
+           "self",
+           "RecipeLine(item_id='latte', ingredient_id='ca-phe-hat')"
+          ]
+         ]
+        },
+        {
+         "line": 8,
+         "fn": "set_amount",
+         "depth": 2
+        },
+        {
+         "line": 10,
+         "fn": "set_amount",
+         "depth": 2
+        },
+        {
+         "line": 12,
+         "fn": "set_amount",
+         "depth": 2,
+         "set": [
+          [
+           "self",
+           "RecipeLine(item_id='latte', ingredient_id='ca-phe-hat', amount=8.7)"
+          ]
+         ]
+        },
+        {
+         "line": 12,
+         "fn": "set_amount",
+         "depth": 2,
+         "ret": "None"
+        },
+        {
+         "line": 6,
+         "fn": "__init__",
+         "depth": 1,
+         "ret": "None",
+         "set": [
+          [
+           "amount",
+           "6.29"
+          ],
+          [
+           "item_id",
+           "'mocha'"
+          ],
+          [
+           "self",
+           "RecipeLine()"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "fn": "__init__",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "amount",
+           "6.29"
+          ],
+          [
+           "ingredient_id",
+           "'ca-phe-hat'"
+          ],
+          [
+           "item_id",
+           "'mocha'"
+          ],
+          [
+           "self",
+           "RecipeLine()"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "__init__",
+         "depth": 1,
+         "set": [
+          [
+           "self",
+           "RecipeLine(item_id='mocha', ingredient_id='ca-phe-hat')"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "fn": "__init__",
+         "depth": 1
+        },
+        {
+         "line": 7,
+         "fn": "set_amount",
+         "depth": 2,
+         "enter": true,
+         "set": [
+          [
+           "amount",
+           "6.29"
+          ],
+          [
+           "self",
+           "RecipeLine(item_id='mocha', ingredient_id='ca-phe-hat')"
+          ]
+         ]
+        },
+        {
+         "line": 8,
+         "fn": "set_amount",
+         "depth": 2
+        },
+        {
+         "line": 10,
+         "fn": "set_amount",
+         "depth": 2
+        },
+        {
+         "line": 12,
+         "fn": "set_amount",
+         "depth": 2,
+         "set": [
+          [
+           "self",
+           "RecipeLine(item_id='mocha', ingredient_id='ca-phe-hat', amount=6.2)"
+          ]
+         ]
+        },
+        {
+         "line": 12,
+         "fn": "set_amount",
+         "depth": 2,
+         "ret": "None"
+        },
+        {
+         "line": 6,
+         "fn": "__init__",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 14,
+         "set": [
+          [
+           "row",
+           "RecipeLine(item_id='latte', ingredient_id='ca-phe-hat', amount=8.7)"
+          ]
+         ]
+        },
+        {
+         "line": 14,
+         "set": [
+          [
+           "row",
+           "RecipeLine(item_id='mocha', ingredient_id='ca-phe-hat', amount=6.2)"
+          ]
+         ]
+        },
+        {
+         "line": 14,
+         "set": [
+          [
+           "RecipeLine",
+           "<lớp RecipeLine>"
+          ],
+          [
+           "amounts",
+           "ndarray: array([8.7, 6.2])"
+          ],
+          [
+           "math",
+           "<thư viện math>"
+          ],
+          [
+           "np",
+           "<thư viện numpy>"
+          ],
+          [
+           "row",
+           "Ingredient(code='ca-phe-hat', name='Ca phe hat', unit='g')"
+          ],
+          [
+           "rows",
+           "[RecipeLine(item_id='latte', ingredient_id='ca-phe-hat', amount=8.7), R…"
+          ]
+         ]
+        },
+        {
+         "line": 15,
+         "set": [
+          [
+           "cups",
+           "ndarray: array([3, 1])"
+          ]
+         ]
+        },
+        {
+         "line": 16,
+         "out": "[8.7, 6.2]"
+        },
+        {
+         "line": 17,
+         "out": "8.07"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Ở PW3, floor được áp lúc nhận lượng, rồi lượng trung bình dùng số đã lưu. Với 8.7 và 6.2, trung bình có trọng số là 8.075; ví dụ round trên `float` chỉ minh họa hiển thị, không thiết lập quy tắc làm tròn cho số liệu chính thức. Đề phải nói rõ dùng giá trị nào để xếp hạng và tie-break khi bằng nhau."
+     },
+     {
+      "type": "code",
+      "code": "files = {\"input.py\": \"doc du lieu\", \"output.py\": \"curses output\", \"domains/item.py\": \"Item\", \"domains/ingredient.py\": \"Ingredient\", \"domains/recipe.py\": \"RecipeLine\", \"domains/registry.py\": \"Registry\", \"domains/__init__.py\": \"exports\", \"main.py\": \"dieu phoi\"}\nprint(files[\"output.py\"])\nprint(sorted(name for name in files if name.startswith(\"domains/\")))",
+      "expected": "curses output\n['domains/__init__.py', 'domains/ingredient.py', 'domains/item.py', 'domains/recipe.py', 'domains/registry.py']",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "name",
+        "line": 3,
+        "prompt": "Ngay sau khi dòng 3 chạy, `name` bằng mấy?",
+        "answer": "'input.py'"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "files",
+           "{'input.py': 'doc du lieu', 'output.py': 'curses output', 'domains/item…"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "out": "curses output"
+        },
+        {
+         "line": 3
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "set": [
+          [
+           "name",
+           "'input.py'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "set": [
+          [
+           "name",
+           "'output.py'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "set": [
+          [
+           "name",
+           "'domains/item.py'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "'domains/item.py'"
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "name",
+           "'domains/item.py'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "set": [
+          [
+           "name",
+           "'domains/ingredient.py'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "'domains/ingredient.py'"
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "name",
+           "'domains/ingredient.py'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "set": [
+          [
+           "name",
+           "'domains/recipe.py'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "'domains/recipe.py'"
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "name",
+           "'domains/recipe.py'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "set": [
+          [
+           "name",
+           "'domains/registry.py'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "'domains/registry.py'"
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "name",
+           "'domains/registry.py'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "set": [
+          [
+           "name",
+           "'domains/__init__.py'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "'domains/__init__.py'"
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "name",
+           "'domains/__init__.py'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "set": [
+          [
+           "name",
+           "'main.py'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "None",
+         "out": "['domains/__init__.py', 'domains/ingredient.py', 'domains/item.py', 'domains/recipe.py', 'domains/registry.py']"
+        },
+        {
+         "line": 3,
+         "ret": "None"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Đây là sơ đồ file cần tạo, không phải một package do dictionary tự sinh ra. PW4 đặt class trong domains, nhập liệu trong input.py, `curses` output trong output.py và main.py nối các phần. Sau khi tách, chạy lại đúng những ca PW1 để kiểm việc đổi cấu trúc không làm mất chức năng."
+     },
+     {
+      "type": "paragraph",
+      "text": "Ở class RecipeLine trên, set_amount kiểm lượng rồi mới cập nhật self.amount. Mỗi lần đổi lượng cũng đi qua method này: nếu dữ liệu mới sai, lượng cũ vẫn còn. Kiểm kiểu trước khi gọi math.isfinite để không coi `True` là 1 gam; chỉ lưu số hữu hạn trong 0..50, sau đó mới floor một chữ số. Đây là một cách đóng gói quy tắc mà PW2/PW3 yêu cầu."
+     },
+     {
+      "type": "paragraph",
+      "text": "Để xếp theo lượng trung bình, dùng `sorted(items, key=lambda item: (-item.avg, item.code))`: lượng giảm dần, bằng nhau thì mã tăng dần. Nếu chỉ cần giữ thứ tự nhập khi hòa, có thể dùng key theo avg và `reverse=True`. Project mẫu tính trung bình trên những nguyên liệu đã khai, với trọng số là số cốc của chính các món đó. Món chưa khai nguyên liệu nào được ghi \"chưa có định lượng\" và xếp riêng; không thay lượng thiếu bằng 0. Công bố chính sách này trước khi so sánh kết quả."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "SY05 · Class và object: mỗi món có dữ liệu riêng, SY06 · Cho object cách hiển thị và so sánh, SY07 · Kế thừa, override và super, SY10 · Giữ trạng thái hợp lệ bằng getter và setter, SY12 · Gói và điểm bắt đầu của chương trình, SY13 · Làm tròn xuống và giá trung bình có trọng số, SY14 · Curses: nhận phím và vẽ lại giao diện terminal, SY25 · PW1: quản lý món, nguyên liệu và định lượng bằng collection"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Môn A điểm 8 tín chỉ 3, môn B chưa có điểm tín chỉ 2. Nếu tính GPA phần đã có điểm thì mẫu số là gì?",
+     "options": [
+      {
+       "text": "2",
+       "detail": "Số môn khác tổng tín chỉ; môn có điểm mang 3 tín chỉ."
+      },
+      {
+       "text": "3",
+       "detail": "Chỉ tín chỉ môn đã có điểm tham gia GPA phần đã biết.",
+       "correct": true
+      },
+      {
+       "text": "5",
+       "detail": "Bạn đã cho môn chưa chấm tham gia mẫu số mà không có điểm tương ứng."
+      }
+     ],
+     "explanation": "Chỉ tín chỉ môn đã có điểm tham gia GPA phần đã biết."
+    },
+    {
+     "question": "Tạo Student từ file có nên buộc __init__ luôn gọi input không?",
+     "options": [
+      {
+       "text": "Có; object chỉ được tạo từ bàn phím",
+       "detail": "Chưa đúng. Constructor nhận tham số giúp cả UI lẫn loader tạo object mà không phát sinh prompt ngoài ý muốn."
+      },
+      {
+       "text": "Chỉ cần input khi tên có dấu",
+       "detail": "Chưa đúng. Constructor nhận tham số giúp cả UI lẫn loader tạo object mà không phát sinh prompt ngoài ý muốn."
+      },
+      {
+       "text": "Không; nhận dữ liệu qua tham số để dùng lại",
+       "detail": "Constructor nhận tham số giúp cả UI lẫn loader tạo object mà không phát sinh prompt ngoài ý muốn.",
+       "correct": true
+      }
+     ],
+     "explanation": "Constructor nhận tham số giúp cả UI lẫn loader tạo object mà không phát sinh prompt ngoài ý muốn."
+    },
+    {
+     "question": "Student và Course cùng có describe. Vòng lặp gọi obj.describe() cho cả hai đang dùng ý tưởng gì?",
+     "options": [
+      {
+       "text": "Đa hình",
+       "detail": "Mỗi loại object cung cấp hành vi cùng tên phù hợp mà nơi gọi không cần phân nhánh theo loại.",
+       "correct": true
+      },
+      {
+       "text": "Mọi object bị biến thành cùng class",
+       "detail": "Chưa đúng. Mỗi loại object cung cấp hành vi cùng tên phù hợp mà nơi gọi không cần phân nhánh theo loại."
+      },
+      {
+       "text": "Sắp xếp theo mã",
+       "detail": "Chưa đúng. Mỗi loại object cung cấp hành vi cùng tên phù hợp mà nơi gọi không cần phân nhánh theo loại."
+      }
+     ],
+     "explanation": "Mỗi loại object cung cấp hành vi cùng tên phù hợp mà nơi gọi không cần phân nhánh theo loại."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "PW2 có được bỏ nhóm món hoặc chỉ giữ một nguyên liệu để đơn giản hóa không?",
+     "answer": "Không. Phải giữ tính năng PW1, bổ sung cách tổ chức bằng object, encapsulation và hành vi đa hình."
+    },
+    {
+     "prompt": "Công thức trung bình ở ví dụ dùng lượng 8.79 hay 8.7?",
+     "answer": "Dùng lượng đã floor lúc nhập, tức 8.7 theo yêu cầu PW3. Không âm thầm đổi quy tắc giữa nhập, lưu và báo cáo."
+    },
+    {
+     "prompt": "Nộp gói PW2–PW4 có đủ chức năng và cách xác nhận.",
+     "answer": "Tạo Item/Ingredient/RecipeLine/Registry; setter kiểm dữ liệu; các object có hành vi listing chung. PW3: math.floor 1 chữ số lúc nhập, NumPy tính trung bình có trọng số theo số cốc, xếp giảm dần, curses menu thật theo SY14. PW4: tách input.py/output.py/domains/main.py, import không tự mở UI. Nộp toàn cây file và video/menu terminal; kiểm cùng 2 món/2 nguyên liệu, đổi lượng, giữ nhóm món, lượng 0, xếp trung bình và lỗi mã trùng; ghi commit từng bước thay vì coi sơ đồ file là code đã chạy."
+    },
+    {
+     "prompt": "Lượng cũ 8.7: gọi set_amount với 99, True hoặc NaN có được đổi state không? Khi hai món có lượng trung bình bằng nhau và một món chưa khai nguyên liệu nào, bạn xếp thế nào?",
+     "answer": "Cả ba đầu vào phải bị từ chối trước khi gán, giữ lượng cũ 8.7. Chọn và công bố tie-break, ví dụ trung bình giảm rồi mã tăng bằng key=(-avg,code). Trung bình tính trên các nguyên liệu đã khai cùng số cốc tương ứng. Món chưa khai nguyên liệu nào có avg=None và được xếp riêng sau nhóm đã khai; không âm thầm gán 0 cho định lượng thiếu."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận dict có lines là list [mã món, định lượng]. Trả dict có amounts (list định lượng làm tròn 1 chữ số, giữ thứ tự) và mean (trung bình các định lượng ĐÃ làm tròn, làm tròn 2 chữ số). Lines rỗng thì amounts là [] và mean là None — trung bình của không số đo nào thì không có, đừng trả 0.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'lines': [['latte', 8.74], ['mocha', 6.21]]}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'amounts': [8.7, 6.2], 'mean': 7.45}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "def solve(data):\n    amounts = [round(luong, 1) for _, luong in data[\"lines\"]]\n    if not amounts:\n        return {\"amounts\": [], \"mean\": None}\n    return {\"amounts\": amounts,\n            \"mean\": round(sum(amounts) / len(amounts), 2)}\n",
+   "tests": [
+    {
+     "name": "Hai dòng như trong bài",
+     "input": {
+      "lines": [
+       [
+        "latte",
+        8.74
+       ],
+       [
+        "mocha",
+        6.21
+       ]
+      ]
+     },
+     "expected": {
+      "amounts": [
+       8.7,
+       6.2
+      ],
+      "mean": 7.45
+     }
+    },
+    {
+     "name": "Một dòng",
+     "input": {
+      "lines": [
+       [
+        "latte",
+        10.0
+       ]
+      ]
+     },
+     "expected": {
+      "amounts": [
+       10.0
+      ],
+      "mean": 10.0
+     }
+    },
+    {
+     "name": "Ba dòng, trung bình lẻ",
+     "input": {
+      "lines": [
+       [
+        "a",
+        1.04
+       ],
+       [
+        "b",
+        2.06
+       ],
+       [
+        "c",
+        3.01
+       ]
+      ]
+     },
+     "expected": {
+      "amounts": [
+       1.0,
+       2.1,
+       3.0
+      ],
+      "mean": 2.03
+     }
+    },
+    {
+     "name": "Chưa có định lượng nào",
+     "input": {
+      "lines": []
+     },
+     "expected": {
+      "amounts": [],
+      "mean": null
+     }
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Làm tròn TỪNG định lượng trước, rồi mới lấy trung bình của chúng."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "List rỗng vẫn phải trả dict đủ hai khoá — chỉ `mean` là None."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 3,
+  "bo": 0,
+  "loi": []
+ }
+}

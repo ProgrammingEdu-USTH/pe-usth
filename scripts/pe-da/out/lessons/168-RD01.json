@@ -1,0 +1,274 @@
+{
+ "lesson_code": "RD01",
+ "sort_order": 168,
+ "module": "M10 · Ôn API trực quan hóa và mở rộng NumPy cho phân tích",
+ "title": "RD01 · Đặt chú thích theo dữ liệu hoặc theo vùng vẽ",
+ "subtitle": "Trung cấp · M10 · 13 phút",
+ "estimated_minutes": 13,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "RD01 · Đặt chú thích theo dữ liệu hoặc theo vùng vẽ",
+  "subtitle": "Trung cấp · M10 · 13 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#RD01",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 329; Matplotlib annotations"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Năm bài cuối quay lại đúng bảng và đúng hình của quán mà bạn đã dựng ở các bài trước. Doanh thu cao nhất nằm ở ngày 2, nhưng bạn muốn lời giải thích luôn ở góc trên bên trái dù người xem đổi giới hạn trục. Một vị trí thuộc dữ liệu, vị trí còn lại thuộc vùng vẽ. Matplotlib cho phép chọn hai hệ tọa độ này riêng."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots()\nax.plot([1, 2, 3], [8, 10, 7])\nlabel = ax.text(0.05, 0.95, \"Three days only\", transform=ax.transAxes, va=\"top\")\nax.set(xlabel=\"Day\", ylabel=\"Revenue (million VND)\")\nprint(label.get_position())\nplt.show()\nplt.close(fig)",
+      "expected": "(0.05, 0.95)",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/RD01-1.png",
+      "alt": "Biểu đồ đường, trục ngang \"Day\", trục dọc \"Revenue (million VND)\", chú thích trên hình: \"Three days only\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`ax.text(x, y, ...)` mặc định hiểu x/y theo dữ liệu. `transform=ax.transAxes` đổi sang tỷ lệ `Axes`: (0,0) là góc dưới trái và (1,1) là góc trên phải. Trong ví dụ, chữ cách trái 5%, cách dưới 95%; va=\"top\" neo cạnh trên của chữ vào vị trí đó."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots()\nax.plot([1, 2, 3], [8, 10, 7], marker=\"o\")\nnote = ax.annotate(\"Peak: 10\", xy=(2, 10), xycoords=\"data\",\n                   xytext=(0.05, 0.95), textcoords=\"axes fraction\",\n                   va=\"top\", arrowprops={\"arrowstyle\":\"->\"})\nax.set(xlim=(0.5, 3.5), ylim=(0, 13), xlabel=\"Day\", ylabel=\"Revenue (million VND)\")\nprint(note.xy, note.get_position())\nplt.show()\nplt.close(fig)",
+      "expected": "(2, 10) (0.05, 0.95)",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/RD01-2.png",
+      "alt": "Biểu đồ đường, trục ngang \"Day\", trục dọc \"Revenue (million VND)\", chú thích trên hình: \"Peak: 10\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "xy là điểm mà mũi tên chỉ tới; xycoords=\"data\" giữ nó ở ngày 2, doanh thu 10. xytext và textcoords chọn nơi đặt chữ. \"axes fraction\" giúp chữ giữ vị trí tương đối trong vùng vẽ. Nếu chỉ muốn chữ nằm cách điểm một khoảng nhỏ cố định, textcoords=\"offset points\" dùng khoảng cách theo điểm in."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots()\nax.plot([1, 2, 3], [8, 10, 7])\nnote = ax.annotate(r\"$y=10$\", xy=(2, 10), xycoords=\"data\",\n                   xytext=(0, 12), textcoords=\"offset points\", ha=\"center\")\nax.set(xlim=(0.5, 3.5), ylim=(0, 13), xlabel=\"Day\", ylabel=\"Revenue (million VND)\")\ntitle = ax.set_title(\"Three daily observations\", fontsize=14)\nprint(note.get_text(), title.get_fontsize())\nplt.show()\nplt.close(fig)",
+      "expected": "$y=10$ 14.0",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/RD01-3.png",
+      "alt": "Biểu đồ đường, tiêu đề \"Three daily observations\", trục ngang \"Day\", trục dọc \"Revenue (million VND)\", chú thích trên hình: \"$y=10$\"."
+     },
+     {
+      "type": "paragraph",
+      "text": "Chữ ở ví dụ cuối nằm cao hơn điểm 12 điểm in. Chuỗi raw r\"...\" giữ dấu gạch chéo cho các lệnh toán như r\"$\\sigma$\"; dấu $ bật Mathtext. Mathtext định dạng ký hiệu chứ không tính giá trị. Khi chạy để xem hình, gọi `plt.show()` trước `plt.close(fig)`; các ví dụ ở đây đóng hình sau khi kiểm các thuộc tính."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "VZ09 · Nhãn, đơn vị, đường mốc và chú thích, VZ11 · Trục, tick, tỷ lệ log và giới hạn hiển thị"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Muốn chữ ở góc trên trái khi đổi giới hạn trục, chọn hệ tọa độ nào cho chữ?",
+     "options": [
+      {
+       "text": "Mặc định mọi text đều nằm theo tỷ lệ Axes",
+       "detail": "ax.text mặc định dùng tọa độ dữ liệu, cần chỉ rõ transform khi muốn tỷ lệ."
+      },
+      {
+       "text": "data",
+       "detail": "Tọa độ dữ liệu có thể dịch trên màn hình khi giới hạn trục đổi."
+      },
+      {
+       "text": "axes fraction",
+       "detail": "Đúng. Vị trí chữ là tỷ lệ của vùng vẽ, không phụ thuộc giá trị trục.",
+       "correct": true
+      }
+     ],
+     "explanation": "Đúng. Vị trí chữ là tỷ lệ của vùng vẽ, không phụ thuộc giá trị trục."
+    },
+    {
+     "question": "Nhãn ở 10% chiều ngang và 90% chiều cao vùng vẽ. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots()\nlabel = ax.text(0.1, 0.9, \"Note\", transform=ax.transAxes)\nprint(label.get_position())",
+     "options": [
+      {
+       "text": "(0.1, 0.9)",
+       "detail": "transform=ax.transAxes diễn giải vị trí theo vùng vẽ, không theo dữ liệu.",
+       "correct": true
+      },
+      {
+       "text": "[0.9, 0.1]",
+       "detail": "Tọa độ ngang đứng trước tọa độ dọc."
+      },
+      {
+       "text": "[10, 90]",
+       "detail": "axes fraction dùng tỷ lệ 0–1, không dùng phần trăm dạng 10 và 90."
+      }
+     ],
+     "explanation": "transform=ax.transAxes diễn giải vị trí theo vùng vẽ, không theo dữ liệu."
+    },
+    {
+     "question": "Mũi tên chỉ doanh thu ở ngày 3, chữ nằm ở góc hình. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots()\nnote = ax.annotate(\"Peak\", xy=(3, 20), xycoords=\"data\", xytext=(0.1, 0.9), textcoords=\"axes fraction\")\nprint(note.xy)",
+     "options": [
+      {
+       "text": "[0.1, 0.9]",
+       "detail": "Đó là xytext, vị trí của chữ."
+      },
+      {
+       "text": "(3, 20)",
+       "detail": "xy chọn điểm dữ liệu được chú thích; xytext chọn nơi đặt chữ.",
+       "correct": true
+      },
+      {
+       "text": "[20, 3]",
+       "detail": "Trong xy, x đứng trước y."
+      }
+     ],
+     "explanation": "xy chọn điểm dữ liệu được chú thích; xytext chọn nơi đặt chữ."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Trong hình doanh thu, text(0.05,0.95,...) có luôn nằm góc trên trái không?",
+     "answer": "Chỉ khi chọn transform=ax.transAxes. Mặc định đó là tọa độ dữ liệu 0.05 và 0.95, không phải tỷ lệ vùng vẽ."
+    },
+    {
+     "prompt": "Viết các tham số để mũi tên chỉ (2,10) theo dữ liệu, còn chữ ở (0.1,0.9) của Axes.",
+     "answer": "xy=(2,10), xycoords=\"data\", xytext=(0.1,0.9), textcoords=\"axes fraction\", arrowprops={\"arrowstyle\":\"->\"}."
+    },
+    {
+     "prompt": "Muốn chữ cách điểm 8 điểm in về bên phải, dùng xytext/textcoords thế nào? Muốn tiêu đề cỡ 14 và ký hiệu sigma thì viết gì?",
+     "answer": "xytext=(8,0), textcoords=\"offset points\". Dùng ax.set_title(\"...\",fontsize=14) và chuỗi raw r\"$\\sigma$\" trong text/annotate. Các hệ tọa độ khác nhau giải quyết vị trí, không thay giá trị số đo."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận day, revenue và labelPosition=[u,v]. Tạo Figure/Axes và annotation có mũi tên chỉ (day,revenue) theo dữ liệu; chữ ở labelPosition theo axes fraction. Trả target là note.xy, labelPosition là note.get_position(), targetCoordinates là note.xycoords và labelCoordinates là note.get_anncoords(), rồi đóng Figure. Hai thuộc tính cuối giúp kiểm hệ tọa độ thật của chú thích; không cần học thuộc tên getter. Bài kiểm cấu hình; hãy mở hình một lần trong môi trường có cửa sổ để tự xem.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'day': 2, 'revenue': 9, 'labelPosition': [0.1, 0.9]}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'target': [2, 9], 'labelPosition': [0.1, 0.9], 'targetCoordinates': 'data', 'labelCoordinates': 'axes fraction'}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\ndef solve(data):\n    fig, ax = plt.subplots()\n    note = ax.annotate(\"Observed\", xy=(data[\"day\"], data[\"revenue\"]), xycoords=\"data\",\n                       xytext=data[\"labelPosition\"], textcoords=\"axes fraction\",\n                       arrowprops={\"arrowstyle\": \"->\"})\n    result = {\"target\": note.xy, \"labelPosition\": note.get_position(),\n              \"targetCoordinates\": note.xycoords, \"labelCoordinates\": note.get_anncoords()}\n    plt.close(fig)\n    return result\n",
+   "tests": [
+    {
+     "name": "Điểm giữa hình",
+     "input": {
+      "day": 2,
+      "revenue": 9,
+      "labelPosition": [
+       0.1,
+       0.9
+      ]
+     },
+     "expected": {
+      "target": [
+       2,
+       9
+      ],
+      "labelPosition": [
+       0.1,
+       0.9
+      ],
+      "targetCoordinates": "data",
+      "labelCoordinates": "axes fraction"
+     }
+    },
+    {
+     "name": "Điểm đầu",
+     "input": {
+      "day": 1,
+      "revenue": 4,
+      "labelPosition": [
+       0.2,
+       0.8
+      ]
+     },
+     "expected": {
+      "target": [
+       1,
+       4
+      ],
+      "labelPosition": [
+       0.2,
+       0.8
+      ],
+      "targetCoordinates": "data",
+      "labelCoordinates": "axes fraction"
+     }
+    },
+    {
+     "name": "Số đo bằng không",
+     "input": {
+      "day": 3,
+      "revenue": 0,
+      "labelPosition": [
+       0,
+       1
+      ]
+     },
+     "expected": {
+      "target": [
+       3,
+       0
+      ],
+      "labelPosition": [
+       0,
+       1
+      ],
+      "targetCoordinates": "data",
+      "labelCoordinates": "axes fraction"
+     }
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Điểm mũi tên và nơi đặt chữ có thể thuộc hai hệ tọa độ khác nhau."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Dùng xycoords=\"data\" cho điểm, textcoords=\"axes fraction\" cho chữ rồi đọc lại các thuộc tính của note."
+    }
+   ],
+   "packages": [
+    "matplotlib"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

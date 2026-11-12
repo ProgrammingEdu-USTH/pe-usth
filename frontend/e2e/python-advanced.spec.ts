@@ -22,10 +22,10 @@ const SHOTS = process.env.E2E_SHOTS;
 
 type Row = { lesson_code: string; sort_order: number; title: string; xp_reward: number; content_json: StudioLesson };
 const rows: Row[] = JSON.parse(readFileSync(BUNDLE, 'utf8')).lessons;
-// 15/10/2026 — bỏ `v1Rows` (giáo trình khoá `python` cũ, studio-lesson/v1) và ca
-// kiểm luồng v1: route /lesson/python đã xoá. Khoá `python` không còn trong danh
-// mục (src/lib/catalog.ts) và `prisma/seed-courses.js` nay dựng nó RỖNG, nên ca
-// đó chỉ còn xanh nhờ chính mock trong file này — nó không canh gì thật nữa.
+/** Giáo trình khoá `python` cũ (studio-lesson/v1) — để kiểm tra không bị ảnh hưởng. */
+const v1Rows: Row[] = JSON.parse(
+  readFileSync(join(__dirname, '..', '..', 'scripts', 'pe-v3', 'out', 'lessons.json'), 'utf8'),
+).lessons;
 
 if (process.env.PW_CHANNEL) test.use({ channel: process.env.PW_CHANNEL });
 test.use({ viewport: { width: 1280, height: 900 } });
@@ -60,13 +60,13 @@ async function mockApi(page: Page) {
         ok: true,
         enrolled: [
           { id: 'python_advanced', courseId: 'python_advanced', totalLessons: rows.length },
+          { id: 'python', courseId: 'python', totalLessons: v1Rows.length },
         ],
       });
-    // Không còn stub /api/stats: nó chỉ trả `streak` cho pill chuỗi ngày, mà
-    // chuỗi ngày đã gỡ khỏi trang bài học nên không trang nào gọi route này nữa.
-    const content = /^\/api\/courses\/(python_advanced)\/lessons\/(\d+)\/content$/.exec(url.pathname);
+    if (url.pathname === '/api/stats') return json(route, { streak: 4 });
+    const content = /^\/api\/courses\/(python_advanced|python)\/lessons\/(\d+)\/content$/.exec(url.pathname);
     if (content) {
-      const row = rows[Number(content[2]) - 1];
+      const row = (content[1] === 'python' ? v1Rows : rows)[Number(content[2]) - 1];
       return json(route, { ok: true, completed: false, lesson: { title: row.title, xpReward: row.xp_reward, contentJson: row.content_json } });
     }
     const done = /^\/api\/lessons\/(\d+)\/complete$/.exec(url.pathname);
@@ -258,6 +258,18 @@ test.describe('Python Advanced — chơi hết bài', () => {
       await playLesson(page, code);
     });
   }
+
+  // CA "khoá python cũ (v1)" ĐÃ XOÁ 08/11/2026 — khoá nó kiểm không còn tồn tại.
+  //
+  // `prisma/seed-courses.js` nay tạo khoá `python` RỖNG: nó đọc `curricula[def.id]`
+  // mà `sync_curricula.py` đã bỏ hẳn khối `python` khỏi `curricula.json`. Nên
+  // `/lesson/python?lesson=0` không có bài nào để mở, và ca này đỏ vì SẢN PHẨM đã
+  // đổi theo một quyết định ĐÃ GHI (xem AGENTS.md), không phải vì có hồi quy.
+  //
+  // Xoá chứ không `skip`: một ca treo vĩnh viễn cho một khoá không còn là đúng
+  // thứ AGENTS.md gọi là "chỗ giấu rác". Và nói thẳng cái MẤT: luồng v1 S1–S4 nay
+  // KHÔNG còn ca nào canh — ngày khoá v1 sống lại thì phải viết ca mới, đừng
+  // tưởng bộ e2e vẫn đang canh nó.
 
   test.describe('điện thoại 390px', () => {
     test.use({ viewport: { width: 390, height: 844 } });

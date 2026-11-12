@@ -1,0 +1,237 @@
+{
+ "lesson_code": "PY12",
+ "sort_order": 12,
+ "module": "M1 · Python nền tảng",
+ "title": "PY12 · Dictionary và tra cứu theo khóa",
+ "subtitle": "Cơ bản · M1 · 15 phút",
+ "estimated_minutes": 15,
+ "xp_reward": 9,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PY12 · Dictionary và tra cứu theo khóa",
+  "subtitle": "Cơ bản · M1 · 15 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PY12",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 83-87, 330; Python — Tutorial"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "`tuple` ở bài trước giữ được một dòng bán hàng. Nhưng khi khách gọi \"latte\", bạn cần số của món đó ngay, không phải đi tìm nó nằm ô thứ mấy. Dictionary (kiểu từ điển lưu các cặp khoá–giá trị) cho bạn tra theo tên món:"
+     },
+     {
+      "type": "code",
+      "code": "da_ban = {\"espresso\": 8, \"latte\": 0}\nprint(da_ban[\"espresso\"])\nprint(da_ban.get(\"mocha\", \"khong ban\"))\nprint(\"latte\" in da_ban)",
+      "expected": "8\nkhong ban\nTrue",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`da_ban[\"espresso\"]` đọc giá trị của khóa đó, và gây `KeyError` nếu khóa không có. `get` cho bạn trả về một giá trị mặc định, nên một món chưa từng bán không làm chương trình dừng. Có khóa khác với có giá trị khác 0. `\"latte\"` nằm trong sổ với số liệu hợp lệ là 0 cốc, tức hôm nay chưa bán được cốc nào. `in` trên `dict` xét khóa, không xét giá trị."
+     },
+     {
+      "type": "code",
+      "code": "gia = {\"espresso\": 25}\ngia[\"latte\"] = 30\ngia.update({\"espresso\": 27})\nfor mon, tien in gia.items():\n    print(mon, tien)\nprint(list(gia.keys()), list(gia.values()))",
+      "expected": "espresso 27\nlatte 30\n['espresso', 'latte'] [27, 30]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Bảng giá đổi theo tuần. Bạn thêm món mới bằng `gia[\"latte\"] = 30` và sửa giá cũ bằng `update`. Khóa là duy nhất, nên gán `\"espresso\"` lần nữa chỉ thay giá của chính khóa đó chứ không tạo dòng thứ hai."
+     },
+     {
+      "type": "paragraph",
+      "text": "Trong `for mon, tien in gia.items()`, mỗi lượt lấy một cặp khóa và giá trị rồi gán vào `mon` và `tien`. Đây là vòng lặp `for`, và bài PY14 sẽ nói kỹ hơn về nó. `keys()` và `values()` trả về các view, tức cách xem khóa hoặc giá trị luôn phản ánh nội dung hiện tại của `dict`. Python 3 giữ thứ tự bạn đã chèn, nên bảng in ra theo đúng thứ tự bạn thêm món."
+     },
+     {
+      "type": "code",
+      "code": "gia = {\"espresso\": 25, \"latte\": 30, \"tra_da\": 12}\ndat_nhat = max(gia, key=gia.get)\nbo_di = gia.pop(\"tra_da\")\nprint(dat_nhat, bo_di)\nprint(min(gia, key=gia.get))",
+      "expected": "latte 12\nespresso",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Cuối tháng bạn muốn biết món nào đắt nhất và món nào rẻ nhất. `max(gia)` và `min(gia)` mặc định so các khóa, tức so tên món theo thứ tự chữ. Thêm `key=gia.get` mới so theo giá, và kết quả trả về vẫn là tên món."
+     },
+     {
+      "type": "paragraph",
+      "text": "Khi bỏ một món khỏi bảng giá, `pop(key, default)` vừa lấy vừa xoá, nên bỏ `tra_da` cũng cho bạn biết giá cuối của nó là 12. Không truyền `default` thì một khóa thiếu gây `KeyError`, còn `del gia[mon]` thì chỉ xoá. `not in` cũng xét khóa, giống `in`. Giá trị trong `dict` còn có thể là `list` hay một `dict` khác, chẳng hạn một món kèm nhiều mức size."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PY11 · Tuple, bytes và lựa chọn collection"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "da_ban={\"latte\":0}. da_ban.get(\"latte\", None) trả gì?",
+     "options": [
+      {
+       "text": "None",
+       "detail": "Giá trị mặc định chỉ dùng khi thiếu khóa."
+      },
+      {
+       "text": "0",
+       "detail": "Đúng. Khóa tồn tại và giữ số 0 cốc.",
+       "correct": true
+      },
+      {
+       "text": "KeyError",
+       "detail": "get cho phép giá trị mặc định; truy cập [] vào khóa thiếu mới gây KeyError."
+      }
+     ],
+     "explanation": "Đúng. Khóa tồn tại và giữ số 0."
+    },
+    {
+     "question": "Điểm 0 là một giá trị đã có. Kết quả ở lệnh print cuối có giá trị nào?\n\nmarks = {\"A\": 0, \"B\": 8}\nprint(marks[\"A\"])",
+     "options": [
+      {
+       "text": "0",
+       "detail": "Tra đúng khóa nhận đúng giá trị, kể cả khi giá trị là 0.",
+       "correct": true
+      },
+      {
+       "text": "8",
+       "detail": "8 thuộc khóa B."
+      },
+      {
+       "text": "None",
+       "detail": "Khóa A tồn tại và giữ điểm 0."
+      }
+     ],
+     "explanation": "Tra đúng khóa nhận đúng giá trị, kể cả khi giá trị là 0."
+    },
+    {
+     "question": "Chưa có mã C. Kết quả ở lệnh print cuối có giá trị nào?\n\nmarks = {\"A\": 7}\nprint(marks.get(\"C\", \"missing\"))",
+     "options": [
+      {
+       "text": "None",
+       "detail": "Mặc định đã được truyền là chuỗi missing."
+      },
+      {
+       "text": "'KeyError'",
+       "detail": "get với mặc định không gây KeyError khi thiếu khóa."
+      },
+      {
+       "text": "'missing'",
+       "detail": "Không có C nên get trả đối số mặc định.",
+       "correct": true
+      }
+     ],
+     "explanation": "Không có C nên get trả đối số mặc định."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "\"latte\" in gia kiểm tra tên món trong values hay trong khóa?",
+     "answer": "Kiểm tra khóa; muốn tìm trong values dùng 30 in gia.values()."
+    },
+    {
+     "prompt": "Tìm món có giá thấp nhất trong gia bằng biểu thức nào?",
+     "answer": "min(gia, key=gia.get), khi dict không rỗng."
+    },
+    {
+     "prompt": "Bỏ espresso khỏi bảng giá và lấy lại giá cuối của nó.",
+     "answer": "cuoi = gia.pop(\"espresso\"). Nếu khóa có thể thiếu, dùng gia.pop(\"espresso\", None) và xử lý trường hợp không có."
+    },
+    {
+     "prompt": "Với d={\"americano\":9,\"zero\":2}, max(d), min(d), max(d,key=d.get), min(d,key=d.get) trả gì?",
+     "answer": "Lần lượt zero, americano, americano và zero. Hai cách đầu so khóa; hai cách có key=d.get so giá trị nhưng vẫn trả khóa."
+    },
+    {
+     "prompt": "Với d={\"latte\":1}, d.update({\"latte\":3,\"mocha\":2}); d.pop(\"tra_da\",0); del d[\"latte\"] làm d còn gì? get(\"tra_da\",0) có thêm khóa không?",
+     "answer": "d còn {\"mocha\":2}; update ghi đè latte và thêm mocha, pop một khóa thiếu trả 0, del xoá latte. get không thêm khóa. keys/values/items cho khóa, giá trị và cặp tương ứng; \"mocha\" in d và \"tra_da\" not in d đều True."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Hệ thống cung cấp stock là dictionary tồn kho theo mã sản phẩm. Gán amount bằng số lượng của P02, hoặc None nếu chưa có mã P02. Số lượng 0 phải được giữ nguyên.",
+    "io": [
+     {
+      "label": "stock =",
+      "value": "{'P01': 2, 'P02': 7}"
+     },
+     {
+      "label": "amount =",
+      "value": "7"
+     }
+    ]
+   },
+   "starterCode": "# Hệ thống cung cấp stock là dictionary tồn kho theo mã sản phẩm.\n# Hệ thống cung cấp stock; gán kết quả vào amount.\n",
+   "solutionCode": "amount = stock.get(\"P02\", None)\n",
+   "tests": [
+    {
+     "name": "Có hàng",
+     "input": {
+      "P01": 2,
+      "P02": 7
+     },
+     "expected": 7
+    },
+    {
+     "name": "Đã hết hàng",
+     "input": {
+      "P02": 0
+     },
+     "expected": 0
+    },
+    {
+     "name": "Chưa có mã",
+     "input": {
+      "P01": 4
+     },
+     "expected": null
+    },
+    {
+     "name": "P02 còn một món, mã khác đã hết",
+     "input": {
+      "P01": 0,
+      "P02": 1
+     },
+     "expected": 1
+    }
+   ],
+   "contract": {
+    "mode": "script",
+    "inputVariable": "stock",
+    "resultVariable": "amount"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Khóa thiếu khác khóa có số lượng bằng 0."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Dùng get với mặc định None; không kiểm bằng if stock.get(...) rồi bỏ số 0."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

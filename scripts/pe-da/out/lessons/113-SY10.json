@@ -1,0 +1,712 @@
+{
+ "lesson_code": "SY10",
+ "sort_order": 113,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY10 · Giữ trạng thái hợp lệ bằng getter và setter",
+ "subtitle": "Trung cấp · M5 · 15 phút",
+ "estimated_minutes": 15,
+ "xp_reward": 9,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY10 · Giữ trạng thái hợp lệ bằng getter và setter",
+  "subtitle": "Trung cấp · M5 · 15 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY10",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 129-131; Python — Private variables"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Các lớp ở bài trước đã tách phần việc, nhưng chưa ai canh dữ liệu bên trong. Số cốc trên một dòng đơn phải từ 0 đến 10. Nếu chỗ nào cũng có thể gán số cốc tùy ý, bạn sẽ phải kiểm tra cùng quy tắc nhiều lần. Một setter gom kiểm tra về một nơi:"
+     },
+     {
+      "type": "code",
+      "code": "class Cups:\n    def __init__(self, value): self.set_value(value)\n    def get_value(self): return self._value\n    def set_value(self, value):\n        if not 0 <= value <= 10: raise ValueError(\"cups\")\n        self._value = value\ncups = Cups(8)\nprint(cups.get_value())",
+      "expected": "8",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "self",
+        "line": 2,
+        "prompt": "Ngay sau khi dòng 2 chạy, `self` bằng mấy?",
+        "answer": "Cups()"
+       },
+       "rows": [
+        {
+         "line": 1
+        },
+        {
+         "line": 1,
+         "fn": "Cups",
+         "depth": 1,
+         "enter": true
+        },
+        {
+         "line": 1,
+         "fn": "Cups",
+         "depth": 1
+        },
+        {
+         "line": 2,
+         "fn": "Cups",
+         "depth": 1,
+         "set": [
+          [
+           "__init__",
+           "<hàm __init__>"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "Cups",
+         "depth": 1,
+         "set": [
+          [
+           "get_value",
+           "<hàm get_value>"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "fn": "Cups",
+         "depth": 1,
+         "set": [
+          [
+           "set_value",
+           "<hàm set_value>"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "fn": "Cups",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 7
+        },
+        {
+         "line": 2,
+         "fn": "__init__",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "self",
+           "Cups()"
+          ],
+          [
+           "value",
+           "8"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "__init__",
+         "depth": 1
+        },
+        {
+         "line": 4,
+         "fn": "set_value",
+         "depth": 2,
+         "enter": true,
+         "set": [
+          [
+           "self",
+           "Cups()"
+          ],
+          [
+           "value",
+           "8"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "set_value",
+         "depth": 2
+        },
+        {
+         "line": 6,
+         "fn": "set_value",
+         "depth": 2,
+         "set": [
+          [
+           "self",
+           "Cups(_value=8)"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "fn": "set_value",
+         "depth": 2,
+         "ret": "None"
+        },
+        {
+         "line": 2,
+         "fn": "__init__",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 8
+        },
+        {
+         "line": 3,
+         "fn": "get_value",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "self",
+           "Cups(_value=8)"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "get_value",
+         "depth": 1
+        },
+        {
+         "line": 3,
+         "fn": "get_value",
+         "depth": 1,
+         "ret": "8",
+         "out": "8"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Getter đọc trạng thái; setter kiểm tra rồi mới cập nhật. Một dấu gạch dưới ở _value là lời nhắc đây là chi tiết nội bộ. Nó không chặn truy cập như protected của Java, vốn đặt quy tắc truy cập theo package và lớp con."
+     },
+     {
+      "type": "code",
+      "code": "class Revenue:\n    def __init__(self): self.__value = 100\n    def get_value(self): return self.__value\nrevenue = Revenue()\nprint(revenue.get_value())\nprint(\"_Revenue__value\" in vars(revenue))",
+      "expected": "100\nTrue",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "self",
+        "line": 2,
+        "prompt": "Ngay sau khi dòng 2 chạy, `self` bằng mấy?",
+        "answer": "Revenue()"
+       },
+       "rows": [
+        {
+         "line": 1
+        },
+        {
+         "line": 1,
+         "fn": "Revenue",
+         "depth": 1,
+         "enter": true
+        },
+        {
+         "line": 1,
+         "fn": "Revenue",
+         "depth": 1
+        },
+        {
+         "line": 2,
+         "fn": "Revenue",
+         "depth": 1,
+         "set": [
+          [
+           "__init__",
+           "<hàm __init__>"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "Revenue",
+         "depth": 1,
+         "set": [
+          [
+           "get_value",
+           "<hàm get_value>"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "Revenue",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 4
+        },
+        {
+         "line": 2,
+         "fn": "__init__",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "self",
+           "Revenue()"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "__init__",
+         "depth": 1,
+         "set": [
+          [
+           "self",
+           "Revenue(_Revenue__value=100)"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "__init__",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 5
+        },
+        {
+         "line": 3,
+         "fn": "get_value",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "self",
+           "Revenue(_Revenue__value=100)"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "get_value",
+         "depth": 1
+        },
+        {
+         "line": 3,
+         "fn": "get_value",
+         "depth": 1,
+         "ret": "100",
+         "out": "100"
+        },
+        {
+         "line": 6,
+         "out": "True"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Hai dấu gạch dưới ở đầu tên kích hoạt name mangling: tên nội bộ mang theo tên class. Mục đích là tránh đụng tên trong kế thừa, không giữ bí mật trước người có quyền chạy Python. `__value` không giống tên đặc biệt có hai dấu gạch dưới ở cả hai đầu như __str__."
+     },
+     {
+      "type": "code",
+      "code": "class Cups:\n    def __init__(self, value): self._value = value\n    @property\n    def value(self): return self._value\n    @value.setter\n    def value(self, value):\n        if not 0 <= value <= 10: raise ValueError(\"cups\")\n        self._value = value\ncups = Cups(8)\ntry: cups.value = 11\nexcept ValueError: print(\"Tu choi\")\nprint(cups.value)",
+      "expected": "Tu choi\n8",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "self",
+        "line": 2,
+        "prompt": "Ngay sau khi dòng 2 chạy, `self` bằng mấy?",
+        "answer": "Cups()"
+       },
+       "rows": [
+        {
+         "line": 1
+        },
+        {
+         "line": 1,
+         "fn": "Cups",
+         "depth": 1,
+         "enter": true
+        },
+        {
+         "line": 1,
+         "fn": "Cups",
+         "depth": 1
+        },
+        {
+         "line": 2,
+         "fn": "Cups",
+         "depth": 1,
+         "set": [
+          [
+           "__init__",
+           "<hàm __init__>"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "Cups",
+         "depth": 1
+        },
+        {
+         "line": 4,
+         "fn": "Cups",
+         "depth": 1
+        },
+        {
+         "line": 3,
+         "fn": "Cups",
+         "depth": 1
+        },
+        {
+         "line": 4,
+         "fn": "Cups",
+         "depth": 1,
+         "set": [
+          [
+           "value",
+           "property: <property object>"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "Cups",
+         "depth": 1
+        },
+        {
+         "line": 6,
+         "fn": "Cups",
+         "depth": 1
+        },
+        {
+         "line": 5,
+         "fn": "Cups",
+         "depth": 1
+        },
+        {
+         "line": 6,
+         "fn": "Cups",
+         "depth": 1
+        },
+        {
+         "line": 6,
+         "fn": "Cups",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 9
+        },
+        {
+         "line": 2,
+         "fn": "__init__",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "self",
+           "Cups()"
+          ],
+          [
+           "value",
+           "8"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "__init__",
+         "depth": 1,
+         "set": [
+          [
+           "self",
+           "Cups(_value=8)"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "__init__",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 10
+        },
+        {
+         "line": 5,
+         "fn": "value",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "self",
+           "Cups(_value=8)"
+          ],
+          [
+           "value",
+           "11"
+          ]
+         ]
+        },
+        {
+         "line": 7,
+         "fn": "value",
+         "depth": 1
+        },
+        {
+         "line": 7,
+         "fn": "value",
+         "depth": 1,
+         "exc": "ValueError: cups"
+        },
+        {
+         "line": 7,
+         "fn": "value",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 10,
+         "exc": "ValueError: cups"
+        },
+        {
+         "line": 11,
+         "out": "Tu choi"
+        },
+        {
+         "line": 12
+        },
+        {
+         "line": 3,
+         "fn": "value",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "self",
+           "Cups(_value=8)"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "fn": "value",
+         "depth": 1
+        },
+        {
+         "line": 4,
+         "fn": "value",
+         "depth": 1,
+         "ret": "8",
+         "out": "8"
+        },
+        {
+         "line": 12,
+         "ret": "None"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Property cho cú pháp `cups.value` trong khi vẫn gọi getter/setter. Kiểm tra trước khi gán giúp trạng thái cũ còn nguyên nếu dữ liệu sai. Trong bài thực tế, bổ sung quy tắc kiểu và số hữu hạn nếu đầu vào có thể chứa bool, NaN (giá trị “không phải số”) hoặc giá trị vô cực."
+     },
+     {
+      "type": "paragraph",
+      "text": "Thuộc tính không có tiền tố đặc biệt, như name, mặc định là public theo quy ước sử dụng. Nếu Till khai báo `self.__revenue`, Python lưu tên đã đổi thành `_Till__revenue`; truy cập `till.__revenue` từ ngoài gây AttributeError. Getter có thể đọc đúng tên từ trong class. Đây là lỗi tìm thuộc tính, không phải bằng chứng dữ liệu đã được mã hóa."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "SY09 · Abstraction, interface và composition"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Điểm cũ là 8. Setter kiểm đầu vào mới 11 trước phép gán rồi raise ValueError. Điểm cũ còn bao nhiêu?",
+     "options": [
+      {
+       "text": "11",
+       "detail": "Chỉ khi gán trước khi kiểm mới làm mất trạng thái hợp lệ."
+      },
+      {
+       "text": "8",
+       "detail": "Ngoại lệ xảy ra trước phép gán nên trạng thái cũ còn nguyên.",
+       "correct": true
+      },
+      {
+       "text": "None",
+       "detail": "Raise không tự xóa thuộc tính đã lưu trước đó."
+      }
+     ],
+     "explanation": "Ngoại lệ xảy ra trước phép gán nên trạng thái cũ còn nguyên."
+    },
+    {
+     "question": "Setter nên làm gì trước khi thay điểm đang lưu?",
+     "options": [
+      {
+       "text": "Kiểm dữ liệu mới có hợp lệ không",
+       "detail": "Kiểm trước khi gán giữ trạng thái cũ nếu lần cập nhật bị từ chối.",
+       "correct": true
+      },
+      {
+       "text": "Xóa điểm cũ vô điều kiện",
+       "detail": "Chưa đúng. Kiểm trước khi gán giữ trạng thái cũ nếu lần cập nhật bị từ chối."
+      },
+      {
+       "text": "Gán điểm mới rồi mới kiểm sau",
+       "detail": "Chưa đúng. Kiểm trước khi gán giữ trạng thái cũ nếu lần cập nhật bị từ chối."
+      }
+     ],
+     "explanation": "Kiểm trước khi gán giữ trạng thái cũ nếu lần cập nhật bị từ chối."
+    },
+    {
+     "question": "Tên _value có ngăn mọi code bên ngoài truy cập không?",
+     "options": [
+      {
+       "text": "Có; chỉ hệ điều hành mới đọc được",
+       "detail": "Chưa đúng. Một dấu gạch dưới nhắc người dùng về chi tiết triển khai, không phải ranh giới bảo mật."
+      },
+      {
+       "text": "Có; dữ liệu đã được mã hóa",
+       "detail": "Chưa đúng. Một dấu gạch dưới nhắc người dùng về chi tiết triển khai, không phải ranh giới bảo mật."
+      },
+      {
+       "text": "Không; đây là quy ước nội bộ",
+       "detail": "Một dấu gạch dưới nhắc người dùng về chi tiết triển khai, không phải ranh giới bảo mật.",
+       "correct": true
+      }
+     ],
+     "explanation": "Một dấu gạch dưới nhắc người dùng về chi tiết triển khai, không phải ranh giới bảo mật."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "_value có ngăn người khác đọc được không?",
+     "answer": "Không. Nó là quy ước API nội bộ."
+    },
+    {
+     "prompt": "__value có phải mã hóa hay bảo mật dữ liệu không?",
+     "answer": "Không. Python đổi tên để tránh đụng tên, vẫn có thể truy cập tên mangled."
+    },
+    {
+     "prompt": "Sửa Cups để chỉ nhận int/float hữu hạn, bỏ bool và giữ số cốc cũ khi sai.",
+     "answer": "Kiểm type(value) in (int, float), math.isfinite(value), 0 <= value <= 10 trước self._value = value. Thử 0,10,-1,11,True,float(\"nan\"),float(\"inf\")."
+    },
+    {
+     "prompt": "name, _name và __revenue khác quy tắc gì? Till có self.__revenue: till.__revenue gây lỗi nào và getter đọc được vì sao?",
+     "answer": "name public theo mặc định; _name là quy ước không public, không phải protected được cưỡng chế như Java. __revenue bị đổi thành _Till__revenue; truy cập till.__revenue gây AttributeError. Method trong class được đổi tên nhất quán nên getter đọc được. Getter/accessor đọc, setter/mutator kiểm rồi cập nhật."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Tạo Grade có set_value kiểm số int/float hữu hạn từ 0 đến 10, loại bool. solve(data) bắt đầu bằng data[\"initial\"], thử lần lượt các data[\"updates\"]. Bỏ qua ValueError nhưng giữ điểm cũ; trả list giá trị sau mỗi lần thử.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'initial': 8, 'updates': [11, 7]}"
+     },
+     {
+      "label": "trả về",
+      "value": "[8, 7]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import math\nclass Grade:\n    def __init__(self, value): self.set_value(value)\n    def set_value(self, value):\n        if type(value) not in (int, float) or not math.isfinite(value) or not 0 <= value <= 10:\n            raise ValueError('score')\n        self._value = value\n    def get_value(self): return self._value\ndef solve(data):\n    grade = Grade(data['initial'])\n    result=[]\n    for value in data['updates']:\n        try: grade.set_value(value)\n        except ValueError: pass\n        result.append(grade.get_value())\n    return result\n",
+   "tests": [
+    {
+     "name": "giữ cũ khi ngoài miền",
+     "input": {
+      "initial": 8,
+      "updates": [
+       11,
+       7
+      ]
+     },
+     "expected": [
+      8,
+      7
+     ]
+    },
+    {
+     "name": "loại bool và text",
+     "input": {
+      "initial": 6,
+      "updates": [
+       true,
+       "9",
+       0
+      ]
+     },
+     "expected": [
+      6,
+      6,
+      0
+     ]
+    },
+    {
+     "name": "nhận hai biên",
+     "input": {
+      "initial": 5,
+      "updates": [
+       0,
+       10
+      ]
+     },
+     "expected": [
+      0,
+      10
+     ]
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 3,
+  "bo": 0,
+  "loi": []
+ }
+}

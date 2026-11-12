@@ -1,0 +1,287 @@
+{
+ "lesson_code": "VZ29",
+ "sort_order": 102,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ29 · Trường vector: arrow, quiver và streamplot",
+ "subtitle": "Nâng cao · M4 · 18 phút",
+ "estimated_minutes": 18,
+ "xp_reward": 11,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "VZ29 · Trường vector: arrow, quiver và streamplot",
+  "subtitle": "Nâng cao · M4 · 18 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#VZ29",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 329; Trường vector: arrow, quiver và streamplot"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Lưới ô vừa dựng ở bài trước chỉ nói độ lớn, không nói hướng. Nếu dữ liệu là hướng di chuyển, một giá trị màu không đủ cho biết hướng. arrow vẽ một mũi tên đơn, quiver vẽ các vector tại nhiều vị trí, còn streamplot thể hiện các đường đi theo trường vector. Cần phân biệt vị trí bắt đầu với thành phần vector theo x và y."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.arrow(0, 0, 2, 1, width=0.03, length_includes_head=True, color=\"#0072B2\")\nax.set(xlim=(-0.5, 2.5), ylim=(-0.5, 1.5), xlabel=\"x (m)\", ylabel=\"y (m)\", title=\"One displacement: dx=2, dy=1\", aspect=\"equal\")\nprint((0 + 2, 0 + 1))\nplt.show()",
+      "expected": "(2, 1)",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ29-1.png",
+      "alt": "Hình mũi tên trên hệ trục, tiêu đề \"One displacement: dx=2, dy=1\", trục ngang \"x (m)\", trục dọc \"y (m)\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Trong quiver(X,Y,U,V), X và Y cho vị trí, U và V là hai thành phần vector. angles=\"xy\", scale_units=\"xy\", scale=1 giữ chiều và độ dài theo tọa độ dữ liệu cho ví dụ đơn vị dưới đây; mặc định tự co giãn có thể làm độ dài không còn bằng trực tiếp số bạn đưa vào. Với dữ liệu thật cần giải thích thang vector và đơn vị."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\nX, Y = np.meshgrid([0, 1], [0, 1])\nU = np.ones_like(X)\nV = np.zeros_like(Y)\nax.quiver(X, Y, U, V, angles=\"xy\", scale_units=\"xy\", scale=1)\nax.set(xlim=(-0.2, 2.2), ylim=(-0.2, 1.2), xlabel=\"x (m)\", ylabel=\"y (m)\", title=\"Four vectors pointing right\", aspect=\"equal\")\nprint(int(U.size))\nplt.show()",
+      "expected": "4",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ29-2.png",
+      "alt": "Biểu đồ vector, tiêu đề \"Four vectors pointing right\", trục ngang \"x (m)\", trục dọc \"y (m)\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "streamplot cần lưới phù hợp và hai trường U,V cùng kích thước. Trường U=-Y, V=X dưới đây xoay quanh gốc; màu biểu diễn độ lớn vận tốc và colorbar ghi đúng đại lượng đó. Đường dòng là hình dung một trường đã cho, không tự chứng minh các hạt ngoài đời đã đi qua chính những đường ấy."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\ncoords = np.linspace(-2, 2, 15)\nX, Y = np.meshgrid(coords, coords)\nU, V = -Y, X\nspeed = np.hypot(U, V)\nstream = ax.streamplot(coords, coords, U, V, color=speed, cmap=\"viridis\", density=0.8)\nfig.colorbar(stream.lines, ax=ax, label=\"Speed (arbitrary units)\")\nax.set(xlabel=\"x\", ylabel=\"y\", title=\"A synthetic rotating vector field\", aspect=\"equal\")\nprint(U.shape)\nplt.show()",
+      "expected": "(15, 15)",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ29-3.png",
+      "alt": "Biểu đồ đường dòng, tiêu đề \"A synthetic rotating vector field\", trục ngang \"x\", trục dọc \"y\"."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "VZ28 · Lưới 2D: pcolor, pcolormesh, contour và contourf, EX08 · Chuẩn bị vector và lưới trước khi vẽ"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "arrow(2,3,4,-1,length_includes_head=True) có đầu mũi tên ở đâu?",
+     "options": [
+      {
+       "text": "(2,3)",
+       "detail": "Đây là điểm đầu."
+      },
+      {
+       "text": "(4,-1)",
+       "detail": "Hai số cuối là độ dời, không phải điểm cuối."
+      },
+      {
+       "text": "(6,2)",
+       "detail": "Đúng: điểm đầu cộng độ dời (4,-1).",
+       "correct": true
+      }
+     ],
+     "explanation": "X,Y là vị trí; U,V là thành phần của vector tại vị trí đó."
+    },
+    {
+     "question": "ax.arrow(0, 0, 2, 1, length_includes_head=True) có đầu mũi tên ở tọa độ nào?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.arrow(0, 0, 2, 1, width=0.03, length_includes_head=True, color=\"#0072B2\")\nax.set(xlim=(-0.5, 2.5), ylim=(-0.5, 1.5), xlabel=\"x (m)\", ylabel=\"y (m)\", title=\"One displacement: dx=2, dy=1\", aspect=\"equal\")\nprint((0 + 2, 0 + 1))\nplt.show()",
+     "options": [
+      {
+       "text": "Điểm (1,2), vì hai độ dời luôn đổi chỗ.",
+       "detail": "dx đi theo trục x và dy đi theo trục y, không đổi chỗ."
+      },
+      {
+       "text": "(2,1), vì hai tham số cuối là độ dời dx=2,dy=1, không phải một cặp tọa độ độc lập với điểm bắt đầu.",
+       "detail": "(2,1), vì hai tham số cuối là độ dời dx=2,dy=1, không phải một cặp tọa độ độc lập với điểm bắt đầu.",
+       "correct": true
+      },
+      {
+       "text": "Điểm (0,0), vì dx và dy bị bỏ qua.",
+       "detail": "Độ dời không bị bỏ; gốc và đầu mũi tên là hai điểm khác nhau."
+      }
+     ],
+     "explanation": "(2,1), vì hai tham số cuối là độ dời dx=2,dy=1, không phải một cặp tọa độ độc lập với điểm bắt đầu."
+    },
+    {
+     "question": "U,V trong quiver là vị trí hay thành phần vector?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\nX, Y = np.meshgrid([0, 1], [0, 1])\nU = np.ones_like(X)\nV = np.zeros_like(Y)\nax.quiver(X, Y, U, V, angles=\"xy\", scale_units=\"xy\", scale=1)\nax.set(xlim=(-0.2, 2.2), ylim=(-0.2, 1.2), xlabel=\"x (m)\", ylabel=\"y (m)\", title=\"Four vectors pointing right\", aspect=\"equal\")\nprint(int(U.size))\nplt.show()",
+     "options": [
+      {
+       "text": "Là thành phần vector theo x và y. X,Y xác định vị trí đặt vector.",
+       "detail": "Là thành phần vector theo x và y. X,Y xác định vị trí đặt vector.",
+       "correct": true
+      },
+      {
+       "text": "U,V là vị trí đặt vector; X,Y là thành phần.",
+       "detail": "Bạn đã đảo vai trò của X,Y với U,V."
+      },
+      {
+       "text": "Cả bốn đều là tọa độ điểm cuối.",
+       "detail": "Quiver không mặc định nhận cả bốn mảng như các tọa độ điểm cuối."
+      }
+     ],
+     "explanation": "Là thành phần vector theo x và y. X,Y xác định vị trí đặt vector."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "arrow(0,0,2,1) trỏ đến điểm nào?",
+     "answer": "(2,1), vì hai tham số cuối là độ dời dx=2,dy=1, không phải một cặp tọa độ độc lập với điểm bắt đầu."
+    },
+    {
+     "prompt": "U,V trong quiver là vị trí hay thành phần vector?",
+     "answer": "Là thành phần vector theo x và y. X,Y xác định vị trí đặt vector."
+    },
+    {
+     "prompt": "Vì sao thêm colorbar khi tô màu streamplot theo speed?",
+     "answer": "Để biết màu tương ứng độ lớn vận tốc nào và đơn vị gì; màu không tự cho biết con số."
+    },
+    {
+     "prompt": "Bạn có lưới đều 15 vị trí x và 15 vị trí y, trường U=-Y, V=X. Muốn nhìn các đường dòng theo trường thay vì 225 mũi tên rời, chọn hàm nào? U,V cần shape gì và đường vẽ có chứng minh hạt thực đã đi qua đó không?",
+     "answer": "Dùng ax.streamplot(x,y,U,V); U,V cùng shape (15,15), theo các vị trí y/x của lưới. Muốn từng vector tại vị trí thì dùng quiver; một độ dời đơn dùng arrow. Streamplot minh họa đường dòng của trường được cung cấp, không phải quỹ đạo hạt đã đo ngoài đời."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.x,data.y là hai dãy vị trí lưới. Tạo X,Y bằng meshgrid, đặt U=-Y,V=X, vẽ quiver với angles=\"xy\",scale_units=\"xy\",scale=1 và aspect equal. Trả u,v đọc từ vectors.U/vectors.V (đã trải phẳng theo hàng), shape ban đầu của U. Không trả X,Y thay cho U,V. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'x': [0, 1], 'y': [0, 2]}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'u': [0, 0, -2, -2], 'v': [0, 1, 0, 1], 'shape': [2, 2]}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     X,Y = np.meshgrid(data['x'],data['y'])\n     U,V = -Y,X\n     fig, ax = plt.subplots()\n     vectors = ax.quiver(X,Y,U,V,angles='xy',scale_units='xy',scale=1)\n     ax.set_aspect('equal')\n     result = {'u':vectors.U.tolist(),'v':vectors.V.tolist(),'shape':list(U.shape)}\n     plt.close(fig)\n     return result\n",
+   "tests": [
+    {
+     "name": "trường xoay 2x2",
+     "input": {
+      "x": [
+       0,
+       1
+      ],
+      "y": [
+       0,
+       2
+      ]
+     },
+     "expected": {
+      "u": [
+       0,
+       0,
+       -2,
+       -2
+      ],
+      "v": [
+       0,
+       1,
+       0,
+       1
+      ],
+      "shape": [
+       2,
+       2
+      ]
+     }
+    },
+    {
+     "name": "một hàng âm",
+     "input": {
+      "x": [
+       -1,
+       1
+      ],
+      "y": [
+       -2
+      ]
+     },
+     "expected": {
+      "u": [
+       2,
+       2
+      ],
+      "v": [
+       -1,
+       1
+      ],
+      "shape": [
+       1,
+       2
+      ]
+     }
+    },
+    {
+     "name": "một điểm",
+     "input": {
+      "x": [
+       3
+      ],
+      "y": [
+       4
+      ]
+     },
+     "expected": {
+      "u": [
+       -4
+      ],
+      "v": [
+       3
+      ],
+      "shape": [
+       1,
+       1
+      ]
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Thang mũi tên bằng 1 giữ độ dài theo đơn vị dữ liệu khi đã dùng scale_units=xy."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Giữ vị trí đặt vector khác thành phần hướng và độ lớn."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

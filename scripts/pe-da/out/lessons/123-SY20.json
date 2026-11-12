@@ -1,0 +1,384 @@
+{
+ "lesson_code": "SY20",
+ "sort_order": 123,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY20 · Gom nhiều file bằng ZIP và tar",
+ "subtitle": "Trung cấp · M5 · 15 phút",
+ "estimated_minutes": 15,
+ "xp_reward": 9,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY20 · Gom nhiều file bằng ZIP và tar",
+  "subtitle": "Trung cấp · M5 · 15 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY20",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 178, 190-191; Python — zipfile; Python — tarfile"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Hệ quản lý của quán có items.txt, ingredients.txt và recipe.txt. Nén riêng từng chuỗi chưa đủ giữ tên ba file; archive gom chúng vào một gói có tên thành viên:"
+     },
+     {
+      "type": "code",
+      "code": "from io import BytesIO\nimport zipfile\nbuffer = BytesIO()\nwith zipfile.ZipFile(buffer, \"w\", compression=zipfile.ZIP_DEFLATED) as archive:\n    archive.writestr(\"items.txt\", \"latte,Latte\\n\")\n    archive.writestr(\"ingredients.txt\", \"ca-phe-hat,Ca phe hat\\n\")\nwith zipfile.ZipFile(BytesIO(buffer.getvalue())) as archive:\n    print(archive.namelist())\n    print(archive.read(\"items.txt\").decode(\"utf8\").strip())",
+      "expected": "['items.txt', 'ingredients.txt']\nlatte,Latte",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "ZIP giữ nhiều file và cả các mục thư mục theo tên; nó có thể nén từng thành viên. `read(name)` lấy `bytes` của đúng file, giúp bạn kiểm tên và nội dung trước khi viết ra đĩa. Không cần extractall chỉ để đọc một bảng."
+     },
+     {
+      "type": "code",
+      "code": "from io import BytesIO\nimport tarfile\nbuffer = BytesIO()\npayload = b\"latte,ca-phe-hat,8.7\\n\"\nwith tarfile.open(fileobj=buffer, mode=\"w:gz\") as archive:\n    entry = tarfile.TarInfo(\"recipe.txt\"); entry.size = len(payload)\n    archive.addfile(entry, BytesIO(payload))\nwith tarfile.open(fileobj=BytesIO(buffer.getvalue()), mode=\"r:gz\") as archive:\n    print(archive.getnames())\n    print(archive.extractfile(\"recipe.txt\").read().decode().strip())",
+      "expected": "['recipe.txt']\nlatte,ca-phe-hat,8.7",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "tar gom nhiều thành viên; mode w:gz thêm nén `gzip`, còn w tạo tar không nén. Phân biệt format thực với tên đuôi: đổi .zip thành .dat không biến nó thành định dạng khác."
+     },
+     {
+      "type": "code",
+      "code": "import zipfile\nfrom io import BytesIO\nfiles = {\"items.txt\": b\"A\", \"ingredients.txt\": b\"B\", \"recipe.txt\": b\"C\"}\nbuffer = BytesIO()\nwith zipfile.ZipFile(buffer, \"w\") as archive:\n    for name, data in files.items(): archive.writestr(name, data)\nwith zipfile.ZipFile(BytesIO(buffer.getvalue())) as archive:\n    restored = {name: archive.read(name) for name in archive.namelist()}\nprint(restored == files)",
+      "expected": "True",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "name",
+        "prompt": "Sau khi chạy xong, `name` bằng mấy?",
+        "answer": "'recipe.txt'"
+       },
+       "rows": [
+        {
+         "line": 1
+        },
+        {
+         "line": 2
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "files",
+           "{'items.txt': b'A', 'ingredients.txt': b'B', 'recipe.txt': b'C'}"
+          ]
+         ]
+        },
+        {
+         "line": 4
+        },
+        {
+         "line": 5,
+         "set": [
+          [
+           "archive",
+           "ZipFile(_allowZip64=True, _didModify=True, debug=0, NameToInfo={}, file…"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "set": [
+          [
+           "archive",
+           "ZipFile(_allowZip64=True, _didModify=True, debug=0, NameToInfo={'items.…"
+          ],
+          [
+           "data",
+           "b'A'"
+          ],
+          [
+           "name",
+           "'items.txt'"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "set": [
+          [
+           "data",
+           "b'B'"
+          ],
+          [
+           "name",
+           "'ingredients.txt'"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "set": [
+          [
+           "data",
+           "b'C'"
+          ],
+          [
+           "name",
+           "'recipe.txt'"
+          ]
+         ]
+        },
+        {
+         "line": 6
+        },
+        {
+         "line": 5
+        },
+        {
+         "line": 7,
+         "set": [
+          [
+           "archive",
+           "ZipFile(_allowZip64=True, _didModify=False, debug=0, NameToInfo={'items…"
+          ]
+         ]
+        },
+        {
+         "line": 8,
+         "set": [
+          [
+           "name",
+           "'items.txt'"
+          ]
+         ]
+        },
+        {
+         "line": 8,
+         "set": [
+          [
+           "name",
+           "'ingredients.txt'"
+          ]
+         ]
+        },
+        {
+         "line": 8,
+         "set": [
+          [
+           "name",
+           "'recipe.txt'"
+          ]
+         ]
+        },
+        {
+         "line": 8,
+         "set": [
+          [
+           "BytesIO",
+           "<lớp BytesIO>"
+          ],
+          [
+           "archive",
+           "ZipFile(_allowZip64=True, _didModify=False, debug=0, NameToInfo={'items…"
+          ],
+          [
+           "buffer",
+           "BytesIO()"
+          ],
+          [
+           "data",
+           "b'C'"
+          ],
+          [
+           "files",
+           "{'items.txt': b'A', 'ingredients.txt': b'B', 'recipe.txt': b'C'}"
+          ],
+          [
+           "restored",
+           "{'items.txt': b'A', 'ingredients.txt': b'B', 'recipe.txt': b'C'}"
+          ],
+          [
+           "zipfile",
+           "<thư viện zipfile>"
+          ]
+         ]
+        },
+        {
+         "line": 7
+        },
+        {
+         "line": 9,
+         "out": "True"
+        },
+        {
+         "line": 9,
+         "ret": "None"
+        }
+       ]
+      }
+     },
+     {
+      "type": "paragraph",
+      "text": "Đây là kiểm tra round-trip cả tên lẫn nội dung. Với file ngoài, kiểm danh sách tên và dung lượng trước khi nạp; không tự ghi đường dẫn chứa .. hoặc đường dẫn tuyệt đối ra ngoài vùng bài tập. Đề PW5 có thể chọn một cách archive/nén miễn khôi phục được cả ba file."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "SY19 · Nén dữ liệu với zlib, gzip, bz2 và lzma"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "students.dat có chắc là pickle không?",
+     "options": [
+      {
+       "text": "Không; .dat không quy định định dạng",
+       "detail": "Cần biết chương trình tạo file và cấu trúc thực tế của nó.",
+       "correct": true
+      },
+      {
+       "text": "Có; .dat luôn là pickle",
+       "detail": "Pickle không sở hữu phần mở rộng .dat."
+      },
+      {
+       "text": "Có; .dat luôn là ZIP",
+       "detail": "Một ứng dụng có thể đặt nhiều định dạng khác nhau vào tên .dat."
+      }
+     ],
+     "explanation": "Cần biết chương trình tạo file và cấu trúc thực tế của nó."
+    },
+    {
+     "question": "Muốn đọc riêng marks.txt trong ZIP vào RAM, cần extractall trước không?",
+     "options": [
+      {
+       "text": "Chỉ cần đổi đuôi ZIP thành .txt",
+       "detail": "Chưa đúng. ZIP hỗ trợ lấy bytes của thành viên theo tên mà không giải nén toàn bộ ra đĩa."
+      },
+      {
+       "text": "Không; có thể read đúng tên thành viên",
+       "detail": "ZIP hỗ trợ lấy bytes của thành viên theo tên mà không giải nén toàn bộ ra đĩa.",
+       "correct": true
+      },
+      {
+       "text": "Có; mọi ZIP bắt buộc bung toàn bộ",
+       "detail": "Chưa đúng. ZIP hỗ trợ lấy bytes của thành viên theo tên mà không giải nén toàn bộ ra đĩa."
+      }
+     ],
+     "explanation": "ZIP hỗ trợ lấy bytes của thành viên theo tên mà không giải nén toàn bộ ra đĩa."
+    },
+    {
+     "question": "tar mode w và w:gz khác nhau thế nào?",
+     "options": [
+      {
+       "text": "w là ZIP còn w:gz là JSON",
+       "detail": "Chưa đúng. Tar đóng gói; hậu tố mode chỉ lựa chọn thêm tầng nén."
+      },
+      {
+       "text": "Cả hai luôn tạo cùng số bytes",
+       "detail": "Chưa đúng. Tar đóng gói; hậu tố mode chỉ lựa chọn thêm tầng nén."
+      },
+      {
+       "text": "w:gz thêm nén gzip; w tạo tar không nén",
+       "detail": "Tar đóng gói; hậu tố mode chỉ lựa chọn thêm tầng nén.",
+       "correct": true
+      }
+     ],
+     "explanation": "Tar đóng gói; hậu tố mode chỉ lựa chọn thêm tầng nén."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "gzip và ZIP khác nhau thế nào?",
+     "answer": "gzip nén một luồng; ZIP là archive giữ nhiều tên thành viên và có thể nén chúng."
+    },
+    {
+     "prompt": "tarfile mode w khác w:gz ở đâu?",
+     "answer": "w tạo tar không nén; w:gz tạo tar có gzip."
+    },
+    {
+     "prompt": "Đóng đúng ba file PW5 vào quan.dat và kiểm khôi phục.",
+     "answer": "Dùng ZipFile trên quan.dat hoặc tar.gz; thành viên items.txt/ingredients.txt/recipe.txt. Khi đọc, xác nhận đủ đúng tên, parse dữ liệu rồi so với trước khi đóng. Chạy lại từ state rỗng; không chỉ kiểm file .dat tồn tại."
+    },
+    {
+     "prompt": "Cần gom thư mục reports có hai file vào một gói: ZIP giữ được tên file/thư mục không? tarfile mode w có tự nén giống w:gz không?",
+     "answer": "ZIP có các mục theo tên cho file và thư mục, có thể nén từng thành viên. tar mode w chỉ archive không nén; w:gz thêm gzip. Đổi phần đuôi tên file không đổi định dạng bên trong."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "solve(data) nhận dictionary tên thành viên → chuỗi UTF-8. Tạo ZIP trong BytesIO bằng writestr, mở lại, đọc mọi thành viên; trả dictionary cùng tên và nội dung đã decode. Không giải nén archive ra thư mục.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'students.csv': 'id,name\\nS2,Lan', 'courses.csv': 'id\\nC1'}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'students.csv': 'id,name\\nS2,Lan', 'courses.csv': 'id\\nC1'}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import io, zipfile\ndef solve(data):\n    stream = io.BytesIO()\n    with zipfile.ZipFile(stream, 'w', compression=zipfile.ZIP_DEFLATED) as archive:\n        for name, text in data.items(): archive.writestr(name, text.encode('utf-8'))\n    stream.seek(0)\n    with zipfile.ZipFile(stream, 'r') as archive:\n        return {name:archive.read(name).decode('utf-8') for name in archive.namelist()}\n",
+   "tests": [
+    {
+     "name": "hai bảng",
+     "input": {
+      "students.csv": "id,name\nS2,Lan",
+      "courses.csv": "id\nC1"
+     },
+     "expected": {
+      "students.csv": "id,name\nS2,Lan",
+      "courses.csv": "id\nC1"
+     }
+    },
+    {
+     "name": "unicode",
+     "input": {
+      "notes/a.txt": "đã lưu"
+     },
+     "expected": {
+      "notes/a.txt": "đã lưu"
+     }
+    },
+    {
+     "name": "archive rỗng",
+     "input": {},
+     "expected": {}
+    },
+    {
+     "name": "tên kèm byte null bị zipfile cắt khi ghi",
+     "call": "solve({'students.csv\\x00.exe': 'id\\nS1'})",
+     "expect": "{'students.csv': 'id\\nS1'}"
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 1,
+  "bo": 2,
+  "loi": []
+ }
+}

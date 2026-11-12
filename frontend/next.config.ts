@@ -15,7 +15,7 @@ const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 // 'wasm-unsafe-eval': Pyodide (Python Studio) biên dịch WebAssembly.
 //
 // connect-src KHÔNG còn cdn.jsdelivr.net: runtime Pyodide đã nằm trong repo
-// (frontend/public/pyodide/v0.27.7/) nên hai worker Python nạp .wasm +
+// (frontend/public/pyodide/v314.0.7/) nên hai worker Python nạp .wasm +
 // python_stdlib.zip bằng fetch CÙNG ORIGIN. Domain này vẫn phải ở lại
 // script-src và style-src vì lớp legacy còn nạp mermaid, svg-pan-zoom,
 // canvas-confetti và CodeMirror 5 (js + css) từ đó — xem dashboard/page.tsx,
@@ -39,6 +39,39 @@ const csp = [
   "frame-ancestors 'self'",
 ].join("; ");
 
+// CSP RIÊNG cho chính response của ba worker Python. Theo CSP3 §4.2 worker
+// nhận policy từ response CỦA NÓ, không phải của trang tạo ra nó — và hôm nay
+// entry "/(.*)" bên dưới khớp cả `/static/js/*.worker.js`, nên ba worker đang
+// chạy với ĐÚNG `csp` ở trên. Vấn đề nằm ở chỗ `csp` cố ý cho phép
+// `connect-src ... ${API_ORIGIN}`: đo được trong worker rằng
+// `fetch(API_ORIGIN + '/auth/refresh', { credentials: 'include' })` trả về một
+// access token THẬT. Code Python của học viên gọi được JS qua `pyodide.ffi`,
+// nên một đoạn code dán từ link lạ đọc được tiến độ/XP của tài khoản đang mở.
+//
+// Ba worker này chỉ cần CÙNG ORIGIN: `import()` runtime Pyodide, fetch .wasm +
+// python_stdlib.zip + wheel, `studio-harness.py`, `pe_tracer.min.py`. Không cái
+// nào gọi API. Nên bỏ hẳn API_ORIGIN khỏi connect-src của chúng.
+//
+// `worker-src 'none'` KHÔNG được bỏ: thiếu nó thì worker tạo được worker con từ
+// một file cùng origin khác (vd `/static/js/pe-bridge.js`), file đó lại nhận
+// policy của TRANG — tức là có lại API_ORIGIN, và bản sửa này thành vô nghĩa.
+//
+// `default-src 'none'`: worker không có DOM nên không cần img/style/font.
+const workerCsp = [
+  "default-src 'none'",
+  "script-src 'self' 'wasm-unsafe-eval'",
+  "connect-src 'self'",
+  "worker-src 'none'",
+].join("; ");
+
+// Liệt kê TỪNG tên file, không dùng regex đuôi `.worker.js`: pattern viết sai là
+// im lặng không khớp, và mất CSP thì không có gì đỏ lên để biết.
+const PYTHON_WORKERS = [
+  "ide.worker.js",
+  "python-studio.worker.js",
+  "studio-lesson.worker.js",
+];
+
 const nextConfig: NextConfig = {
   turbopack: {
     // Ghim gốc dự án vào chính thư mục frontend/.
@@ -61,6 +94,13 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
         ],
       },
+      // PHẢI nằm sau entry "/(.*)" ở trên: Next.js lấy giá trị của entry SAU khi
+      // hai entry cùng khớp và cùng tên header (01-next-config-js/headers.md).
+      // Đổi thứ tự là ba worker lại nhận CSP của trang, kèm API_ORIGIN.
+      ...PYTHON_WORKERS.map((file) => ({
+        source: `/static/js/${file}`,
+        headers: [{ key: "Content-Security-Policy", value: workerCsp }],
+      })),
       {
         // Runtime Pyodide (~32 MB: wasm + stdlib + wheel numpy/pandas/matplotlib)
         // nằm trong thư mục ĐÃ GHIM PHIÊN BẢN, nên nội dung không bao giờ đổi:
@@ -73,23 +113,10 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Monaco Editor của /ide (122 tệp, 9,15 MB trên đĩa; mở /ide với editor
-        // python tải 19 tệp, 4,94 MB giải nén / ~1,3 MB gzip — đo 14/10/2026).
+        // Monaco Editor của /ide (~9,3 MB trên đĩa; một phiên python tải ~3 MB).
         // Cùng lý lẽ với /pyodide ở trên: thư mục ĐÃ GHIM PHIÊN BẢN
         // (public/monaco/v0.57.0/) nên nội dung không bao giờ đổi, nâng cấp là
         // chép sang thư mục mới chứ không ghi đè.
-        //
-        // 404 CÓ bị cache cứng không? (câu hỏi của người chấm, áp cho cả
-        // /pyodide): KHÔNG, ít nhất trên `next start`. Next áp luật header
-        // TRƯỚC filesystem — 404 vẫn mang CSP, nosniff… của luật "/(.*)" — nhưng
-        // trang not-found tự đặt lại Cache-Control. Đo bằng curl -I ngày
-        // 14/10/2026 sau `next build`:
-        //   /monaco/v0.57.0/vs/loader.js         200  public, max-age=31536000, immutable
-        //   /monaco/v0.57.0/vs/khong-ton-tai.js  404  private, no-cache, no-store, max-age=0, must-revalidate
-        //   /pyodide/v0.27.7/khong-ton-tai.whl   404  (như trên)
-        // Chưa đo trên Vercel (CDN của nó tự áp luật header): sau deploy chạy
-        // `curl -sI https://<domain>/monaco/v0.57.0/vs/khong-ton-tai.js` — nếu
-        // thấy immutable thì phải giới hạn `source` vào đúng danh sách tệp có thật.
         //
         // Trước bản này Monaco tải từ cdn.jsdelivr.net (12 script mỗi lần mở
         // /ide) và KHÔNG có bản dự phòng: phòng máy chặn jsdelivr là khung soạn
@@ -126,16 +153,32 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Phông tự lưu trữ (Be Vietnam Pro + JetBrains Mono, 18 tệp .woff2,
-        // 280 KB trên đĩa — trang tiếng Việt chỉ tải subset latin + vietnamese).
-        // Cùng lý lẽ với /pyodide và /monaco: thư mục ĐÃ GHIM PHIÊN BẢN
-        // (/static/fonts/be-vietnam-pro-v12/, jetbrains-mono-v24/) nên nội dung
-        // không bao giờ bị ghi đè, nâng cấp là chép sang thư mục mới. Vì url
-        // nằm trong edu-fonts.css chứ không qua withAssetVersion(), tệp phông
-        // KHÔNG có tem ?v= — chính vì vậy phiên bản phải nằm trong đường dẫn.
-        source: "/static/fonts/:path*",
+        // Ảnh của giáo trình (80 PNG, 2,3 MB) và bộ dữ liệu quán (1,44 MB, riêng
+        // don_hang.csv là 1 289 915 byte). Trước bản này cả hai rơi về mặc định
+        // của `public/` — ĐO TRÊN PRODUCTION 1/11/2026, không suy từ config:
+        // `curl -I /static/da/VZ01-1.png` và `/static/da-dulieu/don_hang.csv`
+        // đều trả `public, max-age=0, must-revalidate`. Tức mỗi lần mở lại một
+        // bài biểu đồ là một lượt kiểm lại cho MỖI ảnh, và mỗi lần worker bị
+        // terminate() (cắt vòng lặp, bấm Dừng) là mất Map `daTaiDuLieu` nên CSV
+        // tải lại từ đầu.
+        //
+        // KHÔNG `immutable`, và đây là chỗ dễ sai nhất: tên `VZ01-1.png` và
+        // `don_hang.csv` KHÔNG ghim phiên bản, còn worker thì fetch
+        // `/static/da-dulieu/<tên>` TRẦN — không qua withAssetVersion(). Cache
+        // cứng là ghim học viên vào một bộ dữ liệu cũ, mà hỏng kiểu đó thì IM
+        // LẶNG: ca chấm đọc file sẽ trượt và không ai hiểu vì sao. Cùng lý lẽ
+        // với đoạn dặn về /static/js ngay trên.
+        // Hai khối rời, KHÔNG gộp thành `/static/da:path*`: cái đó còn khớp cả
+        // `/static/database.json` mai này ai đó thêm vào.
+        source: "/static/da/:path*",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          { key: "Cache-Control", value: "public, max-age=86400, must-revalidate" },
+        ],
+      },
+      {
+        source: "/static/da-dulieu/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, must-revalidate" },
         ],
       },
     ];

@@ -1,0 +1,291 @@
+{
+ "lesson_code": "VZ05",
+ "sort_order": 78,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ05 · Scatter plot: quan hệ giữa hai biến",
+ "subtitle": "Cơ bản · M4 · 16 phút",
+ "estimated_minutes": 16,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "VZ05 · Scatter plot: quan hệ giữa hai biến",
+  "subtitle": "Cơ bản · M4 · 16 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#VZ05",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 329; Scatter plot: quan hệ giữa hai biến"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Cột và đường ở bài trước so được các nhóm, còn đây là quan hệ giữa hai số đo của quán. Bạn có bốn đơn hàng, mỗi đơn có khoảng cách giao và số phút giao. Scatter plot đặt mỗi đơn thành một điểm. Nó giúp bạn xem đơn ở xa có thường giao lâu hơn không mà không giả định phải nối từ đơn này sang đơn khác."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\ndistance = [1, 2, 3, 4]\nminutes = [8, 12, 11, 18]\nax.scatter(distance, minutes)\nax.set(xlabel=\"Distance (km)\", ylabel=\"Delivery (minutes)\", title=\"One point per order\")\nprint(len(distance))\nplt.show()",
+      "expected": "4",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ05-1.png",
+      "alt": "Biểu đồ điểm phân tán, tiêu đề \"One point per order\", trục ngang \"Distance (km)\", trục dọc \"Delivery (minutes)\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Có thể dùng màu cho nhóm và diện tích marker cho một số đo khác. Tham số s là diện tích marker tính theo điểm in bình phương, không phải bán kính. Với các điểm trùng nhau, alpha nhỏ hơn 1 làm chỗ chồng lên nhau rõ hơn. Bốn điểm minh họa có thể gợi ý một quan hệ, nhưng không đủ để kết luận khoảng cách là nguyên nhân duy nhất của thời gian giao."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.scatter([1, 2, 3], [8, 12, 11], s=[40, 80, 160], alpha=0.6, edgecolors=\"black\")\nax.set(xlabel=\"Distance (km)\", ylabel=\"Delivery (minutes)\", title=\"Marker area encodes order size\")\nprint([40, 80, 160][-1] / 40)\nplt.show()",
+      "expected": "4.0",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ05-2.png",
+      "alt": "Biểu đồ điểm phân tán, tiêu đề \"Marker area encodes order size\", trục ngang \"Distance (km)\", trục dọc \"Delivery (minutes)\"."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.scatter([1, 2], [8, 12], marker=\"o\", color=\"#0072B2\", label=\"Bike\")\nax.scatter([2, 3], [10, 11], marker=\"^\", color=\"#D55E00\", label=\"Motorbike\")\nax.set(xlabel=\"Distance (km)\", ylabel=\"Delivery (minutes)\", title=\"Separate delivery methods\")\nax.legend()\nprint(len(ax.collections))\nplt.show()",
+      "expected": "2",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ05-3.png",
+      "alt": "Biểu đồ điểm phân tán, tiêu đề \"Separate delivery methods\", trục ngang \"Distance (km)\", trục dọc \"Delivery (minutes)\"."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "VZ02 · Figure, Axes và biểu đồ đầu tiên"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "scatter s tăng từ 20 lên 80 làm đại lượng nào tăng 4 lần?",
+     "options": [
+      {
+       "text": "Bán kính",
+       "detail": "Bán kính không tỷ lệ trực tiếp với s."
+      },
+      {
+       "text": "Khoảng cách giao hàng",
+       "detail": "s không tự thay đổi tọa độ x của quan sát."
+      },
+      {
+       "text": "Diện tích marker",
+       "detail": "Đúng: s là diện tích theo điểm in bình phương.",
+       "correct": true
+      }
+     ],
+     "explanation": "Mỗi tham số mã hóa một đại lượng; s không phải bán kính hay vị trí."
+    },
+    {
+     "question": "Mỗi điểm trong ví dụ giao hàng là gì?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\ndistance = [1, 2, 3, 4]\nminutes = [8, 12, 11, 18]\nax.scatter(distance, minutes)\nax.set(xlabel=\"Distance (km)\", ylabel=\"Delivery (minutes)\", title=\"One point per order\")\nprint(len(distance))\nplt.show()",
+     "options": [
+      {
+       "text": "Một điểm là trung bình của mọi đơn.",
+       "detail": "Dữ liệu ở đây có từng đơn, không chỉ một điểm trung bình."
+      },
+      {
+       "text": "Một đơn hàng; tọa độ cho biết khoảng cách và số phút giao của cùng đơn đó.",
+       "detail": "Một đơn hàng; tọa độ cho biết khoảng cách và số phút giao của cùng đơn đó.",
+       "correct": true
+      },
+      {
+       "text": "Một điểm chỉ biểu diễn khoảng cách, không có thời gian.",
+       "detail": "Thời gian của cùng đơn là tọa độ còn lại."
+      }
+     ],
+     "explanation": "Một đơn hàng; tọa độ cho biết khoảng cách và số phút giao của cùng đơn đó."
+    },
+    {
+     "question": "Tăng s từ 40 lên 160 làm diện tích marker tăng mấy lần?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.scatter([1, 2, 3], [8, 12, 11], s=[40, 80, 160], alpha=0.6, edgecolors=\"black\")\nax.set(xlabel=\"Distance (km)\", ylabel=\"Delivery (minutes)\", title=\"Marker area encodes order size\")\nprint([40, 80, 160][-1] / 40)\nplt.show()",
+     "options": [
+      {
+       "text": "4 lần. Bán kính không tăng 4 lần.",
+       "detail": "4 lần. Bán kính không tăng 4 lần.",
+       "correct": true
+      },
+      {
+       "text": "Bán kính tăng 4 lần, diện tích tăng 16 lần.",
+       "detail": "Bạn đã áp tỷ lệ của s cho bán kính thay vì diện tích."
+      },
+      {
+       "text": "Diện tích tăng 2 lần.",
+       "detail": "160 chia 40 là 4, không phải 2."
+      }
+     ],
+     "explanation": "4 lần. Bán kính không tăng 4 lần."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Mỗi điểm trong ví dụ giao hàng là gì?",
+     "answer": "Một đơn hàng; tọa độ cho biết khoảng cách và số phút giao của cùng đơn đó."
+    },
+    {
+     "prompt": "Tăng s từ 40 lên 160 làm diện tích marker tăng mấy lần?",
+     "answer": "4 lần. Bán kính không tăng 4 lần."
+    },
+    {
+     "prompt": "Nhìn điểm đi lên có kết luận tăng khoảng cách luôn gây chậm giao được không?",
+     "answer": "Không. Cần xét dữ liệu và các yếu tố khác như phương tiện, giao thông; biểu đồ chỉ mô tả quan hệ quan sát được."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.x, data.y, data.sizes cùng độ dài. Tạo scatter với s=data.sizes và alpha=0.5. Trả positions=get_offsets().tolist(), sizes=get_sizes().tolist() và alpha=get_alpha() của đối tượng scatter. Các getter chỉ dùng để đọc cấu hình và dữ liệu vừa vẽ. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'x': [1, 4], 'y': [6, 18], 'sizes': [25, 100]}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'positions': [[1.0, 6.0], [4.0, 18.0]], 'sizes': [25, 100], 'alpha': 0.5}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     fig, ax = plt.subplots()\n     points = ax.scatter(data['x'],data['y'],s=data['sizes'],alpha=0.5)\n     result = {'positions':points.get_offsets().tolist(),'sizes':points.get_sizes().tolist(),'alpha':points.get_alpha()}\n     plt.close(fig)\n     return result\n",
+   "tests": [
+    {
+     "name": "hai đơn mới",
+     "input": {
+      "x": [
+       1,
+       4
+      ],
+      "y": [
+       6,
+       18
+      ],
+      "sizes": [
+       25,
+       100
+      ]
+     },
+     "expected": {
+      "positions": [
+       [
+        1.0,
+        6.0
+       ],
+       [
+        4.0,
+        18.0
+       ]
+      ],
+      "sizes": [
+       25,
+       100
+      ],
+      "alpha": 0.5
+     }
+    },
+    {
+     "name": "điểm trùng vẫn giữ",
+     "input": {
+      "x": [
+       2,
+       2
+      ],
+      "y": [
+       7,
+       7
+      ],
+      "sizes": [
+       40,
+       40
+      ]
+     },
+     "expected": {
+      "positions": [
+       [
+        2.0,
+        7.0
+       ],
+       [
+        2.0,
+        7.0
+       ]
+      ],
+      "sizes": [
+       40,
+       40
+      ],
+      "alpha": 0.5
+     }
+    },
+    {
+     "name": "một quan sát",
+     "input": {
+      "x": [
+       0
+      ],
+      "y": [
+       0
+      ],
+      "sizes": [
+       10
+      ]
+     },
+     "expected": {
+      "positions": [
+       [
+        0.0,
+        0.0
+       ]
+      ],
+      "sizes": [
+       10
+      ],
+      "alpha": 0.5
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Độ trong suốt nằm trong khoảng 0 đến 1."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Dựng scatter và phân biệt vị trí với diện tích marker."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

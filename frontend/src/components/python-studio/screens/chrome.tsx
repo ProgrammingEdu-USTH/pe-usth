@@ -4,16 +4,24 @@
 // Vì sao tách khỏi StudioLesson.tsx: mỗi màn trước đây là một nhánh `if` trong
 // một hàm render dài ~900 dòng, dùng chung closure `shell()` nên không màn nào
 // đọc hiểu hay sửa riêng được. Giờ mỗi màn là một component nhận props.
+import { withInlineCode } from '@/lib/inline-code';
 import FeedbackBanner from '@/components/lesson-chrome/exercises/FeedbackBanner';
 import ShellB from '@/components/lesson-chrome/ShellB';
-import type { LessonScreen, PlayGame, StudioLesson as Lesson } from '@/lib/studio-lesson';
+import {
+  isChoiceScreen,
+  phanCuaMan,
+  PHAN_NHAN,
+  type LessonScreen,
+  type PlayGame,
+  type StudioLesson as Lesson,
+} from '@/lib/studio-lesson';
 
 import type { RunResult } from '../runner/types';
 import type { SandboxTestRow } from '@/components/lesson-chrome/exercises/SandboxEditor';
 import type { ConsoleLine } from '@/components/lesson-chrome/exercises/Console';
 
 /** Kết quả chấm của màn đang mở (screenVerdict hoặc kết quả chạy code). */
-export type ScreenVerdict = { correct: boolean; explain?: string; lines?: string[] };
+export type ScreenVerdict = { correct: boolean; explain?: string };
 
 export const ICON = {
   book: (
@@ -50,18 +58,44 @@ export const ICON = {
 
 /** Đoạn văn cách nhau bằng dòng trống → từng khối riêng (mô tả nằm trong <p>). */
 export function paragraphs(text?: string): React.ReactNode {
-  if (!text || !text.includes('\n\n')) return text;
-  return text.split(/\n{2,}/).map((part, i) => (
+  if (!text) return text;
+  const parts = text.split(/\n{2,}/);
+  // Một đoạn thì KHÔNG bọc thêm <span display:block>: giữ đúng dáng cũ của mọi
+  // màn đang dùng hàm này (phần lớn mô tả chỉ có một đoạn).
+  if (parts.length === 1) return withInlineCode(parts[0]);
+  return parts.map((part, i) => (
     <span key={i} style={{ display: 'block', marginTop: i ? 8 : 0 }}>
-      {part}
+      {withInlineCode(part)}
     </span>
   ));
 }
 
-/** Nhãn nhỏ trên mỗi thẻ: "S2 · Bẫy ngộ nhận". */
-export function eyebrowOf(scr: LessonScreen): { icon: React.ReactNode; label: string } {
+/**
+ * Nhãn nhỏ trên mỗi thẻ: "LÝ THUYẾT · Bài đọc" (CSS viết hoa nó).
+ *
+ * Tiền tố TỪNG là `S{origin}` — S1..S4, cấu trúc bốn bước của gói nội dung. Với
+ * người học thì "S2" không nói gì: nó là tên của một khoá trong JSON. Nay tiền
+ * tố là TÊN PHẦN, nên mỗi màn tự nói mình thuộc lý thuyết, thực hành hay bài
+ * tập — xem `phanCuaMan`, và xem vì sao `recap` không thuộc phần nào.
+ *
+ * `che` là `sandboxMode(lesson)` của bài, chỉ có ý nghĩa cho màn `sandbox`.
+ * Tham số TUỲ CHỌN vì `ScreenShell` không có `lesson` trong tay — mà nó cũng
+ * không bao giờ dựng màn sandbox, nên chỗ đó không cần. Thiếu `che` thì phần 3
+ * về nhãn chung "Bài tập".
+ *
+ * Vì sao phần 3 phải đọc chế độ: **49/179 bài KHÔNG có ca chấm nào** (24 bài
+ * `procedure` — các bước tự làm trên máy; 25 bài `free` — chạy thử tự do, thiếu
+ * wheel hoặc `sys.executable`). Dán "BÀI TẬP" lên 24 bài procedure là hứa một
+ * thứ máy chấm mà bài đó không có.
+ */
+export function eyebrowOf(
+  scr: LessonScreen,
+  che?: 'graded' | 'procedure' | 'free',
+): { icon: React.ReactNode; label: string } {
   const map: Record<string, { icon: React.ReactNode; label: string }> = {
     brief: { icon: ICON.book, label: 'Tổng quan bài' },
+    read: { icon: ICON.book, label: 'Bài đọc' },
+    practice: { icon: ICON.bulb, label: 'Luyện tập' },
     theory: { icon: ICON.book, label: 'LÝ THUYẾT' },
     context: { icon: ICON.book, label: 'Ngữ cảnh' },
     explain: { icon: ICON.code, label: 'Giải thích từng dòng' },
@@ -82,15 +116,22 @@ export function eyebrowOf(scr: LessonScreen): { icon: React.ReactNode; label: st
     match: { icon: ICON.swap, label: 'Game · Nối cặp' },
     trueFalse: { icon: ICON.help, label: 'Game · Đúng hay sai' },
     fill: { icon: ICON.swap, label: 'Game · Điền mảnh code' },
-    parsons: { icon: ICON.play, label: 'Game · Ghép code' },
+    parsons: { icon: ICON.play, label: 'Game · Ghép code ▶' },
     spotError: { icon: ICON.bulb, label: 'Game · Săn lỗi' },
-    debug: { icon: ICON.play, label: 'Game · Sửa code' },
+    debug: { icon: ICON.play, label: 'Game · Sửa code ▶' },
     selfExplain: { icon: ICON.bulb, label: 'Tự giải thích' },
-    soQuy: { icon: ICON.play, label: 'Mô phỏng · Hai luồng' },
   };
   if (scr.kind === 'game' && scr.gameType) return games[scr.gameType];
   const found = map[scr.kind] ?? { icon: ICON.book, label: scr.label };
-  return { icon: found.icon, label: `S${scr.origin} · ${found.label}` };
+  const phan = phanCuaMan(scr.kind);
+  if (!phan) return { icon: found.icon, label: found.label };
+  const ten =
+    phan === 'baiTap' && che === 'procedure'
+      ? 'Thực hành trên máy'
+      : phan === 'baiTap' && che === 'free'
+        ? 'Chạy thử'
+        : PHAN_NHAN[phan];
+  return { icon: found.icon, label: `${ten} · ${found.label}` };
 }
 
 /** Thụt lề của một dòng Python, tính theo bậc 4 dấu cách (Parsons hiển thị). */
@@ -130,36 +171,32 @@ export function ScreenShell({
       centered={centered}
     >
       {children}
-      {/* ── VÙNG SỐNG PHẢI CÓ TRƯỚC NỘI DUNG CỦA NÓ ────────────────────────
-          Lỗi đang chữa: băng kết quả chấm tự mang `role="status"`, nhưng nó
-          chỉ được DỰNG RA lúc bấm "Kiểm tra" — tức vùng sống và nội dung của
-          vùng sống sinh ra trong CÙNG một lần cập nhật DOM. Trình đọc màn hình
-          theo dõi THAY ĐỔI bên trong một vùng sống đã có sẵn; một vùng sống
-          vừa mới chèn vào thì có máy đọc, có máy im (VoiceOver/Safari im), nên
-          kết quả đúng/sai là thứ CHỈ người nhìn thấy màu mới chắc chắn nhận
-          được — đúng cái lỗ mà `role="status"` được đặt ra để bịt.
-          Nay cái vỏ này đứng sẵn từ lúc màn mở (rỗng), chỉ RUỘT đổi khi chấm:
-          đó là thay đổi trong vùng sống, và được đọc lên chắc chắn.
-          `role="status"` đã gỡ khỏi FeedbackBanner để không lồng hai vùng
-          sống vào nhau (hai lần đọc, hoặc không lần nào). */}
-      <div role="status" aria-live="polite">
-        {verdict && (
+      {verdict && (
         <FeedbackBanner
           correct={verdict.correct}
           title={
             scr.kind === 'selfExplain'
               ? verdict.correct
                 ? 'Đã ghi nhận — tự so với lời giải thích mẫu'
-                : 'Chưa đủ ý — viết thêm'
+                : 'Chưa đủ ý — viết thêm nhé'
               : verdict.correct
                 ? 'Chính xác!'
-                : 'Chưa đúng — thử lại'
+                : // Câu chọn phương án KHÔNG còn bắt làm lại, nên băng này
+                  // không được nói "thử lại nhé" — nó sẽ chỉ vào một nút không
+                  // còn là đường đi chính, và câu "thử lại" không kèm giải
+                  // thích đúng là loại phản hồi d = 0,05 của Van der Kleij
+                  // 2015. Chỉ sang chỗ CÓ giải thích: cả ba phương án đều đã
+                  // hiện lý do ngay bên trên.
+                  isChoiceScreen(scr.kind)
+                  ? 'Chưa đúng — đáp án đúng và lý do của từng phương án ở ngay trên'
+                  : 'Chưa đúng — thử lại nhé'
           }
-          explanation={verdict.explain}
-          lines={verdict.lines}
+          /* `paragraphs` chứ không phải chuỗi trần: `explain` dựng từ
+             `mcq[].explanation` / `options[].detail` của giáo trình, và bản
+             dựng có backtick ở đó. */
+          explanation={paragraphs(verdict.explain)}
         />
-        )}
-      </div>
+      )}
     </ShellB>
   );
 }
@@ -184,12 +221,31 @@ export function showEditorOf(lesson: Lesson): boolean {
   );
 }
 
+/**
+ * Màn sandbox đang ở chế độ nào — để nhãn nói ĐÚNG việc nó làm.
+ *
+ * Trước đây chỉ có hai trường hợp nên mọi câu "không có ca kiểm thử" đều được
+ * viết thành "bài này thực hành trên máy lab". Khoá 172 bài đọc phá vỡ đúng chỗ
+ * đó: bài của nó có `starterCode` chạy được trong trình duyệt nhưng KHÔNG có
+ * `tests` nào — nói "trên máy lab" là nói sai, và người học sẽ không bấm Chạy.
+ *
+ *   graded    — có `step_4.tests`: nộp để máy chấm.
+ *   procedure — các bước phải tự làm trên máy (không có mã Python để chạy).
+ *   free      — có ô soạn mã nhưng không ca chấm nào: chạy thử tự do.
+ */
+export function sandboxMode(lesson: Lesson): 'graded' | 'procedure' | 'free' {
+  if (lesson.step_4?.tests?.length) return 'graded';
+  return lesson.step_4?.procedure?.length ? 'procedure' : 'free';
+}
+
 /** Bảng ca kiểm thử dưới editor, ghép đề bài với kết quả chạy gần nhất. */
 export function testRows(lesson: Lesson, data: RunResult | null | undefined): SandboxTestRow[] {
   return (lesson.step_4?.tests ?? []).map((t, i) => {
     const got = data?.tests?.[i];
     return {
-      label: t.name || t.call,
+      // Ca dạng dữ liệu không có `call`; `name` thì cả hai dạng đều có, nên
+      // chỉ cần dự phòng khi nó rỗng.
+      label: t.name || ('call' in t ? t.call : `Ca ${i + 1}`),
       detail: got?.detail,
       status: !data || !got ? 'pending' : got.passed ? 'pass' : 'fail',
     };

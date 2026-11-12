@@ -7,13 +7,12 @@ import { ConsoleLine } from '@/components/lesson-chrome/exercises/Console';
 import HintSheet from '@/components/lesson-chrome/exercises/HintSheet';
 import SandboxEditor from '@/components/lesson-chrome/exercises/SandboxEditor';
 import ShellB from '@/components/lesson-chrome/ShellB';
-import { gateNotice } from '@/lib/gate-notice';
+import { ghiSuKien, ghiSuaMa } from '@/lib/learning-events';
 import { toCodeLines } from '@/lib/py-highlight';
 
-import { SandboxCue } from '../intro/BookIntro';
 import c from '../studio-chrome.module.css';
 import type { RunResult } from '../runner/types';
-import { eyebrowOf, paragraphs, showEditorOf, testRows } from './chrome';
+import { eyebrowOf, paragraphs, sandboxMode, showEditorOf, testRows } from './chrome';
 import type { LessonScreenProps } from './props';
 
 type Props = Pick<
@@ -24,6 +23,7 @@ type Props = Pick<
   | 'draft'
   | 'update'
   | 'result'
+  | 'resultStale'
   | 'running'
   | 'runtimeStatus'
   | 'onRun'
@@ -67,6 +67,7 @@ export default function SandboxScreen({
   draft,
   update,
   result,
+  resultStale,
   running,
   runtimeStatus,
   onRun,
@@ -77,19 +78,17 @@ export default function SandboxScreen({
   procedure: procedureUi,
 }: Props) {
   const four = lesson.step_4;
-  const eyebrow = eyebrowOf(scr);
+  // Truyền chế độ: 49/179 bài không có ca chấm nào, nên nhãn phần phải nói
+  // "Thực hành trên máy" / "Chạy thử" thay vì hứa một bài tập được chấm.
+  const mode = sandboxMode(lesson);
+  const eyebrow = eyebrowOf(scr, mode);
   const io = four?.task?.io ?? [];
   const hints = four?.hints ?? [];
-  const tests = four?.tests ?? [];
   const procedure = four?.procedure ?? [];
   const files = four?.files ?? [];
   const contracts = four?.contracts ?? [];
   const gate = Boolean(four?.gate);
   const boss = Boolean(lesson.play?.boss);
-  // Câu chữ của lời nhắc nằm ở `lib/gate-notice.ts` — nó từng hứa "lời giải
-  // mẫu mở sau lần nộp đầu", trong khi server chỉ nhả lời giải khi bài ĐÃ
-  // hoàn thành. Xem chú thích đầu file đó.
-  const notice = gateNotice({ boss, gate, submitted: Boolean(draft.submitted) });
 
   return (
     <ShellB
@@ -100,14 +99,19 @@ export default function SandboxScreen({
       description={paragraphs(four?.task?.body)}
     >
       {four?.env && <div className={`${c.note} ${c.noteWarn}`}>{four.env}</div>}
-      {notice && (
-        <div
-          className={notice.boss ? `${c.note} ${c.boss}` : c.note}
-          role="status"
-        >
-          <strong>{notice.strong}</strong>
-          {notice.rest}
+      {boss ? (
+        <div className={`${c.note} ${c.boss}`} role="status">
+          <strong>⚔️ Trận Boss của chặng.</strong> Không có gợi ý — tự viết và nộp. Lời giải mẫu chỉ mở
+          sau lần nộp đầu, và xem nó thì điểm trận này bị giới hạn ở 60%.
         </div>
+      ) : (
+        gate &&
+        !draft.submitted && (
+          <div className={c.note} role="status">
+            <strong>Cửa tự kiểm tra.</strong> Tự viết và nộp lần đầu trước — lời giải mẫu chỉ mở sau lần nộp
+            đó. Mở gợi ý vẫn được, nhưng lượt này sẽ ghi nhận là có hỗ trợ.
+          </div>
+        )
       )}
       {io.length > 0 && (
         <dl className={c.io}>
@@ -187,51 +191,90 @@ export default function SandboxScreen({
           )}
         </div>
       )}
-      {/* Dấu hiệu "giờ là lúc viết code": khung soạn thảo nhấc lên và hiện,
-          240ms, chỉ opacity/transform.
-
-          VÌ SAO KHÔNG PHẢI CẢNH "GẬP SÁCH → NGẨNG LÊN → HIỆN IDE" như nguyên
-          mẫu dựng: giữa màn lý thuyết và màn này có TÁM màn khác (đề bài, giải
-          thích từng dòng, dự đoán, bốn mini-game, tự giải thích). Nối hai cảnh
-          đó là nói "đọc xong là viết code", trong khi luồng thật không phải
-          vậy — và lúc người học tới đây thì trong tay họ không còn quyển sách
-          nào để gập. Lập luận đầy đủ ở đầu lib/lesson-intro.ts. */}
       {showEditorOf(lesson) && (
-        <SandboxCue>
-          <SandboxEditor
-            filename="main.py"
-            langTag={runtimeStatus || 'CPython 3.12'}
-            code={draft.code}
-            onCodeChange={(code) => update({ code })}
-            running={running}
-            onRun={onRun}
-            onStop={onStop}
-            onShowSolution={
-              four?.solutionCode && (!gate || draft.submitted)
-                ? () => {
-                    update({ code: four.solutionCode!, solutionUsed: true, assisted: true });
-                    setMessage('Đã chèn lời giải mẫu. Đọc hiểu rồi nộp thì bạn giữ được kiến thức.');
-                  }
-                : undefined
-            }
-            placeholder={
-              tests.length
-                ? undefined
-                : 'Bài này thực hành trên máy tính của bạn nên không có ca chấm tự động. Ô này dùng làm nháp: gõ thử rồi bấm "Chạy thử" (chỉ thư viện chuẩn chạy được trong trình duyệt).'
-            }
-            consoleLines={consoleLines(result, draft.code)}
-            consoleMeta={result ? `${result.duration} ms` : runtimeStatus}
-            tests={testRows(lesson, result)}
-            disabled={busy}
-          />
-        </SandboxCue>
+        <SandboxEditor
+          filename="main.py"
+          langTag={runtimeStatus || 'CPython'}
+          code={draft.code}
+          onCodeChange={(code) => {
+            // `ghiSuaMa` KHÔNG phát sự kiện nào — nó chỉ tăng một bộ đếm mà
+            // lượt chạy sau mang theo (`editsSinceLastRun`). Tín hiệu cần là
+            // TỈ SỐ sửa/chạy: nhiều sửa + ít chạy = tắc ở ngữ nghĩa, nhiều sửa
+            // + nhiều chạy = tắc ở cú pháp. Một sự kiện mỗi lần gõ là
+            // click-stream — nhân số hàng lên hàng trăm lần mà cho ra đúng con
+            // số một bộ đếm cho ra. Các lần gõ liên tiếp trong 1,5 giây được
+            // gộp thành MỘT lần sửa ngay trong hàm đó.
+            ghiSuaMa();
+            update({ code });
+          }}
+          running={running}
+          onRun={onRun}
+          onStop={onStop}
+          onShowSolution={
+            four?.solutionCode && (!gate || draft.submitted)
+              ? () => {
+                  // XEM LỜI GIẢI MẪU — tầng cuối của "Resource.View". Khác hẳn
+                  // mở gợi ý: gợi ý còn bắt họ tự viết, chèn lời giải thì
+                  // không. Ghi TRƯỚC `update` để nó không phụ thuộc việc ô soạn
+                  // mã nhận được chữ hay không.
+                  ghiSuKien('Resource.View', {
+                    screenKey: scr.key,
+                    payload: {
+                      resource: 'solution',
+                      gate,
+                      submitted: Boolean(draft.submitted),
+                      // Đã từng xem lời giải ở lượt trước chưa — xem lại lần
+                      // thứ ba nói khác lần đầu.
+                      again: Boolean(draft.solutionUsed),
+                    },
+                  });
+                  update({ code: four.solutionCode!, solutionUsed: true, assisted: true });
+                  setMessage('Đã chèn lời giải mẫu. Hãy đọc hiểu trước khi nộp.');
+                }
+              : undefined
+          }
+          // Ô trống thì nói đúng lý do VÌ SAO không có ca chấm. Câu cũ ghi
+          // cứng "thực hành trên máy lab" cho MỌI bài thiếu `tests`, nên bài
+          // của khoá đọc — chạy được ngay trong trình duyệt, chỉ là không có
+          // ca chấm nào — cũng bị dán nhãn máy lab và người học bỏ qua nút Chạy.
+          placeholder={
+            mode === 'graded'
+              ? undefined
+              : mode === 'procedure'
+                ? 'Bài này thực hành trên máy lab nên không có ca chấm tự động. Ô này dùng làm nháp: gõ thử rồi bấm "Chạy thử" (chỉ thư viện chuẩn chạy được trong trình duyệt).'
+                : 'Bài đọc: không có ca chấm nào, ô này để bạn thử lại ví dụ trong bài. Gõ rồi bấm "Chạy thử" — code chạy ngay trong trình duyệt.'
+          }
+          consoleLines={consoleLines(result, draft.code)}
+          consoleMeta={result ? `${result.duration} ms` : runtimeStatus}
+          // Người học sửa code mà chưa bấm Chạy: ô kết quả bên dưới vẫn là của
+          // bản TRƯỚC. Xem lib/run-freshness.ts — bài PY01 hỏi thẳng câu này
+          // ("output đang nhìn thuộc bản code nào?") và trước bản này màn hình
+          // không trả lời được.
+          stale={resultStale}
+          figures={result?.figures}
+          tests={testRows(lesson, result)}
+          noTestsHint={
+            mode === 'procedure'
+              ? 'Bài này chấm trên máy lab, không có ca tự động'
+              : 'Bài đọc — chạy thử tự do, không có ca chấm'
+          }
+          disabled={busy}
+        />
       )}
       {hint.open && hints.length > 0 && (
         <HintSheet
           levels={hints.map((h, i) => ({
             title: h.title,
             // Tầng "lời giải từng phần" là code nhiều dòng: giữ nguyên thụt lề.
-            body: h.body.includes('\n') ? <pre className={c.hintCode}>{h.body}</pre> : h.body,
+            // Tầng MỘT DÒNG thì đi qua `paragraphs` — 8 gợi ý của bản dựng có
+            // backtick và trước đây hiện ra nguyên dấu. Nhánh <pre> KHÔNG bóc,
+            // có chủ đích: ở đó cả khối đã là code, backtick trong đó là ký tự
+            // thật của code chứ không phải dấu đánh dấu.
+            body: h.body.includes('\n') ? (
+              <pre className={c.hintCode}>{h.body}</pre>
+            ) : (
+              paragraphs(h.body)
+            ),
             locked: i > hint.index,
           }))}
           openIndex={hint.index}

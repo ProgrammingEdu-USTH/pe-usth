@@ -1,0 +1,225 @@
+{
+ "lesson_code": "PD28",
+ "sort_order": 69,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD28 · Đọc ít hơn và xử lý theo lô",
+ "subtitle": "Nâng cao · M3 · 12 phút",
+ "estimated_minutes": 12,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PD28 · Đọc ít hơn và xử lý theo lô",
+  "subtitle": "Nâng cao · M3 · 12 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PD28",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas · Scaling"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bảng nhiều cấp ở bài trước đã lớn, và sổ đơn hàng của quán còn hàng chục cột. Báo cáo thì chỉ cần mã quầy và tiền thu. Cách tiết kiệm bộ nhớ đầu tiên là không đọc những cột bạn không dùng."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nfrom io import StringIO\ntext = 'quay,tong_tien,ghi_chu\\nQ1,10,ghi tay\\nQ2,20,ghi tay\\n'\ndf = pd.read_csv(StringIO(text), usecols=['quay', 'tong_tien'])\nprint(df.columns.tolist())\nprint(df['tong_tien'].sum())",
+      "expected": "['quay', 'tong_tien']\n30",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Với dữ liệu lớn, chọn thêm dtype phù hợp sau khi đã kiểm tra miền giá trị. Không ép số vào kiểu quá nhỏ chỉ để giảm bộ nhớ, vì dữ liệu mới có thể vượt phạm vi đó."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nma_quay = pd.Series(['Q1', 'Q2'] * 1000, dtype='object')\nrut_gon = ma_quay.astype('category')\nprint(rut_gon.memory_usage(deep=True) < ma_quay.memory_usage(deep=True))\nprint(rut_gon.astype('object').equals(ma_quay))",
+      "expected": "True\nTrue",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`deep=True` tính cả phần bộ nhớ chứa các đối tượng chữ. Ở dãy chỉ có hai mã quầy lặp nhiều lần này, category dùng ít bộ nhớ hơn và giữ các giá trị. Kết quả cụ thể phụ thuộc dữ liệu, nên hãy đo thay vì mặc định mọi category đều có lợi."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nfrom io import StringIO\ntext = 'tong_tien\\n10\\n20\\n30\\n40\\n'\ntong = 0\nhang = 0\nfor lo in pd.read_csv(StringIO(text), chunksize=2):\n    tong += lo['tong_tien'].sum()\n    hang += len(lo)\nprint(tong, hang)\nprint(tong / hang)",
+      "expected": "100 4\n25.0",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "chunksize trả từng lô để cộng dồn. Trung bình toàn bộ phải tính tổng chia số đơn phù hợp; không cộng hoặc lấy trung bình các trung bình lô khi kích thước lô khác nhau. Các phép cần toàn bộ dữ liệu như sắp xếp toàn cục không được giải quyết chỉ bằng chunksize. Khi đo tốc độ, kiểm tra hai cách cho cùng kết quả và đo nhiều lần với cùng dữ liệu."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "PD27 · MultiIndex cho dữ liệu nhiều cấp"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Hai lô [0,0] và [9] có trung bình toàn bộ bao nhiêu?",
+     "options": [
+      {
+       "text": "3",
+       "detail": "Đúng: tổng 9 chia 3 quan sát.",
+       "correct": true
+      },
+      {
+       "text": "4.5",
+       "detail": "Đây là trung bình 0 và 9, đã cho hai lô trọng số bằng nhau."
+      },
+      {
+       "text": "9",
+       "detail": "Đây là tổng, không phải trung bình."
+      }
+     ],
+     "explanation": "Lô ngắn không được có cùng trọng số với lô dài khi tính mean của mọi hàng."
+    },
+    {
+     "question": "usecols giảm phần dữ liệu nào được đọc?\n\nimport pandas as pd\nfrom io import StringIO\ntext = 'store,amount,note\\nA,10,long note\\nB,20,another note\\n'\ndf = pd.read_csv(StringIO(text), usecols=['store', 'amount'])\nprint(df.columns.tolist())\nprint(df['amount'].sum())",
+     "options": [
+      {
+       "text": "Giảm số hàng, giữ mọi cột.",
+       "detail": "Giới hạn hàng là nhiệm vụ của tham số khác như nrows."
+      },
+      {
+       "text": "Xóa các giá trị không phải số trong bảng.",
+       "detail": "Chọn cột không đồng nghĩa làm sạch các giá trị trong cột."
+      },
+      {
+       "text": "Giảm số cột được nạp.",
+       "detail": "Giảm số cột được nạp.",
+       "correct": true
+      }
+     ],
+     "explanation": "Giảm số cột được nạp."
+    },
+    {
+     "question": "Vì sao không nên lấy trung bình các trung bình lô khác kích thước?\n\nimport pandas as pd\nnames = pd.Series(['north', 'south'] * 1000, dtype='object')\ncategories = names.astype('category')\nprint(categories.memory_usage(deep=True) < names.memory_usage(deep=True))\nprint(categories.astype('object').equals(names))",
+     "options": [
+      {
+       "text": "Vì mọi trung bình lô luôn giống nhau.",
+       "detail": "Các trung bình lô không nhất thiết bằng nhau."
+      },
+      {
+       "text": "Vì mỗi lô sẽ có trọng số bằng nhau dù số quan sát khác nhau; phải cộng tổng và số quan sát.",
+       "detail": "Vì mỗi lô sẽ có trọng số bằng nhau dù số quan sát khác nhau; phải cộng tổng và số quan sát.",
+       "correct": true
+      },
+      {
+       "text": "Vì trung bình lô không thể biểu diễn bằng số thực.",
+       "detail": "Có thể tính trung bình; vấn đề là trọng số theo số quan sát."
+      }
+     ],
+     "explanation": "Vì mỗi lô sẽ có trọng số bằng nhau dù số quan sát khác nhau; phải cộng tổng và số quan sát."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "usecols giảm phần dữ liệu nào được đọc?",
+     "answer": "Giảm số cột được nạp."
+    },
+    {
+     "prompt": "Vì sao không nên lấy trung bình các trung bình lô khác kích thước?",
+     "answer": "Vì mỗi lô sẽ có trọng số bằng nhau dù số quan sát khác nhau; phải cộng tổng và số quan sát."
+    },
+    {
+     "prompt": "Đọc cột so_coc gồm 1,2,3 theo chunksize=2 rồi cộng dồn.",
+     "answer": "Tổng là 6.",
+     "answerCode": "import pandas as pd\nfrom io import StringIO\ntotal = 0\nfor chunk in pd.read_csv(StringIO('so_coc\\n1\\n2\\n3'), chunksize=2):\n    total += chunk['so_coc'].sum()\nprint(total)",
+     "answerExpected": "6"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.text là CSV một cột x với ít nhất một số, có thể có NA; data.chunksize >0. Đọc theo lô, cộng tổng và count giá trị không thiếu. Trả total, count và mean. Kết quả phải không phụ thuộc cách chia lô.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'text': 'x\\n0\\n0\\n9\\n', 'chunksize': 2}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'total': 9.0, 'count': 3, 'mean': 3.0}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\nfrom io import StringIO\n\ndef solve(data):\n     total, count = 0.0, 0\n     for chunk in pd.read_csv(StringIO(data['text']), chunksize=data['chunksize']):\n         total += chunk['x'].sum()\n         count += int(chunk['x'].count())\n     return {'total':float(total), 'count':count, 'mean':float(total/count)}\n",
+   "tests": [
+    {
+     "name": "lô cuối ngắn",
+     "input": {
+      "text": "x\n0\n0\n9\n",
+      "chunksize": 2
+     },
+     "expected": {
+      "total": 9.0,
+      "count": 3,
+      "mean": 3.0
+     }
+    },
+    {
+     "name": "ô thiếu",
+     "input": {
+      "text": "x\n4\nNA\n8\n",
+      "chunksize": 1
+     },
+     "expected": {
+      "total": 12.0,
+      "count": 2,
+      "mean": 6.0
+     }
+    },
+    {
+     "name": "một lô lớn",
+     "input": {
+      "text": "x\n2\n4\n6\n8\n",
+      "chunksize": 9
+     },
+     "expected": {
+      "total": 20.0,
+      "count": 4,
+      "mean": 5.0
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Mỗi vòng chỉ đọc một phần số hàng đã quy định."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Tính tổng và số quan sát qua các lô rồi mới chia."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

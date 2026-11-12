@@ -1,0 +1,212 @@
+{
+ "lesson_code": "SY01",
+ "sort_order": 104,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY01 · Đọc ngày tháng và tính khoảng thời gian",
+ "subtitle": "Cơ bản · M5 · 13 phút",
+ "estimated_minutes": 13,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY01 · Đọc ngày tháng và tính khoảng thời gian",
+  "subtitle": "Cơ bản · M5 · 13 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY01",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 330; Python — datetime"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Quán đã có số và có hình rồi, nhưng code vẫn nằm rời trong từng ô notebook. Một báo cáo cần lấy đơn hàng từ ngày 28/02/2024 đến hai ngày sau đó. Nếu cộng trực tiếp vào phần ngày của chuỗi, bạn sẽ gặp ngày không tồn tại. Hãy chuyển chuỗi thành datetime trước:"
+     },
+     {
+      "type": "code",
+      "code": "from datetime import datetime, timedelta\nday = datetime.strptime(\"2024-02-28\", \"%Y-%m-%d\")\nprint((day + timedelta(days=2)).strftime(\"%Y-%m-%d\"))",
+      "expected": "2024-03-01",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`strptime` đọc chuỗi theo định dạng, còn `strftime` tạo chuỗi để trình bày. `%Y`, `%m`, `%d` lần lượt là năm, tháng, ngày. `timedelta` biểu diễn khoảng thời gian; Python tính qua ranh giới tháng và năm nhuận."
+     },
+     {
+      "type": "code",
+      "code": "from datetime import datetime, timedelta\nend = datetime(year=2024, month=3, day=29)\nstart = end - timedelta(weeks=4)\nprint(start.strftime(\"%Y-%m-%d\"))\nprint((end - start).days)",
+      "expected": "2024-03-01\n28",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Bốn tuần là 28 ngày, không phải luôn bằng một tháng theo lịch. Khi lọc dữ liệu theo tuần, cần nói rõ mốc đầu và mốc cuối có được lấy hay không. Bạn cũng có thể tạo datetime bằng các trường số, thay vì đọc từ chuỗi."
+     },
+     {
+      "type": "code",
+      "code": "from datetime import datetime\ntry:\n    datetime.strptime(\"2023-02-29\", \"%Y-%m-%d\")\nexcept ValueError:\n    print(\"Ngay khong hop le\")\nprint(isinstance(datetime.now(), datetime))",
+      "expected": "Ngay khong hop le\nTrue",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "`datetime.now()` lấy thời điểm chạy trên máy nên kết quả thay đổi. Ví dụ chỉ kiểm tra kiểu của nó; bài tính ngày dùng mốc cố định để bạn tự đối chiếu. Trong báo cáo có nhiều múi giờ, cần thống nhất timezone trước khi so sánh; datetime không gắn timezone ở đây chỉ dùng để học lịch cơ bản."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PY18 · Ngoại lệ và dữ liệu không hợp lệ"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Ngày 2024-02-28 cộng 2 ngày bằng timedelta là ngày nào?",
+     "options": [
+      {
+       "text": "2024-02-30",
+       "detail": "Tháng 2 không có ngày 30; không cộng vào riêng phần ngày của chuỗi."
+      },
+      {
+       "text": "2024-03-01",
+       "detail": "Năm 2024 có ngày 29/02; timedelta đi qua ranh giới tháng.",
+       "correct": true
+      },
+      {
+       "text": "2024-03-02",
+       "detail": "Bạn đã bỏ qua ngày 29/02 của năm nhuận."
+      }
+     ],
+     "explanation": "Năm 2024 có ngày 29/02; timedelta đi qua ranh giới tháng."
+    },
+    {
+     "question": "Bạn có chuỗi \"2026-12-31\" và cần một datetime. Dùng thao tác nào?",
+     "options": [
+      {
+       "text": "datetime.strptime với format %Y-%m-%d",
+       "detail": "strptime đọc chuỗi theo format; strftime tạo chuỗi từ đối tượng ngày.",
+       "correct": true
+      },
+      {
+       "text": "datetime.strftime trên chính chuỗi",
+       "detail": "Chưa đúng. strptime đọc chuỗi theo format; strftime tạo chuỗi từ đối tượng ngày."
+      },
+      {
+       "text": "timedelta với chuỗi ngày",
+       "detail": "Chưa đúng. strptime đọc chuỗi theo format; strftime tạo chuỗi từ đối tượng ngày."
+      }
+     ],
+     "explanation": "strptime đọc chuỗi theo format; strftime tạo chuỗi từ đối tượng ngày."
+    },
+    {
+     "question": "Báo cáo cần hiển thị ngày dưới dạng 05/01/2026. Format nào phù hợp?",
+     "options": [
+      {
+       "text": "%Y/%m/%d",
+       "detail": "Chưa đúng. %d là ngày, %m là tháng, %Y là năm bốn chữ số."
+      },
+      {
+       "text": "%m/%Y/%d",
+       "detail": "Chưa đúng. %d là ngày, %m là tháng, %Y là năm bốn chữ số."
+      },
+      {
+       "text": "%d/%m/%Y",
+       "detail": "%d là ngày, %m là tháng, %Y là năm bốn chữ số.",
+       "correct": true
+      }
+     ],
+     "explanation": "%d là ngày, %m là tháng, %Y là năm bốn chữ số."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Đổi 2024-03-01 thành chuỗi 01/03/2024.",
+     "answer": "datetime.strptime(\"2024-03-01\", \"%Y-%m-%d\").strftime(\"%d/%m/%Y\") cho \"01/03/2024\"."
+    },
+    {
+     "prompt": "Bốn tuần trước 29/03/2024 là ngày nào?",
+     "answer": "01/03/2024, vì timedelta(weeks=4) là 28 ngày."
+    },
+    {
+     "prompt": "Viết hàm ngày_hẹn(text, days) nhận YYYY-MM-DD và trả ngày sau days.",
+     "answer": "Dùng datetime.strptime(text, \"%Y-%m-%d\"), cộng timedelta(days=days), rồi strftime(\"%Y-%m-%d\"). Để ValueError báo ngày không hợp lệ; thử cả days âm và qua năm nhuận."
+    },
+    {
+     "prompt": "Tạo datetime cho 31/12/2020 rồi cộng một ngày và định dạng YYYY-MM-DD. datetime.now có thể đặt một output ngày cố định cho mọi lần chạy không?",
+     "answer": "datetime(year=2020,month=12,day=31) + timedelta(days=1) cho ngày 2021-01-01; gọi strftime(\"%Y-%m-%d\"). datetime.now phụ thuộc lúc chạy nên không cố định ngày trong expected; dùng mốc cố định khi luyện phép tính lịch."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Viết solve(data) nhận {\"date\": chuỗi YYYY-MM-DD, \"days\": số nguyên}, trả chuỗi ngày hẹn YYYY-MM-DD. Chỉ dùng ngày hợp lệ; days có thể âm.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'date': '2026-12-31', 'days': 1}"
+     },
+     {
+      "label": "trả về",
+      "value": "'2027-01-01'"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "from datetime import datetime, timedelta\ndef solve(data):\n    start = datetime.strptime(data['date'], '%Y-%m-%d')\n    return (start + timedelta(days=data['days'])).strftime('%Y-%m-%d')\n",
+   "tests": [
+    {
+     "name": "qua năm",
+     "input": {
+      "date": "2026-12-31",
+      "days": 1
+     },
+     "expected": "2027-01-01"
+    },
+    {
+     "name": "qua ngày nhuận",
+     "input": {
+      "date": "2024-02-28",
+      "days": 2
+     },
+     "expected": "2024-03-01"
+    },
+    {
+     "name": "lùi ngày",
+     "input": {
+      "date": "2026-03-01",
+      "days": -1
+     },
+     "expected": "2026-02-28"
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

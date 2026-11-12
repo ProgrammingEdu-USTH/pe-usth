@@ -1,0 +1,365 @@
+{
+ "lesson_code": "EX06",
+ "sort_order": 165,
+ "module": "M9 · Ôn tập và thực hành các chi tiết trong slide",
+ "title": "EX06 · Lưu nền thật: gzip, pickle, file và thông báo lỗi",
+ "subtitle": "Nâng cao · M9 · 17 phút",
+ "estimated_minutes": 17,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "EX06 · Lưu nền thật: gzip, pickle, file và thông báo lỗi",
+  "subtitle": "Nâng cao · M9 · 17 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#EX06",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 299; Pickle; gzip; queue"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Hết ca, quán cần lưu một bản nén mà ứng dụng mở lại được. Trước khi đưa việc lưu sang thread, kiểm hai chiều ghi và nạp trên file thật. pickle biến object thành `bytes`; `gzip` nén `bytes`; hai bước không thay thế nhau. Chỉ nạp pickle từ nguồn bạn tin cậy."
+     },
+     {
+      "type": "code",
+      "code": "import tempfile, gzip, pickle\nfrom pathlib import Path\ndata = {\"so_coc\":[6, 8]}\nwith tempfile.TemporaryDirectory() as folder:\n    path = Path(folder) / \"quan.dat\"\n    with gzip.open(path, \"wb\") as f:\n        pickle.dump(data, f)\n    with gzip.open(path, \"rb\") as f:\n        restored = pickle.load(f)\n    print(restored == data, path.exists())",
+      "expected": "True True",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "restored",
+        "prompt": "Sau khi chạy xong, `restored` bằng mấy?",
+        "answer": "{'so_coc': [6, 8]}"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "gzip",
+           "<thư viện gzip>"
+          ],
+          [
+           "pickle",
+           "<thư viện pickle>"
+          ],
+          [
+           "tempfile",
+           "<thư viện tempfile>"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "Path",
+           "<lớp Path>"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "data",
+           "{'so_coc': [6, 8]}"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "set": [
+          [
+           "folder",
+           "'C:\\\\Users\\\\sonkh\\\\AppData\\\\Local\\\\Temp\\\\tmp_mb_vsfm'"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "set": [
+          [
+           "path",
+           "WindowsPath: WindowsPath('C:/Users/sonkh/AppData/Local/Temp/tmp_mb_vsfm…"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "set": [
+          [
+           "f",
+           "GzipFile(mode='wb', fileobj=BufferedWriter(), _buffer=BufferedWriter(),…"
+          ]
+         ]
+        },
+        {
+         "line": 7
+        },
+        {
+         "line": 6,
+         "set": [
+          [
+           "f",
+           "GzipFile(mode='wb', fileobj=None, _buffer=BufferedWriter(), myfileobj=N…"
+          ]
+         ]
+        },
+        {
+         "line": 8,
+         "set": [
+          [
+           "f",
+           "GzipFile(mode='rb', fileobj=BufferedReader(), _buffer=BufferedReader(),…"
+          ]
+         ]
+        },
+        {
+         "line": 9,
+         "set": [
+          [
+           "restored",
+           "{'so_coc': [6, 8]}"
+          ]
+         ]
+        },
+        {
+         "line": 8,
+         "set": [
+          [
+           "f",
+           "GzipFile(mode='rb', fileobj=None, _buffer=BufferedReader(), myfileobj=N…"
+          ]
+         ]
+        },
+        {
+         "line": 10,
+         "out": "True True"
+        },
+        {
+         "line": 4
+        },
+        {
+         "line": 4,
+         "ret": "None"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Worker nhận một snapshot đã tách khỏi trạng thái đang sửa. Ở đây các phần tử chỉ là số nên deepcopy đủ để tách cấu trúc. Worker gửi thông điệp hoàn tất sau khi file đã được đóng. Luồng chính trong ví dụ dòng lệnh dùng `join`; GUI phải kiểm queue theo event loop thay vì gọi join lâu trong callback."
+     },
+     {
+      "type": "code",
+      "code": "import tempfile, gzip, pickle, copy\nfrom pathlib import Path\nfrom threading import Thread\nfrom queue import Queue\ndef save(path, snapshot, messages):\n    with gzip.open(path, \"wb\") as f:\n        pickle.dump(snapshot, f)\n    messages.put((\"done\", len(snapshot[\"so_coc\"])))\ndata = {\"so_coc\":[6, 8]}\nmessages = Queue()\nwith tempfile.TemporaryDirectory() as folder:\n    path = Path(folder) / \"quan.dat\"\n    snapshot = copy.deepcopy(data)\n    worker = Thread(target=save, args=(path, snapshot, messages))\n    worker.start()\n    data[\"so_coc\"].append(10)\n    worker.join()\n    status = messages.get()\n    with gzip.open(path, \"rb\") as f:\n        loaded = pickle.load(f)\n    print(status)\n    print(loaded[\"so_coc\"], data[\"so_coc\"])",
+      "expected": "('done', 2)\n[6, 8] [6, 8, 10]"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Lỗi bên trong thread không tự trở thành ngoại lệ trong callback đã tạo nó. Worker cần gửi lỗi qua kênh kết quả để giao diện có thể báo và cho thử lại. Ví dụ cố ghi file dưới một thư mục chưa tồn tại, bắt OSError rồi gửi trạng thái; không bỏ lỗi bằng except: pass. Chưa có UI trong bài này, nên đây là nghiệm thu phần file/worker của PW8, không phải nghiệm thu khả năng đáp ứng của PW9."
+     },
+     {
+      "type": "code",
+      "code": "import tempfile, gzip, pickle\nfrom pathlib import Path\nfrom threading import Thread\nfrom queue import Queue\ndef save(path, data, messages):\n    try:\n        with gzip.open(path, \"wb\") as f:\n            pickle.dump(data, f)\n    except OSError as error:\n        messages.put((\"error\", isinstance(error, FileNotFoundError)))\n    else:\n        messages.put((\"done\", True))\nmessages = Queue()\nwith tempfile.TemporaryDirectory() as folder:\n    path = Path(folder) / \"missing-folder\" / \"quan.dat\"\n    worker = Thread(target=save, args=(path, {\"so_coc\":[6, 8]}, messages))\n    worker.start(); worker.join()\n    print(messages.get())",
+      "expected": "('error', True)"
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "CT13 · Queue và lưu pickle có nén ở nền"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "messages.put(\"done\") trước with gzip.open(...) có chứng minh file lưu xong không?",
+     "options": [
+      {
+       "text": "Không; thông báo phải đến sau khi ghi và đóng file thành công",
+       "detail": "Bên nhận dùng thông báo để quyết định khi nào có thể đọc dữ liệu đã lưu.",
+       "correct": true
+      },
+      {
+       "text": "Có; start thread nghĩa là ghi đã xong",
+       "detail": "start chỉ khởi chạy công việc."
+      },
+      {
+       "text": "Có nếu tên file kết thúc .gz",
+       "detail": "Đuôi file không quyết định tiến độ hoặc nội dung file."
+      }
+     ],
+     "explanation": "Bên nhận dùng thông báo để quyết định khi nào có thể đọc dữ liệu đã lưu."
+    },
+    {
+     "question": "pickle và gzip lần lượt đảm nhiệm gì khi lưu dict điểm?",
+     "options": [
+      {
+       "text": "gzip tự hiểu mọi class mà không serialize",
+       "detail": "Chưa đúng. Hai lớp xử lý phối hợp: object cần serialize và dữ liệu serialize có thể được nén."
+      },
+      {
+       "text": "Cả hai đều chỉ đổi tên đuôi file",
+       "detail": "Chưa đúng. Hai lớp xử lý phối hợp: object cần serialize và dữ liệu serialize có thể được nén."
+      },
+      {
+       "text": "Biểu diễn object thành dữ liệu nhị phân rồi nén",
+       "detail": "Hai lớp xử lý phối hợp: object cần serialize và dữ liệu serialize có thể được nén.",
+       "correct": true
+      }
+     ],
+     "explanation": "Hai lớp xử lý phối hợp: object cần serialize và dữ liệu serialize có thể được nén."
+    },
+    {
+     "question": "Deepcopy snapshot trước start worker giúp tách điều gì trong ví dụ marks lồng nhau?",
+     "options": [
+      {
+       "text": "Bảo đảm mọi pickle ngoài đều an toàn",
+       "detail": "Chưa đúng. Với cấu trúc dữ liệu của bài, bản sao sâu tách container lồng; tính nhất quán lúc chụp vẫn cần được bảo đảm."
+      },
+      {
+       "text": "Dữ liệu đã chụp khỏi thay đổi list sau đó",
+       "detail": "Với cấu trúc dữ liệu của bài, bản sao sâu tách container lồng; tính nhất quán lúc chụp vẫn cần được bảo đảm.",
+       "correct": true
+      },
+      {
+       "text": "Mọi thread khỏi process chứa nó",
+       "detail": "Chưa đúng. Với cấu trúc dữ liệu của bài, bản sao sâu tách container lồng; tính nhất quán lúc chụp vẫn cần được bảo đảm."
+      }
+     ],
+     "explanation": "Với cấu trúc dữ liệu của bài, bản sao sâu tách container lồng; tính nhất quán lúc chụp vẫn cần được bảo đảm."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Vì sao không truyền thẳng data đang được UI sửa vào worker?",
+     "answer": "Worker có thể quan sát dữ liệu ở nhiều thời điểm khác nhau. Lấy snapshot nhất quán, với sao chép hoặc đồng bộ phù hợp; gán snapshot=data chưa tạo bản sao."
+    },
+    {
+     "prompt": "Sau thông điệp done, kiểm gì để biết file thật có ích?",
+     "answer": "Mở lại qua gzip rồi pickle.load trong một luồng đọc mới; đối chiếu schema và giá trị với snapshot. Một đường dẫn tồn tại chưa đủ chứng minh dữ liệu khôi phục đúng."
+    },
+    {
+     "prompt": "Worker báo error thì UI nên làm gì? Có gọi join dài trong callback để chờ được không?",
+     "answer": "Hiện lỗi, giữ dữ liệu chưa lưu và cho thử lại theo chính sách. Dùng event loop kiểm queue; join dài sẽ chặn UI. Khi thoát phải có quy tắc chờ/lưu/hủy rõ, không để ứng dụng kết thúc giữa lần ghi."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Viết solve(data) nhận {\"marks\": list số, \"extra\": số}. Chụp snapshot của marks, tạo worker ghi snapshot vào snapshot.gz bằng gzip/pickle. Sau start, thêm extra vào dữ liệu hiện tại. join, nhận thông báo, đọc file thật và trả {\"saved\": điểm đã lưu, \"current\": điểm hiện tại, \"status\": \"done\"}. Worker gửi lỗi qua Queue; không giả lập file bằng dictionary.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'marks': [6, 8], 'extra': 10}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'saved': [6, 8], 'current': [6, 8, 10], 'status': 'done'}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import copy, gzip, pickle\nfrom pathlib import Path\nfrom threading import Thread\nfrom queue import Queue\ndef solve(data):\n    current = {'marks':list(data['marks'])}\n    snapshot = copy.deepcopy(current)\n    messages = Queue()\n    path = Path('snapshot.gz')\n    def worker():\n        try:\n            with gzip.open(path,'wb') as stream:\n                pickle.dump(snapshot,stream)\n        except Exception as error:\n            messages.put(('error',str(error)))\n        else:\n            messages.put(('done',None))\n    task = Thread(target=worker)\n    task.start()\n    current['marks'].append(data['extra'])\n    task.join()\n    status, error = messages.get(timeout=2)\n    if status!='done':\n        raise RuntimeError(error)\n    with gzip.open(path,'rb') as stream:\n        loaded = pickle.load(stream)\n    return {'saved':loaded['marks'],'current':current['marks'],'status':status}\n",
+   "tests": [
+    {
+     "name": "đổi sau snapshot",
+     "input": {
+      "marks": [
+       6,
+       8
+      ],
+      "extra": 10
+     },
+     "expected": {
+      "saved": [
+       6,
+       8
+      ],
+      "current": [
+       6,
+       8,
+       10
+      ],
+      "status": "done"
+     }
+    },
+    {
+     "name": "điểm 0",
+     "input": {
+      "marks": [
+       0
+      ],
+      "extra": 5
+     },
+     "expected": {
+      "saved": [
+       0
+      ],
+      "current": [
+       0,
+       5
+      ],
+      "status": "done"
+     }
+    },
+    {
+     "name": "list rỗng",
+     "input": {
+      "marks": [],
+      "extra": 7
+     },
+     "expected": {
+      "saved": [],
+      "current": [
+       7
+      ],
+      "status": "done"
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "env": "Bài tập dưới đây chấm được ngay trong trình duyệt. Nhưng code trong phần bài đọc thì không: bản Pyodide này không bật thread thật. Muốn chạy lại các đoạn đó thì mở Python trên máy."
+  }
+ },
+ "_mode": "mixed",
+ "_blocked": [
+  {
+   "block": 1,
+   "reason": "bản Pyodide này không bật thread thật"
+  },
+  {
+   "block": 2,
+   "reason": "bản Pyodide này không bật thread thật"
+  }
+ ],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 1,
+  "co": 1,
+  "bo": 0,
+  "loi": []
+ }
+}

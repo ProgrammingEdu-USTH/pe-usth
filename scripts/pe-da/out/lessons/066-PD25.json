@@ -1,0 +1,240 @@
+{
+ "lesson_code": "PD25",
+ "sort_order": 66,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD25 · Map, phép tính theo cột và apply",
+ "subtitle": "Nâng cao · M3 · 11 phút",
+ "estimated_minutes": 11,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PD25 · Map, phép tính theo cột và apply",
+  "subtitle": "Nâng cao · M3 · 11 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PD25",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas · DataFrame.apply"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bài trước so kỳ này với kỳ trước; lần này bạn sửa chính giá trị trong cột. Cột status trong sổ đơn của quán chỉ ghi P và C. Bạn muốn đổi sang tên đọc được rồi tính doanh thu sau chiết khấu. Với từng loại thao tác, chọn hàm diễn đạt đúng việc cần làm."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nstatus = pd.Series(['P', 'C', 'X'])\nnames = status.map({'P': 'paid', 'C': 'cancelled'})\nprint(names.fillna('unknown').tolist())",
+      "expected": "['paid', 'cancelled', 'unknown']",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "map thay từng mã bằng giá trị trong dictionary. Mã X chưa có trong bảng ánh xạ trở thành thiếu. Hãy kiểm tra mã lạ trước khi quyết định gán nhãn unknown."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'qty': [2, 3], 'price': [10, 20], 'discount': [0.1, 0.0]})\ndf['net'] = df['qty'] * df['price'] * (1 - df['discount'])\nprint(df['net'].tolist())\nprint(df['net'].where(df['net'] >= 20, 0).tolist())",
+      "expected": "[18.0, 60.0]\n[0.0, 60.0]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Phép nhân cột xử lý các hàng cùng lúc và rõ hơn một vòng lặp Python; cách làm đó gọi là phép toán vector. where giữ giá trị khi điều kiện `True`, thay bằng giá trị thứ hai khi `False`. “Vector hóa” không có nghĩa mọi thao tác đều có cùng tốc độ; vẫn phải đo với dữ liệu thực."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'qty': [2, 3], 'price': [10, 20]})\ndef row_total(row):\n    return row['qty'] * row['price']\nprint(df.apply(row_total, axis=1).tolist())\nprint((df['qty'] * df['price']).tolist())",
+      "expected": "[20, 60]\n[20, 60]",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "axis=1 đưa từng hàng cho row_total; axis=0 đưa từng cột. apply hữu ích với logic riêng khó diễn đạt bằng hàm có sẵn, nhưng không tự biến hàm Python thành code chạy nhanh. Với phép nhân đơn giản, dùng hai cột trực tiếp."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "PD24 · Cửa sổ trượt và so sánh kỳ trước"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "map({\"P\":\"paid\"}) gặp mã \"X\" mặc định cho gì?",
+     "options": [
+      {
+       "text": "\"paid\"",
+       "detail": "Không tự lấy nhãn duy nhất cho mọi mã."
+      },
+      {
+       "text": "\"X\"",
+       "detail": "map không mặc định giữ nguyên mã chưa có."
+      },
+      {
+       "text": "Giá trị thiếu",
+       "detail": "Đúng: X chưa có trong dictionary ánh xạ.",
+       "correct": true
+      }
+     ],
+     "explanation": "Giữ mã lạ nhìn thấy rồi quyết định quy tắc thay thế."
+    },
+    {
+     "question": "map bằng dictionary gặp mã không có thì kết quả mặc định thế nào?\n\nimport pandas as pd\nstatus = pd.Series(['P', 'C', 'X'])\nnames = status.map({'P': 'paid', 'C': 'cancelled'})\nprint(names.fillna('unknown').tolist())",
+     "options": [
+      {
+       "text": "Giá trị đó thành thiếu.",
+       "detail": "Giá trị đó thành thiếu.",
+       "correct": true
+      },
+      {
+       "text": "Giữ nguyên mã gốc trong mọi trường hợp.",
+       "detail": "Mã vắng không mặc định được giữ lại bởi map dictionary."
+      },
+      {
+       "text": "Tự tìm tên đúng trên mạng.",
+       "detail": "map không truy cập dịch vụ ngoài để tìm tên."
+      }
+     ],
+     "explanation": "Giá trị đó thành thiếu."
+    },
+    {
+     "question": "axis=1 trong DataFrame.apply đưa hàng hay cột cho hàm?\n\nimport pandas as pd\ndf = pd.DataFrame({'qty': [2, 3], 'price': [10, 20], 'discount': [0.1, 0.0]})\ndf['net'] = df['qty'] * df['price'] * (1 - df['discount'])\nprint(df['net'].tolist())\nprint(df['net'].where(df['net'] >= 20, 0).tolist())",
+     "options": [
+      {
+       "text": "Từng cột.",
+       "detail": "axis=0 mới đưa từng cột cho hàm apply."
+      },
+      {
+       "text": "Từng hàng.",
+       "detail": "Từng hàng.",
+       "correct": true
+      },
+      {
+       "text": "Toàn bộ DataFrame một lần.",
+       "detail": "Hàm được gọi cho từng hàng, không chỉ một lần cho toàn bảng."
+      }
+     ],
+     "explanation": "Từng hàng."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "map bằng dictionary gặp mã không có thì kết quả mặc định thế nào?",
+     "answer": "Giá trị đó thành thiếu."
+    },
+    {
+     "prompt": "axis=1 trong DataFrame.apply đưa hàng hay cột cho hàm?",
+     "answer": "Từng hàng."
+    },
+    {
+     "prompt": "Dùng map đổi [Q1,Q2] thành [Trung tâm,Phía Tây].",
+     "answer": "Kết quả là hai tên đầy đủ.",
+     "answerCode": "import pandas as pd\ns = pd.Series(['Q1', 'Q2'])\nprint(s.map({'Q1': 'Trung tâm', 'Q2': 'Phía Tây'}).tolist())",
+     "answerExpected": "['Trung tâm', 'Phía Tây']"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.rows có so_coc, don_gia, giam_gia (0..1). Trả list tiền sau giảm giá so_coc*don_gia*(1-giam_gia), theo thứ tự. Dùng các cột trực tiếp, không phải apply cho phép nhân đơn giản này.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'rows': [{'so_coc': 2, 'don_gia': 15, 'giam_gia': 0.2}, {'so_coc': 3, 'don_gia': 8, 'giam_gia': 0}]}"
+     },
+     {
+      "label": "trả về",
+      "value": "[24.0, 24.0]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     df = pd.DataFrame(data['rows'])\n     return (df['so_coc'] * df['don_gia'] * (1 - df['giam_gia'])).tolist()\n",
+   "tests": [
+    {
+     "name": "giảm một phần",
+     "input": {
+      "rows": [
+       {
+        "so_coc": 2,
+        "don_gia": 15,
+        "giam_gia": 0.2
+       },
+       {
+        "so_coc": 3,
+        "don_gia": 8,
+        "giam_gia": 0
+       }
+      ]
+     },
+     "expected": [
+      24.0,
+      24.0
+     ]
+    },
+    {
+     "name": "giảm toàn bộ",
+     "input": {
+      "rows": [
+       {
+        "so_coc": 5,
+        "don_gia": 9,
+        "giam_gia": 1
+       }
+      ]
+     },
+     "expected": [
+      0.0
+     ]
+    },
+    {
+     "name": "không mua",
+     "input": {
+      "rows": [
+       {
+        "so_coc": 0,
+        "don_gia": 20,
+        "giam_gia": 0.5
+       }
+      ]
+     },
+     "expected": [
+      0.0
+     ]
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cần thay từng mã P/C bằng tên theo dictionary tra cứu."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Dùng map cho nhãn và phép tính theo cột cho doanh thu."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

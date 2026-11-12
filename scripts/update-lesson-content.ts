@@ -1,6 +1,6 @@
 /**
  * update-lesson-content.ts — nạp lại NỘI DUNG (`content_json`) của vài bài khoá
- * `python_advanced` từ gói scripts/pe-v4/out-advanced/lessons.json, KHÔNG đụng tiến độ.
+ * `python_advanced` từ gói scripts/pe-da/out/lessons.json, KHÔNG đụng tiến độ.
  *
  * Vì sao cần: script nạp duy nhất trước đây là `seed-python-advanced-v4.ts --apply`,
  * và nó XOÁ HẲN 48 bài + toàn bộ `lesson_progress` của khoá rồi đặt mọi ghi danh về 0%.
@@ -27,12 +27,16 @@
  *  Luật chọn/so sánh nằm ở src/course-admin/lesson-content-update.ts (có test Jest).
  *
  * CHẠY (từ thư mục gốc repo, cần .env có DATABASE_URL trừ khi --offline):
- *   npx ts-node scripts/update-lesson-content.ts --codes=P01,P02,P03,G01,T05 --offline
- *   npx ts-node scripts/update-lesson-content.ts --codes=P01,P02,P03,G01,T05        # xem trước
- *   npx ts-node scripts/update-lesson-content.ts --codes=P01,P02,P03,G01,T05 --apply --backup=content-backup.json
+ *   npx ts-node scripts/update-lesson-content.ts --codes=P01,P02,P03 --offline
+ *   npx ts-node scripts/update-lesson-content.ts --codes=P01,P02,P03            # xem trước
+ *   npx ts-node scripts/update-lesson-content.ts --codes=P01,P02,P03 --apply --backup=bak.json
+ *
+ * Nạp CẢ KHOÁ thì dùng `--all` — câu lệnh giống nhau trên PowerShell và bash:
+ *   npx ts-node scripts/update-lesson-content.ts --all                          # xem trước
+ *   npx ts-node scripts/update-lesson-content.ts --all --apply --backup=bak.json
  */
 import 'dotenv/config';
-import { readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { PrismaClient } from '../src/generated/prisma';
 import { PrismaNeon } from '@prisma/adapter-neon';
@@ -49,7 +53,22 @@ const ARGV = process.argv.slice(2);
 const APPLY = ARGV.includes('--apply');
 const OFFLINE = ARGV.includes('--offline');
 const BACKUP = ARGV.find((a) => a.startsWith('--backup='))?.slice('--backup='.length);
-const BUNDLE = join(__dirname, 'pe-v4', 'out-advanced', 'lessons.json');
+// `--all`: lấy mã từ CHÍNH gói sắp nạp. Trước đó muốn nạp cả khoá phải dựng
+// chuỗi 172 mã bằng shell, nên câu lệnh bàn giao là một dòng bash — và nó nổ
+// trên PowerShell (đọc `CODES=$(…)` thành tên lệnh). Một đường nạp mà câu lệnh
+// gọi nó chỉ chạy được trên một shell thì nửa số người không nạp được.
+const ALL = ARGV.includes('--all');
+// Gói của khoá ĐANG CHẠY. Đổi từ pe-v4/out-advanced sang pe-da/out khi khoá
+// python_advanced thay ruột: để nguyên đường cũ thì script đọc 48 bài đã nghỉ
+// và từ chối mọi mã bài của bộ mới — tức mất hẳn đường nạp AN TOÀN, đường duy
+// nhất sửa nội dung mà không xoá tiến độ người học.
+// `--bundle=<đường dẫn>` để trỏ vào gói khác (ví dụ pe-v4 khi cần quay đầu).
+const BUNDLE =
+  process.argv.find((a) => a.startsWith('--bundle='))?.slice('--bundle='.length) ??
+  join(__dirname, 'pe-da', 'out', 'lessons.json');
+
+/** Biên nhận lần nạp gần nhất — xem khối "BIÊN NHẬN NẠP" ở dưới. */
+const DA_NAP = join(__dirname, 'pe-da', 'da-nap.json');
 
 const short = (f: Fingerprint) => `${f.bytes} B, sha256 ${f.sha256.slice(0, 12)}`;
 
@@ -64,17 +83,36 @@ async function main() {
     process.exitCode = 1;
     return;
   }
-  let codes: string[];
-  try {
-    codes = parseCodesArg(ARGV);
-  } catch (err) {
-    console.error((err as Error).message);
+  if (ALL && ARGV.some((a) => a.startsWith('--codes'))) {
+    console.error('--all và --codes loại trừ nhau: chọn một.');
     process.exitCode = 1;
     return;
   }
 
   // 1) Kiểm gói TRƯỚC khi chạm DB.
   const bundle: unknown = JSON.parse(readFileSync(BUNDLE, 'utf8'));
+
+  let codes: string[];
+  if (ALL) {
+    // Đọc thẳng từ gói: không có chỗ nào để gõ sai, và thứ tự là thứ tự gói.
+    const ds = (bundle as { lessons?: { lesson_code?: unknown }[] }).lessons;
+    if (!Array.isArray(ds) || !ds.length) {
+      console.error(`Gói ${BUNDLE} không có bài nào — --all không lấy được mã.`);
+      process.exitCode = 1;
+      return;
+    }
+    codes = ds.map((r) => String(r.lesson_code ?? '')).filter(Boolean);
+    console.log(`--all: ${codes.length} mã lấy từ gói.`);
+  } else {
+    try {
+      codes = parseCodesArg(ARGV);
+    } catch (err) {
+      console.error((err as Error).message);
+      console.error('Hoặc dùng --all để nạp mọi bài trong gói.');
+      process.exitCode = 1;
+      return;
+    }
+  }
   const { rows, errors } = selectLessons(bundle, codes);
   console.log(`Nguồn: ${BUNDLE}`);
   if (errors.length) {
@@ -133,21 +171,108 @@ async function main() {
     );
     console.log(`✓ Đã sao lưu content_json cũ của ${old.length} bài vào ${BACKUP}`);
 
-    await prisma.$transaction(async (tx) => {
-      for (const item of changed) {
-        // updateMany để lọc được cả lesson_code (update() chỉ nhận khoá unique). Kiểm
-        // count === 1: hàng bị đổi/xoá giữa lúc đọc và lúc ghi thì huỷ cả transaction.
-        const res = await tx.lesson.updateMany({
-          where: { courseId: ADVANCED_COURSE_ID, sortOrder: item.sortOrder, lessonCode: item.code },
-          // `as object`: InputJsonValue của Prisma không nhận unknown (cùng lý do với seed v4).
-          data: { contentJson: item.content as object },
-        });
-        if (res.count !== 1) {
-          throw new Error(`${item.code}: UPDATE trúng ${res.count} hàng, cần đúng 1 — huỷ toàn bộ.`);
+    // Hạn transaction phải NÓI RA, mặc định 5 giây là không đủ.
+    //
+    // Đã gặp 27/10/2026, lần đầu nạp cả khoá: 124 câu UPDATE trong một
+    // transaction tương tác chạy 5 140 ms trên Neon và Prisma huỷ ở mốc 5 000
+    // ms. Transaction rollback đúng như thiết kế nên DB không hỏng — nhưng
+    // file sao lưu ĐÃ ghi xong trước đó, nên nhìn vào thư mục backup thì
+    // tưởng đã nạp. Lỗi in ra chỉ là một đối tượng Prisma có `timeout: 5000`,
+    // không có câu nào nói phải làm gì.
+    //
+    // 120 giây: nạp cả 172 bài đo được ~5 s, nên đây là 24× biên. Hạn này
+    // canh TREO (kết nối chết giữa lúc ghi), không phải canh tốc độ — đặt sát
+    // số đo thật là tự tạo ra lỗi ngẫu nhiên vào ngày DB chậm hơn thường.
+    // `maxWait` là thời gian CHỜ LẤY kết nối từ pool, chuyện khác hẳn.
+    // Tiến độ phải in ra TỪNG BÀI, không phải một dòng "xong" ở cuối.
+    //
+    // Sự cố 29/10/2026: lần nạp 172 bài rollback, và thứ duy nhất nhìn thấy là
+    // một đối tượng Prisma. Không biết nó chết ở câu UPDATE thứ 1 hay thứ 171,
+    // nên không phân biệt được "không lấy nổi kết nối" với "chạy nửa chừng thì
+    // hết hạn" — hai nguyên nhân cần hai cách sửa khác hẳn. Một dòng mỗi bài là
+    // đủ để lần sau đọc ra ngay.
+    const batDau = Date.now();
+    let daGhi = 0;
+    try {
+      await prisma.$transaction(async (tx) => {
+        for (const item of changed) {
+          // updateMany để lọc được cả lesson_code (update() chỉ nhận khoá unique). Kiểm
+          // count === 1: hàng bị đổi/xoá giữa lúc đọc và lúc ghi thì huỷ cả transaction.
+          const res = await tx.lesson.updateMany({
+            where: { courseId: ADVANCED_COURSE_ID, sortOrder: item.sortOrder, lessonCode: item.code },
+            // `as object`: InputJsonValue của Prisma không nhận unknown (cùng lý do với seed v4).
+            data: { contentJson: item.content as object },
+          });
+          if (res.count !== 1) {
+            throw new Error(`${item.code}: UPDATE trúng ${res.count} hàng, cần đúng 1 — huỷ toàn bộ.`);
+          }
+          daGhi += 1;
+          console.log(`  [${daGhi}/${changed.length}] ${item.code} ghi xong (${Date.now() - batDau} ms)`);
         }
+      }, { timeout: 120_000, maxWait: 20_000 });
+    } catch (err) {
+      console.error(
+        `\n✗ Dừng sau ${daGhi}/${changed.length} câu UPDATE, ${Date.now() - batDau} ms.`,
+      );
+      if (daGhi === 0) {
+        console.error('  KHÔNG câu nào chạy ⇒ hỏng ở bước LẤY KẾT NỐI hoặc MỞ transaction,');
+        console.error('  không phải hết hạn giữa chừng. Nghi trước: maxWait 20 s với DB đang ngủ.');
+      } else {
+        console.error('  Có câu đã chạy ⇒ hỏng GIỮA CHỪNG: xem mốc ms ở dòng cuối còn in được.');
       }
-    });
-    console.log(`\n✓ Đã cập nhật content_json của ${changed.map((c) => c.code).join(', ')}.`);
+      // Transaction rollback là ĐÚNG thiết kế — DB không hỏng. Nhưng file sao
+      // lưu ĐÃ ghi xong ở trên, nên dấu vết duy nhất người chạy nhìn thấy là
+      // một file backup đầy đủ, và họ kết luận là đã nạp. Đã xảy ra 29/10/2026
+      // và chỉ phát hiện ra hôm sau bằng cách so file sao lưu với DB.
+      console.error('\n✗ KHÔNG NẠP ĐƯỢC — content_json trong DB KHÔNG ĐỔI một byte nào.');
+      console.error(`  File sao lưu ${BACKUP} ĐÃ ghi xong TRƯỚC bước ghi, nên sự tồn tại`);
+      console.error('  của nó KHÔNG chứng minh là đã nạp. Đừng đọc nó như một biên nhận.');
+      console.error('  Chạy lại lệnh này là AN TOÀN: không có gì được ghi.');
+      console.error('  Muốn biết DB đang giữ bản nào thì bỏ --apply ra, chạy khô sẽ in sha256 cũ → mới.');
+      console.error('\nLỗi gốc:');
+      throw err;
+    }
+    console.log(`\n✓ Đã cập nhật content_json của ${changed.length} bài: `
+      + `${changed.map((c) => c.code).join(', ')}.`);
+
+    // ── BIÊN NHẬN NẠP ─────────────────────────────────────────────────────
+    // Vì sao có file này: nội dung bài đọc từ DB, không từ `out/`. Nên một
+    // bài có thể dựng xong, kiểm xong, CI xanh — và vẫn KHÔNG tới người học
+    // vì chưa ai chạy `--apply`. Chuyện đó đã xảy ra: 153 bài đứng chờ qua 10
+    // commit nội dung, và không chỗ nào trong CI nói ra. Đây là lần thứ MƯỜI
+    // HAI của lỗi "dựng xong mà không có đường tới", chỉ khác là cổ chai nằm
+    // ở một bước deploy chứ không ở code.
+    //
+    // Ghi SAU khi transaction commit, có chủ đích: file sao lưu được ghi
+    // TRƯỚC bước ghi DB nên sự tồn tại của nó không chứng minh gì (bài học
+    // 29/10/2026, ngay ở nhánh catch bên trên). Biên nhận thì ngược lại —
+    // nó chỉ ra đời khi DB đã nhận thật.
+    //
+    // Chỉ ghi sha256, KHÔNG ghi nội dung: đây là một biên nhận, không phải
+    // bản sao thứ hai của giáo trình phải giữ đồng bộ.
+    const bienNhan: Record<string, string> = existsSync(DA_NAP)
+      ? (JSON.parse(readFileSync(DA_NAP, 'utf8')) as { bai: Record<string, string> }).bai
+      : {};
+    // GHI CẢ `plan.items`, KHÔNG chỉ `changed` — và đây là một khiếm khuyết
+    // đã cắn ngay lần chạy đầu. `--apply` chỉ ghi những bài KHÁC với DB,
+    // nên lần nạp 04/11/2026 chỉ đụng 10/179 bài (169 bài kia đã khớp sẵn).
+    // Biên nhận chỉ chép `changed` thì nó khai đúng 10 bài, và cổng sẽ hét
+    // lên "169 bài CHƯA BAO GIỜ NẠP" — sai, và sai to đến mức người ta tắt cổng.
+    // Thứ lần chạy này THẬT SỰ chứng minh là: cả 179 bài nay khớp bản dựng —
+    // 10 bài vì vừa ghi, 169 bài vì phép so nói chúng đã khớp. Biên nhận phải
+    // nói đúng điều đó.
+    for (const item of plan.items) bienNhan[item.code] = fingerprint(item.content).sha256;
+    writeFileSync(
+      DA_NAP,
+      JSON.stringify(
+        { napLuc: new Date().toISOString(), goi: BUNDLE, bai: bienNhan },
+        null,
+        2,
+      ) + '\n',
+      'utf8',
+    );
+    console.log(`✓ Biên nhận: ${DA_NAP} (${Object.keys(bienNhan).length} bài). `
+      + 'COMMIT file này — `node scripts/check-da-nap.mjs` đọc nó để biết bài nào CHƯA tới người học.');
   } finally {
     await prisma.$disconnect();
   }

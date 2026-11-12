@@ -1,0 +1,474 @@
+{
+ "lesson_code": "SY02",
+ "sort_order": 105,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY02 · Lấy mẫu ngẫu nhiên và đếm tần suất",
+ "subtitle": "Trung cấp · M5 · 14 phút",
+ "estimated_minutes": 14,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY02 · Lấy mẫu ngẫu nhiên và đếm tần suất",
+  "subtitle": "Trung cấp · M5 · 14 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY02",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 330; Python — random; Python — Counter"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Ngày tháng đã tính được rồi, giờ đến việc lấy mẫu từ sổ đơn của quán. Bạn có danh sách đơn hàng và muốn chọn ngẫu nhiên một đơn để kiểm tra. Để thử code mà không phụ thuộc trạng thái random của phần khác, tạo một bộ sinh riêng:"
+     },
+     {
+      "type": "code",
+      "code": "import random\nrng = random.Random(7)\nsample = rng.choice([\"A01\", \"A02\", \"A03\"])\nprint(sample in [\"A01\", \"A02\", \"A03\"])\nprint(0 <= rng.random() < 1)",
+      "expected": "True\nTrue",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`choice` chọn một phần tử; danh sách phải không rỗng. `random()` trả số thực từ 0 đến trước 1. Seed giúp tái lập một lần thử trong môi trường đã chốt, nhưng tên đơn được chọn không phải điều kiện để đánh giá mọi thuật toán lấy mẫu."
+     },
+     {
+      "type": "code",
+      "code": "import random\nrng = random.Random(12)\nvalues = [rng.randint(1, 3) for _ in range(5)]\nprint(len(values))\nprint(all(1 <= x <= 3 for x in values))",
+      "expected": "5\nTrue",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "values",
+        "prompt": "Sau khi chạy xong, `values` bằng mấy?",
+        "answer": "[2, 2, 3, 3, 3]"
+       },
+       "rows": [
+        {
+         "line": 1
+        },
+        {
+         "line": 2
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "_",
+           "0"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "_",
+           "1"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "_",
+           "2"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "_",
+           "3"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "_",
+           "4"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "random",
+           "<thư viện random>"
+          ],
+          [
+           "rng",
+           "Random(gauss_next=None)"
+          ],
+          [
+           "values",
+           "[2, 2, 3, 3, 3]"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "out": "5"
+        },
+        {
+         "line": 5
+        },
+        {
+         "line": 5,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true
+        },
+        {
+         "line": 5,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "set": [
+          [
+           "x",
+           "2"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "True"
+        },
+        {
+         "line": 5
+        },
+        {
+         "line": 5,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "x",
+           "2"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "<genexpr>",
+         "depth": 1
+        },
+        {
+         "line": 5,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "True"
+        },
+        {
+         "line": 5
+        },
+        {
+         "line": 5,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "x",
+           "2"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "set": [
+          [
+           "x",
+           "3"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "True"
+        },
+        {
+         "line": 5
+        },
+        {
+         "line": 5,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "x",
+           "3"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "<genexpr>",
+         "depth": 1
+        },
+        {
+         "line": 5,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "True"
+        },
+        {
+         "line": 5
+        },
+        {
+         "line": 5,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "x",
+           "3"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "<genexpr>",
+         "depth": 1
+        },
+        {
+         "line": 5,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "True"
+        },
+        {
+         "line": 5
+        },
+        {
+         "line": 5,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "x",
+           "3"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "<genexpr>",
+         "depth": 1
+        },
+        {
+         "line": 5,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "None",
+         "out": "True"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`randint(1, 3)` có thể trả cả 1 lẫn 3. Nó khác quy tắc stop không lấy của range. Trong bài kiểm thử này, điều cần kiểm là số lần lấy và miền hợp lệ, thay vì đoán ngẫu nhiên sẽ trả dãy nào."
+     },
+     {
+      "type": "code",
+      "code": "from collections import Counter\norders = [\"tea\", \"coffee\", \"tea\", \"water\", \"tea\"]\ncounts = Counter(orders)\nprint(counts[\"tea\"], counts[\"milk\"])\nprint(counts.most_common(2))",
+      "expected": "3 0\n[('tea', 3), ('coffee', 1)]",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "`Counter` đếm số lần xuất hiện. Có 5 lượt mua nhưng chỉ 3 loại đồ uống. `most_common(2)` lấy hai loại có tần suất cao nhất; nếu hòa, Counter giữ thứ tự gặp đầu trong dữ liệu. Chỉ số này mô tả dữ liệu đã có, khác việc chọn mẫu ngẫu nhiên."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "SY01 · Đọc ngày tháng và tính khoảng thời gian"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Counter([\"A\", \"B\", \"A\"])[\"C\"] trả gì?",
+     "options": [
+      {
+       "text": "KeyError",
+       "detail": "Dictionary thường có thể báo KeyError; Counter hỗ trợ tần suất mặc định 0."
+      },
+      {
+       "text": "0",
+       "detail": "Counter cho tần suất 0 khi giá trị chưa xuất hiện.",
+       "correct": true
+      },
+      {
+       "text": "Một mã ngẫu nhiên",
+       "detail": "Counter đếm dữ liệu; nó không thực hiện chọn mẫu."
+      }
+     ],
+     "explanation": "Counter cho tần suất 0 khi giá trị chưa xuất hiện."
+    },
+    {
+     "question": "rng.choice([]) có đáp ứng yêu cầu lấy một mã đơn không?",
+     "options": [
+      {
+       "text": "Không; cần xử lý danh sách rỗng trước",
+       "detail": "choice cần có ít nhất một phần tử để chọn. Hàm của ứng dụng nên nêu rõ cách xử lý đầu vào rỗng.",
+       "correct": true
+      },
+      {
+       "text": "Có; luôn trả chuỗi rỗng",
+       "detail": "Chưa đúng. choice cần có ít nhất một phần tử để chọn. Hàm của ứng dụng nên nêu rõ cách xử lý đầu vào rỗng."
+      },
+      {
+       "text": "Có; luôn trả 0",
+       "detail": "Chưa đúng. choice cần có ít nhất một phần tử để chọn. Hàm của ứng dụng nên nêu rõ cách xử lý đầu vào rỗng."
+      }
+     ],
+     "explanation": "choice cần có ít nhất một phần tử để chọn. Hàm của ứng dụng nên nêu rõ cách xử lý đầu vào rỗng."
+    },
+    {
+     "question": "Trong module random của Python, rng = random.Random(...). rng.randint(1, 3) có thể trả 3 không?",
+     "options": [
+      {
+       "text": "Chỉ khi list có ba phần tử",
+       "detail": "Chưa đúng. randint nhận cả hai đầu của khoảng số nguyên."
+      },
+      {
+       "text": "Không; chỉ có 1 hoặc 2",
+       "detail": "Chưa đúng. randint nhận cả hai đầu của khoảng số nguyên."
+      },
+      {
+       "text": "Có",
+       "detail": "randint nhận cả hai đầu của khoảng số nguyên.",
+       "correct": true
+      }
+     ],
+     "explanation": "randint nhận cả hai đầu của khoảng số nguyên."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "randint(0, 10) có trả 10 không?",
+     "answer": "Có. Hai đầu đều được lấy; random() thì không lấy 1.0."
+    },
+    {
+     "prompt": "Đếm [\"A\", \"B\", \"A\"] và lấy loại phổ biến nhất.",
+     "answer": "Counter([\"A\", \"B\", \"A\"]).most_common(1) trả [(\"A\", 2)]."
+    },
+    {
+     "prompt": "Viết hàm pick(ids, rng), báo ValueError khi rỗng; kiểm thế nào?",
+     "answer": "Nếu not ids: raise ValueError(\"empty\"); còn lại return rng.choice(ids). Với Random riêng, kiểm kết quả thuộc ids; thử list một phần tử và list rỗng. Không dùng random để bảo vệ mật khẩu."
+    },
+    {
+     "prompt": "Với [\"A\",\"B\",\"A\",\"C\",\"A\"], Counter có bao nhiêu key và tổng count là bao nhiêu? Lấy hai mã phổ biến nhất thế nào?",
+     "answer": "Counter có 3 key, tổng lượt là 5; counts=Counter(values), counts.most_common(2) cho [(\"A\",3),(\"B\",1)]. Số key khác tổng tần suất."
+    },
+    {
+     "prompt": "choice(ids), random() và randint(1,3) trả loại kết quả nào? Kiểm mẫu ngẫu nhiên mà không đoán đúng một dãy cụ thể thế nào?",
+     "answer": "choice trả thành viên trong ids không rỗng; random trả float trong [0,1); randint trả số nguyên có thể gồm cả 1 và 3. Kiểm miền, số lượng và trường hợp rỗng; nếu cần tái lập, truyền Random riêng với seed và ghi môi trường."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Một danh sách mã lỗi được ghi theo thứ tự xuất hiện. Viết solve(data) nhận list chuỗi, trả {\"counts\": tần suất từng mã, \"top\": mã xuất hiện nhiều nhất}. Khi hòa, lấy mã gặp trước; list rỗng cho top=None.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "['E2', 'E1', 'E2']"
+     },
+     {
+      "label": "trả về",
+      "value": "{'counts': {'E2': 2, 'E1': 1}, 'top': 'E2'}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "from collections import Counter\ndef solve(data):\n    counts = Counter(data)\n    return {'counts': dict(counts), 'top': counts.most_common(1)[0][0] if counts else None}\n",
+   "tests": [
+    {
+     "name": "mã lặp",
+     "input": [
+      "E2",
+      "E1",
+      "E2"
+     ],
+     "expected": {
+      "counts": {
+       "E2": 2,
+       "E1": 1
+      },
+      "top": "E2"
+     }
+    },
+    {
+     "name": "hòa theo thứ tự gặp",
+     "input": [
+      "B",
+      "A"
+     ],
+     "expected": {
+      "counts": {
+       "B": 1,
+       "A": 1
+      },
+      "top": "B"
+     }
+    },
+    {
+     "name": "không có lỗi",
+     "input": [],
+     "expected": {
+      "counts": {},
+      "top": null
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 1,
+  "bo": 2,
+  "loi": []
+ }
+}

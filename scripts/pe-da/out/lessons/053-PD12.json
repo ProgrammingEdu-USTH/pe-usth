@@ -1,0 +1,288 @@
+{
+ "lesson_code": "PD12",
+ "sort_order": 53,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD12 · Đọc CSV và giữ đúng ý nghĩa cột",
+ "subtitle": "Cơ bản · M3 · 13 phút",
+ "estimated_minutes": 13,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PD12 · Đọc CSV và giữ đúng ý nghĩa cột",
+  "subtitle": "Cơ bản · M3 · 13 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PD12",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 328; pandas · CSV input"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Mọi bảng tới đây đều gõ trong bài; file thật của quán thì có quy ước riêng. File xuất từ cửa hàng dùng dấu chấm phẩy để ngăn cột và mã đơn có số 0 đầu. Bạn cần khai báo hai điều này khi đọc, thay vì sửa sau khi dữ liệu đã bị hiểu sai."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nfrom io import StringIO\ntext = 'order;amount\\n001;12.5\\n002;missing\\n'\ndf = pd.read_csv(StringIO(text), sep=';', dtype={'order': 'string'}, na_values=['missing'])\nprint(df['order'].tolist())\nprint(df['amount'].isna().tolist())",
+      "expected": "['001', '002']\n[False, True]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "StringIO đóng vai trò một file nhỏ trong bộ nhớ để bạn chạy được ví dụ mà không cần tải dữ liệu. Với file thật, thay StringIO(text) bằng đường dẫn. na_values bổ sung các ký hiệu thiếu cần nhận biết."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nfrom io import StringIO\ntext = '# exported today\\norder,amount,note\\nA,10,ok\\nB,20,ok\\n'\ndf = pd.read_csv(StringIO(text), comment='#', header=0, nrows=1, usecols=['order', 'amount'])\nprint(df.to_dict('records'))",
+      "expected": "[{'order': 'A', 'amount': 10}]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "comment bỏ phần bắt đầu bằng ký tự được chỉ định; header=0 dùng hàng dữ liệu đầu còn lại làm tên cột. nrows chỉ đọc một số hàng, còn usecols chỉ chọn cột cần thiết. File không có tên cột có thể dùng `header=None` và names=[...]."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nfrom io import StringIO\ndf = pd.DataFrame({'order': ['A', 'B'], 'amount': [10, 20]})\ntext = df.to_csv(index=False)\nback = pd.read_csv(StringIO(text))\nprint(text.splitlines()[0])\nprint(back['amount'].sum())",
+      "expected": "order,amount\n30",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "text",
+        "prompt": "Sau khi chạy xong, `text` bằng mấy?",
+        "answer": "'order,amount\\r\\nA,10\\r\\nB,20\\r\\n'"
+       },
+       "rows": [
+        {
+         "line": 1
+        },
+        {
+         "line": 2
+        },
+        {
+         "line": 3
+        },
+        {
+         "line": 4,
+         "set": [
+          [
+           "text",
+           "'order,amount\\r\\nA,10\\r\\nB,20\\r\\n'"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "set": [
+          [
+           "back",
+           "DataFrame(_mgr=BlockManager(), _attrs={}, _flags=Flags(_allows_duplicat…"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "out": "order,amount"
+        },
+        {
+         "line": 7,
+         "out": "30"
+        },
+        {
+         "line": 7,
+         "ret": "None"
+        }
+       ]
+      }
+     },
+     {
+      "type": "paragraph",
+      "text": "`index=False` tránh ghi thêm cột số thứ tự khi index không phải dữ liệu nghiệp vụ. Sau khi đọc, vẫn cần kiểm tra shape, kiểu cột, ô thiếu và mã đơn; đọc được file chưa có nghĩa là đã hiểu đúng dữ liệu."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PD11 · Sắp xếp và nhìn nhanh phân bố"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "CSV dùng dấu ; nhưng bạn để sep mặc định ,. Bảng thường gặp vấn đề gì?",
+     "options": [
+      {
+       "text": "pandas tự biết mọi dấu phân cách",
+       "detail": "Không nên dựa vào điều đó; hãy khai báo đúng mẫu file."
+      },
+      {
+       "text": "Dòng có thể bị đọc thành một cột",
+       "detail": "Đúng: bộ đọc chưa tách theo dấu thực sự trong file.",
+       "correct": true
+      },
+      {
+       "text": "Mọi giá trị tự thành 0",
+       "detail": "Sai dấu phân cách không có quy tắc biến tất cả số thành 0."
+      }
+     ],
+     "explanation": "Đọc được file chưa chứng minh các cột đã được hiểu đúng."
+    },
+    {
+     "question": "sep=\";\" có tác dụng gì?\n\nimport pandas as pd\nfrom io import StringIO\ntext = 'order;amount\\n001;12.5\\n002;missing\\n'\ndf = pd.read_csv(StringIO(text), sep=';', dtype={'order': 'string'}, na_values=['missing'])\nprint(df['order'].tolist())\nprint(df['amount'].isna().tolist())",
+     "options": [
+      {
+       "text": "Dùng dấu chấm phẩy để tách cột.",
+       "detail": "Dùng dấu chấm phẩy để tách cột.",
+       "correct": true
+      },
+      {
+       "text": "Bỏ mọi dòng có dấu chấm phẩy.",
+       "detail": "sep chia cột; nó không yêu cầu bỏ những dòng có dấu đó."
+      },
+      {
+       "text": "Dùng dấu phẩy để tách cột.",
+       "detail": "Tham số đang ghi dấu chấm phẩy, không phải dấu phẩy."
+      }
+     ],
+     "explanation": "Dùng dấu chấm phẩy để tách cột."
+    },
+    {
+     "question": "Vì sao nên đặt dtype string cho mã 001 ngay khi đọc?\n\nimport pandas as pd\nfrom io import StringIO\ntext = '# exported today\\norder,amount,note\\nA,10,ok\\nB,20,ok\\n'\ndf = pd.read_csv(StringIO(text), comment='#', header=0, nrows=1, usecols=['order', 'amount'])\nprint(df.to_dict('records'))",
+     "options": [
+      {
+       "text": "Vì string tự loại mọi mã trùng.",
+       "detail": "Chọn kiểu string không tự khử trùng mã."
+      },
+      {
+       "text": "Vì đổi số 1 trở lại string tự khôi phục được 001.",
+       "detail": "str(1) chỉ cho \"1\", không tự biết mã có độ rộng ba chữ số."
+      },
+      {
+       "text": "Để không mất số 0 đầu khi pandas suy luận mã thành số.",
+       "detail": "Để không mất số 0 đầu khi pandas suy luận mã thành số.",
+       "correct": true
+      }
+     ],
+     "explanation": "Để không mất số 0 đầu khi pandas suy luận mã thành số."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "sep=\";\" có tác dụng gì?",
+     "answer": "Dùng dấu chấm phẩy để tách cột."
+    },
+    {
+     "prompt": "Vì sao nên đặt dtype string cho mã 001 ngay khi đọc?",
+     "answer": "Để không mất số 0 đầu khi pandas suy luận mã thành số."
+    },
+    {
+     "prompt": "Đọc CSV \"id,so_coc\n007,3\" và in mã giữ nguyên 007.",
+     "answer": "Khai báo cột id là string.",
+     "answerCode": "import pandas as pd\nfrom io import StringIO\ndf = pd.read_csv(StringIO('id,so_coc\\n007,3'), dtype={'id': 'string'})\nprint(df.loc[0, 'id'])",
+     "answerExpected": "007"
+    },
+    {
+     "prompt": "Đọc văn bản \"# note\\nid;amount\\n007;missing\\n008;20\" thành đúng một hàng, giữ mã 007 và coi missing là thiếu. Nêu đầy đủ các tham số đọc.",
+     "answer": "pd.read_csv(StringIO(text), sep=\";\", comment=\"#\", header=0, nrows=1, dtype={\"id\":\"string\"}, na_values=[\"missing\"]). Kết quả có id=\"007\", amount thiếu. comment bỏ dòng chú thích; header=0 lấy dòng id;amount; nrows=1 chỉ lấy bản ghi 007."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.text là CSV cột id;amount, ký hiệu missing là thiếu. Đọc với sep=\";\", id kiểu string. Trả ids giữ số 0 đầu và amounts, đổi ô thiếu thành None. Không viết hàm tách chuỗi CSV bằng tay.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'text': 'id;amount\\n004;3.5\\n020;missing\\n'}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'ids': ['004', '020'], 'amounts': [3.5, None]}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\nfrom io import StringIO\n\ndef solve(data):\n     df = pd.read_csv(StringIO(data['text']), sep=';', dtype={'id':'string'}, na_values=['missing'])\n     return {'ids': df['id'].tolist(), 'amounts': [None if pd.isna(v) else float(v) for v in df['amount']]}\n",
+   "tests": [
+    {
+     "name": "mã mới",
+     "input": {
+      "text": "id;amount\n004;3.5\n020;missing\n"
+     },
+     "expected": {
+      "ids": [
+       "004",
+       "020"
+      ],
+      "amounts": [
+       3.5,
+       null
+      ]
+     }
+    },
+    {
+     "name": "0 khác thiếu",
+     "input": {
+      "text": "id;amount\n001;0\n002;9\n"
+     },
+     "expected": {
+      "ids": [
+       "001",
+       "002"
+      ],
+      "amounts": [
+       0.0,
+       9.0
+      ]
+     }
+    },
+    {
+     "name": "một hàng",
+     "input": {
+      "text": "id;amount\nX07;12\n"
+     },
+     "expected": {
+      "ids": [
+       "X07"
+      ],
+      "amounts": [
+       12.0
+      ]
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Không xuất chỉ số hàng thành một cột CSV ngoài ý muốn."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Đọc đúng dấu phân cách, mã chữ và ký hiệu thiếu của CSV."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 1,
+  "bo": 2,
+  "loi": []
+ }
+}

@@ -1,7 +1,7 @@
 /**
  * Chấm thử khoá Python Advanced (pe-v4) bằng CHÍNH Pyodide 0.27.7 và CHÍNH bộ chấm
  * của trình duyệt (frontend/public/static/js/studio-harness.py), nạp runtime VÀ thư
- * viện từ thư mục tự lưu trữ frontend/public/pyodide/v0.27.7/ — đúng các file
+ * viện từ thư mục tự lưu trữ frontend/public/pyodide/v314.0.7/ — đúng các file
  * trình duyệt sẽ tải, không đi CDN.
  *
  * Cùng ba luật với scripts/pe-v3/check-pyodide.mjs:
@@ -23,7 +23,10 @@ import { loadPyodide } from 'pyodide';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..');
-const RUNTIME = join(ROOT, 'frontend', 'public', 'pyodide', 'v0.27.7') + '/';
+// PYODIDE_DIR: thử bản Pyodide khác trước khi đưa vào repo. Nâng runtime là đổi
+// Python/numpy/pandas dưới chân 427 ca chấm, nên phải đo được thiệt hại trước.
+const RUNTIME =
+  process.env.PYODIDE_DIR || join(ROOT, 'frontend', 'public', 'pyodide', 'v314.0.7') + '/';
 const LIMIT_MS = 5000;
 const harness = readFileSync(join(ROOT, 'frontend', 'public', 'static', 'js', 'studio-harness.py'), 'utf8');
 const qa = JSON.parse(readFileSync(join(HERE, 'out', 'qa.json'), 'utf8'));
@@ -31,6 +34,46 @@ const args = process.argv.slice(2);
 const verbose = args.includes('--verbose');
 const onlyArg = args.find((a) => !a.startsWith('--'));
 const only = onlyArg ? new Set(onlyArg.split(',')) : null;
+
+// Gói runtime này THẬT SỰ tải được. `sqlite3` là wheel riêng ở 0.27.7 nhưng vào
+// stdlib ở 314.0.7, nên loadPackage(['sqlite3']) ở bản mới ném "No known
+// package" và giết cả bộ chấm — lọc trước rồi để `import` tự nói có hay không.
+const coTrongLock = new Set(
+  Object.keys(JSON.parse(readFileSync(join(RUNTIME, 'pyodide-lock.json'), 'utf8')).packages),
+);
+
+// CẤM ĐI MẠNG — chỉ được dùng đúng các file trong repo. Giấu thử một wheel đi
+// thì `loadPackage` KHÔNG ném: nó lặng lẽ tải từ cdn.jsdelivr.net rồi báo thành
+// công. Tức bộ chấm này chưa bao giờ chứng minh được các wheel trong
+// frontend/public/pyodide/ dùng được — xoá nhầm một cái vẫn xanh CI. Trình duyệt
+// thì ngược lại: CSP `connect-src 'self'` chặn đường đó, nên cùng một wheel
+// thiếu là hỏng cứng với học viên. Chặn ở đây để hai môi trường nói cùng chuyện.
+const fetchThat = globalThis.fetch;
+globalThis.fetch = (u, ...r) => {
+  const dia = String(typeof u === 'string' ? u : (u?.url ?? u));
+  if (/^https?:\/\//i.test(dia)) {
+    return Promise.reject(new Error(`bộ chấm không được đi mạng: ${dia}`));
+  }
+  return fetchThat(u, ...r);
+};
+
+// FILE DỮ LIỆU (`step_4.dataFiles`) — bộ chấm NÀY không nạp được.
+//
+// Cơ chế nạp file của khoá 172 bài (xem scripts/pe-da/check-pyodide.mjs) đọc
+// CSV từ frontend/public/static/da-dulieu/ rồi đưa vào tham số `files` của
+// `_studio_main`. pe-v4 đã đóng băng và không bài nào khai trường đó, nên ở đây
+// KHÔNG thêm nhánh nạp — một nhánh không bài nào dùng là lại dựng một thứ không
+// có đường tới người học, đúng lỗi mà AGENTS.md gọi là "built but unreachable".
+// Thay vào đó: nếu có ngày một bài pe-v4 khai file dữ liệu thì bộ chấm phải NÓI
+// RA, chứ không lặng lẽ chạy rồi đỏ bằng FileNotFoundError ở chỗ khác.
+const khaiDuLieu = qa.filter((l) => (l.dataFiles || []).length).map((l) => l.code);
+if (khaiDuLieu.length) {
+  console.error(
+    `bộ chấm pe-v4 chưa nạp được file dữ liệu, mà ${khaiDuLieu.join(', ')} có khai.\n`
+    + '  → chép nhánh đọc-từ-đĩa trong scripts/pe-da/check-pyodide.mjs sang đây trước.',
+  );
+  process.exit(1);
+}
 
 const py = await loadPyodide({ indexURL: RUNTIME });
 await py.runPythonAsync(harness);
@@ -62,7 +105,7 @@ for (const lesson of qa) {
   cases += lesson.tests.length;
 
   // Như worker: tải gói còn thiếu rồi import sẵn, KHÔNG tính vào thời gian chạy.
-  const missing = (lesson.packages || []).filter((p) => !warmed.has(p));
+  const missing = (lesson.packages || []).filter((p) => coTrongLock.has(p) && !warmed.has(p));
   let loadMs = 0;
   if (missing.length) {
     const t0 = performance.now();

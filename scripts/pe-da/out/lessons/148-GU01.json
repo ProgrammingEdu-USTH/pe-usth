@@ -1,0 +1,294 @@
+{
+ "lesson_code": "GU01",
+ "sort_order": 148,
+ "module": "M8 · Tkinter: từ form nhỏ đến màn hình nhận đơn",
+ "title": "GU01 · GUI, CLI và chọn toolkit",
+ "subtitle": "Trung cấp · M8 · 18 phút",
+ "estimated_minutes": 18,
+ "xp_reward": 11,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "GU01 · GUI, CLI và chọn toolkit",
+  "subtitle": "Trung cấp · M8 · 18 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#GU01",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 302-304, 306-307; Python · tkinter; Riverbank · PyQt; Kivy · Overview; wxPython · Overview"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Quán có người đứng bán không biết Python, nên mọi thứ ở các bài trước phải có một màn hình. Một công cụ tính tiền có thể nhận lệnh \"3 20\" trong terminal hoặc có hai ô nhập và một nút Tính. Cả hai đều gọi được cùng hàm Python; phần khác nhau là cách người dùng gửi dữ liệu và đọc kết quả."
+     },
+     {
+      "type": "code",
+      "code": "def total(cups, price):\n    return cups * price\ncommand = '3 20'\ncups, price = map(int, command.split())\nprint(total(cups, price))",
+      "expected": "60",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "price",
+        "prompt": "Sau khi chạy xong, `price` bằng mấy?",
+        "answer": "20"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "total",
+           "<hàm total>"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "command",
+           "'3 20'"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "set": [
+          [
+           "cups",
+           "3"
+          ],
+          [
+           "price",
+           "20"
+          ]
+         ]
+        },
+        {
+         "line": 5
+        },
+        {
+         "line": 1,
+         "fn": "total",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "cups",
+           "3"
+          ],
+          [
+           "price",
+           "20"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "total",
+         "depth": 1
+        },
+        {
+         "line": 2,
+         "fn": "total",
+         "depth": 1,
+         "ret": "60",
+         "out": "60"
+        },
+        {
+         "line": 5,
+         "ret": "None"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Đây là phần xử lý có thể đặt sau CLI: người dùng gõ lệnh hoặc tham số bằng bàn phím. CLI thuận tiện cho script, thao tác lặp và tự động hóa. Người mới cần nhớ cú pháp; GUI thường cho thấy lựa chọn bằng ô nhập, nhãn và nút, nhưng vẫn cần thiết kế rõ ràng."
+     },
+     {
+      "type": "code",
+      "code": "import tkinter as tk\nroot = tk.Tk()\nroot.withdraw()\ncups = tk.Entry(root)\ncups.insert(0, '3')\nprice = tk.Entry(root)\nprice.insert(0, '20')\nprint(int(cups.get()) * int(price.get()))\nroot.destroy()",
+      "expected": "60"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Entry là ô nhập chữ. Ví dụ lấy dữ liệu từ hai ô rồi nhân giống phép tính ở CLI. root.withdraw() ẩn cửa sổ để đoạn code có thể kiểm tra tự động và kết thúc bằng destroy(). Muốn tương tác thật, bạn bỏ withdraw, bố trí widget và chạy `mainloop` như các bài sau."
+     },
+     {
+      "type": "code",
+      "code": "import tkinter as tk\nfrom tkinter import ttk\nroot = tk.Tk()\nroot.withdraw()\nstyle = ttk.Style(root)\nprint(style.theme_use() in style.theme_names())\nprint(ttk.Button(root, text='Tinh').winfo_class())\nroot.destroy()",
+      "expected": "True\nTButton"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "GUI có thêm thành phần hiển thị nên cần bộ nhớ và thời gian xử lý giao diện. Tốc độ thực tế còn phụ thuộc công việc; không thể kết luận mọi GUI đều chậm hơn mọi CLI. Các widget của ttk dùng theme, tức bộ quy tắc về diện mạo. Theme có thể thay đổi theo nền tảng, và bạn có thể chọn theme khác khi có sẵn. GUI cũng có thể hỗ trợ bàn phím và phím tắt, không chỉ thao tác chuột."
+     },
+     {
+      "type": "paragraph",
+      "text": "Slide giới thiệu bốn toolkit:"
+     },
+     {
+      "type": "table",
+      "headers": [
+       "Toolkit",
+       "Dựa trên gì"
+      ],
+      "rows": [
+       [
+        "Tkinter",
+        "Tcl/Tk"
+       ],
+       [
+        "PyQt",
+        "binding Python cho Qt"
+       ],
+       [
+        "Kivy",
+        "hệ đồ họa OpenGL, hướng tới giao diện đa nền tảng gồm tương tác cảm ứng"
+       ],
+       [
+        "wxPython",
+        "wxWidgets"
+       ]
+      ]
+     },
+     {
+      "type": "paragraph",
+      "text": "Các toolkit có điều kiện cài đặt và hệ sinh thái riêng. Phần thực hành này dùng Tkinter, không yêu cầu cài ba toolkit còn lại. Tkinter có trong nhiều bản phân phối Python nhưng vẫn là module tùy chọn."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "CT10 · Tạo thread bằng target, start và join, CT13 · Queue và lưu pickle có nén ở nền"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Hàm tính thành tiền phải viết hai công thức khác nhau cho CLI và GUI không?",
+     "options": [
+      {
+       "text": "Không; hai giao diện có thể gọi cùng hàm nghiệp vụ",
+       "detail": "Cách nhận/hiển thị dữ liệu thay đổi; công thức không phụ thuộc widget.",
+       "correct": true
+      },
+      {
+       "text": "Không; GUI tự biết mọi công thức",
+       "detail": "Bạn vẫn phải viết công thức và chuyển đổi dữ liệu nhập."
+      },
+      {
+       "text": "Có; Tkinter không gọi được hàm Python thường",
+       "detail": "Callback có thể gọi các hàm Python thông thường."
+      }
+     ],
+     "explanation": "Cách nhận/hiển thị dữ liệu thay đổi; công thức không phụ thuộc widget."
+    },
+    {
+     "question": "Một lệnh CLI và một nút GUI cùng tính thành tiền. Công thức nên đặt ở đâu?",
+     "options": [
+      {
+       "text": "Trong tên cửa sổ",
+       "detail": "Chưa đúng. Cả hai giao diện có thể gọi cùng hàm; việc nhận và hiển thị dữ liệu là phần giao diện."
+      },
+      {
+       "text": "Hàm nghiệp vụ dùng chung",
+       "detail": "Cả hai giao diện có thể gọi cùng hàm; việc nhận và hiển thị dữ liệu là phần giao diện.",
+       "correct": true
+      },
+      {
+       "text": "Viết công thức khác nhau ở mỗi widget",
+       "detail": "Chưa đúng. Cả hai giao diện có thể gọi cùng hàm; việc nhận và hiển thị dữ liệu là phần giao diện."
+      }
+     ],
+     "explanation": "Cả hai giao diện có thể gọi cùng hàm; việc nhận và hiển thị dữ liệu là phần giao diện."
+    },
+    {
+     "question": "GUI có mặc định nhanh hơn CLI cho mọi tác vụ không?",
+     "options": [
+      {
+       "text": "Có; có nút bấm luôn nhanh hơn",
+       "detail": "Chưa đúng. Chọn cách tương tác theo người dùng và tác vụ; không xếp hạng tuyệt đối từ tên GUI/CLI."
+      },
+      {
+       "text": "Chỉ nhanh hơn nếu nền sáng",
+       "detail": "Chưa đúng. Chọn cách tương tác theo người dùng và tác vụ; không xếp hạng tuyệt đối từ tên GUI/CLI."
+      },
+      {
+       "text": "Không; phụ thuộc việc cần làm",
+       "detail": "Chọn cách tương tác theo người dùng và tác vụ; không xếp hạng tuyệt đối từ tên GUI/CLI.",
+       "correct": true
+      }
+     ],
+     "explanation": "Chọn cách tương tác theo người dùng và tác vụ; không xếp hạng tuyệt đối từ tên GUI/CLI."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Hàm total có cần viết lại nếu thay CLI bằng GUI không?",
+     "answer": "Không; có thể giữ phần xử lý và đổi phần nhận dữ liệu, hiển thị kết quả."
+    },
+    {
+     "prompt": "PyQt và Tkinter dựa trên cùng toolkit không?",
+     "answer": "Không. PyQt dùng Qt; Tkinter dùng Tcl/Tk."
+    },
+    {
+     "prompt": "Tạo Entry ẩn, nhập sẵn 4 rồi lấy số đó nhân 5.",
+     "answer": "get trả chuỗi nên cần int trước khi nhân.",
+     "answerCode": "import tkinter as tk\nroot = tk.Tk(); root.withdraw()\ne = tk.Entry(root); e.insert(0, '4')\nprint(int(e.get()) * 5)\nroot.destroy()",
+     "answerExpected": "20"
+    },
+    {
+     "prompt": "Muốn chạy cùng phép tính cho 100 file tự động và muốn người mới chọn file bằng chuột: CLI/GUI mỗi cách phù hợp chỗ nào?",
+     "answer": "CLI dễ nối script/lặp lệnh nhưng cần nhớ cú pháp. GUI cho thấy lựa chọn và hỗ trợ chuột/phím tắt, cần thiết kế và xử lý tương tác; vẫn có thể dùng chung hàm tính."
+    },
+    {
+     "prompt": "GUI có luôn nhanh hơn để học và luôn chậm hơn để xử lý dữ liệu không? Bộ nhớ và theme liên quan gì?",
+     "answer": "Không có kết luận tuyệt đối. Widget/hiển thị thêm chi phí bộ nhớ; tốc độ tùy tác vụ. GUI có thể giúp khám phá thao tác và đổi theme, nhưng khả năng học/flexibility còn tùy thiết kế."
+    },
+    {
+     "prompt": "Ghép bốn tên toolkit với backend và cho biết khóa này thực hành tên nào: Tkinter, PyQt, Kivy, wxPython.",
+     "answer": "Tkinter–Tcl/Tk; PyQt–Qt; Kivy–OpenGL; wxPython–wxWidgets. Các bộ hỗ trợ nhiều nền tảng nhưng cần môi trường thích hợp; Tkinter có trong nhiều bản Python dưới dạng module tùy chọn. Ba bộ còn lại cần cài thêm, chỉ được giới thiệu ở đây."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Chạy thử",
+    "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 2 đoạn trong bài không chạy được ở đây (Tkinter cần hệ cửa sổ của máy) nên không nằm trong ô này."
+   },
+   "starterCode": "def total(cups, price):\n    return cups * price\ncommand = '3 20'\ncups, price = map(int, command.split())\nprint(total(cups, price))\n",
+   "env": "2 đoạn phải chạy bằng Python trên máy: Tkinter cần hệ cửa sổ của máy."
+  }
+ },
+ "_mode": "mixed",
+ "_blocked": [
+  {
+   "block": 1,
+   "reason": "Tkinter cần hệ cửa sổ của máy"
+  },
+  {
+   "block": 2,
+   "reason": "Tkinter cần hệ cửa sổ của máy"
+  }
+ ],
+ "_so_mcq": 3,
+ "_bai_tap": "khong co",
+ "_vet": {
+  "can": 1,
+  "co": 1,
+  "bo": 0,
+  "loi": []
+ }
+}

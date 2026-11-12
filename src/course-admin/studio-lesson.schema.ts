@@ -11,6 +11,35 @@ export const STUDIO_LESSON_SCHEMA = 'studio-lesson/v1';
 /** v1 + khối `play` (mini-game của khoá Python Advanced). */
 export const STUDIO_LESSON_SCHEMA_V2 = 'studio-lesson/v2';
 
+/**
+ * DANH SÁCH TRẮNG file dữ liệu — bài chỉ khai được đúng những tên này.
+ *
+ * Đây là CỬA DUY NHẤT vào DB (`lesson-content-update.ts` / lớp import gọi
+ * `validateStudioLesson`), nên một trường mới không qua đây thì một bài chạy
+ * đúng trong trình duyệt vẫn không có đường tới học viên — chuyện đã xảy ra với
+ * 124 bài tập được chấm, xem AGENTS.md.
+ *
+ * Vì sao là bản LITERAL chứ không đọc thư mục: backend chạy ở nơi KHÔNG có
+ * `frontend/public/` (Render chỉ deploy phần NestJS), nên một phép kiểm "file
+ * có trên đĩa không" ở đây sẽ luôn trượt — hoặc tệ hơn, luôn qua. Bản literal
+ * được ghim vào thư mục thật bởi `frontend/e2e/unit/data-files.test.mjs`: thêm
+ * một file vào `static/da-dulieu/` mà quên khai ở đây là ca test đó đỏ.
+ *
+ * Nội dung các file: xem `frontend/public/static/da-dulieu/NOTICE.md`
+ * (`coffee-sales-cc0.csv` là dữ liệu CC0 của người khác; bốn file còn lại do
+ * `scripts/pe-da/gen_dulieu.py` sinh ra).
+ */
+export const DU_LIEU_HOP_LE = [
+  'coffee-sales-cc0.csv',
+  'don_hang.csv',
+  'mon.csv',
+  'nguyen_lieu.csv',
+  'quay.csv',
+] as const;
+
+/** Tên file trơn, chữ thường, chỉ .csv — khớp TEN_DU_LIEU của worker. */
+const TEN_DU_LIEU = /^[a-z0-9_-]+\.csv$/;
+
 export const PLAY_GAME_TYPES = [
   'traceTable',
   'match',
@@ -20,11 +49,6 @@ export const PLAY_GAME_TYPES = [
   'spotError',
   'debug',
   'selfExplain',
-  // Mini-game có động cơ riêng (bài T05 · "Sổ quỹ chung"): frontend chạy
-  // frontend/public/static/js/so-quy.py trong worker Pyodide. Thiếu tên ở đây
-  // thì update-lesson-content.ts từ chối nạp T05 — không phải lỗi im lặng, nhưng
-  // là cửa chặn duy nhất giữa gói đã dựng và DB.
-  'soQuy',
 ] as const;
 
 export type McqOption =
@@ -44,6 +68,9 @@ export interface Mcq {
  * step_4.packages: (khoá Python Advanced pe-v4) thư viện Pyodide bài cần — numpy,
  * pandas, matplotlib, sqlite3. scripts/pe-v4/build.py đã chặn giá trị lạ; ở đây
  * không kiểm thêm vì worker tự bỏ qua gói nó không có.
+ * step_4.dataFiles: tên file của bộ dữ liệu quán mà mọi lần chạy của bài cần có
+ * trong thư mục làm việc. Ở đây KIỂM, khác `packages`: worker ghép tên vào một
+ * đường dẫn rồi fetch, nên tên lạ là một request lạ — xem DU_LIEU_HOP_LE.
  */
 export interface StudioLesson {
   schema?: string;
@@ -73,12 +100,68 @@ function nonEmptyString(value: unknown): boolean {
 }
 
 /**
+ * Ký tự mà Postgres `jsonb` KHÔNG biểu diễn được, ở BẤT KỲ đâu — kể cả trong
+ * KHOÁ của object.
+ *
+ * SỰ CỐ 30/10/2026. Nạp 172 bài: 122 câu UPDATE chạy xong, câu thứ 123 ném
+ * `22P05 unsupported Unicode escape sequence`, transaction rollback ⇒ KHÔNG
+ * bài nào được ghi. Thủ phạm là một khoá JSON của SY20 chứa U+0000
+ * (`students.csv\x00.exe`). Một ký tự vô hình trong một ca chấm chặn được cả
+ * khoá học, và lỗi in ra là một đối tượng Prisma không nói tên bài.
+ *
+ * Phép kiểm nằm ở ĐÂY vì đây là CỬA DUY NHẤT vào DB: cả đường cập nhật
+ * (`update-lesson-content.ts`) lẫn đường tạo mới (`planLessonInserts`) đều đi
+ * qua `validateStudioLesson`, nên một chỗ là đủ và không có chỗ thứ hai để
+ * trôi lệch. `scripts/pe-da/check.py` kiểm lại ở khâu dựng để người soạn thấy
+ * sớm hơn — hai lớp, cố ý.
+ *
+ * DUYỆT CẢ KHOÁ, không chỉ giá trị: bản quét đầu chỉ duyệt giá trị chuỗi và
+ * báo "0 chỗ" trên đúng file đang hỏng.
+ */
+function kiemKyTuDb(x: unknown, duong: string, errors: string[]): void {
+  if (typeof x === 'string') {
+    for (let i = 0; i < x.length; i++) {
+      const m = x.charCodeAt(i);
+      if (m === 0) {
+        errors.push(
+          `${duong || 'nội dung'}: chứa ký tự U+0000 — Postgres jsonb không lưu được, ` +
+            'nạp sẽ hỏng và huỷ CẢ lần nạp.',
+        );
+        return;
+      }
+      if (m >= 0xd800 && m <= 0xdfff) {
+        const doi = m <= 0xdbff ? x.charCodeAt(i + 1) : x.charCodeAt(i - 1);
+        const ghep =
+          m <= 0xdbff
+            ? doi >= 0xdc00 && doi <= 0xdfff
+            : doi >= 0xd800 && doi <= 0xdbff;
+        if (!ghep) {
+          errors.push(
+            `${duong || 'nội dung'}: chứa surrogate lẻ — Postgres jsonb không lưu được.`,
+          );
+          return;
+        }
+      }
+    }
+  } else if (Array.isArray(x)) {
+    x.forEach((v, i) => kiemKyTuDb(v, `${duong}[${i}]`, errors));
+  } else if (isObject(x)) {
+    for (const [k, v] of Object.entries(x)) {
+      kiemKyTuDb(k, `${duong}.<khoá>`, errors);
+      kiemKyTuDb(v, duong ? `${duong}.${k}` : k, errors);
+    }
+  }
+}
+
+/**
  * Kiểm tra một bản nháp trước khi cho lưu. Trả danh sách lỗi theo đường dẫn
  * field để admin biết sửa chỗ nào — KHÔNG ném exception, người gọi quyết định.
  */
 export function validateStudioLesson(value: unknown): string[] {
   const errors: string[] = [];
   if (!isObject(value)) return ['Nội dung phải là một object JSON.'];
+
+  kiemKyTuDb(value, '', errors);
 
   const lesson = value as StudioLesson;
 
@@ -187,13 +270,83 @@ export function validateStudioLesson(value: unknown): string[] {
 
   const four = lesson.step_4;
   if (isObject(four)) {
+    // Ô ví dụ đầu vào/đầu ra. Renderer (`SandboxScreen.tsx`) dựng
+    // `io.map(row => <div key={row.label}>)`, nên MỘT hàng thiếu `label` là một
+    // React key `undefined` và hai hàng cùng `label` là một hàng biến mất —
+    // không exception nào ném, chỉ là đề bài thiếu một nửa.
+    //
+    // Luật ở đây hẹp hơn `kiem_vi_du_io` của check.py có chủ đích: check.py so
+    // `value` với `repr` của ca chấm (nó có Python trong tay), còn cửa này chỉ
+    // canh HÌNH DẠNG. Đường nhập tài liệu (PDF/MD) cũng đi qua đây và nó dựng
+    // `task` bằng tay, nên đây là chỗ duy nhất chặn được một ô ví dụ gõ lệch.
+    const vd = isObject(four.task) ? four.task.io : undefined;
+    if (vd !== undefined) {
+      if (!Array.isArray(vd) || vd.length === 0) {
+        errors.push('step_4.task.io: có khoá nhưng không có hàng nào.');
+      } else {
+        const nhan = new Set<string>();
+        vd.forEach((row, i) => {
+          if (!isObject(row))
+            return errors.push(`step_4.task.io[${i}]: sai kiểu.`);
+          if (!nonEmptyString(row.label))
+            errors.push(
+              `step_4.task.io[${i}].label: thiếu nhãn (renderer dùng nó làm key).`,
+            );
+          if (!nonEmptyString(row.value))
+            errors.push(`step_4.task.io[${i}].value: thiếu giá trị ví dụ.`);
+          if (typeof row.label === 'string') {
+            if (nhan.has(row.label))
+              errors.push(
+                `step_4.task.io[${i}].label: nhãn ${row.label} trùng hàng trước.`,
+              );
+            nhan.add(row.label);
+          }
+        });
+      }
+    }
+
     const tests = four.tests;
     if (tests !== undefined) {
       if (!Array.isArray(tests) || tests.length === 0) {
         errors.push('step_4.tests: cần ít nhất 1 trường hợp kiểm thử.');
       } else {
+        // HAI hợp đồng ca chấm, và bộ này là CỬA DUY NHẤT đưa nội dung vào
+        // DB — nên nó phải biết cả hai, không thì bài tập được chấm không bao
+        // giờ tới được học viên.
+        //
+        //   BIỂU THỨC (pe-v4): `call` + `expect`, hai chuỗi Python.
+        //   DỮ LIỆU (pe-da, từ 26/10): `input` + `expected`, giá trị JSON
+        //   thuần. `expected: null` là đáp án HỢP LỆ của nhiều bài ("đầu vào
+        //   rỗng -> không có kết quả"), nên phép kiểm phải hỏi KHOÁ CÓ MẶT
+        //   không, chứ không hỏi giá trị có thật không.
+        //
+        // Đã gặp: bản đầu chỉ biết hợp đồng biểu thức, nên
+        // `update-lesson-content.ts --offline` từ chối cả 124 bài với "thiếu
+        // biểu thức gọi hàm" — một bộ chấm chạy đúng trong trình duyệt mà
+        // không có đường nào vào DB.
         tests.forEach((t, i) => {
           if (!isObject(t)) return errors.push(`step_4.tests[${i}]: sai kiểu.`);
+          const laBieuThuc = 'call' in t || 'expect' in t;
+          const laDuLieu = 'input' in t || 'expected' in t;
+          if (laBieuThuc && laDuLieu) {
+            // Trộn thì `step_4.contract` chỉ đúng cho một nửa số ca, mà nửa
+            // kia không báo gì: bộ chấm phân nhánh theo từng ca nên nó cứ chạy.
+            errors.push(
+              `step_4.tests[${i}]: trộn hai hợp đồng (call/expect lẫn input/expected).`,
+            );
+            return;
+          }
+          if (laDuLieu) {
+            if (!('input' in t))
+              errors.push(`step_4.tests[${i}].input: thiếu đầu vào.`);
+            if (!('expected' in t))
+              errors.push(
+                `step_4.tests[${i}].expected: thiếu kết quả mong đợi.`,
+              );
+            if (!nonEmptyString(t.name))
+              errors.push(`step_4.tests[${i}].name: ca chấm phải có tên.`);
+            return;
+          }
           if (!nonEmptyString(t.call))
             errors.push(`step_4.tests[${i}].call: thiếu biểu thức gọi hàm.`);
           if (!nonEmptyString(t.expect))
@@ -201,8 +354,25 @@ export function validateStudioLesson(value: unknown): string[] {
         });
       }
     }
-    // Bước sandbox mà không có test thì học viên không thể nộp bài.
-    if (nonEmptyString(four.starterCode) && !Array.isArray(tests)) {
+    // Bước sandbox mà không có test thì học viên không thể nộp bài — ĐÚNG với
+    // bài có chấm, SAI với bài đọc.
+    //
+    // Khoá python_advanced nay là 172 bài giáo trình ĐỌC (pe-da): ô sandbox ở
+    // đó cố ý chạy tự do, vì nguồn không có ca chấm nào và build không tự sinh
+    // ra ca chấm (xem scripts/pe-da/SCHEMA.md). Áp luật cũ vào thì 145/172 bài
+    // đều "không hợp lệ" và không nạp được bài nào.
+    //
+    // Dấu phân biệt là `step_1.read`: chỉ bài đọc mới có nó. Kiểm theo DẤU
+    // trong chính nội dung, đừng để nơi gọi tự bỏ qua luật — bản seed đầu lọc
+    // bằng cách so khớp CHUỖI lỗi này, nên đổi một chữ trong câu thông báo là
+    // bộ lọc im lặng trượt hết.
+    const laBaiDoc =
+      isObject(lesson.step_1) && Array.isArray(lesson.step_1.read);
+    if (
+      !laBaiDoc &&
+      nonEmptyString(four.starterCode) &&
+      !Array.isArray(tests)
+    ) {
       errors.push('step_4.tests: có code khởi tạo thì phải có phần Test.');
     }
     // File cấp sẵn (language_base.py, data.txt…) được ghi vào thư mục chạy bài
@@ -220,6 +390,42 @@ export function validateStudioLesson(value: unknown): string[] {
             );
           if (typeof f.content !== 'string')
             errors.push(`step_4.files[${i}].content: phải là chuỗi.`);
+        });
+      }
+    }
+    // FILE DỮ LIỆU của bộ dữ liệu quán: chỉ TÊN, và chỉ tên trong danh sách
+    // trắng. Worker ghép tên này vào `/static/da-dulieu/` rồi fetch, nên một
+    // tên tuỳ ý ở đây là một đường dẫn tuỳ ý trong thư mục public.
+    if (four.dataFiles !== undefined) {
+      if (!Array.isArray(four.dataFiles)) {
+        errors.push('step_4.dataFiles: phải là mảng tên file.');
+      } else {
+        const daThay = new Set<string>();
+        // `unknown[]` chứ không để TS suy ra `any[]`: một `any` ở đây chảy
+        // xuống mọi phép kiểm bên dưới và làm chúng biên dịch kể cả khi sai
+        // kiểu — đúng họ lỗi mà AGENTS.md ghi ở mục dọn lint.
+        const khai: unknown[] = four.dataFiles;
+        khai.forEach((raw, i) => {
+          const name = typeof raw === 'string' ? raw : '';
+          if (!name || !TEN_DU_LIEU.test(name)) {
+            errors.push(
+              `step_4.dataFiles[${i}]: cần tên file trơn (chữ thường, số, _ -, .csv).`,
+            );
+            return;
+          }
+          if (!(DU_LIEU_HOP_LE as readonly string[]).includes(name)) {
+            errors.push(
+              `step_4.dataFiles[${i}]: "${name}" không có trong bộ dữ liệu ` +
+                `(cho phép: ${DU_LIEU_HOP_LE.join(', ')}).`,
+            );
+            return;
+          }
+          // Trùng tên thì worker tải hai lần cùng một file và bộ chấm ghi hai
+          // lần cùng một nội dung — vô hại, nhưng nó là dấu của một bản dựng
+          // đang gộp hai danh sách mà không ai để ý.
+          if (daThay.has(name))
+            errors.push(`step_4.dataFiles[${i}]: "${name}" khai trùng.`);
+          daThay.add(name);
         });
       }
     }
@@ -374,29 +580,6 @@ function validatePlay(lesson: StudioLesson): string[] {
           'cần step_2.selfExplain.',
         );
         break;
-      case 'soQuy': {
-        // Màn vẽ đúng HAI nhân vật và gọi `ham(so_quy, khoa, so_tien)` cho
-        // từng người — thiếu trường nào là frontend chấm vào undefined.
-        need(nonEmptyString(g.code), 'thiếu code khởi đầu.');
-        need(nonEmptyString(g.loiGiai), 'thiếu lời giải mẫu (loiGiai).');
-        need(
-          typeof g.ham === 'string' && /^[A-Za-z_]\w*$/.test(g.ham),
-          'ham phải là tên hàm Python.',
-        );
-        need(Number.isInteger(g.soDu), 'soDu phải là số nguyên.');
-        const nguoi: unknown[] = Array.isArray(g.nguoi) ? g.nguoi : [];
-        need(
-          nguoi.length === 2 &&
-            nguoi.every(
-              (p) =>
-                isObject(p) &&
-                nonEmptyString(p.ten) &&
-                Number.isInteger(p.soTien),
-            ),
-          'nguoi phải gồm đúng 2 người, mỗi người có ten và soTien nguyên.',
-        );
-        break;
-      }
     }
   });
   return errors;

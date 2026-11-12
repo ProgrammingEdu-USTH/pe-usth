@@ -1,0 +1,249 @@
+{
+ "lesson_code": "NP10",
+ "sort_order": 28,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP10 · Tổng của cả dãy và cả bảng",
+ "subtitle": "Cơ bản · M2 · 10 phút",
+ "estimated_minutes": 10,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "NP10 · Tổng của cả dãy và cả bảng",
+  "subtitle": "Cơ bản · M2 · 10 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#NP10",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "Advanced-Python-Tai-Lieu-Mon-Hoc.pdf tr. 109-111; NumPy · sum và axis"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Lấy được từng ô rồi, bước tiếp là cộng cả bảng để biết quán bán bao nhiêu cốc. Cuối ba ngày, bạn cần biết cả hai cửa hàng đã bán tổng cộng bao nhiêu cốc. Vì chưa cần tách theo ngày hoặc cửa hàng, hãy cộng tất cả ô trong bảng:"
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\n\nsales = np.array([[12, 15, 9],\n                  [10,  8, 14]])\nprint(sales.sum())",
+      "expected": "68",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`sales.sum()` cộng 12 + 15 + 9 + 10 + 8 + 14, được 68. Đầu vào là một bảng có sáu số; đầu ra là một số tổng."
+     },
+     {
+      "type": "paragraph",
+      "text": "`sum()` cũng dùng được với array một chiều:"
+     },
+     {
+      "type": "code",
+      "code": "a = np.array([2, 4, 6])\nprint(a.sum())",
+      "expected": "12",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Ở đây, 2 + 4 + 6 = 12. Với bảng hai chiều, lệnh vẫn cộng tất cả phần tử:"
+     },
+     {
+      "type": "code",
+      "code": "a = np.array([[1, 2, 3], [4, 5, 6]])\nprint(a.sum())",
+      "expected": "21",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "Bạn có thể kiểm lại: 1 + 2 + 3 + 4 + 5 + 6 = 21. Khi gọi `sum()` mà không thêm `axis`, NumPy trả tổng của toàn bộ array. Nếu cần một tổng cho mỗi hàng hoặc mỗi cột, bạn sẽ chọn `axis` ở hai bài tiếp theo."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "NP04 · Tính trên từng phần tử, NP06 · Array hai chiều"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "a=np.array([[2,1],[0,4]]). a.sum() trả gì?",
+     "options": [
+      {
+       "text": "[2,5]",
+       "detail": "Đó là tổng theo cột, cần axis=0."
+      },
+      {
+       "text": "7",
+       "detail": "Đúng. Không ghi axis thì cộng cả bốn ô.",
+       "correct": true
+      },
+      {
+       "text": "[3,4]",
+       "detail": "Đó là tổng theo hàng, cần axis=1."
+      }
+     ],
+     "explanation": "Đúng. Không ghi axis thì cộng cả bốn ô."
+    },
+    {
+     "question": "Cộng ba ca làm. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\na = np.array([3, 5, 7])\nprint(a.sum())",
+     "options": [
+      {
+       "text": "3",
+       "detail": "3 là số phần tử, không phải tổng."
+      },
+      {
+       "text": "7",
+       "detail": "sum không chỉ lấy giá trị cuối."
+      },
+      {
+       "text": "15",
+       "detail": "Không ghi axis thì sum cộng mọi phần tử.",
+       "correct": true
+      }
+     ],
+     "explanation": "Không ghi axis thì sum cộng mọi phần tử."
+    },
+    {
+     "question": "Gộp doanh thu của mọi cửa hàng và ngày. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\na = np.array([[1, 2], [3, 4]])\nprint(a.sum())",
+     "options": [
+      {
+       "text": "10",
+       "detail": "sum không axis cho một tổng chung của bốn ô.",
+       "correct": true
+      },
+      {
+       "text": "[4, 6]",
+       "detail": "Đó là tổng theo cột, phải chọn axis."
+      },
+      {
+       "text": "[3, 7]",
+       "detail": "Đó là tổng theo hàng, phải chọn axis."
+      }
+     ],
+     "explanation": "sum không axis cho một tổng chung của bốn ô."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Tổng của dãy `[1, 2, 3]` là bao nhiêu?",
+     "answer": "Tổng là 1 + 2 + 3 = 6."
+    },
+    {
+     "prompt": "Điền tên phương thức để tính tổng tất cả phần tử: `a.___()`.",
+     "answer": "Điền `sum`: `a.sum()`."
+    },
+    {
+     "prompt": "Tính tổng số sản phẩm trong bảng `[[2, 1], [0, 3]]`.",
+     "answer": "Cộng tất cả bốn ô:",
+     "answerCode": "import numpy as np\n\na = np.array([[2, 1], [0, 3]])\nprint(a.sum())",
+     "answerExpected": "6"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận bảng số lượng kiện ở các khu kho. Trả tổng số kiện của mọi khu và mọi ca, không tách hàng hoặc cột.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "[[2, 1], [0, 4]]"
+     },
+     {
+      "label": "trả về",
+      "value": "7"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    return np.array(data).sum()\n",
+   "tests": [
+    {
+     "name": "Bảng có ô bằng không",
+     "input": [
+      [
+       2,
+       1
+      ],
+      [
+       0,
+       4
+      ]
+     ],
+     "expected": 7
+    },
+    {
+     "name": "Một hàng",
+     "input": [
+      [
+       3,
+       6,
+       1
+      ]
+     ],
+     "expected": 10
+    },
+    {
+     "name": "Tất cả bằng không",
+     "input": [
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       0
+      ]
+     ],
+     "expected": 0
+    },
+    {
+     "name": "Chỉ một ô khác không",
+     "input": [
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       5
+      ]
+     ],
+     "expected": 5
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Bài cần một tổng chung, không cần một tổng mỗi hàng hoặc cột."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "sum() không ghi axis cộng toàn bộ array."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

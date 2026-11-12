@@ -1,0 +1,228 @@
+{
+ "lesson_code": "CT13",
+ "sort_order": 144,
+ "module": "M6 · Hệ điều hành, tiến trình và đa luồng",
+ "title": "CT13 · Queue và lưu pickle có nén ở nền",
+ "subtitle": "Nâng cao · M6 · 13 phút",
+ "estimated_minutes": 13,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "CT13 · Queue và lưu pickle có nén ở nền",
+  "subtitle": "Nâng cao · M6 · 13 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#CT13",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 299; Python — subprocess; Python — threading"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Ở PW6, ứng dụng đã lưu và nạp lại dữ liệu bằng pickle có nén. PW8 giữ phần đó, nhưng chuyển công việc lưu sang thread nền để người dùng không phải đợi toàn bộ quá trình. Worker có thể gửi kết quả qua queue. Trước hết, xem một thông điệp đơn giản:"
+     },
+     {
+      "type": "code",
+      "code": "from queue import Queue\nfrom threading import Thread\nq = Queue()\ndef work(): q.put({\"status\":\"done\", \"count\":3})\nt = Thread(target=work)\nt.start(); t.join()\nprint(q.get())",
+      "expected": "{'status': 'done', 'count': 3}"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Queue cung cấp cách trao đổi dữ liệu giữa các thread. join ở đây chỉ dùng cho ví dụ dòng lệnh. Trong GUI, kiểm tra queue theo lịch của event loop thay vì chặn callback chờ worker."
+     },
+     {
+      "type": "code",
+      "code": "from queue import Queue, Empty\nq = Queue()\ntry:\n    q.get_nowait()\nexcept Empty:\n    print(\"no message\")",
+      "expected": "no message",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`get_nowait` báo Empty khi chưa có thông điệp. Bạn có thể quay lại sau, thay vì coi chưa có kết quả là lỗi tác vụ."
+     },
+     {
+      "type": "code",
+      "code": "import gzip, pickle\nfrom threading import Thread\nfrom queue import Queue\nsnapshot = {\"marks\":[6,8]}\nq = Queue()\ndef save(data):\n    q.put(gzip.compress(pickle.dumps(data)))\nt = Thread(target=save, args=(snapshot,))\nt.start(); t.join()\nrestored = pickle.loads(gzip.decompress(q.get()))\nprint(restored == snapshot)",
+      "expected": "True"
+     },
+     {
+      "type": "paragraph",
+      "text": "Ví dụ nén trong bộ nhớ để kiểm dữ liệu phục hồi. Bài PW8 thật còn phải ghi file, xử lý lỗi và nạp lại khi mở ứng dụng. Bản chụp (snapshot) cần ổn định khi worker đọc: sao chép cấu trúc phù hợp hoặc đồng bộ lúc lấy bản chụp. Gán thêm một tên không tự tạo bản chụp. Chỉ unpickle dữ liệu tin cậy vì thao tác nạp có thể thực thi mã. Quán đã chạy nhiều việc một lúc; chặng sau chia chúng ra nhiều tiến trình."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "CT12 · Race condition, Lock và tránh deadlock, SY28 · PW6: đổi persistence sang pickle có nén"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "get_nowait báo queue.Empty khi worker chưa xong có đồng nghĩa worker thất bại không?",
+     "options": [
+      {
+       "text": "Không; nên chặn GUI bằng join ngay",
+       "detail": "join trong callback dài có thể làm event loop đứng chờ."
+      },
+      {
+       "text": "Có; Empty luôn là exception của worker",
+       "detail": "Empty mô tả queue tại thời điểm đọc, không mô tả nguyên nhân worker chưa gửi."
+      },
+      {
+       "text": "Không; lúc đó chưa có thông điệp",
+       "detail": "Queue rỗng là trạng thái tạm; lỗi worker cần thông điệp hoặc cơ chế xử lý riêng.",
+       "correct": true
+      }
+     ],
+     "explanation": "Queue rỗng là trạng thái tạm; lỗi worker cần thông điệp hoặc cơ chế xử lý riêng."
+    },
+    {
+     "question": "Queue rỗng khi gọi get_nowait sẽ báo gì?",
+     "options": [
+      {
+       "text": "Luôn trả None thay mọi lỗi",
+       "detail": "Chưa đúng. Empty cho biết hiện chưa có thông điệp; không đồng nghĩa tác vụ đã thất bại."
+      },
+      {
+       "text": "Empty",
+       "detail": "Empty cho biết hiện chưa có thông điệp; không đồng nghĩa tác vụ đã thất bại.",
+       "correct": true
+      },
+      {
+       "text": "Một thông điệp \"done\" giả định",
+       "detail": "Chưa đúng. Empty cho biết hiện chưa có thông điệp; không đồng nghĩa tác vụ đã thất bại."
+      }
+     ],
+     "explanation": "Empty cho biết hiện chưa có thông điệp; không đồng nghĩa tác vụ đã thất bại."
+    },
+    {
+     "question": "snapshot = data có tách được một list lồng nhau không?",
+     "options": [
+      {
+       "text": "Không; chỉ thêm tên tham chiếu cùng dữ liệu",
+       "detail": "Snapshot nhất quán cần sao chép cấu trúc hoặc đồng bộ phù hợp, không chỉ đổi tên tham chiếu.",
+       "correct": true
+      },
+      {
+       "text": "Có; mọi phép gán tạo bản sao sâu",
+       "detail": "Chưa đúng. Snapshot nhất quán cần sao chép cấu trúc hoặc đồng bộ phù hợp, không chỉ đổi tên tham chiếu."
+      },
+      {
+       "text": "Chỉ tách khi biến tên snapshot",
+       "detail": "Chưa đúng. Snapshot nhất quán cần sao chép cấu trúc hoặc đồng bộ phù hợp, không chỉ đổi tên tham chiếu."
+      }
+     ],
+     "explanation": "Snapshot nhất quán cần sao chép cấu trúc hoặc đồng bộ phù hợp, không chỉ đổi tên tham chiếu."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Queue rỗng khi worker chưa xong có nghĩa worker đã lỗi không?",
+     "answer": "Không. Có thể chưa có thông điệp; cần phân biệt trạng thái đang làm, thành công và lỗi."
+    },
+    {
+     "prompt": "Muốn giữ nén khi chuyển từ PW6 sang PW8, pickle có thay gzip không?",
+     "answer": "Không. Pickle tuần tự hóa object, gzip nén bytes; hai bước có vai trò khác nhau."
+    },
+    {
+     "prompt": "Một bài PW8 hoàn chỉnh cần kiểm những gì ngoài worker chạy được?",
+     "answer": "Dữ liệu snapshot nhất quán, file lưu có thể nạp lại, lỗi được báo, ứng dụng không thoát trước khi lưu xong và không chặn UI trong lúc chờ."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "solve(data) nhận list số. Một Thread đưa lần lượt bình phương vào queue.Queue, sau đó put None làm dấu kết thúc. Main đọc đến None, join rồi trả list kết quả. Với bài CLI này, main được phép chờ get; không áp dụng vòng chặn đó vào callback Tkinter.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "[3, 7]"
+     },
+     {
+      "label": "trả về",
+      "value": "[9, 49]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import threading, queue\ndef solve(data):\n    messages = queue.Queue()\n    def work():\n        for value in data: messages.put(value * value)\n        messages.put(None)\n    thread = threading.Thread(target=work)\n    thread.start()\n    result = []\n    while True:\n        value = messages.get()\n        if value is None: break\n        result.append(value)\n    thread.join()\n    return result\n",
+   "tests": [
+    {
+     "name": "hai kết quả",
+     "input": [
+      3,
+      7
+     ],
+     "expected": [
+      9,
+      49
+     ]
+    },
+    {
+     "name": "zero không phải dấu hết",
+     "input": [
+      0,
+      -2
+     ],
+     "expected": [
+      0,
+      4
+     ]
+    },
+    {
+     "name": "rỗng",
+     "input": [],
+     "expected": []
+    },
+    {
+     "name": "một giá trị duy nhất",
+     "input": [
+      2
+     ],
+     "expected": [
+      4
+     ]
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "env": "Bài tập dưới đây chấm được ngay trong trình duyệt. Nhưng code trong phần bài đọc thì không: bản Pyodide này không bật thread thật. Muốn chạy lại các đoạn đó thì mở Python trên máy."
+  }
+ },
+ "_mode": "mixed",
+ "_blocked": [
+  {
+   "block": 0,
+   "reason": "bản Pyodide này không bật thread thật"
+  },
+  {
+   "block": 2,
+   "reason": "bản Pyodide này không bật thread thật"
+  }
+ ],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 1,
+  "co": 0,
+  "bo": 1,
+  "loi": []
+ }
+}

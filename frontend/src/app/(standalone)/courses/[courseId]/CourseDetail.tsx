@@ -32,7 +32,8 @@ import { useEffect, useState } from 'react';
 
 import PageStyles from '@/components/PageStyles';
 import SiteHeader from '@/components/SiteHeader';
-import { apiFetchSessionOnly, asList, findEnrollment } from '@/lib/api';
+import ThemePicker from '@/components/ThemePicker';
+import { apiFetch, asList, findEnrollment } from '@/lib/api';
 import { findCourse, LEVEL_LABEL } from '@/lib/catalog';
 import {
   completedLessonSet,
@@ -44,6 +45,7 @@ import {
   type ResumePlan,
 } from '@/lib/course-progress';
 import CURRICULA_JSON from '@/lib/curricula.json';
+import { moduleChuaBai } from '@/lib/curriculum-nav';
 
 import styles from '@/components/CourseShell.module.css';
 import { feedbackFormHref } from '@/lib/feedback-link';
@@ -157,9 +159,12 @@ function lsGet(key: string): string | null {
  *     tài khoản khách trong bảng `users` và ăn một suất của
  *     THROTTLE_GUEST_LIMIT (mặc định 120 lượt/giờ/IP) — cả phòng máy chung một
  *     NAT sẽ bị 429 đúng lúc có người cần tài khoản thật.
- *  2. Dùng `apiFetchSessionOnly`, không dùng `apiFetch`: ngay cả khi cờ phiên
- *     nói sai (token cũ đã bị thu hồi), đường này cùng lắm là trả 401 chứ
- *     không tạo tài khoản mới.
+ *  2. Lớp thứ hai của nhánh `test` — `apiFetchSessionOnly`, gặp 401 thì trả
+ *     401 chứ không tạo khách — CHƯA có trên main: chủ dự án quyết 04/11 giữ
+ *     `apiFetch` ("vẫn để trang web mở cho khách như hiện tại"). Cái giá, nói
+ *     thẳng: người có cờ phiên đã chết (token bị thu hồi, cookie mốc còn hạn)
+ *     mở trang này là nhận MỘT tài khoản khách mới — đúng điều sẽ xảy ra khi họ
+ *     mở bài học. Bot thì không: chúng không có phiên nào nên dừng ở điều 1.
  */
 function useCompletedLessons(courseId: string): number[] | null {
   const [completed, setCompleted] = useState<number[] | null>(null);
@@ -178,7 +183,7 @@ function useCompletedLessons(courseId: string): number[] | null {
       // Hàm này CHỈ chạy khi cổng ở loadCompletedLessons xác nhận đã có phiên;
       // khách vãng lai/bot không đi tới đây, nên không một lời gọi mạng nào.
       fetchCompleted: async () => {
-        const res = await apiFetchSessionOnly('/api/enrolled');
+        const res = await apiFetch('/api/enrolled');
         if (!res.ok) return null; // 401 (phiên đã chết) / 5xx: coi như chưa biết
         const data = (await res.json()) as unknown;
         const row = findEnrollment(asList(data, 'enrolled'), courseId);
@@ -250,6 +255,64 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
   // Phải gọi TRƯỚC nhánh `if (!course)` — hook không được nằm sau return.
   const completedRaw = useCompletedLessons(courseId);
 
+  /**
+   * Module mở SẴN khi chưa ai bấm gì. Ghim cứng module 0 thì nút × — đường ra
+   * duy nhất của màn bài học — luôn thả người học xuống đầu một khoá 179 bài.
+   * Một người thử ngày 27/10 viết nguyên văn: "khi mà t click vào dấu x để tắt
+   * hoặc về trang thì nó lại mở full list mục 1 và t lại phải tìm lại bài nếu t
+   * học mục 2,3". Bài học mang `?lesson=` theo khi đóng; effect dưới mở đúng
+   * module chứa bài đó.
+   *
+   * KHỐI NÀY TỪNG BỊ MẤT một lần: bản CourseDetail bê từ nhánh `test` (4d5f86d)
+   * viết trước bản sửa này nên ghim lại module 0, và `course-resume.test.mjs`
+   * đỏ 3 ca. Bê lại giao diện thì giữ khối này.
+   */
+  const [moduleMacDinh, setModuleMacDinh] = useState(0);
+
+  /** Bài cần cuộn tới, suy từ `?lesson=`. -1 = không có yêu cầu nào. */
+  const [baiCanCuon, setBaiCanCuon] = useState(-1);
+
+  /**
+   * Đọc `?lesson=` sau khi đã hydrate, KHÔNG trong `useState(() => ...)`:
+   * trang này là SSG, máy chủ dựng HTML với module 0 mở — khởi tạo state từ
+   * `window` làm hai bên lệch nhau và React cảnh báo hydration mismatch. Và
+   * KHÔNG dùng `useSearchParams()`: nó buộc trang rời khỏi dạng tĩnh.
+   */
+  useEffect(() => {
+    const raw = new URLSearchParams(window.location.search).get('lesson');
+    const idx = Number(raw);
+    if (raw === null) return;
+    const mi = moduleChuaBai(CURRICULA[courseId]?.modules ?? [], idx);
+    if (mi < 0) return;
+    // setState trong một timer, KHÔNG gọi thẳng trong thân effect: React 19
+    // chặn chuyện đó (`react-hooks/set-state-in-effect`).
+    const t = setTimeout(() => {
+      setModuleMacDinh(mi);
+      setBaiCanCuon(idx);
+    }, 0);
+    return () => clearTimeout(t);
+  }, [courseId]);
+
+  /**
+   * Cuộn tới bài — effect RIÊNG, phụ thuộc `moduleMacDinh`. Nhét rAF vào
+   * effect ở trên thì đo được `scrollY` = 0: lúc đó module chứa bài còn chưa
+   * mở nên `scrollIntoView` nhắm vào phần tử chưa có chỗ trên trang.
+   * `block: 'center'` chứ không 'start' — 'start' nhét bài sát mép trên và mất
+   * ngữ cảnh module.
+   */
+  useEffect(() => {
+    if (baiCanCuon < 0) return;
+    const el = document.getElementById(`cd-lesson-${baiCanCuon}`);
+    if (!el) return;
+    // Hoãn một nhịp: App Router khôi phục vị trí cuộn sau khi hydrate, nên
+    // cuộn ngay trong effect sẽ bị nó ghi đè về đầu trang.
+    const t = setTimeout(
+      () => el.scrollIntoView({ block: 'center', behavior: 'smooth' }),
+      0,
+    );
+    return () => clearTimeout(t);
+  }, [baiCanCuon, moduleMacDinh]);
+
   // Trang cha đã trả 404 cho mã lạ; nhánh này chỉ để thu hẹp kiểu.
   if (!course) return null;
 
@@ -307,17 +370,29 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
           mà `.page` dưới đây phủ kín khung nhìn nên nền body không còn lộ. */}
       <PageStyles hrefs={['/static/css/edu-theme.css']} />
 
-      <div className={styles.page}>
+      {/* data-tv-surface: trang khoá học nhận giao diện "Đài thiên văn" ở mức
+          TOKEN (giấy, mực, tint, đường kẻ) — xem `theme-thien-van.css`. */}
+      <div className={styles.page} data-tv-surface="">
         <div className={styles.shell}>
           <SiteHeader />
 
           <div className={styles.content}>
-            {/* <a> thường: về trang chủ bằng tải lại trang, xem SiteHeader. */}
-            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-            <a className={styles.back} href="/">
-              <Icon name="chevronLeft" />
-              <span>Tất cả khoá học</span>
-            </a>
+            {/* Hàng này chỉ để làm mốc `position: relative` cho nút chọn giao
+                diện. Nút nằm NGOÀI dòng chảy (xem `.themeSlot`), nên hàng cao
+                đúng bằng liên kết như trước — người dùng lofi không thấy gì
+                dịch. Header đã chật ở 320–390px (tên ~195px + nút sáng/tối 48px)
+                nên nút không thêm vào đó. */}
+            <div className={styles.topRow}>
+              {/* <a> thường: về trang chủ bằng tải lại trang, xem SiteHeader. */}
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+              <a className={styles.back} href="/">
+                <Icon name="chevronLeft" />
+                <span>Tất cả khoá học</span>
+              </a>
+              <div className={styles.themeSlot}>
+                <ThemePicker cheDo={false} />
+              </div>
+            </div>
 
             <div className={styles.grid}>
               {/* ── Cột trái ── */}
@@ -389,7 +464,7 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
                   </div>
                   <div className={styles.blockBody}>
                     {modules.map((module, mi) => {
-                      const open = openModules[mi] ?? mi === 0;
+                      const open = openModules[mi] ?? mi === moduleMacDinh;
                       const bodyId = `cd-module-body-${mi}`;
                       return (
                         <div className={styles.module} key={mi}>
@@ -426,6 +501,7 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
                                       + `${done ? ` ${styles.lessonDone}` : ''}`
                                       + `${suggested ? ` ${styles.lessonNext}` : ''}`}
                                     key={index}
+                                    id={`cd-lesson-${index}`}
                                     data-done={done ? '1' : undefined}
                                     href={`${course.lessonUrl}?lesson=${index}`}
                                   >

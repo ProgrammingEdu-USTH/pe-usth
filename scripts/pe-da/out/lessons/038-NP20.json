@@ -1,0 +1,250 @@
+{
+ "lesson_code": "NP20",
+ "sort_order": 38,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP20 · So sánh số thực",
+ "subtitle": "Trung cấp · M2 · 10 phút",
+ "estimated_minutes": 10,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "NP20 · So sánh số thực",
+  "subtitle": "Trung cấp · M2 · 10 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#NP20",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "Advanced-Python-Tai-Lieu-Mon-Hoc.pdf tr. 121-123; NumPy · isclose"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bản sao ở bài trước giữ được số gốc, nhưng số thực còn một cái bẫy riêng. Quán đong hai phần sữa 0.1 và 0.2 lít. Bạn muốn kiểm tổng có khớp 0.3 lít không. Với số thực, kết quả tính có thể lệch một lượng rất nhỏ:"
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\n\nparts = np.array([0.1, 0.2])\nprint(np.isclose(parts.sum(), 0.3))",
+      "expected": "True",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Máy tính lưu nhiều số thực dưới dạng nhị phân. Một số như 0.1 không có biểu diễn nhị phân hữu hạn chính xác, nên `0.1 + 0.2` có thể được hiển thị thành `0.30000000000000004`."
+     },
+     {
+      "type": "paragraph",
+      "text": "So sánh bằng và kiểm tra gần bằng sẽ cho kết quả khác nhau:"
+     },
+     {
+      "type": "code",
+      "code": "print(0.1 + 0.2 == 0.3)\nprint(np.isclose(0.1 + 0.2, 0.3))",
+      "expected": "False\nTrue",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`==` yêu cầu hai giá trị bằng nhau chính xác. `np.isclose` kiểm tra chênh lệch theo sai số cho phép, nên trả `True` trong ví dụ này. Bạn có thể dùng `rtol` để chọn sai số tương đối và `atol` để chọn sai số tuyệt đối."
+     },
+     {
+      "type": "paragraph",
+      "text": "Khi cần so sánh cả array, dùng `np.allclose`:"
+     },
+     {
+      "type": "code",
+      "code": "print(np.allclose([1., 2.], [1., 2.00000001]))",
+      "expected": "True",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Hàm trả `True` khi mọi cặp giá trị tương ứng đều đủ gần theo sai số đã chọn. Với bài toán có đơn vị hoặc yêu cầu chính xác riêng, cần chọn sai số phù hợp; mặc định không đúng cho mọi dữ liệu, nhất là các số gần 0."
+     },
+     {
+      "type": "paragraph",
+      "text": "Làm tròn khi hiển thị có thể khiến hai số trông giống nhau. Điều đó không chứng minh chúng bằng nhau trong phép tính. Ép sang số nguyên cũng có thể xóa mất một chênh lệch cần giữ."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "NP03 · Kiểu dữ liệu của array, NP10 · Tổng của cả dãy và cả bảng"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "0.1+0.2 == 0.3 thường False. Kết luận nào đúng?",
+     "options": [
+      {
+       "text": "Cứ ép hai số thành int là kiểm được chính xác",
+       "detail": "Ép int có thể xóa cả một chênh lệch quan trọng."
+      },
+      {
+       "text": "Biểu diễn số thực có thể lệch rất nhỏ; có thể dùng isclose với sai số phù hợp",
+       "detail": "Đúng. Phải chọn sai số phù hợp đơn vị và mục tiêu kiểm tra.",
+       "correct": true
+      },
+      {
+       "text": "Hai số in giống nhau thì == chắc chắn True",
+       "detail": "Định dạng hiển thị có thể che phần chênh lệch nhỏ."
+      }
+     ],
+     "explanation": "Đúng. Phải chọn sai số phù hợp đơn vị và mục tiêu kiểm tra."
+    },
+    {
+     "question": "So sánh bằng dấu ==. Kết quả ở lệnh print cuối có giá trị nào?\n\nprint(0.1 + 0.2 == 0.3)",
+     "options": [
+      {
+       "text": "False",
+       "detail": "Tổng được lưu không trùng chính xác với biểu diễn của 0.3.",
+       "correct": true
+      },
+      {
+       "text": "'TypeError'",
+       "detail": "Hai số thực vẫn so sánh được bằng ==."
+      },
+      {
+       "text": "True",
+       "detail": "Biểu diễn số thực nhị phân có thể để lại chênh lệch nhỏ."
+      }
+     ],
+     "explanation": "Tổng được lưu không trùng chính xác với biểu diễn của 0.3."
+    },
+    {
+     "question": "Dùng sai số mặc định để kiểm tổng. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\nprint(np.isclose(0.1 + 0.2, 0.3))",
+     "options": [
+      {
+       "text": "False",
+       "detail": "Chênh lệch trong ví dụ nhỏ hơn sai số mặc định."
+      },
+      {
+       "text": "'0.3'",
+       "detail": "isclose trả Boolean, không trả giá trị đích."
+      },
+      {
+       "text": "True",
+       "detail": "isclose chấp nhận chênh lệch nhỏ của phép tính số thực.",
+       "correct": true
+      }
+     ],
+     "explanation": "isclose chấp nhận chênh lệch nhỏ của phép tính số thực."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Hai số trông giống nhau sau khi làm tròn có chắc chắn bằng nhau khi dùng `==` không?",
+     "answer": "Không. Hiển thị sau khi làm tròn có thể che một chênh lệch nhỏ."
+    },
+    {
+     "prompt": "Điền hàm để kiểm tra hai số gần bằng nhau: `np.___(x, y)`.",
+     "answer": "Điền `isclose` để kiểm hai số theo sai số cho phép."
+    },
+    {
+     "prompt": "Tổng của array `[0.1, 0.2]` có gần bằng 0.3 theo sai số mặc định của `np.isclose` không?",
+     "answer": "Có, với sai số mặc định của hàm trong ví dụ này:",
+     "answerCode": "import numpy as np\n\na = np.array([0.1, 0.2])\nprint(np.isclose(a.sum(), 0.3))",
+     "answerExpected": "True"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận parts là dãy số và expected là tổng dự kiến. Trả kết quả np.isclose của tổng parts với expected, dùng atol=0.000001 và rtol=0.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'parts': [0.1, 0.2], 'expected': 0.3}"
+     },
+     {
+      "label": "trả về",
+      "value": "True"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    total = np.array(data[\"parts\"]).sum()\n    return np.isclose(total, data[\"expected\"], atol=0.000001, rtol=0)\n",
+   "tests": [
+    {
+     "name": "Sai lệch biểu diễn nhỏ",
+     "input": {
+      "parts": [
+       0.1,
+       0.2
+      ],
+      "expected": 0.3
+     },
+     "expected": true
+    },
+    {
+     "name": "Sai lệch đáng kể",
+     "input": {
+      "parts": [
+       1,
+       2
+      ],
+      "expected": 3.1
+     },
+     "expected": false
+    },
+    {
+     "name": "Tổng bằng không",
+     "input": {
+      "parts": [
+       0,
+       0
+      ],
+      "expected": 0
+     },
+     "expected": true
+    },
+    {
+     "name": "Tổng khớp đúng số nguyên",
+     "input": {
+      "parts": [
+       1,
+       2
+      ],
+      "expected": 3
+     },
+     "expected": true
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Không làm tròn hay ép int trước khi kiểm, vì có thể xóa chênh lệch cần phát hiện."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "So tổng bằng isclose với atol=0.000001, rtol=0 đúng như yêu cầu."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

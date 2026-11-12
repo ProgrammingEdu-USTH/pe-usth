@@ -1,0 +1,290 @@
+{
+ "lesson_code": "PD02",
+ "sort_order": 43,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD02 · DataFrame: đọc một bảng nhỏ",
+ "subtitle": "Cơ bản · M3 · 14 phút",
+ "estimated_minutes": 14,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PD02 · DataFrame: đọc một bảng nhỏ",
+  "subtitle": "Cơ bản · M3 · 14 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PD02",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 328; pandas · DataFrame"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Cột có nhãn ở bài trước giữ được số cốc, nhưng sổ của quán có nhiều cột. Bảng bán hàng cần cả tên đồ uống và số cốc. `DataFrame` giữ các cột này trong cùng một bảng; mỗi hàng ở ví dụ dưới là một loại đồ uống."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nsales = pd.DataFrame({'drink': ['coffee', 'tea'], 'cups': [12, 8]})\nprint(sales.shape)\nprint(sales.columns.tolist())",
+      "expected": "(2, 2)\n['drink', 'cups']",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`shape` có thứ tự số hàng, số cột. Bảng này có hai hàng và hai cột. Các cột có thể khác kiểu dữ liệu: drink chứa chữ, cups chứa số. Một cột được lấy ra bằng tên của nó."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nsales = pd.DataFrame({'drink': ['coffee', 'tea'], 'cups': [12, 8]})\nprint(type(sales['cups']).__name__)\nprint(type(sales[['cups']]).__name__)\nprint(sales['cups'].tolist())",
+      "expected": "Series\nDataFrame\n[12, 8]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Một cặp ngoặc chọn cột thành `Series`; danh sách tên cột giữ kết quả là `DataFrame`. Để xem vài hàng đầu hoặc cuối, dùng head và tail. `to_dict(\"records\")` in mỗi hàng thành một dictionary nên dễ đọc trong ví dụ ngắn."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nsales = pd.DataFrame({'drink': ['coffee', 'tea', 'cocoa'], 'cups': [12, 8, 5]})\nprint(sales.head(1).to_dict('records'))\nprint(sales.tail(1).to_dict('records'))\nprint(sales[['cups']].to_numpy().tolist())",
+      "expected": "[{'drink': 'coffee', 'cups': 12}]\n[{'drink': 'cocoa', 'cups': 5}]\n[[12], [8], [5]]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`to_numpy()` lấy các giá trị thành NumPy array, bỏ nhãn hàng và cột; array của một cột vẫn có hai chiều nên kết quả gồm các `list` nhỏ. Slide cũ dùng `.values` cho thao tác tương tự; code mới thường viết rõ `to_numpy()`. Nếu các cột khác kiểu, array kết quả có thể cần kiểu chung thay vì giữ nguyên kiểu của từng cột."
+     },
+     {
+      "type": "paragraph",
+      "text": "Với bảng thật, `sales.info()` còn cho biết số giá trị không thiếu và kiểu dữ liệu từng cột. Hàm này in thông tin trực tiếp; không cần viết `print(sales.info())`. Đọc vài hàng là bước kiểm tra đầu tiên, chưa đủ để kết luận dữ liệu sạch."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PD01 · Series: một cột dữ liệu có nhãn"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "df có 5 hàng và 2 cột. df.shape là gì?",
+     "options": [
+      {
+       "text": "10",
+       "detail": "10 là số ô, không phải shape."
+      },
+      {
+       "text": "(2, 5)",
+       "detail": "Đây là thứ tự cột–hàng, ngược với shape."
+      },
+      {
+       "text": "(5, 2)",
+       "detail": "Đúng: số hàng đứng trước số cột.",
+       "correct": true
+      }
+     ],
+     "explanation": "shape mô tả hai chiều của bảng, không phải tổng số ô."
+    },
+    {
+     "question": "shape bằng (100, 4) có nghĩa gì?\n\nimport pandas as pd\nsales = pd.DataFrame({'drink': ['coffee', 'tea'], 'cups': [12, 8]})\nprint(sales.shape)\nprint(sales.columns.tolist())",
+     "options": [
+      {
+       "text": "Bảng có 100 hàng và 4 cột.",
+       "detail": "Bảng có 100 hàng và 4 cột.",
+       "correct": true
+      },
+      {
+       "text": "400 hàng và một cột.",
+       "detail": "Nhân hai kích thước cho số ô, không phải số hàng."
+      },
+      {
+       "text": "100 cột và 4 hàng.",
+       "detail": "Hai đại lượng đã bị đổi chỗ."
+      }
+     ],
+     "explanation": "Bảng có 100 hàng và 4 cột."
+    },
+    {
+     "question": "sales.info() cho biết điều gì về các cột? Có cần viết print(sales.info()) không?\n\nimport pandas as pd\nsales = pd.DataFrame({'drink': ['coffee', 'tea'], 'cups': [12, 8]})\nprint(type(sales['cups']).__name__)\nprint(type(sales[['cups']]).__name__)\nprint(sales['cups'].tolist())",
+     "options": [
+      {
+       "text": "Chỉ in các giá trị của hàng đầu.",
+       "detail": "head mới thường được dùng để nhìn vài hàng đầu."
+      },
+      {
+       "text": "Nó cho biết kiểu dữ liệu và số giá trị không thiếu, cùng thông tin tổng quan của bảng. info đã in trực tiếp nên gọi sales.info(), không cần bọc print.",
+       "detail": "Nó cho biết kiểu dữ liệu và số giá trị không thiếu, cùng thông tin tổng quan của bảng. info đã in trực tiếp nên gọi sales.info(), không cần bọc print.",
+       "correct": true
+      },
+      {
+       "text": "Trả về bảng đã xóa các ô thiếu.",
+       "detail": "info báo thông tin; nó không làm sạch hoặc trả bảng đã xóa ô thiếu."
+      }
+     ],
+     "explanation": "Nó cho biết kiểu dữ liệu và số giá trị không thiếu, cùng thông tin tổng quan của bảng. info đã in trực tiếp nên gọi sales.info(), không cần bọc print."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "shape bằng (100, 4) có nghĩa gì?",
+     "answer": "Bảng có 100 hàng và 4 cột."
+    },
+    {
+     "prompt": "sales.info() cho biết điều gì về các cột? Có cần viết print(sales.info()) không?",
+     "answer": "Nó cho biết kiểu dữ liệu và số giá trị không thiếu, cùng thông tin tổng quan của bảng. info đã in trực tiếp nên gọi sales.info(), không cần bọc print."
+    },
+    {
+     "prompt": "Tạo bảng so_coc=[2, 3], price=[10, 20], rồi in hàng đầu.",
+     "answer": "Dùng head(1).",
+     "answerCode": "import pandas as pd\ndf = pd.DataFrame({'so_coc': [2, 3], 'price': [10, 20]})\nprint(df.head(1).to_dict('records'))",
+     "answerExpected": "[{'so_coc': 2, 'price': 10}]"
+    },
+    {
+     "prompt": "Với bảng có index [\"A\",\"B\"] và columns [\"so_coc\",\"price\"], viết cách xem index, columns, hàng đầu, hàng cuối và thông tin kiểu cột.",
+     "answer": "Dùng df.index.tolist(), df.columns.tolist(), df.head(1), df.tail(1) và df.info(). Hai tên đầu là nhãn hàng, hai tên sau là nhãn cột; info in thông tin trực tiếp."
+    },
+    {
+     "prompt": "df[[\"so_coc\"]] có shape (2,1). Sau to_numpy(), các nhãn A/B và so_coc còn được giữ không? .values trong slide có ý nghĩa gì?",
+     "answer": "Không. to_numpy() trả ndarray shape (2,1) chỉ giữ giá trị. .values cũng lấy phần giá trị, nhưng to_numpy() thể hiện rõ thao tác và cho phép chọn dtype/copy. Giữ nhãn riêng nếu cần ghép kết quả trở lại bảng."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.rows là list các dictionary có item và units, có ít nhất một hàng. Tạo DataFrame, trả shape dưới dạng list hai số, first là dictionary hàng đầu và last là dictionary hàng cuối.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'rows': [{'item': 'ink', 'units': 4}, {'item': 'paper', 'units': 10}, {'item': 'clip', 'units': 2}]}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'shape': [3, 2], 'first': {'item': 'ink', 'units': 4}, 'last': {'item': 'clip', 'units': 2}}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     frame = pd.DataFrame(data['rows'])\n     return {'shape': list(frame.shape), 'first': frame.head(1).to_dict('records')[0], 'last': frame.tail(1).to_dict('records')[0]}\n",
+   "tests": [
+    {
+     "name": "ba mặt hàng",
+     "input": {
+      "rows": [
+       {
+        "item": "ink",
+        "units": 4
+       },
+       {
+        "item": "paper",
+        "units": 10
+       },
+       {
+        "item": "clip",
+        "units": 2
+       }
+      ]
+     },
+     "expected": {
+      "shape": [
+       3,
+       2
+      ],
+      "first": {
+       "item": "ink",
+       "units": 4
+      },
+      "last": {
+       "item": "clip",
+       "units": 2
+      }
+     }
+    },
+    {
+     "name": "một mặt hàng",
+     "input": {
+      "rows": [
+       {
+        "item": "eraser",
+        "units": 0
+       }
+      ]
+     },
+     "expected": {
+      "shape": [
+       1,
+       2
+      ],
+      "first": {
+       "item": "eraser",
+       "units": 0
+      },
+      "last": {
+       "item": "eraser",
+       "units": 0
+      }
+     }
+    },
+    {
+     "name": "hai mặt hàng",
+     "input": {
+      "rows": [
+       {
+        "item": "ruler",
+        "units": 6
+       },
+       {
+        "item": "tape",
+        "units": 9
+       }
+      ]
+     },
+     "expected": {
+      "shape": [
+       2,
+       2
+      ],
+      "first": {
+       "item": "ruler",
+       "units": 6
+      },
+      "last": {
+       "item": "tape",
+       "units": 9
+      }
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cần phương thức lấy hàng cuối thay vì hàng đầu."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Đọc shape và lấy hàng đầu, hàng cuối của DataFrame."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

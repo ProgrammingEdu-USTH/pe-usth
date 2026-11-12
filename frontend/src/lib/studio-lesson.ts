@@ -8,6 +8,12 @@
  *
  * `step_2.mcq` is NOT free to move: QuizzesService.collectQuestions() reads
  * `content_json.step_2.mcq` to build review quizzes (src/quizzes/quizzes.service.ts).
+ *
+ * Nhưng ĐỪNG suy ra "bài nào cũng có mcq nên quiz ôn tập luôn chạy": khoá 172
+ * bài đọc (scripts/pe-da) không phát ra `step_2.mcq` nào, nên kho câu hỏi của
+ * khoá đó LUÔN dưới `MIN_POOL = 5` và quiz ôn tập không bao giờ mở được. Giao
+ * diện không được hứa nó — xem ghi chú ở
+ * src/app/(standalone)/courses/[courseId]/CourseDetail.tsx.
  */
 
 export const STUDIO_LESSON_SCHEMA = 'studio-lesson/v1';
@@ -17,18 +23,60 @@ export const STUDIO_LESSON_SCHEMA = 'studio-lesson/v1';
  * mini-game sinh bởi scripts/pe-v3/build_advanced.py. Có `play` thì
  * buildScreens() dựng luồng ngắn theo game thay cho luồng S1–S4 đầy đủ; mọi
  * trường v1 vẫn giữ (step_2.mcq còn phục vụ quiz ôn tập).
+ *
+ * v2 còn mang khoá BÀI ĐỌC: `step_1.read` + `step_2.practice` (xem
+ * scripts/pe-da/SCHEMA.md). Bộ đó không có `play`, không `mcq`, không
+ * `step_4.tests` — buildScreens() vì vậy dựng luồng "đọc → luyện tập →
+ * sandbox chạy tự do → tổng kết", và không màn nào được chấm.
  */
 export const STUDIO_LESSON_SCHEMA_V2 = 'studio-lesson/v2';
 
 export type McqOption = string | { text: string; correct?: boolean; detail?: string };
 
 export type Mcq = {
+  /**
+   * Đề bài, và CÓ THỂ kèm một đoạn code sau một dòng trống — xem `tachDeVaCode`.
+   * Hai thứ nằm chung MỘT trường vì hình dạng này đi qua `normalizeQuestion` ở
+   * backend để vào kho quiz chấm Ở SERVER, mà hàm đó chỉ đọc
+   * `question`/`options`/`explanation`: một trường `code` riêng sẽ bị bỏ âm
+   * thầm ở đúng con đường chấm duy nhất client không giả mạo được.
+   */
   question: string;
   options: McqOption[];
   /** Index of the correct option. The object form of `options` may set it instead. */
   correct?: number;
   explanation?: string;
 };
+
+/** Mốc nối giữa đề bài và đoạn code — khớp `NOI_DE_CODE` trong scripts/pe-da/build.py. */
+const NOI_DE_CODE = '\n\n';
+
+/**
+ * Tách `Mcq.question` thành (đề bài, đoạn code) để màn trắc nghiệm dựng đúng loại.
+ *
+ * Vì sao cần: 471/1032 câu của gói nguồn mang một trường `code` riêng, và đề
+ * bài của chúng KHÔNG tự đứng được. Bản dựng đầu bỏ trường đó, nên **214/516
+ * câu đang phát mất đoạn code quyết định đáp án và 90 câu ở 45 bài còn TRỎ TỚI
+ * nó** — ví dụ PY01, bài đầu tiên của khoá: "Buổi sáng bán 10 cốc, chiều bán 7
+ * cốc. Kết quả ở lệnh print cuối có giá trị nào?" mà không có lệnh print nào
+ * trên màn hình. Nay build gấp code vào `question`, và chỗ này tách lại.
+ *
+ * Nhồi cả hai vào `title` của màn thì code dồn thành một dòng (HTML gộp khoảng
+ * trắng) và học viên đọc code như văn xuôi — đúng loại ngộ nhận mà `ReadScreen`
+ * đã cố ý tránh khi để `expected` ra ngoài `CodeBlock`.
+ *
+ * Chỉ tách ở LẦN XUẤT HIỆN ĐẦU của dòng trống: một đề bài nhiều đoạn văn thì
+ * phần sau vẫn là code, mà `build.py` không bao giờ phát đề nhiều đoạn (nguồn
+ * là `prompt` một đoạn), nên luật này không mất gì. Không có dòng trống thì
+ * `code` là undefined và màn hiện y như trước.
+ */
+export function tachDeVaCode(question: string): { de: string; code?: string } {
+  const at = question.indexOf(NOI_DE_CODE);
+  if (at < 0) return { de: question };
+  const code = question.slice(at + NOI_DE_CODE.length).trim();
+  if (!code) return { de: question.slice(0, at) };
+  return { de: question.slice(0, at), code };
+}
 
 export type PredictOption = {
   id: string;
@@ -88,8 +136,321 @@ export type TheoryBlock = {
   figure?: LessonFigure;
 };
 
+/**
+ * Một khối trong bài ĐỌC (`step_1.read`) — khoá 172 bài "Python cho Data
+ * Analyst", xem scripts/pe-da/SCHEMA.md.
+ *
+ * Nguồn của bộ này KHÔNG có trắc nghiệm, scaffold hay ca kiểm thử: nó có lời
+ * giảng, code kèm kết quả in ra, và bảng. `expected` là output thật của khối
+ * code — renderer phải hiện nó TÁCH khỏi code, vì người học cần phân biệt
+ * được đâu là lệnh và đâu là cái lệnh đó in ra.
+ */
+/**
+ * MỘT DÒNG của bảng từng bước: một lần một dòng mã CHẠY XONG.
+ *
+ * `sys.settrace` phát sự kiện TRƯỚC khi dòng chạy, nên vết thô nói "trước khi
+ * chạy dòng 3, total = 0" và người đọc phải tự dịch sang "vậy dòng 2 làm total
+ * = 0". Khâu sinh (scripts/pe-da/gen_traces.py) đã dịch hộ: mỗi dòng bảng ghép
+ * từ MỘT CẶP bước liền nhau, nên `line` là dòng VỪA CHẠY và `set` là thứ nó vừa
+ * làm đổi.
+ */
+export type TraceRow = {
+  /** 1-based TRONG `code` của chính khối — ô code của màn đọc đánh số riêng. */
+  line: number;
+  /** Tên hàm/lớp đang chạy; vắng mặt = mã ở mức module. */
+  fn?: string;
+  /** Tầng call stack, 1 = trong một hàm. Vắng mặt = 0. */
+  depth?: number;
+  /** Bước BƯỚC VÀO hàm: `set` lúc này là các tham số vừa nhận. */
+  enter?: true;
+  /** Biến ĐỔI ở bước này, đã quy về chữ. Không đổi gì thì vắng mặt. */
+  set?: [string, string][];
+  /** Chương trình in ra gì ở dòng này. */
+  out?: string;
+  /** Giá trị hàm trả về (bước `return`). */
+  ret?: string;
+  /** Ngoại lệ ném ra ở dòng này. */
+  exc?: string;
+};
+
+/**
+ * BẢNG TỪNG BƯỚC tính sẵn cho một khối code của màn đọc.
+ *
+ * TÍNH SẴN LÚC BUILD, không chạy Pyodide ở màn đọc: màn đọc là chỗ người học
+ * ĐỌC, và nạp 30 MB runtime để hiện một bảng 12 dòng là trả giá cho một việc đã
+ * có kết quả xác định từ trước. Vết được sinh bằng CHÍNH tracer của `/ide`
+ * (`scripts/tracer/pe_tracer.py`) rồi commit vào `scripts/pe-da/traces.json` —
+ * xem đầu file `scripts/pe-da/gen_traces.py` để biết vì sao không sinh trong
+ * build.py (CI không có numpy/pandas và đòi bản dựng trùng từng byte).
+ *
+ * `predict` KHÔNG PHẢI TRANG TRÍ và không được bỏ cho gọn. Hundhausen 2002 tổng
+ * hợp 24 thực nghiệm có đối chứng về trực quan hoá thuật toán: chỉ 46% cho kết
+ * quả có ý nghĩa, 42% KHÔNG — và khi Gurka lặp lại thí nghiệm nhưng BỎ điều
+ * kiện "dự đoán trước" thì lợi thế biến mất. Brod 2021 nói ra cơ chế: đoán sai
+ * → ngạc nhiên → chú ý dồn vào đáp án đúng. Nghĩa là XEM THỤ ĐỘNG gần như
+ * không mua được gì. Nên khâu sinh BỎ QUA (và đếm) mọi khối không ra được một
+ * câu hỏi mà bảng trả lời được, chứ không phát một bảng không ai phải đoán gì.
+ */
+export type ReadTrace = {
+  predict: {
+    /** `final` giá trị cuối · `count` số lần một dòng chạy · `mid` giá trị trung gian. */
+    kind: 'final' | 'count' | 'mid';
+    /** Có backtick, nên PHẢI đi qua `withInlineCode` chứ không dựng trần. */
+    prompt: string;
+    answer: string;
+    var?: string;
+    line?: number;
+  };
+  rows: TraceRow[];
+  /** Số dòng bị bỏ ở GIỮA khi vết quá dài (giữ cả hai đầu). */
+  elided?: number;
+  /** Chỗ bỏ nằm ngay TRƯỚC `rows[elidedAt]`. */
+  elidedAt?: number;
+};
+
+export type ReadBlock =
+  | { type: 'paragraph'; text: string }
+  /**
+   * `tryIt` = khâu build đã xác nhận đoạn này CHẠY ĐƯỢC trong Pyodide, nên màn
+   * đọc dựng nút "Thử ngay trong IDE" dưới nó (kiểu "Try it Yourself" của
+   * W3Schools). Chỉ có mặt khi đúng — xem `khoi_doc` trong scripts/pe-da/build.py.
+   *
+   * Vì sao cờ này do BUILD phát chứ không do frontend tự đoán: `chayDuocTrongIde`
+   * trong ide-brief-code.ts chỉ là một regex trên dòng `import` và nó bắt đúng
+   * các giới hạn WASM (tkinter/threading/subprocess) — nhưng thứ chặn bài của
+   * khoá Data Analyst là THIẾU WHEEL (seaborn, plotly, openpyxl, h5py,
+   * sqlalchemy, ipywidgets), là gói ẩn sau chuỗi (`engine="openpyxl"`), và là
+   * thuộc tính phơi ra máy thật (`sys.executable`). Chỉ build.py biết cả ba.
+   */
+  | { type: 'code'; code: string; expected?: string; tryIt?: true; trace?: ReadTrace }
+  /**
+   * Lệnh gõ trong TERMINAL (`python -m venv .venv`, `git status`) — KHÔNG phải
+   * Python. Phải hiện khác khối `code`, nếu không người học copy nó vào ô soạn
+   * mã Python rồi nhận SyntaxError mà không hiểu vì sao. `expected` của khối
+   * này thường là MÔ TẢ bằng lời ("lệnh thường không in thông báo; trong thư
+   * mục xuất hiện .venv…") chứ không phải stdout, nên nhãn cũng khác.
+   */
+  | { type: 'terminal'; code: string; expected?: string }
+  /**
+   * Biểu đồ do chính đoạn code ngay TRÊN nó vẽ ra. Luôn là PNG cùng miền dưới
+   * /static/da/. KHÔNG có `caption` (khâu build không phát) nên đừng dùng lại
+   * `LessonFigure`/`Figure` của màn lý thuyết — xem ReadScreen.
+   */
+  | { type: 'figure'; src: string; alt: string }
+  | { type: 'table'; headers: string[]; rows: string[][] }
+  /**
+   * SƠ ĐỒ bằng HTML thật — chữ là `<p>`/`<code>`, không phải pixel trong ảnh.
+   *
+   * VÌ SAO loại khối này tồn tại. BA trên bốn người trả lời khảo sát ngày
+   * 29/10/2026 chọn "Chữ và nhãn TRONG sơ đồ quá nhỏ, phải phóng to mới đọc
+   * được". Chữ đó nằm trong PNG 780×455: chữ của trang REFLOW, chữ trong ảnh
+   * thì SCALE — trên màn 360px ảnh bị bóp 0,46× nên nhãn 10pt hiện ra 4–5px.
+   * CSS không với tới được. SVG cũng chỉ chữa một nửa: ở cỡ hiển thị mặc định
+   * nó có đúng cỡ chữ như PNG.
+   *
+   * Nên sơ đồ là DOM: kế thừa `--edu-font` và cỡ chữ của trang, reflow theo
+   * khung, trình đọc màn hình đọc được, dịch được, chọn-copy được.
+   *
+   * HÌNH TĨNH, KHÔNG animation — và đây là kết luận có bằng chứng, không phải
+   * để tiết kiệm công: toàn bộ giá trị nằm ở việc SO HAI LÀN cạnh nhau, mà so
+   * sánh thì cần cả hai cùng có mặt. Một animation chạy lần lượt phá đúng cái
+   * nó định dạy (Tversky 2002: "clever schematization of static diagrams may
+   * be just as effective as animation").
+   *
+   * `lanes` luôn là SỐ CHẴN: grid dựng hai cột, nên một làn lẻ đứng một mình
+   * là mất phép so sánh — đúng thứ duy nhất khối này mang lại. check.py chặn.
+   */
+  | {
+      type: 'diagram';
+      title: string;
+      /** Một làn = một biểu thức rút gọn từng bước. `steps` ≥ 2 mới là rút gọn. */
+      lanes: { label: string; steps: string[]; note: string }[];
+    };
+
+/**
+ * SÁU loại khối, không phải ba. Bản đặc tả đầu của pe-da chỉ khai ba
+ * (paragraph/code/table) trong khi khâu build phát thêm `terminal` (21 khối,
+ * 10 bài) và `figure` (80 khối, 26 bài): renderer viết theo đặc tả thì 26 bài
+ * có hình ném TypeError ngay màn đọc.
+ *
+ * Hằng này để bộ test đối chiếu được "loại khối build phát ra" với "loại khối
+ * renderer biết dựng" — nhánh `default` ép kiểu `never` trong ReadScreen chỉ
+ * bắt được lúc typecheck, mà dữ liệu thì đổi mà không cần biên dịch lại.
+ */
+export const READ_BLOCK_TYPES: ReadBlock['type'][] = [
+  'paragraph',
+  'code',
+  'terminal',
+  'figure',
+  'table',
+  'diagram',
+];
+
+/**
+ * Mã bàn giao cho `/ide` khi bấm "Thử ngay trong IDE" dưới một khối của màn đọc.
+ *
+ * KHÔNG phải mã của riêng khối đó, và đây là chỗ một bản sửa nửa vời trông như
+ * xong: nguồn viết các đoạn trong một bài để chạy NỐI TIẾP nhau — đoạn 3 dùng
+ * `df` và `import pandas` của đoạn 1. Bàn giao một mình đoạn 3 là mở một tab
+ * mới rồi để người học đọc `NameError: name 'df' is not defined`, tức đúng cái
+ * nút này ra đời để tránh. Nên bàn giao TOÀN BỘ tiền tố: mọi khối `tryIt` từ
+ * đầu bài tới khối được bấm.
+ *
+ * Phép nối phải giống `noi_code()` trong scripts/pe-da/build.py từng ký tự:
+ * một đoạn thì để trần, nhiều đoạn thì chèn mốc `# ── Đoạn i ──`. Có ca test
+ * khoá chỗ này bằng cách so tiền tố ĐẦY ĐỦ với `step_4.starterCode` — chính
+ * `noi_code(chay_duoc)` — ở những bài còn ô chạy thử.
+ *
+ * @param read `step_1.read` — mảng các MÀN, mỗi màn là mảng khối.
+ * @param lat chỉ số màn đang xem.
+ * @param khoi chỉ số khối trong màn đó.
+ */
+export function maDeThu(
+  read: ReadBlock[][] | undefined,
+  lat: number,
+  khoi: number,
+): string | null {
+  if (!read?.length) return null;
+  const doan: string[] = [];
+  for (let i = 0; i <= lat && i < read.length; i++) {
+    const khoiCuaLat = read[i] ?? [];
+    // Màn cuối chỉ lấy tới đúng khối được bấm; các màn trước lấy hết.
+    const den = i === lat ? khoi : khoiCuaLat.length - 1;
+    for (let j = 0; j <= den && j < khoiCuaLat.length; j++) {
+      const b = khoiCuaLat[j];
+      if (b.type === 'code' && b.tryIt) doan.push(b.code.replace(/\s+$/, ''));
+    }
+  }
+  if (!doan.length) return null;
+  if (doan.length === 1) return `${doan[0]}\n`;
+  return `${doan.map((c, i) => `# ── Đoạn ${i + 1} ──\n${c}`).join('\n\n')}\n`;
+}
+
+/**
+ * So câu ĐOÁN của người học với đáp án của bảng từng bước.
+ *
+ * Nới đúng MỘT bậc — bỏ hết khoảng trắng — và chỉ một bậc đó. Đáp án là một giá
+ * trị Python (`{'high': [], 'low': ['B', 'A']}`), mà chỗ đặt dấu cách trong đó
+ * là quy ước IN của Python chứ không phải điều bài đang hỏi; bắt gõ đúng từng
+ * dấu cách là chấm sai người đoán đúng.
+ *
+ * Nhưng dấu NHÁY thì KHÔNG bóc hộ: `2` và `'2'` là hai giá trị khác nhau, và
+ * phân biệt được chúng đúng là một trong những thứ giáo trình này dạy — bóc
+ * nháy hộ là dạy ngược.
+ *
+ * Hàm nằm ở đây (không trong StepTrace.tsx) để có ca test thật: runner
+ * `node --test --experimental-strip-types` không nạp được JSX, nên logic nằm
+ * trong một file `.tsx` là logic chỉ kiểm được bằng cách đọc chuỗi nguồn.
+ */
+export function khopDapAn(doan: string, dapAn: string): boolean {
+  const gon = (s: string) => s.replace(/\s+/g, '');
+  return gon(doan).length > 0 && gon(doan) === gon(dapAn);
+}
+
+/**
+ * Trần của CỔNG DỰ ĐOÁN OUTPUT ở màn đọc (xem `doanDuocOutput`). Hai con số,
+ * ĐÃ ĐO trên bản dựng 179 bài — đừng đoán lại:
+ *
+ *   ≤1 dòng / ≤24 ký tự →  99 khối /  58 bài
+ *   ≤2 dòng / ≤40 ký tự → 262 khối / 127 bài   ← đang dùng
+ *   ≤3 dòng / ≤80 ký tự → 322 khối / 137 bài
+ *
+ * Vì sao dừng ở 2 dòng / 40 ký tự: ô gõ là MỘT dòng, và `khopDapAn` bỏ hết
+ * khoảng trắng nên hai dòng gõ liền nhau vẫn khớp — nhưng từ 3 dòng trở lên
+ * thì "đoán output" biến thành "chép lại cả một đoạn", tức người đoán ĐÚNG
+ * vẫn hay nhận "chưa khớp" chỉ vì gõ thiếu một dấu. Nới trần là nới đúng cái
+ * rủi ro đó, nên nó chỉ được HẠ.
+ */
+export const DOAN_OUTPUT_MAX_DONG = 2;
+export const DOAN_OUTPUT_MAX_KY_TU = 40;
+
+/**
+ * Thư viện vẽ hình. Khối nào gọi tới chúng thì KHÔNG hỏi "đoán xem in ra gì":
+ * thứ nó tạo ra là một biểu đồ (hiện bằng khối `figure` ngay dưới), còn
+ * `expected` chỉ là mấy con số in kèm — VZ01 có `expected: "36"` cho một đoạn
+ * vẽ cả một hình. Hỏi ở đó là hỏi về phần phụ của đoạn code.
+ *
+ * Đo trên bản dựng: 87 khối khớp regex này, trong đó 80 khối có khối `figure`
+ * đứng ngay sau. Bảy khối còn lại dựng Figure mà bài không xuất ảnh — đó đúng
+ * là lý do phép loại đọc CODE chứ không đọc "có khối figure phía sau".
+ */
+const THU_VIEN_VE_HINH = /\bplt\.|matplotlib|\bsns\.|plotly|ipywidgets|\.savefig\(/;
+
+/**
+ * Khối code ở màn đọc này có ĐỦ ĐIỀU KIỆN dựng cổng dự đoán output không?
+ *
+ * VÌ SAO CÓ CỔNG NÀY. Đo trên bản dựng 179 bài: **508 khối code ở màn đọc, cả
+ * 508 đều in sẵn `expected` ngay dưới code**, và chỉ 56 khối có bảng từng bước
+ * — tức 4/5 khối code của khoá không đòi người học nghĩ gì trước khi thấy đáp
+ * án. Người thử ngày 1/11/2026 nói "nên đặt trọng tâm vào practice" kèm ảnh
+ * một màn ĐỌC dày chữ. Cùng bằng chứng với `StepTrace` và nút "Xem đáp án" của
+ * `PracticeScreen`: Hundhausen 2002 — Gurka lặp lại thí nghiệm nhưng BỎ điều
+ * kiện "dự đoán trước" thì lợi thế BIẾN MẤT; Brod 2021 nói ra cơ chế (đoán sai
+ * → ngạc nhiên → chú ý dồn vào đáp án đúng).
+ *
+ * VÌ SAO LUẬT NÀY ĐƯỢC ĐẶT Ở FRONTEND, khác hẳn cờ `tryIt`: nó đọc được HOÀN
+ * TOÀN từ hình dạng `expected` và từ chữ trong `code`. Cờ `tryIt` thì không —
+ * ở đó build biết thứ frontend không biết (thiếu wheel, gói ẩn sau chuỗi
+ * `engine="openpyxl"`, `sys.executable`). Đừng suy từ đây sang đó.
+ *
+ * NĂM phép loại, mỗi phép một lý do riêng:
+ *  1. không phải khối `code`, hoặc không có `expected` → không có gì để đoán;
+ *  2. đã có `trace` (56 khối) → bảng từng bước đã hỏi dự đoán rồi, hỏi hai câu
+ *     trên cùng một khối là ma sát không mua thêm gì;
+ *  3. code gọi thư viện vẽ hình (87 khối) → xem THU_VIEN_VE_HINH;
+ *  4. `expected` dài hơn trần → xem DOAN_OUTPUT_MAX_*;
+ *  5. đáp án nằm NGUYÊN VĂN trong chính đoạn code (35 khối ở trần đang dùng) →
+ *     `print("Xin chào")` thì cổng chỉ bắt người học chép lại một chuỗi họ đang
+ *     nhìn. Cùng luật mà `gen_traces.py` đã phải đặt cho câu dự đoán của bảng
+ *     từng bước; so sau khi bỏ khoảng trắng, như `khopDapAn`.
+ */
+export function doanDuocOutput(block: ReadBlock): boolean {
+  if (block.type !== 'code') return false;
+  const exp = (block.expected ?? '').trim();
+  if (!exp) return false;
+  if (block.trace) return false;
+  if (THU_VIEN_VE_HINH.test(block.code)) return false;
+  if (exp.split('\n').filter((d) => d.trim()).length > DOAN_OUTPUT_MAX_DONG) return false;
+  if (exp.length > DOAN_OUTPUT_MAX_KY_TU) return false;
+  const gon = (s: string) => s.replace(/\s+/g, '');
+  if (gon(block.code).includes(gon(exp))) return false;
+  return true;
+}
+
+/**
+ * Khối `figure` này có dựng CỔNG DỰ ĐOÁN HÌNH không?
+ *
+ * VÌ SAO. `doanDuocOutput` CỐ Ý loại 81 khối code gọi thư viện vẽ hình — lý lẽ
+ * đúng: `expected` của chúng chỉ là mấy con số in kèm, hỏi ở đó là hỏi về phần
+ * phụ của đoạn code. Nhưng hệ quả đo được: **26/27 bài có hình thuộc module 4**,
+ * tức gần như toàn bộ phần trực quan hoá của khoá không có cổng nào.
+ *
+ * KHÔNG CÓ VERDICT, và đó là giới hạn đã biết: không có đáp án máy đọc được cho
+ * "hình sắp hiện trông thế nào". Nên đây là bước CAM KẾT, đúng mức mà ô
+ * "Kết quả:" của cổng dự đoán output đã chấp nhận — có phần "đoán" của
+ * Hundhausen 2002, thiếu phần "bất ngờ vì sai" của Brod 2021. Người học tự đối
+ * chiếu. Đừng bịa một bộ chấm cho nó.
+ *
+ * CHỈ HÌNH ĐẦU của mỗi màn. Đo trên bản dựng: 62 màn có 1 hình, **9 màn có 2** —
+ * hỏi hai lần trên một màn là đúng loại ma sát mà repo đã từ chối khi quyết
+ * "khối đã có `trace` thì không dựng thêm cổng output". Hình thứ hai trong cùng
+ * màn gần như luôn là biến thể để SO với hình đầu; che nó là phá phép so.
+ */
+export function doanDuocHinh(khoi: ReadBlock[], i: number): boolean {
+  if (khoi[i]?.type !== 'figure') return false;
+  return khoi.findIndex((b) => b.type === 'figure') === i;
+}
+
 export type Step1 = {
   heading?: string;
+  /**
+   * Bài đọc, ĐÃ CHIA SẴN thành màn ở khâu build: mỗi phần tử là MỘT màn
+   * `read`. Renderer không chia lại — luật chia là luật nội dung (một màn =
+   * một ý được một đoạn code chứng minh) nên nó được kiểm bằng Python ở
+   * scripts/pe-da, và chia cố định thì khoá `s1-read-<i>` của bản nháp không
+   * đổi khi sửa CSS.
+   */
+  read?: ReadBlock[][];
   /** Có thì màn đầu của bài là LessonBrief thay cho thẻ "Ngữ cảnh". */
   brief?: LessonBriefData;
   /** 3–5 khối lý thuyết — có thì chèn một màn `theory` NGAY TRƯỚC `brief`. */
@@ -122,9 +483,24 @@ export type ClassifyBin = {
   desc?: string;
 };
 
+/**
+ * Câu luyện tập có đáp án mẫu (`step_2.practice`, khoá bài đọc). KHÔNG chấm:
+ * 516 câu trong nguồn đều là câu hỏi MỞ kèm lời giải mẫu, không phải trắc
+ * nghiệm có phương án sai — nên không có gì để so đúng/sai. Học viên tự viết
+ * rồi bấm "Xem đáp án"; xem isGraded().
+ */
+export type PracticeItem = {
+  prompt: string;
+  answer: string;
+  answerCode?: string;
+  answerExpected?: string;
+};
+
 export type Step2 = {
   heading?: string;
   mcq?: Mcq[];
+  /** Mỗi câu một màn `practice`. */
+  practice?: PracticeItem[];
   classify?: {
     instruction?: string;
     bins: ClassifyBin[];
@@ -139,34 +515,79 @@ export type Step2 = {
   };
 };
 
-/**
- * Một ô trống của màn điền code. `hint` (ô này làm gì) và `why` (vì sao đáp án
- * đúng) là TUỲ CHỌN: tới 19/10/2026 chưa bài nào khai — 149 ô của 45 bài chỉ có
- * `n/placeholder/answer`. build.py chỉ chép hai khoá này khi bài khai thật;
- * frontend thiếu thì để nhóm thẻ không nhãn và câu "đúng" không có lý do, chứ
- * không bịa chữ thay người viết bài.
- */
-export type ScaffoldSlot = { n: number; placeholder?: string; answer: string; hint?: string; why?: string };
-/** Thẻ trong kho: `slot` là ô nó thuộc về; thẻ bẫy mang `trap` = vì sao nó sai. */
-export type ScaffoldCard = { label: string; slot: number; trap?: string };
-
 export type Step3 = {
   heading?: string;
   task?: { title?: string; body?: string; rule?: string };
   scaffold?: {
     /** Uses {{slot1}}, {{slot2}}… as placeholders. */
     template: string;
-    slots: ScaffoldSlot[];
-    bank: ScaffoldCard[];
+    slots: { n: number; placeholder?: string; answer: string }[];
+    bank: { label: string; slot: number; trap?: string }[];
   };
   trace?: { input?: (number | string)[]; steps: { label?: string; text: string }[] };
   counter?: { question: string; options: string[]; correct: string };
 };
 
-export type LessonTest = { name: string; call: string; expect: string };
+/**
+ * Một ca chấm. HAI hợp đồng, và chúng không thay nhau được — xem chú thích dài
+ * ở studio-harness.py (`hợp đồng DỮ LIỆU`).
+ *
+ * BIỂU THỨC (pe-v4, 427 ca): `call` và `expect` là hai chuỗi Python được eval
+ * trong namespace của học viên rồi so bằng `==`. Cần thế vì ca pe-v4 phải gọi
+ * `_studio.run(...)`, dựng fixture, đọc timeline thread/process.
+ *
+ * DỮ LIỆU (gói practice, 419 ca): `input`/`expected` là giá trị JSON thuần; bộ
+ * chấm chạy LẠI chương trình cho từng ca rồi so sau khi chuẩn hoá (tuple và
+ * ndarray hạ về list, số so bằng isclose). Dạng này cần `Step4.contract` để
+ * biết gọi `solve(data)` hay tiêm biến rồi đọc biến kết quả.
+ *
+ * Bộ chấm phân nhánh theo TRƯỜNG CÓ MẶT (`call` -> biểu thức), không theo một
+ * cờ riêng: một cờ riêng là thứ thứ hai phải khớp, và nó sẽ lệch.
+ */
+export type LessonTest =
+  | { name: string; call: string; expect: string }
+  | { name: string; input: unknown; expected: unknown };
+
+/** Ca chấm dạng dữ liệu? Dùng chung cho UI và cho phép kiểm ở build/test. */
+export function laCaDuLieu(
+  t: LessonTest,
+): t is { name: string; input: unknown; expected: unknown } {
+  return !('call' in t);
+}
+
+/**
+ * Hợp đồng gọi của bài tập dạng dữ liệu — MỘT cho cả bài, không nhắc lại từng ca.
+ *
+ * `mode: "script"` nghĩa là đề cấp sẵn `inputVariable` và học viên gán kết quả
+ * vào `resultVariable`; bỏ trống thì bài theo hợp đồng `solve(data)`.
+ * `returnType` ghim KIỂU trả về (`tuple`, `numpy.ndarray`) cho những bài dạy
+ * dựng đúng cấu trúc dữ liệu — phép chuẩn hoá xoá sạch khác biệt đó nên không
+ * có nó thì trả list cũng đạt.
+ */
+export type LessonContractCall = {
+  mode?: 'script' | 'function';
+  inputVariable?: string;
+  resultVariable?: string;
+  returnType?: string;
+};
 
 /** File đặt sẵn trong thư mục chạy bài: module cấp sẵn (import được) hoặc dữ liệu (data.txt…). */
 export type LessonFile = { name: string; content: string; kind?: 'module' | 'data' };
+
+/**
+ * Tên một file của BỘ DỮ LIỆU QUÁN (`frontend/public/static/da-dulieu/`).
+ *
+ * Khác `LessonFile` ở đúng một chỗ, và đó là cả lý do nó tồn tại: ở đây chỉ có
+ * TÊN, nội dung nằm trên đĩa và được phục vụ ở cùng origin. `don_hang.csv` là
+ * 1,29 MB — nhúng nó vào `content_json` là bắt mọi lượt mở bài tải nó qua API,
+ * và nhồi nó vào DB. Worker (`studio-lesson.worker.js`) tải theo tên rồi gộp
+ * vào `files` trước khi chấm, nên mã học viên vẫn đọc bằng tên trơn:
+ * `pd.read_csv('mon.csv')`.
+ *
+ * Danh sách trắng nằm ở `src/course-admin/studio-lesson.schema.ts` (cửa duy
+ * nhất vào DB) — bài không khai được một đường dẫn tuỳ ý.
+ */
+export type LessonDataFile = string;
 
 /** "Hợp đồng" của một hàm/method: nhận gì, trả gì, tác dụng phụ — đúng mẫu thẻ hàm của PE v3. */
 export type LessonContract = {
@@ -188,20 +609,28 @@ export type Step4 = {
    *  máy. Không có mã Python để chạy nên Studio hiện khối này thay cho sandbox. */
   procedure?: string[];
   tests?: LessonTest[];
+  /** Hợp đồng gọi cho ca chấm dạng DỮ LIỆU. Bài dùng ca dạng biểu thức
+   *  (pe-v4) không khai trường này. */
+  contract?: LessonContractCall;
   /** Substrings that must not appear in the learner's code (anti-mutation guard). */
   forbid?: string[];
   /** Ghi vào thư mục chạy trước mỗi lần chạy; bộ chấm cho phép thay theo từng ca. */
   files?: LessonFile[];
+  /**
+   * File của bộ dữ liệu quán mà MỌI lần chạy Python của bài này cần có trong
+   * thư mục làm việc. Khai ở cấp BÀI (cạnh `packages`) vì thư mục chạy là của
+   * cả lần chạy, không của từng khối — xem KHOI_DU_LIEU trong
+   * scripts/pe-da/build.py.
+   */
+  dataFiles?: LessonDataFile[];
   contracts?: LessonContract[];
   /**
    * Cửa tự kiểm tra: lời giải chỉ mở sau khi bài được ghi nhận HOÀN THÀNH.
    *
-   * Khoá đang chạy (Advanced Python) có đúng BA bài cửa: **R02, DA01, DA02** —
-   * đếm `content_json.step_4.gate` trong scripts/pe-v4/out-advanced/lessons/*.json,
-   * tức đúng bản đang seed vào DB. Chú thích cũ nêu NĂM mã bài khác: đó là các
-   * bài cửa của khoá `python` CƠ BẢN, mà khoá đó đã gỡ khỏi sản phẩm (10/2026).
-   * Không mã nào trong năm mã ấy còn tồn tại, nên ai đọc chú thích rồi đi tìm
-   * bài tương ứng sẽ tìm nhầm chỗ — vì vậy không chép lại chúng ở đây.
+   * Danh sách cũ ở đây (B20, I07, I12, N04, N08) là của khoá cơ bản pe-v3 ĐÃ
+   * XOÁ — AGENTS.md cảnh báo đúng chú thích này. Khoá đang chạy là 172 bài
+   * pe-da, không có cửa nào; pe-v4 (còn trong repo, không xuất bản) có ba:
+   * R02, DA01, DA02. Cả hai phía nhận diện theo CỜ này chứ không theo mã bài.
    */
   gate?: boolean;
   /** Server đang giữ solutionCode (bài cửa chưa hoàn thành) — xem
@@ -211,13 +640,20 @@ export type Step4 = {
   env?: string;
   /**
    * Thư viện ngoài bài cần (khoá Python Advanced): worker tải + import sẵn
-   * TRƯỚC khi bấm giờ 5 giây. Chỉ các gói tự lưu trữ trong /pyodide/v0.27.7/.
+   * TRƯỚC khi bấm giờ 5 giây. Chỉ các gói tự lưu trữ trong /pyodide/v314.0.7/.
    */
   packages?: StudioPackage[];
 };
 
-/** Gói Pyodide 0.27.7 tự lưu trữ — khớp PACKAGES của studio-lesson.worker.js và scripts/pe-v4/build.py. */
-export type StudioPackage = 'numpy' | 'pandas' | 'matplotlib' | 'sqlite3';
+/**
+ * Gói Pyodide 314.0.7 tự lưu trữ — khớp PACKAGES của studio-lesson.worker.js,
+ * VENDORED của scripts/pe-da/build.py và scripts/pe-v4/build.py.
+ *
+ * `sqlite3` đã RỜI danh sách này khi nâng từ 0.27.7: ở bản mới nó là stdlib,
+ * và khai nó làm `loadPackage` ném "No known package" rồi giết cả lần chạy.
+ * `tzdata` vào thay: `zoneinfo` là stdlib nhưng rỗng dữ liệu múi giờ.
+ */
+export type StudioPackage = 'numpy' | 'pandas' | 'matplotlib' | 'tzdata';
 
 export type TraceTableGame = {
   type: 'traceTable';
@@ -267,23 +703,6 @@ export type SpotErrorGame = {
 };
 export type DebugGame = { type: 'debug'; code: string; label: string };
 export type SelfExplainGame = { type: 'selfExplain' };
-/**
- * Mini-game có ĐỘNG CƠ riêng (bài T05 · "Sổ quỹ chung"): người học viết thân
- * hàm mà mọi người cùng chạy; động cơ Python (public/static/js/so-quy.py) cho
- * họ chạy xen kẽ theo lịch TẤT ĐỊNH và trả vết từng nhịp để phát lại.
- * Đạt = sổ quỹ ra đúng tổng và không ai ghi đè, ở MỌI lịch động cơ đã dò.
- */
-export type SoQuyGame = {
-  type: 'soQuy';
-  /** Code khởi đầu trong ô soạn. */
-  code: string;
-  /** Lời giải mẫu — chỉ bảng đáp án của admin đọc. */
-  loiGiai: string;
-  /** Tên hàm mọi người cùng chạy, gọi `ham(so_quy, khoa, so_tien)`. */
-  ham: string;
-  soDu: number;
-  nguoi: { ten: string; soTien: number }[];
-};
 
 export type PlayGame = { id: string; title: string } & (
   | TraceTableGame
@@ -294,7 +713,6 @@ export type PlayGame = { id: string; title: string } & (
   | SpotErrorGame
   | DebugGame
   | SelfExplainGame
-  | SoQuyGame
 );
 
 export type Play = {
@@ -328,21 +746,12 @@ export type StepKey = 'step_1' | 'step_2' | 'step_3' | 'step_4';
 
 export const STEP_KEYS: StepKey[] = ['step_1', 'step_2', 'step_3', 'step_4'];
 
-/**
- * Short label per original step, used for the S1-S4 progress bar.
- *
- * 15/10/2026 — `step_4` từ 'Sandbox IDE' thành 'Thử thách độc lập'. Hai từ của
- * người viết code trong một nhãn người học đọc ("sandbox" + "IDE"), và nhãn đó
- * là NGUỒN DỰ PHÒNG của `ORIGIN_LABEL`: màn nào `chrome.tsx` chưa có dòng
- * riêng thì eyebrow in đúng chuỗi này ("S4 · Sandbox IDE"). Tên đã chốt của
- * màn nộp bài là "Thử thách độc lập" — cùng chuỗi `chrome.tsx` đang dùng cho
- * `kind: 'sandbox'`, nên đường dự phòng và đường thường thôi nói hai kiểu.
- */
+/** Short label per original step, used for the S1-S4 progress bar. */
 export const STEP_LABELS: Record<StepKey, string> = {
   step_1: 'Hiểu & Dự đoán',
   step_2: 'Bẫy ngộ nhận',
   step_3: 'Luyện có hỗ trợ',
-  step_4: 'Thử thách độc lập',
+  step_4: 'Sandbox IDE',
 };
 
 export type PresentStep = { key: StepKey; origin: number; label: string };
@@ -370,8 +779,11 @@ export function optionText(o: McqOption): string {
   return typeof o === 'string' ? o : o.text;
 }
 
-export function optionDetail(o: McqOption): string | undefined {
-  return typeof o === 'string' ? undefined : o.detail;
+export function optionDetail(o: McqOption | undefined): string | undefined {
+  // Nhận `undefined`: hàm vốn trả `string | undefined` nên không có gì để mất,
+  // và chỗ gọi hay tra `options[index]` với index tính ra từ nháp của học viên
+  // — nháp trống cho -1. Trước đây nó ném TypeError ở đó (xem screenVerdict).
+  return typeof o === 'string' || o === undefined ? undefined : o.detail;
 }
 
 /** Diacritic-insensitive match so rubric keywords work on unaccented typing too. */
@@ -410,91 +822,6 @@ export function assembleScaffold(
   );
 }
 
-// ───────────────────────────── Màn điền code (game `fill` / màn `scaffold`)
-//
-// Gộp từ bản Figma của thành viên (design/v3/quyet-dinh.md mục 4) — lấy ba thứ
-// Figma làm tốt hơn, giữ những thứ bản mình đã hơn:
-//  · Ô trống mang SỐ ①②③ ngay trong code. Trước đây ô in "···" không số, trong
-//    khi lời phản hồi lại nói "Ô 2" — người học phải tự đếm ô nào là ô 2.
-//  · Kho thẻ gom theo ô (dữ liệu có sẵn `bank[].slot`), thay cho một kho trộn.
-//  · Phản hồi TỪNG ô, kể cả ô đúng. Bản cũ chỉ báo ô sai ĐẦU TIÊN, nên sửa xong
-//    ô 1 mới biết ô 3 cũng sai.
-// GIỮ: ô sai KHÔNG bao giờ nói đáp án đúng (Figma nói thẳng "ready" ngay lần sai
-// đầu); thay vào đó là lý do của thẻ bẫy (`trap`) hoặc thẻ đó thuộc ô nào.
-
-/** Số khoanh ①…⑳ cho ô thứ n; quá 20 thì về "(n)" (khoá hiện tối đa 4 ô). */
-export function slotMark(n: number): string {
-  return Number.isInteger(n) && n >= 1 && n <= 20 ? String.fromCodePoint(0x2460 + n - 1) : `(${n})`;
-}
-
-export type BankGroup = { n: number; mark: string; hint?: string; labels: string[] };
-
-/**
- * Kho thẻ gom theo ô, theo thứ tự ô. Thẻ đã đặt vào code thì biến khỏi kho
- * (giữ hành vi cũ: kho tự bớt thẻ đã dùng, Figma để nguyên cả 9 thẻ). Thứ tự
- * thẻ TRONG một nhóm giữ nguyên thứ tự đã trộn của build.py — đáp án đúng không
- * luôn đứng đầu.
- */
-export function bankGroups(
-  slots: ScaffoldSlot[],
-  bank: ScaffoldCard[],
-  placed: Iterable<string>,
-): BankGroup[] {
-  const used = new Set(placed);
-  const order = slots.map((s) => s.n);
-  // Thẻ trỏ tới ô không có trong `slots` vẫn phải hiện — mất thẻ âm thầm thì
-  // người học không bao giờ lắp đủ được.
-  for (const card of bank) if (!order.includes(card.slot)) order.push(card.slot);
-  return order.map((n) => {
-    const hint = slots.find((s) => s.n === n)?.hint?.trim();
-    return {
-      n,
-      mark: slotMark(n),
-      ...(hint ? { hint } : {}),
-      labels: bank.filter((b) => b.slot === n && !used.has(b.label)).map((b) => b.label),
-    };
-  });
-}
-
-export type FillFeedback = { correct: boolean; summary: string; lines: string[] };
-
-/**
- * Chấm màn điền code: mỗi ô một dòng, theo thứ tự ô.
- *  - ô đúng: thẻ đã đặt + `why` nếu bài có khai, không thì chỉ "đúng."
- *  - ô sai bằng thẻ bẫy của chính ô đó: lý do bẫy (`trap`).
- *  - ô sai bằng thẻ của ô KHÁC: nói thẻ đó thuộc ô nào — kho đã gom theo ô nên
- *    điều này người học nhìn thấy được, không lộ thêm gì.
- *  - ô trống: "chưa có thẻ."
- * Không nhánh nào in `slot.answer` cho một ô sai.
- */
-export function fillFeedback(
-  slots: ScaffoldSlot[],
-  bank: ScaffoldCard[],
-  picks: Record<number, string | undefined>,
-): FillFeedback {
-  let ok = 0;
-  const lines = slots.map((slot) => {
-    const mark = slotMark(slot.n);
-    const pick = picks[slot.n];
-    if (!pick) return `${mark} chưa có thẻ.`;
-    if (pick === slot.answer) {
-      ok += 1;
-      const why = slot.why?.trim();
-      return why ? `${mark} ${pick} — ${why}` : `${mark} ${pick} — đúng.`;
-    }
-    const card = bank.find((b) => b.label === pick);
-    if (card && card.slot !== slot.n) return `${mark} ${pick} — thẻ của ô ${slotMark(card.slot)}.`;
-    if (card?.trap) return `${mark} ${pick} — ${card.trap}`;
-    return `${mark} ${pick} — thẻ này không làm đúng việc ô cần.`;
-  });
-  const correct = slots.length > 0 && ok === slots.length;
-  return {
-    correct,
-    summary: correct ? `Cả ${slots.length} ô khớp lời giải.` : `${ok}/${slots.length} ô đúng.`,
-    lines,
-  };
-}
-
 export type LessonDraft = {
   step: number;
   predict: string;
@@ -504,6 +831,46 @@ export type LessonDraft = {
   slots: Record<number, string>;
   counter: string;
   code: string;
+  /**
+   * Bài đọc: câu trả lời học viên tự viết cho `step_2.practice`, theo chỉ số
+   * câu. Không chấm, nhưng vẫn lưu — nháp mất là mất công viết của người học.
+   */
+  practice?: Record<number, string>;
+  /** Câu luyện tập đã bấm "Xem đáp án"; giữ trong nháp để quay lại màn vẫn thấy. */
+  practiceSeen?: Record<number, boolean>;
+  /**
+   * CỔNG DỰ ĐOÁN OUTPUT ở màn đọc: câu người học đã NỘP cho một khối code, theo
+   * khoá `"<chỉ số màn>-<chỉ số khối>"` (cùng cách đánh khoá với `s1-read-<i>`).
+   * Có khoá = đã nộp = ô "Kết quả:" đã mở.
+   *
+   * Phải nằm TRONG NHÁP, không trong state của component như `daNop` của
+   * `StepTrace`: màn đọc là màn người học đi qua lại nhiều lần (nút "← Quay
+   * lại" ở thanh dưới), và bắt họ đoán LẠI cùng một câu mỗi lần quay lại là ma
+   * sát không mua thêm gì — lần đó họ đã biết đáp án rồi.
+   *
+   * MỘT trường, không hai: chữ đang gõ mà CHƯA nộp thì để trong state của
+   * component. Thêm một trường thứ hai cho nó là thêm một thứ phải khớp với
+   * trường này, và nó sẽ lệch — đúng họ bẫy fixture mà AGENTS.md ghi nhiều lần.
+   */
+  readGuess?: Record<string, string>;
+  /**
+   * CỔNG HỒI TƯỞNG ở màn tổng kết: câu người học viết ra TRƯỚC khi ô "KIẾN THỨC
+   * CỐT LÕI ĐÃ HỌC" mở. Có giá trị = đã viết = ô đó đã mở.
+   *
+   * Vì sao cần cổng chứ không phải một ô tuỳ chọn: hôm nay 100% màn tổng kết là
+   * ĐỌC LẠI — `facts` lấy đoạn văn đầu của từng màn đọc. Roediger & Karpicke
+   * 2006: nhóm HỒI TƯỞNG nhớ 61% sau một tuần, nhóm ĐỌC LẠI 40% — mà nhóm đọc
+   * lại TỰ TIN hơn. Tức màn tổng kết hiện tại đang bán đúng cái cảm giác nắm
+   * được mà không kèm việc nắm được. Một ô tuỳ chọn thì người ta bỏ qua, và khi
+   * đó nó thành cùng loại với "Thử lại" trần (d = 0,05).
+   *
+   * MỘT trường, không hai — chữ đang gõ mà chưa nộp để trong state component,
+   * đúng lý lẽ đã ghi cho `readGuess`.
+   *
+   * KHÔNG CHẤM chữ họ viết: giá trị nằm ở hành động hồi tưởng, không ở lời
+   * chấm. Và không có đáp án máy đọc được cho "bạn nhớ được gì".
+   */
+  recall?: string;
   solutionUsed: boolean;
   /** Màn hình đã qua, theo `LessonScreen.key`. */
   done: Record<string, boolean>;
@@ -564,6 +931,10 @@ export function initialLessonDraft(lesson: StudioLesson): LessonDraft {
     slots: {},
     counter: '',
     code: lesson.step_4?.starterCode ?? '',
+    practice: {},
+    practiceSeen: {},
+    readGuess: {},
+    recall: '',
     solutionUsed: false,
     done: {},
     submitted: false,
@@ -582,6 +953,8 @@ export function initialLessonDraft(lesson: StudioLesson): LessonDraft {
 
 export type ScreenKind =
   | 'brief'
+  /** Một lát của bài đọc (step_1.read[index]) — màn ĐẦU bài, trước cả theory. */
+  | 'read'
   /** Lý thuyết nền + hình (step_1.theory) — màn ĐẦU bài, trước brief. */
   | 'theory'
   | 'context'
@@ -591,6 +964,8 @@ export type ScreenKind =
   | 'predict'
   | 'mcq'
   | 'classify'
+  /** Một câu luyện tập có đáp án mẫu (step_2.practice[index]) — KHÔNG chấm. */
+  | 'practice'
   | 'selfExplain'
   | 'scaffold'
   | 'trace'
@@ -607,12 +982,103 @@ export type LessonScreen = {
   /** Bước gốc S1–S4, để hiện nhãn "S2 · Bẫy ngộ nhận". */
   origin: 1 | 2 | 3 | 4;
   label: string;
-  /** Vị trí câu hỏi trong step_2.mcq. */
+  /** Vị trí trong mảng nguồn của màn: step_2.mcq, step_1.read hay step_2.practice. */
   index?: number;
   /** PlayGame.id khi kind = 'game'. */
   gameId?: string;
   gameType?: PlayGame['type'];
 };
+
+/* ---------------------------------------------------------------- BA PHẦN
+ *
+ * Người dùng muốn bài học chia rõ LÝ THUYẾT / THỰC HÀNH / BÀI TẬP. Đo trên bản
+ * dựng 179 bài: **cả 179 bài có CÙNG MỘT dãy loại màn** —
+ * `read | mcq | practice | sandbox | recap` — và **0 bài** có loại màn nào xuất
+ * hiện ở hai khối rời nhau. Tức phép chia ba phần ĐÃ nằm sẵn trong dữ liệu; thứ
+ * thiếu là cái TÊN. Không phải sắp lại màn, không đổi một byte nội dung, và vì
+ * luật đọc được hoàn toàn từ `ScreenKind` nên **KHÔNG CẦN NẠP DB** — cùng lý do
+ * `doanDuocOutput` được đặt ở frontend.
+ *
+ * `mcq` thuộc THỰC HÀNH, không thuộc LÝ THUYẾT. Đó là 3 câu ĐƯỢC CHẤM và nó
+ * quyết định XP (`scaledXp = xp_reward × (50% + 50% × quizScore)`); gộp nó vào
+ * "lý thuyết" là giấu chuyện người học đang bị chấm ở đó. Hệ quả có lợi kèm
+ * theo: THỰC HÀNH thành khối lớn nhất (1 206/2 129 màn = 56,6 %), và đó đúng là
+ * sự thật mà phản hồi 1/11 ("nên đặt trọng tâm vào practice") đang hiểu ngược.
+ *
+ * `recap` KHÔNG thuộc phần nào, và đó là lựa chọn: màn tổng kết không phải lý
+ * thuyết, không phải thực hành, cũng không phải bài tập. Dán nó vào "BÀI TẬP"
+ * cho đủ ba phần là nói sai về đúng một màn mà người học nhìn cuối cùng.
+ */
+export type PhanBai = 'lyThuyet' | 'thucHanh' | 'baiTap';
+
+export const PHAN_NHAN: Record<PhanBai, string> = {
+  lyThuyet: 'Lý thuyết',
+  thucHanh: 'Thực hành',
+  baiTap: 'Bài tập',
+};
+
+/**
+ * Màn này thuộc phần nào của bài — `null` nghĩa là không thuộc phần nào.
+ *
+ * `switch` đầy đủ ép `never` ở nhánh cuối, KHÔNG dùng `default` nuốt: 13/19
+ * `ScreenKind` hôm nay không có bài nào đi qua (chúng là của pe-v4 đã ẩn), nên
+ * không ca test nào chạm tới chúng được — thứ duy nhất giữ chúng khỏi trôi là
+ * trình biên dịch. Thêm một loại màn mà quên gán phần ⇒ typecheck đỏ ngay.
+ */
+export function phanCuaMan(kind: ScreenKind): PhanBai | null {
+  switch (kind) {
+    case 'brief':
+    case 'read':
+    case 'theory':
+    case 'context':
+    case 'explain':
+    case 'memory':
+    case 'misconception':
+      return 'lyThuyet';
+    case 'predict':
+    case 'mcq':
+    case 'classify':
+    case 'practice':
+    case 'selfExplain':
+    case 'scaffold':
+    case 'trace':
+    case 'counter':
+    case 'game':
+      return 'thucHanh';
+    case 'sandbox':
+      return 'baiTap';
+    case 'recap':
+      return null;
+    default: {
+      const _het: never = kind;
+      return _het;
+    }
+  }
+}
+
+/** Một nhóm màn liền khối cùng phần — dùng cho thanh tiến độ. */
+export type NhomMan = { phan: PhanBai | null; tu: number; so: number };
+
+/**
+ * Gom dãy màn thành các nhóm LIỀN KHỐI.
+ *
+ * Gom theo khối liền nhau chứ không gom theo phần: nếu một ngày nào đó màn bị
+ * xen kẽ (hôm nay 0/179 bài), hàm này phát ra nhiều nhóm cùng phần thay vì nói
+ * dối rằng chúng liền nhau. Thanh tiến độ vẽ đúng thứ có thật.
+ *
+ * `tu` đếm từ 1, cùng gốc với `step` của LessonChrome.
+ */
+export function nhomMan(screens: LessonScreen[]): NhomMan[] {
+  const ra: NhomMan[] = [];
+  screens.forEach((scr, i) => {
+    const phan = phanCuaMan(scr.kind);
+    const cuoi = ra[ra.length - 1];
+    if (cuoi && cuoi.phan === phan) cuoi.so += 1;
+    else ra.push({ phan, tu: i + 1, so: 1 });
+  });
+  return ra;
+}
+
 
 const ORIGIN_LABEL: Record<1 | 2 | 3 | 4, string> = {
   1: STEP_LABELS.step_1,
@@ -673,6 +1139,11 @@ export function buildScreens(lesson: StudioLesson): LessonScreen[] {
   if (lesson.play?.games?.length) return buildPlayScreens(lesson, lesson.play);
   const out: LessonScreen[] = [];
   const one = lesson.step_1;
+  // BÀI ĐỌC ĐỨNG TRƯỚC MỌI MÀN KHÁC CỦA S1. Khoá 172 bài chỉ có `read` nên thứ
+  // tự này không quan sát được ở đó; nó quan trọng cho bài nào trộn cả hai —
+  // đọc xong mới tới lý thuyết/đề bài, không phải ngược lại.
+  // Các lát đã được khâu build chia sẵn (xem Step1.read), ở đây chỉ phát màn.
+  (one?.read ?? []).forEach((_, i) => out.push(screen(`s1-read-${i}`, 'read', 1, i)));
   // Cùng thứ tự với buildPlayScreens: lý thuyết trước, rồi mới tới đề bài.
   if (one?.theory?.length) out.push(screen('s1-theory', 'theory', 1));
   if (one?.brief?.task) out.push(screen('s1-brief', 'brief', 1));
@@ -687,6 +1158,9 @@ export function buildScreens(lesson: StudioLesson): LessonScreen[] {
     if ((q.options?.length ?? 0) >= 2) out.push(screen(`s2-mcq-${i}`, 'mcq', 2, i));
   });
   if (two?.classify?.tokens?.length) out.push(screen('s2-classify', 'classify', 2));
+  // Câu luyện tập xếp SAU trắc nghiệm/phân loại: bài nào có cả hai thì phần
+  // được chấm làm trước, phần tự viết (không chấm) làm sau.
+  (two?.practice ?? []).forEach((_, i) => out.push(screen(`s2-practice-${i}`, 'practice', 2, i)));
   if (two?.selfExplain?.prompt) out.push(screen('s2-self', 'selfExplain', 2));
 
   const three = lesson.step_3;
@@ -715,7 +1189,15 @@ export function keyIndex(key: string): number {
 /** Ngưỡng tối thiểu cho ô tự giải thích khi bài không khai rubric từ khoá. */
 export const SELF_EXPLAIN_MIN = { chars: 60, words: 12 };
 
-/** Màn hình có chấm đúng/sai tại chỗ (nút CTA đổi thành "Kiểm tra"). */
+/**
+ * Màn hình có chấm đúng/sai tại chỗ (nút CTA đổi thành "Kiểm tra").
+ *
+ * Danh sách TRẮNG, cố ý: `read` và `practice` của khoá bài đọc KHÔNG nằm trong
+ * đây vì không có gì để so — câu luyện tập là câu mở kèm lời giải mẫu, không
+ * phải trắc nghiệm có phương án sai. Đưa chúng vào đây thì `firstUnfinished()`
+ * sẽ chặn nút kết thúc bài bằng một màn không bao giờ "đúng" được, và
+ * `quizPercent()` chia cho một mẫu số vô nghĩa.
+ */
 export function isGraded(kind: ScreenKind): boolean {
   return (
     kind === 'predict' ||
@@ -730,7 +1212,7 @@ export function isGraded(kind: ScreenKind): boolean {
 
 /** Game chấm bằng CHẠY code trong Pyodide (bất đồng bộ) thay vì so đáp án. */
 export function isRunnableGame(game: PlayGame | undefined): boolean {
-  return game?.type === 'parsons' || game?.type === 'debug' || game?.type === 'soQuy';
+  return game?.type === 'parsons' || game?.type === 'debug';
 }
 
 /** Ghép chương trình từ các dòng đã xếp — khớp scripts/pe-v3/check-advanced.mjs. */
@@ -772,7 +1254,6 @@ export function gameAnswered(lesson: StudioLesson, game: PlayGame, d: LessonDraf
     case 'spotError':
       return st.line != null;
     case 'debug':
-    case 'soQuy':
       return true;
     case 'selfExplain':
       return d.explanation.trim().length > 0;
@@ -784,7 +1265,7 @@ export function gameVerdict(
   lesson: StudioLesson,
   game: PlayGame,
   d: LessonDraft,
-): { correct: boolean; explain?: string; lines?: string[] } | null {
+): { correct: boolean; explain?: string } | null {
   const st = d.games?.[game.id] ?? {};
   switch (game.type) {
     case 'traceTable': {
@@ -820,8 +1301,16 @@ export function gameVerdict(
     }
     case 'fill': {
       const scaffold = lesson.step_3?.scaffold;
-      const fb = fillFeedback(scaffold?.slots ?? [], scaffold?.bank ?? [], d.slots);
-      return { correct: fb.correct, explain: fb.summary, lines: fb.lines };
+      const slots = scaffold?.slots ?? [];
+      const wrong = slots.find((slot) => d.slots[slot.n] !== slot.answer);
+      if (!wrong) return { correct: slots.length > 0, explain: 'Khung mã đã khớp lời giải.' };
+      const trap = scaffold?.bank.find((b) => b.label === d.slots[wrong.n])?.trap;
+      return {
+        correct: false,
+        explain: trap
+          ? `Ô ${wrong.n}: ${d.slots[wrong.n]} — ${trap}`
+          : `Ô ${wrong.n} chưa đúng — thẻ này không làm đúng việc ô cần.`,
+      };
     }
     case 'spotError': {
       const hits = game.lines?.length ? game.lines : [game.line];
@@ -849,6 +1338,123 @@ export function gameVerdict(
     default:
       return null;
   }
+}
+
+// ------------------------------------------------- ba trạng thái của một màn
+//
+// TRẠNG THÁI THỨ BA: "đã trả lời và đã xem đáp án", khác hẳn "đã làm đúng".
+//
+// Trước bản này một màn có chấm chỉ có HAI trạng thái — `done[key]` true hoặc
+// false — nên trả lời sai là không có đường nào đi tiếp: `primaryCta` trả đúng
+// một nút "Thử lại". Một người thử ngày 27/10/2026 nói đúng cái giá: "mấy cái
+// câu trắc nghiệm ấy nếu sai rồi thì cho next luôn vì thử lại ở đây cũng ko làm
+// đc gì. căn bản là người dùng chỉ cần nhớ đáp án rồi chọn lại là được."
+//
+// Vì sao bắt-làm-lại không mua thêm gì (VAN-PHONG.md §8 M5): Van der Kleij
+// 2015, 40 nghiên cứu / 70 cỡ hiệu ứng — phản hồi CÓ GIẢI THÍCH d = 0,49, hiện
+// đáp án đúng d = 0,32, chỉ nói đúng/sai d = 0,05. Nút "Thử lại" không kèm
+// giải thích chính là loại d = 0,05. Butler 2007: bắt-làm-lại TƯƠNG ĐƯƠNG hiện
+// thẳng đáp án. Bằng chứng mục này HỖN HỢP (vài nghiên cứu ủng hộ multiple-try)
+// nên phát biểu mạnh nhất được phép là: bắt làm lại không mua thêm gì so với
+// hiện đáp án, và trên 3 phương án nó phá giá trị ĐO LƯỜNG — làm lại vô hạn
+// đảm bảo đúng sau tối đa 3 lần bấm, lúc đó câu hỏi không còn mang thông tin.
+//
+// Vì sao KHÔNG sửa bằng một dòng (AGENTS.md đã ghi): cho đi tiếp mà không
+// `markDone` thì `firstUnfinished()` chặn ở màn TỔNG KẾT — kẹt ở cuối bài thay
+// vì giữa bài, tệ hơn; còn `markDone` cho câu SAI thì ô "câu đúng" ở
+// RecapScreen nói dối. Nên phải có một trạng thái thứ ba.
+//
+// Nó KHÔNG là một trường nháp mới: `score.firstTry[key]` đã ghi sẵn kết quả của
+// LẦN CHẤM ĐẦU (true/false), nên "đã chấm ít nhất một lần" đọc được từ chính
+// nó. Thêm một `reviewed: Record<string, boolean>` là dựng thứ thứ hai phải
+// khớp với nó, và nó sẽ lệch — đúng họ bẫy mà AGENTS.md cảnh báo. Đổi lại,
+// `award()` trong useLessonProgress.ts phải GHI `firstTry` cho MỌI khoá, không
+// chỉ khoá có mini-game (xem chú thích ở đó).
+
+/**
+ * Màn mà "làm lại tới khi đúng" KHÔNG đo được gì: chọn MỘT phương án trong một
+ * danh sách ngắn (3 phương án ở cả 516 câu của khoá 172 bài).
+ *
+ * Danh sách TRẮNG, cố ý: `classify`/`scaffold`/`counter`/`selfExplain`/`game`
+ * cũng được chấm, nhưng làm lại ở đó là LÀM LẠI VIỆC (xếp lại dòng code, sửa
+ * lại hàm) chứ không phải bấm nốt hai phương án còn lại — lý lẽ của M5 không
+ * với tới chúng, nên chúng giữ nguyên nút "Thử lại" làm nút chính.
+ */
+export function isChoiceScreen(kind: ScreenKind): boolean {
+  return kind === 'mcq' || kind === 'predict';
+}
+
+/** Đã bấm "Kiểm tra" ở màn này ít nhất một lần — KỂ CẢ khi trả lời sai. */
+export function screenAnswered(d: LessonDraft, key: string): boolean {
+  return d.score?.firstTry?.[key] !== undefined;
+}
+
+/**
+ * Màn này còn CHẶN đường đi tiếp hay không. Làm đúng thì thôi chặn (như cũ);
+ * câu chọn phương án thì trả lời MỘT lần là thôi chặn, đúng hay sai.
+ */
+export function screenSettled(scr: LessonScreen, d: LessonDraft): boolean {
+  return Boolean(d.done[scr.key]) || (isChoiceScreen(scr.kind) && screenAnswered(d, scr.key));
+}
+
+/**
+ * Màn có chấm mà học viên chưa giải quyết — chặn việc kết thúc bài.
+ * Ở đây (lib) chứ không ở cta.ts: `cta.ts` import một file .tsx nên
+ * `node --test` không nạp được, mà đây là luật phải có test chạy thật.
+ */
+export function firstUnfinished(
+  screens: LessonScreen[],
+  d: LessonDraft,
+): LessonScreen | undefined {
+  return screens.find((x) => isGraded(x.kind) && !screenSettled(x, d));
+}
+
+/**
+ * Màn xa nhất thanh tiến độ cho nhảy TỚI. Màn đã giải quyết thì mở, nên câu
+ * trả lời sai cũng không khoá đường nhảy về phía trước — người học vừa đi qua
+ * nó bằng nút CTA thì bấm lại trên thanh tiến độ phải tới được.
+ */
+export function maxReachedStep(screens: LessonScreen[], d: LessonDraft): number {
+  return screens.reduce((acc, x, i) => (screenSettled(x, d) ? Math.max(acc, i + 2) : acc), 1);
+}
+
+/**
+ * Màn xa nhất BẤM được trên thanh tiến độ — giới hạn đưa cho `seekMax`.
+ *
+ * Bài MÁY CHỦ đã ghi hoàn thành thì MỌI màn mở được. Thanh tiến độ đã VẼ đúng
+ * như vậy từ lâu (`doneSteps` lấy `completed || d.done[...]`), nhưng giới hạn
+ * bấm chỉ đọc nháp cục bộ — mà nháp với máy chủ lệch nhau được (nháp nằm ở
+ * localStorage, hoàn thành nằm ở DB). Đo trên production (PY02 đã hoàn thành,
+ * nháp ở màn 2, 1 màn xong): 15/15 đoạn vẽ đầy, 2/15 bấm được, ngay dưới băng
+ * "✓ Bài này đã hoàn thành" — và đề ôn chấm ở máy chủ nằm ở màn tổng kết, cách
+ * 13 lần "Tiếp tục".
+ *
+ * Bài chưa hoàn thành: giữ nguyên luật cũ — thanh tiến độ không phải đường tắt
+ * bỏ qua phần chưa làm.
+ */
+export function gioiHanXemLai(
+  soMan: number,
+  buocHienTai: number,
+  xaNhatDaToi: number,
+  daHoanThanh: boolean,
+): number {
+  if (daHoanThanh) return soMan;
+  return Math.max(buocHienTai, Math.min(soMan, xaNhatDaToi));
+}
+
+/**
+ * Bấm nút đi tiếp thì có được đánh dấu màn này "đã làm đúng" hay không.
+ *
+ * Nút đi tiếp của màn có chấm trước đây chỉ xuất hiện khi ĐÚNG, nên nhánh
+ * cuối của `doAction` gọi `markDone` cho mọi màn mà không cần hỏi. Nay câu
+ * chọn phương án đi tiếp được cả khi SAI, và nếu vẫn `markDone` thì ô "Câu đã
+ * làm đúng" ở màn tổng kết đếm luôn cả câu sai.
+ */
+export function markDoneOnNext(
+  scr: LessonScreen,
+  verdict: { correct: boolean } | null | undefined,
+): boolean {
+  return !(isGraded(scr.kind) && Boolean(verdict) && !verdict?.correct);
 }
 
 /**
@@ -903,7 +1509,7 @@ export function screenVerdict(
   lesson: StudioLesson,
   scr: LessonScreen,
   d: LessonDraft,
-): { correct: boolean; explain?: string; lines?: string[] } | null {
+): { correct: boolean; explain?: string } | null {
   if (scr.kind === 'predict') {
     const options = lesson.step_1?.predict?.options ?? [];
     const chosen = options[keyIndex(d.predict)];
@@ -919,9 +1525,15 @@ export function screenVerdict(
     const picked = keyIndex(d.mcq[scr.index ?? 0] ?? '');
     const answer = correctIndex(q);
     return {
+      // `picked >= 0`, KHÔNG `Number.isInteger(picked)`: nháp trống làm
+      // `keyIndex('')` trả -1, mà `Number.isInteger(-1)` là TRUE — nên nhánh
+      // này chạy với `q.options[-1]` là undefined và `optionDetail` ném
+      // TypeError. Bấm "Kiểm tra" mà chưa chọn gì là MÀN HÌNH TRẮNG, và không
+      // chỗ nào chặn lời gọi đó. Lỗi có từ pe-v4; chỉ tới khi 172 bài có 3 câu
+      // trắc nghiệm mỗi bài thì nó mới nằm trên đường đi chính.
       correct: picked === answer,
       explain:
-        (Number.isInteger(picked) ? optionDetail(q.options[picked]) : undefined) ||
+        (picked >= 0 ? optionDetail(q.options[picked]) : undefined) ||
         q.explanation ||
         optionDetail(q.options[answer]),
     };

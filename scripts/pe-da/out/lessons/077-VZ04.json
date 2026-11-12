@@ -1,0 +1,398 @@
+{
+ "lesson_code": "VZ04",
+ "sort_order": 77,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ04 · Bar chart: so sánh nhóm và sắp thứ tự",
+ "subtitle": "Cơ bản · M4 · 16 phút",
+ "estimated_minutes": 16,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "VZ04 · Bar chart: so sánh nhóm và sắp thứ tự",
+  "subtitle": "Cơ bản · M4 · 16 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#VZ04",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 329; Bar chart: so sánh nhóm và sắp thứ tự"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Đường ở bài trước nói về thời gian; so các món với nhau thì cần cột. Cửa hàng bán 18 cốc trà, 30 cốc cà phê và 12 cốc ca cao. Bar chart cho bạn so sánh ba lượng bán bằng chiều cao cột. Vì chiều dài cột biểu diễn lượng bán, trục số nên bắt đầu từ 0 để chênh lệch không bị phóng đại."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nbars = ax.bar([\"Tea\", \"Coffee\", \"Cocoa\"], [18, 30, 12])\nax.set(ylabel=\"Cups\", title=\"Sales by drink\", ylim=(0, 35))\nax.bar_label(bars)\nprint(sum(bar.get_height() for bar in bars))\nplt.show()",
+      "expected": "60",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ04-1.png",
+      "alt": "Biểu đồ cột, tiêu đề \"Sales by drink\", trục dọc \"Cups\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Sắp theo lượng bán giúp nhận ra nhóm lớn nhất nhanh hơn. Dùng barh khi tên nhóm dài; sau khi sắp tăng dần, nhóm lớn nhất sẽ nằm phía trên. Nếu so sánh hai tuần cho cùng loại đồ uống, đặt hai cột cạnh nhau và giải thích tên mỗi tuần trong legend."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\ndata = sorted([(\"Tea\", 18), (\"Coffee\", 30), (\"Cocoa\", 12)], key=lambda row: row[1])\nnames, cups = zip(*data)\nax.barh(names, cups)\nax.set(xlabel=\"Cups\", title=\"Largest seller is at the top\", xlim=(0, 35))\nprint(names[-1])\nplt.show()",
+      "expected": "Coffee",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "names",
+        "prompt": "Sau khi chạy xong, `names` bằng mấy?",
+        "answer": "('Cocoa', 'Tea', 'Coffee')"
+       },
+       "rows": [
+        {
+         "line": 1
+        },
+        {
+         "line": 2
+        },
+        {
+         "line": 3
+        },
+        {
+         "line": 3,
+         "fn": "<lambda>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "row",
+           "('Tea', 18)"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<lambda>",
+         "depth": 1
+        },
+        {
+         "line": 3,
+         "fn": "<lambda>",
+         "depth": 1,
+         "ret": "18",
+         "set": [
+          [
+           "row",
+           "('Coffee', 30)"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<lambda>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "row",
+           "('Coffee', 30)"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<lambda>",
+         "depth": 1
+        },
+        {
+         "line": 3,
+         "fn": "<lambda>",
+         "depth": 1,
+         "ret": "30",
+         "set": [
+          [
+           "row",
+           "('Cocoa', 12)"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<lambda>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "row",
+           "('Cocoa', 12)"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<lambda>",
+         "depth": 1
+        },
+        {
+         "line": 3,
+         "fn": "<lambda>",
+         "depth": 1,
+         "ret": "12"
+        },
+        {
+         "line": 4,
+         "set": [
+          [
+           "cups",
+           "(12, 18, 30)"
+          ],
+          [
+           "names",
+           "('Cocoa', 'Tea', 'Coffee')"
+          ]
+         ]
+        },
+        {
+         "line": 5
+        },
+        {
+         "line": 6
+        },
+        {
+         "line": 7,
+         "out": "Coffee"
+        },
+        {
+         "line": 8
+        }
+       ]
+      }
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ04-2.png",
+      "alt": "Biểu đồ cột ngang, tiêu đề \"Largest seller is at the top\", trục ngang \"Cups\"."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\nx = np.arange(2)\nax.bar(x - 0.2, [30, 18], width=0.4, label=\"Week 1\")\nax.bar(x + 0.2, [33, 21], width=0.4, label=\"Week 2\")\nax.set_xticks(x, [\"Coffee\", \"Tea\"])\nax.set(ylabel=\"Cups\", title=\"Compare the same drink across weeks\")\nax.legend()\nprint(33 - 30)\nplt.show()",
+      "expected": "3",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ04-3.png",
+      "alt": "Biểu đồ cột, tiêu đề \"Compare the same drink across weeks\", trục dọc \"Cups\"."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "VZ02 · Figure, Axes và biểu đồ đầu tiên, NP05 · Tạo dãy bằng arange"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Tên [A,B] đi với lượng [2,9]. Nếu chỉ sắp lượng thành [9,2], vấn đề gì xảy ra?",
+     "options": [
+      {
+       "text": "Cả hai cột biến mất",
+       "detail": "Vẫn vẽ được, nên lỗi nhãn càng dễ bị bỏ qua."
+      },
+      {
+       "text": "A bị gán nhầm lượng của B",
+       "detail": "Đúng: phải di chuyển tên và giá trị cùng nhau.",
+       "correct": true
+      },
+      {
+       "text": "Không có vấn đề vì tổng không đổi",
+       "detail": "Tổng giữ nguyên nhưng nhãn từng nhóm đã sai."
+      }
+     ],
+     "explanation": "Số liệu có ý nghĩa khi vẫn đi cùng đúng nhóm."
+    },
+    {
+     "question": "Cà phê 30 cốc và trà 18 cốc chênh nhau bao nhiêu?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nbars = ax.bar([\"Tea\", \"Coffee\", \"Cocoa\"], [18, 30, 12])\nax.set(ylabel=\"Cups\", title=\"Sales by drink\", ylim=(0, 35))\nax.bar_label(bars)\nprint(sum(bar.get_height() for bar in bars))\nplt.show()",
+     "options": [
+      {
+       "text": "Chênh 1.67 cốc vì phải chia hai cột.",
+       "detail": "Tỷ số không có cùng đơn vị cốc với độ chênh."
+      },
+      {
+       "text": "Chênh 48 cốc vì phải cộng hai cột.",
+       "detail": "48 là tổng hai lượng, không phải độ chênh."
+      },
+      {
+       "text": "12 cốc. Trục bắt đầu từ 0 để độ dài hai cột có chung mốc so sánh.",
+       "detail": "12 cốc. Trục bắt đầu từ 0 để độ dài hai cột có chung mốc so sánh.",
+       "correct": true
+      }
+     ],
+     "explanation": "12 cốc. Trục bắt đầu từ 0 để độ dài hai cột có chung mốc so sánh."
+    },
+    {
+     "question": "Khi tên nhóm dài, nên đổi sang hàm nào?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\ndata = sorted([(\"Tea\", 18), (\"Coffee\", 30), (\"Cocoa\", 12)], key=lambda row: row[1])\nnames, cups = zip(*data)\nax.barh(names, cups)\nax.set(xlabel=\"Cups\", title=\"Largest seller is at the top\", xlim=(0, 35))\nprint(names[-1])\nplt.show()",
+     "options": [
+      {
+       "text": "barh để vẽ cột ngang, giảm nhu cầu xoay nhãn.",
+       "detail": "barh để vẽ cột ngang, giảm nhu cầu xoay nhãn.",
+       "correct": true
+      },
+      {
+       "text": "hist vì nhãn dài là dữ liệu số.",
+       "detail": "Histogram phục vụ khoảng số, không giải quyết nhãn danh mục dài."
+      },
+      {
+       "text": "pie vì barh không hỗ trợ nhãn chữ.",
+       "detail": "Barh hỗ trợ nhãn chữ và thường phù hợp tên dài."
+      }
+     ],
+     "explanation": "barh để vẽ cột ngang, giảm nhu cầu xoay nhãn."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Cà phê 30 cốc và trà 18 cốc chênh nhau bao nhiêu?",
+     "answer": "12 cốc. Trục bắt đầu từ 0 để độ dài hai cột có chung mốc so sánh."
+    },
+    {
+     "prompt": "Khi tên nhóm dài, nên đổi sang hàm nào?",
+     "answer": "barh để vẽ cột ngang, giảm nhu cầu xoay nhãn."
+    },
+    {
+     "prompt": "Cột ghép của hai tuần có cần ghi rõ tuần nào không?",
+     "answer": "Có. Dùng label cho mỗi nhóm cột và legend; không để người đọc đoán từ màu."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.rows là list [name,count], count không âm, ít nhất một nhóm và không có hai count bằng nhau. Sắp tăng theo count rồi barh. Trả names theo thứ tự đã vẽ và widths đọc bằng get_width() của từng bar. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'rows': [['Poetry', 8], ['Travel', 3], ['Science', 12]]}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'names': ['Travel', 'Poetry', 'Science'], 'widths': [3.0, 8.0, 12.0]}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     ordered = sorted(data['rows'], key=lambda row:row[1])\n     names, values = zip(*ordered)\n     fig, ax = plt.subplots()\n     bars = ax.barh(names,values)\n     result = {'names':list(names),'widths':[float(b.get_width()) for b in bars]}\n     plt.close(fig)\n     return result\n",
+   "tests": [
+    {
+     "name": "giữ cặp tên",
+     "input": {
+      "rows": [
+       [
+        "Poetry",
+        8
+       ],
+       [
+        "Travel",
+        3
+       ],
+       [
+        "Science",
+        12
+       ]
+      ]
+     },
+     "expected": {
+      "names": [
+       "Travel",
+       "Poetry",
+       "Science"
+      ],
+      "widths": [
+       3.0,
+       8.0,
+       12.0
+      ]
+     }
+    },
+    {
+     "name": "một nhóm",
+     "input": {
+      "rows": [
+       [
+        "Art",
+        5
+       ]
+      ]
+     },
+     "expected": {
+      "names": [
+       "Art"
+      ],
+      "widths": [
+       5.0
+      ]
+     }
+    },
+    {
+     "name": "nhóm có 0",
+     "input": {
+      "rows": [
+       [
+        "A",
+        6
+       ],
+       [
+        "B",
+        0
+       ]
+      ]
+     },
+     "expected": {
+      "names": [
+       "B",
+       "A"
+      ],
+      "widths": [
+       0.0,
+       6.0
+      ]
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Với cột nằm ngang, tên hàm có thêm ký tự chỉ hướng."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Sắp cặp tên–lượng và dùng cột ngang cho tên nhóm."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 1,
+  "bo": 2,
+  "loi": []
+ }
+}

@@ -30,5 +30,24 @@ NHAT-KY-SUA.md
 # scripts/pe-v4/build.py chấm thử lúc dựng giống trình duyệt (xem README pe-v4)
 /scripts/pe-v4/.venv/
 
-# Sao lưu content_json do update-lesson-content.ts sinh ra — dữ liệu, không phải mã.
-backups/
+# Ghi chú làm việc chỉ nằm trên máy này: trạng thái đang dở, quyết định đã chốt,
+# việc còn mở — thứ để bàn giao sang phiên làm việc khác mà không muốn đẩy lên
+# remote. KHÔNG phải chỗ để tài liệu dự án: cái gì cả đội cần biết thì vào
+# AGENTS.md hoặc README của thư mục tương ứng.
+/ghi-chu-local/
+
+# Sao lưu DB trước khi nạp nội dung (seed-python-da.ts, update-lesson-content.ts).
+# Chứa content_json và tiến độ học viên lấy thẳng từ Neon — không đẩy lên remote.
+# Commit a2169f2 đã bỏ theo dõi thư mục này nhưng quên ghi luật, nên mỗi lần nạp
+# lại hiện ra trong `git status` và dễ bị `git add -A` kéo lên.
+/backups/
+# Sao lưu content_json do update-lesson-content.ts/add-lessons.ts ghi ra trước khi
+# nạp. Là ảnh chụp DB thật, 1,4 MB mỗi lần, và chỉ có nghĩa trên máy vừa nạp —
+# commit nhầm là đóng băng một bản nội dung cũ vào lịch sử.
+/backup-*.json
+/bak-*.json
+/*-backup.json
+
+# Ghi chú nghiên cứu của agent — không thuộc cây mã sản phẩm
+research_notes/
+reports/

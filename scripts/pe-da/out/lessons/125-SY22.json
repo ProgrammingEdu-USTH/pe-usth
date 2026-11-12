@@ -1,0 +1,253 @@
+{
+ "lesson_code": "SY22",
+ "sort_order": 125,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY22 · Đọc đúng định dạng Stata và SAS",
+ "subtitle": "Trung cấp · M5 · 14 phút",
+ "estimated_minutes": 14,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY22 · Đọc đúng định dạng Stata và SAS",
+  "subtitle": "Trung cấp · M5 · 14 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY22",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 328; pandas — read_sas; pandas — read_stata"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Một đồng nghiệp gửi file .dta hoặc .sas7bdat. Đổi tên thành .csv không đổi cấu trúc bên trong; cần reader phù hợp. Với Stata, bạn có thể tạo một file nhỏ rồi đọc lại để hiểu cách làm:"
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd, tempfile\nfrom pathlib import Path\nwith tempfile.TemporaryDirectory() as folder:\n    path = Path(folder) / \"scores.dta\"\n    pd.DataFrame({\"score\": [8.0, 6.0]}).to_stata(path, write_index=False)\n    frame = pd.read_stata(path)\n    print(frame[\"score\"].tolist())",
+      "expected": "[8.0, 6.0]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Stata có format nhị phân riêng; read_stata trả `DataFrame`. SAS7BDAT khác SAS XPORT, dù đều thuộc hệ SAS. Bộ tài liệu có fixture test1.sas7bdat từ bộ test công khai của pandas, kèm CSV đối chiếu và giấy phép. Hai ví dụ tiếp theo chạy từ thư mục gốc dự án PE USTH; khi chuyển dự án, chỉnh đường dẫn fixture tương ứng."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nfrom pathlib import Path\npath = Path(\"fixtures/test1.sas7bdat\")\nif not path.exists(): path = Path(\"output/python-da/fixtures/test1.sas7bdat\")\nframe = pd.read_sas(path, format=\"sas7bdat\", encoding=\"utf8\")\nprint(frame.shape)\nprint(frame.loc[0, \"Column1\"], frame.loc[0, \"Column2\"])",
+      "expected": "(10, 100)\n0.636 pear"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Kiểm shape, tên cột và vài giá trị giúp phát hiện đọc sai ngay từ đầu. Trang 328 dùng package sas7bdat; pandas có reader cho định dạng này nên bạn có thể dùng read_sas. encoding giúp giải chuỗi `bytes` thành text khi reader hỗ trợ."
+     },
+     {
+      "type": "code",
+      "code": "from sas7bdat import SAS7BDAT\nfrom pathlib import Path\npath = Path(\"fixtures/test1.sas7bdat\")\nif not path.exists(): path = Path(\"output/python-da/fixtures/test1.sas7bdat\")\npath = str(path)\nwith SAS7BDAT(path) as reader:\n    frame = reader.to_data_frame()\nprint(frame.shape)\nprint(round(float(frame.loc[0, \"Column3\"]), 1))",
+      "expected": "(10, 100)\n84.0"
+     },
+     {
+      "type": "paragraph",
+      "text": "Cách thứ ba bám API được nêu trong cheat sheet; cần cài sas7bdat riêng. Nếu thư viện cũ không tương thích môi trường, dùng reader pandas đã kiểm đúng format và ghi lại thay đổi. Không lấy kết quả đọc XPORT làm bằng chứng đã đọc SAS7BDAT. Một vài cột ngày trong fixture CSV lưu số ngày từ 1960-01-01; khi so với SAS cần chuyển đúng kiểu trước."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "PD02 · DataFrame: đọc một bảng nhỏ"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "File XPORT có thể luôn đọc bằng format=\"sas7bdat\" chỉ vì cùng thuộc SAS không?",
+     "options": [
+      {
+       "text": "Không; XPORT và SAS7BDAT là hai định dạng",
+       "detail": "Cần chọn format hoặc bộ đọc đúng với file được cung cấp.",
+       "correct": true
+      },
+      {
+       "text": "Chỉ cần đổi đuôi file",
+       "detail": "Đổi tên không chuyển đổi cấu trúc byte của file."
+      },
+      {
+       "text": "Có; hai tên gọi cùng định dạng",
+       "detail": "XPORT là định dạng trao đổi khác SAS7BDAT."
+      }
+     ],
+     "explanation": "Cần chọn format hoặc bộ đọc đúng với file được cung cấp."
+    },
+    {
+     "question": "Đồng nghiệp gửi Stata .dta. Đổi đuôi thành .csv có biến nó thành CSV không?",
+     "options": [
+      {
+       "text": "Có; mọi định dạng chỉ khác tên",
+       "detail": "Chưa đúng. Bytes và cấu trúc file quyết định cách đọc, không phải việc đổi tên."
+      },
+      {
+       "text": "Không; cần reader cho định dạng Stata",
+       "detail": "Bytes và cấu trúc file quyết định cách đọc, không phải việc đổi tên.",
+       "correct": true
+      },
+      {
+       "text": "Chỉ cần thêm dấu phẩy vào tên file",
+       "detail": "Chưa đúng. Bytes và cấu trúc file quyết định cách đọc, không phải việc đổi tên."
+      }
+     ],
+     "explanation": "Bytes và cấu trúc file quyết định cách đọc, không phải việc đổi tên."
+    },
+    {
+     "question": "pd.read_stata thường trả dữ liệu dạng nào?",
+     "options": [
+      {
+       "text": "Một cửa sổ đồ họa",
+       "detail": "Chưa đúng. Reader đưa bảng từ file Stata vào DataFrame để tiếp tục phân tích."
+      },
+      {
+       "text": "Một kernel Notebook",
+       "detail": "Chưa đúng. Reader đưa bảng từ file Stata vào DataFrame để tiếp tục phân tích."
+      },
+      {
+       "text": "DataFrame",
+       "detail": "Reader đưa bảng từ file Stata vào DataFrame để tiếp tục phân tích.",
+       "correct": true
+      }
+     ],
+     "explanation": "Reader đưa bảng từ file Stata vào DataFrame để tiếp tục phân tích."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Có thể đổi đuôi CSV thành .dta rồi đọc Stata không?",
+     "answer": "Không. Tên đuôi không chuyển cấu trúc file."
+    },
+    {
+     "prompt": "SAS7BDAT và XPORT có được kiểm như một format không?",
+     "answer": "Không. Dùng format=\"sas7bdat\" hoặc \"xport\" đúng với dữ liệu thật, và có fixture riêng cho mỗi định dạng cần hỗ trợ."
+    },
+    {
+     "prompt": "Đọc fixture SAS rồi đối chiếu CSV được cấp.",
+     "answer": "So shape (10,100), tên cột, numeric và text. Column4/Column12 trong CSV đổi bằng Timestamp(\"1960-01-01\") + to_timedelta(...,unit=\"D\") trước so với SAS. Dùng pandas.testing.assert_frame_equal với check_dtype=False nếu chỉ khác độ rộng số; không bỏ qua khác giá trị."
+    },
+    {
+     "prompt": "Với file thật .sas7bdat, nêu cách đọc bằng API cũ trong slide và bằng pandas. Với .dta thì dùng gì? Một test XPORT có đủ xác nhận SAS7BDAT không?",
+     "answer": "API trong slide: with SAS7BDAT(str(path)) as reader: frame=reader.to_data_frame(). Pandas: pd.read_sas(path,format=\"sas7bdat\",encoding=\"utf8\"). Với .dta: pd.read_stata(path). XPORT và SAS7BDAT là hai format khác nhau; phải kiểm đúng fixture .sas7bdat, không suy từ .xpt."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "solve(data) nhận {\"values\": list số nguyên không rỗng}. Tạo DataFrame một cột units, ghi Stata .dta trong TemporaryDirectory với write_index=False, đọc lại bằng read_stata; trả {\"columns\": list tên cột, \"values\": các units}. Thực hiện round-trip định dạng thật.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'values': [3, 8, 0]}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'columns': ['units'], 'values': [3, 8, 0]}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import tempfile\nfrom pathlib import Path\nimport pandas as pd\ndef solve(data):\n    with tempfile.TemporaryDirectory() as folder:\n        path = Path(folder) / 'units.dta'\n        pd.DataFrame({'units':data['values']}).to_stata(path, write_index=False)\n        frame = pd.read_stata(path)\n        return {'columns':list(frame.columns), 'values':frame['units'].tolist()}\n",
+   "tests": [
+    {
+     "name": "nhiều dòng",
+     "input": {
+      "values": [
+       3,
+       8,
+       0
+      ]
+     },
+     "expected": {
+      "columns": [
+       "units"
+      ],
+      "values": [
+       3,
+       8,
+       0
+      ]
+     }
+    },
+    {
+     "name": "một dòng",
+     "input": {
+      "values": [
+       12
+      ]
+     },
+     "expected": {
+      "columns": [
+       "units"
+      ],
+      "values": [
+       12
+      ]
+     }
+    },
+    {
+     "name": "số âm",
+     "input": {
+      "values": [
+       -2,
+       4
+      ]
+     },
+     "expected": {
+      "columns": [
+       "units"
+      ],
+      "values": [
+       -2,
+       4
+      ]
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ],
+   "env": "Bài tập dưới đây chấm được ngay trong trình duyệt. Nhưng code trong phần bài đọc thì không: sas7bdat chưa có wheel trong /pyodide/v314.0.7/. Muốn chạy lại các đoạn đó thì mở Python trên máy."
+  }
+ },
+ "_mode": "mixed",
+ "_blocked": [
+  {
+   "block": 1,
+   "reason": "sas7bdat chưa có wheel trong /pyodide/v314.0.7/"
+  },
+  {
+   "block": 2,
+   "reason": "sas7bdat chưa có wheel trong /pyodide/v314.0.7/"
+  }
+ ],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 1,
+  "co": 0,
+  "bo": 1,
+  "loi": []
+ }
+}

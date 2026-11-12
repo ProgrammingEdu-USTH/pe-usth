@@ -1,0 +1,321 @@
+{
+ "lesson_code": "SY21",
+ "sort_order": 124,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY21 · Pickle, JSON và khôi phục trạng thái",
+ "subtitle": "Trung cấp · M5 · 15 phút",
+ "estimated_minutes": 15,
+ "xp_reward": 9,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY21 · Pickle, JSON và khôi phục trạng thái",
+  "subtitle": "Trung cấp · M5 · 15 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY21",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 179-182, 192, 328; Python — pickle; Python — json"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Nhiều file đã gom được vào một gói nén rồi, nhưng dữ liệu trong bộ nhớ thì khác. Bạn lưu một `tuple` gồm mã đơn của quán và danh sách số cốc. JSON và pickle (định dạng nhị phân riêng của Python) đều có thể lưu dữ liệu, nhưng kiểu khôi phục không giống nhau:"
+     },
+     {
+      "type": "code",
+      "code": "import pickle, json\nrecord = (\"DH-001\", [8, 9])\na = pickle.loads(pickle.dumps(record))\nb = json.loads(json.dumps(record))\nprint(type(a).__name__, type(b).__name__)\nprint(a == record)",
+      "expected": "tuple list\nTrue",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "b",
+        "prompt": "Sau khi chạy xong, `b` bằng mấy?",
+        "answer": "['DH-001', [8, 9]]"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "json",
+           "<thư viện json>"
+          ],
+          [
+           "pickle",
+           "<thư viện pickle>"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "record",
+           "('DH-001', [8, 9])"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "a",
+           "('DH-001', [8, 9])"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "set": [
+          [
+           "b",
+           "['DH-001', [8, 9]]"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "out": "tuple list"
+        },
+        {
+         "line": 6,
+         "out": "True"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Pickle lưu biểu diễn nhị phân của cấu trúc object Python; JSON là text với tập kiểu đơn giản hơn. JSON chuyển `tuple` thành array, đọc lại thành `list`. Pickle còn giữ `set` và nhiều kiểu Python khác, nhưng không thể mặc định lưu mọi tài nguyên đang mở."
+     },
+     {
+      "type": "code",
+      "code": "import pickle, tempfile\nstate = {\"ids\": {\"DH-001\", \"DH-002\"}, \"so_coc\": (8, 9)}\nwith tempfile.TemporaryFile(mode=\"w+b\") as f:\n    pickle.dump(state, f)\n    f.seek(0)\n    restored = pickle.load(f)\nprint(restored == state)\nprint(type(restored[\"ids\"]).__name__)",
+      "expected": "True\nset",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`dump/load` nhận file binary, còn `dumps/loads` dùng `bytes` trong memory. Function và class cấp module thường được lưu theo tên tham chiếu; khi load phải còn module/class tương thích. File handle hoặc socket không tự khôi phục kết nối chỉ nhờ pickle."
+     },
+     {
+      "type": "code",
+      "code": "import gzip, pickle\nstate = {\"version\": 1, \"items\": {\"latte\": {\"name\": \"Latte\", \"group\": \"Ca phe\"}}}\npacked = gzip.compress(pickle.dumps(state))\nrestored = pickle.loads(gzip.decompress(packed))\nprint(restored[\"version\"])\nprint(restored[\"items\"][\"latte\"][\"name\"])",
+      "expected": "1\nLatte",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Chỉ unpickle dữ liệu do bạn tạo và tin cậy: unpickle có thể thực thi mã. Đuôi .dat hay nén `gzip` không làm file lạ an toàn. Chọn định dạng theo việc cần làm, xem bảng dưới."
+     },
+     {
+      "type": "table",
+      "headers": [
+       "Dùng để",
+       "Chọn"
+      ],
+      "rows": [
+       [
+        "trao đổi dữ liệu với hệ khác",
+        "JSON — thường tiện hơn"
+       ],
+       [
+        "lưu state Python trong lab",
+        "pickle — nếu bạn quản lý phiên bản schema và nơi tạo file"
+       ]
+      ]
+     },
+     {
+      "type": "paragraph",
+      "text": "JSON lưu được số, chuỗi, boolean, null, `list` và object với khóa chuỗi. `json.dumps({1, 2})` gây TypeError vì `set` không có biểu diễn JSON mặc định; instance class tự tạo cũng cần chuyển thành dữ liệu đơn giản hoặc bộ mã hóa riêng. Ngược lại, một scalar hay collection chỉ pickle được khi các thành phần bên trong cũng pickle được."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "SY20 · Gom nhiều file bằng ZIP và tar"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "pickle.loads từ file người lạ gửi có an toàn chỉ vì đuôi .dat không?",
+     "options": [
+      {
+       "text": "Có; .dat chỉ chứa dữ liệu",
+       "detail": "Phần mở rộng không giới hạn khả năng của pickle."
+      },
+      {
+       "text": "Có nếu thử json.loads trước",
+       "detail": "Thử bộ đọc khác không chứng minh payload pickle an toàn."
+      },
+      {
+       "text": "Không; chỉ unpickle dữ liệu đáng tin",
+       "detail": "Quá trình unpickle có thể thực thi hành vi; đổi tên file không loại bỏ điều đó.",
+       "correct": true
+      }
+     ],
+     "explanation": "Quá trình unpickle có thể thực thi hành vi; đổi tên file không loại bỏ điều đó."
+    },
+    {
+     "question": "JSON round trip một tuple (\"S1\",[8,9]) thường khôi phục phần ngoài thành gì?",
+     "options": [
+      {
+       "text": "tuple",
+       "detail": "Chưa đúng. JSON array được đọc thành list theo bộ đọc mặc định; nó không giữ mọi kiểu Python."
+      },
+      {
+       "text": "list",
+       "detail": "JSON array được đọc thành list theo bộ đọc mặc định; nó không giữ mọi kiểu Python.",
+       "correct": true
+      },
+      {
+       "text": "set",
+       "detail": "Chưa đúng. JSON array được đọc thành list theo bộ đọc mặc định; nó không giữ mọi kiểu Python."
+      }
+     ],
+     "explanation": "JSON array được đọc thành list theo bộ đọc mặc định; nó không giữ mọi kiểu Python."
+    },
+    {
+     "question": "pickle.dumps và pickle.dump khác nhau ở đích ghi nào?",
+     "options": [
+      {
+       "text": "dumps trả bytes; dump ghi vào file binary",
+       "detail": "Hậu tố s dùng dữ liệu trong RAM; dump nhận file để ghi.",
+       "correct": true
+      },
+      {
+       "text": "dump trả JSON còn dumps trả str",
+       "detail": "Chưa đúng. Hậu tố s dùng dữ liệu trong RAM; dump nhận file để ghi."
+      },
+      {
+       "text": "Cả hai chỉ ghi file text",
+       "detail": "Chưa đúng. Hậu tố s dùng dữ liệu trong RAM; dump nhận file để ghi."
+      }
+     ],
+     "explanation": "Hậu tố s dùng dữ liệu trong RAM; dump nhận file để ghi."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "dump khác dumps ở đâu?",
+     "answer": "dump ghi vào file binary; dumps trả bytes. load/loads là hai chiều đọc tương ứng."
+    },
+    {
+     "prompt": "Có thể tải pickle người lạ rồi thử load để xem có an toàn không?",
+     "answer": "Không. Ngay thao tác load đã có thể chạy mã; chỉ dùng fixture tin cậy trong lab."
+    },
+    {
+     "prompt": "Làm PW6 thay state text bằng gzip+pickle, giữ kiểu và version.",
+     "answer": "Lưu dict version/items/ingredients/recipe qua pickle.dump trong gzip.open(...,\"wb\"); load bằng rb, kiểm version trước dùng. Thử mở lại sau khi reset state, tuple/set, file thiếu, gzip hỏng. Không trả state rỗng khi có file hỏng mà không báo lỗi."
+    },
+    {
+     "prompt": "Pickle scalar/collection có luôn được không? Lưu function/class cấp module và file/socket khác nhau thế nào?",
+     "answer": "Chỉ được khi các thành phần pickle được. Function/class cấp module thường được lưu theo tên, load cần đúng module/định nghĩa tương thích. File handle/socket là tài nguyên đang mở, không tự pickle rồi khôi phục kết nối được."
+    },
+    {
+     "prompt": "Cần trao đổi dữ liệu với hệ khác và xem bằng editor: chọn JSON hay pickle? Tuple, set và class có đi qua JSON nguyên kiểu không?",
+     "answer": "Thường chọn JSON text với dữ liệu đơn giản; pickle binary thiên Python. Tuple thành array rồi list khi load; set/class tự tạo không hỗ trợ trực tiếp nếu không chuyển đổi hoặc có encoder. Không chọn pickle chỉ vì nó giữ được nhiều kiểu khi nguồn file không tin cậy."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "solve(data) nhận list số. Tạo tuple từ list này; round-trip qua JSON và qua pickle trong bộ nhớ. Trả {\"json_type\": tên kiểu nhận từ JSON, \"pickle_type\": tên kiểu nhận từ pickle, \"json_values\": list giá trị, \"pickle_values\": list giá trị}. Chỉ unpickle byte vừa tự tạo.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "[2, 9]"
+     },
+     {
+      "label": "trả về",
+      "value": "{'json_type': 'list', 'pickle_type': 'tuple', 'json_values': [2, 9], 'pickle_values': [2, 9]}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import json, pickle\ndef solve(data):\n    original = tuple(data)\n    from_json = json.loads(json.dumps(original))\n    from_pickle = pickle.loads(pickle.dumps(original))\n    return {'json_type':type(from_json).__name__, 'pickle_type':type(from_pickle).__name__, 'json_values':from_json, 'pickle_values':list(from_pickle)}\n",
+   "tests": [
+    {
+     "name": "hai số",
+     "input": [
+      2,
+      9
+     ],
+     "expected": {
+      "json_type": "list",
+      "pickle_type": "tuple",
+      "json_values": [
+       2,
+       9
+      ],
+      "pickle_values": [
+       2,
+       9
+      ]
+     }
+    },
+    {
+     "name": "rỗng",
+     "input": [],
+     "expected": {
+      "json_type": "list",
+      "pickle_type": "tuple",
+      "json_values": [],
+      "pickle_values": []
+     }
+    },
+    {
+     "name": "âm và thực",
+     "input": [
+      -1,
+      2.5
+     ],
+     "expected": {
+      "json_type": "list",
+      "pickle_type": "tuple",
+      "json_values": [
+       -1,
+       2.5
+      ],
+      "pickle_values": [
+       -1,
+       2.5
+      ]
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 1,
+  "bo": 2,
+  "loi": []
+ }
+}

@@ -1,0 +1,427 @@
+{
+ "lesson_code": "SY28",
+ "sort_order": 131,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY28 · PW6: đổi persistence sang pickle có nén",
+ "subtitle": "Trung cấp · M5 · 13 phút",
+ "estimated_minutes": 13,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY28 · PW6: đổi persistence sang pickle có nén",
+  "subtitle": "Trung cấp · M5 · 13 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY28",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 179-182, 192; Python — pickle; Python — gzip"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Ba file ở bước trước lưu được dữ liệu, nhưng mỗi lần đọc lại phải tự ghép. PW5 đã đọc được dữ liệu text. Ở PW6, bạn giữ chức năng chương trình nhưng thay cách lưu bằng pickle có nén. Bắt đầu từ bộ dữ liệu của quán, gồm cả thông tin định danh và phiên bản cấu trúc:"
+     },
+     {
+      "type": "code",
+      "code": "import gzip, pickle\nstate = {\"version\": 1, \"items\": {\"latte\": {\"name\": \"Latte\", \"group\": \"Ca phe\"}}, \"ingredients\": {\"ca-phe-hat\": {\"name\": \"Ca phe hat\", \"unit\": \"g\"}}, \"recipe\": {(\"latte\", \"ca-phe-hat\"): 8.7}}\nblob = gzip.compress(pickle.dumps(state))\nloaded = pickle.loads(gzip.decompress(blob))\nprint(loaded == state)\nprint(loaded[\"recipe\"][(\"latte\", \"ca-phe-hat\")])",
+      "expected": "True\n8.7",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Pickle giữ `tuple` key của bảng định lượng mà JSON không hỗ trợ trực tiếp cho key. Khi lưu object domain thật, giữ class ở module ổn định như domains.item; khi load Python cần tìm đúng class đó. Giữ toàn bộ state trong một `dict` version giúp kiểm schema trước khi cập nhật registry."
+     },
+     {
+      "type": "code",
+      "code": "import gzip, pickle, tempfile\nfrom pathlib import Path\nwith tempfile.TemporaryDirectory() as folder:\n    path = Path(folder) / \"quan.dat\"\n    with gzip.open(path, \"wb\") as f: pickle.dump({\"version\": 1, \"amounts\": (8, 9)}, f)\n    with gzip.open(path, \"rb\") as f: loaded = pickle.load(f)\n    print(type(loaded[\"amounts\"]).__name__)\n    print(loaded[\"version\"])",
+      "expected": "tuple\n1",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "loaded",
+        "prompt": "Sau khi chạy xong, `loaded` bằng mấy?",
+        "answer": "{'version': 1, 'amounts': (8, 9)}"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "tempfile",
+           "<thư viện tempfile>"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "Path",
+           "<lớp Path>"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "folder",
+           "'C:\\\\Users\\\\sonkh\\\\AppData\\\\Local\\\\Temp\\\\tmp8h0yw9hn'"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "set": [
+          [
+           "path",
+           "WindowsPath: WindowsPath('C:/Users/sonkh/AppData/Local/Temp/tmp8h0yw9hn…"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "set": [
+          [
+           "f",
+           "GzipFile(mode='wb', fileobj=None, _buffer=BufferedWriter(), myfileobj=N…"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "set": [
+          [
+           "f",
+           "GzipFile(mode='rb', fileobj=None, _buffer=BufferedReader(), myfileobj=N…"
+          ],
+          [
+           "loaded",
+           "{'version': 1, 'amounts': (8, 9)}"
+          ]
+         ]
+        },
+        {
+         "line": 7,
+         "out": "tuple"
+        },
+        {
+         "line": 8,
+         "out": "1"
+        },
+        {
+         "line": 3
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`gzip.open` ghép file IO và nén; pickle.dump vẫn ghi binary. Mã load chỉ dùng file do lab tạo và tin cậy. Nếu đổi version hoặc class không còn tương thích, hãy thông báo cần migration thay vì đoán cấu trúc."
+     },
+     {
+      "type": "code",
+      "code": "def validate_version(state):\n    if not isinstance(state, dict) or state.get(\"version\") != 1:\n        raise ValueError(\"unsupported schema\")\n    return state\ntry:\n    validate_version({\"version\": 2})\nexcept ValueError:\n    print(\"Can chuyen doi du lieu\")\nprint(validate_version({\"version\": 1})[\"version\"])",
+      "expected": "Can chuyen doi du lieu\n1",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "state",
+        "line": 1,
+        "prompt": "Ngay sau khi dòng 1 chạy, `state` bằng mấy?",
+        "answer": "{'version': 2}"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "validate_version",
+           "<hàm validate_version>"
+          ]
+         ]
+        },
+        {
+         "line": 5
+        },
+        {
+         "line": 6
+        },
+        {
+         "line": 1,
+         "fn": "validate_version",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "state",
+           "{'version': 2}"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "validate_version",
+         "depth": 1
+        },
+        {
+         "line": 3,
+         "fn": "validate_version",
+         "depth": 1
+        },
+        {
+         "line": 3,
+         "fn": "validate_version",
+         "depth": 1,
+         "exc": "ValueError: unsupported schema"
+        },
+        {
+         "line": 3,
+         "fn": "validate_version",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 6,
+         "exc": "ValueError: unsupported schema"
+        },
+        {
+         "line": 7
+        },
+        {
+         "line": 8,
+         "out": "Can chuyen doi du lieu"
+        },
+        {
+         "line": 9
+        },
+        {
+         "line": 1,
+         "fn": "validate_version",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "state",
+           "{'version': 1}"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "validate_version",
+         "depth": 1
+        },
+        {
+         "line": 4,
+         "fn": "validate_version",
+         "depth": 1
+        },
+        {
+         "line": 4,
+         "fn": "validate_version",
+         "depth": 1,
+         "ret": "{'version': 1}",
+         "out": "1"
+        },
+        {
+         "line": 9,
+         "ret": "None"
+        }
+       ]
+      }
+     },
+     {
+      "type": "paragraph",
+      "text": "Kiểm version chỉ là bước đầu; vẫn phải kiểm món, nguyên liệu, định lượng và tham chiếu như PW5. Nạp state vào biến tạm, xác nhận hợp lệ rồi mới thay registry đang dùng. Bước tiếp theo của nguồn là PW8 đưa việc lưu này sang thread nền và PW9 dùng GUI; đổi persistence ở đây chưa tự có hai tính năng đó. Quán đã thành một hệ thống chạy lại được; chặng sau là lúc nó có hai quầy."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "SY21 · Pickle, JSON và khôi phục trạng thái, SY27 · PW5: lưu ba file, nén và nạp lại"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Snapshot đọc được nhưng sai version. Có nên gán ngay vào dữ liệu hiện tại rồi mới kiểm không?",
+     "options": [
+      {
+       "text": "Có; có thể kiểm sau khi đã mất dữ liệu cũ",
+       "detail": "Gán sớm có thể thay trạng thái tốt bằng dữ liệu không dùng được."
+      },
+      {
+       "text": "Chỉ kiểm đuôi .dat là đủ",
+       "detail": "Đuôi không xác nhận cấu trúc hay version snapshot."
+      },
+      {
+       "text": "Không; đọc vào biến tạm và kiểm trước",
+       "detail": "Chỉ thay trạng thái đang dùng sau khi cấu trúc, version và dữ liệu đều hợp lệ.",
+       "correct": true
+      }
+     ],
+     "explanation": "Chỉ thay trạng thái đang dùng sau khi cấu trúc, version và dữ liệu đều hợp lệ."
+    },
+    {
+     "question": "PW6 dùng gzip.open(...,\"wb\") cùng pickle.dump. Hai phần làm gì?",
+     "options": [
+      {
+       "text": "Pickle tạo biểu diễn object, gzip nén dữ liệu ghi",
+       "detail": "Serialize và nén là hai tầng xử lý với vai trò khác nhau.",
+       "correct": true
+      },
+      {
+       "text": "gzip thay thế luôn việc serialize object",
+       "detail": "Chưa đúng. Serialize và nén là hai tầng xử lý với vai trò khác nhau."
+      },
+      {
+       "text": "Cả hai đều chỉ mã hóa mật khẩu",
+       "detail": "Chưa đúng. Serialize và nén là hai tầng xử lý với vai trò khác nhau."
+      }
+     ],
+     "explanation": "Serialize và nén là hai tầng xử lý với vai trò khác nhau."
+    },
+    {
+     "question": "Vì sao snapshot có trường version?",
+     "options": [
+      {
+       "text": "Để GPA tự cập nhật",
+       "detail": "Chưa đúng. Version giúp quyết định dữ liệu có tương thích, không thay việc kiểm các trường bên trong."
+      },
+      {
+       "text": "Nhận biết cấu trúc cần đọc hoặc chuyển đổi",
+       "detail": "Version giúp quyết định dữ liệu có tương thích, không thay việc kiểm các trường bên trong.",
+       "correct": true
+      },
+      {
+       "text": "Để mọi file lạ tự an toàn",
+       "detail": "Chưa đúng. Version giúp quyết định dữ liệu có tương thích, không thay việc kiểm các trường bên trong."
+      }
+     ],
+     "explanation": "Version giúp quyết định dữ liệu có tương thích, không thay việc kiểm các trường bên trong."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Vì sao cần giữ module class khi pickle object?",
+     "answer": "Pickle thường lưu tham chiếu tên class/function; load phải import được định nghĩa tương thích để tạo lại object."
+    },
+    {
+     "prompt": "Gzip có làm pickle tải từ người lạ an toàn không?",
+     "answer": "Không. Sau giải nén, pickle.load vẫn có thể thực thi mã."
+    },
+    {
+     "prompt": "Hoàn thiện PW6 với state domain và kiểm đủ tính năng cũ.",
+     "answer": "Lưu registry qua gzip.open wb + pickle.dump, load rb + pickle.load từ file tin cậy. Đặt Item/Ingredient/RecipeLine trong module domains ổn định. Nạp vào tempstate, kiểm version/mã/nhóm/unit/định lượng, rồi mới thay registry. Thử hai lần chạy, kiểu object giữ được, lượng 0, trung bình và thứ tự như cũ, file thiếu/file hỏng/version lạ. Lỗi load giữ state hiện tại và file cũ; không báo lưu thành công trước khi dump/close xong."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận dict có state. Nếu state là dict và state[\"version\"] bằng 1 thì trả dict có ok là True và items là SỐ món trong state[\"items\"]. Ngược lại trả dict có ok là False và reason là \"Can chuyen doi du lieu\".",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'state': {'version': 1, 'items': {'latte': {}, 'mocha': {}}}}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'ok': True, 'items': 2}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "def solve(data):\n    state = data[\"state\"]\n    if not isinstance(state, dict) or state.get(\"version\") != 1:\n        return {\"ok\": False, \"reason\": \"Can chuyen doi du lieu\"}\n    return {\"ok\": True, \"items\": len(state.get(\"items\", {}))}\n",
+   "tests": [
+    {
+     "name": "Đúng phiên bản, hai món",
+     "input": {
+      "state": {
+       "version": 1,
+       "items": {
+        "latte": {},
+        "mocha": {}
+       }
+      }
+     },
+     "expected": {
+      "ok": true,
+      "items": 2
+     }
+    },
+    {
+     "name": "Phiên bản lạ",
+     "input": {
+      "state": {
+       "version": 2,
+       "items": {
+        "latte": {}
+       }
+      }
+     },
+     "expected": {
+      "ok": false,
+      "reason": "Can chuyen doi du lieu"
+     }
+    },
+    {
+     "name": "Không phải dict",
+     "input": {
+      "state": "quan.dat"
+     },
+     "expected": {
+      "ok": false,
+      "reason": "Can chuyen doi du lieu"
+     }
+    },
+    {
+     "name": "Đúng phiên bản, chưa có món nào",
+     "input": {
+      "state": {
+       "version": 1,
+       "items": {}
+      }
+     },
+     "expected": {
+      "ok": true,
+      "items": 0
+     }
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Kiểm kiểu TRƯỚC khi gọi .get() — state có thể không phải dict."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "state.get(\"version\") != 1 bắt cả trường hợp thiếu hẳn khoá version."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 2,
+  "bo": 1,
+  "loi": []
+ }
+}

@@ -1,0 +1,285 @@
+{
+ "lesson_code": "PD16",
+ "sort_order": 57,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD16 · Merge: nối đơn hàng với bảng món",
+ "subtitle": "Trung cấp · M3 · 13 phút",
+ "estimated_minutes": 13,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PD16 · Merge: nối đơn hàng với bảng món",
+  "subtitle": "Trung cấp · M3 · 13 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PD16",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas · Merge"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Số của nhóm đã về từng hàng rồi, nhưng tên món của quán nằm ở một bảng khác. Bảng đơn hàng chỉ có mã món. Tên món và nhóm nằm trong bảng món. merge dùng mã chung để bổ sung thông tin món vào mỗi đơn."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndon = pd.DataFrame({'ma_don': ['DH-001', 'DH-002'], 'mon': ['latte', 'bac-xiu']})\nmon = pd.DataFrame({'mon': ['latte', 'bac-xiu'], 'ten_mon': ['Latte', 'Bac xiu']})\nban = don.merge(mon, on='mon', how='left')\nprint(ban[['ma_don', 'ten_mon']].to_dict('records'))",
+      "expected": "[{'ma_don': 'DH-001', 'ten_mon': 'Latte'}, {'ma_don': 'DH-002', 'ten_mon': 'Bac xiu'}]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "left giữ các khóa từ bảng bên trái. Với bảng món có mã duy nhất như ví dụ này, mỗi đơn nhận đúng một tên. Nếu món không có trong thực đơn, thông tin bổ sung bị thiếu."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nban = pd.DataFrame({'mon': ['latte', 'bac-xiu'], 'so_coc': [10, 20]})\nthuc_don = pd.DataFrame({'mon': ['bac-xiu', 'tra-dao'], 'nhom': ['Ca phe', 'Tra']})\nprint(ban.merge(thuc_don, on='mon', how='inner')['mon'].tolist())\nprint(ban.merge(thuc_don, on='mon', how='left')['nhom'].isna().tolist())\nprint(sorted(ban.merge(thuc_don, on='mon', how='outer')['mon'].tolist()))",
+      "expected": "['bac-xiu']\n[True, False]\n['bac-xiu', 'latte', 'tra-dao']",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "inner chỉ giữ khóa có ở cả hai phía; outer giữ hợp các khóa. Nếu hai bảng có cột trùng tên ngoài khóa, suffixes=(\"_don\", \"_mon\") giúp phân biệt nguồn cột. Khi khóa nằm ở index bảng phải, có thể dùng join."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndon = pd.DataFrame({'quay': [2, 1], 'tong_tien': [20000, 10000]})\nquay = pd.DataFrame({'khu_vuc': ['Mat pho', 'Trong hem']}, index=[1, 2])\nprint(don.join(quay, on='quay')['khu_vuc'].tolist())",
+      "expected": "['Trong hem', 'Mat pho']",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "join với on=\"quay\" đối chiếu cột của bảng trái với index bảng phải. Dù dùng merge hay join, hãy kiểm tra độ duy nhất của khóa; bảng tra trùng mã có thể nhân số hàng giao dịch."
+     },
+     {
+      "type": "paragraph",
+      "text": "Bảng danh mục của quán có THẬT trong thư mục của bài này: `mon.csv` giữ mã món, tên và giá niêm yết. Đây đúng là hình dạng mà `merge` sinh ra để phục vụ. Một bên là đơn hàng đổi từng ngày, một bên là danh mục đứng yên; chúng nối với nhau bằng mã món. Và câu hỏi ngay trên vẫn là câu hỏi đầu tiên: mã trong bảng danh mục có duy nhất không? Nếu không, phép nối sẽ nhân số hàng đơn hàng lên."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\n\nmon = pd.read_csv('mon.csv')\ndon = pd.DataFrame({'mon': ['latte', 'bac-xiu', 'latte', 'tra-dao']})\nban = don.merge(mon[['mon', 'ten_mon', 'gia_niem_yet']], on='mon', how='left')\nprint(mon['mon'].is_unique)\nprint(ban['ten_mon'].tolist())\nprint(int(ban['gia_niem_yet'].sum()))\n",
+      "expected": "True\n['Latte', 'Bạc xỉu', 'Latte', 'Trà đào cam sả']\n161000"
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "PD15 · Transform: giữ từng hàng và thêm số của nhóm"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Trái có mã [1,2], phải chỉ có 1. left merge giữ mã nào?",
+     "options": [
+      {
+       "text": "[1,2]",
+       "detail": "Đúng: giữ các hàng bên trái, bổ sung thiếu cho mã 2.",
+       "correct": true
+      },
+      {
+       "text": "[]",
+       "detail": "Vẫn có một mã khớp và left còn giữ mã chưa khớp."
+      },
+      {
+       "text": "[1]",
+       "detail": "Đó là inner merge."
+      }
+     ],
+     "explanation": "how=\"left\" giữ bảng chính khi bổ sung thông tin danh mục."
+    },
+    {
+     "question": "Muốn giữ các đơn chưa tìm thấy khách, chọn how nào?\n\nimport pandas as pd\norders = pd.DataFrame({'order': ['O1', 'O2'], 'customer_id': [1, 2]})\ncustomers = pd.DataFrame({'customer_id': [1, 2], 'name': ['An', 'Binh']})\njoined = orders.merge(customers, on='customer_id', how='left')\nprint(joined[['order', 'name']].to_dict('records'))",
+     "options": [
+      {
+       "text": "how=\"inner\" sẽ giữ mọi hàng của orders.",
+       "detail": "inner chỉ giữ phần khớp ở cả hai bên."
+      },
+      {
+       "text": "how=\"left\", khi orders nằm bên trái.",
+       "detail": "how=\"left\", khi orders nằm bên trái.",
+       "correct": true
+      },
+      {
+       "text": "how=\"right\" luôn giữ toàn bộ orders bên trái.",
+       "detail": "right ưu tiên giữ bảng bên phải, không bảo đảm giữ hết orders."
+      }
+     ],
+     "explanation": "how=\"left\", khi orders nằm bên trái."
+    },
+    {
+     "question": "inner join giữa các mã [1,2] và [2,3] giữ mã nào?\n\nimport pandas as pd\nleft = pd.DataFrame({'id': [1, 2], 'amount': [10, 20]})\nright = pd.DataFrame({'id': [2, 3], 'city': ['HN', 'DN']})\nprint(left.merge(right, on='id', how='inner')['id'].tolist())\nprint(left.merge(right, on='id', how='left')['city'].isna().tolist())\nprint(sorted(left.merge(right, on='id', how='outer')['id'].tolist()))",
+     "options": [
+      {
+       "text": "Không giữ mã nào vì hai list không giống hệt.",
+       "detail": "Hai tập không cần giống hệt để có một phần giao."
+      },
+      {
+       "text": "Giữ cả 1, 2 và 3.",
+       "detail": "Đây là hợp của hai tập khóa, phù hợp outer hơn."
+      },
+      {
+       "text": "Chỉ mã 2.",
+       "detail": "Chỉ mã 2.",
+       "correct": true
+      }
+     ],
+     "explanation": "Chỉ mã 2."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Muốn giữ các đơn chưa tìm thấy khách, chọn how nào?",
+     "answer": "how=\"left\", khi orders nằm bên trái."
+    },
+    {
+     "prompt": "inner join giữa các mã [1,2] và [2,3] giữ mã nào?",
+     "answer": "Chỉ mã 2."
+    },
+    {
+     "prompt": "Nối đơn customer_id=[1,2] với danh mục chỉ có id=1, rồi đếm tên thiếu.",
+     "answer": "Một đơn chưa có tên khách.",
+     "answerCode": "import pandas as pd\norders = pd.DataFrame({'customer_id': [1, 2]})\ncustomers = pd.DataFrame({'customer_id': [1], 'name': ['An']})\nprint(orders.merge(customers, on='customer_id', how='left')['name'].isna().sum())",
+     "answerExpected": "1"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.orders chứa product_id và so_coc; data.products chứa product_id và name, mã danh mục là duy nhất. Nối trái theo product_id, trả list tên theo thứ tự đơn; tên chưa khớp là \"Unknown\".",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'orders': [{'product_id': 2, 'so_coc': 1}, {'product_id': 1, 'so_coc': 3}], 'products': [{'product_id': 1, 'name': 'Book'}, {'product_id': 2, 'name': 'Pen'}]}"
+     },
+     {
+      "label": "trả về",
+      "value": "['Pen', 'Book']"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     orders = pd.DataFrame(data['orders'], columns=['product_id','so_coc'])\n     products = pd.DataFrame(data['products'], columns=['product_id','name'])\n     joined = orders.merge(products, on='product_id', how='left', sort=False)\n     return joined['name'].fillna('Unknown').tolist()\n",
+   "tests": [
+    {
+     "name": "danh mục khác thứ tự",
+     "input": {
+      "orders": [
+       {
+        "product_id": 2,
+        "so_coc": 1
+       },
+       {
+        "product_id": 1,
+        "so_coc": 3
+       }
+      ],
+      "products": [
+       {
+        "product_id": 1,
+        "name": "Book"
+       },
+       {
+        "product_id": 2,
+        "name": "Pen"
+       }
+      ]
+     },
+     "expected": [
+      "Pen",
+      "Book"
+     ]
+    },
+    {
+     "name": "mã chưa có",
+     "input": {
+      "orders": [
+       {
+        "product_id": 9,
+        "so_coc": 2
+       }
+      ],
+      "products": [
+       {
+        "product_id": 1,
+        "name": "Book"
+       }
+      ]
+     },
+     "expected": [
+      "Unknown"
+     ]
+    },
+    {
+     "name": "nhiều đơn cùng mã",
+     "input": {
+      "orders": [
+       {
+        "product_id": 1,
+        "so_coc": 1
+       },
+       {
+        "product_id": 1,
+        "so_coc": 2
+       }
+      ],
+      "products": [
+       {
+        "product_id": 1,
+        "name": "Tea"
+       }
+      ]
+     },
+     "expected": [
+      "Tea",
+      "Tea"
+     ]
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Phía đơn hàng cần giữ cả mã chưa tìm được trong danh mục."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Nối bảng trái với danh mục mà vẫn giữ hàng chưa khớp."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ],
+   "dataFiles": [
+    "mon.csv"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_du_lieu": {
+  "files": [
+   "mon.csv"
+  ],
+  "blocks": [
+   3
+  ]
+ },
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

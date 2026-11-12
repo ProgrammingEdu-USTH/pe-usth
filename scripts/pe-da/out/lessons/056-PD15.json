@@ -1,0 +1,246 @@
+{
+ "lesson_code": "PD15",
+ "sort_order": 56,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD15 · Transform: giữ từng hàng và thêm số của nhóm",
+ "subtitle": "Trung cấp · M3 · 11 phút",
+ "estimated_minutes": 11,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PD15 · Transform: giữ từng hàng và thêm số của nhóm",
+  "subtitle": "Trung cấp · M3 · 11 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PD15",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas · Transformation"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Phép gộp ở bài trước làm bảng ngắn lại, nhưng có lúc quán cần giữ đủ từng hàng. Bạn muốn biết mỗi giao dịch đóng góp bao nhiêu vào doanh thu cửa hàng. Tổng hợp thông thường làm mất từng giao dịch; transform đưa tổng của nhóm trở lại các hàng ban đầu."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'amount': [10, 30, 20]})\ntotal = df.groupby('store')['amount'].transform('sum')\ndf['share'] = df['amount'] / total\nprint(total.tolist())\nprint(df['share'].tolist())",
+      "expected": "[40, 40, 20]\n[0.25, 0.75, 1.0]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Hai giao dịch của A đều nhận tổng 40, nên tỷ trọng lần lượt là 25% và 75%. transform giữ số hàng và index để bạn gán lại thành cột. Cần xử lý riêng nếu mẫu số bằng 0."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'amount': [10, 30, 20]})\nprint(df.groupby('store')['amount'].rank(ascending=False, method='dense').tolist())\nprint((df.groupby('store').cumcount() + 1).tolist())",
+      "expected": "[2.0, 1.0, 1.0]\n[1, 2, 1]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "rank xếp hạng trong từng nhóm; dense không bỏ trống số hạng sau các giá trị bằng nhau. cumcount đánh số theo thứ tự hàng hiện có trong mỗi nhóm. Nếu muốn đánh số theo ngày, hãy sắp xếp ngày trước."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'amount': [10, 30, 20]})\nkept = df.groupby('store').filter(lambda group: len(group) >= 2)\nprint(kept['store'].tolist())",
+      "expected": "['A', 'A']",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "filter ở đây giữ hoặc bỏ cả nhóm tùy điều kiện. Nó khác df.loc[mask] vốn chọn từng hàng. Với phép tính có sẵn như sum, mean hoặc rank, ưu tiên hàm có sẵn để ý định dễ đọc."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "PD14 · Groupby: tổng hợp theo nhóm"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "store=[A,A,B], amount=[5,15,8]. transform(\"sum\") cho gì?",
+     "options": [
+      {
+       "text": "[20,8]",
+       "detail": "Đây là kết quả tổng hợp một hàng mỗi nhóm."
+      },
+      {
+       "text": "[28,28,28]",
+       "detail": "28 là tổng cả bảng, không phải từng nhóm."
+      },
+      {
+       "text": "[20,20,8]",
+       "detail": "Đúng: mỗi hàng nhận tổng nhóm của nó.",
+       "correct": true
+      }
+     ],
+     "explanation": "transform giữ số hàng và index của bảng giao dịch."
+    },
+    {
+     "question": "Vì sao transform phù hợp để thêm tổng nhóm vào bảng giao dịch?\n\nimport pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'amount': [10, 30, 20]})\ntotal = df.groupby('store')['amount'].transform('sum')\ndf['share'] = df['amount'] / total\nprint(total.tolist())\nprint(df['share'].tolist())",
+     "options": [
+      {
+       "text": "Vì kết quả giữ các hàng và index tương ứng với bảng đầu vào.",
+       "detail": "Vì kết quả giữ các hàng và index tương ứng với bảng đầu vào.",
+       "correct": true
+      },
+      {
+       "text": "Vì transform chỉ trả một hàng cho mỗi nhóm.",
+       "detail": "Một hàng mỗi nhóm là kết quả tổng hợp, không phải transform."
+      },
+      {
+       "text": "Vì transform luôn sắp các hàng theo giá trị giảm dần.",
+       "detail": "Giữ index không đồng nghĩa tự sắp giảm dần giá trị."
+      }
+     ],
+     "explanation": "Vì kết quả giữ các hàng và index tương ứng với bảng đầu vào."
+    },
+    {
+     "question": "Cần làm gì trước cumcount nếu muốn đánh số đơn theo ngày?\n\nimport pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'amount': [10, 30, 20]})\nprint(df.groupby('store')['amount'].rank(ascending=False, method='dense').tolist())\nprint((df.groupby('store').cumcount() + 1).tolist())",
+     "options": [
+      {
+       "text": "Bỏ cột ngày vì cumcount tự lấy lịch máy.",
+       "detail": "Ngày trên máy không xác định thứ tự các đơn trong dữ liệu."
+      },
+      {
+       "text": "Sắp xếp theo ngày trong nhóm trước.",
+       "detail": "Sắp xếp theo ngày trong nhóm trước.",
+       "correct": true
+      },
+      {
+       "text": "Không cần sắp; cumcount tự nhận ra thứ tự ngày.",
+       "detail": "cumcount không tự sắp theo cột ngày."
+      }
+     ],
+     "explanation": "Sắp xếp theo ngày trong nhóm trước."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Vì sao transform phù hợp để thêm tổng nhóm vào bảng giao dịch?",
+     "answer": "Vì kết quả giữ các hàng và index tương ứng với bảng đầu vào."
+    },
+    {
+     "prompt": "Cần làm gì trước cumcount nếu muốn đánh số đơn theo ngày?",
+     "answer": "Sắp xếp theo ngày trong nhóm trước."
+    },
+    {
+     "prompt": "Tính trung bình nhóm g=[A,A,B], x=[2,4,9] rồi đưa về từng hàng.",
+     "answer": "Kết quả [3.0, 3.0, 9.0].",
+     "answerCode": "import pandas as pd\ndf = pd.DataFrame({'g': ['A', 'A', 'B'], 'x': [2, 4, 9]})\nprint(df.groupby('g')['x'].transform('mean').tolist())",
+     "answerExpected": "[3.0, 3.0, 9.0]"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.rows gồm group và value; mỗi nhóm có tổng dương. Trả list tỷ trọng value/tổng nhóm theo đúng thứ tự gốc. Không trả bảng đã gộp mất giao dịch.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'rows': [{'group': 'X', 'value': 2}, {'group': 'Y', 'value': 9}, {'group': 'X', 'value': 6}]}"
+     },
+     {
+      "label": "trả về",
+      "value": "[0.25, 1.0, 0.75]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     df = pd.DataFrame(data['rows'])\n     totals = df.groupby('group')['value'].transform('sum')\n     return (df['value'] / totals).tolist()\n",
+   "tests": [
+    {
+     "name": "tỷ trọng mới",
+     "input": {
+      "rows": [
+       {
+        "group": "X",
+        "value": 2
+       },
+       {
+        "group": "Y",
+        "value": 9
+       },
+       {
+        "group": "X",
+        "value": 6
+       }
+      ]
+     },
+     "expected": [
+      0.25,
+      1.0,
+      0.75
+     ]
+    },
+    {
+     "name": "nhóm chỉ có một hàng",
+     "input": {
+      "rows": [
+       {
+        "group": "A",
+        "value": 4
+       }
+      ]
+     },
+     "expected": [
+      1.0
+     ]
+    },
+    {
+     "name": "giá trị 0",
+     "input": {
+      "rows": [
+       {
+        "group": "B",
+        "value": 0
+       },
+       {
+        "group": "B",
+        "value": 5
+       }
+      ]
+     },
+     "expected": [
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cần kết quả có cùng số hàng với bảng gốc, không rút thành một hàng mỗi nhóm."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Đưa tổng nhóm về từng giao dịch bằng transform."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

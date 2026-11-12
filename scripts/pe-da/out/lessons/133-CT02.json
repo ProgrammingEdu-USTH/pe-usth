@@ -1,0 +1,308 @@
+{
+ "lesson_code": "CT02",
+ "sort_order": 133,
+ "module": "M6 · Hệ điều hành, tiến trình và đa luồng",
+ "title": "CT02 · Tạo process: Windows, fork và exec",
+ "subtitle": "Nâng cao · M6 · 19 phút",
+ "estimated_minutes": 19,
+ "xp_reward": 11,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "CT02 · Tạo process: Windows, fork và exec",
+  "subtitle": "Nâng cao · M6 · 19 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#CT02",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 211-221; Python — subprocess; Python — threading"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Ở bài trước quán đã có hai lần thực thi cùng lúc. Bạn muốn chương trình con chạy với thư mục dữ liệu riêng. Trên Windows, `CreateProcess` nhận bốn đối số ở bảng dưới. Nó khởi tạo image của process, tạo thread ban đầu và trả handle của process cùng thread. Handle là tham chiếu tới tài nguyên của Windows; kế thừa handle quyết định những tài nguyên nào được chuyển cho con theo cấu hình. `WinExec` là API cũ đã được khuyến cáo thay. Đây là tên và chữ ký WinAPI/C trong slide, không phải các hàm Python để gọi như cú pháp thông thường."
+     },
+     {
+      "type": "table",
+      "headers": [
+       "Đối số",
+       "Nó là gì"
+      ],
+      "rows": [
+       [
+        "command line",
+        "lệnh và tham số để chạy"
+       ],
+       [
+        "environment",
+        "bộ biến môi trường cấp cho tiến trình con"
+       ],
+       [
+        "current directory",
+        "thư mục làm việc của tiến trình con"
+       ],
+       [
+        "`bInheritHandles`",
+        "có cho con kế thừa handle hay không"
+       ]
+      ]
+     },
+     {
+      "type": "code",
+      "code": "parent_pid, new_child_pid = 100, 101\nfork_returns = {\"parent\": new_child_pid, \"child\": 0}\nprint(fork_returns[\"parent\"], fork_returns[\"child\"])",
+      "expected": "101 0",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "fork_returns",
+        "prompt": "Sau khi chạy xong, `fork_returns` bằng mấy?",
+        "answer": "{'parent': 101, 'child': 0}"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "new_child_pid",
+           "101"
+          ],
+          [
+           "parent_pid",
+           "100"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "fork_returns",
+           "{'parent': 101, 'child': 0}"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "out": "101 0"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Ví dụ vừa rồi mô phỏng giá trị trả về của fork (lệnh UNIX nhân đôi tiến trình đang chạy): cha nhận PID con, con nhận 0. API C trả -1 khi lỗi; Python os.fork báo lỗi bằng ngoại lệ và không có trên Windows. Sau fork, cha/con có PID khác, cùng tiếp tục từ vị trí sau lời gọi nhưng không có thứ tự chạy được đảm bảo. Hệ điều hành thường dùng copy-on-write thay vì sao chép vật lý toàn bộ bộ nhớ ngay."
+     },
+     {
+      "type": "code",
+      "code": "process = {\"pid\": 101, \"program\": \"shell\"}\nprocess[\"program\"] = \"analysis\"\nprint(process[\"pid\"], process[\"program\"])",
+      "expected": "101 analysis",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "process",
+        "prompt": "Sau khi chạy xong, `process` bằng mấy?",
+        "answer": "{'pid': 101, 'program': 'analysis'}"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "process",
+           "{'pid': 101, 'program': 'shell'}"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "process",
+           "{'pid': 101, 'program': 'analysis'}"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "out": "101 analysis"
+        },
+        {
+         "line": 3,
+         "ret": "None"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Đây là mô hình của `exec`: thay image chương trình trong process hiện tại, giữ PID và không tạo process thứ ba. Bốn hậu tố trong tên họ hàm ở bảng dưới. Vì thế execl/execv khác cách truyền đối số, execlp/execvp thêm tìm PATH, execle thêm environment. Trong ví dụ C của slide, argv gồm \"/bin/ps\", \"-ef\", rồi NULL kết thúc danh sách. Python `subprocess` nhận một `list` đối số thay cho việc bạn tự chép nguyên chữ ký C."
+     },
+     {
+      "type": "table",
+      "headers": [
+       "Hậu tố",
+       "Nó đổi gì"
+      ],
+      "rows": [
+       [
+        "`l`",
+        "nhận từng đối số rời nhau"
+       ],
+       [
+        "`v`",
+        "nhận một vector đối số"
+       ],
+       [
+        "`p`",
+        "tìm chương trình qua `PATH`"
+       ],
+       [
+        "`e`",
+        "nhận `environment` tường minh"
+       ]
+      ]
+     },
+     {
+      "type": "code",
+      "code": "import subprocess, sys\np = subprocess.Popen([sys.executable, \"-c\", \"raise SystemExit(3)\"])\nprint(p.wait())\nprint(p.poll())",
+      "expected": "3\n3"
+     },
+     {
+      "type": "paragraph",
+      "text": "Cha có thể wait để thu trạng thái kết thúc của con. Trong ví dụ thật này, process con thoát với mã 3; wait và poll sau khi kết thúc đều cho mã đó. Trên UNIX, kết hợp `fork`/`exec`/`wait` là nền tảng của shell; bài Python sẽ dùng `subprocess` để thực hành trên cả Windows và UNIX. Quán của bạn sẽ gọi những lệnh này khi cần chạy một việc nền."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "CT01 · Một chương trình, nhiều tiến trình"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "exec thành công có làm tiến trình hiện tại đổi PID không?",
+     "options": [
+      {
+       "text": "Có; exec luôn chạy song song cả hai chương trình",
+       "detail": "Sau exec thành công, code chương trình cũ không tiếp tục như một nhánh thứ hai."
+      },
+      {
+       "text": "Không; chương trình trong tiến trình được thay",
+       "detail": "exec thay image chương trình; nó không phải lệnh tạo tiến trình con.",
+       "correct": true
+      },
+      {
+       "text": "Có; exec luôn tạo PID mới",
+       "detail": "Tạo process và thay chương trình là hai thao tác khác nhau."
+      }
+     ],
+     "explanation": "exec thay image chương trình; nó không phải lệnh tạo tiến trình con."
+    },
+    {
+     "question": "fork thành công trên POSIX trả gì ở process con?",
+     "options": [
+      {
+       "text": "-1 trong mọi trường hợp",
+       "detail": "Chưa đúng. Cha nhận PID con, còn con nhận 0 để chương trình phân biệt hai nhánh."
+      },
+      {
+       "text": "PID của chính cha",
+       "detail": "Chưa đúng. Cha nhận PID con, còn con nhận 0 để chương trình phân biệt hai nhánh."
+      },
+      {
+       "text": "0",
+       "detail": "Cha nhận PID con, còn con nhận 0 để chương trình phân biệt hai nhánh.",
+       "correct": true
+      }
+     ],
+     "explanation": "Cha nhận PID con, còn con nhận 0 để chương trình phân biệt hai nhánh."
+    },
+    {
+     "question": "exec thành công có tạo process mới với PID khác không?",
+     "options": [
+      {
+       "text": "Không; thay chương trình trong process hiện tại",
+       "detail": "Exec thay image chương trình; PID của process hiện tại được giữ theo mô hình đang học.",
+       "correct": true
+      },
+      {
+       "text": "Có; luôn tạo thêm một process thứ ba",
+       "detail": "Chưa đúng. Exec thay image chương trình; PID của process hiện tại được giữ theo mô hình đang học."
+      },
+      {
+       "text": "Chỉ thay tên biến program trong Python",
+       "detail": "Chưa đúng. Exec thay image chương trình; PID của process hiện tại được giữ theo mô hình đang học."
+      }
+     ],
+     "explanation": "Exec thay image chương trình; PID của process hiện tại được giữ theo mô hình đang học."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "fork trả gì ở cha và ở con khi thành công?",
+     "answer": "Ở cha: PID của con; ở con: 0. Đây là hai nhánh thực thi khác nhau."
+    },
+    {
+     "prompt": "exec có tạo thêm một process mới không?",
+     "answer": "Không. Nó thay chương trình trong process hiện tại."
+    },
+    {
+     "prompt": "Có thể dùng trực tiếp os.fork trên Windows không?",
+     "answer": "Không. Dùng subprocess để khởi chạy chương trình, hoặc multiprocessing với cơ chế phù hợp nền tảng."
+    },
+    {
+     "prompt": "Muốn process Windows chạy ở thư mục work và nhận biến MODE=test, hai nhóm tham số nào của CreateProcess liên quan?",
+     "answer": "Current directory cho work và environment cho MODE; command line mang chương trình/đối số. bInheritHandles kiểm soát kế thừa handle theo cấu hình."
+    },
+    {
+     "prompt": "CreateProcess tạo gì và trả handle gì? Vì sao không gọi WinExec như một hàm Python có sẵn?",
+     "answer": "Nó khởi tạo process/image và thread đầu tiên, trả thông tin gồm handle process/thread. WinExec là WinAPI cũ trong ví dụ C, không phải tên builtin Python."
+    },
+    {
+     "prompt": "API fork trong C trả -1 nghĩa gì? Sau fork thành công có chắc cha in trước con không?",
+     "answer": "-1 báo tạo con thất bại; sau thành công không bảo đảm thứ tự cha/con. PID khác, trạng thái logic được kế thừa; copy-on-write tránh nhất thiết chép vật lý mọi trang ngay."
+    },
+    {
+     "prompt": "Ghép đặc điểm với tên: vector argv, tìm PATH, environment tường minh. Nêu ví dụ execv, execvp, execle.",
+     "answer": "execv nhận vector argv; execvp nhận vector và tìm PATH; execle nhận các đối số riêng cùng environment. execl nhận đối số riêng, execlp thêm tìm PATH."
+    },
+    {
+     "prompt": "Trong argv C {\"/bin/ps\", \"-ef\", NULL}, phần tử đầu, đối số và NULL có vai trò gì?",
+     "answer": "Phần tử đầu là tên chương trình theo quy ước argv[0]; -ef là đối số; NULL kết thúc vector C. exec thay image; wait của cha lấy trạng thái khi con kết thúc."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Chạy thử",
+    "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 1 đoạn trong bài không chạy được ở đây (WASM không gọi được chương trình ngoài) nên không nằm trong ô này."
+   },
+   "starterCode": "# ── Đoạn 1 ──\nparent_pid, new_child_pid = 100, 101\nfork_returns = {\"parent\": new_child_pid, \"child\": 0}\nprint(fork_returns[\"parent\"], fork_returns[\"child\"])\n\n# ── Đoạn 2 ──\nprocess = {\"pid\": 101, \"program\": \"shell\"}\nprocess[\"program\"] = \"analysis\"\nprint(process[\"pid\"], process[\"program\"])\n",
+   "env": "1 đoạn phải chạy bằng Python trên máy: WASM không gọi được chương trình ngoài."
+  }
+ },
+ "_mode": "mixed",
+ "_blocked": [
+  {
+   "block": 2,
+   "reason": "WASM không gọi được chương trình ngoài"
+  }
+ ],
+ "_so_mcq": 3,
+ "_bai_tap": "khong co",
+ "_vet": {
+  "can": 2,
+  "co": 2,
+  "bo": 0,
+  "loi": []
+ }
+}

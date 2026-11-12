@@ -1,0 +1,182 @@
+{
+ "lesson_code": "GU02",
+ "sort_order": 149,
+ "module": "M8 · Tkinter: từ form nhỏ đến màn hình nhận đơn",
+ "title": "GU02 · Cửa sổ chính và cửa sổ phụ",
+ "subtitle": "Trung cấp · M8 · 14 phút",
+ "estimated_minutes": 14,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "GU02 · Cửa sổ chính và cửa sổ phụ",
+  "subtitle": "Trung cấp · M8 · 14 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#GU02",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 309; Python · tkinter"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bài trước đã chọn bộ công cụ; giờ dựng cửa sổ đầu tiên cho quầy. Ứng dụng nhận đơn có một cửa sổ chính. Khi xem chi tiết một món, bạn có thể mở một cửa sổ phụ thuộc cửa sổ đó, thay vì tạo thêm một ứng dụng Tk độc lập."
+     },
+     {
+      "type": "code",
+      "code": "import tkinter as tk\nroot = tk.Tk(); root.withdraw()\nroot.title('Nhan don tai quay')\nroot.geometry('640x400')\nprint(root.title())\nprint(root.winfo_class())\nroot.destroy()",
+      "expected": "Nhan don tai quay\nTk"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Tk() tạo root và trình thông dịch Tcl/Tk đi kèm. title đặt tên trên thanh cửa sổ; geometry(\"640x400\") yêu cầu vùng cửa sổ rộng 640, cao 400 pixel. Số đo thực tế còn chịu quy tắc của hệ cửa sổ."
+     },
+     {
+      "type": "code",
+      "code": "import tkinter as tk\nroot = tk.Tk(); root.withdraw()\ndetail = tk.Toplevel(root); detail.withdraw()\ndetail.title('Mon latte')\nprint(detail.title())\nprint(detail.master is root)\ndetail.destroy()\nprint(root.winfo_exists())\nroot.destroy()",
+      "expected": "Mon latte\nTrue\n1"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Toplevel(root) tạo cửa sổ phụ với root làm cha. Đóng cửa sổ phụ không nhất thiết đóng ứng dụng. Thông thường một ứng dụng dùng một Tk, các cửa sổ khác dùng Toplevel."
+     },
+     {
+      "type": "code",
+      "code": "import tkinter as tk\nroot = tk.Tk(); root.withdraw()\nchild = tk.Toplevel(root); child.withdraw()\nlabel = tk.Label(child, text='latte')\nprint(label.master is child)\nchild.destroy()\nprint(len(root.winfo_children()))\nroot.destroy()",
+      "expected": "True\n0"
+     },
+     {
+      "type": "paragraph",
+      "text": "Widget có parent chứa nó. Khi hủy cửa sổ phụ, các widget con của nó cũng bị hủy. Giữ quan hệ parent rõ giúp quản lý vòng đời giao diện và tránh tạo widget vào nhầm cửa sổ."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "GU01 · GUI, CLI và chọn toolkit"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Muốn mở cửa sổ Chi tiết trong app đã có root thì dùng gì?",
+     "options": [
+      {
+       "text": "Tạo tk.Tk() mới cho mỗi lần bấm",
+       "detail": "Điều đó tạo thêm root/interpreter, không phải quan hệ cửa sổ phụ mong muốn."
+      },
+      {
+       "text": "tk.Toplevel(root)",
+       "detail": "Một ứng dụng thường dùng một Tk làm root; cửa sổ phụ là Toplevel.",
+       "correct": true
+      },
+      {
+       "text": "root.mainloop() lần nữa",
+       "detail": "mainloop xử lý sự kiện; nó không tạo một cửa sổ mới."
+      }
+     ],
+     "explanation": "Một ứng dụng thường dùng một Tk làm root; cửa sổ phụ là Toplevel."
+    },
+    {
+     "question": "Ứng dụng đã có root, muốn mở cửa sổ Chi tiết nên dùng gì?",
+     "options": [
+      {
+       "text": "tk.Toplevel(root)",
+       "detail": "Toplevel dùng cùng hệ ứng dụng và parent; không cần tạo thêm root.",
+       "correct": true
+      },
+      {
+       "text": "mainloop mới thay cho cửa sổ",
+       "detail": "Chưa đúng. Toplevel dùng cùng hệ ứng dụng và parent; không cần tạo thêm root."
+      },
+      {
+       "text": "Tk mới cho từng lần bấm",
+       "detail": "Chưa đúng. Toplevel dùng cùng hệ ứng dụng và parent; không cần tạo thêm root."
+      }
+     ],
+     "explanation": "Toplevel dùng cùng hệ ứng dụng và parent; không cần tạo thêm root."
+    },
+    {
+     "question": "geometry(\"480x300\") quy định gì trong ví dụ?",
+     "options": [
+      {
+       "text": "Hàng và cột của grid",
+       "detail": "Chưa đúng. Geometry của cửa sổ khác với các tham số bố trí widget."
+      },
+      {
+       "text": "Số widget tối đa",
+       "detail": "Chưa đúng. Geometry của cửa sổ khác với các tham số bố trí widget."
+      },
+      {
+       "text": "Kích thước cửa sổ theo pixel",
+       "detail": "Geometry của cửa sổ khác với các tham số bố trí widget.",
+       "correct": true
+      }
+     ],
+     "explanation": "Geometry của cửa sổ khác với các tham số bố trí widget."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Muốn mở cửa sổ phụ, nên dùng Tk hay Toplevel?",
+     "answer": "Toplevel(root)."
+    },
+    {
+     "prompt": "geometry(\"800x500\") yêu cầu kích thước nào?",
+     "answer": "Rộng 800 và cao 500 pixel."
+    },
+    {
+     "prompt": "Tạo cửa sổ phụ có title Details rồi in title.",
+     "answer": "Dùng Toplevel với parent rõ ràng.",
+     "answerCode": "import tkinter as tk\nroot=tk.Tk();root.withdraw()\nchild=tk.Toplevel(root);child.withdraw();child.title('Details')\nprint(child.title())\nroot.destroy()",
+     "answerExpected": "Details"
+    },
+    {
+     "prompt": "Viết hai dòng tạo root và cửa sổ phụ có parent rõ ràng. Hủy cửa sổ phụ ảnh hưởng widget con thế nào?",
+     "answer": "import tkinter as tk; root=tk.Tk(); detail=tk.Toplevel(root). Hủy detail cũng hủy widget con của detail; không nhất thiết đóng root."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Chạy trên máy của bạn",
+    "body": "Bài này không chạy được trong trình duyệt: Tkinter cần hệ cửa sổ của máy. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
+   },
+   "procedure": [
+    "Mở terminal tại thư mục làm việc của bạn.",
+    "Tạo môi trường: py -m venv .venv",
+    "Cài thư viện bài cần: .venv\\Scripts\\python -m pip install <tên gói>",
+    "Lưu đoạn code vào một file .py rồi chạy: .venv\\Scripts\\python ten_file.py"
+   ]
+  }
+ },
+ "_mode": "local",
+ "_blocked": [
+  {
+   "block": 0,
+   "reason": "Tkinter cần hệ cửa sổ của máy"
+  },
+  {
+   "block": 1,
+   "reason": "Tkinter cần hệ cửa sổ của máy"
+  },
+  {
+   "block": 2,
+   "reason": "Tkinter cần hệ cửa sổ của máy"
+  }
+ ],
+ "_so_mcq": 3,
+ "_bai_tap": "khong co",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

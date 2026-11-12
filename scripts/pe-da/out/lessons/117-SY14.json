@@ -1,0 +1,163 @@
+{
+ "lesson_code": "SY14",
+ "sort_order": 117,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY14 · Curses: nhận phím và vẽ lại giao diện terminal",
+ "subtitle": "Trung cấp · M5 · 12 phút",
+ "estimated_minutes": 12,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY14 · Curses: nhận phím và vẽ lại giao diện terminal",
+  "subtitle": "Trung cấp · M5 · 12 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY14",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 150-151; Python — Curses HOWTO"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Phép tính đã gọn trong một gói rồi, nhưng người đứng quầy cần một màn hình để bấm. Thực đơn của quán có thể hiện ngay trong terminal. Người dùng nhấn phím để chọn, màn hình được cập nhật thay vì in liên tục xuống dưới. Module `curses` hỗ trợ loại giao diện này. Một số hàm hỗ trợ ký tự không cần mở màn hình:"
+     },
+     {
+      "type": "terminal",
+      "code": "from curses import ascii\nprint(ascii.ctrl(\"a\") == \"\\x01\")\nprint(ascii.isdigit(\"5\"))",
+      "expected": "True\nTrue"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Phần tương tác cần terminal thật có hỗ trợ `curses`. Trên Windows, nhiều bản Python cần gói windows-curses; không chạy bài này trong ô output không nhận phím. `wrapper` chuẩn bị màn hình và khôi phục terminal khi hàm kết thúc."
+     },
+     {
+      "type": "terminal",
+      "code": "import curses\ndef main(screen):\n    screen.addstr(0, 0, \"Quan ly mon - bam q\")\n    screen.refresh()\n    while screen.getkey() != \"q\":\n        pass\ncurses.wrapper(main)",
+      "expected": "Terminal hiển thị tiêu đề; bấm q thoát và terminal được khôi phục."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`addstr` ghi text vào vị trí hàng/cột; `refresh` đưa thay đổi ra màn hình; `getkey` chờ một phím. Đặt việc tính tiền trong hàm nghiệp vụ, không trộn công thức vào các lệnh vẽ."
+     },
+     {
+      "type": "terminal",
+      "code": "import curses\ndef main(screen):\n    choice = \"1\"\n    while True:\n        screen.erase()\n        screen.addstr(0, 0, \"1: Mon  2: Nguyen lieu  q: Thoat\")\n        screen.addstr(2, 0, \"Da chon: \" + choice)\n        screen.refresh()\n        key = screen.getkey()\n        if key == \"q\": break\n        if key in (\"1\", \"2\"): choice = key\ncurses.wrapper(main)",
+      "expected": "Nhấn 1/2 đổi dòng Da chon; nhấn q thoát."
+     },
+     {
+      "type": "paragraph",
+      "text": "Ở PW4, các thao tác `curses` thuộc output.py; dữ liệu Item/Ingredient/RecipeLine thuộc domains. Terminal có kích thước giới hạn: khi làm tiếp, xử lý resize và không ghi vượt hàng/cột. `curses` là UI terminal, khác Tkinter tạo cửa sổ đồ họa."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "SY13 · Làm tròn xuống và giá trung bình có trọng số"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Curses wrapper giúp gì khi main kết thúc hoặc lỗi?",
+     "options": [
+      {
+       "text": "Khôi phục trạng thái terminal",
+       "detail": "wrapper chuẩn bị màn hình và thu dọn khi rời hàm.",
+       "correct": true
+      },
+      {
+       "text": "Tính GPA tự động",
+       "detail": "Curses quản lý giao diện; công thức vẫn cần hàm nghiệp vụ."
+      },
+      {
+       "text": "Tạo cửa sổ Tkinter",
+       "detail": "Đây là giao diện trong terminal, không phải GUI Tkinter."
+      }
+     ],
+     "explanation": "wrapper chuẩn bị màn hình và thu dọn khi rời hàm."
+    },
+    {
+     "question": "Curses nên chạy ở môi trường nào để nhận phím?",
+     "options": [
+      {
+       "text": "Một biến dictionary chứa tên phím",
+       "detail": "Chưa đúng. Phần giao diện cần terminal có khả năng nhận và hiển thị tương tác."
+      },
+      {
+       "text": "Ô output tĩnh không nhận bàn phím",
+       "detail": "Chưa đúng. Phần giao diện cần terminal có khả năng nhận và hiển thị tương tác."
+      },
+      {
+       "text": "Terminal thật có hỗ trợ curses",
+       "detail": "Phần giao diện cần terminal có khả năng nhận và hiển thị tương tác.",
+       "correct": true
+      }
+     ],
+     "explanation": "Phần giao diện cần terminal có khả năng nhận và hiển thị tương tác."
+    },
+    {
+     "question": "wrapper giúp gì khi ứng dụng curses kết thúc?",
+     "options": [
+      {
+       "text": "Tự tính GPA",
+       "detail": "Chưa đúng. wrapper quản lý vòng đời môi trường terminal quanh hàm ứng dụng."
+      },
+      {
+       "text": "Chuẩn bị rồi khôi phục trạng thái terminal",
+       "detail": "wrapper quản lý vòng đời môi trường terminal quanh hàm ứng dụng.",
+       "correct": true
+      },
+      {
+       "text": "Tự tạo cửa sổ Tkinter",
+       "detail": "Chưa đúng. wrapper quản lý vòng đời môi trường terminal quanh hàm ứng dụng."
+      }
+     ],
+     "explanation": "wrapper quản lý vòng đời môi trường terminal quanh hàm ứng dụng."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Vì sao curses.wrapper hữu ích?",
+     "answer": "Nó khởi tạo và thu dọn trạng thái terminal, kể cả khi hàm main phát sinh lỗi."
+    },
+    {
+     "prompt": "Đặt hàm tính tiền ở screen.addstr có tốt không?",
+     "answer": "Nên tính ở phần nghiệp vụ rồi đưa kết quả sang output; như vậy kiểm thử công thức không cần terminal."
+    },
+    {
+     "prompt": "Làm menu PW3 có xem món, nguyên liệu và doanh thu giảm dần.",
+     "answer": "Dùng phím 1/2/3/q, mỗi lần đổi màn hình erase rồi addstr/refresh. Gọi registry để lấy dữ liệu, không tạo danh sách riêng ở UI. Nộp video/ghi nhận thao tác terminal thật; thử phím ngoài menu và thoát khi có lỗi."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Chạy trên máy của bạn",
+    "body": "Bài này không chạy được trong trình duyệt: bài này là các lệnh gõ trong terminal. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
+   },
+   "procedure": [
+    "Mở terminal tại thư mục làm việc của bạn.",
+    "Tạo môi trường: py -m venv .venv",
+    "Cài thư viện bài cần: .venv\\Scripts\\python -m pip install <tên gói>",
+    "Lưu đoạn code vào một file .py rồi chạy: .venv\\Scripts\\python ten_file.py"
+   ]
+  }
+ },
+ "_mode": "local",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "khong co",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

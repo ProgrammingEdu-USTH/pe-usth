@@ -1,0 +1,248 @@
+{
+ "lesson_code": "NP04",
+ "sort_order": 22,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP04 · Tính trên từng phần tử",
+ "subtitle": "Cơ bản · M2 · 10 phút",
+ "estimated_minutes": 10,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "NP04 · Tính trên từng phần tử",
+  "subtitle": "Cơ bản · M2 · 10 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#NP04",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "Advanced-Python-Tai-Lieu-Mon-Hoc.pdf tr. 112-114; NumPy · Quickstart"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Quán vừa thu phiếu đánh giá cho ba món: 6, 8 và 9 điểm. Nếu mỗi món được cộng thêm 0.5 điểm, bạn có thể cộng trực tiếp số đó vào array:"
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\n\nscores = np.array([6., 8., 9.])\nprint(scores + 0.5)",
+      "expected": "[6.5 8.5 9.5]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "NumPy cộng 0.5 vào từng phần tử: 6 thành 6.5, 8 thành 8.5 và 9 thành 9.5. Thứ tự các món vẫn giữ nguyên. Trong code, `6.` là cách viết số thực 6.0."
+     },
+     {
+      "type": "paragraph",
+      "text": "Với một dãy khác, `a + 1` cũng cộng 1 vào từng số:"
+     },
+     {
+      "type": "code",
+      "code": "a = np.array([6, 8, 10])\nprint(a + 1)",
+      "expected": "[ 7  9 11]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Biểu thức `a + 1` tạo kết quả mới. Nó không tự gán kết quả trở lại `a`; nếu in `a` ngay sau đó, bạn vẫn thấy `[6 8 10]`."
+     },
+     {
+      "type": "paragraph",
+      "text": "Phép nhân hoạt động tương tự:"
+     },
+     {
+      "type": "code",
+      "code": "a = np.array([2, 4])\nprint(a * 3)",
+      "expected": "[ 6 12]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Ở đây, 2 nhân 3 bằng 6 và 4 nhân 3 bằng 12. Hãy phân biệt với `list` Python: `[2, 4] * 3` lặp lại danh sách thành `[2, 4, 2, 4, 2, 4]`. Khi làm việc với array số, `* 3` nhân từng giá trị với 3."
+     },
+     {
+      "type": "paragraph",
+      "text": "Bạn cũng có thể dùng phép trừ để giảm đồng loạt một dãy giá món, hoặc phép chia để đổi đơn vị các số đo."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "NP01 · Array là gì?, NP03 · Kiểu dữ liệu của array"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "a=np.array([2,5]); a*2 cho gì?",
+     "options": [
+      {
+       "text": "14",
+       "detail": "Muốn tổng các giá trị còn cần phép cộng gộp; nhân array không tự gộp."
+      },
+      {
+       "text": "[2,5,2,5]",
+       "detail": "Đây là hành vi nhân list, không phải array số."
+      },
+      {
+       "text": "[4,10]",
+       "detail": "Đúng. Mỗi số được nhân 2.",
+       "correct": true
+      }
+     ],
+     "explanation": "Đúng. Mỗi số được nhân 2."
+    },
+    {
+     "question": "Mỗi điểm được cộng 1. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\na = np.array([3, 5])\nprint(a + 1)",
+     "options": [
+      {
+       "text": "[4, 6]",
+       "detail": "Cộng scalar vào array thực hiện trên từng phần tử.",
+       "correct": true
+      },
+      {
+       "text": "[3, 5, 1]",
+       "detail": "Đây không phải thêm phần tử vào cuối dãy."
+      },
+      {
+       "text": "[4, 5]",
+       "detail": "Phép cộng tác động lên mọi phần tử."
+      }
+     ],
+     "explanation": "Cộng scalar vào array thực hiện trên từng phần tử."
+    },
+    {
+     "question": "Số lượng mỗi loại tăng gấp ba. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\na = np.array([2, 5])\nprint(a * 3)",
+     "options": [
+      {
+       "text": "[5, 8]",
+       "detail": "Đó là cộng 3, không phải nhân 3."
+      },
+      {
+       "text": "[6, 15]",
+       "detail": "Mỗi phần tử được nhân với 3.",
+       "correct": true
+      },
+      {
+       "text": "[2, 5, 2, 5, 2, 5]",
+       "detail": "Lặp list khác với nhân array."
+      }
+     ],
+     "explanation": "Mỗi phần tử được nhân với 3."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "`np.array([1, 3]) + 2` cho kết quả gì?",
+     "answer": "Kết quả là `[3, 5]`: mỗi phần tử được cộng thêm 2."
+    },
+    {
+     "prompt": "Với `a = np.array([2, 4])`, điền phép toán để được 4 và 8: `a ___ 2`.",
+     "answer": "Điền `*`: `a * 2` nhân đôi từng phần tử."
+    },
+    {
+     "prompt": "Tạo array chứa các giá 10, 20 và 30, rồi giảm mỗi giá đi 5.",
+     "answer": "Trừ 5 ở từng vị trí:",
+     "answerCode": "import numpy as np\n\nprices = np.array([10, 20, 30])\nprint(prices - 5)",
+     "answerExpected": "[ 5 15 25]"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận list độ dài tính bằng mét. Trả array độ dài tính bằng centimet, dùng 1 m = 100 cm. Dữ liệu gốc không cần thay đổi.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "[1, 2.5]"
+     },
+     {
+      "label": "trả về",
+      "value": "[100.0, 250.0]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    meters = np.array(data, dtype=float)\n    return meters * 100\n",
+   "tests": [
+    {
+     "name": "Hai độ dài",
+     "input": [
+      1,
+      2.5
+     ],
+     "expected": [
+      100.0,
+      250.0
+     ]
+    },
+    {
+     "name": "Độ dài bằng không",
+     "input": [
+      0
+     ],
+     "expected": [
+      0.0
+     ]
+    },
+    {
+     "name": "Độ dài nhỏ",
+     "input": [
+      0.01,
+      0.5
+     ],
+     "expected": [
+      1.0,
+      50.0
+     ]
+    },
+    {
+     "name": "Có độ dài bằng không lẫn độ dài nhỏ",
+     "input": [
+      0,
+      0.25
+     ],
+     "expected": [
+      0.0,
+      25.0
+     ]
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Một mét có 100 centimet. Mỗi phần tử cần cùng một hệ số."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Tạo array số thực rồi nhân 100; không nhân trực tiếp list vì sẽ lặp list."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

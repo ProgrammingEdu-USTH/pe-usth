@@ -1,0 +1,240 @@
+{
+ "lesson_code": "SY07",
+ "sort_order": 110,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY07 · Kế thừa, override và super",
+ "subtitle": "Trung cấp · M5 · 16 phút",
+ "estimated_minutes": 16,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY07 · Kế thừa, override và super",
+  "subtitle": "Trung cấp · M5 · 16 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY07",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 104-105, 119-122, 126-127; Python — Classes"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Lớp ở bài trước đã biết tự hiển thị; giờ hai lớp báo cáo của quán dùng chung một phần việc. Một báo cáo doanh thu có thể xuất CSV hoặc văn bản. Hai loại báo cáo dùng chung thao tác render nhưng tạo nội dung khác nhau:"
+     },
+     {
+      "type": "code",
+      "code": "class Report:\n    def render(self): return \"Bao cao\"\nclass SalesReport(Report):\n    def render(self): return super().render() + \": doanh thu\"\nreport = SalesReport()\nprint(report.render())\nprint(isinstance(report, Report))",
+      "expected": "Bao cao: doanh thu\nTrue",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "SalesReport kế thừa lớp báo cáo (Report): đây là quan hệ is-a. Method render ở lớp con ghi đè method cùng tên, gọi là override. `super().render()` tiếp tục tìm method theo thứ tự kế thừa; nó không tạo thêm một Report riêng."
+     },
+     {
+      "type": "code",
+      "code": "class Report: pass\nclass SalesReport(Report): pass\nreport = SalesReport()\nprint(isinstance(report, SalesReport))\nprint(issubclass(SalesReport, Report))\nprint(issubclass(Report, SalesReport))",
+      "expected": "True\nTrue\nFalse",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`isinstance` xét object; `issubclass` xét quan hệ giữa class. Đa hình cho phép phần gọi dùng cùng thao tác render mà không cần biết từng cách xuất chi tiết. Type conformance trong phần ôn nói đến khả năng dùng một kiểu ở nơi yêu cầu giao diện phù hợp."
+     },
+     {
+      "type": "code",
+      "code": "class Exporter:\n    def render(self): return \"first\"\n    def render(self, prefix=\"\"): return prefix + \"second\"\nprint(Exporter().render())",
+      "expected": "second",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Đây không phải overload theo chữ ký như Java: def sau gán lại cùng tên render trong lớp. Muốn nhận nhiều cách gọi, dùng tham số mặc định hoặc một cơ chế chọn cách xử lý theo đối số (dispatch) được thiết kế rõ. Override ở lớp con và hai def trùng tên trong cùng một lớp là hai chuyện khác nhau."
+     },
+     {
+      "type": "paragraph",
+      "text": "Trong cây kế thừa `SalesReport(Report)`, SalesReport là subclass và Report là superclass; một lớp con khác như TextReport cùng xuất phát từ Report tạo nhánh khác trong cây. Lớp con dùng được những method không bị ghi đè và có thể thêm method riêng. Đây là cách dùng lại hành vi, nhưng mỗi quan hệ kế thừa vẫn cần đúng nghĩa is-a."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "SY06 · Cho object cách hiển thị và so sánh"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Viết hai def render trong cùng một class thông thường sẽ tạo overload theo chữ ký không?",
+     "options": [
+      {
+       "text": "Có; Python tự chọn theo số đối số",
+       "detail": "Đó không phải cơ chế tự động của hai def trùng tên trong Python."
+      },
+      {
+       "text": "Không; def sau gán lại tên render",
+       "detail": "Tên method chỉ trỏ tới định nghĩa cuối trong class thông thường.",
+       "correct": true
+      },
+      {
+       "text": "Cả hai luôn chạy nối tiếp",
+       "detail": "Một lời gọi không tự chạy mọi định nghĩa cùng tên."
+      }
+     ],
+     "explanation": "Tên method chỉ trỏ tới định nghĩa cuối trong class thông thường."
+    },
+    {
+     "question": "SalesReport(Report) biểu diễn quan hệ nào?",
+     "options": [
+      {
+       "text": "SalesReport và Report luôn là cùng một object",
+       "detail": "Chưa đúng. Kế thừa diễn tả quan hệ is-a; subclass vẫn có thể dùng hành vi từ superclass."
+      },
+      {
+       "text": "Report là một thuộc tính bắt buộc của mọi object",
+       "detail": "Chưa đúng. Kế thừa diễn tả quan hệ is-a; subclass vẫn có thể dùng hành vi từ superclass."
+      },
+      {
+       "text": "SalesReport là một loại Report",
+       "detail": "Kế thừa diễn tả quan hệ is-a; subclass vẫn có thể dùng hành vi từ superclass.",
+       "correct": true
+      }
+     ],
+     "explanation": "Kế thừa diễn tả quan hệ is-a; subclass vẫn có thể dùng hành vi từ superclass."
+    },
+    {
+     "question": "Lớp con không định nghĩa save nhưng lớp cha có save. Điều gì có thể xảy ra khi gọi child.save()?",
+     "options": [
+      {
+       "text": "Python tìm method kế thừa theo MRO",
+       "detail": "Method lookup có thể tìm save trong lớp cha khi lớp con không ghi đè.",
+       "correct": true
+      },
+      {
+       "text": "Python tự tạo file save.py",
+       "detail": "Chưa đúng. Method lookup có thể tìm save trong lớp cha khi lớp con không ghi đè."
+      },
+      {
+       "text": "Luôn báo thiếu method",
+       "detail": "Chưa đúng. Method lookup có thể tìm save trong lớp cha khi lớp con không ghi đè."
+      }
+     ],
+     "explanation": "Method lookup có thể tìm save trong lớp cha khi lớp con không ghi đè."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Vì sao isinstance(SalesReport(), Report) là True?",
+     "answer": "Instance của lớp con cũng là instance theo lớp cha."
+    },
+    {
+     "prompt": "Hai def cùng tên nhưng khác số tham số có tự overload không?",
+     "answer": "Không theo cách định nghĩa thông thường của Python; def sau thay tên trước."
+    },
+    {
+     "prompt": "Tạo CsvReport và TextReport cùng render, rồi duyệt list báo cáo gọi render.",
+     "answer": "Cho cả hai kế thừa Report và override render. Kiểm mỗi loại trả nội dung riêng mà vòng for chỉ cần report.render(); nếu mở rộng kết quả cha, gọi super().render()."
+    },
+    {
+     "prompt": "SalesReport(Report) có save kế thừa và render ghi đè. Class nào là superclass/subclass; có thể thêm method riêng không? super tạo object cha mới không?",
+     "answer": "Report là superclass; SalesReport là subclass, dùng save nếu không ghi đè và có thể thêm method riêng. super tìm method tiếp theo theo MRO trên cùng instance, không tạo một object cha mới."
+    },
+    {
+     "prompt": "Một hàm cần object có render(); SalesReport thỏa yêu cầu đó thế nào? Override khác overload ở điểm gì?",
+     "answer": "Nó là Report và cung cấp render phù hợp, nên có thể dùng ở nơi yêu cầu hành vi đó (type conformance). Override thay hành vi method ở subclass. Overload theo chữ ký như Java là nhiều cách gọi cùng tên; viết hai def cùng tên trong Python thông thường chỉ giữ def sau."
+    },
+    {
+     "prompt": "Với r=SalesReport() và SalesReport(Report), isinstance(r, Report), issubclass(SalesReport, Report), issubclass(Report, SalesReport) cho gì?",
+     "answer": "True, True, False. isinstance xét object r có thuộc class yêu cầu hoặc class con không; issubclass xét quan hệ giữa hai class. Quan hệ kế thừa không đối xứng."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Report.render() trả \"Report\". Tạo SummaryReport nhận title; render của lớp con thêm \": \" và title vào kết quả super(). solve(data) nhận list tiêu đề, trả list nội dung báo cáo.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "['stock', 'orders']"
+     },
+     {
+      "label": "trả về",
+      "value": "['Report: stock', 'Report: orders']"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "class Report:\n    def render(self): return 'Report'\nclass SummaryReport(Report):\n    def __init__(self, title): self.title = title\n    def render(self): return super().render() + ': ' + self.title\ndef solve(data): return [SummaryReport(title).render() for title in data]\n",
+   "tests": [
+    {
+     "name": "hai nội dung",
+     "input": [
+      "stock",
+      "orders"
+     ],
+     "expected": [
+      "Report: stock",
+      "Report: orders"
+     ]
+    },
+    {
+     "name": "tiêu đề rỗng",
+     "input": [
+      ""
+     ],
+     "expected": [
+      "Report: "
+     ]
+    },
+    {
+     "name": "không có báo cáo",
+     "input": [],
+     "expected": []
+    },
+    {
+     "name": "giữ thứ tự khi tiêu đề lặp",
+     "input": [
+      "b",
+      "a",
+      "b"
+     ],
+     "expected": [
+      "Report: b",
+      "Report: a",
+      "Report: b"
+     ]
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

@@ -1,0 +1,420 @@
+{
+ "lesson_code": "VZ28",
+ "sort_order": 101,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ28 · Lưới 2D: pcolor, pcolormesh, contour và contourf",
+ "subtitle": "Nâng cao · M4 · 18 phút",
+ "estimated_minutes": 18,
+ "xp_reward": 11,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "VZ28 · Lưới 2D: pcolor, pcolormesh, contour và contourf",
+  "subtitle": "Nâng cao · M4 · 18 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#VZ28",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 329; pcolormesh; Contour labels"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Vùng tô ở bài trước chia một tổng; lần này ô nằm theo hai trục toạ độ. Bản đồ lượng khách của quán theo giờ và theo thứ cũng là một lưới như vậy. Ô nằm theo hai toạ độ, không chỉ theo tên nhóm. pcolor và pcolormesh vẽ màu cho các ô lưới, còn đường contour nối các vị trí có cùng giá trị. Chúng hữu ích cho lưới đo hoặc bề mặt mô phỏng; tọa độ và đơn vị phải đi cùng ma trận."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nimport numpy as np\nfig, axes = plt.subplots(1, 2, figsize=(7, 3), layout=\"constrained\")\nz = np.array([[1, 2], [3, 4]])\nfor ax, method in zip(axes, [\"pcolor\", \"pcolormesh\"]):\n    im = getattr(ax, method)([0, 1, 2], [0, 1, 2], z, cmap=\"viridis\", vmin=0, vmax=4, shading=\"flat\")\n    ax.set(xlabel=\"x (m)\", ylabel=\"y (m)\", title=method, aspect=\"equal\")\nfig.colorbar(im, ax=axes, label=\"Temperature (arbitrary units)\")\nprint(z.shape)\nplt.show()",
+      "expected": "(2, 2)",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "method",
+        "prompt": "Sau khi chạy xong, `method` bằng mấy?",
+        "answer": "'pcolormesh'"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "plt",
+           "<thư viện matplotlib.pyplot>"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "np",
+           "<thư viện numpy>"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "axes",
+           "ndarray: array([<Axes: >, <Axes: >], dtype=object)"
+          ],
+          [
+           "fig",
+           "Figure(_stale=True, stale_callback=<hàm _auto_draw_if_interactive>, _pa…"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "set": [
+          [
+           "z",
+           "ndarray: array([[1, 2], [3, 4]])"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "set": [
+          [
+           "ax",
+           "Axes(_stale=True, stale_callback=<hàm _stale_figure_callback>, _axes=<t…"
+          ],
+          [
+           "method",
+           "'pcolor'"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "set": [
+          [
+           "im",
+           "PolyQuadMesh(_coordinates=MaskedArray(_fill_value=None, _hardmask=False…"
+          ]
+         ]
+        },
+        {
+         "line": 7,
+         "set": [
+          [
+           "axes",
+           "ndarray: array([<Axes: title={'center': 'pcolor'}, xlabel='x (m)', ylab…"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "set": [
+          [
+           "method",
+           "'pcolormesh'"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "set": [
+          [
+           "im",
+           "QuadMesh(_coordinates=MaskedArray(_fill_value=None, _hardmask=False, _s…"
+          ]
+         ]
+        },
+        {
+         "line": 7
+        },
+        {
+         "line": 5
+        },
+        {
+         "line": 8
+        },
+        {
+         "line": 9,
+         "out": "(2, 2)"
+        },
+        {
+         "line": 10
+        }
+       ]
+      }
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ28-1.png",
+      "alt": "Biểu đồ do đoạn code trên vẽ ra (VZ28-1.png)"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Với shading=\"flat\", ma trận hai hàng hai cột cần ba biên theo mỗi trục để xác định bốn ô. pcolormesh thường là lựa chọn thuận tiện cho lưới lớn. Dùng contour khi muốn nhấn các mức cụ thể; clabel đặt nhãn số lên đường contour. Tọa độ dưới đây được tạo bằng meshgrid, nên X, Y và Z có cùng hình dạng."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\nx = np.linspace(-2, 2, 25)\ny = np.linspace(-2, 2, 25)\nX, Y = np.meshgrid(x, y)\nZ = X**2 + Y**2\ncs = ax.contour(X, Y, Z, levels=[1, 2, 4], colors=\"black\")\nax.clabel(cs, inline=True, fontsize=9)\nax.set(xlabel=\"x\", ylabel=\"y\", title=\"Contours of x squared plus y squared\", aspect=\"equal\")\nprint(cs.levels.tolist())\nplt.show()",
+      "expected": "[1.0, 2.0, 4.0]",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ28-2.png",
+      "alt": "Bản đồ đường đồng mức, tiêu đề \"Contours of x squared plus y squared\", trục ngang \"x\", trục dọc \"y\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "contourf tô các dải giữa mức. Colorbar phải khớp đúng đối tượng vừa vẽ để màu và giá trị không lệch. Các mảng mượt trong ví dụ là bề mặt do công thức tạo ra; nếu lưới ngoài thực tế có nhiều ô thiếu, không suy ra toàn bộ vùng giữa đã được đo."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\nx = np.linspace(-2, 2, 25)\nX, Y = np.meshgrid(x, x)\nZ = X**2 + Y**2\nim = ax.contourf(X, Y, Z, levels=[0, 1, 2, 4, 8], cmap=\"viridis\")\nfig.colorbar(im, ax=ax, label=\"x squared + y squared\")\nax.set(xlabel=\"x\", ylabel=\"y\", title=\"Filled contour bands\", aspect=\"equal\")\nprint(round(float(Z.min()), 1), round(float(Z.max()), 1))\nplt.show()",
+      "expected": "0.0 8.0",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ28-3.png",
+      "alt": "Bản đồ đường đồng mức tô màu, tiêu đề \"Filled contour bands\", trục ngang \"x\", trục dọc \"y\"."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "VZ08 · Heatmap: màu, ma trận và thang đo chung, EX08 · Chuẩn bị vector và lưới trước khi vẽ"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Z shape=(2,3), shading=\"flat\" cần bao nhiêu biên x,y?",
+     "options": [
+      {
+       "text": "3 biên x và 2 biên y",
+       "detail": "Đây là số ô, chưa đủ xác định hai mép của mỗi ô."
+      },
+      {
+       "text": "4 biên x và 3 biên y",
+       "detail": "Đúng: số biên bằng số cột/hàng cộng 1.",
+       "correct": true
+      },
+      {
+       "text": "6 biên cho cả hai",
+       "detail": "Tổng số ô không xác định số biên mỗi trục."
+      }
+     ],
+     "explanation": "Mỗi ô lưới nằm giữa hai biên liên tiếp theo từng chiều."
+    },
+    {
+     "question": "Ma trận 2x2 với shading=\"flat\" cần mấy biên theo mỗi trục?\n\nimport matplotlib.pyplot as plt\nimport numpy as np\nfig, axes = plt.subplots(1, 2, figsize=(7, 3), layout=\"constrained\")\nz = np.array([[1, 2], [3, 4]])\nfor ax, method in zip(axes, [\"pcolor\", \"pcolormesh\"]):\n    im = getattr(ax, method)([0, 1, 2], [0, 1, 2], z, cmap=\"viridis\", vmin=0, vmax=4, shading=\"flat\")\n    ax.set(xlabel=\"x (m)\", ylabel=\"y (m)\", title=method, aspect=\"equal\")\nfig.colorbar(im, ax=axes, label=\"Temperature (arbitrary units)\")\nprint(z.shape)\nplt.show()",
+     "options": [
+      {
+       "text": "Hai biên x và hai biên y.",
+       "detail": "Hai biên chỉ giới hạn một ô, không tạo được hai ô trên chiều đó."
+      },
+      {
+       "text": "Bốn biên x và bốn biên y.",
+       "detail": "Bốn biên sẽ tạo ba ô trên một chiều, không phải hai."
+      },
+      {
+       "text": "3 biên x và 3 biên y để tạo 2 ô trên mỗi chiều.",
+       "detail": "3 biên x và 3 biên y để tạo 2 ô trên mỗi chiều.",
+       "correct": true
+      }
+     ],
+     "explanation": "3 biên x và 3 biên y để tạo 2 ô trên mỗi chiều."
+    },
+    {
+     "question": "contour khác contourf thế nào?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\nx = np.linspace(-2, 2, 25)\ny = np.linspace(-2, 2, 25)\nX, Y = np.meshgrid(x, y)\nZ = X**2 + Y**2\ncs = ax.contour(X, Y, Z, levels=[1, 2, 4], colors=\"black\")\nax.clabel(cs, inline=True, fontsize=9)\nax.set(xlabel=\"x\", ylabel=\"y\", title=\"Contours of x squared plus y squared\", aspect=\"equal\")\nprint(cs.levels.tolist())\nplt.show()",
+     "options": [
+      {
+       "text": "contour vẽ đường cùng mức; contourf tô vùng giữa các mức.",
+       "detail": "contour vẽ đường cùng mức; contourf tô vùng giữa các mức.",
+       "correct": true
+      },
+      {
+       "text": "Cả hai luôn tạo cùng một hình không có khác biệt.",
+       "detail": "Hai hàm có cách biểu diễn khác nhau dù có thể dùng cùng các mức."
+      },
+      {
+       "text": "contour tô vùng, contourf chỉ vẽ đường.",
+       "detail": "Vai trò đường và vùng tô đã bị đảo."
+      }
+     ],
+     "explanation": "contour vẽ đường cùng mức; contourf tô vùng giữa các mức."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Ma trận 2x2 với shading=\"flat\" cần mấy biên theo mỗi trục?",
+     "answer": "3 biên x và 3 biên y để tạo 2 ô trên mỗi chiều."
+    },
+    {
+     "prompt": "contour khác contourf thế nào?",
+     "answer": "contour vẽ đường cùng mức; contourf tô vùng giữa các mức."
+    },
+    {
+     "prompt": "Muốn ghi giá trị lên đường contour dùng gì?",
+     "answer": "Giữ kết quả cs = ax.contour(...) rồi gọi ax.clabel(cs)."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.z là ma trận, xEdges và yEdges có đúng số biên cho shading=\"flat\". Vẽ pcolormesh với vmin=0,vmax=data.maximum rồi thêm colorbar label=\"Temperature\". Trả shape từ mesh.get_array().shape, clim từ get_clim(), colorbarLabel từ colorbar.ax.get_ylabel(). Không coi các ô là điểm x/y riêng lẻ. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'z': [[1, 2, 3], [4, 5, 6]], 'xEdges': [0, 1, 2, 4], 'yEdges': [0, 2, 3], 'maximum': 10}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'shape': [2, 3], 'clim': [0.0, 10.0], 'colorbarLabel': 'Temperature'}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     fig, ax = plt.subplots()\n     mesh = ax.pcolormesh(data['xEdges'],data['yEdges'],data['z'],shading='flat',vmin=0,vmax=data['maximum'])\n     colorbar = fig.colorbar(mesh,ax=ax,label='Temperature')\n     result = {'shape':list(mesh.get_array().shape),'clim':list(mesh.get_clim()),'colorbarLabel':colorbar.ax.get_ylabel()}\n     plt.close(fig)\n     return result\n",
+   "tests": [
+    {
+     "name": "hai hàng ba cột",
+     "input": {
+      "z": [
+       [
+        1,
+        2,
+        3
+       ],
+       [
+        4,
+        5,
+        6
+       ]
+      ],
+      "xEdges": [
+       0,
+       1,
+       2,
+       4
+      ],
+      "yEdges": [
+       0,
+       2,
+       3
+      ],
+      "maximum": 10
+     },
+     "expected": {
+      "shape": [
+       2,
+       3
+      ],
+      "clim": [
+       0.0,
+       10.0
+      ],
+      "colorbarLabel": "Temperature"
+     }
+    },
+    {
+     "name": "một ô",
+     "input": {
+      "z": [
+       [
+        5
+       ]
+      ],
+      "xEdges": [
+       0,
+       3
+      ],
+      "yEdges": [
+       0,
+       2
+      ],
+      "maximum": 6
+     },
+     "expected": {
+      "shape": [
+       1,
+       1
+      ],
+      "clim": [
+       0.0,
+       6.0
+      ],
+      "colorbarLabel": "Temperature"
+     }
+    },
+    {
+     "name": "lưới có 0",
+     "input": {
+      "z": [
+       [
+        0,
+        2
+       ]
+      ],
+      "xEdges": [
+       0,
+       1,
+       3
+      ],
+      "yEdges": [
+       0,
+       1
+      ],
+      "maximum": 4
+     },
+     "expected": {
+      "shape": [
+       1,
+       2
+      ],
+      "clim": [
+       0.0,
+       4.0
+      ],
+      "colorbarLabel": "Temperature"
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cần viết giá trị lên các đường đồng mức đã tạo."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Ghép ma trận ô với đủ biên và giữ colorbar đúng đối tượng."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 1,
+  "bo": 2,
+  "loi": []
+ }
+}

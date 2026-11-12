@@ -1,0 +1,232 @@
+{
+ "lesson_code": "NP21",
+ "sort_order": 39,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP21 · Đọc bảng số từ CSV",
+ "subtitle": "Trung cấp · M2 · 12 phút",
+ "estimated_minutes": 12,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "NP21 · Đọc bảng số từ CSV",
+  "subtitle": "Trung cấp · M2 · 12 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#NP21",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "Advanced-Python-Tai-Lieu-Mon-Hoc.pdf tr. 124-126; Scientific Python Lectures · Dữ liệu quần thể; NumPy · Đọc và ghi dữ liệu"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Tới đây mọi bảng đều do bạn gõ tay trong bài, còn sổ của quán nằm trong một file. Nhóm khảo sát lưu số lượng chim và thỏ theo từng năm trong một bảng CSV (file text, các ô cách nhau bằng dấu phẩy). Dòng đầu ghi tên cột; hai dòng sau chứa số liệu. Bạn muốn đọc bảng đó vào NumPy:"
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\n\nfrom io import StringIO\ntext = \"birds,rabbits\\n12,5\\n15,7\"\ncounts = np.loadtxt(StringIO(text), delimiter=\",\", skiprows=1)\nprint(counts)",
+      "expected": "[[12.  5.]\n [15.  7.]]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "CSV là văn bản trong đó dấu phân cách ngăn các cột. Ở ví dụ này, dấu phẩy tách cột `birds` và `rabbits`; mỗi dòng mới tạo một hàng. Chuỗi `\\n` trong code biểu diễn ký tự xuống dòng."
+     },
+     {
+      "type": "paragraph",
+      "text": "`StringIO` giúp NumPy đọc một chuỗi như đọc file. Nhờ vậy, bạn có thể chạy ví dụ mà chưa cần tải file lên. `delimiter=\",\"` chỉ dấu phân cách, còn `skiprows=1` bỏ dòng tên cột."
+     },
+     {
+      "type": "paragraph",
+      "text": "Sau khi đọc, hãy kiểm tra kích thước bảng:"
+     },
+     {
+      "type": "code",
+      "code": "from io import StringIO\ntext = \"x,y\\n1,2\\n3,4\"\na = np.loadtxt(StringIO(text), delimiter=\",\", skiprows=1)\nprint(a.shape)",
+      "expected": "(2, 2)",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`shape` là `(2, 2)`: hai hàng dữ liệu và hai cột. Dòng tên cột không được tính là một hàng số."
+     },
+     {
+      "type": "paragraph",
+      "text": "Nếu một ô bị bỏ trống, bạn có thể dùng `genfromtxt` để đọc bảng số này:"
+     },
+     {
+      "type": "code",
+      "code": "from io import StringIO\ntext = \"x,y\\n1,\\n3,4\"\na = np.genfromtxt(StringIO(text), delimiter=\",\", skip_header=1)\nprint(np.isnan(a).sum())",
+      "expected": "1",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Ô sau dấu phẩy ở dòng `1,` bị thiếu, nên được đọc thành NaN với cách dùng mặc định ở đây. `np.isnan(a)` đánh dấu ô thiếu; `.sum()` đếm số ô được đánh dấu vì `True` được tính là 1 và `False` là 0."
+     },
+     {
+      "type": "paragraph",
+      "text": "Lưu ý tên tham số: `loadtxt` dùng `skiprows`, còn `genfromtxt` dùng `skip_header`. Khi chuyển sang file thật, thay `StringIO(text)` bằng đường dẫn, chẳng hạn `\"counts.csv\"`. Trước khi tính, vẫn kiểm tra số hàng, số cột, ý nghĩa từng cột và dữ liệu thiếu."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "NP07 · Đọc shape, ndim và size, NP09 · Lấy ô, hàng và cột, NP17 · Dữ liệu thiếu: NaN"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Trong np.loadtxt(..., delimiter=\",\", skiprows=1), skiprows=1 bỏ gì?",
+     "options": [
+      {
+       "text": "Mọi dòng có dữ liệu thiếu",
+       "detail": "Bỏ dữ liệu thiếu là chính sách khác; tham số này chỉ bỏ số dòng đầu đã chỉ định."
+      },
+      {
+       "text": "Cột đầu tiên",
+       "detail": "skiprows tác động lên dòng, không phải cột."
+      },
+      {
+       "text": "Một dòng đầu, ở đây là tên cột",
+       "detail": "Đúng. Tên cột không bị đọc thành dữ liệu số.",
+       "correct": true
+      }
+     ],
+     "explanation": "Đúng. Tên cột không bị đọc thành dữ liệu số."
+    },
+    {
+     "question": "Dòng đầu chứa tên cột, hai dòng sau là số. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\nfrom io import StringIO\ntext = \"x,y\\n1,2\\n3,4\"\nprint(np.loadtxt(StringIO(text), delimiter=\",\", skiprows=1))",
+     "options": [
+      {
+       "text": "[[1.0, 2.0], [3.0, 4.0]]",
+       "detail": "skiprows=1 bỏ dòng x,y trước khi đọc các ô số.",
+       "correct": true
+      },
+      {
+       "text": "[[1.0, 3.0], [2.0, 4.0]]",
+       "detail": "Đọc file giữ các dòng thành hàng, không chuyển vị."
+      },
+      {
+       "text": "[[3.0, 4.0]]",
+       "detail": "skiprows=1 chỉ bỏ một dòng tiêu đề, không bỏ dòng số đầu."
+      }
+     ],
+     "explanation": "skiprows=1 bỏ dòng x,y trước khi đọc các ô số."
+    },
+    {
+     "question": "File dùng chấm phẩy thay vì dấu phẩy. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\nfrom io import StringIO\ntext = \"x;y\\n2;5\\n4;7\"\nprint(np.loadtxt(StringIO(text), delimiter=\";\", skiprows=1))",
+     "options": [
+      {
+       "text": "[[2.0, 4.0], [5.0, 7.0]]",
+       "detail": "Hai dòng vẫn là hai hàng, không phải hai cột đã đổi chỗ."
+      },
+      {
+       "text": "[[2.0, 5.0], [4.0, 7.0]]",
+       "detail": "delimiter phải khớp ký tự ngăn cột trong file.",
+       "correct": true
+      },
+      {
+       "text": "[2.0, 5.0, 4.0, 7.0]",
+       "detail": "File hai cột được đọc thành bảng hai chiều."
+      }
+     ],
+     "explanation": "delimiter phải khớp ký tự ngăn cột trong file."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Trong dòng CSV `1,2`, dấu phẩy có vai trò gì?",
+     "answer": "Dấu phẩy ngăn hai cột dữ liệu."
+    },
+    {
+     "prompt": "Điền tham số để `loadtxt` bỏ một dòng tiêu đề: `___=1`.",
+     "answer": "Điền `skiprows` khi dùng `loadtxt`."
+    },
+    {
+     "prompt": "Sau khi đọc bảng có ô trống, bạn cần kiểm tra những gì trước khi tính?",
+     "answer": "Kiểm tra `shape`, ý nghĩa và thứ tự cột, các ô thiếu. Đọc được file không đảm bảo bảng đã đúng với dữ liệu bạn cần."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận chuỗi CSV có một dòng tên cột, ít nhất hai dòng số và hai cột. Ô rỗng nghĩa là thiếu. Trả array số ô thiếu của từng cột, giữ thứ tự cột.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "'pm,temp\\n1,2\\n,4'"
+     },
+     {
+      "label": "trả về",
+      "value": "[1, 0]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\nfrom io import StringIO\ndef solve(data):\n    table = np.genfromtxt(StringIO(data), delimiter=\",\", skip_header=1)\n    return np.isnan(table).sum(axis=0)\n",
+   "tests": [
+    {
+     "name": "Một ô rỗng",
+     "input": "pm,temp\n1,2\n,4",
+     "expected": [
+      1,
+      0
+     ]
+    },
+    {
+     "name": "Không thiếu",
+     "input": "pm,temp\n0,2\n3,4\n5,6",
+     "expected": [
+      0,
+      0
+     ]
+    },
+    {
+     "name": "Cột đầu toàn thiếu",
+     "input": "pm,temp\n,2\n,4",
+     "expected": [
+      2,
+      0
+     ]
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "CSV có dòng tên cột và ô rỗng, nên cần cách đọc cho phép tạo NaN."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Dùng genfromtxt với skip_header=1 rồi đếm mask isnan theo axis=0."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

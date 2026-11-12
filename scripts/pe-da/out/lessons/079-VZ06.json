@@ -1,0 +1,261 @@
+{
+ "lesson_code": "VZ06",
+ "sort_order": 79,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ06 · Histogram: khoảng chia, tần số và mật độ",
+ "subtitle": "Cơ bản · M4 · 15 phút",
+ "estimated_minutes": 15,
+ "xp_reward": 9,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "VZ06 · Histogram: khoảng chia, tần số và mật độ",
+  "subtitle": "Cơ bản · M4 · 15 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#VZ06",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 329; Histogram: khoảng chia, tần số và mật độ"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Mỗi điểm một đơn như bài trước sẽ rối khi quán có hàng nghìn đơn. Trong sáu đơn hàng, thời gian chờ là 1, 2, 2, 4, 5 và 8 phút. Thay vì vẽ một cột cho từng đơn, histogram gộp thời gian thành các khoảng rồi đếm có bao nhiêu đơn nằm trong mỗi khoảng."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nwait = [1, 2, 2, 4, 5, 8]\ncounts, edges, bars = ax.hist(wait, bins=[0, 3, 6, 9], edgecolor=\"white\")\nax.set(xlabel=\"Wait (minutes)\", ylabel=\"Orders\", title=\"Counts in fixed intervals\")\nprint(counts.astype(int).tolist())\nplt.show()",
+      "expected": "[3, 2, 1]",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ06-1.png",
+      "alt": "Biểu đồ phân phối, tiêu đề \"Counts in fixed intervals\", trục ngang \"Wait (minutes)\", trục dọc \"Orders\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Các khoảng thường lấy cận trái và bỏ cận phải; khoảng cuối lấy cả cận phải. Đổi bins có thể làm hình trông khác, nên cần kiểm tra vài cách chia khoảng thay vì chỉ giữ hình đẹp nhất. `density=True` chuyển chiều cao thành mật độ: tổng diện tích cột bằng 1, chứ tổng chiều cao không nhất thiết bằng 1."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nwait = [1, 2, 2, 4, 5, 8]\ncounts, edges, bars = ax.hist(wait, bins=[0, 5, 10], edgecolor=\"white\")\nax.set(xlabel=\"Wait (minutes)\", ylabel=\"Orders\", title=\"The same data, wider bins\")\nprint(counts.astype(int).tolist())\nplt.show()",
+      "expected": "[4, 2]",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ06-2.png",
+      "alt": "Biểu đồ phân phối, tiêu đề \"The same data, wider bins\", trục ngang \"Wait (minutes)\", trục dọc \"Orders\"."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\ndensity, edges, bars = ax.hist([1, 2, 2, 4, 5, 8], bins=[0, 3, 6, 9], density=True, edgecolor=\"white\")\nax.set(xlabel=\"Wait (minutes)\", ylabel=\"Density\", title=\"Area, rather than height, sums to one\")\nprint(round(float(np.sum(density * np.diff(edges))), 6))\nplt.show()",
+      "expected": "1.0",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ06-3.png",
+      "alt": "Biểu đồ phân phối, tiêu đề \"Area, rather than height, sums to one\", trục ngang \"Wait (minutes)\", trục dọc \"Density\"."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "VZ02 · Figure, Axes và biểu đồ đầu tiên, NP10 · Tổng của cả dãy và cả bảng"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "bins=[0,3,6], giá trị 3 thuộc khoảng nào?",
+     "options": [
+      {
+       "text": "Cả hai",
+       "detail": "Một quan sát không được đếm hai lần vào hai khoảng kề nhau."
+      },
+      {
+       "text": "[3,6]",
+       "detail": "Đúng: khoảng đầu bỏ biên phải 3, khoảng cuối nhận cả 6.",
+       "correct": true
+      },
+      {
+       "text": "[0,3)",
+       "detail": "Khoảng [0,3) không nhận 3."
+      }
+     ],
+     "explanation": "Histogram phải có quy tắc nhận biên nhất quán."
+    },
+    {
+     "question": "Với bins=[0,3,6,9], giá trị 4 thuộc khoảng nào?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nwait = [1, 2, 2, 4, 5, 8]\ncounts, edges, bars = ax.hist(wait, bins=[0, 3, 6, 9], edgecolor=\"white\")\nax.set(xlabel=\"Wait (minutes)\", ylabel=\"Orders\", title=\"Counts in fixed intervals\")\nprint(counts.astype(int).tolist())\nplt.show()",
+     "options": [
+      {
+       "text": "[3,6), tức cột thứ hai.",
+       "detail": "[3,6), tức cột thứ hai.",
+       "correct": true
+      },
+      {
+       "text": "[0,3), tức cột thứ nhất.",
+       "detail": "4 đã vượt mép phải 3 của khoảng đầu."
+      },
+      {
+       "text": "[6,9], tức cột thứ ba.",
+       "detail": "4 chưa đến mép trái 6 của khoảng cuối."
+      }
+     ],
+     "explanation": "[3,6), tức cột thứ hai."
+    },
+    {
+     "question": "Histogram và bar chart khác nhau thế nào?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nwait = [1, 2, 2, 4, 5, 8]\ncounts, edges, bars = ax.hist(wait, bins=[0, 5, 10], edgecolor=\"white\")\nax.set(xlabel=\"Wait (minutes)\", ylabel=\"Orders\", title=\"The same data, wider bins\")\nprint(counts.astype(int).tolist())\nplt.show()",
+     "options": [
+      {
+       "text": "Bar chart chỉ dùng cho số liên tục, histogram chỉ dùng cho nhãn chữ.",
+       "detail": "Hai vai trò của bar chart và histogram đã bị đảo."
+      },
+      {
+       "text": "Cả hai đều tự chia các tên nhóm thành khoảng số.",
+       "detail": "Nhóm danh mục không cần được chia thành bin số."
+      },
+      {
+       "text": "Histogram chia miền số thành các khoảng. Bar chart so sánh các nhóm đã xác định như tên đồ uống.",
+       "detail": "Histogram chia miền số thành các khoảng. Bar chart so sánh các nhóm đã xác định như tên đồ uống.",
+       "correct": true
+      }
+     ],
+     "explanation": "Histogram chia miền số thành các khoảng. Bar chart so sánh các nhóm đã xác định như tên đồ uống."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Với bins=[0,3,6,9], giá trị 4 thuộc khoảng nào?",
+     "answer": "[3,6), tức cột thứ hai."
+    },
+    {
+     "prompt": "Histogram và bar chart khác nhau thế nào?",
+     "answer": "Histogram chia miền số thành các khoảng. Bar chart so sánh các nhóm đã xác định như tên đồ uống."
+    },
+    {
+     "prompt": "density=True có nghĩa tổng chiều cao bằng 1 không?",
+     "answer": "Không; tổng diện tích bằng 1. Phải nhân mật độ với độ rộng mỗi khoảng trước khi cộng."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.values có ít nhất một số nằm trong miền data.bins, các bins tăng dần. Dựng histogram density=True. Trả density là các chiều cao, area là tổng density*np.diff(edges). Đóng Figure. Với bins không đều, area vẫn bằng 1. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'values': [1, 1, 3, 5], 'bins': [0, 2, 6]}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'density': [0.25, 0.125], 'area': 1.0}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     fig, ax = plt.subplots()\n     density, edges, bars = ax.hist(data['values'], bins=data['bins'], density=True)\n     result = {'density':density.tolist(),'area':float(np.sum(density*np.diff(edges)))}\n     plt.close(fig)\n     return result\n",
+   "tests": [
+    {
+     "name": "khoảng rộng không đều",
+     "input": {
+      "values": [
+       1,
+       1,
+       3,
+       5
+      ],
+      "bins": [
+       0,
+       2,
+       6
+      ]
+     },
+     "expected": {
+      "density": [
+       0.25,
+       0.125
+      ],
+      "area": 1.0
+     }
+    },
+    {
+     "name": "nhận biên cuối",
+     "input": {
+      "values": [
+       0,
+       2,
+       4
+      ],
+      "bins": [
+       0,
+       2,
+       4
+      ]
+     },
+     "expected": {
+      "density": [
+       0.16666666666666666,
+       0.3333333333333333
+      ],
+      "area": 1.0
+     }
+    },
+    {
+     "name": "một khoảng",
+     "input": {
+      "values": [
+       2,
+       3
+      ],
+      "bins": [
+       0,
+       5
+      ]
+     },
+     "expected": {
+      "density": [
+       0.2
+      ],
+      "area": 1.0
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Chiều cao cần chuẩn hóa để tổng diện tích các cột bằng 1, không phải tổng chiều cao bằng 1."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Đếm theo khoảng và tính diện tích của histogram mật độ."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

@@ -1,0 +1,221 @@
+{
+ "lesson_code": "EX02",
+ "sort_order": 161,
+ "module": "M9 · Ôn tập và thực hành các chi tiết trong slide",
+ "title": "EX02 · Bảng hỗn hợp và field names của structured array",
+ "subtitle": "Trung cấp · M9 · 12 phút",
+ "estimated_minutes": 12,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "EX02 · Bảng hỗn hợp và field names của structured array",
+  "subtitle": "Trung cấp · M9 · 12 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#EX02",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 328; NumPy genfromtxt; NumPy 2 migration"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Một bảng gồm tên món và lượng cà phê hạt cần lưu chữ và số ở các cột khác nhau. `genfromtxt` có thể đọc bảng này thành structured array: mỗi phần tử là một bản ghi món, bên trong có các trường (field) mang tên và kiểu riêng. `names=True` lấy tên các trường từ dòng đầu."
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\nfrom io import StringIO\nraw = \"mon,luong\\nlatte,8.5\\nmocha,7.0\\n\"\ntable = np.genfromtxt(StringIO(raw), delimiter=\",\", names=True, dtype=None, encoding=\"utf-8\")\nprint(table.dtype.names)\nprint(table[\"mon\"].tolist())\nprint(table[\"luong\"].tolist())",
+      "expected": "('mon', 'luong')\n['latte', 'mocha']\n[8.5, 7.0]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`dtype=None` cho phép suy luận kiểu của từng field; encoding=\"utf-8\" giữ phần tên dưới dạng chuỗi. table[\"luong\"] chọn một field, khác với table[0] chọn bản ghi đầu tiên. Đừng mặc định shape có hai chiều chỉ vì nguồn có hai cột."
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\nfrom io import StringIO\nraw = \"mon,luong\\nlatte,8.5\\nmocha,\\n\"\ntable = np.genfromtxt(StringIO(raw), delimiter=\",\", names=True, dtype=None, encoding=\"utf-8\")\nprint(table.shape)\nprint(bool(np.isnan(table[\"luong\"][1])))",
+      "expected": "(2,)\nTrue",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Ô lượng trống thành NaN trong field số thực này. Cách suy luận còn phụ thuộc dữ liệu: một cột chỉ có số nguyên và ô trống có thể dùng giá trị điền khác, nên cần xem dtype và chỉ định kiểu hoặc missing policy nếu quy tắc phải ổn định. recfromcsv trong tờ tóm tắt là API cũ đã bị bỏ ở NumPy 2; dùng genfromtxt với các tham số rõ, không cài phiên bản cũ chỉ để giữ tên hàm."
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\nfrom io import StringIO\nraw = \"mon,luong\\nlatte,8\\nmocha,7\\n\"\ntable = np.genfromtxt(StringIO(raw), delimiter=\",\", names=True, dtype=[(\"mon\", \"U8\"), (\"luong\", float)], encoding=\"utf-8\")\nprint(table[\"mon\"][0], float(table[\"luong\"][0]))\nprint(table[\"luong\"].dtype.kind)",
+      "expected": "latte 8.0\nf",
+      "tryIt": true
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "EX01 · Đọc bảng cùng kiểu bằng loadtxt và tra đúng trợ giúp, NP17 · Dữ liệu thiếu: NaN"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Structured array có shape=(3,) và hai field name,mark có mấy bản ghi?",
+     "options": [
+      {
+       "text": "2",
+       "detail": "Đó là số field, không phải số bản ghi."
+      },
+      {
+       "text": "3",
+       "detail": "shape đếm bản ghi; mỗi bản ghi có các field riêng.",
+       "correct": true
+      },
+      {
+       "text": "6",
+       "detail": "Không nhân số bản ghi với số field để suy ra shape."
+      }
+     ],
+     "explanation": "shape đếm bản ghi; mỗi bản ghi có các field riêng."
+    },
+    {
+     "question": "names=True trong genfromtxt lấy gì từ dòng đầu?",
+     "options": [
+      {
+       "text": "Giá trị điểm của bản ghi đầu",
+       "detail": "Chưa đúng. Tên field cho phép truy cập như table[\"mark\"]."
+      },
+      {
+       "text": "Tên file output",
+       "detail": "Chưa đúng. Tên field cho phép truy cập như table[\"mark\"]."
+      },
+      {
+       "text": "Tên field",
+       "detail": "Tên field cho phép truy cập như table[\"mark\"].",
+       "correct": true
+      }
+     ],
+     "explanation": "Tên field cho phép truy cập như table[\"mark\"]."
+    },
+    {
+     "question": "table[0] trong structured array lấy gì?",
+     "options": [
+      {
+       "text": "Bản ghi đầu tiên",
+       "detail": "Index số chọn bản ghi; index chuỗi tên field chọn trường của mọi bản ghi.",
+       "correct": true
+      },
+      {
+       "text": "Toàn bộ field mark",
+       "detail": "Chưa đúng. Index số chọn bản ghi; index chuỗi tên field chọn trường của mọi bản ghi."
+      },
+      {
+       "text": "Tên field đầu tiên",
+       "detail": "Chưa đúng. Index số chọn bản ghi; index chuỗi tên field chọn trường của mọi bản ghi."
+      }
+     ],
+     "explanation": "Index số chọn bản ghi; index chuỗi tên field chọn trường của mọi bản ghi."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "names=True lấy gì từ dòng đầu? Muốn cột luong viết gì?",
+     "answer": "Lấy tên field. Dùng table[\"luong\"]; table[0] là bản ghi đầu tiên, không phải cột đầu."
+    },
+    {
+     "prompt": "Structured array có shape (2,) và hai field thì có bao nhiêu bản ghi?",
+     "answer": "Hai bản ghi, mỗi bản ghi có hai field. shape không liệt kê số field như một chiều array thường."
+    },
+    {
+     "prompt": "Một ví dụ cũ gọi recfromcsv không chạy trên NumPy 2. Sửa hướng nào, và làm sao bảo đảm ô lượng trống được lưu như số thực thiếu?",
+     "answer": "Đổi sang genfromtxt(delimiter=\",\", names=True, ...) và chọn dtype cho field luong là float; đặt missing_values/filling_values rõ nếu định dạng cần. Kiểm dtype và np.isnan, không giả định mọi cột suy luận đều cùng cách điền."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Viết solve(data) nhận CSV name,mark với ít nhất một dòng. Dùng genfromtxt, khai báo name là U20 và mark là float, ndmin=1. Trả list dictionary {\"name\": tên, \"mark\": điểm}; ô điểm trống trả None. Giữ tên và thứ tự.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "'name,mark\\nLan,8.5\\nMinh,7\\n'"
+     },
+     {
+      "label": "trả về",
+      "value": "[{'name': 'Lan', 'mark': 8.5}, {'name': 'Minh', 'mark': 7.0}]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import numpy as np\nfrom io import StringIO\ndef solve(data):\n    table = np.genfromtxt(StringIO(data), delimiter=',', names=True, dtype=[('name','U20'),('mark',float)], encoding='utf-8', ndmin=1)\n    return [{'name':str(row['name']), 'mark':None if np.isnan(row['mark']) else float(row['mark'])} for row in table]\n",
+   "tests": [
+    {
+     "name": "đủ điểm",
+     "input": "name,mark\nLan,8.5\nMinh,7\n",
+     "expected": [
+      {
+       "name": "Lan",
+       "mark": 8.5
+      },
+      {
+       "name": "Minh",
+       "mark": 7.0
+      }
+     ]
+    },
+    {
+     "name": "thiếu điểm",
+     "input": "name,mark\nAn,\nBinh,0\n",
+     "expected": [
+      {
+       "name": "An",
+       "mark": null
+      },
+      {
+       "name": "Binh",
+       "mark": 0.0
+      }
+     ]
+    },
+    {
+     "name": "một bản ghi",
+     "input": "name,mark\nMai,9.25\n",
+     "expected": [
+      {
+       "name": "Mai",
+       "mark": 9.25
+      }
+     ]
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

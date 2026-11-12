@@ -1,0 +1,255 @@
+{
+ "lesson_code": "NP14",
+ "sort_order": 32,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP14 · Lọc dữ liệu bằng mask",
+ "subtitle": "Cơ bản · M2 · 11 phút",
+ "estimated_minutes": 11,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "NP14 · Lọc dữ liệu bằng mask",
+  "subtitle": "Cơ bản · M2 · 11 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#NP14",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "Advanced-Python-Tai-Lieu-Mon-Hoc.pdf tr. 112-114; Python Data Science Handbook · Đếm ngày mưa; NumPy · Lấy phần tử và cắt dữ liệu"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bạn có lượng sữa tươi quán dùng bốn ngày và chỉ muốn lấy số đo của những ngày có dùng tới sữa. Trước tiên tạo mask, sau đó dùng mask để chọn dữ liệu:"
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\n\nsua = np.array([0., 2.5, 0., 7.])\nco_dung = sua > 0\nprint(sua[co_dung])",
+      "expected": "[2.5 7. ]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`co_dung` đánh dấu `True` ở các vị trí dùng hơn 0 lít. `sua[co_dung]` chỉ giữ giá trị ở những vị trí đó, nên còn 2.5 và 7. Thứ tự các giá trị được giữ nguyên."
+     },
+     {
+      "type": "paragraph",
+      "text": "Lọc số cốc cũng làm theo hai bước tương tự:"
+     },
+     {
+      "type": "code",
+      "code": "a = np.array([3, 5, 8])\nmask = a >= 5\nprint(a[mask])",
+      "expected": "[5 8]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Mask là `[False, True, True]`, vì vậy kết quả giữ 5 và 8. Bạn có thể viết gọn thành `a[a >= 5]` sau khi hiểu được hai bước này."
+     },
+     {
+      "type": "paragraph",
+      "text": "Để giữ số cốc trong khoảng từ 0 đến 10, bạn cần hai điều kiện cùng đúng:"
+     },
+     {
+      "type": "code",
+      "code": "a = np.array([-1, 4, 10, 12])\nvalid = (a >= 0) & (a <= 10)\nprint(a[valid])",
+      "expected": "[ 4 10]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`&` có nghĩa là “và”: một giá trị phải vừa lớn hơn hoặc bằng 0, vừa nhỏ hơn hoặc bằng 10. Vì vậy, -1 và 12 bị bỏ, còn 4 và 10 được giữ."
+     },
+     {
+      "type": "paragraph",
+      "text": "Đặt từng phép so sánh trong ngoặc như trên. Nếu cần một trong hai điều kiện đúng, dùng `|`, nghĩa là “hoặc”. Không dùng `and` hoặc `or` để ghép các mask nhiều phần tử. Sau khi lọc, array kết quả có thể ngắn hơn array ban đầu."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "NP13 · So sánh tạo dãy True/False"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "a=np.array([-2,0,7,12]); a[(a>=0)&(a<=10)] còn gì?",
+     "options": [
+      {
+       "text": "[0,7]",
+       "detail": "Đúng. Giữ cả biên 0 và các giá trị không vượt 10.",
+       "correct": true
+      },
+      {
+       "text": "[True,True]",
+       "detail": "Kết quả lựa chọn là giá trị của a, không phải mask."
+      },
+      {
+       "text": "[-2,0,7,12]",
+       "detail": "Lọc bằng mask bỏ những vị trí không thỏa điều kiện."
+      }
+     ],
+     "explanation": "Đúng. Giữ cả biên 0 và các giá trị không vượt 10."
+    },
+    {
+     "question": "Chọn các ngày có mưa. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\nrain = np.array([0., 3.5, 0., 6.])\nwet = rain > 0\nprint(rain[wet])",
+     "options": [
+      {
+       "text": "[0, 3.5, 0, 6]",
+       "detail": "Hai ngày 0 không đạt điều kiện."
+      },
+      {
+       "text": "[False, True, False, True]",
+       "detail": "Đó là mask wet, chưa lấy rain[wet]."
+      },
+      {
+       "text": "[3.5, 6.0]",
+       "detail": "Index bằng mask giữ các giá trị ở vị trí True.",
+       "correct": true
+      }
+     ],
+     "explanation": "Index bằng mask giữ các giá trị ở vị trí True."
+    },
+    {
+     "question": "Chỉ giữ điểm trong thang 0–10. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\na = np.array([-1, 0, 6, 10, 12])\nvalid = (a >= 0) & (a <= 10)\nprint(a[valid])",
+     "options": [
+      {
+       "text": "[6]",
+       "detail": "Hai điều kiện <= và >= nhận cả hai biên."
+      },
+      {
+       "text": "[0, 6, 10]",
+       "detail": "Hai so sánh được nối bằng & để cùng đúng ở một vị trí.",
+       "correct": true
+      },
+      {
+       "text": "[-1, 0, 6, 10, 12]",
+       "detail": "Điểm -1 và 12 nằm ngoài thang."
+      }
+     ],
+     "explanation": "Hai so sánh được nối bằng & để cùng đúng ở một vị trí."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Lọc dãy số cốc `[2, 7, 9]` bằng điều kiện lớn hơn 5 thì còn các giá trị nào?",
+     "answer": "Còn 7 và 9."
+    },
+    {
+     "prompt": "Giữ số cốc từ 0 đến 10: `(a >= 0) ___ (a <= 10)` cần điền gì?",
+     "answer": "Điền `&`, vì cả hai điều kiện phải đúng."
+    },
+    {
+     "prompt": "Tạo một array đơn giá và lọc các giá trị từ 20 đến 35, kể cả hai biên.",
+     "answer": "Đặt từng điều kiện trong ngoặc; giữ cả hai biên:",
+     "answerCode": "import numpy as np\n\na = np.array([18, 20, 28, 35, 40])\nprint(a[(a >= 20) & (a <= 35)])",
+     "answerExpected": "[20 28 35]"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận dãy số cốc bán được. Trả array các số từ 20 đến 35 cốc, nhận cả hai biên và giữ nguyên thứ tự.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "[18, 20, 28, 35, 37]"
+     },
+     {
+      "label": "trả về",
+      "value": "[20, 28, 35]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    so_coc = np.array(data)\n    valid = (so_coc >= 20) & (so_coc <= 35)\n    return so_coc[valid]\n",
+   "tests": [
+    {
+     "name": "Có số ở hai biên",
+     "input": [
+      18,
+      20,
+      28,
+      35,
+      37
+     ],
+     "expected": [
+      20,
+      28,
+      35
+     ]
+    },
+    {
+     "name": "Không số nào đạt",
+     "input": [
+      0,
+      40
+     ],
+     "expected": []
+    },
+    {
+     "name": "Thứ tự không tăng",
+     "input": [
+      35,
+      22,
+      20,
+      30
+     ],
+     "expected": [
+      35,
+      22,
+      20,
+      30
+     ]
+    },
+    {
+     "name": "Loại cả hai phía của khoảng",
+     "input": [
+      19,
+      20,
+      36
+     ],
+     "expected": [
+      20
+     ]
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Hai điều kiện phải cùng đúng và phải giữ cả 20 lẫn 35."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Tạo (so_coc >= 20) & (so_coc <= 35), rồi dùng mask chọn từ so_coc."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

@@ -1,0 +1,264 @@
+{
+ "lesson_code": "PD27",
+ "sort_order": 68,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD27 · MultiIndex cho dữ liệu nhiều cấp",
+ "subtitle": "Nâng cao · M3 · 11 phút",
+ "estimated_minutes": 11,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PD27 · MultiIndex cho dữ liệu nhiều cấp",
+  "subtitle": "Nâng cao · M3 · 11 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PD27",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas · MultiIndex"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Nhãn đã có thứ tự rồi, nhưng báo cáo của quán còn chia theo hai cấp. Báo cáo có cả cửa hàng và tháng. Khi cặp store–month xác định một hàng, bạn có thể dùng hai tầng index để chọn trực tiếp từng ô hoặc một lát báo cáo."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'month': ['Jan', 'Feb', 'Jan'], 'sales': [10, 20, 30]})\nindexed = df.set_index(['store', 'month']).sort_index()\nprint(indexed.loc[('A', 'Feb'), 'sales'])\nprint(indexed.index.names)",
+      "expected": "20\n['store', 'month']",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "MultiIndex có các tầng nhãn. Một `tuple` như `(\"A\", \"Feb\")` chỉ rõ hai tầng cho cùng một hàng. sort_index giúp các thao tác chọn khoảng theo nhãn có thứ tự dễ dự đoán."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'month': ['Jan', 'Feb', 'Jan'], 'sales': [10, 20, 30]})\nindexed = df.set_index(['store', 'month']).sort_index()\nprint(indexed.xs('Jan', level='month')['sales'].to_dict())\nprint(indexed.reset_index().columns.tolist())",
+      "expected": "{'A': 10, 'B': 30}\n['store', 'month', 'sales']",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "xs chọn một lát theo tầng được đặt tên; ở đây lấy Jan ở tất cả cửa hàng. reset_index đưa cả hai tầng trở lại thành cột nếu bạn muốn dùng merge hoặc xuất file."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'month': ['Jan', 'Feb', 'Jan'], 'sales': [10, 20, 30]})\ns = df.set_index(['store', 'month'])['sales']\nwide = s.unstack('month')\nprint(wide.loc['A', 'Feb'])\nprint(pd.isna(wide.loc['B', 'Feb']))",
+      "expected": "20.0\nTrue",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "unstack chuyển một tầng thành cột, gần với cách pivot ở bài trước. Ô B–Feb thiếu vì chưa có cặp đó, nên số nguyên ở các ô còn lại có thể hiển thị thành số thực. Không phải bảng nào cũng cần MultiIndex; giữ khóa thành cột thường dễ trao đổi hơn khi làm việc nhóm."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "PD26 · Dữ liệu phân loại và chia khoảng"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "MultiIndex [store,month] cần nhãn nào để lấy đúng A-Feb?",
+     "options": [
+      {
+       "text": "Chỉ \"Feb\"",
+       "detail": "Thiếu tầng store nên chưa xác định cùng một hàng."
+      },
+      {
+       "text": "Số 2",
+       "detail": "Đó có thể là vị trí, không phải cặp nhãn."
+      },
+      {
+       "text": "Tuple (\"A\",\"Feb\")",
+       "detail": "Đúng: hai phần ứng với hai tầng nhãn.",
+       "correct": true
+      }
+     ],
+     "explanation": "Tên tầng giúp bạn giữ rõ mỗi phần của khóa."
+    },
+    {
+     "question": "Tuple (A, Feb) trong ví dụ chứa bao nhiêu tầng nhãn?\n\nimport pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'month': ['Jan', 'Feb', 'Jan'], 'sales': [10, 20, 30]})\nindexed = df.set_index(['store', 'month']).sort_index()\nprint(indexed.loc[('A', 'Feb'), 'sales'])\nprint(indexed.index.names)",
+     "options": [
+      {
+       "text": "Hai tầng: store và month.",
+       "detail": "Hai tầng: store và month.",
+       "correct": true
+      },
+      {
+       "text": "Một tầng vì tuple là một object.",
+       "detail": "Một tuple có thể chứa nhãn của nhiều tầng."
+      },
+      {
+       "text": "Ba tầng vì Feb là tháng thứ hai.",
+       "detail": "Tháng Feb là một giá trị của tầng month, không thêm tầng thứ ba."
+      }
+     ],
+     "explanation": "Hai tầng: store và month."
+    },
+    {
+     "question": "Muốn lấy Jan ở mọi cửa hàng bằng tên tầng, dùng gì?\n\nimport pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'month': ['Jan', 'Feb', 'Jan'], 'sales': [10, 20, 30]})\nindexed = df.set_index(['store', 'month']).sort_index()\nprint(indexed.xs('Jan', level='month')['sales'].to_dict())\nprint(indexed.reset_index().columns.tolist())",
+     "options": [
+      {
+       "text": "xs(\"Jan\", level=\"store\").",
+       "detail": "Jan là giá trị tháng, không phải giá trị của tầng store."
+      },
+      {
+       "text": "xs(\"Jan\", level=\"month\").",
+       "detail": "xs(\"Jan\", level=\"month\").",
+       "correct": true
+      },
+      {
+       "text": "iloc[\"Jan\"].",
+       "detail": "iloc chỉ nhận vị trí, không tra chuỗi Jan như nhãn."
+      }
+     ],
+     "explanation": "xs(\"Jan\", level=\"month\")."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Tuple (A, Feb) trong ví dụ chứa bao nhiêu tầng nhãn?",
+     "answer": "Hai tầng: store và month."
+    },
+    {
+     "prompt": "Muốn lấy Jan ở mọi cửa hàng bằng tên tầng, dùng gì?",
+     "answer": "xs(\"Jan\", level=\"month\")."
+    },
+    {
+     "prompt": "Tạo bảng city=[HN,HCM], year=[2025,2025], value=[3,4]; đặt hai cột đầu làm index và lấy HCM–2025.",
+     "answer": "Giá trị là 4.",
+     "answerCode": "import pandas as pd\ndf = pd.DataFrame({'city': ['HN', 'HCM'], 'year': [2025, 2025], 'value': [3, 4]})\nprint(df.set_index(['city', 'year']).loc[('HCM', 2025), 'value'])",
+     "answerExpected": "4"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.rows có city, year, value; mỗi cặp city–year duy nhất. Đặt hai cột đó làm MultiIndex, sắp index rồi lấy data.city và data.year, trả value của cặp có thật đó.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'rows': [{'city': 'HN', 'year': 2025, 'value': 3}, {'city': 'HN', 'year': 2026, 'value': 7}], 'city': 'HN', 'year': 2026}"
+     },
+     {
+      "label": "trả về",
+      "value": "7.0"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     frame = pd.DataFrame(data['rows']).set_index(['city','year']).sort_index()\n     return float(frame.loc[(data['city'],data['year']),'value'])\n",
+   "tests": [
+    {
+     "name": "chọn đúng năm",
+     "input": {
+      "rows": [
+       {
+        "city": "HN",
+        "year": 2025,
+        "value": 3
+       },
+       {
+        "city": "HN",
+        "year": 2026,
+        "value": 7
+       }
+      ],
+      "city": "HN",
+      "year": 2026
+     },
+     "expected": 7.0
+    },
+    {
+     "name": "chọn thành phố",
+     "input": {
+      "rows": [
+       {
+        "city": "DN",
+        "year": 2026,
+        "value": 0
+       },
+       {
+        "city": "HUE",
+        "year": 2026,
+        "value": 4
+       }
+      ],
+      "city": "DN",
+      "year": 2026
+     },
+     "expected": 0.0
+    },
+    {
+     "name": "một cặp",
+     "input": {
+      "rows": [
+       {
+        "city": "CT",
+        "year": 2024,
+        "value": 9
+       }
+      ],
+      "city": "CT",
+      "year": 2024
+     },
+     "expected": 9.0
+    },
+    {
+     "name": "cùng thành phố, năm còn lại khác 0",
+     "input": {
+      "rows": [
+       {
+        "city": "DN",
+        "year": 2026,
+        "value": 0
+       },
+       {
+        "city": "DN",
+        "year": 2025,
+        "value": 6
+       }
+      ],
+      "city": "DN",
+      "year": 2025
+     },
+     "expected": 6.0
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cần nói rõ Jan thuộc tầng month của MultiIndex."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Đọc một cặp nhãn từ MultiIndex."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

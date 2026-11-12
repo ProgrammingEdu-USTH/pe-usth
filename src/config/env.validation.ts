@@ -10,6 +10,18 @@ const throttleLimit = (mac_dinh: number) =>
 const throttleTtl = (mac_dinh: number) =>
   Joi.number().integer().min(1).max(86_400).default(mac_dinh);
 
+// MỌI biến mà code đọc bằng `config.get<number>()` PHẢI khai ở đây.
+//
+// Joi chạy với allowUnknown: true nên key lạ vẫn qua được, nhưng giữ nguyên dạng
+// CHUỖI — và `get<number>()` chỉ là ép kiểu lúc BIÊN DỊCH, không đổi giá trị lúc
+// chạy. Hậu quả thật trên production 13/10/2026: một biến timeout không khai ở
+// đây, đặt "30000" trên Render, thì code tính "30000" + 10000 + 10000 = chuỗi
+// "300001000010000"; `AbortSignal.timeout(<chuỗi>)` ném TypeError NGAY TRONG try
+// rồi rơi vào catch và trả 503 — trong khi dịch vụ phía sau vẫn khoẻ và `fetch`
+// chưa từng được gọi. Triệu chứng trỏ sai hoàn toàn sang "lệch khoá/tường lửa".
+//
+// Biến gây ra vụ đó (PY_RUN_QUEUE_TIMEOUT_MS) đã bị xoá cùng bộ chạy Python ở
+// máy chủ, nhưng BÀI HỌC thì áp cho mọi biến số sau này.
 export const envValidationSchema = Joi.object({
   PORT: Joi.number().integer().min(1).max(65535).default(5000),
 
@@ -55,10 +67,16 @@ export const envValidationSchema = Joi.object({
   THROTTLE_GUEST_LIMIT: throttleLimit(120),
   THROTTLE_GUEST_TTL_SECONDS: throttleTtl(3600),
   THROTTLE_BADGE_LIMIT: throttleLimit(240),
-  THROTTLE_PY_RUN_LIMIT: throttleLimit(10),
-  THROTTLE_PY_RUN_TTL_SECONDS: throttleTtl(60),
-  THROTTLE_PY_TRACE_LIMIT: throttleLimit(10),
-  THROTTLE_PY_TRACE_TTL_SECONDS: throttleTtl(60),
+  // Ghi nhật ký lần thử (POST /api/events). Quota tính theo TÀI KHOẢN, không
+  // theo IP (CustomThrottlerGuard.getTracker), nên nó không bị cả phòng máy
+  // chung NAT ăn hết — xem learning-events.controller.ts để biết vì sao 600.
+  THROTTLE_EVENTS_LIMIT: throttleLimit(600),
+  THROTTLE_EVENTS_TTL_SECONDS: throttleTtl(3600),
+  // Quyết định đồng ý ghi nhật ký (POST /api/events/consent). Chặt hơn HẲN vì
+  // nó là một lượt bấm nút của người thật, nhưng nó GHI vào một bảng
+  // append-only không có khoá unique — xem learning-events.controller.ts.
+  THROTTLE_CONSENT_LIMIT: throttleLimit(20),
+  THROTTLE_CONSENT_TTL_SECONDS: throttleTtl(3600),
   // Chu kỳ quét key hết hạn của FixedWindowThrottlerStorage; 0/NaN làm
   // setInterval chạy liên tục hoặc không bao giờ dọn.
   THROTTLE_SWEEP_INTERVAL_MS: Joi.number()
@@ -83,9 +101,41 @@ export const envValidationSchema = Joi.object({
   DATABASE_URL: Joi.string().required(),
   DIRECT_URL: Joi.string().required(),
 
+  // ---- Bài hậu kiểm có trễ -------------------------------------------------
+  //
+  // Khoảng TRỄ tối thiểu (ngày) giữa lúc hoàn thành một bài và lúc bài đó được
+  // phép xuất hiện trong đề hậu kiểm.
+  //
+  // 7 là QUY ƯỚC, không phải con số rút ra từ một nghiên cứu. Thứ có bằng
+  // chứng là ngưỡng **≥ 1 ngày**; lý do chi tiết (và vì sao "luật 10-20%" của
+  // Cepeda et al. KHÔNG nói gì về việc đặt trễ bao lâu) nằm ở
+  // `SO_NGAY_TRE_MAC_DINH` trong src/quizzes/post-test.ts.
+  //
+  // TRẦN 30, không phải 365: phiên của tài khoản khách sống theo
+  // `JWT_GUEST_REFRESH_EXPIRES` (mặc định 30d) và hết hạn là người thử nhận
+  // một `userId` MỚI — hậu kiểm không ghép được với tiền kiểm nữa. Đặt trễ dài
+  // hơn hạn phiên là đo được 0 người, nên đây là trần CỨNG của nền này chứ
+  // không phải một con số cho đẹp. Nới nó thì phải nới hạn phiên trước.
+  //
+  // KHAI Ở ĐÂY LÀ BẮT BUỘC, không phải cho đẹp: `QuizzesService` đọc biến này
+  // bằng `config.get<number>()`, mà `get<number>()` chỉ ép kiểu lúc BIÊN DỊCH.
+  // Không khai thì giá trị đặt trên Render giữ nguyên dạng CHUỖI và
+  // `Date.now() - '7' * 86400000` tuy vẫn ra số, nhưng một biến để TRỐNG thành
+  // Number('') = 0 — cổng trễ mở toang mà không ai thấy. Joi áp mặc định 7 và
+  // TỪ CHỐI KHỞI ĐỘNG khi giá trị sai.
+  // min(0) chứ không min(1): 0 ngày là cách tắt cổng trễ khi cần thử tay, và
+  // nó phải là điều người ta GÕ RA chứ không phải điều xảy ra vì để trống.
+  POSTTEST_DELAY_DAYS: Joi.number().integer().min(0).max(30).default(7),
+
   JWT_ACCESS_SECRET: Joi.string().min(32).required(),
   JWT_ACCESS_EXPIRES: Joi.string().default('30m'),
   JWT_REFRESH_EXPIRES: Joi.string().default('8h'),
+  // Hạn RIÊNG cho tài khoản khách. Dài hơn hẳn vì đợt thử nghiệm không bắt
+  // đăng nhập: với người thử, refresh token là thứ DUY NHẤT giữ tiến độ, hết
+  // hạn là họ nhận một tài khoản mới và thấy như mất sạch. Tách khỏi biến
+  // trên để không nới cửa sổ của quản trị viên theo — xem
+  // `RefreshTokenService.lifetimeMsFor`.
+  JWT_GUEST_REFRESH_EXPIRES: Joi.string().default('30d'),
 
   // Cookie refresh token: 'lax' khi frontend và backend cùng site (vd
   // app.example.com + api.example.com); 'none' khi khác site (bắt buộc HTTPS).
@@ -117,46 +167,4 @@ export const envValidationSchema = Joi.object({
   GEMINI_TIMEOUT_MS: Joi.number().integer().min(1000).max(120000).optional(),
   GEMINI_MAX_CHARS: Joi.number().integer().min(100).max(20000).optional(),
   GEMINI_HOUR_LIMIT: Joi.number().integer().min(1).optional(),
-
-  // Python IDE (src/python-runner): chạy code người dùng trong container Docker.
-  //
-  // MỌI biến PY_*/RUNNER_* mà code đọc bằng `config.get<number>()` PHẢI khai ở
-  // đây. Joi chạy với allowUnknown: true nên key lạ vẫn qua được, nhưng giữ
-  // nguyên dạng CHUỖI — và `get<number>()` chỉ là ép kiểu lúc biên dịch, không
-  // đổi giá trị lúc chạy. Hậu quả thật đã gặp trên production 13/10/2026:
-  // PY_RUN_QUEUE_TIMEOUT_MS không khai ở đây, đặt "30000" trên Render thì
-  // RemoteExecutor tính "30000" + 10000 + 10000 = chuỗi "300001000010000",
-  // AbortSignal.timeout(<chuỗi>) ném TypeError NGAY TRONG try, rơi vào catch và
-  // trả 503 "Bộ chạy Python đang tắt" — trong khi runner vẫn khoẻ và fetch chưa
-  // từng được gọi. Triệu chứng trỏ sai hoàn toàn sang "lệch khoá/tường lửa".
-  PY_SANDBOX_IMAGE: Joi.string().default('py-sandbox'),
-  PY_RUN_TIMEOUT_MS: Joi.number().integer().min(1000).max(60000).default(10000),
-  // Số container chạy ĐỒNG THỜI tối đa; vượt thì xếp hàng, hàng đầy thì 429.
-  PY_RUN_MAX_CONCURRENT: Joi.number().integer().min(1).max(16).default(2),
-  // Chờ tối đa trong hàng trước khi bỏ cuộc. Phải KHỚP với runner, nếu không
-  // backend bỏ cuộc trước hoặc sau runner và thông điệp lỗi sai lệch.
-  PY_RUN_QUEUE_TIMEOUT_MS: Joi.number()
-    .integer()
-    .min(1000)
-    .max(120000)
-    .default(30000),
-  // Số bài được xếp hàng chờ; vượt thì 429 ngay thay vì để chờ vô vọng.
-  PY_RUN_QUEUE_MAX: Joi.number().integer().min(1).max(500).default(50),
-  // Trần RAM mỗi container, dạng docker ('512m', '1g'). Chuỗi nên không dính
-  // bẫy ở trên, nhưng khai ra để một chỗ duy nhất liệt kê đủ biến.
-  PY_RUN_MEMORY: Joi.string().default('512m'),
-  // 'remote' → gọi runner qua HTTP; giá trị khác (kể cả 'Remote' viết hoa) rơi
-  // về chạy docker ngay trên máy backend.
-  PY_RUNNER_MODE: Joi.string().valid('local', 'remote').default('local'),
-  // Chỉ bắt buộc khi PY_RUNNER_MODE=remote — module tự getOrThrow lúc khởi động.
-  RUNNER_URL: Joi.string().uri().optional(),
-  // >= 32 ký tự, KHỚP runner (runner/src/config.ts từ chối khoá < 32 sau trim).
-  // Trước đây ở đây là min(16): khoá 16–31 ký tự qua được backend nhưng runner
-  // không bao giờ khởi động với khoá đó, nên lỗi chỉ lộ ra lúc chạy dưới dạng
-  // 401/503 thay vì chặn ngay khi deploy. .env.example cũng đã ghi ">= 32".
-  RUNNER_SECRET: Joi.string().min(32).optional(),
-  // true → POST /api/python/run KHÔNG đòi JWT (lúc khởi động có cảnh báo). Mặc định
-  // false. KHÔNG chặn khởi động ở production: route được bảo vệ bằng lớp mạng ở
-  // reverse proxy. .empty(''): `PY_RUNNER_PUBLIC=` để trống coi như chưa đặt.
-  PY_RUNNER_PUBLIC: Joi.boolean().empty('').default(false),
 });

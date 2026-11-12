@@ -1,0 +1,258 @@
+{
+ "lesson_code": "VZ13",
+ "sort_order": 86,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ13 · Error bar: phân tán và độ bất định",
+ "subtitle": "Nâng cao · M4 · 17 phút",
+ "estimated_minutes": 17,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "VZ13 · Error bar: phân tán và độ bất định",
+  "subtitle": "Nâng cao · M4 · 17 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#VZ13",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 329; Error bar: phân tán và độ bất định"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Nhiều hình đã nằm chung một trang rồi, nhưng một con số trung bình vẫn chưa đủ. Hai nhóm giao hàng có trung bình 10 và 12 phút. Chỉ hai điểm trung bình chưa cho biết các đơn phân tán ra sao hay trung bình được ước lượng chắc đến mức nào. Error bar có thể biểu diễn độ lệch chuẩn, khoảng phần trăm hoặc khoảng tin cậy; bạn cần ghi rõ mình đang vẽ loại nào."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.errorbar([1, 2], [10, 12], yerr=[2, 3], fmt=\"o\", capsize=5)\nax.set(xticks=[1, 2], xticklabels=[\"A\", \"B\"], ylabel=\"Delivery (minutes)\", title=\"Means with supplied +/- standard deviations\")\nprint(10 - 2, 10 + 2)\nplt.show()",
+      "expected": "8 12",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ13-1.png",
+      "alt": "Biểu đồ đường kèm thanh sai số, tiêu đề \"Means with supplied +/- standard deviations\", trục dọc \"Delivery (minutes)\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Độ lệch chuẩn mô tả độ phân tán của quan sát. Sai số chuẩn của trung bình được tính bằng độ lệch chuẩn mẫu chia căn bậc hai số quan sát, trong mô hình lấy mẫu độc lập phù hợp. Nó không phải khoảng tin cậy 95% nếu bạn chỉ vẽ cộng trừ một sai số chuẩn. Khi mẫu nhỏ hoặc các quan sát phụ thuộc nhau, cần cân nhắc cách ước lượng khác."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\ntimes = np.array([8, 10, 12, 10], dtype=float)\nsd = times.std(ddof=1)\nse = sd / np.sqrt(len(times))\nax.errorbar([1], [times.mean()], yerr=[se], fmt=\"o\", capsize=5)\nax.set(xticks=[1], xticklabels=[\"A\"], ylabel=\"Delivery (minutes)\", title=\"Mean +/- one standard error; n=4\")\nprint(round(float(sd), 2), round(float(se), 2))\nplt.show()",
+      "expected": "1.63 0.82",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ13-2.png",
+      "alt": "Biểu đồ đường kèm thanh sai số, tiêu đề \"Mean +/- one standard error; n=4\", trục dọc \"Delivery (minutes)\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Một dải quanh đường có thể dùng fill_between để vẽ cận dưới và cận trên đã được tính. Dải dưới đây là khoảng dự báo minh họa do người viết cung cấp, không phải kết quả suy luận từ ba điểm. Các khoảng chồng nhau hay không chồng nhau cũng không tự thay thế một phép kiểm định phù hợp."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\ndays = [1, 2, 3]\nmean = [10, 12, 11]\nax.plot(days, mean, marker=\"o\", label=\"Forecast\")\nax.fill_between(days, [8, 9, 9], [12, 15, 13], alpha=0.25, label=\"Illustrative interval\")\nax.set(xlabel=\"Day\", ylabel=\"Orders\", title=\"Label what the shaded interval means\")\nax.legend()\nprint([12-8, 15-9, 13-9])\nplt.show()",
+      "expected": "[4, 6, 4]",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ13-3.png",
+      "alt": "Biểu đồ đường, tiêu đề \"Label what the shaded interval means\", trục ngang \"Day\", trục dọc \"Orders\"."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "VZ07 · Boxplot và violinplot: đọc phân bố theo nhóm, NP16 · Thống kê và giá trung bình có trọng số"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "SD mẫu=6, n=9 quan sát độc lập. SE trung bình bằng bao nhiêu?",
+     "options": [
+      {
+       "text": "0.667",
+       "detail": "Đây là chia n, không chia sqrt(n)."
+      },
+      {
+       "text": "2",
+       "detail": "Đúng: 6/sqrt(9)=2.",
+       "correct": true
+      },
+      {
+       "text": "6",
+       "detail": "6 là SD, chưa chia căn số quan sát."
+      }
+     ],
+     "explanation": "SE của trung bình khác độ phân tán của từng quan sát."
+    },
+    {
+     "question": "Cộng trừ một độ lệch chuẩn có phải mặc định là khoảng tin cậy 95%?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.errorbar([1, 2], [10, 12], yerr=[2, 3], fmt=\"o\", capsize=5)\nax.set(xticks=[1, 2], xticklabels=[\"A\", \"B\"], ylabel=\"Delivery (minutes)\", title=\"Means with supplied +/- standard deviations\")\nprint(10 - 2, 10 + 2)\nplt.show()",
+     "options": [
+      {
+       "text": "Không. Độ lệch chuẩn nói về độ phân tán; khoảng tin cậy nói về độ bất định của một ước lượng theo phương pháp được chọn.",
+       "detail": "Không. Độ lệch chuẩn nói về độ phân tán; khoảng tin cậy nói về độ bất định của một ước lượng theo phương pháp được chọn.",
+       "correct": true
+      },
+      {
+       "text": "Có; mọi thanh sai số đều là CI 95%.",
+       "detail": "Loại khoảng phụ thuộc cách tính và nhãn, không phải chỉ hình thanh."
+      },
+      {
+       "text": "Có nếu thanh sai số được vẽ màu xanh.",
+       "detail": "Màu không quyết định ý nghĩa thống kê của khoảng."
+      }
+     ],
+     "explanation": "Không. Độ lệch chuẩn nói về độ phân tán; khoảng tin cậy nói về độ bất định của một ước lượng theo phương pháp được chọn."
+    },
+    {
+     "question": "Với SD=4 và n=16, sai số chuẩn trung bình bằng bao nhiêu?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\ntimes = np.array([8, 10, 12, 10], dtype=float)\nsd = times.std(ddof=1)\nse = sd / np.sqrt(len(times))\nax.errorbar([1], [times.mean()], yerr=[se], fmt=\"o\", capsize=5)\nax.set(xticks=[1], xticklabels=[\"A\"], ylabel=\"Delivery (minutes)\", title=\"Mean +/- one standard error; n=4\")\nprint(round(float(sd), 2), round(float(se), 2))\nplt.show()",
+     "options": [
+      {
+       "text": "SE=0.25 vì chia trực tiếp SD cho n.",
+       "detail": "Chia thẳng cho n không đúng công thức đang được học."
+      },
+      {
+       "text": "SE=4 vì cỡ mẫu không ảnh hưởng.",
+       "detail": "Giữ nguyên SD đã bỏ qua cỡ mẫu trong công thức SE."
+      },
+      {
+       "text": "SE=4/sqrt(16)=1, khi điều kiện lấy mẫu độc lập phù hợp.",
+       "detail": "SE=4/sqrt(16)=1, khi điều kiện lấy mẫu độc lập phù hợp.",
+       "correct": true
+      }
+     ],
+     "explanation": "SE=4/sqrt(16)=1, khi điều kiện lấy mẫu độc lập phù hợp."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Cộng trừ một độ lệch chuẩn có phải mặc định là khoảng tin cậy 95%?",
+     "answer": "Không. Độ lệch chuẩn nói về độ phân tán; khoảng tin cậy nói về độ bất định của một ước lượng theo phương pháp được chọn."
+    },
+    {
+     "prompt": "Với SD=4 và n=16, sai số chuẩn trung bình bằng bao nhiêu?",
+     "answer": "SE=4/sqrt(16)=1, khi điều kiện lấy mẫu độc lập phù hợp."
+    },
+    {
+     "prompt": "Báo cáo có dải màu nhưng không ghi ý nghĩa. Cần bổ sung gì?",
+     "answer": "Ghi loại khoảng, cách tính, mức nếu có, cỡ mẫu và đơn vị. Không tự đoán đó là CI 95%."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.values có ít nhất hai số độc lập theo giả định bài. Tính mean và SE=std(ddof=1)/sqrt(n); tạo errorbar ở x=1, đặt title=\"Mean +/- 1 SE\". Trả mean, se, bounds=[mean-se,mean+se] và title từ Axes. Đây không phải CI 95%. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'values': [2, 4]}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'mean': 3.0, 'se': 1.0, 'bounds': [2.0, 4.0], 'title': 'Mean +/- 1 SE'}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     values = np.asarray(data['values'],dtype=float)\n     mean = float(values.mean())\n     se = float(values.std(ddof=1)/np.sqrt(len(values)))\n     fig, ax = plt.subplots()\n     ax.errorbar([1],[mean],yerr=[se],fmt='o')\n     ax.set_title('Mean +/- 1 SE')\n     result = {'mean':mean,'se':se,'bounds':[mean-se,mean+se],'title':ax.get_title()}\n     plt.close(fig)\n     return result\n",
+   "tests": [
+    {
+     "name": "hai giá trị",
+     "input": {
+      "values": [
+       2,
+       4
+      ]
+     },
+     "expected": {
+      "mean": 3.0,
+      "se": 1.0,
+      "bounds": [
+       2.0,
+       4.0
+      ],
+      "title": "Mean +/- 1 SE"
+     }
+    },
+    {
+     "name": "không phân tán",
+     "input": {
+      "values": [
+       5,
+       5,
+       5
+      ]
+     },
+     "expected": {
+      "mean": 5.0,
+      "se": 0.0,
+      "bounds": [
+       5.0,
+       5.0
+      ],
+      "title": "Mean +/- 1 SE"
+     }
+    },
+    {
+     "name": "thang mới",
+     "input": {
+      "values": [
+       10,
+       14
+      ]
+     },
+     "expected": {
+      "mean": 12.0,
+      "se": 2.0,
+      "bounds": [
+       10.0,
+       14.0
+      ],
+      "title": "Mean +/- 1 SE"
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Độ lệch chuẩn mẫu chia cho n-1, nên số bậc tự do trừ đi là 1."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Phân biệt SD với SE và dựng error bar có ý nghĩa rõ."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

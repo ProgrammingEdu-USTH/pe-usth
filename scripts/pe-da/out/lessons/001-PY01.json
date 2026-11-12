@@ -1,0 +1,239 @@
+{
+ "lesson_code": "PY01",
+ "sort_order": 1,
+ "module": "M1 · Python nền tảng",
+ "title": "PY01 · Chạy một phép tính và đọc kết quả",
+ "subtitle": "Cơ bản · M1 · 16 phút",
+ "estimated_minutes": 16,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PY01 · Chạy một phép tính và đọc kết quả",
+  "subtitle": "Cơ bản · M1 · 16 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PY01",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 4, 7-19, 28-29; Python — Tutorial"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Hôm nay quán của bạn mở cửa ngày đầu. Buổi sáng bán 12 cốc, buổi chiều bán 9 cốc, và bạn muốn biết cả ngày được bao nhiêu. Mở Python hoặc một ô code (cell) trong notebook (trang gồm nhiều ô code chạy riêng được) rồi chạy:"
+     },
+     {
+      "type": "code",
+      "code": "print(12 + 9)",
+      "expected": "21",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`print` hiển thị kết quả của biểu thức trong ngoặc, nên con số 21 hiện ra chính là số cốc cả ngày. Python là ngôn ngữ bậc cao: bạn viết phép tính của quán bằng tên và dấu, không phải bằng lệnh máy. Mã nguồn mở nghĩa là mã nguồn triển khai được công khai theo giấy phép cho phép dùng và đóng góp."
+     },
+     {
+      "type": "paragraph",
+      "text": "Cùng ngôn ngữ này còn làm được nhiều việc khác quanh quán. Một script (đoạn code chạy trực tiếp từ dòng lệnh) có thể chốt sổ mỗi tối. Một backend (phần chạy phía sau trang web) có thể nhận đơn đặt online. Cách viết chú trọng khả năng đọc, nên tên rõ nghĩa và thụt lề giúp người sau đọc lại sổ của bạn."
+     },
+     {
+      "type": "paragraph",
+      "text": "Mai bạn lại đếm hai buổi, nên hãy đặt tên cho từng con số thay vì gõ lại biểu thức:"
+     },
+     {
+      "type": "code",
+      "code": "morning = 12\nafternoon = 9\nprint(morning + afternoon)",
+      "expected": "21",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Dấu `=` gán giá trị cho tên biến. Hai lần chạy cho cùng một con số. Nhưng bản sau cho bạn đổi số bán từng buổi mà không phải viết lại phép tính."
+     },
+     {
+      "type": "code",
+      "code": "cups = 21\nprint(\"So coc:\", cups)\nprint(cups * 15)",
+      "expected": "So coc: 21\n315",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Mỗi cốc 15 nghìn đồng, nên doanh thu ngày đầu là 315 nghìn. Python cũng hỗ trợ lập trình hướng đối tượng. Sau phần hàm, bạn sẽ gom số liệu và thao tác của quán vào một lớp (class)."
+     },
+     {
+      "type": "paragraph",
+      "text": "Có hai chỗ để chạy những dòng này, và bạn sẽ dùng cả hai. Trong REPL bạn gõ từng lệnh rồi xem ngay, tiện lúc tính nhanh một hoá đơn. Trong script bạn lưu code vào một file (dữ liệu đã ghi xuống đĩa) có đuôi `.py`, rồi chạy bằng `python ten_file.py`. Cách này tiện cho việc chốt sổ lặp lại mỗi tối. Trên hệ UNIX, dòng đầu như `#!/usr/bin/env python3` chỉ trình thông dịch khi file được cấp quyền chạy. Khóa học dùng Python 3; Python 2 đã ngừng được hỗ trợ."
+     },
+     {
+      "type": "paragraph",
+      "text": "Hai điều hay bị nói quá về Python. Python thường được gọi là ngôn ngữ thông dịch, nhưng CPython còn biên dịch mã nguồn thành bytecode trước khi chạy. Và dễ đọc không đồng nghĩa với nhanh nhất. Tới ngày một phép tính của quán chạy lâu, bạn sẽ phải xem việc đó nặng CPU (bộ xử lý chạy từng lệnh) hay nặng đọc ghi."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "Bắt đầu tại đây"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Chạy morning = 8; afternoon = 11; print(morning + afternoon) sẽ in gì?",
+     "options": [
+      {
+       "text": "19",
+       "detail": "Đúng. Python cộng hai giá trị 8 và 11 rồi print kết quả.",
+       "correct": true
+      },
+      {
+       "text": "811",
+       "detail": "Đó là ghép chuỗi; hai giá trị ở đây đều là số."
+      },
+      {
+       "text": "morning + afternoon",
+       "detail": "print nhận biểu thức, nên hiển thị kết quả chứ không hiển thị tên biến."
+      }
+     ],
+     "explanation": "Đúng. Python cộng hai giá trị 8 và 11 rồi print kết quả."
+    },
+    {
+     "question": "Buổi sáng bán 10 cốc, chiều bán 7 cốc. Kết quả ở lệnh print cuối có giá trị nào?\n\nprint(10 + 7)",
+     "options": [
+      {
+       "text": "3",
+       "detail": "Đó là hiệu, không phải tổng."
+      },
+      {
+       "text": "17",
+       "detail": "10 + 7 tính tổng của hai buổi.",
+       "correct": true
+      },
+      {
+       "text": "107",
+       "detail": "Hai số nguyên được cộng; đây không phải ghép chữ."
+      }
+     ],
+     "explanation": "10 + 7 tính tổng của hai buổi."
+    },
+    {
+     "question": "Một ca bán được 14 cốc. Kết quả ở lệnh print cuối có giá trị nào?\n\ncups = 14\nprint(cups + cups)",
+     "options": [
+      {
+       "text": "'cupscups'",
+       "detail": "cups là tên biến giữ số, không phải chuỗi chữ."
+      },
+      {
+       "text": "14",
+       "detail": "Biểu thức dùng cups hai lần."
+      },
+      {
+       "text": "28",
+       "detail": "Mỗi lần đọc cups nhận 14, nên hai lần đọc cộng lại là 28.",
+       "correct": true
+      }
+     ],
+     "explanation": "Mỗi lần đọc cups nhận 14, nên hai lần đọc cộng lại là 28."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Đoạn đầu tính gì và hiển thị bao nhiêu?",
+     "answer": "Tính tổng số cốc hai buổi và hiển thị 21."
+    },
+    {
+     "prompt": "Đổi số bán chiều thành 11 thì tổng là bao nhiêu?",
+     "answer": "12 + 11 = 23."
+    },
+    {
+     "prompt": "Viết hai biến cho số cốc hai ngày rồi in tổng. Nếu lưu vào sales.py thì chạy file bằng lệnh nào?",
+     "answer": "Ví dụ: day1 = 10; day2 = 15; print(day1 + day2). Kết quả 25. Trong terminal chạy python sales.py bằng Python của dự án."
+    },
+    {
+     "prompt": "Python bậc cao, đa dụng và mã nguồn mở có nghĩa gì? Nêu một việc ở backend và một việc của Data Analyst có thể dùng Python.",
+     "answer": "Bậc cao: viết thao tác gần vấn đề hơn lệnh máy. Đa dụng: cùng ngôn ngữ phục vụ nhiều loại tác vụ. Mã nguồn triển khai được công khai theo giấy phép. Ví dụ backend xử lý yêu cầu web; DA đọc đơn hàng rồi tính doanh thu. Tên rõ nghĩa và thụt lề giúp đọc code."
+    },
+    {
+     "prompt": "So sánh gõ print(12 + 9) trong REPL với lưu cùng lệnh vào sales.py. Shebang dùng để làm gì?",
+     "answer": "REPL nhận và thực thi từng lệnh; script chứa chuỗi lệnh chạy bằng python sales.py. Trên hệ hỗ trợ, shebang đầu file gợi interpreter khi chạy file có quyền thực thi; nó không thay nội dung Python hay áp dụng giống nhau trên mọi hệ."
+    },
+    {
+     "prompt": "Có đúng là CPython không biên dịch và luôn nhanh nhất cho mọi việc không?",
+     "answer": "Không. CPython biên dịch thành bytecode rồi thực thi. Thời gian còn phụ thuộc tác vụ, thuật toán và thư viện; code nặng CPU cần đo trước khi chọn cách tối ưu."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Hệ thống cung cấp cups là số cốc quán bán được trong một ngày. Mỗi cốc giá 15 nghìn đồng. Gán doanh thu của ngày đó, tính bằng nghìn đồng, vào revenue.",
+    "io": [
+     {
+      "label": "cups =",
+      "value": "21"
+     },
+     {
+      "label": "revenue =",
+      "value": "315"
+     }
+    ]
+   },
+   "starterCode": "# cups là số cốc bán được trong ngày; mỗi cốc 15 nghìn đồng.\n# Gán doanh thu (nghìn đồng) vào revenue.\n",
+   "solutionCode": "revenue = cups * 15\n",
+   "tests": [
+    {
+     "name": "Ngày đầu bán 21 cốc",
+     "input": 21,
+     "expected": 315
+    },
+    {
+     "name": "Ngày vắng khách",
+     "input": 8,
+     "expected": 120
+    },
+    {
+     "name": "Chỉ bán được một cốc",
+     "input": 1,
+     "expected": 15
+    },
+    {
+     "name": "Ngày đông khách",
+     "input": 100,
+     "expected": 1500
+    }
+   ],
+   "contract": {
+    "mode": "script",
+    "inputVariable": "cups",
+    "resultVariable": "revenue"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Ở màn đọc, doanh thu 315 nghìn đến từ số cốc nhân với giá một cốc."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Tên nhận kết quả đứng bên trái dấu =: revenue = … — bên phải là phép nhân."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

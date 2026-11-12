@@ -1,0 +1,182 @@
+{
+ "lesson_code": "GU11",
+ "sort_order": 158,
+ "module": "M8 · Tkinter: từ form nhỏ đến màn hình nhận đơn",
+ "title": "GU11 · Event loop và tác vụ nền",
+ "subtitle": "Nâng cao · M8 · 17 phút",
+ "estimated_minutes": 17,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "GU11 · Event loop và tác vụ nền",
+  "subtitle": "Nâng cao · M8 · 17 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#GU11",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 325; Python · tkinter"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Nút Lưu ghi một file lớn có thể mất vài giây. Nếu callback tự ghi file và chờ xong, giao diện khó nhận thêm thao tác. `mainloop` chỉ tiếp tục xử lý sự kiện khi callback trả quyền điều khiển."
+     },
+     {
+      "type": "code",
+      "code": "import tkinter as tk\nr=tk.Tk();r.withdraw()\nevents=[]\nr.after(0,lambda: events.append('tick'))\nr.after(20,r.quit)\nr.mainloop()\nprint(events)\nr.destroy()",
+      "expected": "['tick']"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "after lên lịch callback trong event loop. Nó không tạo luồng mới. `quit` làm `mainloop` đang chạy kết thúc; `destroy` hủy cửa sổ. Đoạn này tự thoát sau 20ms để kiểm tra hữu hạn, không phải một ứng dụng người dùng hoàn chỉnh."
+     },
+     {
+      "type": "code",
+      "code": "import tkinter as tk\nfrom queue import Queue\nfrom threading import Thread\nr=tk.Tk();r.withdraw()\nresult=Queue()\nworker=Thread(target=lambda: result.put(sum([10,20,30])))\nworker.start();worker.join()\nstatus=tk.StringVar(r,value='Pending')\nstatus.set(str(result.get()))\nprint(status.get())\nr.destroy()",
+      "expected": "60"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Worker chỉ tính và gửi kết quả qua `Queue`; thao tác StringVar diễn ra trên luồng tạo Tk. join ở đây chỉ là ranh giới kiểm tra một phép tính nhỏ trong ví dụ ẩn. Không đặt join cho tác vụ lâu trong callback giao diện vì nó vẫn chặn UI."
+     },
+     {
+      "type": "code",
+      "code": "import tkinter as tk\nfrom queue import Queue, Empty\nfrom threading import Thread\nr=tk.Tk();r.withdraw()\nresults=Queue();status=tk.StringVar(r,value='Pending')\nworker=Thread(target=lambda:results.put(('ok',42)));worker.start()\ndef poll():\n    try:\n        state,value=results.get_nowait()\n    except Empty:\n        r.after(5,poll)\n    else:\n        status.set(str(value));r.quit()\nr.after(0,poll)\ntimeout=r.after(2000,r.quit)\nr.mainloop();r.after_cancel(timeout)\nworker.join()\nprint(status.get())\nr.destroy()",
+      "expected": "42"
+     },
+     {
+      "type": "paragraph",
+      "text": "Trong ứng dụng, poll đọc hàng đợi không chặn rồi tự lên lịch lại. Worker nên gửi cả trạng thái thành công hoặc lỗi, để UI bật lại nút và báo kết quả. Phần luồng, hàng đợi và lưu nền là mở rộng nối với PW8; slide GUI gốc dừng ở `mainloop`. Khi đóng cửa sổ, ứng dụng phải có quy tắc rõ cho worker đang lưu."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "GU10 · Grid: dựng form theo hàng và cột, CT10 · Tạo thread bằng target, start và join, CT13 · Queue và lưu pickle có nén ở nền"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Gọi time.sleep(3) trong callback nút sẽ có tác động gì?",
+     "options": [
+      {
+       "text": "Tự chuyển việc sang thread nền",
+       "detail": "sleep không tạo thread."
+      },
+      {
+       "text": "Event loop bị chặn trong thời gian đó",
+       "detail": "Callback chạy trên UI thread; nó phải kết thúc để xử lý sự kiện tiếp.",
+       "correct": true
+      },
+      {
+       "text": "Chỉ riêng Label ngủ, cửa sổ vẫn xử lý mọi sự kiện",
+       "detail": "Hàm đang giữ UI thread nên nhiều thao tác cửa sổ sẽ chờ."
+      }
+     ],
+     "explanation": "Callback chạy trên UI thread; nó phải kết thúc để xử lý sự kiện tiếp."
+    },
+    {
+     "question": "Callback gọi một phép tính dài trực tiếp sẽ ảnh hưởng gì?",
+     "options": [
+      {
+       "text": "Mọi callback tự chuyển sang thread nền",
+       "detail": "Chưa đúng. Event loop cần được trả quyền để xử lý các sự kiện tiếp theo."
+      },
+      {
+       "text": "Chỉ văn bản trong Label bị chậm",
+       "detail": "Chưa đúng. Event loop cần được trả quyền để xử lý các sự kiện tiếp theo."
+      },
+      {
+       "text": "UI có thể không xử lý sự kiện đến khi callback trả về",
+       "detail": "Event loop cần được trả quyền để xử lý các sự kiện tiếp theo.",
+       "correct": true
+      }
+     ],
+     "explanation": "Event loop cần được trả quyền để xử lý các sự kiện tiếp theo."
+    },
+    {
+     "question": "root.after(100,poll) có chạy poll ngay khi đặt lịch không?",
+     "options": [
+      {
+       "text": "Không; đăng ký callback cho event loop gọi sau",
+       "detail": "Truyền callable và nhường quyền cho event loop; thời điểm thực tế còn phụ thuộc lúc loop xử lý được.",
+       "correct": true
+      },
+      {
+       "text": "Chỉ chạy nếu tự tạo process mới",
+       "detail": "Chưa đúng. Truyền callable và nhường quyền cho event loop; thời điểm thực tế còn phụ thuộc lúc loop xử lý được."
+      },
+      {
+       "text": "Có; giống poll() tại chỗ",
+       "detail": "Chưa đúng. Truyền callable và nhường quyền cho event loop; thời điểm thực tế còn phụ thuộc lúc loop xử lý được."
+      }
+     ],
+     "explanation": "Truyền callable và nhường quyền cho event loop; thời điểm thực tế còn phụ thuộc lúc loop xử lý được."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "after có tự đưa công việc nặng sang thread khác không?",
+     "answer": "Không; callback after vẫn chạy trong event loop."
+    },
+    {
+     "prompt": "Worker nên gọi label.configure trực tiếp không?",
+     "answer": "Nên gửi kết quả qua queue; thread UI đọc queue và cập nhật widget."
+    },
+    {
+     "prompt": "Lên lịch một callback ghi done vào list rồi quit, chạy mainloop và in list.",
+     "answer": "Callback được event loop gọi.",
+     "answerCode": "import tkinter as tk\nr=tk.Tk();r.withdraw()\nevents=[]\ndef done():\n    events.append('done');r.quit()\nr.after(0,done);r.mainloop()\nprint(events)\nr.destroy()",
+     "answerExpected": "['done']"
+    },
+    {
+     "prompt": "Một cửa sổ đã tạo widget nhưng chưa gọi mainloop. mainloop làm gì, và vì sao ghi file lâu trong callback làm nó kém đáp ứng?",
+     "answer": "window.mainloop chạy vòng nhận/xử lý sự kiện, gọi callback và cập nhật giao diện. Callback dài giữ thread UI nên sự kiện khác phải đợi; đưa tác vụ lâu sang worker và đọc kết quả bằng after/queue."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Chạy trên máy của bạn",
+    "body": "Bài này không chạy được trong trình duyệt: Tkinter cần hệ cửa sổ của máy. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
+   },
+   "procedure": [
+    "Mở terminal tại thư mục làm việc của bạn.",
+    "Tạo môi trường: py -m venv .venv",
+    "Cài thư viện bài cần: .venv\\Scripts\\python -m pip install <tên gói>",
+    "Lưu đoạn code vào một file .py rồi chạy: .venv\\Scripts\\python ten_file.py"
+   ]
+  }
+ },
+ "_mode": "local",
+ "_blocked": [
+  {
+   "block": 0,
+   "reason": "Tkinter cần hệ cửa sổ của máy"
+  },
+  {
+   "block": 1,
+   "reason": "bản Pyodide này không bật thread thật"
+  },
+  {
+   "block": 2,
+   "reason": "bản Pyodide này không bật thread thật"
+  }
+ ],
+ "_so_mcq": 3,
+ "_bai_tap": "khong co",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

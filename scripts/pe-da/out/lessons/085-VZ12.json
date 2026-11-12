@@ -1,0 +1,383 @@
+{
+ "lesson_code": "VZ12",
+ "sort_order": 85,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ12 · Subplot, thang chung và bố trí hình",
+ "subtitle": "Trung cấp · M4 · 20 phút",
+ "estimated_minutes": 20,
+ "xp_reward": 12,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "VZ12 · Subplot, thang chung và bố trí hình",
+  "subtitle": "Trung cấp · M4 · 20 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#VZ12",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 329; Subplot, thang chung và bố trí hình"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Trục đã đặt đúng ở bài trước, giờ xếp nhiều hình của quán lên một trang. Bạn muốn so sánh lượng bán của hai cửa hàng trên cùng trang. Hai subplot đặt cạnh nhau giúp giảm số đường chồng lên một vùng vẽ. `sharey=True` giữ chung thang đứng để một đường cao hơn thật sự có nghĩa là lượng bán lớn hơn."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, axes = plt.subplots(1, 2, figsize=(7, 3), sharey=True, layout=\"constrained\")\nfor ax, name, values in zip(axes, [\"Store A\", \"Store B\"], [[8, 10, 7], [4, 6, 5]]):\n    ax.plot([1, 2, 3], values, marker=\"o\")\n    ax.set(title=name, xlabel=\"Day\", ylim=(0, 12))\naxes[0].set_ylabel(\"Cups\")\nprint(len(fig.axes))\nplt.show()",
+      "expected": "2",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "values",
+        "prompt": "Sau khi chạy xong, `values` bằng mấy?",
+        "answer": "[4, 6, 5]"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "plt",
+           "<thư viện matplotlib.pyplot>"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "axes",
+           "ndarray: array([<Axes: >, <Axes: >], dtype=object)"
+          ],
+          [
+           "fig",
+           "Figure(_stale=True, stale_callback=<hàm _auto_draw_if_interactive>, _pa…"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "ax",
+           "Axes(_stale=True, stale_callback=<hàm _stale_figure_callback>, _axes=<t…"
+          ],
+          [
+           "name",
+           "'Store A'"
+          ],
+          [
+           "values",
+           "[8, 10, 7]"
+          ]
+         ]
+        },
+        {
+         "line": 4
+        },
+        {
+         "line": 5,
+         "set": [
+          [
+           "axes",
+           "ndarray: array([<Axes: title={'center': 'Store A'}, xlabel='Day'>, <Axe…"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "name",
+           "'Store B'"
+          ],
+          [
+           "values",
+           "[4, 6, 5]"
+          ]
+         ]
+        },
+        {
+         "line": 4
+        },
+        {
+         "line": 5
+        },
+        {
+         "line": 3
+        },
+        {
+         "line": 6,
+         "set": [
+          [
+           "axes",
+           "ndarray: array([<Axes: title={'center': 'Store A'}, xlabel='Day', ylabe…"
+          ]
+         ]
+        },
+        {
+         "line": 7,
+         "out": "2"
+        },
+        {
+         "line": 8
+        }
+       ]
+      }
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ12-1.png",
+      "alt": "Biểu đồ đường, trục ngang \"Day\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "constrained layout tự chừa khoảng cho nhãn và tiêu đề. tight_layout là một lựa chọn bố trí khác; không cần gọi đồng thời cả hai. Nếu tự đặt khoảng bằng subplots_adjust thì tắt cơ chế bố trí tự động để các thiết lập không cạnh tranh nhau. figaspect chọn kích thước dựa trên tỷ lệ cao/rộng, không thay đổi đơn vị dữ liệu trong `Axes`. wspace/hspace chỉnh khoảng giữa các ô theo chiều ngang/dọc. left/right/top/bottom xác định phần khung `Figure` dành cho subplot theo tỷ lệ từ 0 đến 1. Không nhầm các tỷ lệ này với tọa độ dữ liệu trong biểu đồ."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig = plt.figure(figsize=(7, 3))\nleft = fig.add_subplot(121)\nright = fig.add_subplot(122)\nleft.bar([\"A\", \"B\"], [8, 10])\nright.hist([1, 2, 2, 4], bins=[0, 3, 6])\nleft.set(title=\"Sales\", ylabel=\"Cups\")\nright.set(title=\"Wait\", xlabel=\"Minutes\", ylabel=\"Orders\")\nfig.subplots_adjust(wspace=0.55, bottom=0.2)\nprint(left.get_subplotspec().num1, right.get_subplotspec().num1)\nplt.show()",
+      "expected": "0 1",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ12-2.png",
+      "alt": "Biểu đồ cột, tiêu đề \"Wait\", trục ngang \"Minutes\", trục dọc \"Orders\"."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig = plt.figure(figsize=plt.figaspect(0.5))\nax = fig.add_subplot(111)\nax.plot([1, 2, 3], [8, 10, 7], marker=\"o\")\nax.set(xlabel=\"Day\", ylabel=\"Cups\", title=\"A wide figure\")\nfig.tight_layout()\nw, h = fig.get_size_inches()\nprint(round(float(h / w), 1))\nplt.show()",
+      "expected": "0.5",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ12-3.png",
+      "alt": "Biểu đồ đường, tiêu đề \"A wide figure\", trục ngang \"Day\", trục dọc \"Cups\"."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "VZ02 · Figure, Axes và biểu đồ đầu tiên, VZ11 · Trục, tick, tỷ lệ log và giới hạn hiển thị"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "sharey=True giúp hai subplot điều gì?",
+     "options": [
+      {
+       "text": "Gộp mọi hàng thành một đường",
+       "detail": "Chia sẻ trục không tự tổng hợp dữ liệu."
+      },
+      {
+       "text": "Làm hai dữ liệu bằng nhau",
+       "detail": "Dữ liệu vẫn giữ các giá trị riêng."
+      },
+      {
+       "text": "Dùng chung thang y",
+       "detail": "Đúng: cùng một lượng được đọc theo cùng thang đứng.",
+       "correct": true
+      }
+     ],
+     "explanation": "Bố trí hình và dữ liệu là hai phần khác nhau."
+    },
+    {
+     "question": "sharey=True giúp so sánh hai hình như thế nào?\n\nimport matplotlib.pyplot as plt\nfig, axes = plt.subplots(1, 2, figsize=(7, 3), sharey=True, layout=\"constrained\")\nfor ax, name, values in zip(axes, [\"Store A\", \"Store B\"], [[8, 10, 7], [4, 6, 5]]):\n    ax.plot([1, 2, 3], values, marker=\"o\")\n    ax.set(title=name, xlabel=\"Day\", ylim=(0, 12))\naxes[0].set_ylabel(\"Cups\")\nprint(len(fig.axes))\nplt.show()",
+     "options": [
+      {
+       "text": "Hai Axes chia sẻ thang y. Một đơn vị được biểu diễn theo cùng thang đứng.",
+       "detail": "Hai Axes chia sẻ thang y. Một đơn vị được biểu diễn theo cùng thang đứng.",
+       "correct": true
+      },
+      {
+       "text": "Tự đổi dữ liệu của hai cửa hàng thành giống nhau.",
+       "detail": "sharey không đồng nhất dữ liệu của các cửa hàng."
+      },
+      {
+       "text": "Chỉ đổi màu nền hai hình thành cùng một màu.",
+       "detail": "Màu nền không phải đại lượng được sharey điều khiển."
+      }
+     ],
+     "explanation": "Hai Axes chia sẻ thang y. Một đơn vị được biểu diễn theo cùng thang đứng."
+    },
+    {
+     "question": "Hai chữ số đầu trong add_subplot(212) có nghĩa gì?\n\nimport matplotlib.pyplot as plt\nfig = plt.figure(figsize=(7, 3))\nleft = fig.add_subplot(121)\nright = fig.add_subplot(122)\nleft.bar([\"A\", \"B\"], [8, 10])\nright.hist([1, 2, 2, 4], bins=[0, 3, 6])\nleft.set(title=\"Sales\", ylabel=\"Cups\")\nright.set(title=\"Wait\", xlabel=\"Minutes\", ylabel=\"Orders\")\nfig.subplots_adjust(wspace=0.55, bottom=0.2)\nprint(left.get_subplotspec().num1, right.get_subplotspec().num1)\nplt.show()",
+     "options": [
+      {
+       "text": "Hai cột và một hàng.",
+       "detail": "Bạn đã đảo số hàng và số cột."
+      },
+      {
+       "text": "Hai hàng và một cột; chữ số cuối 2 là ô thứ hai.",
+       "detail": "Hai hàng và một cột; chữ số cuối 2 là ô thứ hai.",
+       "correct": true
+      },
+      {
+       "text": "Hai điểm dữ liệu với một đơn vị y.",
+       "detail": "Đó là mã bố trí ô, không phải số quan sát hay đơn vị y."
+      }
+     ],
+     "explanation": "Hai hàng và một cột; chữ số cuối 2 là ô thứ hai."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "sharey=True giúp so sánh hai hình như thế nào?",
+     "answer": "Hai Axes chia sẻ thang y. Một đơn vị được biểu diễn theo cùng thang đứng."
+    },
+    {
+     "prompt": "Hai chữ số đầu trong add_subplot(212) có nghĩa gì?",
+     "answer": "Hai hàng và một cột; chữ số cuối 2 là ô thứ hai."
+    },
+    {
+     "prompt": "Có cần gọi constrained layout rồi tight_layout liên tiếp không?",
+     "answer": "Không. Chọn một cơ chế phù hợp; khi cần tự chỉnh khoảng thì dùng subplots_adjust với bố trí tự động tắt."
+    },
+    {
+     "prompt": "Figure có figsize=plt.figaspect(0.5): tỷ lệ nào bằng 0.5? add_subplot(221) và add_subplot(212) có cùng lưới không?",
+     "answer": "Tỷ lệ cao/rộng của Figure bằng 0.5 trong kích thước ví dụ. 221 là 2 hàng × 2 cột, ô 1; 212 là 2 hàng × 1 cột, ô 2. Hai lưới khác nhau. figaspect không làm một đơn vị x dài bằng một đơn vị y; việc đó thuộc set_aspect."
+    },
+    {
+     "prompt": "Viết một lựa chọn tự động và một lựa chọn thủ công để chừa khoảng nhãn: khoảng ngang 0.4, dọc 0.3, khung trái 0.15, phải 0.95, dưới 0.2, trên 0.9.",
+     "answer": "Tự động: fig.tight_layout() hoặc tạo với layout=\"constrained\", chọn một. Thủ công: không bật layout tự động rồi gọi fig.subplots_adjust(wspace=0.4,hspace=0.3,left=0.15,right=0.95,bottom=0.2,top=0.9). Kiểm hình thực tế để tránh cắt chữ."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.a,data.b là hai dãy và data.maximum >0 là giới hạn chung. Tạo subplots(1,2,sharey=True), vẽ mỗi dãy vào một Axes, đặt ylim=(0,maximum) trên Axes trái. Trả axes=len(fig.axes) và limits là get_ylim của cả hai Axes; giới hạn phải giống nhau. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'a': [2, 8], 'b': [1, 3], 'maximum': 10}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'axes': 2, 'limits': [[0.0, 10.0], [0.0, 10.0]]}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     fig, axes = plt.subplots(1,2,sharey=True)\n     axes[0].plot(data['a'])\n     axes[1].plot(data['b'])\n     axes[0].set_ylim(0,data['maximum'])\n     result = {'axes':len(fig.axes),'limits':[list(ax.get_ylim()) for ax in axes]}\n     plt.close(fig)\n     return result\n",
+   "tests": [
+    {
+     "name": "hai cửa hàng",
+     "input": {
+      "a": [
+       2,
+       8
+      ],
+      "b": [
+       1,
+       3
+      ],
+      "maximum": 10
+     },
+     "expected": {
+      "axes": 2,
+      "limits": [
+       [
+        0.0,
+        10.0
+       ],
+       [
+        0.0,
+        10.0
+       ]
+      ]
+     }
+    },
+    {
+     "name": "một điểm mỗi hình",
+     "input": {
+      "a": [
+       0
+      ],
+      "b": [
+       4
+      ],
+      "maximum": 5
+     },
+     "expected": {
+      "axes": 2,
+      "limits": [
+       [
+        0.0,
+        5.0
+       ],
+       [
+        0.0,
+        5.0
+       ]
+      ]
+     }
+    },
+    {
+     "name": "giới hạn mới",
+     "input": {
+      "a": [
+       30,
+       50
+      ],
+      "b": [
+       20,
+       40
+      ],
+      "maximum": 60
+     },
+     "expected": {
+      "axes": 2,
+      "limits": [
+       [
+        0.0,
+        60.0
+       ],
+       [
+        0.0,
+        60.0
+       ]
+      ]
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cần bộ bố cục tự chừa chỗ cho nhãn để chúng không chồng lên nhau."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Chia vùng vẽ và giữ chung thang khi so sánh."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 1,
+  "bo": 2,
+  "loi": []
+ }
+}

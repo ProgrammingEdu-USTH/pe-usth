@@ -1,0 +1,222 @@
+{
+ "lesson_code": "PY08",
+ "sort_order": 8,
+ "module": "M1 · Python nền tảng",
+ "title": "PY08 · Chuẩn hóa và định dạng văn bản",
+ "subtitle": "Cơ bản · M1 · 14 phút",
+ "estimated_minutes": 14,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PY08 · Chuẩn hóa và định dạng văn bản",
+  "subtitle": "Cơ bản · M1 · 14 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PY08",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 49, 62, 330; Python — Tutorial"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Mã đơn bạn vừa đọc ở bài trước là chữ do máy sinh, nên nó sạch. Chữ do người gõ thì không: nhân viên ghi tên khách lên cốc với khoảng trắng thừa và chữ hoa lẫn lộn. Trước khi in hay đếm, bạn dọn nó về một khuôn:"
+     },
+     {
+      "type": "code",
+      "code": "name = \"  maI  \".strip().title()\ncode = \"23\".zfill(4)\nprint(f\"{code}: {name}\")",
+      "expected": "0023: Mai",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Ba phương thức trên làm ba việc nhỏ trên cùng một chuỗi. `strip()` bỏ khoảng trắng hai đầu, nên `\"  maI  \"` thành `\"maI\"`. `title()` viết hoa đầu mỗi từ, nên nó thành `\"Mai\"`. `zfill(4)` thêm số 0 vào đầu cho đủ bốn ký tự, nên đơn số 23 thành mã `0023` và các mã xếp thẳng cột trong sổ."
+     },
+     {
+      "type": "paragraph",
+      "text": "Mỗi phương thức trả về một kết quả mới và không sửa chuỗi gốc. Tên người thật có quy tắc riêng, nên đừng áp `title()` cho cả danh sách khách mà chưa đọc qua."
+     },
+     {
+      "type": "code",
+      "code": "raw = \"12,18,20\\n\"\nprint(raw.rstrip().split(\",\"))\nprint(\"A\\nB\".splitlines())",
+      "expected": "['12', '18', '20']\n['A', 'B']",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Số cốc ba ngày từ máy tính tiền về trong một dòng chữ, kèm dấu xuống dòng ở cuối. `rstrip()` bỏ khoảng trắng phía phải, kể cả dấu xuống dòng đó. `split(\",\")` tách theo dấu phẩy và trả một `list` các chuỗi — vẫn là chuỗi, chưa phải số. `splitlines()` tách theo các dấu xuống dòng, dùng khi cả tệp về trong một chuỗi."
+     },
+     {
+      "type": "code",
+      "code": "name, total = \"Mai\", 12.5\nprint(\"{}: {:.1f}\".format(name, total))\nprint(f\"{name.lower()}: {total:.2f}\")",
+      "expected": "Mai: 12.5\nmai: 12.50",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Lúc in hoá đơn, bạn chèn giá trị vào một chuỗi (string), tức một dãy ký tự. `str.format()` và f-string đều làm việc đó. `.2f` hiển thị hai chữ số sau dấu thập phân, nên 12.5 nghìn in ra `12.50`; nó không đổi con số đang lưu."
+     },
+     {
+      "type": "paragraph",
+      "text": "Muốn nhận giá từ người gõ thì cần thêm hai đường vào ra. `input(\"Gia: \")` hiện lời nhắc rồi đọc một dòng từ luồng vào chuẩn (stdin), và nó luôn trả về chuỗi. `print` ghi ra luồng ra chuẩn (stdout), thường là cửa sổ terminal. Vì vậy muốn tính với giá vừa nhập, đổi nó sang số bằng `float` hoặc `int` trước. Các ví dụ ở đây dùng chuỗi có sẵn để bạn chạy mà không phải gõ tay."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PY07 · Lấy ký tự và một đoạn chuỗi"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "raw = \"  hN  \". Muốn nhận \"hn\" mà không còn khoảng trắng hai đầu, dùng gì?",
+     "options": [
+      {
+       "text": "raw.strip().lower()",
+       "detail": "Đúng. strip bỏ hai đầu, lower đổi chữ thành thường.",
+       "correct": true
+      },
+      {
+       "text": "raw.strip().title()",
+       "detail": "title đổi cách viết hoa, không cho \"hn\"."
+      },
+      {
+       "text": "raw.lower()",
+       "detail": "lower vẫn giữ khoảng trắng ở hai đầu."
+      }
+     ],
+     "explanation": "Đúng. strip bỏ hai đầu, lower đổi chữ thành thường."
+    },
+    {
+     "question": "Tên được nhập với khoảng trắng hai đầu. Kết quả ở lệnh print cuối có giá trị nào?\n\nraw = \"  lAN  \"\nprint(raw.strip().title())",
+     "options": [
+      {
+       "text": "''",
+       "detail": "strip không xóa nội dung tên; nó chỉ bỏ khoảng trắng ở hai đầu."
+      },
+      {
+       "text": "'  Lan  '",
+       "detail": "strip đã bỏ khoảng trắng hai đầu."
+      },
+      {
+       "text": "'Lan'",
+       "detail": "strip làm sạch hai đầu rồi title viết hoa đầu từ.",
+       "correct": true
+      }
+     ],
+     "explanation": "strip làm sạch hai đầu rồi title viết hoa đầu từ."
+    },
+    {
+     "question": "Mã cần đủ bốn ký tự. Kết quả ở lệnh print cuối có giá trị nào?\n\ncode = \"8\"\nprint(code.zfill(4))",
+     "options": [
+      {
+       "text": "'00008'",
+       "detail": "Độ dài cần là 4, không phải thêm bốn số 0."
+      },
+      {
+       "text": "'0008'",
+       "detail": "Bổ sung ba số 0 để cả mã dài bốn ký tự.",
+       "correct": true
+      },
+      {
+       "text": "'8000'",
+       "detail": "zfill thêm số 0 ở phía đầu."
+      }
+     ],
+     "explanation": "Bổ sung ba số 0 để cả mã dài bốn ký tự."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "strip().split(\",\") trả chuỗi hay list?",
+     "answer": "List các chuỗi."
+    },
+    {
+     "prompt": "Viết biểu thức đổi \" Latte \" thành \"latte\".",
+     "answer": "\" Latte \".strip().lower()."
+    },
+    {
+     "prompt": "Viết code đọc giá một cốc từ input rồi hiển thị hai chữ số thập phân.",
+     "answer": "price = float(input(\"Gia: \")); print(f\"{price:.2f}\"). Khi người nhập chuỗi không phải số, cần xử lý ValueError ở bài ngoại lệ."
+    },
+    {
+     "prompt": "Viết cùng câu \"Mai: 8\" bằng str.format và f-string. Đổi \"23\" thành mã bốn ký tự, rồi tách \"12\\r\\n15\\n9\" thành ba dòng.",
+     "answer": "\"{}: {}\".format(\"Mai\", 8) và f\"{'Mai'}: {8}\" đều tạo Mai: 8. \"23\".zfill(4) cho \"0023\"; \"12\\r\\n15\\n9\".splitlines() cho [\"12\", \"15\", \"9\"]. lower/title/zfill/splitlines trả kết quả mới, không sửa chuỗi tại chỗ."
+    },
+    {
+     "prompt": "len([12, 15, 9]) là bao nhiêu? input(\"Gia: \") trả số hay chuỗi, và input/print dùng các luồng nào?",
+     "answer": "Độ dài là 3. input trả chuỗi, ghi lời nhắc rồi đọc stdin; print ghi stdout. Vì vậy nhập 12.5 cần float trước phép tính."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Hệ thống cung cấp raw là chuỗi giá hợp lệ, có thể có khoảng trắng hai đầu. Gán vào message giá đã đổi sang số và hiển thị đúng hai chữ số sau dấu thập phân.",
+    "io": [
+     {
+      "label": "raw =",
+      "value": "' 7.5 '"
+     },
+     {
+      "label": "message =",
+      "value": "'7.50'"
+     }
+    ]
+   },
+   "starterCode": "# Hệ thống cung cấp raw là chuỗi giá hợp lệ, có thể có khoảng trắng hai đầu.\n# Hệ thống cung cấp raw; gán kết quả vào message.\n",
+   "solutionCode": "price = float(raw.strip())\nmessage = f\"{price:.2f}\"\n",
+   "tests": [
+    {
+     "name": "Có khoảng trắng",
+     "input": " 7.5 ",
+     "expected": "7.50"
+    },
+    {
+     "name": "Giá nguyên",
+     "input": "12",
+     "expected": "12.00"
+    },
+    {
+     "name": "Giá bằng không",
+     "input": "0",
+     "expected": "0.00"
+    }
+   ],
+   "contract": {
+    "mode": "script",
+    "inputVariable": "raw",
+    "resultVariable": "message"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Đầu vào là chuỗi. Đổi thành số trước khi dùng định dạng thập phân."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Định dạng .2f làm chuỗi kết quả có đúng hai chữ số sau dấu thập phân."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

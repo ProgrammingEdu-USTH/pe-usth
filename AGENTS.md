@@ -2,6 +2,8 @@
 
 Nền tảng học lập trình: NestJS 11 + Prisma 7 + PostgreSQL (Neon), Next.js 16 + React 19,
 giáo trình Python chạy trong trình duyệt bằng Pyodide. Chi tiết kiến trúc: [README.md](README.md).
+**Vì sao chọn từng công nghệ, và nó đổi lấy gì** — kèm giá đã tra và so với các cách khác:
+[docs/cong-nghe-va-ha-tang.md](docs/cong-nghe-va-ha-tang.md).
 
 ## Lệnh hay dùng
 
@@ -15,86 +17,243 @@ npm run start:dev          # cổng 5000
 cd frontend && npm run typecheck && npm run lint && npm run build
 cd frontend && npm run dev # cổng 3000
 
-# Giáo trình Python (khoá đang chạy: Advanced Python, 48 bài — pe-v4)
+# Giáo trình đang chạy: python_advanced = 172 bài "Python cho Data Analyst" (pe-da)
+py scripts/pe-da/build.py              # course.json -> scripts/pe-da/out/ + chép 80 ảnh
+py scripts/pe-da/check.py --strict     # kiểm cấu trúc (CI chạy bản này)
+py scripts/pe-da/sync_curricula.py     # chép giáo trình sang frontend/src/lib/curricula.json
+py scripts/pe-da/gen_traces.py         # SINH LẠI traces.json (bảng từng bước) — ~20 phút,
+                                       # chỉ chạy khi code bài ĐỔI; cần numpy/pandas/matplotlib
+                                       # trên máy, nên KHÔNG chạy được trên CI (xem bẫy dưới)
+npm i --no-save pyodide@314.0.7
+node scripts/pe-da/check-pyodide.mjs   # chạy code từng bài trong Pyodide, so với `expected`
+node scripts/pe-da/check-practice.mjs  # chấm 415 ca BÀI TẬP + đòi 556 biến thể sai trượt
+node scripts/pe-da/check-phu-van-phong.mjs  # chữ màn đọc nào bộ VĂN PHONG không thấy
+# 516 câu trắc nghiệm: check.py đối chiếu với nguồn (kiem_trac_nghiem), không có bộ riêng
+node scripts/check-perf.mjs            # kiểm BỘ ĐO ĐỘ HIỆU QUẢ trong studio-harness.py
+node scripts/check-figures.mjs         # kiểm việc XUẤT HÌNH của studio-harness.py
+node scripts/check-duong-toi.mjs       # BẢN ĐỒ TÍNH NĂNG: tính năng nào có người đi qua
+node scripts/check-duong-toi.mjs --json  # bản máy đọc
+node scripts/check-tai-nguyen-chet.mjs  # TỆP/COMPONENT nào KHÔNG ai tới được
+node scripts/check-export-chet.mjs      # KÝ HIỆU nào được export ra mà không ai gọi
+node scripts/check-da-nap.mjs           # BÀI nào đã dựng mà CHƯA nạp vào DB
+node scripts/check-moc-nen.mjs          # BẢNG MỐC NỀN dưới đây có nói đúng không
+node scripts/dem-ca-test.mjs           # SỐ CA theo TỪNG TỆP trong MỘT lượt chạy;
+                                       # in đúng khuôn dòng phân rã ở bảng
+                                       # mốc nền, dán thẳng vào được
+node scripts/check-moc-chay.mjs         # MỐC phải CHẠY mới biết: frontend | backend | tracer | e2e | pyodide | practice
+node scripts/check-doi-hoi.mjs          # KHỐI CODE màn đọc nào chưa có lời đòi
+node scripts/check-nguong.mjs           # NGƯỠNG một chiều có ai nới ngược không
+node scripts/check-wheel.mjs            # WHEEL vendored: thừa megabyte chết / thiếu gói bài cần
+npx ts-node scripts/pheu-tien-do.ts    # PHỄU tiến độ theo sort_order (CHỈ ĐỌC, cần DATABASE_URL)
+node scripts/check-da-deploy.mjs       # bản trên main ĐÃ LÊN production chưa (cần mạng)
+node scripts/ablate.mjs --tep <t> --ve-head --lenh "<lệnh>"   # GIEO khiếm khuyết rồi
+                                       # đếm ca đỏ; nó TỪ CHỐI in một con số khi không
+                                       # chứng minh được bộ test đã CHẠY. Dùng nó thay
+                                       # cho script shell ad-hoc: "0 đỏ" là con số dễ
+                                       # giả nhất của vòng lặp (xem bẫy cuối file).
+
+# pe-v4 (48 bài, 427 ca chấm) — GIỮ LẠI nhưng KHÔNG còn xuất bản; xem mục dưới
 py scripts/pe-v4/build.py              # dựng lại 48 bài -> scripts/pe-v4/out/
 py scripts/pe-v4/build_advanced.py     # sinh mini-game -> scripts/pe-v4/out-advanced/
 py scripts/pe-v4/sync_curricula.py     # chép giáo trình sang frontend/src/lib/curricula.json
 py scripts/pe-v4/anim/check.py         # kiểm 23 hình SVG + đếm hình được bài dùng
 py scripts/pe-v4/anim/check.py --strict # thêm: hình chưa bài nào khai cũng là lỗi (CI chạy bản này)
-py -I scripts/pe-v4/check_so_quy.py    # động cơ mini-game "Sổ quỹ chung" dưới CPython (CI chạy)
-py -I scripts/pe-v4/check_so_quy.py --ghi-mau  # sinh lại vết mẫu cho test phía React sau khi sửa động cơ
-npm i --no-save pyodide@0.27.7         # CẢ BA lệnh dưới đều import pyodide
+npm i --no-save pyodide@314.0.7         # CẢ HAI lệnh dưới đều import pyodide
 node scripts/pe-v4/check-advanced.mjs  # chấm thử game chạy code trong Pyodide
 node scripts/pe-v4/check-pyodide.mjs   # chấm thử 427 ca bằng chính bộ chấm của trình duyệt
-node scripts/pe-v4/check-so-quy.mjs    # cùng bộ ca của check_so_quy.py, chạy trong Pyodide thật
-
-# Bản đồ sao (route xem thử /ban-do-sao — 8 chòm, 48 ngôi = 48 bài)
-py -I scripts/star/build_sky.py         # sinh 19 tệp SVG + sky-theme.css -> frontend/public/map/star/
-py -I scripts/star/build_sky.py --do   # bảng SỐ ĐO: PHÂN BỐ TÁM BẬC độ chói (cột tham chiếu
-                                       # cạnh cột của mình), bố cục, tương phản nhãn và nét
-py -I scripts/star/build_sky.py --place-nhan  # xếp tám nhãn CÓ PHÉP LÙI, in khối SKY_LABEL_PLACED
-py -I scripts/star/build_sky.py --css  # in 16 ô bấm .hit*, 48 dấu .sao*, 8 khối .phong*
-py -I scripts/star/build_sky.py --phong  # in khối SKY_ZOOM_PLACED
-py -I scripts/star/raster.py           # CÁI THƯỚC THẬT: raster hoá chính bộ SVG đã ghi rồi
-                                       # đo, in bảng HAI CỘT **raster ‖ mô hình** + khoảng
-                                       # lệch. `--do` ở trên là MỤC TIÊU, cái này là SỰ THẬT —
-                                       # mô hình dựng lại độ chói từ TRƯỜNG nên nó không biết
-                                       # `<path>` có khép không, `fill-rule` có XOR mất bậc
-                                       # không, lớp nào nằm trên lớp nào. Bốn lỗi đã bắt được
-                                       # bằng nó, không ca nào đọc mô hình bắt được.
-py -I scripts/star/raster.py --buoc 1  # đo từng điểm ảnh (~13 s; mặc định bước 2 px, ~3 s)
-py -I scripts/star/raster.py --khong-mo-hinh  # bỏ cột mô hình (không chạy do_ngan_sach, ~47 s)
-py -I scripts/star/raster.py --png a.png --buoc 1       # NHÌN BỨC TRANH (1360 × 820)
-py -I scripts/star/raster.py --png b.png --lop troi     # chỉ vài tệp, để khoanh lớp hỏng
-
-# Đổi bố cục (hộp chòm, vị trí mặt trời, hình chòm) ⇒ chạy LẠI BA bước này, theo đúng
-# thứ tự, vì mỗi bước đọc kết quả bước trước: --place-nhan (rồi chép vào TS) → build →
-# --css + --phong (rồi chép vào star-map.module.css và TS). Chép tay một toạ độ là một
-# toạ độ sẽ lệch, và ô bấm lệch thì trỏ vào chòm này lại làm chòm khác sáng lên.
 ```
 
 Trên Windows dùng `py`, không dùng `python` — `python` là stub của Microsoft Store.
 
 ## Mốc nền
 
-Đo lại ngày 15/10/2026. Đừng để tụt xuống dưới
-mức này:
+**Đo lại ngày 04/11/2026 — MỌI hàng, bằng cách tự chạy từng lệnh.** Đừng để tụt xuống
+dưới mức này.
 
-| Hạng mục | Mốc | Đo ngày |
-|---|---|---|
-| Backend typecheck | sạch | 15/10/2026 |
-| Backend test | 35 bộ, 392 ca, tất cả đạt | 19/10/2026 |
-| Backend lint | 2 lỗi, 1 cảnh báo — **mốc trần trong CI là 10, chỉ được hạ** | 20/10/2026 |
-| Frontend typecheck | sạch | 19/10/2026 |
-| Frontend lint | 0 lỗi, 118 cảnh báo | 19/10/2026 |
-| Frontend unit test | `cd frontend && npm run test:unit` → **724 ca**, tất cả đạt (~306 s; riêng `star-map.test.mjs` 79 ca / ~294 s: ca "chạy hai lần ra đúng một bộ" dựng bản đồ sao hai lượt, mỗi lượt ~100 s sau khi tinh vân lên 22 bậc, cộng một lượt `--do` ~50 s và hai lượt raster ~8 s). +10 ca của `lesson-a11y.test.mjs` (trợ năng màn học bài), +4 ca của `trap-leak.test.mjs` (gợi ý ô trống không lộ đáp án), +4 ca mục 22 của `star-map.test.mjs` (sắc độ đo bằng raster, và một ca canh cờ `--png`), +3 ca mục 23 (CỘNG ÁNH SÁNG: không còn hào quanh chòm, nét chòm có vỏ bọc tông ngược, mạch hoàng đạo không rời khung), +2 ca "VIỆC 11" của bản KÉO LẠI (nét chòm phải HƠN HẲN sàn 3:1, nêm tia bụi mỗi vỏ đúng một bậc lượng tử 0,01), +8 ca của `sky-zoom.test.mjs` (trỏ vào một chặng thôi phát hết tên bài; một tên bài mở một lúc ở tỉ lệ gần; cột bài cạnh bản đồ; ba tấm trời có lớp hợp thành riêng; vòng dò thôi đo hộp khung mỗi khung hình) | 20/10/2026 |
-| Bản đồ thế giới | `py scripts/map/build_map.py` → 9 tệp SVG, bản rộng 46 197 nét / 830 KB (**trần 900 KB**), chạy hai lần ra đúng một tệp | 19/10/2026 |
-| Bản đồ sao (xem thử) | `py -I scripts/star/build_sky.py` → 20 tệp, **450,7 KB** tổng (**trần 900 KB tổng · 420 KB mỗi tệp**); `sky-troi.svg` một mình **278,3 KB** sau khi mặt trời lên 128 vòng, tinh vân lên **22 bậc**, 41 đường đồng mức được khép theo mép và lớp `tia-bui` lên **83 vỏ** (5 tia × 11–22 vỏ, mỗi vỏ một `<path>` riêng ở độ mờ 0,01 — xem mục tia bụi dưới). Lượt build in thêm dòng **`đường đồng mức … còn hở`** — con số ấy phải là **0** | 20/10/2026 |
-| Bản đồ sao · PHÂN BỐ SẮC ĐỘ (mô hình) | `py -I scripts/star/build_sky.py --do` → **bậc giữa (L 0,03–0,85) 48,98 %** diện tích, ba bậc 0,03–0,35 **38,30 %** (sàn 30 %), trung vị **0,0311** (trần 0,05), p99 1,000, L > 0,5 **6,98 %** (sàn 4,5 %). Khung tham chiếu: 46,8 % · 43,0 % · 0,0284 · 0,955 · 7,73 %. Bản KÉO LẠI 20/10 tối: bậc giữa đi 62,8 → 48,98 % vì **46,8 % là một ĐÍCH, không một mốc để vượt** — xem mục raster dưới | 20/10/2026 |
-| Bản đồ sao · PHÂN BỐ SẮC ĐỘ (RASTER — con số THẬT) | `py -I scripts/star/raster.py` (bước 2 px, 278 800 ô mẫu), **trước → sau bản KÉO LẠI 20/10** (bụi xa `spread` 3,2 → 2,75 · `opacity` 0,20 → 0,15 · tinh vân `levelHi` 0,30 → 0,26), cột cuối là khung tham chiếu: bậc giữa **63,31 → 50,53 %** (46,8), ba bậc 0,03–0,35 **53,81 → 40,45 %** (43,0), đen sâu **14,64 → 19,63 %** (20,5), **t.vân mờ 0,03–0,08 36,90 → 25,02 %** (24,0), t.vân sáng 0,18–0,35 **6,09 → 6,50 %** (8,0), rìa quầng 0,35–0,60 **5,72 → 6,34 %** (7,4), trung vị **0,0399 → 0,0316** (0,0284), L > 0,5 **7,22 → 7,22 %** (7,73). Khoảng lệch mô hình − raster **−0,22 → −1,55** điểm phần trăm (trần 3). **BÀI HỌC ĐẮT NHẤT CỦA LẦN NÀY: 46,8 % là một ĐÍCH, không một thứ càng cao càng tốt.** Bản trước đẩy bậc giữa lên 63,31 — vượt đích 16,5 điểm — và trả bằng chiều sâu: đen sâu 24,95 → 14,64 %, bậc "tinh vân mờ" phình gần gấp rưỡi tham chiếu, bức ra ĐỤC NHƯ SỮA. Mọi ca vẫn xanh, vì mọi ca là SÀN MỘT PHÍA. Nên `star-map.test.mjs` mục 22 nay là **KHOẢNG hai đầu**: mid 44–56 %, mid3 34–50 %, đen sâu 16–26 %, **t.vân mờ 18–30 % (khoá MỚI** — bậc mà `mid`/`mid3` không gác được vì chúng ĐẾM CẢ nó, nên phình nó làm hai con số kia đẹp lên**)**, trung vị 0,024–0,038, hai bậc 0,18–0,60 11–21 %. **Mô hình là mục tiêu, raster là sự thật; và cả hai đều KHÔNG nhìn thấy hình, nên còn phải `--png` và NHÌN.** | 20/10/2026 |
-| Bản đồ sao · NÊM TIA BỤI | `SKY_LIGHT.ray`: **9 tia → 5**, mỗi tia **11–22 VỎ** lồng nhau, mỗi vỏ đúng **một bậc lượng tử `Ink.STEP_OP` = 0,01** và một `<path>` RIÊNG (`solo=True`). Ba vòng sửa, ba nguyên nhân khác nhau cho cùng một triệu chứng ("chín mảnh hình học mép sắc toả đều"), và **không một con số nào trong bảng tám bậc thấy được cái nào** — cả lớp chiếm dưới 1 % diện tích. Chỉ `raster.py --png` thấy: (1) ba vỏ "lồng nhau" mang `q` trong toạ độ nhiễu nên chúng CẮT CHÉO nhau; (2) khe tối thiểu 18° viết cứng trên lưới quét 5° làm sáu trong chín khe ra ĐÚNG 20° — cái đều là của PHÉP LỌC, không của bụi, nay khe lấy theo nhiễu trong `gapDeg` [6, 30]; (3) độ mờ giảm dần ra ngoài dồn 70 % tổng vào ~4 px trong cùng, tức cái dốc vẫn là một BẬC. Mép tán chỉ vô hình khi mỗi bước ≤ bậc lượng tử | 20/10/2026 |
-| Bản đồ sao · BỐ CỤC | tỉ lệ cỡ chòm **5,95 : 1** (sàn 5,0; trước 3,53), **0/49** nét nằm trong 10° của một trục (trước 27/50 ở sàn 8°), 0 ngôi trong đĩa cấm r < 170 quanh mặt trời, khe hai chòm 64,1 px (sàn 50), 0 ngôi dưới rìa chân trời | 20/10/2026 |
-| Bản đồ sao · vùng chạm | 16 ô bấm đều ≥ 44 px ở bề rộng khung thật (1 068 × 643,9 px) — **chín ô từng dưới mức đó** (tám ô nhãn 34,2 px, bao lồi M8 31,4 px), nay có `min-height` | 19/10/2026 |
-| Bản đồ sao · tương phản | chip lớp con trỏ trên nền ĐẶC: chữ 16,74:1 · mã bài 8,39:1 · chữ phụ 10,26:1. Nhãn trong tranh: thấp nhất **5,67:1** (M3, dòng chặng lúc mờ; 24 phép đo đều ≥ 4,5) — thứ giữ nó là một VIỀN ôm nét chữ ở độ mờ 0,92 (`SKY_LABEL.haloWidth`), không một tấm nền. Nét chòm **3,44 → 5,74:1** lúc nghỉ — đo giữa LÕI và VỎ BỌC (`SKY_LINK.casing`) nên nó thôi phụ thuộc bầu trời, và chính thế mà cái hào bỏ được và quầng nới được. **Bộ sinh chặn ở 3,0 (WCAG 1.4.11) nhưng ca test đòi ≥ 4,5, và hai con số ấy KHÁC NHAU CÓ Ý:** 3:1 là mức tối thiểu ĐỌC ĐƯỢC cho một thành phần đồ hoạ bất kỳ, còn nét chòm là tám chặng của khoá học — thứ mang nghĩa duy nhất trong bức. Ở 3,44 nó sống đúng mép sàn và trên PNG thì M2/M7 chìm vào tinh vân. Chữa bằng ÁNH SÁNG (`casing.opacity` 0,62 → 0,78 · `scale.lineOpacity` 0,55 → 0,70), không bằng cách dìm trời. `focusOpacity` trần ở 0,88: `casing.opacity × focusOpacity / opacity` chạm 1,0 là `Ink` bỏ hẳn thuộc tính độ mờ và tấm RÕ mất cặp lõi↔vỏ. Mạch hoàng đạo **4,59:1**. Vòng dò hai nét: ≥ 3:1 trên MỌI độ chói nền | 20/10/2026 |
-| Giáo trình pe-v4 | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt; màn điền chỗ trống: **149/149 ô có `slots[].hint`** trên 45 bài, không ô nào lộ đáp án | 20/10/2026 |
+Ngày ở đây là thứ DUY NHẤT trong bảng mà `check-moc-nen.mjs` không kiểm được: nó đối
+chiếu CON SỐ với cây mã, còn "lệnh này chạy lúc nào" thì không có dấu vết nào trong
+cây mã để đối chiếu. Nên nó trôi được, và đã trôi — tiêu đề giữ 28/10 suốt một tuần
+trong khi các hàng bên dưới đổi nhiều lần. Đổi một con số thì sửa luôn ngày.
 
-**CẬP NHẬT BẢNG NÀY MỖI KHI SỐ ĐO ĐỔI ĐÁNG KỂ, không chỉ ở commit đầu phiên.**
-Đã trả giá một lần: phiên 15/10 sửa bảng ở commit ĐẦU rồi 14 commit sau thêm
-test và dọn 124 file mà không sửa lại, nên bảng ghi "204 ca / 178 cảnh báo"
-trong khi thực đo là "390 ca / 118 cảnh báo". Bảng này nói "đừng để tụt xuống
-dưới mức này", nên một con số cũ KHÔNG phải chú thích lỗi thời vô hại: nó là
-mất lưới an toàn cho 186 ca test, và là giấy phép thêm 60 cảnh báo mới mà vẫn
-tưởng đang đạt mốc. Thêm/bớt ca test, dọn lint, xoá file ⇒ đo lại rồi sửa bảng
-TRONG CÙNG commit đó.
+Hai hàng KHÔNG xác minh được bằng cách chạy lệnh, và phải đọc đúng như thế:
+"Đã nạp DB chưa" đọc một BIÊN NHẬN (nó nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ
+còn giữ đúng bản đó), và "Giáo trình pe-v4" là gói đã ẩn — chạy được nhưng không ai
+học nó.
 
-Con số frontend TỤT từ 637 xuống 622 ngày 19/10 là tụt CÓ LÝ DO, không phải mất lưới an
-toàn: lớp chuyển động tự chạy của bản đồ bị bỏ theo quyết định sản phẩm ("chỉ cần motion
-graphic khi hover"), nên 34 ca canh parallax/bụi/mạch rỉ/sợi sáng được thay bằng 19 ca canh
-lớp hover. Bớt ca test vì BỚT TÍNH NĂNG thì ghi thẳng lý do ở đây; bớt vì "test khó sửa" thì
-không.
+| Hạng mục | Mốc |
+|---|---|
+| Backend typecheck | sạch — nay phủ **cả `scripts/**/*.ts`** (10 script, 0 lỗi) |
+| Backend test | **35 bộ, 522 ca**, tất cả đạt (chạy RIÊNG — xem bẫy tranh CPU) |
+| Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
+| Frontend typecheck | sạch |
+| Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
+| Frontend unit test | `cd frontend && npm run test:unit` → **681 ca** / 65 tệp, tất cả đạt |
+| Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
+| Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
+| Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
+| Giáo trình pe-da (đang chạy) | **179 bài, 11 module**, 567 màn đọc, **537 câu trắc nghiệm**, 669 câu luyện tập, **143 bài tập được chấm / 480 ca**, 2 438 phút; 139 bài chạy trong trình duyệt / 15 hỗn hợp / 25 trên máy |
+| pe-da chấm nội dung | `node scripts/pe-da/check-pyodide.mjs` → 154 bài, 420 đoạn code, **0 hỏng**, **0 cảnh báo**, 30–85 s (BIẾN THIÊN theo tải máy — xem bẫy "trần 5 giây là trần của đường khác"); trần pha 1 là **15 000 ms** (`/ide`), trần pha 2 là **5 000 ms** (ô chạy trong bài), và mỗi pha in biên riêng; **pha 2: 52/53 đáp án mẫu màn luyện tập chạy đúng, 1 ngoại lệ đã khai, 10 câu bỏ qua (bài chạy trên máy)** |
+| pe-da chấm BÀI TẬP | `node scripts/pe-da/check-practice.mjs` → 143 bài, **480 ca đạt**, 773 biến thể sai đều trượt, **pha 3 cổng file dữ liệu 7 bài / 0 lỗi**, **pha 4: 2 372 ca trượt / 0 ca im lặng / 7 nhánh phản hồi**, ~12 s |
+| pe-da VĂN PHONG | `py -I scripts/pe-da/check_vanphong.py` → 179 bài, **68 lỗi · 365 cảnh báo**, dồn ở L3 24 (câu ≥ 3 dấu phẩy) · L1 21 (câu > 30 tiếng) · L8 17 (mật độ thuật ngữ) — đúng ba thứ người thử gọi là "văn phong lủng củng" và "bạn em đọc không hiểu". `--doi-chieu` (CI chạy bản này) so TỪNG LUẬT với `scripts/pe-da/van-phong-moc.json` → **18 luật, 0 lỗi**; nó KHÔNG đỏ vì những lỗi đang tồn, chỉ đỏ khi một luật TĂNG — và một LỖI đổi thành một CẢNH BÁO tính là siết, miễn TỔNG không phình |
+| pe-da ĐỘ PHỦ văn phong | `node scripts/pe-da/check-phu-van-phong.mjs` → **99 chuỗi NGOÀI TẦM / 4 mục đã khai**, 0 lỗi. Bộ văn phong đọc `source/course.json` (cố ý), nên chữ do `build.py` SINH RA thì không luật nào thấy: **80 `figure.alt`** · 19 chuỗi của `diagram`. NỢ ẨN đã đo: L3 32 → 41 · L13 cb 217 → 229 · §4-A cb 23 → 30 · L14 0 → 3 lỗi — tức tín hiệu dừng báo THIẾU ~20%. Trần 99 CHỈ ĐƯỢC HẠ (108 → 99 ngày 08/11: 9 đoạn `paragraph.text` đã về gói nguồn) |
+| pe-da bảng từng bước | `py scripts/pe-da/gen_traces.py` → **56 vết / 359 khối đủ điều kiện** (303 bỏ qua — bảng từng ghi 356/300, đã CŨ từ trước 04/11: dựng lại từ HEAD cũng ra 359/303, và `check-moc-nen` không đối chiếu hàng này; phần lớn vì không ra được câu dự đoán nào ĐÁNG hỏi); build.py `return 1` nếu lệch |
+| Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
+| Xuất hình cho người học | `node scripts/check-figures.mjs` → 16 ca, **0 hỏng** |
+| Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **19 mục, 15 có đường tới, 4 còn tối (đã khai lý do)**, 0 lỗi |
+| Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **2 mục chết, 2 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **17 CSS module trong `src/`** |
+| Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
+| Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **114/179 khớp, 65 bài CHỜ NẠP** (năm lát văn phong 08/11 · hai lát alt text · năm lát neo bối cảnh). Lần nạp gần nhất: chủ dự án chạy lúc **2026-11-07T21:26 UTC** (`--all --apply --backup=bak-2026-11-08.json`), biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Đợt này gồm toàn bộ việc nội dung của mười vòng 04–08/11: ô ví dụ đầu vào/đầu ra · alt text · 8 bài tập mới · 2 sơ đồ · 3 bài sửa lệch miền · và sáu lát §4-A (54 hằng · 85 tên kiểu · 22 chỗ gọi `plt`/`ax`/`fig` · 50 tên class · 21 tên thư viện · 9 chỗ viết hoa + 9 lệnh công cụ). GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó. |
+| Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
+| Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **47 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
+| Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
+| Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 681 · backend 35 bộ/522 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/365 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
+| Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
-`next build` KHÔNG có trong bảng vì chưa ai đo nó thành một con số ổn định;
-đừng thêm dòng nào vào bảng mà không tự chạy lệnh để lấy số.
+**pe-v4 còn trong repo nhưng không còn xuất bản.** Khoá `python_advanced` nay là bộ 179
+bài. `scripts/pe-v4/**`, 427 ca chấm và job CI của nó được GIỮ NGUYÊN, vì bộ chấm
+input/output đó là thứ cố vấn dự án gọi là tính năng lõi — xoá đi là mất đường quay đầu
+và mất bộ kiểm duy nhất chấm được code học viên. `frontend/public/static/js/studio-harness.py`
+thì bộ 172 bài dùng lại NGUYÊN VẸN: chính nó đặt `MPLBACKEND=Agg` và móc `Figure`, nên
+26 bài biểu đồ chạy được trong worker. Đừng dọn "cho gọn".
+
+**Con số 681 phải đo lại mỗi lần thêm/bớt ca, không được đoán, và nó ĐÃ TRÔI 59 đơn vị.**
+Đo lại 09/11/2026 bằng cách chạy TỪNG tệp: bảng này cộng ra **592** trong khi bộ chạy ra
+**651**, tức nó đứng yên suốt chín vòng trong khi hàng "Frontend unit test" được sửa đúng
+mỗi lần. `check-moc-chay` chỉ đối chiếu HÀNG, không đối chiếu bảng phân rã, nên nó xanh cả
+chín vòng. Đây là lần THỨ HAI cùng con số này trôi — lần trước 5 đơn vị, lần này 59 —
+và mười tệp test mới (`ablate-trung-thuc`, `dich-bam-vo-bai-hoc`, `khoa-roi-giao-trinh`,
+`lesson-chrome-sticky`, `o-go-16px`, `trang-404`, `trang-loi`…) chưa bao giờ có mặt ở đây.
+Phân rã hiện tại, ĐO chứ không cộng tay:
+ablate-trung-thuc 19 · catalog-duration 2 · catalog-naming 3 · consent-banner 15 ·
+course-resume 9 · data-files 18 · dich-bam-vo-bai-hoc 7 · ds-contrast 17 · editor-load-gate 14 ·
+feedback-link 9 · feedback-rank 3 · forum-xss 1 · giam-chuyen-dong 3 · giao-dien 7 ·
+giao-dien-chuyen-dong 5 · giao-dien-monaco 4 · giao-dien-trang-chu 4 · goc-hoc-cho-so 7 ·
+goc-hoc-hang-nut 4 · goc-hoc-khung-cho 6 · goc-hoc-lo-trinh 9 · goc-hoc-man-con 3 ·
+goc-hoc-nhan-mot 6 · goc-hoc-thanh-cuon 5 · hover-cam-ung 3 · ide-brief-code 12 · ide-handoff 6 ·
+ide-output-scroll 6 · ide-partial-output 10 · ide-stop-autosave 27 · ide-thanh-cong-cu 4 ·
+ide-trace 38 · inline-code 7 · insert-gate-sync 2 · khoa-roi-giao-trinh 5 · label-version 2 ·
+learning-events 48 · lesson-back 15 · lesson-chrome-sticky 4 · lesson-load 7 · lien-ket-noi-bo 3 ·
+mcq-code 9 · mcq-next-after-wrong 23 · o-go-16px 5 · o-nhap-nhieu-dong 2 · phan-bai 8 ·
+practice-contract 15 · practice-run 9 · prewarm-gate 5 · read-diagram 12 · read-guess 19 ·
+read-trace 16 · read-try-it 20 · recap-recall 7 · review-quiz 34 · run-stale 15 ·
+session-marker 5 · spaced-review 14 · studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 ·
+trang-404 6 · trang-loi 12 · trap-leak 3 · worker-csp 7 = 681.
+Mốc trước là 677; thêm giao-dien-monaco 4 (theme Monaco của /ide + ba bề mặt khai `data-tv-surface`: nền khớp `--ds-card`, tương phản cú pháp, đường tới).
+Trước đó 673; thêm giao-dien-trang-chu 4 (LỚP KHOÁC của theme chiêm tinh lên trang chủ: đường tới, cấu trúc, token có thật, tương phản HUD).
+Trước đó 668; thêm giao-dien-chuyen-dong 5 (NGÂN SÁCH chuyển động của theme chiêm tinh: ≤ 12 vô
+hạn, chỉ opacity/transform, mọi hoạt ảnh tắt dưới reduced-motion, và lời hứa "theme phải có animation").
+Trước đó 661; thêm giao-dien 7 (GIAO DIỆN THỨ HAI "Đài thiên văn": script trước-paint chạy
+trong `node:vm`, ba nơi khớp id, cấu trúc tệp token, luật "đêm không rò", và hai bảng tương
+phản ngày/đêm tính từ chính tệp CSS).
+Trước đó 658; thêm giam-chuyen-dong 3 (HOẠT ẢNH DỊCH CHUYỂN phải tắt được dưới
+`prefers-reduced-motion` — WCAG 2.3.3; đo được 1 khe thật: băng phản hồi sau khi chấm
+trượt 12px mà không tắt, trong khi `consoleIn` chỉ trượt 4px đã được tắt).
+Trước đó 656 → 658; thêm hover-cam-ung 3 và ide-thanh-cong-cu 5 → 4 (ca `:hover` DỜI từ
+cổng /ide — phủ 2 tệp — sang một cổng phủ MỌI `.css` trong `src/`; hai cổng hỏi cùng
+một câu trên hai tập chồng nhau thì bản hẹp sẽ trôi khỏi bản rộng).
+Trước đó 655 → 656; ide-thanh-cong-cu 4 → 5 (THANH TIÊU ĐỀ hai khung /ide — port CẤU TRÚC từ
+nhánh `test` nhưng bằng token ẤM của main: bộ `--ds-tint` · `--ds-soft` · `--ds-line`
+bên ấy LẠNH cả ba trên trang giấy kem #F4EEE3).
+Trước đó 651 → 655; thêm ide-thanh-cong-cu 4 (THANH CÔNG CỤ /ide: bốn control đứng CÙNG
+một hàng flex mà `.start` khai 38px trong khi ba cái kia 42 — cộng sáu rule `:hover`
+của hai tệp không có guard con trỏ, nên nút KẸT ở trạng thái nhấc sau cú chạm).
+Trước đó 583 → 651 qua nhiều vòng; mốc 583 thêm goc-hoc-nhan-mot 6 (RÊ VÀO "KHOÁ HỌC" hiện 28 NHÃN cùng lúc, 116 cặp chồng
+nhau — nay đúng 1 nhãn; cổng CHẠY THẬT `setOn`/`lightRoute` bóc ra khỏi engine.js).
+Trước đó 579 → 583; thêm goc-hoc-hang-nut 4 (HÀNG NÚT ĐIỀU HƯỚNG tràn 425px ở 360×640 ⇒ chỉ 2/5
+mục trong mép; nay XUỐNG HÀNG).
+**Và bảng này vừa TRÔI 5 đơn vị:** nó cộng ra 574 trong khi bộ chạy ra 579, vì
+`goc-hoc-thanh-cuon 5` (vòng 07/11) được thêm vào cây mã mà KHÔNG thêm vào bảng — hàng "Frontend
+unit test" thì sửa đúng, nên `check-moc-chay` xanh và không gì bắt. Đây là con số THỨ BA của bảng
+phân rã không ai canh (hai con số kia đã có sổ ngưỡng). Thêm/bớt một tệp test thì sửa CẢ hàng mốc
+nền LẪN dòng phân rã này.
+Mốc trước là 573; ds-contrast 15 → 16 (CHIP `code nội tuyến` KHÔNG CÓ NỀN: `--edu-card-bg` trên
+thẻ trắng đo được 1,003:1, viền 1,252 — lần thứ TƯ của họ "trắng trên trắng").
+Trước đó 571 → 573; ds-contrast 13 → 15 (THANG CHỮ BAN NGÀY: đợt warm lofi dừng ở t2 nên t3–t6
+còn xanh lạnh, và t5 `#62718c` chỉ 4,27:1 trên giấy kem — DƯỚI AA 4,5).
+Trước đó 570 → 571; read-trace 15 → 16 (BẢNG TỪNG BƯỚC ở điện thoại: cột "Sau đó" bị bóp còn ~50px, một hàng cao 621px).
+Trước đó 569 → 570; inline-code 3 → 4 (Ý CHÍNH MÀN TỔNG KẾT vỡ cột: withInlineCode đặt thẳng trong <li> flex — 82/179 bài).
+Trước đó 566 → 569; lesson-back 12 → 15 (BÀI ĐÃ HOÀN THÀNH: thanh tiến độ vẽ 15/15 đoạn đầy mà chỉ 2 đoạn bấm được).
+Trước đó 559 → 566; thêm goc-hoc-cho-so 7 (SỐ VỀ MUỘN BỊ VỨT: /api/enrolled 3 087 ms > trần 3 000 ⇒ trang chủ nói "chưa có phiên học" cả phiên với người đã xong 2 bài).
+Trước đó 556 → 559; thêm lien-ket-noi-bo 3 (LIÊN KẾT TỚI TRANG KHÔNG CÓ: "Ôn tập" ở thanh trên và nút trong cảnh Góc học cùng dẫn tới `/practice` → 404).
+Trước đó 550 → 556; thêm ide-output-scroll 6 (/ide TRÊN ĐIỆN THOẠI: bấm Chạy xong ô kết quả vẫn dưới mép màn — 0px thấy ở 390×844 có băng khôi phục, 6px ở 375×667).
+Trước đó 548 → 550; thêm o-nhap-nhieu-dong 2 (Ô NHẬP NHIỀU DÒNG: `width: 100%` + padding trên content-box — ô soạn mã bài tập bị cắt 32px, ô luyện tập thò 30px).
+Trước đó 545 → 548; lesson-back 9 → 12 (ĐOẠN THANH TIẾN ĐỘ: vùng bấm thật 13×7px vì `overflow: hidden` cắt `::after` nới vùng chạm).
+Trước đó 542 → 545; thêm goc-hoc-man-con 3 (LƯỚI `1fr` TRẦN cắt nội dung màn Học tiếp trên điện thoại).
+Trước đó 538 → 542; goc-hoc-lo-trinh 5 → 9 (BẢNG DỌC cho điện thoại: khung ngang co còn 0,30, nhãn 5px).
+Trước đó 533 → 538; thêm goc-hoc-lo-trinh 5 (BẢNG LỘ TRÌNH: mỗi học phần thật một điểm — từng có 8 điểm cho 11
+học phần nên M9–M11 biến mất; nhãn ngắn ≤ 3 dòng, hai tầng xen kẽ, ở trên tờ ghi chú). Trước đó 527 → 533; thêm goc-hoc-khung-cho 6 (KHUNG GIỮ CHỖ trang chủ: vị trí ảnh là bản CHÉP layout()
+sang CSS — ca đọc hằng thật từ engine.js và tính lại từng hệ số). Trước đó 525 → 527; lesson-back 7 → 9 (KHÔNG NHẢY BỐ CỤC khi nội dung bài về: ô trái giữ chỗ
+cho nút Quay lại ở mọi khổ màn, rãnh thanh cuộn chỉ ở trang bài học). Trước đó 524 → 525; bê giao diện từ nhánh `test` (4d5f86d) làm đỏ 6 ca — sửa: ds-contrast 14 → 13
+(gỡ ca chip: hai chip nó canh chỉ sống trong `home.module.css`, file đã xoá), course-resume
+8 → 9 (hàng bài phải mang id mà effect cuộn tìm), review-quiz 33 → 34 (trang công khai chỉ
+gọi API sau `hasStoredSession`). Trước đó 523 → 524; ds-contrast 13 → 14 (TRANG CHỦ bỏ token brand xanh–đỏ).
+Trước đó 522 → 523; ds-contrast 12 → 13 (CHIP TRANG CHỦ: nền alpha làm chữ chìm).
+Trước đó 520 → 522; ds-contrast 10 → 12 (NỀN TRANG bỏ mesh xanh–đỏ + quầng bám chuột).
+Trước đó 518 → 520; ds-contrast 8 → 10 (VIỀN THẺ TRANG CÔNG KHAI + BÓNG MẶT NỔI).
+Trước đó 515 → 518; thêm feedback-rank 3 (THỨ BẬC CỦA PHẢN HỒI).
+Trước đó 514 → 515; ds-contrast 7 → 8 (HAI THANH STICKY phải có cạnh).
+Trước đó 511 → 514; ds-contrast 4 → 7 (VIỀN THẺ: lớp lỗi "shorthand chỉ có màu",
+cộng hai chiều của đường kẻ ngày/đêm).
+Trước đó 510 → 511; ds-contrast 3 → 4 (BÓNG THẺ phải ấm và bám sát).
+Trước đó 507 → 510; thêm ds-contrast 3 (TƯƠNG PHẢN KHỐI CODE — tính từ chính file CSS).
+Trước đó 504 → 507; read-guess 16 → 19 (CỔNG DỰ ĐOÁN HÌNH cho 71 màn có biểu đồ).
+Trước đó 490 → 504; thêm spaced-review 14 (ÔN GIÃN CÁCH — hỏi lại câu đã sai).
+Trước đó 481 → 490; thêm practice-run 9 (Ô CHẠY THỬ ở màn luyện tập).
+Trước đó 474 → 481; thêm recap-recall 7 (CỔNG HỒI TƯỞNG ở màn tổng kết).
+Trước đó 466 → 474; thêm phan-bai 8 (BA PHẦN: lý thuyết / thực hành / bài tập).
+Trước đó 463 → 466; thêm studio-lesson 41 → 44 (Ô VÍ DỤ ĐẦU VÀO/ĐẦU RA).
+Trước đó 435 → 463; thêm read-guess 16 (CỔNG DỰ ĐOÁN ở màn đọc — 262 khối code in sẵn
+kết quả nay đòi gõ dự đoán trước khi mở) và review-quiz 21 → 33 (tải lại trang giữa đề
+không còn mất đề — `GET quizzes/:id` nay có người gọi, xem bẫy cuối file).
+Trước đó 434 → 435 là practice-contract 14 → 15 (CỔNG LUYỆN TẬP).
+Trước đó 413 → 434 là review-quiz 21 — đề ôn tập chấm ở MÁY CHỦ nay có đường tới
+người học (xem bẫy cuối file).
+Trước đó 393 → 413 là data-files 18 (CƠ CHẾ NẠP FILE DỮ LIỆU — xem bẫy dưới) và
+insert-gate-sync 2 (cổng INSERT của backend phải biết đúng mọi nguồn màn mà
+`buildScreens` dựng — xem bẫy "Luật 6 của cổng INSERT" dưới).
+Trước đó 378 → 393 là read-trace 15 (BẢNG TỪNG BƯỚC của màn đọc — xem bẫy cuối file).
+Trước đó 351 → 378 là run-stale 15 ("kết quả này của bản code trước") và
+read-diagram 12 (sơ đồ bằng DOM) — xem hai bẫy cuối file.
+Trước đó 328 → 351 là mcq-next-after-wrong 23.
+Trước đó 310 → 328 là lesson-back 7, course-resume 8 và inline-code 3 — cả ba đến từ
+đợt phản hồi của người thử ngày 27/10 (xem bẫy "Năm người thử cùng báo thiếu nút quay
+lại" ở dưới).
+Trước đó 295 → 310 là consent-banner 15.
+Trước đó 231 → 295 là learning-events 48, mcq-code 9 và tracer-limits 7.
+Trước đó 211 → 231 là read-try-it 20 (nút "Try it Yourself" ở màn đọc — xem bẫy dưới),
+và 196 → 211 là practice-contract 14 và studio-lesson 40 → 41.
+
+**Đếm phân rã bằng `sed`, đừng bằng `grep -E "^. pass"`** — dòng tổng kết của
+`node --test` mở đầu bằng `ℹ` (multibyte), nên `^.` không khớp và vòng lặp trả về RỖNG
+cho mọi file mà không báo lỗi. Cùng họ bẫy CRLF ghi ở `label-version` dưới đây:
+
+```bash
+cd frontend && for f in e2e/unit/*.test.mjs; do
+  node --test --experimental-strip-types "$f" 2>&1 \
+    | sed -n 's/.*[[:space:]]pass \([0-9]\+\)[[:space:]]*$/\1/p' | tail -1
+done
+```
+
+Dòng này từng ghi **204** trong khi cây mã chỉ có 134 — một con số cũ trong bảng không phải
+chú thích lỗi thời vô hại, nó là 70 ca test tưởng có mà không có. Thêm/bớt ca ⇒ chạy lệnh,
+lấy số thật, sửa bảng TRONG CÙNG commit.
+
+Nay `node scripts/check-moc-chay.mjs` làm đúng phép so đó bằng MỘT lệnh, và nó có trong
+CI — vòng lặp lấy TỔNG thì dùng nó, vòng `sed` ở trên chỉ còn để lấy số TỪNG FILE.
+
+Backend chạy riêng mới ra số đúng: chạy `npx jest --ci` song song với bộ test frontend thì
+15/15 bộ báo trượt với 0 ca chạy — tranh CPU, không phải lỗi thật (xem bẫy "Test
+`python-runner` trượt khi chạy CẢ BỘ" ở dưới).
+
+**Và có một cách thứ HAI để ra số sai, khác hẳn tranh CPU: FIXTURE DÙNG CHUNG.** Ba bộ
+backend đọc thẳng `scripts/pe-da/out/lessons.json` — `lesson-insert.spec.ts`,
+`lesson-content-update.spec.ts`, `quizzes.service.spec.ts` — và frontend thì
+`studio-lesson.test.mjs`. Chạy test trong lúc có ai đó `build.py` là đọc một file đang bị
+ghi dở: đo được **10/470 ca đỏ** ngày 30/10/2026, cả 10 ở đúng ba bộ đó, và chạy lại sau khi
+build xong thì xanh hết. Đọc gói THẬT là CỐ Ý (fixture bịa làm test nói dối — xem bẫy
+`quizzes.service.spec.ts` ở dưới), nên cái giá là: **dựng xong rồi mới đo**, đừng đo song song.
 
 Số lỗi lint backend phải đo bằng ĐÚNG lệnh CI dùng, KHÔNG bằng `npm run lint` (script đó mang
 `--fix` nên vừa sửa file vừa làm con số lệch). Đo khác lệnh là lý do mốc này từng bị ghi 551
@@ -103,6 +262,16 @@ trong khi thực tế là 557:
 ```bash
 npx eslint "{src,apps,libs,test}/**/*.ts" --ignore-pattern "src/generated/**"
 ```
+
+## Vòng lặp tự kiểm
+
+**Hàng đợi việc nằm ở Kanzo** (`http://localhost:4242`, project `pe-usth`), không ở
+file markdown — xem mục đầu của LOOP.md để biết nếp dùng và vì sao đổi.
+
+Agent chạy việc trong repo này đi theo [LOOP.md](LOOP.md): bậc thang lệnh nói đúng/sai mà
+không cần người đọc, bốn luật dừng (luật thứ tư: nhiệm vụ tự mâu thuẫn ⇒ khai bất khả là kết quả hợp lệ), và bốn cách một vòng lặp nói dối (nới phép kiểm cho
+xanh · đo song song lúc đang build · xanh vì không ai đi qua · test không có răng). Mục
+tiêu là chạy tới xanh rồi mới bàn giao, không hỏi giữa chừng.
 
 ## Ràng buộc không được phá
 
@@ -119,6 +288,976 @@ npx eslint "{src,apps,libs,test}/**/*.ts" --ignore-pattern "src/generated/**"
 
 Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đã sửa hoặc còn mở.
 
+- **508 khối code màn đọc chia vào nhóm nào — nay KHAI RA, và bộ bắt-tất từng làm
+  cổng RỖNG.** `read-guess.test.mjs` đã ghim trần 2/40, sàn phủ, phép loại vẽ hình
+  và luật không lộ đáp án. Thứ nó KHÔNG nói: 508 khối chia hết vào NHỮNG NHÓM NÀO —
+  nên một hình dạng thứ bảy (gói nguồn đổi, build phát thêm trường) rơi vào khoảng
+  trống đó và im lặng. `node scripts/check-doi-hoi.mjs` (có trong CI) chia hết 508
+  khối: **392 có một lời đòi (77,2%)** — 262 cổng dự đoán output · 56 bảng từng bước ·
+  74 cổng dự đoán HÌNH — và **116 im lặng, mỗi nhóm kèm lý do**.
+  **Con số 74/7 là một phép so chéo tự xác nhận:** 81 khối gọi thư viện vẽ hình, 74
+  có khối `figure` trên cùng màn (nên `doanDuocHinh` dựng cổng) và 7 thì không —
+  khớp đúng ghi chép độc lập "7 khối dựng Figure mà bài không xuất ảnh" ở mục cổng
+  dự đoán. Báo cáo xếp hạng ghi 399 vì đếm cả 81; **392 mới đúng**.
+  **CỔNG NÀY RỖNG BA LẦN TRƯỚC KHI CÓ RĂNG, và cả ba chỉ lộ ra nhờ ablate:**
+  · nhóm cuối viết `hop: () => true` (bắt-tất) ⇒ gỡ nhóm `qua-dong` ra thì 54 khối
+    lẽ ra RƠI RA ngoài lại bị nuốt và dán nhãn "CÓ cổng" — cổng **tự khai khống độ
+    phủ**, và luật "rơi ra ngoài là LỖI" không bao giờ chạy tới. Đo: **0 đỏ**;
+  · sửa thành điều kiện dương nhưng THIẾU nhánh "lộ đáp án" ⇒ gỡ `lo-dap-an` vẫn
+    **0 đỏ**; thiếu tiếp `!trace` và hai nhánh vẽ hình ⇒ gỡ ba nhóm đó đều 0 đỏ.
+    Nhóm "có cổng" phải là PHẦN BÙ CHÍNH XÁC của `doanDuocOutput`, đủ cả sáu nhánh;
+  · và phân nhóm MỘT MÌNH vẫn không bắt được khối TRÔI từ nhóm có-lời-đòi sang nhóm
+    im lặng: gỡ `ve-hinh-co-figure` thì 74 khối rơi sang nhóm vẽ-hình kia, độ phủ
+    tụt **392 → 318** mà mọi khối vẫn "thuộc một nhóm đã khai" ⇒ 0 đỏ. Phải thêm
+    `SAN_CO_DOI` (380, CHỈ ĐƯỢC NÂNG). Ablate lại: 8/8 chiều đều đỏ.
+  **PHÁT HIỆN CHƯA LÀM, và nó là quyết định của CHỦ DỰ ÁN chứ không của vòng lặp:**
+  trần DÒNG là một PROXY, và nó mis-fire. `khopDapAn` bỏ HẾT khoảng trắng, nên thứ
+  người học thật sự gõ là chuỗi gõ liền. Đo trên bản dựng: khối ĐANG có cổng dài
+  **trung vị 9 ký tự, max 34**; 41 khối bị trần dòng từ chối dài **trung vị 20, max
+  40** — TẤT CẢ nằm trong trần 40 ký tự hiện hành, và ngắn nhất là `"1\n2\n3"` tức
+  **3 ký tự**. Bỏ trần dòng mà giữ nguyên trần ký tự → **303 khối / 133 bài** thay vì
+  262/127. Lý lẽ viết trong `studio-lesson.ts` ("từ 3 dòng trở lên thì chép lại cả
+  một đoạn") nói về SỐ KÝ TỰ PHẢI GÕ, mà trần dòng không đo thứ đó. KHÔNG tự đổi:
+  file này ghi trần "chỉ được HẠ", và +41 cổng là thêm ma sát cho người học —
+  Hundhausen đo được một cổng không đáng bấm là đúng điều kiện KHÔNG có tác dụng.
+
+- **PHỄU TIẾN ĐỘ: `lesson_progress` KHÔNG phải mẫu số, và `scripts/` chưa bao giờ
+  được typecheck.** Mục 2 của báo cáo xếp hạng đặc tả *"`lesson_progress` tra theo
+  (course_id, sort_order) là đủ"*. **Đo trước khi dựng thì nó KHÔNG đủ:**
+  · `lesson_progress` chỉ được ghi trong `completeLesson`
+    (`src/lessons/lessons.service.ts`) ⇒ nó đo HOÀN THÀNH, không đo MỞ. Người mở
+    bài 1 rồi bỏ KHÔNG để lại hàng nào;
+  · nhưng mở bài là TỰ GHI DANH (`useLessonData.ts`) ⇒ `enrollments` mới là dấu
+    "đã đến".
+  Lấy `lesson_progress` làm mẫu số thì **ô 1 luôn = 100% THEO CẤU TẠO**, tức giấu
+  đúng ô rơi lớn nhất. Ablate: đổi mẫu số về `lesson_progress` → **3 ca đỏ**.
+  **ĐƠN VỊ LÀ "TÀI KHOẢN KHÁCH", và cổng từ chối mọi tên khác.** Refresh token khách
+  sống 30 ngày, hết hạn là cấp tài khoản MỚI ⇒ một người quay lại đếm thành HAI tài
+  khoản, nên mọi tỉ lệ "còn lại" là GIỚI HẠN DƯỚI. `kiemTenChiSo` cấm "người dùng" /
+  "user" / "học viên" trong tên chỉ số và đòi chữ "tài khoản".
+  **LUẬT BẮT ĐÚNG TÁC GIẢ CỦA NÓ:** một trong bốn chỉ số tôi khai trước là *"tỉ lệ còn
+  lại ở bài thứ N so với số đã ghi danh"* — không có chữ "tài khoản" ⇒ **9/14 ca đỏ**
+  ngay lần chạy đầu. Sửa TÊN, không nới luật.
+  **CA TEST CỦA CHÍNH LUẬT ẤY TỪNG KHÔNG CÓ RĂNG:** nó assert
+  `expect(loi).toContain("người dùng")`, mà thông điệp "không nói ra đơn vị" NHẮC LẠI
+  chính tên bị kiểm — nên phép so đạt vì LẶP LẠI ĐẦU VÀO. Ablate làm rỗng danh sách từ
+  cấm → **0 đỏ**. Nay so với câu nói ra LÝ DO, và tên mẫu đều CÓ chữ "tài khoản" để
+  nhánh "thiếu đơn vị" không che mất nhánh "từ cấm" → **4 đỏ**.
+  **GIỚI HẠN in CÙNG bảng, không để ở file khác** — một bảng số đi một mình sẽ bị
+  trích một mình. Năm câu, và một ca test đòi chúng có mặt (ablate bỏ một câu → 1 đỏ).
+  Ablate 7 chiều: mẫu số sai → 3 · đếm HÀNG thay vì TÀI KHOẢN → 1 · in % cho ô đã che
+  → 1 · bỏ ngưỡng che → 2 · bỏ lọc khách → 1 · bỏ một câu giới hạn → 1 · nới từ cấm → 4.
+  **VÀ ĐÂY LÀ PHÁT HIỆN KÈM, lớn hơn chính việc đang làm:** `tsconfig.json` chỉ
+  `include` `src/**/*` và `test/**/*` — **10 script TypeScript chưa bao giờ đi qua
+  `npm run typecheck`**, GỒM CẢ `update-lesson-content.ts`, thứ chính file này gọi là
+  "đường nạp AN TOÀN" vào DB production. Đo trước khi thêm: **0 lỗi**, nên việc này
+  miễn phí. Ablate: gieo một lỗi kiểu vào `update-lesson-content.ts` → typecheck **1
+  lỗi**; trước bản này nó im lặng xanh.
+  **Và nó bắt được ngay một lỗi chí tử trong script tôi vừa viết:** Prisma 7 ĐÒI một
+  driver adapter — `new PrismaClient()` trần ném `PrismaClientInitializationError`
+  ở dòng đầu, tức script **không chạy được lần nào**. Dùng cùng `PrismaNeon` với
+  `update-lesson-content.ts`, đừng nghĩ ra cách thứ hai.
+  **GIỚI HẠN PHẢI NÓI RA:** đường DB **chưa chạy với dữ liệu thật** — không có
+  `DATABASE_URL` trong vòng lặp. Thứ ĐÃ được chứng minh là phép tính (16 ca Jest) và
+  hình dạng truy vấn Prisma (tsc, nhờ chính thay đổi tsconfig này). Thứ CHƯA: hành vi
+  trên hàng thật. Chủ dự án chạy `npx ts-node scripts/pheu-tien-do.ts` là biết.
+
+- **16 NGƯỠNG MỘT CHIỀU chỉ được khai bằng VĂN XUÔI — nay có cổng canh chiều.**
+  Repo có 16 con số đã quyết "chỉ được hạ" (trần) hoặc "chỉ được nâng" (sàn), rải
+  khắp **7 file**: trần lint CI 115 · `TRAN_ALT_KHUON` 21 · `TRAN_LECH_DO_DAI` 21 ·
+  `DOAN_OUTPUT_MAX_DONG/KY_TU` 2/40 · `SAN_CO_DOI` 380 · hai sàn của
+  `read-guess` (200/110) · sàn màu của `feedback-rank` (8) ·
+  `ADVANCED_LESSON_MIN` 172 · sáu sàn tương phản của `ds-contrast`. Mỗi cái
+  khai bằng MỘT CÂU trong chú thích bên cạnh, và **không gì canh chiều** — một vòng
+  lặp muốn xanh chỉ cần hạ con số rồi sửa câu chú thích: hai dòng, không bộ kiểm nào đỏ.
+  Đây không phải lo xa: LOOP.md đã đặt tên nó là cách THỨ NHẤT một vòng lặp nói dối
+  ("nới phép kiểm cho xanh"), và ImpossibleBench đo được các mô hình Claude **>79% số
+  lần là SỬA TEST** khi nhiệm vụ không làm được.
+  Nay `node scripts/check-nguong.mjs` (có trong CI) đọc sổ `scripts/nguong-mot-chieu.json`
+  và so từng con số với cây mã.
+  **SIẾT ĐÚNG CHIỀU THÌ KHÔNG ĐỎ**, chỉ in một dòng `GHI SỔ` nhắc chạy `--ghi-so`.
+  Bắt nó đỏ là dạy người ta THÔI SIẾT — mà siết là việc tốt. Và `--ghi-so` từ chối
+  chạy khi đang có lỗi, nếu không nó thành cái nút TẮT cổng.
+  **GIỚI HẠN PHẢI NÓI RA:** sổ được COMMIT, nên ai cố tình nới vẫn sửa được cả hai.
+  Cổng làm việc nới trở nên TO TIẾNG (một dòng diff trong sổ, kèm câu hỏi "vì sao"),
+  KHÔNG làm nó bất khả — cùng mức trung thực với `check-da-nap` ("chống QUÊN NẠP,
+  không chống DB trôi").
+  **`--ghi-so` TỪNG LÀM BẨN CHÍNH CÁI SỔ NÓ CANH — và tôi giao nó mà chưa chạy lần
+  nào.** Lần chạy ĐẦU TIÊN của cờ này (một vòng SAU khi commit): nó in "0 ngưỡng cập
+  nhật" rồi vẫn **sửa 4 dòng**, vì `JSON.stringify` chuẩn hoá `12.0` thành `12`.
+  Vô hại về SỐ, có hại về TÍN HIỆU: cả giá trị của sổ nằm ở chỗ "một dòng diff ở đây
+  là một câu hỏi to tiếng", nên một lần ghi vô ích làm hỏng đúng thứ đó. Nay `doi === 0`
+  thì in "Sổ đã đúng — không ghi gì" và KHÔNG chạm file.
+  Ba nhánh của cờ nay đều đã chạy thật: không có gì đổi → file SẠCH · siết thật một
+  ngưỡng (5 → 8) → ghi đúng 1 mục rồi xanh lại · ĐANG CÓ LỖI → từ chối ghi, **exit 1**,
+  sổ không bị chạm (nếu không thì `--ghi-so` là cái nút TẮT cổng).
+  **Bài học rộng hơn:** một CỜ chưa ai chạy cũng là "dựng xong mà không có đường tới",
+  chỉ khác là đường đó dành cho người bảo trì chứ không cho người học. Giao một cờ thì
+  phải chạy cả ba nhánh của nó TRONG CÙNG vòng.
+
+  **MỘT REGEX MƠ HỒ LÀ MỘT CỔNG HỎNG, và nó hỏng theo CẢ HAI chiều.** Lần chạy đầu,
+  `san-mau-chu-giai-thich` dùng `ts >= (\d+)` và khớp trúng dòng AA `ts >= 4.5`
+  đứng TRƯỚC — bắt được 4, **báo oan một ngưỡng đang đúng**. Cùng lỗi ấy mà khớp nhầm
+  một con số KHÔNG BAO GIỜ đổi thì cổng XANH vĩnh viễn trong khi ngưỡng thật đã bị nới.
+  Nên cổng nay đòi mỗi regex khớp **ĐÚNG MỘT LẦN** trong tệp của nó; "nhiều chỗ khớp"
+  là LỖI, không phải lấy chỗ đầu tiên.
+  Ablate 7 chiều: nới trần lint CI 115 → 150 → **1 lỗi** · hạ `SAN_CO_DOI` 380 → 300
+  → 1 · nới trần dự đoán 2 → 3 dòng → 1 · hạ sàn tương phản chú thích 5,5 → 4,6 → 1 ·
+  đổi TÊN hằng (regex hết khớp) → 1 · trả regex về bản lỏng → 1 (REGEX MƠ HỒ).
+  Chiều NGƯỢC: siết trần lint 115 → 104 → **0 đỏ**, kèm dòng `GHI SỔ`.
+  **Và phép đo bắt được một trích dẫn cũ:** `scripts/pe-da/VAN-PHONG.md` trích
+  AGENTS.md là *"mốc trần trong CI là 245"* trong khi trần thật là **115** — đã hạ qua
+  bốn đợt dọn `any`. `check-moc-nen` chỉ đọc AGENTS.md nên nó mù với chỗ này; đã sửa
+  bằng tay, và đó là một nhắc nhở rằng con số CÒN SỐNG Ở NHIỀU FILE hơn bảng mốc nền.
+
+- **`check-figures.mjs` KHÔNG in số ca — nên "16 ca" trong bảng không gì sinh ra được.**
+  `check-perf.mjs` cạnh nó in `9 ca · 0 hỏng` từ đầu; `check-figures.mjs` chỉ in
+  một câu văn xuôi ("mọi ca đạt"). Con số 16 ĐÚNG — đếm tay ra đúng 16 lời gọi
+  `dat(` — nhưng nó chỉ xác nhận được bằng cách đọc mã nguồn, và `check-moc-nen`
+  không có gì để đối chiếu. Một con số trong bảng mà không công cụ nào phát ra là
+  một con số sẽ trôi. Nay `dat()` tự đếm và in `N ca · M hỏng`, và
+  `check-moc-nen` canh CẢ HAI hàng (15 → 17 mục).
+  **GIỚI HẠN, phải nói ra:** cổng đối chiếu con số với MÃ NGUỒN (đếm lời gọi
+  `dat(`), không đối chiếu với thứ công cụ IN RA. Ablate: đổi "16 ca" trong bảng
+  → **1 lỗi** · thêm một ca thật mà không sửa bảng → **1 lỗi** · nhưng gỡ phép đếm
+  `soCa` đi (công cụ thôi in số) → **0 lỗi**. Phần được canh là CON SỐ, phần in ra
+  là tiện cho người đọc.
+
+- **LỖI THỐNG TRỊ Ở LỚP NGOÀI CÙNG: push xong, CI xanh, và KHÔNG LÊN production.**
+  Sự cố 04/11/2026 — chủ dự án nhìn ra bằng mắt, không bộ kiểm nào báo: production
+  chạy bản dựng từ **03/11** (`9567490`), **sau lưng `main` 15 commit**. Bốn bề mặt lofi
+  và bản sửa thứ bậc phản hồi nằm im trên `main`. (Con số này TỪNG bị tôi ghi sai thành
+  "29/10, 66 commit" — xem đoạn đính chính ở cuối mục.) Repo đã có cổng cho hai lớp trong
+  (`check-duong-toi`: có màn nào MOUNT không · `check-da-nap`: bài vào DB chưa) và
+  KHÔNG có gì cho lớp ngoài cùng.
+  **`ASSET_VERSION` KHÔNG dùng làm dấu được — đã đo.** Luật bump chỉ áp cho `public/`:
+  trên đúng khoảng lệch ấy có 67 commit, **28 chạm `frontend/src/`**, mà `ASSET_VERSION`
+  đổi **2 lần**. Lấy nó làm cổng là cho XANH GIẢ khi production thiếu hàng chục commit
+  chỉ-src. Build id của Next cũng không xài được: HTML production không phơi ra
+  (app router không nhúng `__NEXT_DATA__`, URL chunk chỉ là `/_next/static/chunks/`).
+  Nên dấu là COMMIT SHA ở `<meta name="pe-build">` (layout gốc, đọc
+  `VERCEL_GIT_COMMIT_SHA` — Vercel đặt sẵn, không phải biến ta khai).
+  **CẢNH BÁO, KHÔNG ĐỎ:** deploy là việc của chủ dự án, và một commit vừa push thì
+  ĐÚNG RA là chưa live — bắt đỏ ở đây là dạy người ta quen với màu đỏ. Chỉ
+  `--doi-hoi-moi-nhat` mới đỏ, tức khi người chạy nói "tôi vừa deploy xong".
+  **HAI LỖI CỦA CHÍNH CỔNG NÀY, cả hai chỉ lộ khi CHẠY THẬT:**
+  · `process.exit()` đua với pool keep-alive của `fetch` ⇒ Node trên Windows ném
+    `Assertion failed: !(handle->flags & UV_HANDLE_CLOSING)` rồi thoát **127** — một mã
+    thoát không nói gì về kết quả kiểm, tức cổng vô dụng đúng ở chỗ CI đọc nó. Dùng
+    `process.exitCode`;
+  · thiếu header `connection: close` ⇒ undici giữ socket trong pool và tiến trình
+    không thoát ngay; gọi cổng từ một script khác bằng `execFileSync` thì nó **TREO**.
+    Một cổng treo là một cổng sẽ bị gỡ khỏi CI.
+  Ablate bằng máy chủ giả, 3 chiều: SHA trùng `tester/main` → nói "ĐANG chạy đúng" ·
+  SHA lùi 5 commit → đếm **đúng 5** · không có thẻ meta → nói thẳng "bản dựng CŨ HƠN
+  commit thêm thẻ này", không im lặng.
+  **GIỚI HẠN:** cổng so SHA trên dây với một NHÁNH; nó không chứng minh bản dựng đó
+  khớp cây mã (ai build tay từ chỗ khác thì nó mù), và nó cần MẠNG.
+  **SỬA LẠI MỘT CON SỐ TÔI ĐÃ KHẲNG ĐỊNH SAI — và cách tôi sai là bài học chính.**
+  Tôi viết "production chạy build **29/10**, sau lưng `main` **66 commit**" như một số ĐO.
+  Nó là một SUY LUẬN từ `ASSET_VERSION=2026-10-29a`: tôi lấy commit đã ĐƯA VÀO chuỗi đó
+  (`f447d1e`) rồi gọi nó là bản đang chạy. Mà chính đoạn trên vừa chứng minh
+  `ASSET_VERSION` là tín hiệu YẾU — nó chỉ đổi khi `public/` đổi, nên nó chỉ nói
+  "production MỚI BẰNG HOẶC MỚI HƠN `f447d1e`", không nói nó ở đâu.
+  **Số đúng, lấy từ dashboard Vercel: `9567490`, 03/11/2026 04:53, sau lưng 15 commit.**
+  `ASSET_VERSION` của `9567490` ĐÚNG LÀ `2026-10-29a` (lần bump kế tiếp ở `bf44293`), nên
+  phép đo không sai — chỉ có cách tôi đọc nó mới sai.
+  **PHÉP THỬ ĐỘC LẬP, rẻ và dùng lại được, không cần dashboard:** chọn một tệp mà một
+  commit đã XOÁ và một tệp cùng commit đó cố ý GIỮ, rồi gọi HEAD cả hai. Đo được:
+  `/static/js/login.inline.js` → **404** (xoá ở `9567490`), `/static/js/dashboard.js` →
+  **200** (giữ ở chính commit đó). Hai chiều cùng khớp ⇒ production ở `9567490` trở lên.
+  Một dấu NỘI DUNG như vậy mạnh hơn bất kỳ chuỗi phiên bản nào, vì không ai phải nhớ bump nó.
+  **VÌ SAO NÓ DỪNG — bằng chứng loại trừ, không phải phỏng đoán:**
+  · **16/16 commit ngày 03/11 đều deploy**, `9567490` là cái cuối; **15/15 commit ngày
+    04/11 KHÔNG cái nào** được tạo. Ranh giới là NGÀY, không phải một commit hỏng;
+  · danh sách deployment **không có mục Error nào** sau `9567490` ⇒ Vercel chưa từng TẠO
+    chúng ⇒ **không phải lỗi build** (và `npm run build` ở máy vẫn sạch);
+  · `9567490` LÀ tổ tiên của `tester/main`, không nhánh nào đứng ở đó ⇒ nối ĐÚNG repo/nhánh;
+  · cả 15 commit chưa deploy cùng tác giả `sonkh <sonthaiha07@gmail.com>` với commit ĐÃ
+    deploy ⇒ không phải bộ lọc Author trong giao diện che đi.
+  **NGUYÊN NHÂN THẬT, chủ dự án nói ra: repo ĐÃ CHUYỂN sang một GitHub org mới.**
+  `PCBoiz/pe-usth` nay trả **HTTP 301** về `ProgrammingEdu-USTH/pe-usth`. Git push vẫn
+  chạy qua redirect nên không ai thấy gì lạ, nhưng GitHub App của Vercel cài theo TỪNG
+  ORG — org mới chưa có nó, nên **webhook không tới Vercel và không deployment nào được
+  TẠO**. Khớp mọi mảnh bằng chứng: đúng nhánh, đúng tác giả, không có bản Error nào, và
+  ranh giới là một NGÀY chứ không phải một commit hỏng.
+  **VÀ BẰNG CHỨNG ĐÃ IN RA NGAY LẦN PUSH ĐẦU TIÊN của phiên — tôi nhìn mà không đọc:**
+
+      remote:   https://github.com/ProgrammingEdu-USTH/pe-usth.git
+      To https://github.com/PCBoiz/pe-usth.git
+         6fb8264..828d33b  main -> main
+
+  GitHub in dòng `remote:` đó để báo repo đã dời. Tôi đọc nó như tiếng ồn của lệnh push,
+  rồi hai vòng sau đi dựng cả một cổng để trả lời câu hỏi mà dòng ấy đã trả lời.
+  **Luật rút ra: đầu ra của `git push` là một PHÉP ĐO, không phải tiếng ồn.** Dòng
+  `remote:` chỉ xuất hiện khi máy chủ có điều muốn nói.
+  Việc còn lại là của chủ dự án: trỏ Vercel sang org mới (và `git remote set-url tester https://github.com/ProgrammingEdu-USTH/pe-usth.git` ở máy).
+
+- **"153 bài chưa nạp DB" là một câu tôi LẶP LẠI trong khi cổng của chính mình đã trả
+  lời ngược.** Suốt nhiều vòng tôi bàn giao câu *"còn 153 bài đã dựng xong chưa nạp"*.
+  Nhưng `node scripts/check-da-nap.mjs` — mà tôi chạy gần như MỖI vòng — in nguyên văn:
+  *"Biên nhận nạp lúc 2026-11-03T18:48 · gói 179 bài / 0 lỗi — mọi bài trong gói đều đã
+  nạp đúng bản đang dựng."* Chủ dự án chạy `update-lesson-content.ts --all` và bản chạy
+  khô xác nhận: **0/179 bài sẽ đổi `content_json`**.
+  Tôi đã đọc dòng "0 lỗi" như "cổng này PASS" chứ không như "đây là CÂU TRẢ LỜI cho
+  việc tôi đang bàn giao". Một cổng chỉ hữu ích bằng mức người ta đọc thứ nó NÓI, không
+  phải thứ nó TÔ MÀU. **Trước khi bàn giao một việc cho người khác, chạy đúng cái cổng
+  canh việc đó và đọc CÂU, không đọc màu.**
+
+- **"Pyodide 314 không có wheel" — SAI với 10/21 gói, và một phép ĐO đã tự thả 3,5 MB
+  vào repo.** Hằng `THIEU_WHEEL` trong `build.py` tự ghi đúng ("không có wheel TRONG
+  REPO"), nhưng AGENTS.md diễn lại thành "Pyodide 314 không có". Đo trên chính
+  `pyodide-lock.json` trong repo (357 gói): **10 gói CÓ** — scipy 1.18.0 · sklearn 1.8.0 ·
+  statsmodels 0.14.6 · requests 2.33.1 · bs4 4.14.3 · xlrd 2.0.2 · pyarrow 22.0.0 ·
+  IPython 9.12.0 · sqlalchemy 2.0.48 · h5py 3.13.0 — và **11 không có thật** (seaborn,
+  plotly, openpyxl, dash, ipywidgets, notebook, jupyter, sas7bdat, pandasql, psutil,
+  PySimpleGUI). Đã chạy thật dưới WASM: `h5py` ghi/đọc lại một dataset, `sqlalchemy`
+  tạo bảng/chèn/truy vấn — **cả hai chạy được**.
+  **Nhưng cơ hội chỉ là 2 BÀI, không phải 10.** Đọc `_blocked` của bản dựng (chính xác
+  hơn tự quét `import` — SY23 viết `import tempfile, h5py` nên regex một-gói-một-dòng
+  trượt): chỉ **SY23** (h5py + scipy) và **SY24** (sqlalchemy) bị chặn vì gói CÓ sẵn.
+  Tám gói còn lại không bài nào dùng. **SY24 đã mở khoá 04/11** — chỉ cần vendor sqlalchemy
+  1 937 KB + typing-extensions 43 KB, vì **3 ca chấm đã nằm sẵn trong gói nguồn**
+  và bị chính cổng `THIEU_WHEEL` vứt đi; **SY23 thì KHÔNG đáng** — h5py kéo
+  theo scipy **13,7 MB**, tức +46% kích thước runtime cho ĐÚNG MỘT bài. Đó là quyết định
+  của chủ dự án, không của vòng lặp.
+  **BẪY NẶNG CÂN: `loadPackage` GHI WHEEL VÀO THƯ MỤC VENDORED.** Một phép thử gọi
+  `loadPackage('h5py')` với `indexURL` trỏ vào `frontend/public/pyodide/v314.0.7/`
+  đã thả **3,5 MB** (h5py · sqlalchemy · pkgconfig · typing-extensions) vào đó. Dòng log
+  nói *"caching the wheel in node_modules"* — **nó nói thiếu**. Một `git add -A` là
+  megabyte vào repo mà không ai quyết.
+  Nay `node scripts/check-wheel.mjs` (có trong CI) canh **hai chiều**:
+  · wheel không ai với tới → ĐỎ (bắt đúng tai nạn trên);
+  · gói bài CẦN mà thiếu wheel → ĐỎ, vì `loadPackage` KHÔNG ném mà lặng lẽ tải từ
+    CDN — CI xanh, còn trong trình duyệt thì CSP `connect-src 'self'` chặn, tức hỏng
+    cứng với học viên.
+  **PHẢI ĐÓNG BAO PHỤ THUỘC, không so theo danh sách khai.** Bài chỉ khai `numpy,
+  pandas, tzdata, matplotlib` — bốn cái — nhưng chúng kéo theo Pillow, contourpy,
+  cycler, fonttools, kiwisolver, packaging, pyparsing, python-dateutil, pytz, six:
+  **đúng 14**, khớp 14 wheel đang có. So theo danh sách khai thì 10 wheel hợp lệ bị kêu
+  oan, mà cổng kêu oan sẽ bị tắt.
+  Ablate 3 chiều: thả một wheel không ai dùng → **1 lỗi** · giấu wheel `pandas` (bài có
+  khai) → 1 · giấu `pillow` (PHỤ THUỘC, không bài nào khai trực tiếp) → 1 — chiều
+  thứ ba là thứ chứng minh phép đóng bao không thừa.
+
+- **CÙNG MỘT DANH SÁCH WHEEL sống ở BỐN chỗ, và chỗ thứ tư làm cổng BÁO OAN.**
+  Mở khoá SY24 (vendor `sqlalchemy`) phải sửa `THIEU_WHEEL` và `VENDORED` trong
+  `build.py`, và `check-wheel.mjs` thì tự đọc đĩa nên không phải sửa. Chỗ thứ TƯ —
+  `hop_le = {'numpy', 'pandas', 'matplotlib', 'tzdata'}` trong `kiem_sandbox()` của
+  `check.py` — không ai nhớ, nên `check.py --strict` đỏ với *"SY24: khai gói không có
+  wheel"* trong khi wheel ĐANG nằm trên đĩa. Một lỗi GIẢ, và lối thoát trông hợp lý nhất
+  lúc đó là gỡ gói ra khỏi bài — tức sửa NỘI DUNG để chiều một phép kiểm sai, đúng bệnh
+  đã ghi ở "Luật 6 của cổng INSERT".
+  Nay `hop_le` ĐỌC TỪ ĐĨA (`glob('*.whl')` trên chính thư mục vendored), và RỖNG là
+  LỖI — một tập rỗng làm luật im lặng cho qua mọi gói, tức cổng tự tắt mình.
+  Ablate: giấu wheel `sqlalchemy` → **1 lỗi**, đúng tên bài và đúng tên gói.
+  **Và cơ hội chỉ là MỘT bài, không phải hai:** SY23 cần h5py, mà h5py kéo theo scipy
+  **13,7 MB** — +46% runtime cho một bài. Đo rồi mới bỏ, đừng dựng lại phép tính này.
+  **MỘT KHẲNG ĐỊNH NỮA CỦA TÔI SAI, và nó sai theo chiều tự khen:** tôi viết "soạn 3 ca
+  chấm tại repo" rồi mới đi đọc gói nguồn — "SY24" ở đó CÓ ĐỦ 3 ca, `referenceSolution`,
+  `hints`, `starter`. Thứ chặn nó suốt từ đầu chỉ là MỘT dòng trong `THIEU_WHEEL`.
+  Chú thích ở `bai_tap_cua` (build.py) cũng mang đúng niềm tin sai đó ("chưa ai soạn ca
+  chấm") và đã viết lại. Đọc gói nguồn TRƯỚC khi nói ai phải soạn gì.
+  **VÀ MỘT LỖI THẬT ĐI KÈM, lớn hơn chính việc mở khoá:** `goi_can_tai` trước đây chỉ
+  quét LỜI GIẢI + KHUNG của bài tập, không quét mã BÀI ĐỌC — mà ô "Chạy thử" nối mọi
+  khối đọc thành một chương trình. Đo được **4 bài khai thiếu**: VZ24 và EX01 đọc
+  `pandas` mà chỉ khai `numpy`; SY26 và EX08 không khai gói nào. Nay `bai_tap_cua` nhận
+  thêm `code_doc`. Thiếu khai thì `loadPackage` KHÔNG ném — nó rơi về CDN, và CSP
+  `connect-src 'self'` chặn đường đó trong trình duyệt.
+
+- **CÂU NÓI VÌ SAO: 1 nhánh phản hồi quan trọng nhất chưa ca nào đi qua — và nó là
+  câu người MỚI gặp nhiều nhất.** Pha 1 chứng minh lời giải đúng ĐẠT, pha 2 chứng minh
+  lời giải sai TRƯỢT. Cả hai chỉ đọc cờ `passed`, nên cả hai vẫn XANH khi `detail` rỗng
+  sạch — tức khi học viên trượt mà không biết vì sao. Van der Kleij 2015: phản hồi CÓ
+  GIẢI THÍCH **d = 0,49**, chỉ nói đúng/sai **0,05**.
+  Đo trước khi dựng, trên 1 869 ca trượt của pha 2: **0 ca im lặng** (nội dung lành,
+  1 654 câu KHÁC NHAU / trung vị 59 ký tự — không phải chữ mẫu), nhưng phân theo NHÁNH
+  thì **"Chưa có hàm solve(data)" đi qua 0 lần**. Lý do: mọi biến thể cũ đều ĐỊNH NGHĨA
+  `solve` — kể cả khung trống, vì starter có `def solve(data): pass`. Mà đó đúng là ca
+  người mới gặp nhiều nhất: xoá hàm, đổi tên hàm, viết thẳng mã ở mức module.
+  Nay có biến thể **"đổi tên hàm solve"** (đổi ở CẢ `def` lẫn mọi lời gọi — đổi mỗi `def`
+  thì lời giải đệ quy ném NameError và ca trượt vì nhánh KHÁC, tức phép đo nói dối theo
+  chiều "đã phủ") và **pha 4**: mọi ca trượt phải có câu nói vì sao, và mọi nhánh đã khai
+  phải có người đi qua. 625 → **752 biến thể**; nhánh `thiếu hàm solve` 0 → **418 lượt**.
+  **CỔNG NÀY BẮT ĐƯỢC HAI LỖI CỦA CHÍNH NÓ, cả hai nhờ chạy thật:**
+  · `NHANH_CHUA_DI_QUA` khai "mô phỏng dừng" trong khi `NHANH_PHAN_HOI` không có nhánh
+    nào tên đó — một ngoại lệ trỏ vào hư không, và nếu không kiểm thì nó im lặng mãi;
+  · nhánh ngoại lệ viết `c.includes(': ')` — **bắt-tất**, đúng lỗi đã ghi ở cổng lời
+    đòi. Nó nuốt luôn "Mô phỏng dừng", nên nhánh ấy vĩnh viễn 0 lượt mà bảng vẫn trông
+    đủ. Nay là phép thử DƯƠNG, và **câu không khớp nhánh nào là LỖI** — chính luật đó
+    lộ ra nhánh thứ bảy: hợp đồng BIỂU THỨC có câu so sánh RIÊNG ("Mong đợi … nhưng
+    nhận …"), không phải "Cần có … nhưng nhận …". Hai hợp đồng, hai câu.
+  Ablate 4 chiều: làm RỖNG câu của nhánh thiếu-solve → **418 ca im lặng** · gỡ biến thể
+  mới → **2 nhánh** báo "không ca nào đi qua" (nó cũng là thứ DUY NHẤT chạm nhánh ngoại
+  lệ) · khai khống một nhánh đang sáng là tối → **1 lỗi** "NGOẠI LỆ ĐÃ LỖI THỜI".
+  **Chiều thứ tư ra 0 đỏ, và phải nói ra:** trả nhánh ngoại lệ về bắt-tất → **0 lỗi**,
+  vì thứ nó nuốt ("mô phỏng dừng") đang được khai là tối sẵn. Tác hại của bắt-tất ở đây
+  là TIỀM ẨN — nó hiện ra đúng vào ngày ai đó xoá dòng khai ấy. Đừng đọc "0 đỏ" thành
+  "bắt-tất vô hại".
+  **GIỚI HẠN:** pha 4 kiểm câu KHÔNG RỖNG và đúng NHÁNH; nó không kiểm câu đó có HỮU ÍCH
+  không. Thứ đo được cho việc ấy là 1 656 câu khác nhau / 2 288 ca — một con số mô tả,
+  không phải một hàng rào.
+
+- **Một dữ kiện ĐÚNG mà im lặng về giới hạn của nó thì MỜI người đọc suy sai.**
+  Khi production chưa có thẻ `pe-build`, `check-da-deploy.mjs` chỉ in hai chuỗi
+  `ASSET_VERSION` rồi dừng. Không sai một chữ — và người đọc (là tôi) đã suy:
+  *"2026-10-29a được đưa vào ở `f447d1e` ⇒ production đang chạy `f447d1e`"*, rồi ghi
+  "sau lưng 66 commit" vào chính file này như một SỐ ĐO. Số thật: `9567490`, **sau
+  lưng 15**.
+  Nay cổng in ra cái KHOẢNG: *"production nằm ĐÂU ĐÓ trong 55 commit của
+  [`f447d1e` … `bf44293`); `f447d1e` chỉ là CẬN DƯỚI, KHÔNG phải bản đang chạy."*
+  Đó đúng là câu sẽ chặn tôi lại.
+  **BẪY KHI TÍNH KHOẢNG — lịch sử KHÔNG đơn điệu theo giá trị.** `070886a` (22/10, commit
+  revert) đặt `ASSET_VERSION` **LÙI** về `2026-10-13g`. Nên phải đi theo THỨ TỰ GIT
+  (`--reverse`) và lấy **LẦN CUỐI** một giá trị được đặt; sắp theo ngày trong chuỗi là
+  ra sai. Ablate 5 chiều: giá trị đang live → `[f447d1e … bf44293)` 55 commit (CÓ chứa
+  `9567490`) · giá trị mới nhất → cận trên là `main` · `2026-10-13g` → `[070886a …`
+  (ĐÚNG commit revert, không phải `79c0aaf` ngày 13/10) · `2026-10-13a` → một khoảng
+  KHÁC hẳn · giá trị không có trong lịch sử → nói thẳng "không tính được".
+  **Hai lỗi Windows của chính hàm đó, chỉ lộ khi chạy thật:** `join()` sinh `\` mà
+  `git show <sha>:<đường dẫn>` đòi `/` ⇒ **14/14 lời gọi ném `fatal:`** và khoảng ra
+  rỗng; và `execFileSync` không chặn stderr ⇒ 14 dòng `fatal:` nhổ thẳng ra màn hình
+  trong khi cổng vẫn báo 0 lỗi — một cổng như thế thì không ai tin nữa.
+
+- **BẢNG MỐC NỀN LÀ TÍN HIỆU DỪNG, và nó đã nói sai HAI LẦN mà không gì bắt.**
+  LOOP.md dùng bảng ở trên làm thước đo máy-đọc-được cho "đã xong chưa". Nhưng
+  bảng là CHỮ, và chữ thì trôi:
+  · nó từng ghi **204** ca test frontend trong khi cây mã chỉ có **134** — 70 ca
+    tưởng có mà không có, sống sót vì phép đếm bằng `grep -E "^. pass"` trả RỖNG
+    mà không báo lỗi (bẫy multibyte ghi ở mục đếm phân rã);
+  · và **04/11/2026**: bảng ghi **16** CSS module trong `src/` trong khi có **15**.
+    Con số được đo TRƯỚC khi xoá `ShellA.module.css`, rồi cả hai vào CÙNG commit
+    828d33b. **Hai vòng lặp trôi qua, không bộ kiểm nào thấy** — và chính commit đó
+    là commit dựng cổng chống tài nguyên chết.
+  Nay `node scripts/check-moc-nen.mjs` (có trong CI) tính lại **13 mục** từ
+  `out/lessons.json` và cây tệp rồi đối chiếu với bảng. Nó bắt được con số 15/16
+  **ngay lần chạy đầu tiên**.
+  **PHẢI KHAI CHỖ NÓ KHÔNG VỚI TỚI, và đó là nửa quan trọng hơn.** 518 ca frontend,
+  485 ca backend, 104 lỗi lint, 65 phép kiểm tracer đều cần CHẠY một bộ mới biết, nên
+  cổng in ra hai dòng "NGOÀI TẦM". Im lặng ở đó thì danh sách 13 mục bị đọc thành
+  "bảng đã được kiểm hết" — mà đó đúng là cách con số 204 sống sót.
+  **Regex phải neo vào ĐỦ CHỮ xung quanh:** tìm trần `179` thì cũng khớp "179/179
+  bài" ở hàng "Đã nạp DB chưa", và khi đó cổng xanh vì lý do sai. Và số trong bảng
+  viết kiểu Việt — dấu cách ngăn nhóm nghìn ("2 441"), có chỗ là U+00A0 — nên bóc
+  xong phải bỏ mọi khoảng trắng trước khi so.
+  Ablate 4 chiều: đổi một con số trong bảng → **1 lỗi** · đổi con số có dấu cách
+  nhóm nghìn → 1 · đổi CHỮ của một hàng → 1 (cổng kêu "KHÔNG CÒN DÒNG" thay vì im
+  lặng xanh — thiếu chiều này thì đổi tên một hàng là vô hiệu hoá nó) · thêm một tệp
+  test thật mà không sửa bảng → 1.
+
+- **Nền tảng phải đuổi kịp thư viện mà giáo trình được kiểm trên đó — ĐÃ nâng, giữ thế.**
+  `requirements-tested.txt` của gói gốc ghi matplotlib **3.11.2**, numpy **2.5.4**, pandas
+  **3.1.0**. Pyodide 0.27.7 cũ mang 3.8.4 / 2.0.2 / **2.2.3** — lệch một MAJOR ở pandas, mà
+  pandas 3 đổi cả mặc định chuỗi sang PyArrow. Nâng lên **314.0.7** (Python 3.14.2,
+  matplotlib 3.10.8, numpy 2.4.6, pandas **3.0.2**) đóng khoảng đó, và còn NHẸ hơn: 30 MB so
+  với 32 MB. Hai lỗi do lệch bản — VZ07 (`ax.boxplot(tick_labels=…)` cần matplotlib ≥ 3.9) và
+  VZ03 (`fig.autofmt_xdate()` xung đột `layout="constrained"`) — tự hết.
+  Đừng tin dòng "641 đoạn đạt, 0 lỗi" trong README của gói: nó đúng với nền CỦA HỌ. Thứ nói
+  được sự thật trên nền NÀY là `node scripts/pe-da/check-pyodide.mjs`.
+  Hằng `LECH_PHIEN_BAN` trong `scripts/pe-da/build.py` nay TRỐNG — giữ cái móc lại, lần nâng
+  sau sẽ lại có thứ lệch theo chiều ngược lại. Muốn thử một bản Pyodide khác TRƯỚC khi chép
+  30 MB vào cây mã: `PYODIDE_DIR=<đường dẫn> node scripts/pe-da/check-pyodide.mjs` (cả hai bộ
+  chấm đều nhận biến này), nhớ `npm i --no-save pyodide@<bản>` cho khớp API.
+- **`course.json` có HAI biến thể code cho cùng một khối, lấy nhầm là dạy sai.** `code` là
+  bản đầy đủ dùng để XUẤT HÌNH (`matplotlib.use("Agg")`, `fig.savefig(gettempdir()/…)`),
+  `displayCode` mới là bản gọn viết cho người học (`plt.show()`). 83 khối có cả hai.
+  `code_hoc_vien()` trong build.py chọn đúng bản; bản dựng đầu lấy nhầm `code` và suýt dạy
+  người mới học thói quen lưu hình vào thư mục tạm. Tương tự: `displayExpected`,
+  `displayMode`, và `kind: "terminal"` / `mode: "manual"` đánh dấu khối là LỆNH SHELL —
+  `git clone`, `python -m venv` — không được đưa vào sandbox Python.
+- **Màn đọc có SÁU loại khối, và BỐN chỗ phải đổi cùng lúc.** `paragraph · code ·
+  terminal · figure · table · diagram`. Chúng được khai ở `ReadBlock`
+  (`frontend/src/lib/studio-lesson.ts`), dựng ở `ReadScreen.tsx`, phát ra ở
+  `scripts/pe-da/build.py`, và `LOAI_KHOI` trong `scripts/pe-da/check.py` chặn loại lạ.
+  Bản đặc tả đầu chỉ ghi ba loại, build thêm `figure`/`terminal` sau — 26 bài có hình ném
+  TypeError ngay màn đọc và không ai thấy cho tới khi mở đúng bài đó. `ReadScreen` phải
+  `switch` có nhánh `default` ép `never`.
+  Loại thứ sáu (`diagram`, thêm 29/10/2026) là PHÉP THỬ, hôm nay đúng MỘT bài — xem bẫy
+  "Chữ TRONG sơ đồ không phóng to được" ở dưới.
+  **`trace` (bảng từng bước) KHÔNG phải loại khối thứ bảy — nó là một TRƯỜNG của khối
+  `code`**, và đó là một lựa chọn: bảng nói về đúng một đoạn mã (số dòng trong bảng là số
+  dòng của `block.code` ngay trên nó), nên để nó thành khối riêng là tạo thêm một thứ có
+  thể trôi lệch khỏi khối nó nói về — đúng cái bệnh mà `kiem_so_do` phải sinh ra để chữa
+  cho `diagram`. BỐN chỗ vẫn là bốn: `ReadBlock.trace` + `ReadTrace`, `StepTrace.tsx` dựng
+  từ `ReadScreen`, `vet_cua_bai()` trong build.py, `kiem_vet()` trong check.py.
+- **"Hình" của bốn bài Plotly là file HTML 4,7 MB, không phải ảnh.** VZ20–VZ22 và VZ26 khai
+  `figure` trỏ tới `.html` do Plotly xuất, mỗi file nhúng sẵn cả plotly.js. Chép theo tên
+  file làm `frontend/public/static/da/` phình từ 2,3 MB lên **49 MB**, lại còn vào thẻ
+  `<img>` nên cũng không hiện. `chep_anh()` nay chỉ nhận `.png` và check.py chặn `figure`
+  không phải PNG.
+- **Danh sách module đổi theo bản Pyodide, và đổi theo CẢ HAI chiều.** Đo bằng `importlib`
+  trên chính runtime trong repo, không suy từ tài liệu. 0.27.7 thiếu `lzma`, `ssl`,
+  `sqlite3`; **314.0.7 có cả ba** (bài SY19 dạy nén lzma nhờ đó chạy được). Nhưng `sqlite3`
+  đi ngược: ở 0.27.7 nó là WHEEL phải khai `packages`, ở 314 nó là stdlib — khai nó làm
+  `loadPackage` ném "No known package" và giết cả lần chạy. Nay chỉ `curses` và `tkinter` là
+  thiếu thật, và đó là giới hạn WASM chứ không phải thiếu wheel.
+  **Ba kiểu phụ thuộc mà quét `import` KHÔNG thấy**, đều đã cắn ít nhất một lần:
+  · gọi qua chuỗi — `df.to_excel(..., engine="openpyxl")` (PD13), xem `CHUOI_GOI_THU_VIEN`;
+  · gói dữ liệu ẩn sau stdlib — `tz_convert('Asia/Ho_Chi_Minh')` cần `tzdata` vì `zoneinfo`
+    trong Pyodide là stdlib RỖNG (PD23), xem `GOI_AN`;
+  · thuộc tính phơi ra máy thật — `Path(sys.executable).is_file()` chạy đúng, không ném gì,
+    và trả SAI trong trình duyệt (EX03), xem `THUOC_TINH_MAY`.
+  Cả ba chỉ lộ ra khi CHẠY THẬT. Đó là việc của `check-pyodide.mjs`.
+- **`loadPackage` KHÔNG ném khi thiếu wheel — nó lặng lẽ tải từ CDN.** Giấu thử
+  `pandas-3.0.2-….whl` đi rồi chạy bộ chấm: `loadPackage` resolve bình thường,
+  `loadedPackages` báo có pandas, `import pandas` ra `3.0.2` — vì Pyodide rơi về
+  `cdn.jsdelivr.net`. Nghĩa là ba bộ chấm chưa bao giờ chứng minh được các wheel
+  trong `frontend/public/pyodide/` dùng được: xoá nhầm một cái vẫn xanh CI.
+  Trong trình duyệt thì NGƯỢC LẠI — CSP `connect-src 'self' ${API_ORIGIN}`
+  (`frontend/next.config.ts`) chặn đường CDN đó, nên cùng một wheel thiếu là
+  hỏng cứng với học viên mà CI không hề biết. Cả ba bộ chấm
+  (`pe-da/check-pyodide.mjs`, `pe-v4/check-pyodide.mjs`, `pe-v4/check-advanced.mjs`)
+  nay vá `globalThis.fetch` để TỪ CHỐI mọi địa chỉ `http(s)://`. Đừng gỡ: nó là
+  thứ duy nhất làm hai môi trường nói cùng một chuyện. Kiểm lại bằng cách đổi tên
+  một wheel rồi chạy `node scripts/pe-da/check-pyodide.mjs PD01` — phải ĐỎ.
+- **Lần chạy BỊ CẮT từng trả về đầu ra RỖNG — `terminate()` giết luôn thông điệp 'result'.**
+  Chạy `while True: print("dong", i)` rồi bấm Dừng sau 2 giây: ô kết quả hiện "(Không có đầu
+  ra)" dù chương trình đã in hơn 6 000 dòng, và mục chọn "In vô hạn (cắt đầu ra)" ngay trong
+  trang thì hứa điều ngược lại. Đường Docker cũ không có lỗi này vì máy chủ giữ stdout hộ.
+  Cách sửa: hook stdout của worker `postMessage({type:'partial'})` theo nhịp 200 ms — gửi được
+  dù worker đang bị chặn, vì `postMessage` chỉ xếp hàng còn main thread thì không bị chặn — và
+  `cat()` trong `ide-runner.ts` resolve bằng đợt cuối nhận được thay vì `stdout: ''`.
+  **Cả 173 ca test trước đó đều ĐẠT khi lỗi này còn nguyên**: không ca nào chạm tới đường
+  bị-cắt. Nay có `ide-partial-output.test.mjs` (10 ca).
+  Hai nhãn đi kèm cũng sai và đã sửa: thông báo cắt đầu ra ghi "vượt 1 MB nên bị cắt và chương
+  trình đã bị dừng" — trần thật của worker là 60 000 ký tự MỖI LUỒNG và chương trình VẪN chạy;
+  còn câu "phần đã in ra của lần chạy này mất theo" thì nay không còn đúng. Hằng
+  `IDE_OUTPUT_CAP_CHARS` xuất từ `ide-runner.ts`, và test so nó với con số thật trong worker.
+- **`loadPackage` KHÔNG import, nên 5,62 s của matplotlib từng ăn vào hạn 15 giây.** Đo trên
+  /ide: bài vẽ biểu đồ lần chạy đầu báo "Thời gian chạy: 5,62 s", toàn bộ là
+  `import matplotlib.pyplot` (dựng cache font, chọn backend) — nằm trong mã người học nên tính
+  vào hạn của họ, và một bài vẽ nhiều hình bị cắt vì THƯ VIỆN chứ không vì mã mình. Nay worker
+  import sẵn ngay sau `loadPackage`, TRƯỚC khi bấm giờ: cùng đoạn mã báo **0,04 s**. Phải làm
+  nóng đúng `matplotlib.pyplot` (`LAM_NONG`), vì `import matplotlib` gần như miễn phí.
+- **Cổng ẩn/hiện nút "Thử ngay trong IDE" từng ghi lại kiến trúc ĐÃ BỎ, và nó ngược hẳn.**
+  `ide-brief-code.ts` chặn `matplotlib` và cho qua `threading`/`multiprocessing`/`subprocess`
+  — đúng với ảnh Docker `python:3.12-slim`, sai với Pyodide. Đo lại trên /ide: matplotlib
+  3.10.8 dựng được Figure; `Thread.start()` ném "RuntimeError: can't start new thread";
+  `multiprocessing` thiếu `_multiprocessing`; `subprocess` ném OSError 138. Đã đảo danh sách
+  (17 bài bị chặn, 31 bài còn nút, trong đó có cả 10 bài biểu đồ).
+  **Chọn bài theo IMPORT THẬT, đừng theo tiền tố mã bài**: bản đầu của ca test này dùng P01 vì
+  tưởng "P" là process, nhưng P01 chỉ `import os` nên nó chạy được và phải giữ nút.
+  Phạm vi: hai hàm này chỉ được gọi từ màn `brief` và màn `explain`, mà bộ 172 bài đang xuất
+  bản không có màn nào trong hai màn đó (0/172) — nên hôm nay luật này không ẩn/hiện nút cho
+  người học nào. Vẫn sửa, vì nó sẽ âm thầm sai vào ngày pe-v4 bật lại.
+- **Nhãn phiên bản Python trong giao diện từng ghi cứng 3.12, và nó là nhãn MẶC ĐỊNH.** Màn
+  "Thử thách độc lập" hiện "CPython 3.12" trước lần chạy đầu rồi đổi sang "CPython 3.14.2";
+  trang chủ dán "Python 3.12" lên mọi ô khoá học; một màn còn ghi "CPython 3.11". Luật nay:
+  nhãn nào chỉ MÔ TẢ runtime thì KHÔNG ghi số — số thật đến từ `runtimeStatus` lúc chạy, nhãn
+  dự phòng không có số thì không bao giờ lệch sau một lần nâng Pyodide.
+  `label-version.test.mjs` quét cả `frontend/src` (bỏ chú thích) nên không ghi lại được.
+  Bẫy nhỏ trong chính ca test đó: file trong repo là CRLF, mà `.` của regex không khớp `
+`
+  nên `//.*$` không bóc được chú thích cuối dòng — phải `.replace(/
+/g, '')` trước.
+- **Ô kết quả của bài học hứa chạy `solution.py` trong khi đầu ô ghi `main.py`.** Placeholder
+  trong `SandboxEditor.tsx` ghi cứng tên file thay vì dùng prop `filename`, mà màn "Thử thách
+  độc lập" truyền `main.py` — hai tên cho một file, cạnh nhau trên cùng màn hình.
+- **Mở một bài học còn gọi BA lượt API TUẦN TỰ ở phía client — 3,7 giây trước khi có chữ.**
+  Đo trên production bằng Resource Timing (API đã nóng): `/api/user` 1198 ms → `/api/enrolled`
+  1286 ms → `/content` 1239 ms, nối đuôi nhau. Nay cả ba trong một `Promise.all` → còn một
+  lượt, ~1,3 giây. Đo lại ở máy: ba lượt bắt đầu cách nhau **1 ms**.
+  **Chú thích cũ nói phải gọi tuần tự, và lý do đó KHÔNG đứng:** nó viết "với người mới,
+  request đầu tiên là request tạo tài khoản khách". Nhưng `apiFetch` gặp 401 thì gọi
+  `refreshAccess()` rồi `ensureGuest()` — CẢ HAI dedupe bằng promise ở tầm module — rồi GỬI
+  LẠI request. Đã kiểm trong một ngữ cảnh trình duyệt sạch: ba lượt 401 → đúng **MỘT**
+  `/auth/guest` → cả ba tự gửi lại. Một tài khoản, không ba.
+  `/content` được phép 403 (người mới chưa ghi danh): nhánh ghi danh lo, rồi gọi lại content.
+  Người MỚI trả thêm một lượt, người ĐANG HỌC — ca thường — tiết kiệm hai lượt.
+  **Phép nhận diện 403 phải có HAI dấu hiệu**, vì mỗi cái một mình đều mong manh: `json()`
+  dựng Error từ *thông điệp* backend, nên khi backend có message thì chuỗi "403" KHÔNG xuất
+  hiện, còn khi không có message thì nó mới ghép `(403)`. Và phải `403` chứ không
+  `includes('403')` — nếu không thì một lỗi 500 của bài sortOrder 4030 cũng bị nuốt.
+  Hàm nằm ở `frontend/src/lib/lesson-load.ts` (không trong hook: logic trong hook là logic
+  không có test), `lesson-load.test.mjs` 7 ca.
+- **Mở một bài học từng đi BA vòng DB tuần tự — và `.env.example` hứa một bộ cache KHÔNG tồn
+  tại.** `getLessonContent` gọi lần lượt `enrollment` → `lesson` → `lessonProgress`. Đo trên
+  chính DB đang dùng (trung vị 9 lượt): **150 ms**. Nay `enrollment` chạy SONG SONG với
+  `lesson`, và tiến độ gộp vào truy vấn lesson bằng quan hệ `Lesson.lessonProgress` → **99 ms,
+  nhanh hơn 34%**. Mỗi lượt mở bài đi qua đây đúng một lần, nên đây là 51 ms mà MỌI học viên
+  trả ở MỌI bài.
+  **`$transaction([...])` CHẬM HƠN, đừng dùng nó để gộp truy vấn đọc:** đo được 251 ms, tức
+  +101 ms so với bản cũ, vì transaction tương tác thêm vòng BEGIN/COMMIT.
+  **Giá phải trả, có chủ đích:** người CHƯA ghi danh cũng làm tốn một truy vấn lesson rồi mới
+  bị 403. Không lộ gì vì hàm throw trước khi dùng tới nó — và ca test tương ứng đã viết lại cho
+  đúng tính chất: nó kiểm "KHÔNG trả nội dung ra", không kiểm "đã gọi mấy truy vấn" (một chi
+  tiết hiệu năng mà mỗi lần tối ưu lại phải sửa test).
+  **Phải tách `lessonProgress` khỏi `lesson` trước khi trả về:** hàm return `{ ok, lesson,
+  completed }` với `lesson` nguyên đối tượng, để nguyên là bê một mảng `[{lessonId}]` vào
+  response và đổi hình dạng API mà không ai yêu cầu.
+  **Và fixture test phải mang hình dạng MỚI:** `lessonProgress` nằm TRONG hàng lesson. Để nó
+  ra ngoài như truy vấn cũ thì `completed` luôn false, và ca "đã hoàn thành → được xem lời
+  giải" vẫn ĐẠT vì lý do sai — đúng họ bẫy fixture mà file này đã ghi ở trên.
+  `LESSON_CACHE_TTL_MS` / `LESSON_CACHE_DISABLED` đã bỏ khỏi `.env.example`: không mã nào đọc
+  chúng và `git log -S` trên `src/` không có commit nào — bộ cache đó chưa bao giờ được làm,
+  nên dòng hứa "giảm ~550 ms mỗi lần mở bài" là tài liệu nói sai suốt từ đầu.
+- **Kho quiz chấm Ở SERVER từng RỖNG HOÀN TOÀN — 0/172 bài có câu hỏi.** Đây là phần duy
+  nhất của hệ thống chấm mà client không giả mạo được: `submitQuiz` chấm theo SNAPSHOT trong
+  DB, `stripAnswers` không gửi `correct`/`explanation` ra ngoài, và mỗi đề chỉ nộp được một
+  lần. Vậy mà nó không có câu nào để ra đề. Nay 516 câu (3 mỗi bài) lấy từ 1032 câu NGƯỜI VIẾT
+  của gói practice.
+  **Lệch ở ĐÚNG ba tên, và lệch IM LẶNG.** Gói dùng `prompt` / `correctOption: '<id>'` /
+  `feedback`; `normalizeQuestion` đòi `question` và tìm `options[].correct === true`, frontend
+  thì đọc `text` + `detail`. `normalizeQuestion` trả `null` cho mọi câu thiếu `question`, nên
+  đưa nguyên hình dạng của gói vào là kho quiz CỨ RỖNG — không ngoại lệ nào được ném, không
+  log nào đỏ. Phép đổi tên nằm ở `cau_trac_nghiem()` trong build.py, KHÔNG phải thêm nhánh
+  vào service: service đã đọc đúng hình dạng mà cả dự án dùng.
+  **`correct: False` không được phát ra**, chỉ `correct: True` trên đúng một lựa chọn —
+  `findIndex(o => o.correct === true)` chạy đúng khi lựa chọn sai không có khoá đó.
+  **3 câu mỗi bài, không phải 6.** Gói có 6 (1 gốc + 5 biến thể). Phát hết là thêm 6 màn vào
+  mỗi bài; và vì mỗi bài chỉ có MỘT gốc câu hỏi, câu thứ 4–6 vẫn hỏi cùng một thứ. Con số 3
+  khớp pe-v4, nên hệ quả "phải xong 2 bài mới mở được quiz ôn" (MIN_POOL = 5 CÂU) vẫn đúng.
+  Ba biến thể còn lại GIỮ trong `source/practice.json` có chủ đích: bài thi vượt module sau
+  này phải dùng câu người học CHƯA thấy trong bài.
+  **Đề ôn không được lấy hai câu CÙNG MỘT BÀI khi còn bài khác** (`pickSpreadByLesson`): 3 câu
+  của một bài là 3 biến thể cùng gốc, nên bốc đều trên pool thì học viên xong 2 bài nhận đề 5
+  câu rất dễ gặp 3 câu hỏi cùng một chuyện — và họ đọc ra điều đó là "đề bị lặp". ƯU TIÊN chứ
+  KHÔNG bắt buộc: siết thành luật cứng thì đề 5 câu cần 5 bài, trong khi `MIN_POOL` chỉ hứa 5
+  CÂU. Ablate: bỏ luật → 2 ca đỏ; siết thành luật cứng → 9 ca đỏ. `sample()` (Fisher-Yates) đã
+  xoá vì không còn chỗ nào gọi.
+  **Ca test backend KHÔNG chứng minh được build.py chọn đúng đáp án** — nó so `correct` của
+  snapshot với vị trí lựa chọn mang cờ trong BẢN DỰNG, tức so bản dựng với chính nó. Đã ablate:
+  đổi build.py sang đánh dấu lựa chọn ĐẦU TIÊN là đúng thì cả 30 ca backend vẫn XANH. Thẩm
+  quyền về đáp án nằm ở `correctOption` của nguồn, nên phép so đó ở `kiem_trac_nghiem()` trong
+  check.py (4 luật, ablate cả 4 đều đỏ).
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** trước đây pe-da không có màn nào được chấm nên điểm bài
+  luôn 100% và XP được trả bất kể hiểu hay không. Nay 3 câu được chấm mỗi bài, nên trả lời sai
+  là điểm dưới 100 và XP ít hơn. Thời lượng khoá 1 836 → 2 352 phút (1 phút/câu), và
+  `catalog.ts` phải đi theo — `catalog-duration.test.mjs` cộng từ bản dựng thật nên nó bắt.
+  **Một lỗi màn-hình-trắng có thật đã sửa nhân dịp này.** `screenVerdict` dùng
+  `Number.isInteger(picked)` để chặn index xấu, mà `keyIndex('')` trả **-1** và
+  `Number.isInteger(-1)` là TRUE — nên nó gọi `optionDetail(q.options[-1])` và ném TypeError.
+  Bộ test đã GHI NHẬN đây là "KHIẾM KHUYẾT ĐÃ BIẾT" và khoá đúng hành vi ném đó, kèm câu dặn
+  phải đổi assert khi sửa. Hàng rào duy nhất trước đây là nút "Kiểm tra" bị disable bởi
+  `answered()`, và nó KHÔNG chặn được nháp cũ trong localStorage giữ khoá của bản bài có nhiều
+  lựa chọn hơn — học viên đó mở bài là crash, mãi mãi. Nay `picked >= 0` và `optionDetail` nhận
+  `undefined`.
+
+- **Vị trí đáp án trắc nghiệm từng được XOAY THEO CÔNG THỨC, không trộn — và nó làm 46 bài
+  không đo được gì.** Đo trên `source/practice.json`: 1 032 câu, tất cả đúng 3 phương án, mà
+  **519 câu (50,3%) có đáp án ở vị trí 1** (ngẫu nhiên phải ~33%); cả 172 bài chỉ sinh ra
+  **8 dãy vị trí khác nhau**, câu đầu mỗi bài chạy đúng chu kỳ 1→3→2. Hệ quả: bấm "a" cho mọi
+  câu đúng **6/6 ở 16 bài, 5/6 ở 30 bài**. Nay `tron_vi_tri_dap_an()` trong build.py trộn
+  NGẪU NHIÊN CÓ PHÂN TẦNG: 516 câu đang phát về **32,8 / 34,1 / 33,1 %**, 0 bài bấm "a" được
+  ≥2/3, số dãy 8 → 11. Kho hậu kiểm (`src/quizzes/post-test-bank.json`) có cùng bệnh và cùng
+  thuốc: 51,2% → 32,4 / 35,1 / 32,6 %, 46 bài → 0.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** điểm trắc nghiệm sẽ GIẢM, vì mẹo "luôn bấm phương án
+  đầu" mất tác dụng. Đó là mục đích, không phải tác dụng phụ.
+  **PHÂN TẦNG chứ không ngẫu nhiên thuần, và đã ablate:** với đề 3 câu, xác suất cả 3 cùng vị
+  trí là 1/9 — đổi sang `rng.randrange()` thì **23/172 bài** có cả 3 câu cùng một vị trí, tức
+  23 bài trông y như bệnh cũ với người học mà không ai biết là tình cờ.
+  **Seed phải CỐ ĐỊNH và KHÔNG được là `hash()` dựng sẵn.** Với chuỗi, `hash()` băm theo
+  PYTHONHASHSEED ngẫu nhiên mỗi tiến trình, nên `random.Random(hash(ma_bai))` ra kết quả KHÁC
+  mỗi lần dựng — mỗi lần build lại là một lần đổi đáp án của học viên đang học dở, và
+  `update-lesson-content.ts` (in sha256 cũ → mới) hết so được. Nay seed là
+  `f'{SEED_TRON}/{ma_bai}'`; kiểm bằng cách dựng hai lần và so md5 `out/lessons.json`.
+  **`feedback` phải đi THEO phương án, không theo vị trí** — lỗi im lặng tệ nhất ở khâu này:
+  học viên chọn sai rồi đọc lời giải thích của một phương án khác, không gì đỏ. Ablate (giữ
+  `feedback` theo vị trí): check.py **900 lỗi**, build_posttest **826**.
+  **Phương án là DÃY SỐ thì SẮP TĂNG, không trộn** (`la_day_so()`): với `12 / 11 / 1` thì thứ
+  tự là manh mối hợp lệ, và thứ tự của một dãy số do con số quyết định chứ không do người
+  soạn. 98/1032 câu rơi vào nhóm này, và chỉ 24 trong số đó đang được trình bày theo thứ tự.
+  Giá: vị trí của chúng dồn về GIỮA (10/62/26) vì nhiễu hay kẹp hai bên đáp án — đó là tính
+  chất của NỘI DUNG, nên luật "không bài nào có cả 3 câu cùng vị trí" MIỄN TRỪ bài mà MỌI câu
+  là dãy số. Hôm nay đúng **1 bài** (NP16); một câu không phải dãy số là hết miễn trừ.
+  **Hai phép so với nguồn phải chuyển từ VỊ TRÍ sang CHỮ, ở hai file.** `kiem_trac_nghiem()`
+  (check.py) và `kiem_dap_an()` (build_posttest.py) so `options[i].text` theo chỉ số — để
+  nguyên thì 1 531 lỗi GIẢ nổi lên và không lỗi thật nào bị bắt. Nới đúng MỘT bậc: tập chữ
+  phải khớp (sửa/thêm/bớt một phương án vẫn đỏ), còn đáp án thì so bằng CHỮ của phương án mà
+  `correctOption` trỏ tới — nên phép so vẫn chạm tới NGUỒN.
+  **`kiem_khong_trung()` phải so bộ lựa chọn KHÔNG theo thứ tự** (frozenset), vì hai kho trộn
+  bằng hai seed; nhưng bộ TOÀN SỐ được miễn — NP07 có bốn câu khác nhau (`a.size`, `a.shape`,
+  `len(a)`, đếm số đo) trên cùng mảng 3×2 nên cả bốn đều có phương án {2, 3, 6}. Luật cũ bỏ
+  qua chúng nhờ thứ tự khác nhau, tức nhờ tình cờ.
+  Ablate phép trộn hẳn: `check.py --strict` **17 lỗi** (15 bài dồn một vị trí + 2 luật phân
+  bố). Ba bẫy còn lại của VAN-PHONG.md §8 M2 nằm ở `kiem_phuong_an()`: cấm "tất cả đều đúng"
+  (nguồn có 0 câu — luật canh gói SAU), trần 21 câu có đáp án dài hơn hẳn mọi nhiễu (khiếm
+  khuyết NỘI DUNG, phép trộn không chữa được — **chỉ được hạ**), và tỉ lệ nhiễu-giống-nhất
+  đứng liền trước đáp án: 24,8% trước (THẤP hơn tình cờ vì đáp án hay ở vị trí 1, nơi không
+  có "liền trước") → **32,6%**, đúng mức tình cờ 33,3%.
+
+- **Khoá 172 bài từng KHÔNG có một ca chấm nào, và bốn chỗ cùng ghi lại giả định đó.**
+  Đếm trên bản dựng ngày 26/10: 172/172 bài có `step_4.task`, 145 bài có `starterCode`, và
+  **0 bài** có `step_4.tests`. `step_2.practice` chỉ hiện đáp án mẫu. Người thử viết code rồi
+  tự so bằng mắt — đúng thứ cố vấn dự án gọi là tính năng lõi thì không có. Gói nội dung mới
+  mang 138 bài tự làm kèm 419 ca chấm thật và lời giải tham khảo cho từng bài.
+  **Hai hợp đồng ca chấm nay cùng tồn tại, và chúng KHÔNG thay nhau được:**
+  · BIỂU THỨC (`{name, call, expect}`) — hai chuỗi eval trong namespace học viên rồi so `==`.
+    pe-v4 cần nó để gọi `_studio.run(...)`, dựng fixture, đọc timeline thread/process. 427 ca.
+  · DỮ LIỆU (`{name, input, expected}`) — giá trị JSON thuần, mỗi ca chạy LẠI chương trình
+    trên namespace mới. 415 ca của 124 bài pe-da.
+  Bộ chấm phân nhánh theo **TRƯỜNG CÓ MẶT** (`'call' in case`), không theo một cờ riêng: một
+  cờ riêng là thứ thứ hai phải khớp, và nó sẽ lệch.
+  **Vì sao không quy hết về `==`:** đã đo, 65/389 ca trượt OAN, cả 65 vì hai chuyện máy móc.
+  JSON không có tuple nên `(8,3) == [8,3]` là False (8 ca: NP07/PY11/RD01); và
+  `np.array([1,2]) == [1,2]` trả về MẢNG, rồi `bool()` của nó ném "truth value of an array
+  with more than one element is ambiguous" (19 ca, 8 bài NP*) — học viên viết đúng mà nhận
+  lỗi numpy. Nên `_chuan_gia_tri`/`_bang_du_lieu` là bản CHÉP ngữ nghĩa từ
+  `practice/worker.py` của gói: 419 `expected` được VIẾT theo chúng, nghĩ ra cách chuẩn hoá
+  khác là tự tạo lệch. Giữ cả nhánh trông như dư (NAType/NaTType, float không hữu hạn).
+  **`_execute(inject=...)` là thứ thứ ba, khác cả `vars` lẫn `setup`:** `vars` thay VẾ PHẢI
+  một dòng gán đã có, `setup` chạy SAU mã học viên, `inject` đặt tên vào namespace TRƯỚC.
+  Cần cho 12 bài `mode: "script"` (đề cấp `raw`, học viên gán `total` — mã họ không có dòng
+  gán `raw` nào). Lần chạy CHÍNH cũng phải được tiêm: thiếu là 12/12 bài chết ở NameError
+  trước khi ca nào kịp chạy, vì vòng chấm nằm sau `if error is None`.
+  **BỐN chỗ ghi lại giả định "bộ đọc không có ca chấm", và mỗi chỗ chặn một kiểu:**
+  `scripts/pe-da/check.py` (128 lỗi), `frontend/e2e/unit/studio-lesson.test.mjs` (một
+  `assert.equal(l.step_4?.tests, undefined)` cho cả 172 bài),
+  `src/course-admin/studio-lesson.schema.ts` (từ chối cả 124 bài với "thiếu biểu thức gọi
+  hàm" — đây là CỬA DUY NHẤT vào DB, nên một bộ chấm chạy đúng trong trình duyệt mà không có
+  đường nào tới học viên), và `ide-brief-code.ts`/`answer-key.ts`/`chrome.tsx` (`t.call`
+  không còn chắc chắn tồn tại). Thêm hợp đồng mới thì phải đi hết bốn chỗ.
+  **Cổng của bài TẬP nới hơn cổng của bài ĐỌC, có lý do:** `phan_loai_khoi(cho_mo_phong=True)`
+  cho qua `threading`/`subprocess`/`multiprocessing` vì harness MÔ PHỎNG chúng và ca chấm chỉ
+  hỏi GIÁ TRỊ TRẢ VỀ. Bài đọc phải nghiêm hơn vì nó so đầu ra với dòng "Kết quả:" tác giả
+  ghi, mà mô phỏng in khác bản thật ở PID và thứ tự thread. Nới quá tay thì
+  `check-practice.mjs` đỏ — nó chạy đúng những bài tập build phát ra.
+  **13 bài không chấm được:** openpyxl (PD13), seaborn (VZ16-19), plotly (VZ20-22),
+  ipywidgets (VZ23), h5py (SY23) — chưa vendor wheel (SY24 đã mở khoá 04/11);
+  CT07/CT08/EX04 vì `sys.executable` (bẫy "thuộc tính phơi ra máy thật" ở trên). Chúng giữ ô
+  chạy thử như cũ. CT10/CT11 thì ngược: code bài đọc phải chạy trên máy nhưng bài tập chấm
+  được tại đây, nên chúng PHẢI mang `env` nói rõ — không thì mất hẳn hướng dẫn "chạy trên
+  máy" mà nhánh `local` của `dung_sandbox` vốn in ra.
+  **Giá phải trả, có chủ đích:** 124 bài MẤT ô "sửa số liệu rồi chạy lại". Mọi đoạn code của
+  bài đã hiện kèm kết quả ở màn đọc, muốn thử tự do thì có `/ide`, còn chấm thì không chỗ nào
+  khác làm được.
+  **Pha "lời giải SAI phải trượt" không phải cho đủ bộ.** Ablate 7 mảnh của hợp đồng: 5 mảnh
+  gỡ ra làm pha 1 đỏ, nhưng `returnType` và "dict thừa khoá cũng là sai" gỡ ra pha 1 VẪN
+  XANH — lời giải ĐÚNG không bao giờ trả sai kiểu hay thừa khoá. Thêm hai biến thể BỌC quanh
+  lời giải mẫu (giữ nguyên giá trị, chỉ đổi hình dạng) thì cả 7 mảnh đều đỏ: 9 / 60 / 1 / 27
+  / 54 / 12 / 2 vấn đề.
+  **Luật "khung trống phải trượt HẾT" là SAI** và đã viết lại sau 5 dương tính giả: PY16,
+  NP17, VZ30, SY03, SY13 mỗi bài có một ca "đầu vào rỗng → null" mà `pass` trả đúng None. Ca
+  đó không sai — đáp án đúng cho "chưa có số đo" thật là không có kết quả. Luật đúng: khung
+  trống không được đạt ca có `expected` KHÁC null, và không được đạt hết. Cùng lý do,
+  `studio-lesson.schema.ts` phải kiểm KHOÁ CÓ MẶT chứ không kiểm giá trị khác null.
+  **Khung trống chỉ là MỘT hình dạng của "chưa làm gì", và họ đó cắn 38 bài.** Pha 2 nay thử
+  thêm hai nhóm biến thể TẦM THƯỜNG: dội nguyên đầu vào ra (`return data`, hoặc
+  `total = raw` với bài `mode: "script"`) và trả giá trị RỖNG theo đúng kiểu của đáp án
+  (`[]`, `{}`, `0`, `''`, `False`, `None`). Luật giữ nguyên, không nới một li: đạt ca có
+  `expected` KHÁC giá trị tầm thường ấy là LỘ ĐÁP ÁN; đạt đúng ca mà `expected` BẰNG chính nó
+  là tự nhiên, chỉ ghi nhận. Đo được: **50 lần** ở **38 bài**, và một bài — SY20 — bị
+  `return data` đạt **3/3** vì bài là round-trip qua ZIP nên đáp án đúng BẰNG đầu vào. Mỗi
+  bài trong 38 bài đó nhận THÊM một ca mà lời giải tầm thường trượt (377 → 415 ca).
+  **Bốn ca mới bắt được lời giải mà CẢ BỘ CŨ cho đạt** — đây là phần đáng giá, không phải con
+  số: · VZ30 `if event.xdata and event.ydata` (truthiness thay cho `is not None`) đạt 4/4 ca
+  cũ, trượt ca "tọa độ 0 vẫn là lựa chọn hợp lệ"; · SY16 `line.rstrip('\n')` đạt 3/3, trượt
+  ca "dòng kết thúc kiểu Windows" (còn lại một `\r`); · SY18 trả `found` mà không `sorted`
+  đạt 3/3, trượt ca "nhiều file cùng cấp phải xếp theo tên" — `os.walk` trả theo thứ tự TẠO
+  file, hai ca cũ tình cờ đã đúng thứ tự; · SY20 `return data` đạt 3/3, trượt ca "tên kèm
+  byte null bị zipfile cắt khi ghi" (`ZipInfo.__init__` cắt tên ở byte NUL — đo trong chính
+  Pyodide 314), và ở một bài round-trip thì đó là thứ DUY NHẤT phân biệt được "đã đi qua
+  zipfile" với "dội lại đầu vào".
+  34 bài còn lại chỉ đổi mẫu số (1/3 → 1/4): ca mới làm lời giải tầm thường trượt thêm một
+  ca, không bắt thêm lỗi nào khác. Và ca "đầu vào rỗng → null/[]/0" thì KHÔNG xoá được — đáp
+  án đúng cho "chưa có số đo" thật là không có kết quả — nên người học chưa viết gì vẫn thấy
+  1 ca xanh. Muốn hết thì phải sửa Ô KẾT QUẢ (đừng tô xanh khi chưa có hàm `solve`/biến kết
+  quả), không phải sửa dữ liệu ca chấm.
+  **`check-practice.mjs` đọc BẢN DỰNG, không đọc `source/practice.json`:** giữa gói và học
+  viên có một cổng lọc (`bai_tap_cua`) và một phép chuyển hình dạng, nên kiểm nguồn thì một
+  lỗi của build.py không làm đỏ ở đâu cả.
+  **Đã xem thật trong Chrome,** không chỉ chạy bằng Node: module worker nạp được, CSP của file
+  worker không chặn, `contract` sống qua `postMessage` (bài script tiêm được `raw`, đọc được
+  `total`), tuple/numpy/isclose đều đúng, lời giải sai bị đánh trượt, 2–6 ms mỗi lượt. Chính
+  lần xem đó bắt được hai chuỗi người học đọc bị MẤT DẤU ("Dat:", "Can co 15 nhung nhan 7.5")
+  — thứ không bộ test nào canh vì chúng chỉ là chuỗi hiển thị.
+
+- **Hạn phiên nay KHÁC NHAU theo loại tài khoản, và đó là một lựa chọn an ninh có chủ đích.**
+  Đợt thử nghiệm cố ý không bắt đăng nhập, nên với người thử, refresh token CHÍNH LÀ thứ duy
+  nhất giữ tiến độ: hết hạn là `apiFetch` rơi xuống `ensureGuest()` và cấp một tài khoản MỚI —
+  họ thấy như mất sạch. Production đặt `JWT_REFRESH_EXPIRES=24h`, nên ai quay lại hôm sau cũng
+  mất. Nay khách `@guest.local` đi theo `JWT_GUEST_REFRESH_EXPIRES` (mặc định **30d**), tài
+  khoản thật giữ nguyên `JWT_REFRESH_EXPIRES`.
+  **Vì sao KHÔNG nâng hạn chung lên 30 ngày:** làm vậy là nới cửa sổ dùng được của một cookie
+  bị đánh cắp cho đúng những tài khoản CÓ GÌ ĐỂ MẤT — quản trị viên và tài khoản mang hash
+  Werkzeug từ bản Django. Tài khoản khách không mật khẩu (không đăng nhập lại bằng cách khác
+  được), không thông tin cá nhân, chỉ có tiến độ bài học.
+  **Chỗ duy nhất phân biệt là `lifetimeMsFor(email)`** trong `refresh-token.service.ts`; hằng
+  `HAU_TO_KHACH` export từ đó và `auth.service.ts` import lại để dựng email, nên hai nơi không
+  lệch nhau được. Hàm THUẦN, không truy vấn: mọi chỗ gọi đều đã có email trong tay, nên
+  `rotateAndBlacklist` lấy email bằng `include` trong CÙNG vòng DB đang có, không thêm vòng mới.
+  **Cửa sổ là TRƯỢT nên hạn phải tính lại ở MỖI lần rotate**, không chỉ lúc cấp đầu — nếu
+  không thì người thử vẫn mất tiến độ, chỉ là đúng 30 ngày sau thay vì 24 giờ.
+  **Bản sửa nửa vời dễ trông như xong:** tính đúng hạn ở `AuthService` nhưng để controller đặt
+  cookie bằng hằng `lifetimeMs`. Khi đó body nói 30 ngày, cookie chết sau 8 giờ, và API khẳng
+  định ngược lại điều đang xảy ra. `moveRefreshToCookie` phải lấy CẢ cookie lẫn
+  `refreshExpiresIn` từ cùng `refreshExpiresInMs` của chính lần cấp đó — đúng bài học của vụ
+  lệch 8h/24h ngày 25/10, chỉ khác là lần này lệch theo LOẠI TÀI KHOẢN nên còn khó thấy hơn.
+  `refreshExpiresInMs` (milliseconds) là chi tiết nội bộ, hợp đồng ra ngoài là `refreshExpiresIn`
+  tính GIÂY; để lọt cả hai thì sớm muộn client đọc nhầm đơn vị — lệch 1000 lần theo chiều NỚI
+  hạn, tức đúng chiều nguy hiểm.
+  **Mock ConfigService phải phân biệt KHOÁ.** `refresh-token.service.spec.ts` từng dùng
+  `{ get: () => '8h' }` — trả '8h' cho mọi khoá, nên `jwt.guestRefreshExpires` cũng thành 8 giờ
+  và MỌI ca so "khách khác tài khoản thật" đều vô nghĩa mà vẫn XANH. Cùng họ bẫy fixture ghi ở
+  trên. 5 ca canh chỗ này (`refresh-token.service.spec.ts` 2, `refresh-expires-contract.spec.ts`
+  2, `auth.guest.spec.ts` 1); ablate `lifetimeMsFor` → 2 đỏ, ablate cookie → 1 đỏ.
+
+- **Bộ chạy Python ở MÁY CHỦ đã bị xoá (25/10) — và chỗ duy nhất không được xoá cùng.**
+  `src/python-runner/`, `runner/`, `docker/py-sandbox/` đi hết; `/ide` nay chạy Pyodide trong
+  trình duyệt. Xác nhận trên production TRƯỚC khi xoá: `/ide` chạy `print(sys.version)` ra
+  `3.14.2 … emscripten` trong 0,01 s, ghi vết 17 bước, và DevTools cho thấy **0 request nào
+  tới `/api/python/*`**.
+  **Chỗ phải cứu trước khi xoá:** `src/python-runner/tracer/pe_tracer.py` là NGUỒN sinh ra
+  `frontend/public/static/py/pe_tracer.min.py` — file worker `/ide` fetch mỗi lần bấm "Xem
+  từng bước". Nay nằm ở `scripts/tracer/`, cạnh `build-tracer-source.mjs`. Nếu có ai dời nó
+  nữa thì `frontend/e2e/unit/tracer-web-sync.test.mjs` đỏ kèm đúng câu phải làm (nó nằm ở bộ
+  test FRONTEND có chủ ý — bộ canh cũ `tracer-source.spec.ts` đã bị xoá cùng module).
+  Bẫy kèm theo khi dời: `pe_tracer_test.py` tính ROOT bằng BA lần `..` (đúng cho
+  `src/python-runner/tracer/`), dời lên một tầng mà không sửa thì nó trỏ ra ngoài repo và chết
+  với `CalledProcessError`. Nay hai lần.
+  **Biến môi trường đã bỏ, 14 cái:** `PY_SANDBOX_IMAGE`, `PY_RUN_TIMEOUT_MS`,
+  `PY_RUN_MAX_CONCURRENT`, `PY_RUN_QUEUE_TIMEOUT_MS`, `PY_RUN_QUEUE_MAX`, `PY_RUN_MEMORY`,
+  `PY_RUNNER_MODE`, `PY_RUNNER_PUBLIC`, `RUNNER_URL`, `RUNNER_SECRET`, và bốn biến throttle
+  của hai route đó (`THROTTLE_PY_RUN_LIMIT/TTL_SECONDS`, `THROTTLE_PY_TRACE_LIMIT/TTL_SECONDS`
+  — chúng chỉ còn được validate, `throttle.config.ts` không hề đọc).
+  **Bài học KHÔNG được xoá theo:** `config.get<number>()` chỉ ép kiểu lúc BIÊN DỊCH, nên biến
+  số không khai trong `env.validation.ts` giữ nguyên dạng CHUỖI và code đi cộng chuỗi. Sự cố
+  13/10/2026 do đúng chuyện đó (`"30000" + 10000 + 10000` → `"300001000010000"` →
+  `AbortSignal.timeout` ném TypeError → 503 trong khi dịch vụ phía sau vẫn khoẻ). Biến gây ra
+  nó đã xoá, bài học thì chuyển lên đầu schema và `env.validation.spec.ts` chuyển sang canh
+  các biến số CÒN LẠI.
+  **Nửa FRONTEND cũng đã dọn:** không còn `ideRunnerMode()`, không còn cờ
+  `NEXT_PUBLIC_IDE_RUNNER` lẫn `?runner=server`, `runner-error.ts` (`isRunnerDown`) và bộ test
+  10 ca của nó đi cùng. `needsLinkConfirm` nay nhận `(source, referrer?)` — tham số `mode` đã
+  bỏ. Union `kind` của lỗi thu hẹp: `IdeClient` còn `unavailable | other` (hai loại cũ
+  `private` cho 401 và `busy` cho 429 không còn nguồn nào sinh ra), `CodeVisualizer` còn
+  `infra | other`.
+  Một chi tiết tưởng là lỗi mà không phải: nhánh client KHÔNG gọi `setIndex(0)` trong khi
+  nhánh máy chủ có — nhưng dòng đầu của chính hàm đó đã `setIndex(0)` rồi, nên lời gọi ở nhánh
+  máy chủ là DƯ, không phải thứ bên client bị thiếu. Kiểm trước khi "sửa".
+  **Dọn tới đây mới hết:** `@ThrottleMessage` nay KHÔNG controller nào dùng (route cũ là chỗ
+  duy nhất) — nhánh đọc decorator trong `custom-throttler.guard.ts` đang ngủ, giữ lại vì nó là
+  cách duy nhất để một route nói câu 429 riêng. `docs/azure-runner-plan.md` (909 dòng) được
+  ĐÁNH DẤU lỗi thời chứ không xoá: phần nghiên cứu chi phí còn giá trị cho ngày cần chạy mã ở
+  máy chủ thật. Mục 6 của `docs/deploy-runbook.md` đã viết lại.
+- **`build-tracer-source.mjs` HỎNG từ 25/10 tới 28/10, và bộ canh lệch không thấy được.**
+  Nó ghi `src/python-runner/tracer/tracer-source.ts` TRƯỚC rồi mới ghi bản cho trình duyệt,
+  mà thư mục đó bị xoá cùng bộ chạy máy chủ — `mkdirSync` chỉ chạy cho đích WEB và chạy
+  SAU, nên script chết `ENOENT` trước khi ghi được gì. Hệ quả: suốt ba ngày **không ai
+  sinh lại được `pe_tracer.min.py`** — tức sửa `scripts/tracer/pe_tracer.py` là sửa vào
+  một file không có đường nào tới trình duyệt. `tracer-web-sync.test.mjs` bắt được "hai
+  bản LỆCH" nhưng không bắt được "không có cách nào làm cho khớp": nó so hai file, và hai
+  file đó vẫn khớp nhau ở bản cũ. Nay chỉ còn MỘT đích (bản nhúng TS không còn ai import,
+  đã grep). Kiểm lại: `node scripts/build-tracer-source.mjs` phải in ra số byte, và chạy
+  hai lần phải ra file giống nhau từng byte.
+- **Hai trần của tracer từng được biện minh bằng hạ tầng ĐÃ XOÁ — và một trong hai làm
+  MẤT HẲN vết.** `maxBytes` 700 KB vì *"Node giữ tối đa 1 MB mỗi luồng (MAX_BUFFER trong
+  `docker-sandbox.ts`)"*, `timeBudgetMs` 6 500 vì *"container bị giết ở 10 s"*. Không còn
+  luồng Node nào, không còn container nào. Và cái giá không phải một chú thích lỗi thời vô
+  hại: **6 500 > trần 5 000 ms của bài học** (`DEFAULT_LIMITS.execMs` trong
+  `runner/types.ts`), nên trên đường đó tracer KHÔNG BAO GIỜ tới được trần của chính mình
+  — `terminate()` tới trước, và `terminate()` thì không có thông điệp `result` nào mang
+  vết về. Người học nhận **ô TRỐNG** thay vì vết một phần. Đúng họ bẫy "`terminate()` giết
+  luôn thông điệp 'result'" ghi ở trên, lần này ở đường ghi vết.
+  Nay `maxBytes` **1 536 KB** và `timeBudgetMs` **4 000** — đo trong module worker THẬT
+  (`node scripts/tracer/do-settrace.mjs`, Pyodide 314.0.7, trung vị 8 lượt):
+  · ca chậm nhất của 8 đoạn mẫu là **230–290 ms**, nên 4 000 ms là hơn 13 lần biên;
+  · 1,5 MB tốn ~290 ms và **4,54 MB** heap main thread (CDP `Runtime.getHeapUsage` sau
+    `collectGarbage`; `performance.memory` VÔ DỤNG — Chrome làm tròn về đúng 10 000 000),
+    và nó MUA được thứ 700 KB đang lấy đi: `rows.append({...})` 400 lần đi từ bước
+    **150 → 223**, ma trận 60×60 từ **350 → 524**. **Trần BYTE, không phải trần bước, mới
+    quyết định người học xem được bao nhiêu** — mỗi bước chụp lại cả collection nên JSON
+    phình bình phương. Đừng coi 1,5 MB là bậc thang đầu của một dãy: gấp đôi byte chỉ thêm
+    ~50% bước, muốn hơn thì phải sửa CÁCH CHỤP (`maxItems`, chụp vi phân), chưa làm.
+  **`timeBudgetMs` là trần MỀM, và chỗ này là chỗ duy nhất nói ra.** Trong Pyodide
+  `hasattr(signal, "setitimer")` là **False** (Emscripten-5.0.3-wasm32) — `SIGALRM` thì CÓ
+  và `signal.signal` chạy không lỗi, nên **suy từ `SIGALRM` là suy sai**. Vậy
+  `st["watchdog"]` không bao giờ True ⇒ `_stop_tracing()` GIỮ callback ⇒ hai hệ quả đã đo:
+  · trần thời gian chỉ được kiểm TRONG callback, nên `time.sleep(8)` sau trần bước làm
+    tracer về ở **8 044 ms** chứ không ở 4 000 — vì vậy hạn 20 s của `ide-trace.ts` PHẢI
+    ở lại, nó là đường cắt duy nhất còn sống;
+  · **hạ `maxSteps` KHÔNG cứu được ca xấu** nên nó giữ 1 000: `while True: i += 1` đi qua
+    **4 055 730 lượt gọi callback** (~1,6 µs/lượt) để ghi đúng 1 000 bước. Chi phí trội
+    nằm ở SỐ SỰ KIỆN, không ở số bước ghi. Và hệ số chậm cao nhất (57×) đến từ việc TUẦN
+    TỰ HOÁ GIÁ TRỊ, không từ chi phí callback — nên "hệ số cao" ở đây KHÔNG đồng nghĩa
+    "phải hạ trần bước".
+  Hệ số `sys.settrace` dưới WASM (không nguồn nào trên thế giới lượng hoá): mã vô
+  hướng/điều khiển luồng **5,6×–57×**, mã dữ liệu (`df.groupby().agg()`, numpy) chỉ
+  **1,1×–1,3×** vì tracer lọc theo `co_filename` nên ruột thư viện không sinh sự kiện.
+  Tham chiếu desktop gần nhất là ~5× (benchmark của coverage.py) — nhớ điều đó nếu có
+  ngày tính sẵn vết tại build cho cả 172 bài.
+  `tracer-limits.test.mjs` (7 ca) canh QUAN HỆ giữa trần của tracer và trần của các lớp sẽ
+  cắt nó, chứ không canh "con số bằng mấy", và nó đọc trần 5 giây từ chính `runner/types.ts`
+  thay vì chép thành hằng thứ hai. Ablate: trả nguyên khối `PE_LIMITS` cũ → 3 đỏ; chạm
+  trần bước mà `return None` (cắt im lặng) → 1; `do-settrace.mjs` thôi tạo module worker →
+  1; sửa `.py` mà quên sinh lại `.min.py` → 1.
+  **Fixture của `ide-trace.test.mjs` CỐ Ý không khớp hằng thật** (`timeBudgetMs: 6500`):
+  đó là thứ duy nhất chứng minh `stopNotice` lấy số từ `doc.limits`. Fixture trùng hằng
+  thật thì một bản ghi cứng "4 giây" cũng ĐẠT. Đừng "sửa cho khớp".
+- **Lớp ghi nhật ký lần thử: cổng duy nhất của nó từng ở CLIENT, và cổng ở client không
+  phải bằng chứng đồng ý.** `let dongY = false` trong `frontend/src/lib/learning-events.ts`
+  không nói được ai đã đồng ý / lúc nào / với ĐIỀU GÌ, nó mất cùng localStorage, và nó
+  không chặn được một request gửi tay — trong khi `record()` ở máy chủ nhận lô nào cũng
+  ghi. Dữ liệu theo dõi hành vi là dữ liệu **NHẠY CẢM** theo Luật 91/2025 + Nghị định
+  356/2025, và Điều 9(4) nói nguyên văn *"sự im lặng hoặc không phản hồi không được coi là
+  sự đồng ý"*. Nay cổng thật nằm ở `record()`: nó đọc `learning_event_consents` trước khi
+  ghi một hàng nào, và trả **202 kèm `refused: 'no-consent'`** chứ không 403 — lớp này là
+  ghi-rồi-quên, frontend `.catch()` nuốt mọi lỗi nên một 403 biến mất không dấu vết, còn
+  một trường trong body thì log HTTP và bộ test còn đọc được.
+  **Cột `version` là thứ dễ bỏ nhất, và bỏ nó thì sai IM LẶNG.** Sự đồng ý luôn là đồng ý
+  với MỘT bản mô tả ("ghi 10 loại sự kiện này, giữ 90 ngày"). Ngày ai đó thêm loại thứ 11
+  hoặc nâng `HAN_LUU_NGAY`, bản ghi cũ không còn phủ việc đang làm — nhưng hàng vẫn
+  `granted = true`, lớp ghi vẫn chạy, và dự án thu thập thứ chưa ai đồng ý cho. Không
+  ngoại lệ nào được ném. Nên `conHieuLuc()` trả false khi phiên bản lệch **theo CẢ HAI
+  chiều** (kể cả phiên bản MỚI hơn — một hàng mang phiên bản mã này chưa biết nghĩa là DB
+  đã bị một bản deploy khác ghi vào), và một ca GHIM cặp (`PHIEN_BAN_DONG_Y`,
+  `dauAnPhamVi()`) đỏ kèm câu dặn khi phạm vi đổi. Dấu ấn tính trên danh sách ĐÃ SẮP, nên
+  đổi thứ tự khai không bắt người học đồng ý lại.
+  **`canHoiLai()` KHÁC `!conHieuLuc()`, và gộp chúng là một lỗi về luật.** Người đã TỪ CHỐI
+  thì không ghi, nhưng cũng **không hỏi lại** — một hộp hiện lại mỗi lần mở bài là ép đồng ý
+  bằng sự mệt mỏi, tức sự đồng ý đó không còn tự nguyện. Nhưng phiên bản MỚI thì hỏi lại cả
+  người đã từ chối, vì câu trả lời cũ không phải câu trả lời cho câu hỏi mới.
+  **Ba thứ trong `ConsentBanner.tsx` là YÊU CẦU, không phải thẩm mỹ**, và `consent-banner.test.mjs`
+  khoá cả ba: hai nút CÙNG class/cùng cỡ (`flex: 1`) — làm nút "Đồng ý" nổi hơn là lấy sự
+  đồng ý bằng ma sát; KHÔNG có nút đóng và không tự tắt; `aria-modal={false}` — chặn bài học
+  để lấy đồng ý là cưỡng chế. Nguyên văn nằm ở `MO_TA_PHAM_VI` trong `log-consent.ts`,
+  CẠNH phiên bản nó mô tả, và một ca đọc cả hai cây mã để so số ngày trong hộp với
+  `HAN_LUU_NGAY` ở backend — hộp nói 90 mà backend giữ 365 là sự đồng ý lấy bằng thông tin
+  sai, và đó là phép so duy nhất bắt được nó.
+  **Lượt đọc trạng thái phải nằm TRONG `Promise.all` của `useLessonData`, không muộn hơn
+  `datBoiCanhBai`.** `ghi()` **BỎ** sự kiện khi cổng còn đóng chứ không xếp hàng, nên cổng
+  mở sau là mất hẳn `X-Lesson.Open` của lượt đó — câu SQL drop-off đếm thiếu đúng lượt mở
+  bài ĐẦU TIÊN của mỗi người. Ca cũ `lesson-load.test.mjs` ghim ĐÚNG BA nhánh đã bắt được
+  nhánh thứ tư này; nó được sửa thành ghim BỐN, **không** nới thành "bao nhiêu cũng được".
+  Ablate: gỡ `conHieuLuc` khỏi `record()` → 5 đỏ; thôi so `version` → 3; thôi hỏi lại khi
+  phiên bản đổi → 1; mười mảnh phía frontend mỗi mảnh 1 đỏ.
+  **Lớp này vẫn TẮT cho tới khi người học bấm.** Mặc định là không ghi gì, và không có biến
+  môi trường nào bật được — đừng thêm một cái.
+- **Request API ĐẦU TIÊN sau lúc máy chủ nghỉ mất hơn 25 giây, và trang không nói gì.**
+  Đo trên production 25/10/2026: lượt đầu >25 s (Render + Neon thức dậy), các lượt sau 300 ms.
+  Suốt quãng đó `StudioLesson` chỉ hiện "Đang tải bài học…" — không một chữ nào nói vì sao,
+  nên người học ĐẦU TIÊN trong ngày kết luận là trang hỏng. Nay quá 6 giây thì đổi sang câu
+  nói thẳng rằng máy chủ đang khởi động lại và tiến độ vẫn còn. Mốc 6 giây: dài hơn mọi lần
+  tải bình thường (300 ms – 3 s) nên không ai thấy nó oan, ngắn hơn ngưỡng mất kiên nhẫn.
+  **Phần dễ vướng:** React 19 chặn `setState` ĐỒNG BỘ trong thân effect
+  (`react-hooks/set-state-in-effect`), nên chỗ dọn cờ phải nằm trong CLEANUP của effect, không
+  phải nhánh `if (!loading)`. Đã kiểm trong trình duyệt bằng giả lập Slow 3G và hạ tạm mốc
+  xuống 300 ms: thấy "Chờ một chút…" rồi chuyển sang câu cold start đúng lúc quá mốc.
+  Đây CHỈ là lớp giải thích, không phải sửa cold start. Muốn hết chờ thì phải chạm tới hạ tầng
+  (giữ máy chủ thức, hoặc Neon không autosuspend) — việc đó chưa làm.
+- **Nút "Try it Yourself" đã dựng từ lâu và KHÔNG có đường tới người học — nay đã nối.**
+  `TryItButton` + `ideCodeHref` + `/ide#code=…` có đủ, nhưng nút chỉ được MOUNT ở màn `brief`
+  và màn `explain`, mà bộ 172 bài có **0/172** màn nào trong hai màn đó. Một tính năng có nút,
+  có cổng (`ide-brief-code.ts`), có test (`ide-brief-code.test.mjs` 12 ca vẫn xanh vì nó test
+  trên dữ liệu pe-v4 đã ẩn) — và không một người dùng nào. Chú thích trong `ide-brief-code.ts`
+  đã ghi đúng điều đó từ trước; cái thiếu là ai đi nối.
+  Nay khâu build phát cờ `tryIt` lên từng khối code của màn đọc và `ReadScreen` dựng nút dưới ô
+  "Kết quả:" — **406 nút / 145 bài**, 27 bài `local` không có nút nào.
+  **Phép phân loại phải nằm ở BUILD, không ở frontend.** `chayDuocTrongIde` là một regex trên
+  dòng `import`: nó bắt đúng giới hạn WASM (tkinter/threading/subprocess) nhưng KHÔNG biết thứ
+  thật sự chặn bài của khoá này — THIẾU WHEEL (seaborn, plotly, openpyxl, h5py, sqlalchemy,
+  ipywidgets), gói ẩn sau chuỗi (`engine="openpyxl"`), và thuộc tính phơi ra máy thật
+  (`sys.executable`). Chỉ `phan_loai_khoi()` biết cả ba, và nó đã tính sẵn phép phân loại đó
+  từ trước — chỉ thiếu đường đi tới từng khối (`thu_duoc` khoá theo `id()` của dict nguồn;
+  `chia_man` chia lại chính các dict trong `reading` nên id còn đúng).
+  **Mã bàn giao là TIỀN TỐ, không phải một khối — và đây là chỗ bản sửa nửa vời trông như
+  xong.** Nguồn viết các đoạn để chạy NỐI TIẾP nhau: đoạn 3 dùng `df` và `import pandas` của
+  đoạn 1. Bàn giao một mình đoạn 3 là mở tab mới rồi để người học đọc `NameError: name 'df' is
+  not defined` — đúng cái nút này ra đời để tránh. `maDeThu()` gộp mọi khối `tryIt` từ đầu bài
+  tới khối được bấm, **vắt qua ranh giới màn** (build đã chia bài thành màn nên đoạn 1 thường ở
+  màn trước). Nhãn nút đổi khi mã gồm cả đoạn trước.
+  **406 không phải con số tự chọn:** đó đúng là số đoạn `check-pyodide.mjs` chạy thật rồi so
+  với `expected`. Hai con số lệch nhau = nút trỏ vào đoạn chưa ai chạy thử.
+  **Phép nối phải khớp từng ký tự ở BA chỗ:** `noi_code()` (build.py), `_noi_nhu_build()`
+  (check.py — cố ý CHÉP chứ không import: import thì lỗi xuất hiện ở cả hai phía phép so và
+  luật không chứng minh gì), `maDeThu()` (studio-lesson.ts).
+  Luật "nối đầy đủ == `step_4.starterCode`" phải LOẠI bài có `tests`: `starterCode` của chúng
+  là KHUNG TRỐNG của bài tập, không phải mã bài đọc — lẫn hai thứ cho đúng 122 lỗi sai, đã gặp.
+  Ablation: không phát cờ → 145 lỗi check.py; lệch bản đồ `id()` → 7 lỗi; cờ lên cả khối
+  `terminal` → 88 lỗi. Phía frontend: không vắt qua màn → 3 ca đỏ; bỏ khối trước trong cùng màn
+  → 4; bỏ lọc `tryIt` → 4; bỏ mốc `# ── Đoạn i ──` → 3.
+- **Dải "mã đến từ link" từng hỏi cả khi link đến TỪ trang bài học.** Nút "Thử ngay trong
+  IDE" cũng đi qua `/ide#code=…`, nên đường đi CHÍNH của sản phẩm cũng bị chặn một lần hỏi —
+  và một lần hỏi xuất hiện ở mọi lần dùng bình thường thì người ta bấm qua nó theo phản xạ,
+  rồi đúng lần đáng chú ý cũng bị bấm qua. `needsLinkConfirm` nay bỏ qua link mà
+  `document.referrer` trỏ về CÙNG origin.
+  **Vì sao tín hiệu này đủ vững:** `referrerpolicy` chỉ CẮT BỚT referrer, không bịa ra được
+  một origin khác; muốn referrer là origin này thì phải có trang chạy TRÊN origin này, tức đã
+  có XSS — mà có XSS rồi thì không cần đi đường link. Referrer rỗng (gõ tay, bookmark, trang
+  gửi đặt `no-referrer`) tính là KHÔNG tin nên vẫn hỏi.
+  **Hai chỗ phải đi cùng nhau:** `TryItButton` phải là `rel="noopener"`, KHÔNG
+  `rel="noopener noreferrer"` — `noreferrer` xoá đúng tín hiệu đang cần, và khi đó bản sửa
+  trông như xong mà thực tế vẫn hỏi mọi link. Có ca test khoá chuỗi `rel` đó.
+  So bằng `new URL(raw).origin === here`, KHÔNG bằng `startsWith`: với `startsWith` thì
+  `programmingedu.io.vn.ke-tan-cong.com` cũng khớp. Và dùng `globalThis.location`, không
+  `window.location` — ngoài trình duyệt thì `window` không có, ReferenceError bị `catch` nuốt
+  rồi trả "khác origin", làm ca test cho origin của chính mình đỏ oan.
+  Phạm vi: `TryItButton` chỉ được dựng ở `LessonBrief` (màn `brief`) và `ExplainScreen`
+  (màn `explain`) — đếm được hai chỗ gọi. Bộ 172 bài đang xuất bản không có màn nào trong hai
+  màn đó, nên hôm nay nó chưa đỡ phiền cho người học nào, đúng như chính cổng xác nhận.
+- **Học viên từng không thấy hình do CHÍNH MÌNH vẽ — nay thấy, và đây là giá của nó.**
+  Chạy một bài biểu đồ chỉ nhận lại MỘT DÒNG CHỮ "[matplotlib] 3 Figure được tạo"; hình trên
+  màn đọc là PNG người soạn giáo trình xuất sẵn, nên sửa một dòng code rồi chạy lại thì không
+  thấy gì đổi — với khoá Data Analyst có 26+ bài biểu đồ thì đó là mất gần hết giá trị của
+  việc tự chạy. Nay `studio-harness.py` xuất PNG base64 vào trường `figures` (trần 6 hình /
+  600 KB mỗi hình / 1,5 MB tổng), worker chuyển nguyên qua `...result`, và `SandboxEditor`
+  dựng thẻ `<img src="data:image/png;base64,…">` dưới console.
+  **Giá đã đo**, cho 10 bài biểu đồ (≈30 hình): không xuất ảnh 5,7 s · xuất không
+  `bbox_inches` 11,5 s · có `bbox_inches='tight'` 14,0 s — tức ~0,8 s mỗi bài. Nó NẰM TRONG
+  trần 5 giây của bài học, nên phải canh: ca chậm nhất của pe-v4 sau bản này là 949/1085 ms,
+  còn 4× biên, và `pe-v4/check-pyodide.mjs` vốn đã đánh trượt mọi lần chạy quá 5 s.
+  **Hai thứ dễ tưởng là bẫy mà KHÔNG phải** — đã ablate, không ca nào đỏ, rồi đo trực tiếp:
+  · "xuất bằng `savefig` đã móc sẽ làm bẩn `_studio.main.saved`" → không, vì lúc `_anh_figure`
+    chạy thì `_ctx()` đã là None nên bản móc không ghi gì (đường `_studio_original` giữ lại
+    thuần phòng xa);
+  · "gọi sau ca chấm thì hình mất vì `_reset_pyplot()`" → không, `plt.close('all')` không huỷ
+    Figure và `savefig` vẫn chạy trên Figure đã close (đo được 16 598 byte PNG sau khi close).
+  Thứ CÓ canh được: `figures = []` → 7 ca trượt; bỏ trần byte → 7; bỏ phép loại hình trống →
+  1; bỏ trần số hình → 1 (`scripts/check-figures.mjs`, 16 ca, có trong CI).
+  `<img>` phải kèm `// eslint-disable-next-line @next/next/no-img-element` NGAY TRÊN thẻ —
+  `next/image` vô dụng với `data:` URI, và để chỉ thị trên một khối chú thích thì nó trỏ vào
+  dòng comment, thành "unused directive" mà cảnh báo cũ vẫn còn (lint 178 → 180).
+- **Code Python của học viên gọi được API kèm cookie phiên — đã bịt, và `worker-src` KHÔNG
+  phải thứ bịt được.** `pyodide.ffi` cho code Python với tới JS, nên trong worker nó làm được
+  `fetch(API_ORIGIN + '/auth/refresh', { credentials: 'include' })` và nhận về access token
+  THẬT (đo trong Chrome 155, 25/10/2026). Nguyên nhân KHÔNG phải "worker không có CSP": entry
+  `/(.*)` trong `frontend/next.config.ts` khớp cả `/static/js/*.worker.js`, nên ba worker vẫn
+  đang chạy với đúng CSP của trang — mà CSP đó **cố ý** cho phép `connect-src … ${API_ORIGIN}`.
+  Theo CSP3 §4.2 worker nhận policy từ response CỦA NÓ, nên cách bịt là một entry RIÊNG cho
+  ba file worker với `connect-src 'self'`. Entry đó phải nằm **sau** `/(.*)`: trùng tên header
+  thì Next.js lấy entry sau (`node_modules/next/dist/docs/01-app/03-api-reference/05-config/01-next-config-js/headers.md`).
+  Đo lại được: cùng một URL, server có mở CORS hết cỡ — gọi từ TRANG thì 200, gọi từ WORKER
+  thì bị chặn, mà khác biệt duy nhất là header CSP trên file worker.
+  **Phần dễ tưởng xong mà chưa xong:** `worker-src 'none'` KHÔNG chặn
+  `js.Worker.new('/static/js/pe-bridge.js')` — đo được là nó chỉ chặn `blob:`, còn worker con
+  từ URL cùng origin vẫn tạo được, vì Chrome xét worker con lồng trong worker theo
+  `script-src`, mà `script-src` buộc phải có `'self'` để `import()` được `pyodide.mjs`. Và
+  worker con đó nhận CSP của TRANG, tức có lại `API_ORIGIN` — bản sửa thành vô nghĩa. Nên mỗi
+  worker còn phải tự `delete self.Worker` trước khi chạy mã học viên. Cả hai nửa bị khoá bởi
+  `frontend/e2e/unit/worker-csp.test.mjs` (7 ca; gỡ từng nửa ra thì trượt đúng nửa đó, đã thử).
+  Thêm worker Python mới thì phải khai vào `PYTHON_WORKERS` — ca "MỌI worker trên đĩa đều được
+  khai" bắt chỗ này.
+- **Worker Python là MODULE worker từ khi nâng lên Pyodide 314 — đừng quay về classic.**
+  314 bỏ hẳn hỗ trợ classic worker và không còn phát hành `pyodide.js`, chỉ có `.mjs`. Cả hai
+  worker (`studio-lesson.worker.js`, `python-studio.worker.js`) nay nạp runtime bằng
+  `await import(PYODIDE_DIR + 'pyodide.mjs')`, và CẢ HAI chỗ tạo worker phải truyền
+  `{ type: 'module' }` (`runner/pyodide-runner.ts`, `PythonStudio.tsx`). Thiếu một trong hai
+  thì worker chết lặng lẽ, giao diện chỉ hiện "không chạy được Python".
+- **Cảnh báo thư viện đổ CHUNG vào stdout.** `studio-harness.py` cố ý
+  `redirect_stderr(ctx.out)` để console của học viên hiện cả hai. Hệ quả: một
+  `MatplotlibDeprecationWarning` chen vào giữa và làm mọi phép so với `expected` trượt dù bài
+  in đúng từng chữ. `check-pyodide.mjs` tách chúng ra và BÁO riêng (`tachCanhBao`) thay vì
+  bỏ qua.
+  **14 cảnh báo ở VZ14/VZ25/VZ30 TỪNG bị quy cho `figsize=(6, 3.5)` và giao cho NGƯỜI
+  SOẠN GIÁO TRÌNH — quy kết SAI cả hai vế, nay đã đo lại và sửa.** Thử
+  `(6,3.5)/130 · (6,3.5)/100 · (6,3)/130 · (6,3)/100 · (6,3.5)/120` → **đều 36 cảnh
+  báo**, `figsize` và `dpi` không đổi một con số. Tách tiếp: chỉ vẽ không render → **0**
+  · `canvas.draw()` → **24** · `savefig` PNG → **24** · `savefig` SVG → **0**. Thủ phạm
+  là khâu RASTER HOÁ của backend Agg trong matplotlib 3.10 — ruột thư viện, không dòng
+  nào của người học gây ra, và **không sửa được bằng cách đổi figsize**.
+  **Và nó KHÔNG chỉ ở 3 bài:** đường xuất hình của chính `_anh_figure` sinh 24 cảnh
+  báo, tức MỌI bài biểu đồ dính; ba bài kia chỉ là nơi nó lọt qua phép dedupe.
+  Nay `_install()` lọc theo ĐÚNG THÔNG ĐIỆP (`The [xy] parameter as float was
+  deprecated`), **không theo category** — lọc theo `MatplotlibDeprecationWarning` sẽ
+  nuốt luôn cảnh báo về API mà BÀI HỌC gọi sai, tức giấu đi thứ người học cần đọc.
+  Đã đo bộ lọc: cảnh báo nội bộ **24 → 0**, trong khi một `RuntimeWarning`, một
+  `DeprecationWarning` và **một `MatplotlibDeprecationWarning` KHÁC** đều VẪN hiện.
+  Chú thích `dpi=96` trong `_anh_figure` cũng mang đúng niềm tin sai đó và đã viết lại.
+  Ablate: gỡ bộ lọc → cảnh báo quay lại ngay ở VZ14/VZ25/VZ30.
+- **Câu ôn tập nằm ở trường RIÊNG, đếm thiếu là tưởng mất 21% bài tập.** `course.json` có
+  `drills` (516) VÀ `reviewExercises` (139) = 655 câu. Một lượt audit từng báo động "gói chỉ
+  giữ 3 câu/bài, mất 139 câu" vì chỉ đếm `drills`. Bản dựng ra đúng 655, và `check.py` so
+  số câu của từng bài với nguồn nên lỗi kiểu này không sống sót im lặng được.
 - **Fixture test không giống dữ liệu thật thì test vô dụng.** `quizzes.service.spec.ts` từng
   khẳng định "không bao giờ lộ đáp án" bằng fixture `options: ['a','b']`, trong khi dữ liệu
   thật là mảng object mang cờ `correct` — lỗ lộ đáp án sống sót qua mọi lần chạy test. Khi
@@ -182,46 +1321,57 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **Vì sao đáng làm, chứ không chỉ để con số đẹp:** `any` ở spec làm test nói dối. Gõ
   `solution_code` thay cho `solutionCode` vẫn biên dịch, `toBeUndefined()` vẫn ĐẠT, và lỗ lộ
   lời giải vẫn còn nguyên. Làm dần từng module rồi hạ mốc trần trong `ci.yml` (chỉ được hạ).
-
-  Đã dọn `courses` ngày 15/10/2026: **263 → 175 lỗi** (`-88`), một file duy nhất
-  (`courses.service.spec.ts`) chiếm cả 88. Hai số đo của lần đó, ghi lại vì chúng chỉnh lại
-  câu "test nói dối" cho chính xác hơn:
-  · Gõ sai TÊN HÀM MOCK (`createMnay`) thì bản `any` VẪN trượt — nhưng trượt lúc chạy, với
-    thông báo của Jest về "received value must be a mock", không phải một câu nói rằng service
-    vừa bỏ mất cái cổng. Bản có kiểu trượt ngay ở `tsc` kèm "Did you mean 'createMany'?".
-  · Gõ sai TÊN FIELD trên kết quả (`res.okk`) kèm matcher phủ định thì bản `any` **im lặng
-    đạt 13/13**, còn bản có kiểu báo "Property 'okk' does not exist". Đây mới là trường hợp
-    test nói dối thật sự — và nó chỉ xảy ra khi matcher phủ định, nên đừng tin rằng mọi lỗi
-    gõ sai đều tự lộ ra.
-  Một thứ nữa đáng biết trước khi làm module sau: bỏ `: any` khỏi `const res` làm lộ ra
-  những lỗi `strictNullChecks` thật mà `any` đang che (`whereDaGui()` có thể `undefined`,
-  `Array.find()` có thể `undefined`). Đừng dập chúng bằng `!` — ở đây mỗi chỗ đó là một
-  khẳng định riêng (`expect(where).toBeDefined()`), vì nếu service ngừng gửi `where` thì `!`
-  sẽ ném TypeError vô nghĩa trong khi bản chất là cái cổng `is_published` vừa mất.
-  Đã dọn `auth` + `common` (filter/guard/middleware/decorator) + `user` + `course-admin`
-  + `health` ngày 20/10/2026: **155 → 2 lỗi**. Năm khuôn `any` mới gặp, ngoài bốn khuôn
-  đã ghi ở trên — ghi lại để module sau không phải tìm lại:
-  · `jest.Mock` TRẦN trong một type đã khai (`create: jest.Mock`) vẫn là `Mock<any, any>`:
-    nó không ồn ào như `let prisma: any` nhưng gây đúng hậu quả đó.
-  · `ctx.getResponse()` / `getRequest()` KHÔNG kèm tham số kiểu trả `any` — hai exception
-    filter mất kiểm tra trên mọi phép đọc `request.method` / `request.requestId`.
-  · `(req as any).requestId` lặp ở BA chỗ (middleware ghi, hai filter đọc). Mỗi lần ép là
-    một lỗ riêng. Nay khai một lần ở `src/common/types/express-request.d.ts`.
-  · `expect.any(Date)` khai `any` trong @types/jest → `expect.any(Date) as Date`.
-  · `const { password: _password, ...safe } = user` là lỗi `no-unused-vars` vì
-    typescript-eslint v8 đặt `ignoreRestSiblings: false` (ESLint gốc đặt `true`). Đừng
-    nới config: gom về một hàm `boPassword()` trả `Omit<T, 'password'>` thì "API không
-    bao giờ trả hash" thành một KIỂU, `safe.password` ở chỗ gọi là lỗi biên dịch.
-- **CÒN HAI LỖI LINT CỐ Ý KHÔNG SỬA, và chúng chỉ ra MỘT LỖI THẬT chưa chữa.**
-  `src/course-admin/studio-lesson.schema.ts:307,311` — `String(g.id ?? '')` và
-  `String(g.type ?? '')` với `g.id`/`g.type` kiểu `unknown`. `no-base-to-string` đang nói
-  đúng: nếu `g.id` là một object/mảng thì `String()` cho ra `"[object Object]"`, chuỗi đó
-  **lọt qua `nonEmptyString()`** và bài học được chấm là hợp lệ với một id rác; `g.type`
-  thì ra `"[object Object]"` và trượt khỏi `PLAY_GAME_TYPES` nên ít nguy hơn. Đây là lỗi
-  VALIDATION thật, không phải lỗi kiểu — sửa nó là đổi hành vi (một `id` số hiện đang
-  được chấp nhận qua `String(123)`), nên **đừng chữa lẫn vào một commit dọn lint**. Ai
-  sửa: quyết rõ `id` có buộc phải là chuỗi hay không, rồi thêm ca test cho object id.
-  Dập hai lỗi này bằng `as string` là vùi mất chỗ duy nhất đang chỉ ra nó.
+  **Lần thứ ba, 03/11/2026 — `courses.service.spec.ts`: 222 → 134 lỗi (−88), 40% tổng
+  số lỗi backend nằm trong MỘT file.** Công thức bốn bước ở trên chạy nguyên không đổi.
+  Hai điều học thêm, và cả hai đều ở bước 3:
+  · **`(c: any) => c.id` trong `.map()` cũng là một dòng `: any` tự tạo ra `any`.** Tám chỗ
+    như vậy sinh 16 lỗi `no-unsafe-return`/`no-unsafe-member-access`. `listCourses` và
+    `getSkills` đều ĐỂ TS TỰ SUY return type (`mapCourse` khai kiểu tham số đầy đủ), nên bỏ
+    hẳn chú thích là hết — thêm một kiểu tay vào đó là mô tả lại thứ TS đã biết.
+  · **Một helper đọc `mock.calls` KHÔNG được gộp "chưa gọi lần nào" với "gọi mà không kèm
+    `where`".** Bản đầu của tôi cho `whereDaGui()` NÉM khi không có `where`, để kiểu trả về
+    xác định và khỏi rải `?.` — và nó làm **1/478 ca ĐỎ**: ca "getCoursesEnrolled của quản
+    trị viên: không lọc gì" khẳng định đúng cái `undefined` đó. "Không lọc gì" là một KẾT
+    QUẢ hợp lệ của service, không phải một ca hỏng. Nay helper ném khi `calls[call]` không
+    tồn tại (service chưa chạm tới DB — đọc `.AND` ở đó chỉ báo "undefined không chứa
+    {isPublished:true}", không nói được nguyên nhân) và trả `undefined` khi có lời gọi mà
+    không kèm điều kiện. Ba chỗ đọc `.AND` dùng `?.`, và chúng KHÔNG mất răng:
+    `expect(undefined).toContainEqual(...)` là TRƯỢT, không phải đạt rỗng.
+  Ablate: gõ `prisma.course.findMayn` → typecheck ĐỎ kèm "Did you mean 'findMany'?". Với
+  `let prisma: any` thì đúng dòng đó biên dịch sạch và ca test im lặng chạy trên một mock
+  không ai gọi — đó là cái giá thật của `any` ở spec, không phải con số lint.
+  **Lần thứ tư, cùng ngày — và lần này là CODE CHẠY THẬT, không phải spec.**
+  `all-exceptions.filter.ts` (bộ lọc mà AGENTS.md bắt MỌI lỗi phải đi qua) có 26 lỗi, tất
+  cả từ MỘT nguồn: `ctx.getResponse()` / `ctx.getRequest()` gọi không kèm tham số kiểu nên
+  trả `any` — trong khi `Request`/`Response` của Express **đã được import ở đầu file và
+  không dùng lần nào**. Hệ quả không phải con số: `let message` (khai `string`) và
+  `let fields: Record<string, string> | null` đều nhận giá trị từ `any`, nên hai dòng khai
+  kiểu đó CHỈ LÀ CHỮ.
+  **Nói cho đúng: lỗ KIỂU, không phải bug sống.** Đã đo — chỉ MỘT `ValidationPipe` toàn cục
+  và nó dùng `validationExceptionFactory` của ta, nên hôm nay `message` luôn là `string[]`
+  và `fields` luôn `Record<string, string>`. Đừng viết như vừa chữa một lỗi người dùng gặp.
+  Cái bộ lọc này KHÔNG bảo đảm được là: nó `@Catch()` TOÀN CỤC, nên bất kỳ ai ném
+  `HttpException` với payload hình dạng khác cũng rơi vào đây, và chú thích ngay trong file
+  nói rõ client hiện `message` TRỰC TIẾP cho người dùng — tức một object lọt vào là người
+  dùng đọc được chữ "[object Object]". Nay hai hàm ép kiểu ở BIÊN (`chuoiHoac`, `mapChuoi`)
+  biến lỗ kiểu thành một bất biến được canh; `mapChuoi` lọc từng cặp và trả `null` khi
+  không còn cặp chuỗi nào, để `...(fields ? …)` bỏ hẳn trường — đúng hành vi cũ.
+  **`requestId` từng có BỐN bản mô tả của CÙNG một hợp đồng**, mỗi chỗ một cách:
+  `(req as any).requestId = …` (bên GHI, `request-id.middleware.ts`) · `request.requestId`
+  trên một `any` (`all-exceptions.filter.ts`) · `(request as any).requestId`
+  (`prisma-exception.filter.ts`) · `(req as unknown as { requestId?: string })`
+  (`overload-protection.middleware.ts`). Bốn bản mô tả là bốn thứ TRÔI ĐƯỢC: đổi tên trường
+  ở middleware thì ba bên đọc vẫn biên dịch sạch và lặng lẽ trả `request_id: null` trên MỌI
+  response lỗi — không exception nào ném. Nay một module augmentation duy nhất
+  (`src/common/types/express.d.ts`) khai `requestId?: string` trên `Express.Request`; `?`
+  chứ không bắt buộc, vì middleware chỉ chạy trên đường HTTP đã đăng ký.
+  **Ablate, số đã đếm:** xoá `express.d.ts` → **4 lỗi typecheck**, đúng bốn chỗ, GỒM CẢ bên
+  ghi · `chuoiHoac` trả thẳng không kiểm → **2 ca đỏ** · `mapChuoi` ép kiểu thay vì lọc →
+  **2 ca đỏ**. Bốn ca mới của `all-exceptions.filter.spec.ts` (12 → 16) khoá đúng cái biên
+  đó, và chúng KHÔNG tái hiện lỗi người dùng đang gặp — mục đó phải nói ra.
+  **Và chính bộ test ấy cũng đang nói dối ở chỗ nhỏ:** `const json = jest.fn()` trần nên
+  `json.mock.calls[0][0]` là `any`, tức mọi phép so trên thân response đều không được TS
+  kiểm. `jest.fn<void, [ThanPhanHoi]>()` sửa ở GỐC, thay cho việc ép kiểu ở từng ca.
 - **Khoá Advanced có ĐÚNG 3 bài cửa tự kiểm tra, không phải 5.** Danh sách 5 bài
   (B20, I07, I12, N04, N08) là của khoá cơ bản pe-v3 ĐÃ XOÁ; chú thích nào còn ghi nó là chú
   thích cũ. Ba bài hiện tại: **R02** (`sort_order` 20), **DA01** (47), **DA02** (48) — đếm bằng
@@ -244,31 +1394,6 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   executor đi tới `execFile`, trong khi trước đó còn `mkdtemp`+`writeFile` thật — nay chờ theo
   ĐIỀU KIỆN (`spawned`/`killed`). Chờ theo đồng hồ còn làm lời gọi muộn rơi vào mock của ca
   SAU và lệch bộ đếm của nó.
-- **Lý do bẫy ở màn điền chỗ trống từng NÓI RA đáp án của chính ô đó.** `step_3.scaffold.bank[].trap`
-  là câu hiện ra khi kéo mảnh SAI vào ô, nên nó phải nói vì sao LỰA CHỌN VỪA RỒI sai — vậy mà sáu
-  câu viết thẳng đáp án đúng ra (`"…phải về ready chờ dispatch"` trong khi đáp án ô đó đúng là
-  `"ready"`). Ô chỉ có 2–3 ứng viên nên chọn bừa một mảnh sai là ĐƯỢC PHÁT đáp án; server không
-  chấm lại gì nên không chỗ nào khác chặn. Đã sửa cả sáu trong `lessons_{proc,thread,gui,data}.py`
-  (19/10/2026), lưới ở `frontend/e2e/unit/trap-leak.test.mjs`.
-  **Hai điều đáng biết trước khi thêm trap mới:** (1) ca cũ trong `fill-slots.test.mjs` so nguyên
-  văn bằng `includes(answer)` nên chỉ thấy 3/6 — ba chỗ kia lọt vì đáp án có dấu nháy
-  (`"ready"`) mà câu trap thì không; muốn bắt được phải bỏ nháy ở CẢ HAI phía trước khi so.
-  (2) Ngay cả khi bỏ nháy, luật vẫn mù với đáp án là biểu thức bọc quanh một giá trị: `["-"]` so
-  với câu trap ghi `"-"` là không khớp — chỗ X01 ô3 phải tìm bằng mắt. Test này chỉ đỡ phần
-  nguyên văn, thêm trap mới vẫn phải tự đọc lại.
-  **Cùng luật đó nay áp cho `slots[].hint` — nhãn nhóm thẻ ở kho.** Trước 20/10/2026 cả **149 ô
-  của 45 bài** đều KHÔNG có hint, nên nhóm thẻ chỉ có số khoanh ①②③ và người học phải tự đoán ô
-  nào cần gì — `bankGroups()` (`frontend/src/lib/studio-lesson.ts`) chỉ gắn nhãn khi bài khai
-  thật, `Assemble.tsx` in nó ra kèm `aria-label`. Đã viết đủ 149 câu trong `hints=[…]` của từng
-  `scaffold=dict(...)` ở `scripts/pe-v4/lessons_*.py` (song song `slots=`, build.py kiểm khớp số
-  lượng). **Lộ ở hint đắt hơn lộ ở trap:** trap chỉ hiện SAU một lần chọn sai, còn hint nằm ngay
-  trên kho TRƯỚC khi người học chọn gì — một hint nói ra đáp án là một bảng đáp án có sẵn. Luật
-  viết: nói **loại thứ cần điền** hoặc **việc nó phải làm**, không nói chính nó (`child.wait()` →
-  "Cha chặn lại tới khi con xong, rồi mới có mã thoát" đạt; "Dùng wait()" thì hỏng). Ba ca mới
-  trong `trap-leak.test.mjs` canh: lộ đáp án của ô MÌNH, lộ đáp án của ô KHÁC trong cùng khung
-  (nhãn các nhóm nằm cạnh nhau nên hint ô 1 lọt vào mắt người đang làm ô 3), và giọng (không reo,
-  không hạt `nhé`). Thêm một ca khoá cứng `149 ô / 45 bài` vì ba ca kia lọc trên `slot.hint`: bỏ
-  hint đi là vòng lặp rỗng và cả ba XANH mà không kiểm gì.
 - **Kho quiz chỉ đọc khoá `text`/`label` của lựa chọn — câu "dự đoán" dùng `title`.**
   `normalizeQuestion` (`src/quizzes/quizzes.service.ts`, nhánh quy đổi `options`) làm
   `String(o.text ?? o.label ?? '')`, trong khi `predict_block()` ở `scripts/pe-v4/build.py:210`
@@ -281,198 +1406,31 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   đếm `step_2.mcq`). Nên thực tế học viên phải hoàn thành 2 bài mới mở được quiz ôn. Thông báo
   gửi FE (`min_questions: 5`) nói theo SỐ CÂU nên dễ đọc nhầm thành "xong 1 bài là đủ"; sửa
   `MIN_POOL` là đổi hành vi người dùng thấy được.
-- **Hạn của tài khoản khách là cửa sổ TRƯỢT, và frontend đang ghi cứng 8 giờ ở nhiều chỗ.**
+- **Hạn của tài khoản khách là cửa sổ TRƯỢT, và frontend từng ghi cứng 8 giờ — ĐÃ sửa.**
   `JWT_REFRESH_EXPIRES` mặc định `'8h'` (`src/config/env.validation.ts`), nhưng
   `RefreshTokenService.lifetimeMs` là hằng đọc MỘT LẦN trong constructor và `expiresAt` được
   tính trong `issue()` — mà `rotateAndBlacklist()` gọi lại `issue()`, nên mỗi lần refresh là
-  một hạn 8 giờ MỚI. Hệ quả: muốn đổi luật hết hạn (ví dụ "khách giữ tiến độ 30 ngày") thì
-  phải quyết ở `issue()`, đặt ở controller là vô ích. Phía frontend, cookie mốc
-  `pe_has_session` đang ghi cứng `max-age=28800` ở **bốn** chỗ — `frontend/src/lib/api.ts:90`
-  và `:130`, `frontend/public/static/js/pe-bridge.js:36`, `frontend/public/static/js/pages/login.inline.js:19`
-  (thêm một chú thích nhắc tới 8 giờ ở `frontend/src/lib/course-progress.ts`). Đổi
-  `JWT_REFRESH_EXPIRES` mà quên bốn chỗ này thì cookie và token lệch nhau: FE tưởng còn phiên
-  trong khi token đã hết, hoặc ngược lại.
-- **Bản đồ thế giới ở trang chủ là TRANH SINH RA, không phải SVG vẽ tay — đừng sửa tệp.**
-  `frontend/public/map/world-map.svg` (46 197 nét, 830 KB) và tám ô crop `scene-M*.svg`
-  do `scripts/map/build_map.py` sinh; sửa tay chúng thì lần chạy script sau xoá sạch.
-  Script ĐỌC `frontend/src/lib/world-map.ts` (`MAP_PALETTE`, `REGION_LAYOUT`, `MAP_FLOWS`,
-  `MAP_WELLS`, `MAP_SUN`, `MAP_FRAME`, `MAP_ABYSS`) nên muốn đổi màu/toạ độ/hình thái cái
-  vực thì sửa ở TS rồi chạy lại `py scripts/map/build_map.py` (và `--css` để lấy khối
-  `.spot1…8`). Năm thứ dễ vấp, cả năm đều lặng lẽ:
-  · **`stroke-width` KHÔNG được đi qua `nf()`** — `nf` làm tròn toạ độ về số nguyên, đúng
-    cho toạ độ nhưng biến mọi nét 0,45 đơn vị thành `stroke-width="0"`. Đã xảy ra một lần:
-    cả bức render với năm chục nghìn nét vô hình và nhìn ra đúng "mảng phẳng tô gradient",
-    tức chính cái lỗi mà bản này sinh ra để chữa.
-  · **Trần 900 KB** là thật (script tự chặn). Thêm chi tiết thì hạ `DENSITY`, đừng bỏ kỹ thuật.
-  · **Ảnh nền của ô crop phải nằm TRONG `@container`** ở `world-map.module.css`. Đặt ra
-    ngoài thì máy tính tải thêm 1,3 MB mà không ai thấy gì khác.
-  · **ĐỪNG THÊM `id`/`data-*` VÀO SVG cho lớp chuyển động.** Tranh vào trang bằng
-    `background-image`, tức một tài liệu SVG RIÊNG, bị cách ly: CSS của trang không khớp
-    được selector nào bên trong, JS không `querySelector` vào được. Mọi `id` đặt cho tầng
-    vách / dòng nước / trục tia sáng là byte chết trong một tệp tải ở mỗi lượt vào trang
-    chủ. Đã thử và đã gỡ ngày 19/10/2026. Hợp đồng với `map-motion.ts` là TOẠ ĐỘ trong
-    `world-map.ts`, xem `design/v3/ky-thuat-ban-do.md` mục 6.3.
-  · **HÌNH THÁI CÁI VỰC Ở TS, không ở Python.** `MAP_ABYSS` (mặt cắt lòng vực, mặt cắt
-    khối đá, mốc bốn tầng, tám cái hốc) là nguồn cho CẢ bức tranh LẪN lớp chuyển
-    động. Chép một con số của nó sang chỗ khác là một con số sẽ lệch — đã xảy ra hai
-    lần trong cùng một ngày (lớp chuyển động chép bốn mốc địa tầng, ca test khoá cứng
-    độ cao mặt đất `y ≈ 236`; cả hai chết trong hai giờ khi bức tranh được vẽ lại).
-  `e2e/unit/world-map.test.mjs` canh cả năm: mục 10 lo mật độ nét, cấm gradient, mọi mã
-  màu trong SVG phải có tên trong `MAP_PALETTE`, tập `data-flow` phải khớp `MAP_FLOWS`;
-  mục 11 lo TÍNH LIỀN MẠCH — vách vực là MỘT đường liền mỗi bên, không nét khép kín
-  nào trong lớp vách, tám gian đều thuộc cùng cái hố, nước và ánh sáng chạy xuyên
-  suốt, thang độ sâu ở cả hai lề. **Gỡ bản sửa ra thì sáu ca trượt** (đo 19/10/2026
-  bằng cách `git checkout` lại chín tệp SVG cũ). Kỹ thuật và nguồn:
-  `design/v3/ky-thuat-ban-do.md` (mục 6 cho hình thái liền mạch).
-- **Bản đồ SAO cũng là TRANH SINH RA, và nó chia làm 19 tệp theo LỚP — đừng sửa tệp.**
-  `frontend/public/map/star/sky-*.svg` do `scripts/star/build_sky.py` sinh; script ĐỌC
-  `frontend/src/lib/star-map.ts` (toạ độ tám chòm, mạch hoàng đạo, nguồn sáng, bảng màu,
-  ngân sách độ chói) nên muốn đổi gì thì sửa ở TS rồi chạy lại. Mười hai thứ đã trả giá, cả
-  mười hai đều lặng lẽ:
-  · **Một TẤM = một NHÓM LỚP, không phải cả bức.** Bản mẫu một chòm xuất hai tấm đủ mười
-    ba lớp; nhân cách đó lên tám chòm là chín tấm, mỗi tấm cõng lại cả tinh vân và 1 250
-    sao nền — ~1,4 MB cho một trang. Hợp của `SKY_TILES` phải phủ ĐÚNG `SKY_LAYERS` theo
-    đúng thứ tự (thứ tự tệp trong DOM LÀ thứ tự z); một lớp bị bỏ quên biến mất khỏi bức
-    mà không có gì đỏ lên. Script tự chặn.
-  · **Nguồn sáng trội dựng bằng ĐA GIÁC LỒNG NHAU, không bằng đường đồng mức.** Hai bản
-    trước đều dùng đường đồng mức và cả hai hỏng nhìn thấy được: bản 1 có vùng phẳng ở tâm
-    nên chín mức rơi cùng một chỗ ⇒ một cái đĩa xám viền mấy vòng tròn; bản 2 nhân trường
-    với kết cấu fBm nên mỗi mức sinh ra cả đảo bên trong, và `fill-rule="evenodd"` biến
-    tâm nguồn sáng thành một LỖ TỐI.
-  · **HÌNH LỒNG NHAU PHẢI ĐI RIÊNG `<path>` — `Ink.fill(solo=True)`.** Đây là cái lỗi đắt
-    nhất của cả tệp, và nó sống im lặng từ bản đầu. `Ink` gộp mọi hình cùng (màu, độ mờ,
-    fill-rule) vào MỘT `<path>`; gộp là lossless khi hình không chồng nhau, và SAI khi
-    hình lồng nhau — theo hai kiểu: với `evenodd` thì các bậc đồng mức XOR nhau thành vành
-    tô/không-tô xen kẽ (bậc trong cùng có thể thành TRỐNG), còn với `nonzero` thì hợp của
-    N vòng được tô ĐÚNG MỘT LẦN nên độ mờ thôi cộng dồn (`a_i = 1/(n−i)`, nên 63 vòng
-    ngoài của 128 đều tròn về 0,01 và cả nhóm góp 0,01 thay vì 0,47). **Mọi phép kiểm
-    trong kho mã đều đọc MÔ HÌNH (`do_sang_rgb`), không đọc TỆP, nên không ca nào bắt
-    được.** Tìm ra bằng cách raster hoá chính mấy tệp SVG đã ghi rồi so hai cột (nay là
-    `scripts/star/raster.py`): bậc giữa ra **4,3 %** trên tranh thật trong khi mô hình nói
-    47,3 %, p99 ra 0,595 trong khi mô hình nói 0,977. Bài học chung: **một phép đo dựng lại
-    từ trường không phải một phép đo bức tranh.**
-  · **`do_sang_rgb` PHẢI cộng lớp theo ĐÚNG thứ tự `SKY_LAYERS`.** Nó từng cộng nguồn sáng
-    SAU CÙNG với một lý lẽ hợp lý lúc ấy: *"lớp của nó nằm dưới tinh vân, mà ở chỗ nó sáng
-    nhất thì tinh vân đã loãng — nó nằm ngoài dải Ngân Hà"*. Đúng khi mặt trời ở góc
-    (124, 104); SAI HẲN từ lúc nó về giữa khung, vì dải chạy ngay sau nó và mười bốn bậc
-    tinh vân cộng dồn 0,90 **phủ gần kín cái lõi trắng** — tâm mặt trời trên tranh thật đo
-    ra `rgb(120, 127, 146)`, L = 0,21, trong khi hồ sơ đòi 1,0. Chữa bằng cách đưa
-    `nguon-sang` + `loe-ngang` lên TRÊN `tinh-van` trong `SKY_LAYERS` (đúng nghĩa §8.2
-    luôn: mặt trời phải đứng TRƯỚC khối sáng), và phép đo thì đã cộng theo thứ tự ấy.
-    **Một chú thích biện hộ cho một phép xấp xỉ là một quả bom hẹn giờ: nó đúng vào ngày
-    viết ra và không ai kiểm lại khi tiền đề đổi.**
-  · **ĐƯỜNG ĐỒNG MỨC HỞ PHẢI KHÂU LẠI THEO MÉP, và khép TỪNG ĐƯỜNG MỘT LÀ SAI.** Đây là
-    chỗ 20 điểm phần trăm bậc giữa nằm, và nó là một con số, không một cảm giác. Một đường
-    đồng mức hở thì vùng bên trong nó KHÔNG được tô, nên mỗi đường hở là một mảng tinh vân
-    biến mất; `pl(ch, True)` khép nó bằng một dây cung thẳng cắt mất phần sát mép. Dải Ngân
-    Hà chạy chéo hết khung và `mw_half` kẹp `t` về [0, 1] nên dải KHÔNG BAO GIỜ tự đóng theo
-    chiều ngang — nới hộp lấy mẫu bao nhiêu cũng không chữa được. Ba thứ đã trả giá, cả ba
-    đều lặng lẽ:
-    – **Nối chuỗi phải đi CẢ HAI CHIỀU.** Bản trước lập chỉ mục theo điểm ĐẦU rồi chỉ đi
-      xuôi. Với đường kín thì bắt đầu ở đâu cũng được; với đường HỞ mà đoạn gặp đầu tiên
-      (thứ tự quét LƯỚI, không phải thứ tự hình học) nằm ở GIỮA nó thì nửa phía trước rụng
-      ra thành mảnh riêng — và mảnh ấy có một đầu KHÔNG ở mép, nên phép khép mép không nhận
-      ra nó là đường hở. Đo được: 1 397 đường / **130 hở** theo lối cũ, 1 302 / **0 hở** khi
-      đi cả hai chiều rồi khâu.
-    – **Bảng góc của bản khép trước chèn SAI GÓC** (`goc[k]` khi đi xuôi, đúng phải là
-      `goc[(k+1)%4]`), nên phép thử "điểm trong đa giác" trượt ở CẢ HAI chiều và bản khép ấy
-      khép được đúng **0** đường trên 130. Một bản sửa không chạy lần nào nhìn giống một bản
-      sửa đã chạy: dòng `khep: 0` ở sổ đếm là thứ phân biệt được hai cái.
-    – **Khâu, đừng khép riêng.** Một dải xuyên khung cho ra HAI đường hở (một cho mỗi bờ),
-      mỗi bờ đi từ mép này sang mép kia. Khép riêng từng bờ thành một đa giác thì hai đa
-      giác PHỦ NHAU và `evenodd` XOR chúng thành đúng phần BÙ của cái dải. Cách đúng: đi
-      hết một đường, tới mép thì ĐI DỌC MÉP sang đầu của đường kế, rồi tiếp, tới khi về chỗ
-      xuất phát. Chiều đi dọc mép không phải thứ để đoán — bảng marching squares luôn đặt
-      phần TRONG về cùng một phía của mỗi đoạn (kiểm được bằng tích chéo cho cả 16 mã), nên
-      vòng khâu đúng là chiều GIẢM toạ độ cung (0 ở góc trên-trái, tăng theo trên → phải →
-      dưới → trái). Đi ngược là tô ra phần bù. Mép lấy theo MÉP LƯỚI (`x0 + (nx−1)·cell`),
-      không theo `x1`: lưới có thể hụt gần một ô, và lệch một ô ở đây là một vệt dọc cả mép.
-    Thêm luôn: không một đoạn nào mà trường ở TÂM hộp vẫn trên ngưỡng ⇒ bậc ấy phủ KÍN hộp,
-    phải trả về cả hộp. Không hỏi thì nó ra "không vẽ gì" và mất trắng một bậc.
-    **Ai làm tiếp: đừng tin con số `--do` cho phần tinh vân; chạy `scripts/star/raster.py`
-    rồi đọc cột lệch.** Sau bản khép, raster bậc giữa **24,15 % → 44,81 %** và khoảng lệch
-    mô hình − raster **23,5 → 2,6** điểm phần trăm.
-  · **BẢNG TÁM BẬC KHÔNG NHÌN THẤY HÌNH — PHẢI XUẤT PNG VÀ NHÌN.** Năm vòng đánh giá
-    liên tiếp không ai mở bức tranh ra xem; mọi agent dừng ở câu *"tôi chưa chạy được
-    trình duyệt"* rồi vặn số theo bảng. Lần đầu bức được xuất ra PNG (20/10/2026) có
-    **bốn khuyết tật mà không một con số nào bắt được**, hai cái đủ để bị loại ngay từ
-    cái nhìn đầu: tám mảng tối hình BAO LỒI khoét thủng tinh vân, chín tia bụi là chín
-    vạch kẻ thẳng, tám tấm nền nhãn là tám vệt bôi đen, lõi mặt trời là một đa giác méo.
-    Cả bốn đều chiếm quá ít diện tích để đổi một chữ số thập phân nào của bảng.
-    Nay `raster.py --png <tệp>` xuất đúng bộ SVG đã ghi ra ảnh (thuần `zlib` + `struct`,
-    cùng lý do "chạy được ở mọi máy" với chính bộ raster), và `--lop troi,sao-nen` giới
-    hạn tệp để khoanh xem lỗi nằm ở lớp nào. **Đổi hồ sơ ⇒ xuất PNG và NHÌN.**
-    Bài học hình học của lần ấy, vì nó lặp lại được: *một chỗ "làm loãng" đo theo BAO LỒI
-    thì cái lỗ nó để lại mang hình bao lồi*, và làm mềm mép bằng nhiễu KHÔNG chữa được —
-    mắt đọc KHỐI chứ không đọc cạnh. Chữa bằng cách đổi cơ sở đo sang chính HÌNH
-    (`fig_dist`: khoảng cách tới nét và ngôi). Lợi kép: tối đúng chỗ tương phản được đo,
-    mà trả lại mid-tone cho phần ruột bao lồi không có nét nào đi qua.
-  · **CÁI THƯỚC PHẢI CHẠY ĐƯỢC Ở MỌI MÁY, không thì lần sau nó lại là script tạm.**
-    `scripts/star/raster.py` đọc chính mấy tệp SVG đã ghi rồi tự vẽ chúng — đó là phép đo
-    duy nhất bắt được cả bốn lỗi ở trên, vì mọi phép kiểm khác trong kho mã đọc
-    `do_sang_rgb`. Bản đầu của nó viết bằng **numpy + PIL** và đúng vì thế mà nó KHÔNG
-    commit được: môi trường chạy `build_sky.py` (job `frontend` của CI, `star-map.test.mjs`
-    tự tìm `py`/`python3`) chỉ có Python trần, không có hai thư viện ấy — nên nó bị vứt đi
-    một lần và người sau đo bằng mô hình. Bản đang chạy là marching-scanline **thuần
-    stdlib**, ~3 s ở bước 2 px, và `star-map.test.mjs` mục 22 có một ca CẤM nó import thư
-    viện ngoài, một ca cấm nó gọi `bs.do_sang_rgb`/`bs.neb_lit`/`bs.contours` (đo lại mô
-    hình là đúng cái thước nói dối nó thay), và hai ca đặt SÀN sắc độ. Lệnh `a` phải vẽ ra
-    cung tròn thật: cả 2 688 cung trong bộ tệp là quầng sao và vành đai, và bản raster tạm
-    nối thẳng tới điểm cuối nên cả lớp `quang-sao` biến thành đa giác suy biến, mất hẳn
-    khỏi phép đo.
-  · **Trần độ chói TOÀN CỤC đã bị bỏ, thay bằng NGÂN SÁCH DIỆN TÍCH** (`SKY_BUDGET`).
-    Lý do đo được ở `design/v3/chieu-sau-tuong-tac.md` §2.4. Và ngày 20/10/2026 ngân sách
-    mọc thêm HAI SÀN gác chiều NGƯỢC — `medianMin` 0,015 và `midShareMin` 0,30 — vì kiểu
-    hỏng thật không phải sáng quá mà TỐI QUÁ Ở GIỮA: bản trước có **89,7 %** diện tích ở
-    L < 0,01 và **0,73 %** ở ba bậc giữa (khung tham chiếu: 20,5 % và 43,0 %) mà vẫn đạt
-    mọi phép kiểm. Một ngân sách chỉ có trần là ngân sách gác được một nửa.
-  · **LUẬT ĐƯỜNG CHÓI CÓ MỘT VÙNG CHẾT: nền L ∈ [0,085 ; 0,116].** Vệt chòm sáng nhất
-    (`#CFE3EA` ở độ mờ 0,55) hợp thành L ≈ 0,35 nên chỉ đạt 3 : 1 khi nền ≤ 0,085; vệt
-    ĐÃ ĐỔI TÔNG (`dustLane`) chỉ đạt 3 : 1 khi nền ≥ 0,116. `litFlip.at` = 0,12 nằm ở
-    mép TRÊN của cái hố ấy, nên câu "nét trên nền sáng không trượt vì luật đường chói"
-    chỉ đúng TRÊN 0,116. Hố này đi qua mọi lần dựng trước 20/10 vì chưa đoạn nét nào rơi
-    vào. Hệ quả thực tế: **quầng mặt trời không nới ra được** — bỏ phép thu nhỏ 0,84 của
-    `SKY_LIGHT.profile` (đúng về phép đo, và nó nhấc L > 0,5 từ 4,81 lên 7,50 %) đưa nền
-    tại nét M3 lên 0,086 và build trượt ở 2,96 : 1. Hai cách né đều trả giá đo được, cả
-    hai đã thử và đã gỡ. Việc mở được chỗ này là cho nét chòm một **VỎ BỌC** như mạch
-    hoàng đạo đã có (`SKY_ZODIAC.casing` — tương phản đo giữa LÕI và VỎ nên độc lập với
-    nền), vỏ chọn tông NGƯỢC với `litFlip` để không xoá hiệu ứng hai tông.
-  · **Hai trần CỤC BỘ không còn ngang nhau.** `textCeiling` thôi làm điều kiện LOẠI chỗ
-    đặt nhãn (mọi hộp nhãn nay có một TẤM NỀN `base` α 0,72 ghim nền xuống L ≤ 0,02, nên
-    tương phản chữ độc lập với mặt trời), và `hullCeiling` thôi chặn build hẳn — M3 đứng
-    cách tâm mặt trời 215 px CÓ Ý nên nền trong bao lồi nó đo được L = 0,29, không trần
-    nào vừa cho phép chuyện đó vừa nói được gì về bảy chòm kia. Cái gác THẬT nay là
-    `kiem_tuong_phan_net`: đo tương phản TỪNG ĐOẠN nét với nền tại đúng chỗ nó nằm, sàn
-    3 : 1. Nét trên nền sáng không trượt vì LUẬT ĐƯỜNG CHÓI (`SKY_LIGHT.litFlip`) đổi nó
-    sang tông tối. Thêm/dịch nguồn sáng ⇒ đo lại cả tám nhãn, đừng tin số đo cũ.
-  · **Bộ máy đặt nhãn CÓ PHÉP LÙI, đừng đổi lại thành chọn tham lam.** Chọn tham lam hỏng
-    có hệ thống khi chỗ trống hiếm: một chòm lấy đúng cái chỗ DUY NHẤT của chòm sau nó,
-    rồi build trượt với một thông báo chỉ vào NẠN NHÂN. Đã đo ba lần với ba cặp chòm khác
-    nhau trong một phiên (M7→M6, M6→M7, M5→M3), và mỗi lần "sửa" bằng cách dịch một hộp
-    chòm chỉ đổi nạn nhân — rồi lại phải chạy lại cả bốn phép kiểm bố cục. Xem `xep_nhan`.
-  · **Ba lớp liên kết phải phân biệt được BẰNG MẮT** (nét chòm liền · mạch hoàng đạo đứt,
-    sắc riêng · dải Ngân Hà). Mạch đổi thành nét liền, hay dùng chung sắc với một chặng,
-    hay chạm vào một ngôi, thì nó đọc ra là "nét của chòm" và câu trả lời cho "các chòm
-    kết nối với nhau như nào" biến mất — trong khi tệp vẫn ra bình thường.
-  · **Bảng hộp §15 của đặc tả CHỒNG NHAU, và bảng hộp §5.4 của đặc tả BỐ CỤC HÙNG VĨ thì
-    KHÔNG DÙNG ĐƯỢC NGUYÊN.** Cái thứ nhất: đặt đúng theo nó thì PD07 (M6) và X03 (M4)
-    cách nhau 21 px và mắt đọc ra một cặp sao đôi không ai định vẽ. Cái thứ hai: bốn tâm
-    nó cho ở cánh phải (M5 1030,450 · M6 1175,250 · M7 985,105 · M8 1220,95) làm MẠCH
-    PHỤ THUỘC đi phải, quặt sang TRÁI 190 px, rồi quặt lại — một chữ S tự cắt, không
-    phải một cung lớn, mà "một cung lớn nét đứt" là toàn bộ lý do mạch được vẽ như hoàng
-    đạo (một cung đọc ra là một QUAN HỆ, một đường gấp khúc đọc ra là một LỘ TRÌNH).
-    Cánh phải nay xếp sao cho bốn mốc ĐƠN ĐIỆU theo thứ tự M5 → M6 → M7 → M8.
-    `SKY_LINK.minGap` và `kiem_mach` giữ cho lần sau; script trượt build.
-  · **Góc xoay năm chòm KHÔNG phải con số của đặc tả §6.4.** Dựng rồi đo lại thì +48° cho
-    M1 còn BA nét vi phạm (9,7° · 7,0° · 3,7°) và +15° cho M2 còn một nét ở 7,9°. Lý do:
-    bảy góc nét của M1 chỉ cách nhau vài độ theo modulo 90, nên tập góc xoay ĐẠT chỉ gồm
-    hai cửa sổ rộng ~4° — [21°, 25°] và [65°, 69°]. Con số đang chạy là +23° (biên an
-    toàn 12,0°, lớn nhất hình này cho phép). Đổi nó 3° theo chiều nào cũng trượt.
-  `frontend/e2e/unit/star-map.test.mjs` canh cả chín, mục 21 canh riêng sáu việc của
-  bản VẼ LẠI BỐ CỤC ngày 20/10/2026 (đặc tả `design/v3/bo-cuc-hung-vi.md`), và mục 22
-  là chỗ CÁI THƯỚC được dùng: hai ca đặt sàn sắc độ đo bằng raster, một ca canh chính
-  bộ raster.
-
+  một hạn MỚI. Hệ quả vẫn đúng: muốn đổi luật hết hạn (ví dụ "khách giữ tiến độ 30 ngày") thì
+  phải quyết ở `issue()`, đặt ở controller là vô ích.
+  **Phần đã sửa, và vì sao nó là lỗi thật:** production đặt `JWT_REFRESH_EXPIRES=24h` — đọc
+  nguyên văn header của `POST https://api.programmingedu.io.vn/auth/refresh` ngày 25/10/2026:
+  `set-cookie: pe_refresh=…; Max-Age=86400; Path=/auth; HttpOnly; Secure; SameSite=Lax` —
+  trong khi cookie mốc `pe_has_session` ghi cứng `max-age=28800` ở BỐN chỗ. Lệch 3 lần: từ giờ
+  thứ 8 tới giờ thứ 24 phiên còn sống nhưng cookie mốc đã hết, nên trang công khai hiện "chưa
+  đăng nhập" và badge "Tiếp tục ở bài X" biến mất dù tiến độ còn nguyên.
+  Nay `/auth/*` trả thêm `refreshExpiresIn` (giây, lấy từ chính `lifetimeMs` dùng để đặt
+  cookie) và client ghi cookie mốc theo con số đó — `danhDauPhien()` trong `api.ts`,
+  `setSessionCookie(giay)` trong `pe-bridge.js`. Đổi `JWT_REFRESH_EXPIRES` là client đi theo,
+  không phải sửa thêm chỗ nào.
+  **Hướng lệch của hạn dự phòng KHÔNG đối xứng — đừng nâng `HAN_DU_PHONG_GIAY` lên "cho khớp
+  production".** Đoán NGẮN hơn hạn thật thì chỉ mất cái badge, tiến độ còn. Đoán DÀI hơn thì
+  trang công khai mời người học vào một phiên đã chết; `apiFetch` refresh không được, rơi xuống
+  `ensureGuest()` và cấp một tài khoản khách MỚI — người học thấy như mất sạch tiến độ. Hai ca
+  test canh đúng chỗ này (`session-marker.test.mjs`, `refresh-expires-contract.spec.ts`).
+  **Câu ở đây từng ghi "`login.inline.js` vẫn dùng hạn dự phòng…" — file đó KHÔNG trang nào
+  nạp, và nay đã xoá (03/11/2026).** Cùng họ bẫy `apiFetchSessionOnly`: đặt tên một cơ chế
+  không tồn tại thì nó không chặn được gì, mà người đọc lại tưởng đang có một lớp bảo vệ.
+  Luật về hạn dự phòng vẫn đúng nguyên vẹn cho `pe-bridge.js` — chỗ THẬT đang dán cookie mốc.
 - **`apiFetch` gặp 401 là TỰ TẠO tài khoản khách — đừng gọi nó ở trang công khai.**
   `apiFetch` (`frontend/src/lib/api.ts`) khi refresh không được sẽ rơi xuống `ensureGuest()`.
   Gọi nó trên một trang ai cũng vào được nghĩa là **mỗi bot quét web sinh một tài khoản khách**,
@@ -480,20 +1438,5754 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   và nhồi rác `@guest.local` vào bảng users. Hạn mức tính theo IP nên cả phòng máy chung một
   NAT sẽ nhận 429 đúng lúc có người cần tài khoản thật. Luật dùng:
   · trang BÀI HỌC (`/lesson/*`) — nơi học viên thật sự cần một danh tính để lưu tiến độ — dùng
-    `apiFetch`;
-  · mọi trang công khai (trang chủ, `/courses/*`, badge "Tiếp tục ở bài X"…) dùng
-    **`apiFetchSessionOnly`**: nó chỉ gửi kèm phiên đang có, 401 thì trả về 401 và để UI hiện
-    trạng thái "chưa đăng nhập", KHÔNG tạo tài khoản.
+    `apiFetch`. Hôm nay đúng ba chỗ gọi nó, và cả ba đều ở bài học: `useLessonData.ts`,
+    `PythonStudio.tsx`, `LessonDbDesign.tsx` (cộng `learning-events.ts` khi lớp log được bật);
+  · **trang công khai CHỈ gọi API khi máy ĐÃ có phiên** — câu này từng là "không gọi API
+    nào cả", và nó KHÔNG còn đúng từ 4d5f86d (bê trang chủ Góc học + trang khoá từ nhánh
+    `test`): cả hai lấy tiến độ qua `apiFetch`, sau phép `hasStoredSession` (`laySo()`
+    trong `StudyRoom.tsx`, `loadCompletedLessons()` trong `course-progress.ts`). Bot không
+    có phiên đã lưu nên dừng ở đó — 0 lời gọi. `review-quiz.test.mjs` canh phép chặn ấy
+    (ablate gỡ chặn ở mỗi trang → 1 đỏ). Lớp thứ hai của nhánh `test`
+    (`apiFetchSessionOnly`) CHƯA áp, theo quyết định của chủ dự án 04/11, nên người có cờ
+    phiên đã chết mở trang chủ là nhận MỘT tài khoản khách mới.
+  **Dòng này từng ghi "mọi trang công khai dùng `apiFetchSessionOnly`" — hàm đó CHƯA BAO GIỜ
+  được viết.** `grep -rn apiFetchSessionOnly frontend/ src/` ra 0 kết quả; `api.ts` chỉ export
+  `apiFetch`, `danhDauPhien`, `asList`, `findEnrollment`, `HAN_DU_PHONG_GIAY`. Luật đúng về tinh
+  thần nhưng nó đặt tên một cơ chế không tồn tại, nên nó không chặn được gì — đúng họ bẫy mà
+  chính file này cảnh báo ở mục mốc nền ("một con số cũ trong bảng không phải chú thích lỗi thời
+  vô hại"). Ngày nào một trang công khai THẬT SỰ cần gọi API thì ĐÓ là lúc phải viết
+  `apiFetchSessionOnly` (chỉ gửi kèm phiên đang có; 401 thì trả 401 và để UI hiện "chưa đăng
+  nhập"; KHÔNG gọi `ensureGuest()`) — đừng cho rằng nó đã có.
 
-- **Mini-game "Sổ quỹ chung" (T05): một NHỊP là một lần đụng thứ dùng chung, không phải một
-  câu lệnh.** Động cơ `frontend/public/static/js/so-quy.py` biến hàm của người học thành
-  generator dừng TRƯỚC mỗi `so_quy.doc()`/`so_quy.ghi()`/lấy-trả khoá. Cắt theo câu lệnh
-  (như đề xuất ban đầu) thì `so_quy.ghi(so_quy.doc() + so_tien)` viết gộp một dòng đọc-rồi-ghi
-  trong cùng nhịp và lịch luân phiên ra 160 KHÔNG cần khoá — đã đo bằng đột biến: 6/14 ca
-  trượt. Luân phiên đạt cũng CHƯA đủ: động cơ dò thêm mọi lịch chen ngang ≤ 2 lần; bỏ bước dò
-  thì bản "chỉ khoá lúc đọc" được chấm đạt. Sửa động cơ ⇒ chạy `check_so_quy.py` (CPython) VÀ
-  `check-so-quy.mjs` (Pyodide), rồi `--ghi-mau` nếu vết đổi — test phía React phát lại đúng
-  file vết đó.
+- **Câu nói VÌ SAO một ca chấm trượt từng là hàng NHỎ NHẤT và NHẠT NHẤT của bảng.**
+  Bảng ca chấm có hai hàng mỗi ca: NHÃN chỉ gọi tên đầu vào ("Mã ngắn", "hai tháng"
+  — đo trên bản dựng: 460 nhãn, dài trung bình 14,3 ký tự, **không nhãn nào nói kết
+  quả**), và DETAIL là câu duy nhất nói vì sao ("Cần có 3 nhưng nhận 0"). Nhãn ở
+  13px/`--edu-t1` (17,14:1), detail ở **12px/`--edu-t3` (5,46:1)** — phần MANG
+  THÔNG TIN nhỏ hơn VÀ nhạt hơn phần chỉ đặt tên, ở **460 ca / 138 bài**.
+  Van der Kleij (con số đã có sẵn trong file này): phản hồi CÓ GIẢI THÍCH **d = 0,49**,
+  chỉ nói đúng/sai **0,05**. Phần 0,49 đang được trình bày như phần 0,05.
+  **LẦN THỨ HAI cùng một lỗi** — lời giải thích phương án trắc nghiệm từng bị
+  `opacity: 0.55` (mục ở dưới). Lỗi lặp ở chỗ thứ hai thì cần một CỔNG, không
+  phải thêm một lần sửa tay. Nay `feedback-rank.test.mjs` (3 ca) ghim QUAN HỆ:
+  detail không được nhỏ hơn nhãn, không được tụt quá MỘT bậc `--edu-t*`, và màu đó
+  phải vượt AA cộng một sàn 8:1 tính từ chính `edu-theme.css`.
+  **CHỨC NĂNG thì KHÔNG thiếu — đã kiểm trước khi sửa:** `studio-harness.py` phát
+  detail ở MỌI nhánh thất bại (so sánh, ngoại lệ, thiếu `solve`, mô phỏng dừng) và
+  `SandboxEditor` CÓ dựng nó ra. Mục 5 của báo cáo xếp hạng ("phản hồi có giải
+  thích") vì vậy đã xong phần nội dung; thứ sai chỉ là thứ bậc trình bày.
+  **ĐÃ ĐO VÀ BÁC, đừng dựng lại:** giả thuyết "detail dài tới 289 ký tự, JSON không
+  khoảng trắng nên tràn ngang, cần `overflow-wrap: anywhere`" là SAI. Đo trong
+  Chrome trên đúng bộ style của hàng đó, khung 360px: bản CÓ và bản KHÔNG có
+  `overflow-wrap` **cùng ra 3 dòng**, mép phải chữ còn cách mép ô 32px. Chrome ngắt
+  được sau dấu phẩy của JSON. 60/459 ca sinh câu > 120 ký tự và không ca nào tràn.
+  **Bẫy khi viết ca:** nhãn KHÔNG tự khai `fontSize`, nó KẾ THỪA từ `<li>` của hàng;
+  và `{t.detail}` nằm ở CUỐI thẻ div nên neo mốc vào đó rồi cắt xuôi sẽ vượt qua
+  `fontSize`. Cả hai làm ca ĐỎ OAN ở bản đầu — một cổng báo oan còn tệ hơn không có,
+  vì nó sẽ bị tắt. Ablate 6 chiều: trả về 12px/t3 → **3 đỏ** · chỉ hạ cỡ → 1 · chỉ làm
+  nhạt → 2 · hạ `--edu-t2` xuống dưới sàn 8:1 → 1 · xoá span nhãn → 1 (ca nói thẳng
+  "đổi cấu trúc thì sửa ca này"). Chiều NGƯỢC: nâng lên 14px/t1 → **0 đỏ**.
+
+- **NĂM người thử cùng báo "không có nút back" — mà cơ chế quay lại ĐÃ CÓ.** Đợt thử
+  nghiệm 27/10/2026: "không có nút back", "chưa có nút return", "sao không cho quay lại
+  lỡ bấm nhầm nút tiếp theo", một người trong đó tự nhận làm frontend. Nhưng `goTo()`
+  nhận số màn bất kỳ từ lâu, và thanh tiến độ trên đỉnh đã dựng mỗi đoạn đã đi qua thành
+  một `<button>` gọi `onSeek`. Thứ thiếu là cái TRÔNG NHƯ bấm được: thanh tiến độ là một
+  dải đoạn cao 4px, không viền, không nhãn. Nguyên văn một người: "ko có nút back mà bấm
+  trên thanh tiến độ để chuyển à" — họ phải ĐOÁN ra. **Một đường đi mà người dùng phải
+  đoán thì trên thực tế nó không tồn tại**, và đây là lần thứ ba cùng một hình dạng lỗi
+  trong repo này (tracer không bài nào tới, nút "Try it Yourself" không màn nào mount).
+  Nay có nút "← Quay lại" ở ô TRÁI thanh dưới. Nó gọi lại CHÍNH `goTo` — `goTo` xoá kết
+  quả chấm màn cũ, đóng gợi ý và cuộn lên đầu, bỏ sót một trong ba thì màn mới mở ra kèm
+  băng "Chưa đúng" của màn trước. KHÔNG `history.back()`: bài học là một trang đổi
+  `d.step`, nó sẽ rời hẳn bài. Bốn khung không có nội dung (đang tải, lỗi nạp, chưa ghi
+  danh, bài rỗng) dựng cùng `frame()` nên thừa hưởng mọi prop — phải `onBack: undefined`
+  cả bốn, quên một cái là có nút Quay lại trên màn "Đang tải bài học…".
+  **Đi kèm, và phải sửa cùng lúc:** nút × đóng bài thả người học về `/courses/<id>` trần,
+  mà `CourseDetail` ghim cứng module 0 mở sẵn — nên đường ra duy nhất của màn bài học
+  luôn đổ người ta xuống đầu một khoá 172 bài chia 10 module. Nay `leave()` mang theo
+  `?lesson=`. **Lệch một đơn vị ở đây hỏng IM LẶNG**: `lessonNo` là `sort_order` đếm từ
+  1, link ở trang khoá học là chỉ số PHẲNG đếm từ 0 — quên `- 1` thì vẫn mở đúng module
+  ở hầu hết các bài, chỉ sai ở bài ĐẦU của mỗi module. Phép ánh xạ nằm ở
+  `src/lib/curriculum-nav.ts` (hàm thuần, không import gì) để ca test gọi thẳng được với
+  cả 10 module thật.
+  **Cuộn phải là effect RIÊNG**: bản đầu nhét `requestAnimationFrame` vào cùng effect mở
+  module và đo được `scrollY` vẫn bằng 0 — lúc đó module còn chưa mở nên `scrollIntoView`
+  nhắm vào phần tử chưa có chỗ trên trang. Và `setState` phải HOÃN khỏi thân effect
+  (React 19 chặn, đã làm lint đỏ ngay trong lần sửa đó). KHÔNG dùng `useSearchParams()`:
+  nó buộc trang khoá học rời khỏi dạng tĩnh, mà đó là trang CÔNG KHAI không được gọi API.
+- **Phản hồi "chữ quá nhỏ" có nguyên nhân là FONT, không phải `font-size`.** Ba trên bốn
+  người trả lời khảo sát chọn "Nhiều chỗ chữ quá nhỏ, phải phóng to mới đọc được"; hai
+  người khác báo "lỗi font chữ" / "chữ cao chữ thấp". Poppins có x-height THẤP so với
+  chiều cao chữ hoa, nên cùng một `font-size` nó TRÔNG nhỏ hơn con số px nói, và vì là
+  font hình học, chữ thường gần như tròn đều nên dòng chữ thiếu mốc cho mắt bám. Đổi sang
+  **Montserrat** (người thử đề xuất đích danh) xử lý cả hai lời phàn nàn tưởng khác nhau.
+  KHÔNG chọn Helvetica — lựa chọn còn lại họ nêu — vì nó không có trên Windows, ở đó rơi
+  về Arial, tức hai máy hiện hai font khác nhau.
+  **SÁU chỗ khai font phải đi cùng nhau**, bỏ sót một là lệch font giữa các trang:
+  `edu-theme.css` (@import + biến `--edu-font`), `layout.tsx` (thẻ preload — trỏ sai là
+  tải THỪA hẳn một font), `roadmap.css` (chuỗi dự phòng riêng), và ba `*.tailwind.js`.
+  **Và phải bump `ASSET_VERSION`**: file trong `public/` không đi qua bundler nên URL
+  không đổi theo nội dung — không bump thì người đã mở trang vẫn giữ CSS cũ trong cache,
+  tức bản sửa không tới được đúng những người đã báo lỗi. Chính `assetVersion.ts` đã dặn
+  điều đó.
+  Đo tương phản trước khi đổi màu chữ, **và kết quả là KHÔNG có lỗi WCAG nào** — đừng
+  "sửa" lại vì tưởng có: t1 #0f1b33 = 17,14:1 · t2 #3a4a66 = 8,93:1 · t3 #5b6a85 =
+  5,46:1 trên nền trắng, cả ba vượt AA. Vấn đề là chỗ NÀO dùng cái gì: `.read p` (thân
+  bài của 145 bài đọc) và `ShellB .description` (đề bài của MỌI màn) đang dùng tổ hợp nhỏ
+  nhất và nhạt nhất trên màn hình. Nới đúng hai chỗ đó cộng ô tổng kết; KHÔNG nới tràn
+  mọi `font-size` nhỏ — nhãn và chip ở cỡ nhỏ là đúng, nới hết thì mất thứ bậc.
+- **Favicon là bản MẶC ĐỊNH của Vercel, và `metadata.icons` không cứu được.** Người thử
+  nhận ra ngay ("Favicon hình như là default của Vercel"). `frontend/src/app/favicon.ico`
+  đúng là file create-next-app sinh ra (25 931 byte, tam giác Vercel). Mà `layout.tsx` ĐÃ
+  khai `metadata.icons` một tên lửa 🚀 từ lâu — trong App Router quy ước FILE thắng
+  `metadata.icons`, nên dòng khai đó chưa bao giờ hiện ra lần nào. Nay là
+  `src/app/icon.svg` (cũng quy ước file, không còn lớp nào đè) và `metadata.icons` đã
+  XOÁ: khai lại ở đó là dựng lại đúng lớp đè đã gây ra chuyện này.
+- **`withInlineCode` phải dùng CHUNG một bản — ô tổng kết từng in nguyên dấu backtick.**
+  Người thử gửi ảnh ô "KIẾN THỨC CỐT LÕI ĐÃ HỌC" hiện `` `.venv\Scripts\python -m pip
+  install numpy` `` kèm cả hai backtick. Hàm bóc backtick ĐÃ CÓ và màn đọc ĐÃ dùng; ô
+  tổng kết lấy ĐOẠN VĂN ĐẦU của từng màn đọc làm ý chính (`RecapScreen.facts`) rồi dựng
+  thẳng `{f}`. Cùng MỘT câu chữ, hai đường, hai kết quả — và đường hỏng là đường không ai
+  nghĩ tới vì nó chỉ MƯỢN LẠI dữ liệu của đường kia. Hàm nay ở `src/lib/inline-code.tsx`;
+  ô tổng kết nằm ở `lesson-chrome/exercises/` (dùng chung cho mọi loại bài) nên nó không
+  được import ngược vào `components/python-studio/`. Ca test canh "hai nơi dùng CHUNG một
+  hàm", không canh "Recap có gọi bóc backtick": nơi thứ ba mượn lại cùng dữ liệu sẽ lại
+  hỏng đúng kiểu này.
+- **Trắc nghiệm sai từng KHÔNG có đường đi tiếp — ĐÃ sửa, và trạng thái thứ ba không
+  phải một trường mới.** Người thử: *"nếu sai rồi thì cho next luôn vì thử lại ở đây cũng
+  ko làm đc gì. căn bản là người dùng chỉ cần nhớ đáp án rồi chọn lại là được."* Họ đúng cả
+  về cấu trúc lẫn về bằng chứng: với 3 phương án, làm lại vô hạn đảm bảo đúng sau tối đa 3
+  lần bấm, nên câu hỏi KHÔNG CÒN MANG THÔNG TIN NÀO. Van der Kleij 2015 (40 nghiên cứu / 70
+  cỡ hiệu ứng): phản hồi có giải thích **d = 0,49** · hiện đáp án đúng **0,32** · chỉ nói
+  đúng/sai **0,05** — nút "Thử lại" trần chính là loại 0,05, dạng yếu nhất, và nó còn chặn
+  người học lại.
+  **Trạng thái thứ ba = "có `score.firstTry[key]` nhưng không có `done[key]`"**, đọc qua
+  `screenAnswered` / `screenSettled` / `isChoiceScreen` trong `studio-lesson.ts`. KHÔNG thêm
+  một trường `reviewed` vào bản nháp: đó là thứ thứ hai phải khớp với `firstTry`, và nó sẽ
+  lệch — đúng họ bẫy fixture mà file này đã ghi nhiều lần.
+  **Giá phải trả, có chủ đích:** `award()` trước đây `return` ngay khi khoá không có
+  mini-game, nên với khoá 172 bài `score.firstTry` **RỖNG HOÀN TOÀN**. Nay nó ghi cho MỌI
+  khoá; chỉ hiệu ứng "+10 điểm" mới còn gắn với `scored`.
+  **Chỉ nới cho `mcq` và `predict`.** Các màn chấm khác (`classify`/`scaffold`/`counter`/
+  `selfExplain`/`game`) giữ "Thử lại" làm nút chính, vì ở đó làm lại là làm lại VIỆC (xếp
+  lại dòng code, sửa hàm) chứ không phải chọn lại một phương án.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC, và chỗ này mới là chỗ đắt:** `complete()` trước đây gửi
+  `play ? quizPercent(…) : 100`, tức khoá 172 bài LUÔN gửi **100** kể cả sai cả 3 câu — vì
+  `firstTry` của nó rỗng. Nay cả hai chỗ gọi dùng chung `diemBai()`. Mà `scaledXp` ở backend
+  là `xp_reward × (50% + 50% × quizScore)` và `SCORED_XP_COURSES` CÓ `python_advanced`, nên
+  **sai cả 3 câu = 50% XP của bài**; trước bản này mọi người đều nhận 100%.
+  **Một hệ quả KÉO THEO, chưa ai quyết riêng:** trần "có hỗ trợ" của `quizPercent` (mở gợi ý
+  → tối đa 80) nay cũng áp cho khoá bài đọc.
+  **Ô thống kê phải đếm `firstTry`, KHÔNG đếm `done`** — đếm `done` thì bấm "Chọn lại" rồi
+  chọn phương án vừa đọc được là về 3/3, tức mẹo người thử nói ra sống lại nguyên vẹn.
+  **Lời giải thích của phương án KHÔNG được làm mờ nhất.** Phương án không-được-chọn-và-
+  không-phải-đáp-án từng bị `opacity: 0.55`, tức đúng phần d = 0,49 bị làm mờ hơn cả.
+  **Nhãn nút phải ≤ 20 ký tự** (có ca test): dưới 560px thanh dưới là flex với nút chính
+  `flex:1; min-width:132px`, nên "Đã xem đáp án — tiếp tục →" (26 ký tự) tràn ngang.
+  Và sửa kèm một lỗi dữ liệu: `X-Quiz.Answer` suy "lần đầu" bằng `firstTry[key] === undefined`
+  nên ở khoá bài đọc MỌI lần chấm đều bị ghi là lần đầu.
+  Ablate 13 mảnh: `screenSettled` về `done` thuần → **5 đỏ**; `isChoiceScreen` nới ra mọi màn
+  có chấm → 3; `markDoneOnNext` luôn markDone → 2; bỏ `secondaryCta` → 2; chín mảnh còn lại
+  mỗi mảnh 1. `mcq-next-after-wrong.test.mjs`, 23 ca.
+  **Giới hạn đã nói ra:** `primaryCta` không import được vào `node --test` (`cta.ts` import
+  một `.tsx`), nên nhánh nút chính chỉ canh được bằng phép đọc cây mã.
+
+- **Ô kết quả từng không nói nổi nó là kết quả của BẢN CODE NÀO.** Bài PY01 có một câu
+  tự vấn viết sẵn trong nguồn — *"Nếu không bấm chạy lại, output đang nhìn thuộc bản code
+  nào?"* — và nền tảng không trả lời được. Người học sửa một dòng, không bấm Chạy, rồi đọc
+  tiếp console bên dưới như thể nó là kết quả của bản vừa sửa: console nguyên màu, chip
+  "✓ Đạt" của lượt trước vẫn xanh, dòng "123 ms" vẫn đứng đó. Nay sửa mà chưa chạy thì ô
+  kết quả tự làm mờ và nói thẳng *"Kết quả này của bản code trước — bấm Chạy để cập nhật."*
+  Rẻ, và đúng với **cả 172 bài** chứ không riêng bài nào: nó chỉ cần hai chuỗi.
+  **So MÃ, không so cờ "đã gõ phím".** Cờ đó bật ở lần `onChange` đầu và không có đường
+  tắt lại, nên người gõ rồi xoá về đúng như cũ sẽ bị dán nhãn "kết quả cũ" trong khi kết
+  quả vẫn ĐÚNG. Luật ở `ketQuaLaCu` (`frontend/src/lib/run-freshness.ts`, hàm thuần — logic
+  trong hook là logic không có test).
+  **Xuất xứ phải CHỤP lúc gửi, không đọc lại `draft.code` trong callback:** gõ tiếp trong
+  lúc worker đang chạy là chuyện thường, và lúc kết quả về thì `draft.code` đã là bản khác
+  — ghi nó làm xuất xứ thì một kết quả CŨ lại được đóng dấu "của bản đang gõ", tức bug sống
+  lại ở đúng ca người học sốt ruột nhất. `setRanCode(maDaGui)` đứng ngay cạnh
+  `setResult(data)` trong `useLessonRun`.
+  **Cổng `coKetQua` không phải phòng xa:** bấm Chạy rồi bấm Dừng thì `result` về null nhưng
+  xuất xứ vẫn giữ mã lượt TRƯỚC — thiếu cổng thì một console RỖNG lại đeo băng "kết quả của
+  bản code trước".
+  **Băng chữ ở tương phản ĐẦY ĐỦ, phần làm mờ mới là lớp phụ.** Làm ngược (chỉ mờ, không
+  chữ) thì với người dùng trình đọc màn hình không có gì xảy ra cả. `opacity` 0,62 kèm
+  `saturate(.45)`: thứ nói dối to nhất ở đây là MÀU — chip xanh của lượt trước nằm ngay
+  dưới một bản code chưa ai chạy — còn chữ thì vẫn phải đọc được, vì đối chiếu output cũ
+  với code mới chính là việc họ đang làm.
+  Ablate 11 mảnh (`run-stale.test.mjs`, 15 ca): so bằng cờ "đã gõ phím" → **3 đỏ**; chuẩn
+  hoá khoảng trắng trước khi so → 2; chín mảnh còn lại mỗi mảnh 1 (bỏ cổng `coKetQua`,
+  callback đọc `draft.code`, thôi trả `ranCode`, thôi truyền `resultStale`/`stale`, ghi lại
+  chuỗi thay vì dùng hằng chung, bỏ lớp bọc mờ, bỏ `role="status"`, bỏ quy tắc CSS).
+  **Phạm vi đã nói ra:** `DebugGame` cũng dùng `SandboxEditor` nhưng KHÔNG truyền `stale`
+  (prop tuỳ chọn) — `gameRun` không giữ mã đã chạy, và khoá 172 bài không có game nào.
+
+- **Chữ TRONG sơ đồ không phóng to được, và đó là lỗi VẬT LIỆU chứ không phải `font-size`.**
+  Ba trên bốn người trả lời khảo sát ngày 29/10/2026 chọn *"Chữ và nhãn TRONG sơ đồ quá nhỏ,
+  phải phóng to mới đọc được"*. Chữ đó nằm trong PNG 780×455: chữ của TRANG reflow, chữ
+  trong ẢNH thì scale — trên màn 360px ảnh bị bóp 0,46× nên nhãn 10pt hiện ra 4–5px. Không
+  quy tắc CSS nào với tới pixel trong ảnh, và **SVG chỉ chữa một nửa** (ở cỡ hiển thị mặc
+  định nó có đúng cỡ chữ như PNG). Nay có loại khối đọc thứ SÁU — `diagram` — dựng sơ đồ
+  bằng DOM: `<p>`/`<code>` thật, kế thừa `--edu-font` và cỡ chữ của trang, reflow, trình
+  đọc màn hình đọc được, dịch được. Không thêm thư viện nào.
+  **PHÉP THỬ, đúng một bài: PY05** (thứ tự phép tính) — hai cột `3*15-5 → 45-5 → 40` cạnh
+  `3*(15-5) → 3*10 → 30`, cộng một hàng `/` so với `//`. Đo lại trước khi bỏ công cho cả bộ.
+  **HÌNH TĨNH, KHÔNG animation — kết luận có bằng chứng, không phải để tiết kiệm công:**
+  toàn bộ giá trị nằm ở việc SO HAI LÀN, mà so sánh cần cả hai cùng có mặt. Animation chạy
+  lần lượt phá đúng cái nó định dạy (Tversky 2002: *"clever schematization of static
+  diagrams may be just as effective as animation"*). Có ca test ghim chuyện này, vì "thêm
+  một animation nhỏ cho sinh động" là việc rất dễ làm.
+  **Dữ liệu nằm ở `SO_DO_DOC` trong `scripts/pe-da/build.py`, KHÔNG thành trường mới của
+  `source/course.json`:** gói nguồn là của người soạn giáo trình và còn được giao lại nhiều
+  lần nữa, còn một dict 20 dòng thì rút lại được trong một commit. Ngày bộ này lớn hơn chục
+  bài thì chuyển sang gói nguồn, đừng nuôi bảng thành danh bạ.
+  **Vì nó là chữ người viết đặt, nó TRÔI ĐƯỢC** — nguồn sửa `3 * 15 - 5` thành con số khác
+  thì bài dạy một chuyện và sơ đồ dạy chuyện khác ngay cạnh nó, không exception nào ném.
+  `kiem_so_do()` (check.py) đòi bước ĐẦU của mỗi làn là biểu thức có thật trong code bài và
+  bước CUỐI có thật trong `expected`. Các bước GIỮA cố ý không bị đòi: đó chính là phần sơ
+  đồ thêm vào.
+  **Số làn phải CHẴN:** grid là `repeat(auto-fit, minmax(245px, 1fr))`, nên một làn lẻ đứng
+  một mình ở hàng cuối là mất phép so sánh, tức mất đúng thứ duy nhất khối này mang lại.
+  245px là SỐ ĐO (Chrome, sơ đồ PY05): dãy dài nhất rộng 212px + 29px padding/viền của
+  làn. Thấp hơn thì hai cột vẫn dựng nhưng mỗi dãy gãy làm hai dòng — mất đúng cái nhịp
+  nó bán. Đổi nội dung sơ đồ thì ĐO LẠI.
+  **Và một khoá `SO_DO_DOC` gõ sai thì sơ đồ lặng lẽ không được phát:** build.py đếm lại và
+  trả về 1 nếu số sơ đồ phát ra khác số khai — đúng họ lỗi "built but unreachable".
+  **KHÔNG khai `font-family` cho phần chữ của sơ đồ** (ngoại lệ duy nhất: biểu thức Python
+  dùng mono): mục đích của khối này là kế thừa font trang, ghi font ở đây là dựng lại cái
+  tường nó ra đời để phá — và sẽ lệch ở lần đổi font sau (Poppins → Montserrat đã phải đi
+  sáu chỗ). Cả ba chỗ có chữ (`title`, `label`, `note`) đi qua CÙNG `paragraphs`, tức cùng
+  `withInlineCode` — chỗ nào dựng chuỗi trần là chỗ in ra nguyên hai dấu backtick.
+  Ablate 12 mảnh (`read-diagram.test.mjs`, 12 ca): `SO_DO_DOC` rỗng → 1 đỏ ở đây **cộng
+  2 đỏ ở `studio-lesson.test.mjs`** (đếm khối + "không khai loại build không phát"); gỡ
+  nhánh `case 'diagram'` → 2 đỏ và typecheck đỏ; mười mảnh còn lại mỗi mảnh 1 (trong đó
+  bỏ `max-width` của grid, tức bỏ trần hai cột).
+  **Chưa tới người học cho tới khi nạp DB:** `scripts/pe-da/out/lessons.json` đã có sơ đồ,
+  nhưng nội dung bài thì đọc từ DB — cần
+  `npx ts-node scripts/update-lesson-content.ts --codes=PY05 --apply --backup=<file.json>`.
+
+- **BẢNG TỪNG BƯỚC của màn đọc: vết TÍNH SẴN, và nó KHÔNG sinh được trong build.py.**
+  Màn đọc hôm qua chỉ có khối code rồi một ô "KẾT QUẢ:" với toàn bộ đầu ra — không thấy
+  được gì xảy ra ở giữa. Nay mỗi khối code đủ điều kiện mang thêm trường `trace`
+  (`ReadBlock.trace` → `StepTrace.tsx`): nút "Xem từng bước" ẩn sẵn, bấm thì HỎI DỰ ĐOÁN
+  trước, trả lời xong mới mở bảng.
+  **VÌ SAO KHÔNG SINH TRONG `build.py`, dù `SO_DO_DOC` đã ở đó.** CI chạy
+  `python scripts/pe-da/build.py` rồi ĐÒI bản dựng trùng TỪNG BYTE với bản đã commit, trên
+  runner **Python 3.12 không có numpy/pandas/matplotlib** — mà 90/154 bài từ module 2 trở
+  đi import chúng. Build mà tự chạy tracer thì máy người soạn ghi vết, CI bỏ qua, hai bản
+  dựng khác nhau, CI đỏ mãi mà không ai sửa được. Thêm nữa `repr` đổi theo phiên bản
+  Python, nên cả bài stdlib thuần cũng không chắc dựng giống nhau. Vết vì vậy sinh bằng
+  `py scripts/pe-da/gen_traces.py` và COMMIT vào `scripts/pe-da/traces.json`; build chỉ
+  ĐỌC. Đúng khuôn `chep_anh()` đã dùng cho 80 ảnh: gói nguồn chỉ có trên máy người soạn.
+  **DÙNG LẠI tracer của `/ide`, không viết tracer thứ hai:** `gen_traces.py` dựng đúng file
+  mà worker dựng (`scripts/tracer/pe_tracer.py` + `_pe_run(<mã đã nén>)`) rồi chạy bằng một
+  tiến trình riêng — y hệt `pe_tracer_test.py`.
+  **MỘT lần chạy MỖI BÀI, không mỗi khối.** Nguồn viết các đoạn để chạy NỐI TIẾP (đoạn 3
+  dùng `df` của đoạn 1), nên trace riêng đoạn 3 là trace một chương trình chết ở NameError.
+  Cả bài được nối bằng CHÍNH `noi_code()` rồi cắt theo khoảng dòng của từng đoạn và đánh số
+  lại về 1. **Và phép cắt KHÔNG được chỉ lọc theo DÒNG:** bài định nghĩa hàm ở đoạn 1 rồi
+  gọi ở đoạn 3 thì thân hàm chạy ở đoạn 3 nhưng số dòng vẫn thuộc đoạn 1 — lọc theo dòng là
+  nhét mấy bước đó vào cuối bảng của đoạn 1 kèm tham số mà đoạn 1 chưa có biến nào mang.
+  Bảng của đoạn j dừng ở lần đầu luồng chạy sang một đoạn SAU nó.
+  **HAI con số của tracer phải đổi ở khâu build, và chỉ một trong hai:** `timeBudgetMs`
+  4 000 được chọn để nhỏ hơn hạn 5 giây CỦA BÀI HỌC, mà ở build không có hạn nào như thế —
+  để nguyên thì **44 khối** bị bỏ với `time-limit` và **15 khối** quá timeout, gần hết là
+  bài matplotlib (riêng `import matplotlib.pyplot` đã vài giây và nó nằm TRONG mã người
+  học). Nâng lên 60 000 ở khâu sinh. `maxSteps`/`maxBytes` thì GIỮ: chúng bó cái BẢNG.
+  **`MPLBACKEND=Agg` là bắt buộc:** `code_hoc_vien()` trả bản `displayCode` có `plt.show()`,
+  và trên máy người soạn matplotlib chọn backend Tk — `plt.show()` MỞ CỬA SỔ rồi CHẶN tới
+  khi có người đóng. Đo được: 30 bài VZ mỗi bài treo tới hết timeout. Đây đúng là việc
+  `studio-harness.py` làm cho đường trình duyệt.
+  **CÂU DỰ ĐOÁN KHÔNG ĐƯỢC BỎ CHO GỌN — có bằng chứng.** Hundhausen 2002 tổng hợp 24 thực
+  nghiệm CÓ ĐỐI CHỨNG: chỉ 46% cho kết quả có ý nghĩa, 42% KHÔNG, và Gurka lặp lại thí
+  nghiệm nhưng BỎ điều kiện "dự đoán" thì lợi thế BIẾN MẤT. Brod 2021 nói ra cơ chế: đoán
+  sai → ngạc nhiên → chú ý dồn vào đáp án đúng. Nên nút "Mở bảng" chỉ bật khi đã gõ câu trả
+  lời (`disabled={!doan.trim()}` — một dòng, và là toàn bộ phần có bằng chứng của tính
+  năng), và khâu sinh **BỎ QUA và ĐẾM** mọi khối không ra được câu hỏi nào bảng trả lời
+  được, thay vì phát một cái bảng không ai phải đoán gì.
+  **BỐN luật làm nên một câu dự đoán THẬT, và `kiem_vet()` của check.py bắt được cả bốn
+  trên bản dựng thật — đây là số ĐÃ ĐO, không phải lý thuyết:**
+  · đáp án không được có trong ô "Kết quả:" ngay phía trên (bản sinh đầu quên áp luật này
+    cho câu `count`) → **3 lỗi**: PD29, VZ02, CT06 — vòng lặp chạy 3 lần và bài in ra một
+    dòng có chữ số 3, nên đọc ô Kết quả là đoán trúng;
+  · đáp án không được nằm nguyên văn trong CHÍNH ĐOẠN CODE khi biến chỉ gán một lần
+    (EX02 `raw = "name,mark\nMai,8.5\nAn,7.0\n"`), và câu `count` chỉ được hỏi về một dòng
+    THÂN vòng lặp — hỏi chính dòng `for` thì đáp án là n+1, còn hỏi một dòng có
+    comprehension thì con số là chi tiết nội tuyến hoá của Python 3.12 (PEP 709): SY13
+    `print([s["id"] for s in students])` ra "4 lần" → hai luật này **46 lỗi**;
+  · đáp án phải GÕ LẠI ĐƯỢC — `ndarray: array([1, 2, 3])`, `<thư viện numpy>`,
+    `property: <property object>`, hay 31 chữ số của `2 ** 100` thì không ai gõ, mà gõ lại
+    chính là hành động cam kết cả bước này tồn tại để lấy → **9 lỗi**.
+  **Hai thứ nữa mà `f_locals` mức module bịa ra, và cả hai đã cắn:** biến chạy của
+  comprehension (`s` trong `[s["id"] for s in ranked]`) hiện ra LÚC comprehension chạy rồi
+  biến mất, nên "sau khi chạy xong `s` bằng mấy" hỏi về một biến không còn tồn tại; và biến
+  của ĐOẠN TRƯỚC trông như vừa đổi (SY13 hiện `credits = ndarray…` giữa hai dòng `print`
+  của một đoạn không nhắc tới nó). Luật chữa: ứng viên phải CÒN trong locals ở bước cuối,
+  và bảng của một đoạn chỉ hiện biến mà ĐOẠN ĐÓ nhắc tới.
+  **Coverage là 56 vết / 356 khối đủ điều kiện**, 300 bỏ qua — và hình dạng của
+  phần bỏ nói đúng một chuyện: **277 khối không ra được câu dự đoán nào đáng hỏi**, gần hết
+  là bài pandas/numpy/matplotlib, vì ở đó mọi biến là đối tượng mờ (DataFrame, ndarray,
+  Figure) và thứ duy nhất đọc được thì bài đã `print` ra sẵn. Nó khớp số đo đã có trong
+  repo: tracer lọc theo `co_filename` nên mã dữ liệu chỉ 1,1×–1,3× — tức gần như KHÔNG sinh
+  sự kiện nào, tức bảng chẳng có gì để hiện. Bảng từng bước là công cụ cho mã ĐIỀU KHIỂN
+  LUỒNG (SY 28 · CT 9 · VZ 7 · EX 5 · GU 3 · PD 3 · RC 2), và nó tự dồn về đúng chỗ đó.
+  **Đừng "nâng coverage" bằng cách nới luật:** mỗi lần nới là một cái bảng mà người học
+  cuộn qua, và đó đúng là điều kiện mà Hundhausen đo được là KHÔNG có tác dụng.
+  **Module 1 KHÔNG có bảng** (quyết định đã chốt): ở đó code còn là `print(2 + 3)`, bảng
+  không nói thêm gì mà lại dạy người học bỏ qua cái nút đúng lúc nó chưa đáng bấm.
+  **Cổng chống "built but unreachable" nằm ở `vet_cua_bai()` + `main()`:** vết sinh ở MỘT
+  LẦN CHẠY KHÁC nên nó có thể cũ, mồ côi hoặc lệch chỉ số. build.py `return 1` khi số vết
+  phát ra ≠ số khối đủ điều kiện trừ số bỏ qua, khi traces.json có mục cho bài không được
+  có vết, và khi **`codeHash` lệch** — lệch nguy hiểm nhất, vì bảng vẫn mở ra, vẫn đẹp, và
+  dạy một đoạn code không còn tồn tại (cùng họ "sơ đồ đã trôi khỏi bài"). Hash tính trên
+  CHƯƠNG TRÌNH ĐÃ NỐI, không trên từng khối rời: sửa khối 1 làm vết của khối 3 sai.
+  **MÀN ĐỌC KHÔNG CÓ Ô SOẠN MÃ** — khối `code` dựng `CodeBlock`, chỉ đọc. Nên phần "sửa
+  code rồi chạy lại" KHÔNG áp dụng ở đây: chỗ đó là `/ide`, và nút "Thử ngay trong IDE"
+  ngay trên nút này đã bàn giao đúng tiền tố mã sang đó. Dựng thêm một ô soạn mã ở màn đọc
+  là dựng lại `/ide` trong một cái accordion.
+
+- **CƠ CHẾ NẠP FILE DỮ LIỆU: `step_4.dataFiles`, cấp BÀI, chỉ TÊN — và NĂM chỗ phải đi
+  cùng lúc.** Trước bản này không có đường nào để một file dữ liệu tới được Pyodide: không
+  `FS.writeFile` ở worker nào, và 499 khối code đều tự dựng dữ liệu tại chỗ (`tempfile` 36 ·
+  `StringIO` 19 · `open()` 18 · `read_csv` đúng **7**). Năm chỗ: `build.py` (bảng `KHOI_DU_LIEU`
+  + cổng ở `main()`), `studio-lesson.schema.ts` (**cửa duy nhất vào DB**), hai worker,
+  `check.py`, và `check-pyodide.mjs`.
+  **Cấp BÀI chứ không cấp KHỐI, có lý do:** `_prepare_dir()` tạo MỘT thư mục rồi `chdir` cho
+  cả lần chạy, mà ô "Chạy thử" nối mọi khối thành một chương trình — "file này chỉ có ở khối
+  3" là lời hứa hệ tệp không giữ được.
+  **Chỉ TÊN, không nội dung.** Nhúng `don_hang.csv` (1,29 MB) vào `content_json` như
+  `step_4.files` là nhồi nó vào DB và bắt mọi lượt mở bài tải nó qua API. Worker tải theo tên
+  rồi gộp vào CHÍNH tham số `files` của `_studio_main`, nên `studio-harness.py` **không phải
+  sửa một dòng nào**.
+  **KHÔNG gzip, và đã đo:** Next.js đã trả `Content-Encoding: gzip` — 185 075 byte thay cho
+  1 289 915 (14,3%). Nén tay chỉ mua thêm một bản `.gz` thứ hai phải giữ đồng bộ.
+  **Nhánh Node và nhánh trình duyệt là HAI, và đó là điều kiện để hàng rào sống.** Trình
+  duyệt `fetch('/static/da-dulieu/<tên>')` cùng origin; Node `readFileSync`. Ba bộ chấm vẫn
+  vá `globalThis.fetch` để từ chối mọi `http(s)://` — **không gỡ một dòng nào**. Kiểm lại:
+  giấu `mon.csv` đi rồi `node scripts/pe-da/check-pyodide.mjs PD13` phải ĐỎ với "thiếu file
+  dữ liệu". Đã thử: đỏ. Nếu nó XANH thì cơ chế đang lặng lẽ rơi về CDN.
+  **Bài mẫu là PD13, không phải PD12** — PD12 hợp chủ đề hơn nhưng có BÀI TẬP ĐƯỢC CHẤM, nên
+  `step_4` của nó là bài tập và mã bài đọc không còn ai bấm Chạy; khối dữ liệu ở đó lại thành
+  một thứ không có đường tới người học.
+  **`check-practice.mjs` nay nạp được, cổng cấm đã gỡ ở BA chỗ** (`build.py`, luật 8 của
+  `check.py`, và một ca trong `data-files.test.mjs`). Cổng đó ra đời vì bộ chấm chưa làm
+  được, nên nó mất lý do tồn tại đúng lúc bộ chấm xong — nhưng **gỡ nó mà không đặt gì vào
+  chỗ nó đứng là mở cửa cho một bài tập không ai chấm**. Thay nó là PHA 3 ("cổng file dữ
+  liệu"): với mỗi bài tập khai `dataFiles`, chạy một chương trình đọc từng file ở TẦM MODULE
+  qua hai thứ tự khác nhau (để "trả hằng" không đạt cả hai); và pha 3 cũng ĐỎ khi chạy cả bộ
+  mà KHÔNG bài tập nào khai `dataFiles` — gỡ cổng rồi không ai đi qua chỗ nó từng đứng thì
+  nhánh mới lại là "dựng rồi không ai tới được".
+  **Phải truyền `files` ở CẢ BA lời gọi `grade()`**: `_execute` gọi `_prepare_dir(files)` ở
+  MỖI lần chạy lại, nên truyền một lần ở pha 1 là không đủ.
+  **GIỚI HẠN ĐÃ ĐO, và nó quyết định sức nặng của bằng chứng:** bỏ `files` khỏi cả ba lời gọi
+  thì pha 1 (415 ca) và pha 2 (556 biến thể) VẪN XANH, chỉ pha 3 đỏ với `FileNotFoundError`.
+  Vì chưa bài tập nào THẬT SỰ đọc file — PD16 chỉ có file nằm sẵn trong thư mục chạy, còn ca
+  chấm của nó đến từ `source/practice.json` và không đọc file. Ngày module thực hành có bài
+  tập đọc file thật thì pha 1 sẽ tự đỏ và pha 3 thành lớp thứ hai. Đừng đọc "pha 3 xanh" là
+  "cơ chế đã được chứng minh bằng một bài tập thật".
+  **`check-pyodide.mjs` nay đọc BẢN DỰNG, không đọc `source/course.json`** — nếu không thì nó
+  mù với mọi khối do build phát ra (dữ liệu, sơ đồ).
+
+- **Luật 6 của cổng INSERT từng TỪ CHỐI OAN, và lối thoát duy nhất là bịa nội dung.**
+  `planLessonInserts` đòi bài phải có `step_1.read` HOẶC `play`. Hai khoá đó đúng là thứ
+  172 + 48 bài đang có nên nó trông đủ — nhưng `buildScreens()` dựng màn từ `step_1.memory`,
+  `step_2.mcq`, `step_3.trace`, `step_4.tests` mà KHÔNG cần hai khoá ấy. Bài nhập từ tài liệu
+  theo mẫu `## S1..## S4` rơi đúng vào khe đó: dựng đủ màn trong trình duyệt, mà cổng bảo
+  "gói dựng dở". Khi một cổng sai, cách đi tiếp luôn trông hợp lý — ở đây là thêm một phần
+  `## Đọc` cho qua cửa, tức bắt người soạn đổi NỘI DUNG để chiều một phép kiểm sai. **Sửa
+  cổng, đừng sửa nội dung.**
+  Luật 6 nay là `sinhDuocManNao()` — bản CHÉP điều kiện của `buildScreens`. Chép chứ không
+  import được (một bên `src/` chạy Jest, một bên `frontend/src/` chạy `node --test`), nên nó
+  SẼ TRÔI, và trôi im lặng theo đúng chiều nguy hiểm. `insert-gate-sync.test.mjs` đọc cả hai
+  cây mã và bắt hai danh sách khoá phải khớp — cùng khuôn `tracer-web-sync.test.mjs`. Ca thứ
+  hai của bộ đó kiểm chính phép quét tìm được khoá, vì regex trượt hết thì hai tập cùng RỖNG
+  và ca thứ nhất vẫn XANH trong khi không còn chứng minh gì.
+  Ablate: trả luật 6 về bản cũ → 1 đỏ ở `lesson-insert.spec.ts`; gỡ một nhánh của bản chép →
+  1 đỏ ở đó **và** 1 đỏ ở `insert-gate-sync` kèm đúng tên khoá còn thiếu.
+
+- **Đường nhập tài liệu đã bỏ nhánh AI, nhưng 7 biến `GEMINI_*` phải Ở LẠI.**
+  `lesson-import.service.ts` không còn `parseWithGemini()`: file không khớp mẫu thì báo lỗi
+  nói rõ sai ở đâu, không đoán. **Nhưng đừng dọn biến môi trường theo.** Có **7** biến
+  `GEMINI_*` (không phải 4) và cả 7 đang được `ChatbotModule` đọc — module còn đăng ký ở
+  `app.module.ts`. Gỡ chúng khỏi `env.validation.ts` là làm Joi TỪ CHỐI một `.env` production
+  đang chạy, và `config.get<number>('GEMINI_TIMEOUT_MS')` quay lại dạng CHUỖI — đúng sự cố
+  13/10/2026, chỉ theo chiều ngược.
+  **PDF: thụt lề DỰNG LẠI từ toạ độ chữ, không đọc văn bản phẳng.** `pdf-parse` trả văn bản
+  phẳng và thụt lề mất sạch — thân hàm Python về cột 0. `validateStudioLesson` KHÔNG đọc nội
+  dung mã nên không chặn được: lọt là bài vào DB rồi ném `IndentationError` ở tay học viên,
+  một lỗi không ai truy ngược về PDF. Đo trên file mẫu: 1 294 mẩu chữ, 1 901 phép đo bề rộng
+  ký tự, **100,0% ra 4,951 pt** ⇒ lưới chữ đều bề, nên `cột = (x − lề trái) / bề rộng`. Dựng
+  lại trùng TỪNG BYTE **110/114 dòng** so với bản `.md` gốc.
+  **Đo không ra lưới đều bề thì QUAY VỀ đường phẳng, không đoán** (ngưỡng: ≥90% phép đo trùng
+  trong sai số 2%, ≥20 phép đo) — và `kiemThutLe()` ở lại làm lưới an toàn, **đừng nới nó cho
+  một file qua được**.
+  **Cắt dòng theo bề rộng trang thì KHÔNG chữa được**, kể cả bằng toạ độ: dòng tiếp theo của
+  một dòng bị cắt nằm ở đúng cột 0 như một dòng mới thật. `f"{x!r}"` thành `f"`. Vì vậy mọi
+  nguồn PDF vẫn kèm một cảnh báo bắt đọc lại bản xem trước.
+  **`pdf-parse` KHÔNG chạy được dưới Jest** (`pdfjs-dist` `import()` động, vm của Jest ném
+  `ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING_FLAG`). Cách chia vai: phần đọc file chạy thật qua
+  `scripts/import-lesson.ts`, còn toàn bộ phần CÓ THỂ SAI là hàm thuần và Jest chấm nó bằng
+  toạ độ THẬT chụp từ PDF (`__fixtures__/pdf-mau-chu.json`). Chụp lại bằng cờ `--chup`, đừng
+  gõ tay — và có một ca bắt bản chụp phải BẰNG thứ phép dựng hôm nay sinh ra, vì không có nó
+  thì sửa phép bóc mà quên chụp lại vẫn xanh trên dữ liệu cũ.
+
+- **32 bài đã đổi miền sang quán cà phê, và `topics` CỐ Ý không đổi theo.** SY25–SY28 và GU12
+  đổi từ "quản lý sinh viên, môn học và điểm" sang "quản lý món, nguyên liệu và định lượng"
+  (chủ dự án cho phép 29/10); NP06/NP11/NP23 từ điểm kiểm tra sang số cốc; NP13/NP14 từ lượng
+  mưa sang lượng sữa; PD08/VZ28/RD05 từ nhiệt độ sang doanh thu/số cốc. `topics`, `sourceRefs`,
+  `sourcePages` vẫn trỏ về slide gốc — đó là lý lịch ĐÚNG, không phải chú thích lỗi thời; đã
+  kiểm `topics` không được `build.py` hay `check.py` đọc một lần nào. Lý do ghi ở
+  `scripts/pe-da/CAU-CHUYEN.md`.
+  **PD16 đã đổi từ bảng KHÁCH sang bảng MÓN.** Bài dạy `merge` bằng một bảng khách
+  (`customer_id`, `name`), mà lược đồ CỐ Ý không có bảng khách — dữ liệu khách là dữ liệu cá
+  nhân, cùng lý lẽ đã buộc bỏ cột thẻ khỏi bộ CC0 (xem `NOTICE.md`). Tiêu đề và cả ba ví dụ
+  hứa một bảng mà không bộ dữ liệu nào trong khoá có. Cấu trúc ba phép join giữ nguyên nên
+  bài vẫn dạy đúng left/inner/outer; `expected` ĐO LẠI bằng `check-pyodide.mjs`, không gõ
+  tay. Đổi tiêu đề thì `check.py` đỏ cho tới khi chạy `sync_curricula.py` — hai nguồn danh
+  sách bài, xem bẫy riêng.
+  **Còn hai chỗ nói tiếng cũ:** ba ảnh `VZ28-*.png` mang nhãn `Temperature (arbitrary units)`
+  TRONG PIXEL (ảnh xuất sẵn trong gói nguồn, `chep_anh()` chỉ chép — sửa phải xuất lại từ gói
+  nguồn, mà gói đó nằm ngoài repo), và `source/practice.json` vẫn dùng `region`/`qty`/`E`/`W`.
+
+- **MỘT KÝ TỰ VÔ HÌNH CHẶN ĐƯỢC CẢ KHOÁ: Postgres `jsonb` không lưu được U+0000.**
+  Sự cố 30/10/2026: nạp 172 bài, **122 câu UPDATE chạy xong**, câu thứ 123 ném
+  `22P05 unsupported Unicode escape sequence` và transaction rollback ⇒ KHÔNG bài nào
+  được ghi. Thủ phạm là một **KHOÁ** JSON của SY20: `students.csv\x00.exe` trong ca chấm
+  "tên kèm byte null bị zipfile cắt khi ghi". Người chạy thử ba lần, mỗi lần nhận một
+  đối tượng Prisma không nói tên bài, và file sao lưu thì vẫn ghi ra đầy đủ nên nhìn vào
+  thư mục backup lại tưởng đã nạp.
+  **DUYỆT CẢ KHOÁ, KHÔNG CHỈ GIÁ TRỊ.** Bản quét đầu của tôi chỉ duyệt giá trị chuỗi và
+  báo "0 chỗ" trên đúng cái file đang hỏng — khoá của dict cũng là chuỗi trong JSON và
+  Postgres cũng từ chối ở đó. Surrogate lẻ cũng vậy; cặp surrogate hợp lệ (emoji) thì KHÔNG
+  được chặn nhầm.
+  **HAI LỚP, cố ý:** `kiem_ky_tu_db()` trong `check.py` bắt ở khâu dựng (người soạn thấy
+  sớm), và `validateStudioLesson` bắt ở **CỬA DUY NHẤT vào DB** — cả đường cập nhật lẫn
+  đường tạo mới đều qua nó, nên một chỗ là đủ và không có chỗ thứ hai để trôi lệch.
+  **Ca đó KHÔNG xoá được, và cũng không viết lại được bằng tên khác.** Đã đo trong chính
+  Pyodide của repo: `/abs/x.txt`, `a//b.txt`, `dir/../x.txt`, `C:\\x.txt`, dấu cách
+  thừa, tổ hợp Unicode, tên rỗng — **12 tên đều đi qua zipfile NGUYÊN VẸN**, vì dưới
+  Emscripten `os.sep == "/"` nên nhánh đổi dấu phân cách không chạy và `writestr` không
+  cắt dấu `/` đầu như `write`. Cắt ở NUL là phép biến đổi DUY NHẤT, tức thứ duy nhất làm
+  `return data` trượt ở một bài round-trip. Nên ca đó chuyển sang **hợp đồng BIỂU THỨC**:
+  NUL nằm trong MÃ NGUỒN Python (`\x00`, bốn ký tự thường) và `eval` dựng nó lúc chạy.
+  **BA chỗ cùng vứt `call`/`expect` đi, và mỗi chỗ làm hỏng theo kiểu riêng:**
+  · `build.py` chuẩn hoá mọi ca về `{name,input,expected}` ⇒ thay đổi ở nguồn KHÔNG BAO GIỜ
+    tới bản dựng (sửa nguồn xong chạy bộ chấm vẫn thấy y nguyên — mất khá lâu mới nhận ra);
+  · `check-practice.mjs` dựng lại ca thành `input: null` ⇒ chương trình chạy lại với
+    `solve(None)`: lời giải ĐÚNG ném AttributeError, còn `return data` trả None và khớp
+    `expected: null` nên ĐƯỢC CHO ĐẠT. Bộ chấm đảo ngược đúng/sai;
+  · `studio-harness.py` thì ĐÃ phân nhánh đúng theo trường có mặt từ đầu — khả năng có
+    sẵn, thiếu là đường đi tới nó. Đúng họ "dựng xong mà không có đường tới".
+  **Luật "cấm trộn hai hợp đồng" đã THU HẸP về đúng lý do của nó, ở BỐN chỗ.** Tác hại
+  thật là: `contract` (mode/inputVariable/resultVariable/returnType) chỉ áp cho ca DỮ
+  LIỆU, nên ca biểu thức lặng lẽ bỏ qua nó. Bài KHÔNG khai `contract` thì không có gì để
+  bỏ qua — **81/124 bài tập** ở diện đó. Luật cũ cấm MỌI bài trộn, tức rộng hơn chính lý
+  do của nó, và nó chặn đúng cách duy nhất cứu được ca này. Bốn chỗ: `kiem_bai_tap()`
+  (check.py), `studio-lesson.schema.ts` (luật này là THEO TỪNG CA — một ca có cả hai —
+  nên không đụng), `practice-contract.test.mjs`, `studio-lesson.test.mjs`. Hai bộ test
+  giữ TRẦN cho ngoại lệ (danh sách tên bài, và "không quá 2 bài trộn"): nới luật mà không
+  đặt trần là mở cửa cho "bài nào khó thì viết một ca biểu thức cho xong".
+  **Số không đổi sau cả đợt:** 415 ca chấm, 556 biến thể sai đều trượt — tấm chắn chống
+  lời giải tầm thường của SY20 còn nguyên (`return data` đạt 3/4, trượt đúng ca NUL).
+  Ablate: bỏ `kiemKyTuDb` khỏi schema → **3 ca đỏ**; bỏ `kiem_ky_tu_db` khỏi check.py →
+  1 lỗi (bắt đúng SY20, đúng đường dẫn tới khoá).
+  **Và đường nạp nay in tiến độ TỪNG BÀI kèm mốc ms**, rồi khi hỏng thì nói "0 câu nào
+  chạy ⇒ hỏng ở bước lấy kết nối" hay "có câu đã chạy ⇒ hỏng giữa chừng". Chính dòng
+  `[122/172] SY19 ghi xong` là thứ chỉ thẳng ra bài 123.
+
+- **CẢ HỆ THỐNG QUIZ CHẤM Ở MÁY CHỦ từng không có đường tới người học — nay có MỘT.**
+  `src/quizzes/quizzes.controller.ts` có 11 route đang chạy và `grep` trên `frontend/src`
+  ra **0 lời gọi**. Ba file JS di sản Django (`edu-review-quiz.js`, `review_quiz.js`,
+  `edu-dashboard.js`) biết gọi chúng, nhưng KHÔNG page.tsx nào nạp chúng. Đây là lần thứ
+  TÁM cùng hình dạng lỗi, và đắt nhất: đó là **đường chấm DUY NHẤT client không giả mạo
+  được** (`submitQuiz` chấm theo SNAPSHOT trong DB, `stripAnswers` không gửi
+  `correct`/`explanation` ra ngoài, mỗi đề nộp được một lần) — và kho 516 câu đã được đổ
+  đầy ở một đợt trước mà không ai kiểm xem có cửa nào không.
+  **Đường đã nối: màn TỔNG KẾT, chỉ khi `completed === true`.** Không đặt ở trang khoá
+  học: `apiFetch` gặp 401 là TỰ TẠO tài khoản khách, nên một nút gọi API trên trang công
+  khai là mở đường cho bot. Và `buildQuestionPool` chỉ gom câu từ bài đã `completed`, nên
+  hỏi sớm hơn là đếm thiếu đúng bài họ vừa học xong. Ô nằm **TRƯỚC** nút "Hoàn thành":
+  đặt sau thì muốn tới phải cuộn qua đúng cái nút đưa mình ra khỏi bài.
+  **Route `GET courses/:id/quiz/status` là route MỚI, và nó không né được.** Yêu cầu "nói
+  rõ còn phải xong mấy BÀI" không đi qua được lỗi 400, vì `AllExceptionsFilter` chỉ giữ
+  `message` và BỎ mọi field kèm theo — nhồi số vào payload lỗi là hỏng im lặng.
+  **`MIN_POOL` đếm CÂU, người học đếm BÀI.** 5 câu ÷ 3 câu mỗi bài = 2 bài. Câu hiển thị
+  phải nói cả hai đơn vị, và số bài tính từ dữ liệu thật của chính người học.
+  **8/11 route vẫn CHƯA có đường tới**, và hai hệ quả phải biết: `GET quizzes/:id` không
+  được dùng ⇒ tải lại trang giữa chừng là MẤT đề (hàng `quizzes` kẹt ở `generated` vĩnh
+  viễn); và mỗi lần nộp ở đây tạo một `review_quiz_results`, nên nó SẼ chặn đề ôn hằng
+  ngày trong ngày đó nếu sau này có giao diện cho route ấy.
+  **Chưa ai đi đường này với DB THẬT** — agent chắn `window.fetch` để xem giao diện. Hợp
+  đồng với dữ liệu thật chỉ được chứng minh bằng test backend chạy trên bản dựng pe-da.
+
+- **MODULE 11 là module đầu tiên có bài tập THẬT SỰ ĐỌC FILE, và đó là bằng chứng thiếu.**
+  7 bài (TH01–TH07, ô 173–179) trên `coffee-sales-cc0.csv` — 2 623 hàng, CC0 1.0, dữ liệu
+  THẬT của một quán khác. Trước nó, bỏ `files` khỏi cả ba lời gọi `grade()` thì pha 1 và
+  pha 2 VẪN XANH; sau nó, **18 ca TRƯỢT** (6 bài × 3 ca, `FileNotFoundError`). Cơ chế
+  `step_4.dataFiles` từ nay có hai lớp canh chứ không chỉ pha 3 tự dựng.
+  **`don_vi` là một KHOÁ của ca chấm, không phải một câu dặn.** `NOTICE.md` ghi đơn vị
+  tiền của cột `money` KHÔNG XÁC ĐỊNH, và PD32 dạy "khi giao báo cáo, ghi đơn vị tiền" —
+  TH05 bắt lời giải trả hẳn `don_vi = "không xác định"`. Đó là cách duy nhất biến lời dặn
+  thành thứ máy chấm được. Đừng quy đổi sang VNĐ ở bất kỳ bài nào: quy đổi từ một đơn vị
+  không biết là bịa.
+  **TH03 chấm đúng chỗ dữ liệu thật có TIE** (Espresso 11h và 12h cùng 13 lượt), nên hợp
+  đồng trả DANH SÁCH giờ — một lời giải dùng `idxmax` trượt 2/3 ca.
+  **Mỗi bài ĐÚNG MỘT màn đọc**, và đó là quyết định kỹ thuật: thêm khối code thứ hai vào
+  `reading` là bắt chạy `gen_traces.py` (~20 phút, cần numpy/pandas/matplotlib trên máy,
+  không chạy được trên CI).
+  **`sync_curricula.py` có `if len(bai) != 172` GHI CỨNG** và từ chối với câu "bản dựng
+  thiếu" — nay so với số bài của `source/course.json`. Cùng họ với `ADVANCED_LESSON_MIN`
+  dưới đây: một hằng ghi cứng số bài hỏng theo chiều CHẶN HẾT.
+  **Ngưỡng đã ghi vào `build.py` và `SCHEMA.md`:** 9 mục là chỗ `KHOI_DU_LIEU` bắt đầu
+  thành danh bạ. Module dùng dữ liệu thật tiếp theo thì chuyển khai báo sang gói nguồn.
+
+- **Thêm một module làm ĐỎ 14 ca ở 6 file, và cả 14 đều là con số ghi cứng.**
+  Backend: `ADVANCED_LESSON_TOTAL = 172` trong `lesson-content-update.ts` — nó từng là 48
+  (pe-v4), và mỗi lần khoá đổi số bài mà quên sửa thì `selectLessons()` từ chối MỌI gói,
+  tức **mất hẳn đường nạp an toàn**. Lần thứ BA này Jest bắt được; hai lần trước thì
+  không. Nay là `ADVANCED_LESSON_MIN` — SÀN, CHỈ ĐƯỢC NÂNG: phép kiểm `sort_order === i+1`
+  ngay dưới đã đòi dãy liên tục từ 1, nên con số này chỉ còn bắt phần đuôi bị cắt.
+  `quizzes.service.spec.ts` thì so với `PE_DA.lessons.length` thay vì 172.
+  **Và `lesson-insert.spec.ts` mượn mã TH01/TH02 làm bài-mới-giả — module 11 lấy đúng hai
+  mã đó.** Luật "mã đã có trong DB" bắn đúng, cả bộ đỏ. Nay mã và ô suy từ gói (`MA_MOI`
+  tiền tố `ZZ`, `O_MOI` = max + 1). Một ca test mượn mã trông-như-chưa-ai-dùng là mìn hẹn
+  giờ.
+  Frontend: `catalog.ts` (172 → 179, "~39 giờ" → "~41 giờ" — ca test cho lệch tối đa 1
+  giờ nên giữ 39 là TRƯỢT), `catalog-duration`, `mcq-code` (516 → 537, 214 → 219),
+  `practice-contract` (124 → 130, 415 → 433), `studio-lesson` (172 → 179, và bảng đếm
+  khối `paragraph` 775 → 811 · `code` 501 → 508 · `table` 1 → 2).
+
+- **508/508 khối code ở màn đọc đều IN SẴN đáp án ngay dưới — nay 262 khối hỏi trước.**
+  Đo trên bản dựng 179 bài: 508 khối `code` ở màn đọc, **cả 508 đều có `expected`**, và
+  chỉ 56 có bảng từng bước ⇒ **4/5 khối code của khoá không đòi người học nghĩ gì**. Người
+  thử 1/11/2026 nói *"nên đặt trọng tâm vào practice"* kèm ảnh một màn ĐỌC dày chữ — nhưng
+  số đo nói ngược với cách đọc hiển nhiên: luyện tập ĐÃ là khối lớn nhất (669 màn = 31%,
+  hơn cả 565 màn đọc). Thiếu không phải khối lượng mà là **lời đòi**.
+  Cùng bằng chứng đã dùng cho `StepTrace` và nút "Xem đáp án" của `PracticeScreen`:
+  Hundhausen 2002 — Gurka lặp lại thí nghiệm nhưng BỎ điều kiện "dự đoán trước" thì lợi
+  thế BIẾN MẤT; Brod 2021 nói ra cơ chế (đoán sai → ngạc nhiên → chú ý dồn vào đáp án
+  đúng). Nên phần có bằng chứng của tính năng này gọn vào `disabled={!doan.trim()}`.
+  **Luật chọn khối đặt ở FRONTEND, và đó KHÔNG mâu thuẫn với cờ `tryIt`.** `doanDuocOutput`
+  (`lib/studio-lesson.ts`, hàm thuần) đọc được HOÀN TOÀN từ hình dạng `expected` + chữ
+  trong `code`. Cờ `tryIt` thì phải ở build vì ở đó build biết thứ frontend không biết
+  (thiếu wheel, `engine="openpyxl"`, `sys.executable`). **Đừng suy từ cái này sang cái kia.**
+  Và vì luật ở frontend nên **KHÔNG CẦN NẠP DB** — đó là lý do mục này đi trước `task.io`
+  trong hàng đợi.
+  **NĂM phép loại, mỗi phép một lý do riêng** (số đã đo ở trần đang dùng): đã có `trace`
+  (56 — hỏi hai câu trên cùng một khối là ma sát không mua gì) · code gọi thư viện vẽ hình
+  (87, trong đó 80 có khối `figure` ngay sau — **phép loại đọc CODE chứ không đọc "có
+  figure phía sau"**, vì 7 khối dựng Figure mà bài không xuất ảnh; VZ01 có
+  `expected: "36"` cho một đoạn vẽ cả một hình, hỏi ở đó là hỏi về phần phụ) · quá trần ·
+  đáp án nằm NGUYÊN VĂN trong chính đoạn code (35 — `print("Xin chào")` thì cổng chỉ bắt
+  chép lại một chuỗi đang nhìn; cùng luật `gen_traces.py` đã phải đặt).
+  **Trần 2 dòng / 40 ký tự CHỈ ĐƯỢC HẠ.** Đã đo cả ba bậc: ≤1/≤24 → 99 khối/58 bài ·
+  **≤2/≤40 → 262 khối/127 bài** · ≤3/≤80 → 322/137. Ô gõ là MỘT dòng và `khopDapAn` bỏ hết
+  khoảng trắng nên hai dòng gõ liền vẫn khớp, nhưng từ 3 dòng trở lên "đoán output" thành
+  "chép lại một đoạn", tức người đoán ĐÚNG vẫn hay nhận "chưa khớp" vì thiếu một dấu.
+  **Ô "Kết quả:" MỞ RA dù đoán đúng hay sai** — giấu output của người đoán sai là lấy đi
+  đúng thứ họ cần nhất lúc đó. Đây là bước CAM KẾT, không phải bài thi.
+  **Và verdict phải NÓI RA giới hạn của phép so:** `khopDapAn` chỉ bỏ khoảng trắng, KHÔNG
+  bỏ dấu nháy hay dấu ngoặc (cố ý — `2` và `'2'` là hai giá trị khác nhau, phân biệt được
+  chúng là thứ giáo trình này dạy), nên `[ 6  8 10]` đòi đúng ngoặc và người đoán đúng ý mà
+  viết `6 8 10` vẫn nhận "chưa khớp". Vì vậy chữ là **"chưa khớp từng ký tự"**, không phải
+  "sai", và câu sau nói thẳng điều đó.
+  **`readGuess` phải ở trong NHÁP, không trong state component như `daNop` của `StepTrace`:**
+  màn đọc là màn người học đi qua lại nhiều lần (nút "← Quay lại"), bắt đoán LẠI cùng một
+  câu là ma sát không mua gì — lần đó họ đã biết đáp án. Nhưng **MỘT trường, không hai**:
+  chữ ĐANG GÕ mà chưa nộp để trong state; thêm trường thứ hai cho nó là thêm một thứ phải
+  khớp, và nó sẽ lệch.
+  **Khoá nháp mang CẢ chỉ số màn** (`"<màn>-<khối>"`): `i` một mình trùng nhau giữa các màn
+  đọc của cùng một bài, nên đoán ở màn 1 sẽ mở sẵn đáp án của khối cùng vị trí ở màn 2.
+  **KHÔNG animation lúc mở đáp án** — cùng kết luận đã ghim cho khối `diagram` (Tversky
+  2002): giá trị nằm ở việc SO hai thứ cạnh nhau, mà so sánh cần cả hai cùng có mặt. Ô
+  "Kết quả:" dùng lại NGUYÊN class `readExpected`, nên nó hiện ra giống hệt khối không cổng.
+  `read-guess.test.mjs` (16 ca) — và các hàng rào của nó là **SÀN, không phải con số đúng**
+  (`CODE.length === 508`, `bai.size >= 110`): ghim con số chính xác thì thêm một module là
+  đỏ oan, đúng bệnh 14 ca ghi cứng ở bẫy trên.
+
+- **Tải lại trang giữa lúc làm đề ôn là MẤT ĐỀ VĨNH VIỄN — đã sửa, lần thứ CHÍN.**
+  `quiz_id` chỉ sống trong state React, nên một lần F5 làm hàng `quizzes` kẹt ở `generated`
+  MÃI MÃI (`submitQuiz` đòi đúng id đó) và người học chỉ còn đường phát một đề khác. Route
+  `GET quizzes/:id` đã tồn tại và trả đúng đề đã `stripAnswers`, mà `grep` trên
+  `frontend/src` ra **0 lời gọi** — đúng hình dạng "dựng xong mà không có đường tới", lần
+  thứ chín. Nay `ReviewQuiz` gọi nó TRONG CÙNG `Promise.all` với `status`.
+  **Cất ở `localStorage` theo KHOÁ HỌC, không trong nháp BÀI.** Nháp có khoá
+  `…:<khoá>:<bài>`, còn đề ôn rút câu từ MỌI bài đã hoàn thành và ô đề ôn mount ở màn tổng
+  kết của BẤT KỲ bài nào — cất vào nháp bài 12 thì làm xong bài 13 là màn tổng kết bài 13
+  phát một đề THỨ HAI, và một trong hai chắc chắn kẹt lại mãi.
+  **Khoá KHÔNG mang `userId`, và đó là an toàn:** phép chặn theo chủ sở hữu ở MÁY CHỦ —
+  `getQuiz` trả **404** cho quiz người khác (không 403, để không tiết lộ nó tồn tại). Nên
+  một id sót lại của tài khoản khách cũ chỉ ra 404 và ô này xoá nó đi.
+  **"ĐÃ NỘP" KHÁC "ĐANG LÀM", và đọc từ máy chủ.** Nộp lần hai là 409 (compare-and-set
+  `generated → submitted`), nên khôi phục một đề ĐÃ NỘP thành "đang làm" là mời người học
+  chọn lại đủ 10 câu rồi nhận một câu lỗi. `docDeKhoiPhuc` không bao giờ trả nhánh `dangLam`
+  cho đề `submitted`, kể cả khi response có kèm `questions`.
+  **Quá `HAN_GIU_DE_MS` (7 ngày) thì bỏ IM LẶNG** — người học không nhớ mình có đề mở dở
+  nên một câu nói về nó chỉ gây hoang mang. Hạn tính từ lúc PHÁT đề, không từ lần bấm cuối:
+  nó bó TUỔI của đề (pool lớn dần theo số bài xong) chứ không bó độ rảnh của người học.
+  `review-quiz.test.mjs` 21 → 33 ca.
+  **8/11 route của `quizzes.controller.ts` vẫn CHƯA có đường tới.**
+
+- **130 bài có ca chấm, 0 bài có một VÍ DỤ ĐÃ CHẠY — nay cả 130 đều có.**
+  `SandboxScreen.tsx` dựng `<dl className={c.io}>` từ `step_4.task.io` và **0/130 bài phát
+  ra khoá đó**: renderer dựng sẵn, không ai đi qua. Lần thứ MƯỜI của hình dạng lỗi này.
+  Nay `vi_du_io()` trong build.py sinh ô ví dụ từ **ca chấm ĐẦU TIÊN**: 130/130 bài, 0 bị bỏ.
+  **LÝ LẼ ĐẦU CỦA TÔI SAI, VÀ ĐÂY LÀ SỐ ĐÃ ĐO.** Tôi viết commit với câu "SÁU tên khoá mà
+  không câu văn nào nói ra hết" (lấy PD01 làm ví dụ) rồi mới đi đo: **80 bài có `input` dạng
+  dict, 77 bài ĐÃ nói đủ mọi tên khoá ngay trong `task.body`**. Chỉ 3 bài thiếu (PY12,
+  SY18, SY20) và ở cả ba thì "khoá" là TÊN FILE, tức dữ liệu chứ không phải lược đồ. Đề của
+  PD01 nói nguyên văn *"data gồm values, labels và pick … trả dictionary có selected
+  (số vé của nhãn pick), total (tổng vé), count (số ca)"* — đủ sáu tên.
+  **Vậy ô này mua được gì, nói cho đúng:** một VÍ DỤ ĐÃ CHẠY. Văn xuôi nói TÊN khoá nhưng
+  không nói KIỂU, không nói độ lồng, và không nói ra một cặp vào→ra cụ thể để đối chiếu —
+  `{'values': [7, 12, 5], …}` cho biết `values` là list số nguyên song song với `labels`,
+  còn `{'selected': 5, 'total': 24, 'count': 3}` cho biết `total` là TỔNG chứ không phải số
+  phần tử. Với 50 bài mà `input` KHÔNG phải dict (list/chuỗi/số) thì nó nói thẳng ra kiểu.
+  Đó là giá trị thật, nhỏ hơn câu tôi viết lúc đầu — đừng chép lại câu cũ.
+  **`repr` CỦA PYTHON, KHÔNG `json.dumps`.** Hai thứ khác nhau ở đúng chỗ người học sẽ gõ
+  lại: JSON viết `true/false/null` và bắt buộc nháy kép. Dán một giá trị JSON vào ô đề của
+  bài Python là dạy sai cú pháp ngay trong đề bài. Và vì harness nạp ca chấm từ JSON rồi
+  truyền thẳng vào namespace, `repr` của giá trị ĐÃ NẠP chính là thứ `print(data)` in ra —
+  không phải một bản mô tả gần đúng. Có ca test quét cả 260 giá trị tìm ba từ khoá JSON.
+  **NHÃN LẤY TỪ HỢP ĐỒNG.** Bài `mode: "script"` (12 bài) thì người học phải ĐỌC một biến và
+  GÁN một biến, nên nhãn là chính tên hai biến đó (`raw =` / `total =`, đo được 6 tên khác
+  nhau). Nhãn "Đầu vào"/"Kết quả" bắt họ tra lại đề để biết gán vào đâu — đúng việc ô này ra
+  đời để khỏi phải làm. `kiem_vi_du_io` đối chiếu nhãn với `contract.inputVariable`.
+  **GIÁ PHẢI TRẢ, CÓ CHỦ ĐÍCH, VÀ NÓ ĐÃ ĐƯỢC CANH SẴN:** ô này công bố luôn `expected` của
+  ca 1, nên `return <hằng của ca 1>` đạt đúng 1 ca. Đó KHÔNG phải lỗ mới mở — `traHang()` ở
+  pha 2 của `check-practice.mjs` đã sinh đúng biến thể ấy từ trước và đòi nó TRƯỢT mọi ca có
+  `expected` khác. Đã đo: **0/130 bài có mọi ca cùng một `expected`** (89 bài 3 ca, 39 bài
+  4 ca, 2 bài 5 ca), nên hằng của ca 1 luôn trượt ít nhất 2 ca. Người học chưa viết gì vẫn
+  thấy 1 ca xanh, đúng như file này đã ghi nhận cho khung trống.
+  **Ô ví dụ là chữ sinh ra từ dữ liệu, nên nó TRÔI ĐƯỢC** — cùng họ với "sơ đồ đã trôi khỏi
+  bài" và `codeHash` của bảng từng bước. Hình dạng hỏng: nguồn đổi ca chấm 1 mà ô ví dụ giữ
+  giá trị cũ, và người học viết code theo một đầu vào bộ chấm không bao giờ truyền; không
+  exception nào ném, bảng ca chấm chỉ nói "Chưa đúng". `kiem_vi_du_io()` so `value` với
+  `repr` của CHÍNH ca chấm trong bản dựng.
+  **NHÃN PHẢI DUY NHẤT, và lý do là React:** renderer dùng `row.label` làm key, nên hai nhãn
+  giống nhau là một hàng biến mất lặng lẽ. Canh ở CẢ BA chỗ (build, check.py, schema).
+  **BA CHỖ, và ablate cho thấy vì sao phải cả ba.** Gỡ `vi_du_io` ra: build chỉ in một dòng
+  LƯU Ý rồi **exit 0**, `check.py` **im lặng hoàn toàn** (luật của nó mở đầu bằng "không có
+  io thì bỏ qua"), và chỉ bộ test frontend đỏ. Một cổng in lưu ý rồi đi tiếp không phải cổng,
+  nó là chú thích. Nên `vi_du_io` nay trả **(hàng, LÝ DO)** — đúng khuôn `bai_tap_cua` đã
+  dùng trong cùng file — và `main()` `return 1` khi một bài thiếu ô ví dụ mà KHÔNG nói được
+  vì sao. Hai bên của cổng đều đã đo: ablate hàm → build exit **1**; hạ `IO_MAX_KY_TU` xuống
+  20 → 100 bài bỏ kèm lý do, build exit **0**.
+  `_ly_do_io` là chỉ dấu của khâu dựng, KHÔNG phải nội dung bài — `main()` bóc nó ra trước
+  khi ghi, và có phép đếm xác nhận 0 lần sót trong `out/lessons.json`.
+  **Trần `IO_MAX_KY_TU = 320` hôm nay KHÔNG loại bài nào** (dài nhất là PD32, 280 ký tự —
+  ba đơn hàng lồng trong một bảng tra, và đó đúng là bài khó đoán nhất nên bỏ nó là bỏ sai
+  chỗ). Vậy nó canh gì: `.io code` có `overflow-wrap: anywhere` nên giá trị dài chỉ NGẮT
+  DÒNG, không tràn ngang — tức một fixture 5 000 ký tự không làm vỡ layout, nó chỉ đẩy ô
+  soạn mã xuống dưới ba màn cuộn, và đó là kiểu hỏng không ai báo.
+  **`.io dd` nới 12px → 13px, và đây KHÔNG phải "nới tràn mọi cỡ nhỏ".** Khối này rỗng ở cả
+  130 bài từ đầu, nên cỡ chữ của nó chưa bao giờ được xem cùng nội dung thật — mà nội dung
+  thật là một dict lồng 280 ký tự phải đọc đúng từng tên khoá. Đó là NỘI DUNG. `dt` giữ 12px
+  vì nó là nhãn, đúng luật đã ghi ở bẫy "chữ quá nhỏ".
+  **Ablate:** đổi một `value` → 1 lỗi check.py nói rõ đã trôi · nhãn trùng → 1 · hàng thiếu
+  `value` → 1 · còn 1 hàng → 1 · bỏ luật ở schema → **4 ca Jest đỏ** · gỡ `vi_du_io` →
+  2 ca frontend đỏ + build exit 1.
+  **CHƯA TỚI NGƯỜI HỌC cho tới khi nạp DB** — nội dung bài đọc từ DB, không từ `out/`.
+  `--all --offline` đã sạch: 179 bài, 0 từ chối.
+
+- **BA bài có màn ĐỌC ở quán cà phê nhưng ĐỀ BÀI TẬP ở miền cũ — ĐÃ sửa, 0 bài còn lệch.**
+  Nhìn thấy khi xem ô ví dụ mới trên production: PD01 mở đầu bằng *"Một quán cà phê ghi số
+  cốc bán được trong ba ngày"* rồi đề bài tập ngay dưới nói *"Một rạp ghi số vé theo ca"*.
+  Hai miền trong một bài, cách nhau vài màn. Đo được đúng **3 bài** — PD01 (rạp/vé), NP13
+  và NP14 (nhiệt độ, trong khi màn đọc của chúng đã đổi sang lượng sữa).
+  **KHÔNG phải nguyên nhân mới:** mục bẫy ở trên đã ghi `source/practice.json` vẫn dùng
+  `region`/`qty`/`E`/`W` — bài TẬP đến từ gói practice, màn ĐỌC đến từ `course.json`, và
+  đợt đổi miền chỉ đi qua `course.json`. Cùng một khe hở, lần này đo được bao nhiêu bài lọt.
+  **Chỉ đổi DANH TỪ, KHÔNG đụng một con số nào** — mọi `expected` giữ nguyên, nên
+  `check-practice.mjs` chạy lời giải mẫu trên ca chấm THẬT là chứng minh được ngay (433 ca
+  vẫn đạt). Ngưỡng 30 và khoảng 20–35 đọc tự nhiên với "số cốc" đúng như với "°C", và chính
+  màn đọc của NP13 đã dùng ví dụ *"đánh dấu những món bán được từ 5 cốc trở lên"*.
+  **Phải đi cả phần TRẮC NGHIỆM, không chỉ đề bài tập:** MCQ của NP13 cũng hỏi về
+  `temps > 30`. Sửa mỗi đề thì bài vẫn lệch, chỉ là lệch ở màn khác — đúng kiểu bản sửa
+  nửa vời mà file này đã gặp ở PD06 (`'price'` đổi, `"price"` khoá JSON thì không).
+  **Và `temps` trong GỢI Ý phải đổi cùng lời giải mẫu:** gợi ý nói *"Tạo (temps >= 20) &
+  (temps <= 35)"* trong khi lời giải mẫu đặt tên biến khác là gợi ý trỏ vào một biến không
+  có trong đoạn mã người học vừa mở ra.
+  Phép đo để kiểm lại (màn đọc nói miền quán, đề bài tập nói miền khác): nay **0 bài**.
+
+- **BẢN ĐỒ TÍNH NĂNG: biến "dựng xong mà không có đường tới" từ lỗi IM LẶNG thành một
+  dòng khai báo.** Mười lần rồi, và mỗi lần bộ kiểm vẫn XANH — vì test chứng minh code
+  chạy đúng, không chứng minh có ai đi qua nó. `LOOP.md` đã đặt đúng câu hỏi (*"ai bấm vào
+  nó, ở màn nào"*) nhưng để nó trong văn xuôi, mà một câu hỏi trong văn xuôi thì không
+  chặn được ai bỏ qua. Nay `scripts/ban-do-tinh-nang.mjs` giữ CÂU TRẢ LỜI và
+  `scripts/check-duong-toi.mjs` bắt nó phải đúng.
+  **Phép đếm chạy trên BẢN DỰNG THẬT, không phải hằng gõ tay** — một con số gõ tay là thứ
+  sẽ trôi, đúng bệnh mục mốc nền đã cảnh báo. Và nó đọc hai hằng `DOAN_OUTPUT_MAX_*` từ
+  chính cây mã thay vì chép lại, nên hạ trần ở frontend là con số ở đây đổi theo.
+  **LUẬT HAI CHIỀU, và chiều thứ hai mới là chiều hay bị quên:** đếm 0 thì bắt buộc khai
+  `chuaCoDuongToi` kèm lý do; NHƯNG khai "chưa có đường tới" mà đếm > 0 cũng ĐỎ. Thiếu
+  chiều sau thì bản đồ chỉ trôi một phía rồi thành một danh sách than thở mà không ai dọn.
+  **Ba mục đang khai TỐI, và chúng là tài sản chứ không phải nợ:** nút "Thử ngay trong
+  IDE" ở màn brief/explain (0/179 bài có hai màn đó) · 8/11 route của
+  `quizzes.controller.ts` · ô nhập `stdin` (0/508 khối code dùng `input(`). Trước đây ba
+  thứ này tối mà không chỗ nào nói ra.
+  **Ablate 5 mảnh, cả 5 đỏ:** build thôi phát `task.io` → 1 · mount trỏ file không liên
+  quan → 1 · tối mà không khai lý do → 2 · ký hiệu đổi tên → 1 · khai "tối" mà thật ra đã
+  sáng → 1.
+  **Và chính ablate bắt được một lỗi trong bộ kiểm này:** bản đầu, khi cả đường `task?.io`
+  không khớp thì nó rơi về MẢNH CUỐI `io` — hai ký tự, có trong `version`, `option`,
+  `programmingedu.io.vn` — nên mount trỏ vào `api.ts` vẫn qua cửa, tức bậc quan trọng nhất
+  của bộ RỖNG trong khi mọi thứ vẫn xanh. Nay so bằng phép chuẩn hoá (bỏ `?` và khoảng
+  trắng ở cả hai vế) chứ không bằng mảnh cuối. **Một cổng chỉ chứng minh được là có răng
+  bằng cách gỡ bản sửa ra và đếm số đỏ** — không ablate thì tôi đã commit một cái cổng
+  rỗng và tin là mình vừa chữa được lỗi thống trị của repo.
+  **Cảnh báo phải thôi kêu oan, nếu không nó sẽ bị tắt:** cặp Python→TSX (build phát dữ
+  liệu, renderer dựng) không bao giờ nhắc tên hàm của nhau, nên phép so theo ký hiệu ở đó
+  sai 100% số lần. Với cặp đó, thứ NỐI hai nửa là KHOÁ DỮ LIỆU (`duLieu`: `trace`,
+  `task?.io`, `tests`, `dataFiles`, `diagram`).
+
+- **63 đáp án mẫu của màn LUYỆN TẬP chưa bộ kiểm nào từng chạy — nay chạy, và một cái
+  hỏng.** `step_2.practice` có 63 câu mang sẵn `answerCode` + `answerExpected` (chương
+  trình hoàn chỉnh, tự đủ, kèm output chính xác), và `PracticeScreen` ĐÃ dựng chúng khi
+  người học bấm "Xem đáp án" — tức 63 đoạn code đang hiện ra cho người học mà không ai
+  biết chúng còn chạy được không. Vòng lặp của `check-pyodide.mjs` chỉ đi qua
+  `step_1.read`, nên chúng nằm ngoài mọi bộ kiểm. Pha 2 chạy chúng bằng CHÍNH bộ máy đã
+  có (chặn mạng, nạp wheel, hâm nóng, harness) — viết bộ chạy thứ hai là tạo một thứ sẽ
+  trôi khỏi thứ nhất.
+  **Bắt được ngay một cái:** PD13 luyện tập #3 `import openpyxl` — Pyodide 314 không có
+  wheel đó. Không phải lỗi nội dung mới (AGENTS.md đã ghi PD13 không chấm được vì đúng lý
+  do này); nó là một giới hạn đã biết vừa lộ ra ở chỗ chưa ai nhìn.
+  **Xử lý bằng NGOẠI LỆ CÓ TÊN, kiểm theo CẢ HAI CHIỀU.** Để đỏ mãi thì CI đỏ vĩnh viễn vì
+  một thứ không sửa được, rồi người ta quen với màu đỏ; bỏ qua im lặng thì đúng "nới phép
+  kiểm cho xanh". `DAP_AN_MAU_KHONG_CHAY` khai tên + lý do, và **một mục nay chạy được
+  cũng là LỖI** — thiếu chiều đó thì danh sách chỉ dài ra rồi thành chỗ giấu rác.
+  Ablate: xoá ngoại lệ → 1 đỏ (`đáp án mẫu NỔ`); bịa một ngoại lệ cho câu đang chạy được →
+  1 đỏ (`ngoại lệ đã lỗi thời`).
+  **63 nhưng chỉ chạy 53, và con số bị bỏ phải NÓI RA:** 10 câu nằm trong bài
+  `_mode: 'local'` (GU* Tkinter) — cùng lý do pha 1 bỏ chúng. Im lặng thì "52/53" đọc như
+  đã phủ hết, mà thật ra còn 10 đoạn chưa ai chạy.
+  **Khoá ngoại lệ là `<mã>#<thứ tự trong step_2.practice>`, KHÔNG phải thứ tự trong số câu
+  có answerCode** — NP02 có answerCode ở câu thứ 3 nên khoá là `NP02#3`. Lần ablate đầu
+  tôi gõ `NP02#1` và phép kiểm không bắn, trông y như nó không có răng; bịa khoá sai là
+  một cách tự lừa mình rằng bộ kiểm hỏng.
+
+- **TÁM bài `free` cuối cùng còn chấm được nay đã có ca chấm — và cái giá là chúng bị KHOÁ.**
+  CT03–CT06, SY25–SY28. Con số thật là **8, không phải 49**: trong 49 bài không có ca chấm
+  thì 24 là `procedure` (không có mã Python nào chạy) và 17 thiếu wheel hoặc đụng
+  `sys.executable`. Gói nguồn có **0 bài tập** cho cả tám, nên chúng được soạn tại repo.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** `primaryCta` ở màn tổng kết trả "Nộp bài ở màn trước"
+  khi `step_4.tests` không rỗng, nên tám bài này đổi từ "tự đánh dấu hoàn thành" sang "phải
+  nộp đạt mới xong". **Nhưng đó là cách 130/179 bài còn lại ĐÃ hoạt động** — tám bài này là
+  những bài `free` duy nhất còn chấm được mà chưa chấm, nên đây là làm cho NHẤT QUÁN chứ
+  không phải siết thêm. `isGraded` KHÔNG gồm `sandbox`, nên `firstUnfinished` không chặn —
+  đường khoá nằm ở `cta.ts`, không ở `firstUnfinished`; kiểm nhầm chỗ là kết luận sai.
+  **Bộ chấm bắt hai lỗi của chính tôi, và đó là lý do nó tồn tại:**
+  · CT04 — tôi gõ `expected` sai: jobs `[1,2,3]` thì thời gian chờ là 0,1,3 ⇒ 1.33, tôi viết
+    1.0. Lời giải mẫu ĐÚNG, con số tôi tính nhẩm thì sai.
+  · SY26 — ca "rỗng → None" làm biến thể "thừa một khoá dict" lọt 1/3, vì thêm khoá vào
+    `None` không làm gì cả. Bộ chấm gọi đúng tên: *"bộ chấm CHO ĐẠT bài sai"*. Sửa HỢP ĐỒNG
+    (mọi ca trả cùng hình dạng dict, ca rỗng trả `{"amounts": [], "mean": None}`), KHÔNG nới
+    bộ chấm — `mean` của list rỗng là KHÔNG CÓ, nên `None` ở đó trung thực hơn `0.0`.
+  **Mỗi bài tối thiểu ba ca và `expected` của chúng phải KHÁC NHAU**, nếu không thì "trả hằng
+  của ca 1" đạt hết; và tránh `expected` BẰNG `input` (biến thể "dội nguyên đầu vào ra").
+  130 → 138 bài · 433 → 460 ca · 585 → 621 biến thể sai, tất cả vẫn trượt.
+
+- **417 KB TÀI NGUYÊN CHẾT đang được PHỤC VỤ RA INTERNET — đã xoá, và chỗ nó từng
+  đứng nay có một cổng.** Đo ngày 03/11/2026 bằng phép khả đạt từ điểm vào THẬT:
+  **13 tệp JS (234 KB) · 13 tệp CSS (164 KB) · 9 component React** không trang nào tới
+  được. Trong đó có `login.inline.js` và `register.inline.js` của một luồng đăng nhập ĐÃ
+  BỎ — `public/` được phục vụ nguyên, nên bất kỳ ai cũng tải được chúng.
+  **Và nó làm TÀI LIỆU NÓI SAI.** AGENTS.md khi đó viết *"`login.inline.js` vẫn dùng hạn
+  dự phòng…"* — mô tả một cơ chế mà không trang nào nạp, đúng họ bẫy `apiFetchSessionOnly`
+  (đặt tên một thứ không tồn tại thì nó không chặn được gì). Câu đó đã sửa.
+  **ĐẾM THAM CHIẾU THÔ LÀ SAI, và sai theo chiều NGUY HIỂM.** Bản quét đầu của tôi báo chỉ
+  4 tệp chết, vì hai lỗi: · nó quét cả `e2e/` và cả CHÚ THÍCH — `edu-dashboard.js` chỉ được
+  NHẮC TÊN trong một chú thích ở `assetVersion.ts`, còn `main.js` (còn sống) thì nhắc
+  `edu-chrome.js`/`course_detail.js` cũng chỉ trong chú thích; · một tệp được một tệp ĐÃ
+  CHẾT trỏ tới thì vẫn chết, nên phải lan truyền từ điểm vào chứ không đếm tổng số lần
+  xuất hiện.
+  **Hạt giống phải là ĐƯỜNG DẪN ĐẦY ĐỦ, không phải tên trần.** Bản thứ hai vẫn chỉ tìm ra
+  **5/13** tệp CSS chết, vì bảng `RANK` trong `PageStyles.tsx` liệt kê `'theme.css': 10`
+  làm khoá sắp thứ tự — mà một hàng trong bảng thứ tự KHÔNG phải một lời nạp. So bằng
+  `/static/css/theme.css` mới ra đủ 13. Xoá CSS thì phải xoá hàng `RANK` của nó cùng lúc.
+  **NGOẠI LỆ, phải KHAI chứ không xoá:** `dashboard.js` (105 KB) — `forum-xss.test.mjs`
+  ĐỌC file này từ đĩa để chứng minh `escHtml` trung hoà payload XSS. Chết với người dùng,
+  sống với một phép kiểm, y như pe-v4. Nói thẳng giới hạn: forum KHÔNG có trang nào nạp
+  `dashboard.js`, nên ca đó đang canh một đường **không ai đi qua** — nó chống hồi quy cho
+  ngày forum quay lại, không chứng minh hôm nay có ai được bảo vệ.
+  **Thứ bền không phải lần xoá mà là CỔNG:** `scripts/check-tai-nguyen-chet.mjs` tính lại
+  khả đạt mỗi lần chạy, có trong CI, và kiểm **hai chiều** — không ai tới được mà chưa khai
+  thì ĐỎ, khai "giữ dù chết" mà hoá ra đã sống cũng ĐỎ (thiếu chiều sau thì danh sách ngoại
+  lệ chỉ dài ra rồi thành chỗ giấu rác, đúng bài học `DAP_AN_MAU_KHONG_CHAY`).
+  Ablate: thêm một tệp `public/static/js` không ai nạp → **1 lỗi**; khai `js/main.js` là
+  "giữ dù chết" → **1 lỗi** kèm câu "ngoại lệ đã lỗi thời".
+  **Cổng này CỐ Ý dễ dãi một chỗ, và phải biết:** phép so component dùng `\b<Tên>\b` trên
+  văn bản đã bỏ chú thích, nên một `<title>Concept Card</title>` trong trang khác đủ làm
+  `Concept.tsx` trông như còn sống (tôi kiểm tay rồi mới xoá nó). Dễ dãi là chiều AN TOÀN
+  — cổng kêu oan sẽ bị tắt — nhưng đừng đọc "0 lỗi" thành "không còn gì chết".
+  **ĐIỂM MÙ ĐÃ ĐỂ LỌT CHÍNH SAI SÓT CỦA CỔNG NÀY — CSS module trong `src/`.**
+  Mục 1 của cổng chỉ quét `public/static/{js,css}`, mục 2 chỉ quét `.tsx`.
+  Nên khi chính đợt dọn 03/11 xoá `ShellA.tsx`, file `ShellA.module.css`
+  (74 dòng, 1 349 byte) ở lại — không ai import, không cổng nào thấy, và **commit mang
+  tên "xoá tài nguyên chết" để nó lại**. Thấy nó bằng tay khi liệt kê 61 chỗ dùng
+  `--edu-card-border` cho việc khác, không phải nhờ bộ kiểm nào.
+  Mục 2b nay quét `.module.css` và so bằng TÊN FILE — import CSS module luôn viết
+  nguyên tên file nên phép so không phải đoán, khác hẳn phép so `\b<Tên>\b` dễ dãi
+  của mục 2. Đo được: **16 CSS module trong `src/`, đúng 1 mồ côi**.
+  Ablate: thêm một `.module.css` không ai import → **1 lỗi**; 15 module còn lại
+  không mục nào kêu oan (chính lần chạy xanh là phép kiểm chiều đó).
+  **Bài học rộng hơn con số:** một cổng chống "dựng xong mà không ai tới" cũng có
+  vùng không quét, và vùng đó im lặng đúng như thứ nó ra đời để bắt. Thêm một LOẠI
+  tệp vào `src/` (hôm nay là `.module.css`; ngày mai có thể là `.worker.ts`,
+  `.json` dữ liệu) thì phải hỏi NGAY: mục nào của cổng này quét nó?
+
+  **Và `app/` được MIỄN:** ở đó `page`/`layout`/`route` không ai import là quy ước định
+  tuyến của Next, không phải lỗi.
+
+- **LẦN THỨ MƯỜI HAI của lỗi thống trị, và lần này cổ chai KHÔNG ở code: 153 bài dựng
+  xong mà chưa ai nạp.** `check-duong-toi.mjs` chứng minh được "có một màn MOUNT tính
+  năng này". Nhưng NỘI DUNG BÀI đọc từ **DB**, không từ `out/` — nên một bài có thể dựng
+  xong, kiểm xong, CI xanh, và vẫn không ai đọc được. Đo ngày 04/11/2026: 153 bài đã đổi
+  qua 10 commit nội dung (ô ví dụ đầu vào/đầu ra 130 bài · alt text 59/80 hình · 8 bài tập
+  mới được chấm · 2 sơ đồ · 3 bài sửa lệch miền), `--all --offline` sạch (179 bài, 0 từ
+  chối), và **không chỗ nào trong CI nói ra rằng chúng chưa tới ai**.
+  **BIÊN NHẬN, KHÔNG PHẢI FILE SAO LƯU.** `--apply` nay ghi `scripts/pe-da/da-nap.json`
+  (mã bài → sha256) **SAU khi transaction commit**. Phân biệt này là cả vấn đề: file sao
+  lưu được ghi **TRƯỚC** bước ghi DB, nên sự tồn tại của nó không chứng minh gì — đúng sự
+  cố 29/10/2026, khi transaction rollback mà thư mục backup vẫn đầy đủ và người chạy kết
+  luận là đã nạp. Biên nhận chỉ ra đời khi DB đã nhận thật. **Commit nó.**
+  **Cổng KHÔNG đọc DB, và đó là cố ý:** CI không có (và không nên có) thông tin đăng nhập
+  production; phép so chạy được trên máy bất kỳ. Giới hạn phải nói ra: biên nhận nói "lần
+  nạp đó ĐÃ xảy ra", **không** nói "DB hiện giờ vẫn đang giữ đúng bản đó" — ai ghi đè bằng
+  đường khác thì cổng này mù. Đây là cổng chống QUÊN NẠP, không phải chống DB trôi.
+  **Chưa có biên nhận thì CẢNH BÁO, không đỏ.** Đỏ vĩnh viễn vì một việc chỉ chủ dự án làm
+  được là dạy người ta quen với màu đỏ — cùng bài học `DAP_AN_MAU_KHONG_CHAY`. Có biên nhận
+  rồi thì lệch là đỏ cứng, và mục MỒ CÔI (có trong biên nhận mà gói không còn) cũng đỏ, để
+  nó không lớn dần thành chỗ giấu rác.
+  **BIỆN MINH ĐÃ ĐỔI, có chủ đích — đừng viết lại lý lẽ cũ.** KHÔNG dùng "lỗi phát hiện
+  muộn đắt gấp 100 lần": truy nguồn cho thấy con số đó không đứng (Bossavit), và Menzies
+  cùng cộng sự trên **171 dự án** không tìm thấy hiệu ứng nào. Lý do đúng là **ĐIỀU KHIỂN**
+  — một tín hiệu dừng máy đọc được — cho một vòng lặp mà người chạy nó tự tin sai: RCT duy
+  nhất về năng suất (METR, 16 lập trình viên, 246 issue thật) đo được **chậm hơn 19%** khi
+  có AI trong khi chính họ tin là nhanh hơn 20%, lệch **39 điểm**.
+  **Và nó thuộc lớp hiếm, không trùng lint/typecheck/review:** Wagner và Mehrpour cho thấy
+  ba kỹ thuật đó bắt các lớp lỗi khác nhau nhưng **cả ba đều mù** với tính chất toàn hệ
+  thống; Eder (ICSE 2012) đo được ~1/4 tính năng không ai dùng trong hai năm, **>70% trong
+  số đó làm chính người làm ra bất ngờ**; và **không kỹ thuật công bố nào chứng minh được
+  một tính năng TỚI ĐƯỢC NGƯỜI DÙNG**. Phép thử trước khi dựng cổng thứ chín: cùng lớp với
+  lint/typecheck thì TRÙNG, đừng dựng; tính chất toàn hệ thống thì đáng.
+  **CA TEST CỦA CHÍNH CỔNG NÀY TỪNG KHÔNG CÓ RĂNG, và đó là phần đáng nhớ nhất.** Bản đầu
+  của `da-nap-hash-sync.spec.ts` tự CHÉP `sapKhoa`/`dauVan` vào trong spec rồi so với
+  `fingerprint()`. Ablate (sửa cổng về `JSON.stringify` trần) → **cả 3 ca VẪN XANH**, vì nó
+  không đụng tới file cổng lần nào. Nay spec ĐỌC `scripts/check-da-nap.mjs`, trích đúng hai
+  hàm và `new Function` chúng — cùng khuôn `forum-xss.test.mjs` lôi `escHtml` ra khỏi
+  `dashboard.js`. Ablate lại: `JSON.stringify` trần → **2 đỏ**; đổi tên hàm trong cổng → bộ
+  **không nạp được**, ném đúng câu chỉ tên.
+  Bẫy nhỏ khi trích: phải phân biệt thân KHỐI với thân BIỂU THỨC — `sapKhoa` có
+  `return v.map(sapKhoa);` nên dấu `;` ĐẦU TIÊN nằm giữa thân, cắt ở đó là `new Function`
+  ném SyntaxError (đã xảy ra).
+
+- **KHỐI CODE ĐỔI SANG BẢNG NÂU ẤM — theme lofi chill, và production từng bị lùi khỏi
+  nó có chủ đích.** Đọc commit `070886a` trước khi đụng vào giao diện: *"main đang mang
+  bản đồ sao + bản đồ thế giới + tiền cảnh bàn quan trắc làm trang chủ, trong khi **nhóm
+  đã chốt đi theo theme lofi chill**. Hai hướng thiết kế nằm chung một nhánh thì không ai
+  test được hướng nào cho ra hồn."* Cách sửa khi đó là MỘT commit đưa main về `2c12049` —
+  **bản trước toàn bộ việc thiết kế**, bố cục xanh–đỏ hai cột — và 95 commit thiết kế bị
+  gỡ theo (bản chiêm tinh giữ ở nhánh `chiem-tinh`). Nên production "không đẹp" KHÔNG phải
+  chuyện bỏ quên, và lofi chill KHÔNG phải một hướng mới: nó là hướng đã chốt, chưa ai
+  dựng lại sau lần lùi.
+  **Thứ đáng port nằm ở nhánh `test`, và nó không phải một cảm giác:** 65 token `--ds-*`
+  trong `studio-tokens.css`, **mỗi token ghi kèm tỉ số tương phản**. Đã TÍNH LẠI năm con
+  số của nhóm code bằng công thức WCAG 2.1 §1.4.3: **5/5 khớp từng số**. Đừng chép một con
+  số vì nó được viết cạnh màu — nhưng lần này nó đúng, và điều đó nói lên chất lượng bảng.
+  **LOFI Ở ĐÂY LÀ SÁNG, KHÔNG PHẢI TỐI** — chỗ dễ hiểu nhầm nhất. Trang là giấy xanh xám
+  `#EAEFF6` + thẻ trắng; thứ tạo ra cảm giác là **khối code NÂU ẤM** `#221a13` với chữ kem
+  `#efe6d2` và cú pháp ĐẤT (hổ phách `#f2b880` 9,75:1 · xanh rêu `#c8dda0` 11,68:1) thay
+  cho neon. Nền lạnh + cú pháp neon đọc ra "công cụ"; nền nâu + chữ kem đọc ra "trang
+  giấy". Khối code có ở **508 chỗ / 145 bài**, nên nó quyết định cảm giác của cả khoá hơn
+  bất cứ bề mặt nào khác.
+  **Màu SỐ phải tự đo:** bảng `--ds-*` không có token cho số. Chọn `#e8a0a0` (**8,14:1**,
+  đất nung) để số không lẫn với từ khoá (hổ phách) lẫn chuỗi (xanh rêu) — đo rồi mới chọn,
+  không chọn rồi mới biện minh.
+  **Và `body.dark` phải đi theo CÙNG bảng.** Bỏ sót nó là ban ngày nâu còn ban đêm vẫn
+  xanh — đúng họ lỗi "`--st-*` kẹt bảng ngày" đã ghi ở trên, chỉ khác chiều. Ban đêm hạ nền
+  một nấc xuống `#1a130d` (chữ kem ở đó: 15,55:1).
+  **Cổng: `ds-contrast.test.mjs` TÍNH tương phản từ chính file CSS, không giữ bảng giá trị
+  thứ hai** — bài học vừa học ở `da-nap-hash-sync.spec.ts`, nơi bản đầu tự chép hàm băm
+  vào spec rồi ablate vẫn xanh cả ba ca. Ngưỡng là AA 4,5:1 CỘNG một SÀN riêng thấp hơn số
+  đo thật một chút: ghim đúng số thật thì đổi một màu là đỏ oan, không ghim gì thì nó tụt
+  dần tới 4,51:1 mà không ai thấy. **Sàn chỉ được NÂNG.**
+  Ca thứ ba ghim chính QUYẾT ĐỊNH chứ không ghim mã màu: nền code phải có kênh **đỏ ≥ xanh
+  dương**. Một bản "chỉnh lại cho hợp tông xanh của trang" sẽ qua hết mọi phép kiểm tương
+  phản mà vẫn phá đúng thứ theme này mang lại.
+  Ablate 3 chiều, mỗi chiều **2 ca đỏ**: chú thích nhạt xuống dưới AA · chuỗi vẫn trên AA
+  nhưng dưới sàn · nền quay về xanh `#1c2536`.
+  **`ASSET_VERSION` phải bump cùng commit** (nay `2026-11-04a`): file trong `public/` không
+  qua bundler nên URL không đổi theo nội dung, không bump thì người đã mở trang giữ CSS cũ
+  — tức bản đổi không tới được đúng những người đang dùng.
+  **BỀ MẶT THẺ: bảng MÀU đã trùng sẵn, chỉ còn ba chi tiết — đo rồi mới biết.**
+  Vòng hai định port màu bề mặt của `ShellB` và phép đo nói ĐỪNG: `--edu-bg-solid`
+  `#eaeff6` = `--ds-page`, `--edu-t1` `#0f1b33` = `--ds-ink`, `--edu-t2` `#3a4a66`
+  = `--ds-soft`, `--edu-panel-bg-solid` `#ffffff` = `--ds-card`. **Trùng từng mã màu.**
+  Thứ còn lệch thật chỉ là: BÓNG (`0 10px 30px rgba(113,132,167,.10)` xanh lạnh toả
+  rộng → `0 6px 22px rgba(42,32,23,.08)` nâu ấm bám sát, **31 chỗ dùng**), BÁN KÍNH
+  (`--st-card-radius` 22 → 16, thang lofi là 4/8/12/16/pill, 3 chỗ dùng), và VIỀN THẺ.
+  **Viền CỐ Ý không đụng:** `--edu-card-border: rgba(255,255,255,.85)` dùng ở **61
+  chỗ**, và viền trắng là viền SÁNG có chủ đích trên nền không-trắng — đổi mù 61 chỗ
+  sang `#CFD9E8` là liều, phải xem từng chỗ.
+  Cổng cho bóng ghim TÍNH CHẤT chứ không ghim chuỗi CSS: ngày thì R ≥ B (ấm), và cả
+  hai chế độ toả ≤ 24px (bám sát). Ghim nguyên chuỗi thì đổi 6px thành 7px là đỏ oan.
+  Ablate: bóng về xanh → 1 đỏ; bóng toả rộng lại → 1 đỏ.
+
+  **VIỀN THẺ: khai báo CSS SAI CÚ PHÁP bị trình duyệt DROP, và không gì ném ra.**
+  `ShellB.module.css` — vỏ của MỌI màn bài học, 179 bài — viết
+  `border: var(--edu-card-border)`. Token đó là một MÀU, còn shorthand `border`
+  đặt lại mọi longhand bị bỏ về giá trị đầu, tức `border-style: none`. **Đo trong
+  Chrome: `border-top-width` 0px, `border-top-style` none** — thẻ chỉ có bóng,
+  không có cạnh. Không exception, không cảnh báo lint: CSS sai cú pháp chỉ bị bỏ.
+  **VÀ MÀU CŨNG VÔ HÌNH, kể cả khi khai báo đúng:** `--edu-card-border` là
+  `rgba(255,255,255,.85)` — viền SÁNG có chủ đích trên nền KHÔNG-trắng của các
+  trang di sản — mà nền thẻ bài học là `--edu-panel-bg` `rgba(255,255,255,.96)`.
+  Trắng trên trắng. Nên bản sửa là token MỚI `--edu-card-line` (`--ds-line` của
+  bảng lofi: `#CFD9E8` ngày / `#233049` đêm), KHÔNG sửa `--edu-card-border`.
+  **VÌ SAO KHÔNG ĐỔI 61 CHỖ: phép đo nói chỉ có 1 chỗ đáng đổi.** Trang bài học nạp
+  đúng HAI file CSS (`edu-theme.css` + `studio-tokens.css`), và trong 16 chỗ dùng
+  ở `edu-theme.css` thì **đúng 1 lớp (`.cd-block`) có component React phát ra** — 15
+  lớp còn lại (`.dash-hero`, `.lb-card`, `.forum-post-card`, `.sk-set`,
+  `.rmv-toolbar`…) là selector của dashboard/leaderboard/forum/roadmap di sản
+  Django, không trang nào render. 44 chỗ còn lại nằm trên các trang `(standalone)`
+  ngoài khoá 179 bài. **"61 chỗ" là con số của grep, không phải con số của người học.**
+  **CỔNG — và nó RỖNG ở bản đầu, ablate mới lộ ra.** Ca quét neo regex vào cả DÒNG
+  đã trim; gieo `.ablate-x { outline: var(--edu-card-border); }` vào `edu-lesson.css`
+  thì **0 ca đỏ**, vì CSS repo này viết một rule MỘT DÒNG
+  (`.cal-day { border-radius: 14px !important; }`) nên khai báo gần như không bao giờ
+  đứng riêng một dòng. Nay cắt theo `;` sau khi bỏ chú thích, và bỏ phần selector
+  đứng trước `{`/`}` trên cùng dòng.
+  Ablate 6 chiều: trả `.card` về khai báo hỏng → **2 đỏ** · gieo lớp lỗi inline ở một
+  file CSS tĩnh khác → 1 · gieo inline trong một CSS module → 1 · gieo trên nhiều dòng
+  → 1 · đường kẻ ngày sáng gần bằng nền thẻ → 1 · đường kẻ đêm tối hơn nền thẻ → 1.
+  Chiều NGƯỢC cũng đo: `:root { --ablate-vien: var(--edu-card-line); }` → **0 đỏ**, vì
+  gán màu vào một custom property là hợp lệ và repo có 5 chỗ làm vậy.
+  **Hai chiều ngày/đêm phải kiểm RIÊNG:** ngày thì đường kẻ phải TỐI hơn nền thẻ
+  trắng, đêm thì phải SÁNG hơn nền thẻ `#1d232d`. Một phép kiểm "khác nền" gộp
+  chung sẽ cho qua một đường kẻ còn tối hơn cả nền tối.
+  **KHÔNG đòi 3:1 cho đường kẻ này:** chú thích gốc của `--ds-line` ghi 1,36:1 trên
+  thẻ và dặn KHÔNG dùng nó làm viền của thứ bấm được. WCAG 1.4.11 đòi 3:1 cho thành
+  phần giao diện, còn đường bao một thẻ nội dung là TRANG TRÍ — đòi 3:1 ở đây là biến
+  một cổng đúng thành một cổng kêu oan.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** thẻ của mọi màn bài học nay CÓ cạnh.
+  `ASSET_VERSION` bump theo (`2026-11-04b`).
+
+  **HAI THANH STICKY của vỏ bài học không có cạnh — và tầng "paper" KHÔNG chữa được.**
+  `.topBar` / `.bottomBar` của `LessonChrome` (vỏ mà `StudioLesson` dựng cho MỌI
+  màn của 179 bài) dùng nền `--edu-panel-bg-solid` `#ffffff`, mà thẻ nội dung cũng
+  `#ffffff` — đo được **1,000:1**, tức CÙNG MỘT MÀU. Cả hai sticky, nội dung cuộn LỌT
+  xuống dưới chúng, và không thanh nào có `border` lẫn `box-shadow`: chữ trôi vào
+  thanh rồi biến mất, không gì nói ranh giới ở đâu.
+  **ĐÍNH CHÍNH 08/11/2026 — hai chữ "Cả hai sticky" ở trên là một TIỀN ĐỀ SAI.** Chúng khai
+  `position: sticky`, nhưng đo trên production thì KHÔNG thanh nào ghim: `overflow-x: hidden`
+  trên `html, body` (edu-responsive.css §6) biến gốc trang thành scroll container. Nên câu
+  "nội dung cuộn LỌT xuống dưới chúng" chưa bao giờ xảy ra — nội dung cuộn QUA chúng. Cạnh
+  vẫn đúng việc của nó (hai mặt phẳng cùng màu thì cần một đường chia), nhưng lý do nêu ra
+  thì không. Xem mục "HAI thanh STICKY KHÔNG ghim trên điện thoại" ở dưới.
+  **ĐÃ ĐO VÀ BỎ cách sửa hiển nhiên, đừng dựng lại:** chuyển thanh sang tầng
+  `--ds-paper` `#F7FAFD` của bảng lofi chỉ cho **1,048:1** so với thẻ — vẫn không ai
+  thấy. Ở khoảng sáng này MÀU NỀN không tách được hai mặt phẳng; chỉ ĐƯỜNG KẺ mới
+  tách. Nay hai thanh dùng `--edu-card-line` (1,42:1 trên nền trắng — mức của một
+  đường chia quiet, không phải của một viền nhấn).
+  Cổng ghim TÍNH CHẤT: một mặt phẳng STICKY mà nền trùng với mặt dưới nó thì PHẢI có
+  cạnh HOẶC bóng. Ablate 5 chiều: bỏ cạnh thanh trên → **1 đỏ** · bỏ cạnh thanh dưới
+  → 1 · bỏ cả hai → 1 · đổi tên `.topBar` → 1 (ca nói thẳng "đổi tên thì sửa ca này",
+  không im lặng xanh). Chiều NGƯỢC: thay cạnh bằng `box-shadow: 0 1px 0 …` →
+  **0 đỏ**, vì đó cũng là một cách tách hợp lệ — cổng không ép một mã CSS cụ thể.
+  **Bẫy khi viết chính ca đó:** `new RegExp(`${canh}:\\s*1px…`)` là một lớp thoát nữa
+  phải đếm đúng, và tôi đếm sai — pattern thành `border-bottom:s*1px…`, ca ĐỎ trong
+  khi CSS đã đúng. Viết regex THẲNG, đừng dựng từ chuỗi.
+  **KHÔNG bump `ASSET_VERSION` cho vòng này:** `LessonChrome.module.css` nằm trong
+  `src/` nên đi qua bundler, URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
+
+  **LẦN THỨ HAI CÙNG MỘT LỖI, ở TRANG CHỦ và TRANG KHOÁ HỌC — và nó là lý do chủ
+  dự án hỏi "sao vẫn giao diện cũ".** Production ĐANG chạy đúng HEAD (thẻ `pe-build`
+  khớp SHA, `check-da-deploy` xanh). Hai trang đó y nguyên vì **không commit nào đụng
+  vào chúng**: cả hai commit lofi trước chỉ chạm `studio-tokens.css` và bề mặt BÊN
+  TRONG `/lesson/*`. Đo trang chủ thì ra đúng lỗi đã sửa ở `ShellB`:
+  `--edu-panel-border: rgba(255,255,255,.9)` phủ lên thẻ `#ffffff` ra **ĐÚNG**
+  `#ffffff` — **1,000:1**, cùng MỘT màu, thẻ chỉ có bóng. 7 chỗ dùng token đó
+  (home.module.css 2 · ide.module.css · CodeVisualizer.module.css · edu-theme.css 3).
+  **CHIỀU ĐÊM ĐI NGƯỢC, và "dùng token mới ở mọi nơi" là HẠ tương phản.** Viền panel
+  ban đêm đang là `rgba(255,255,255,.10)` = **1,359** trên thẻ `#1d232d`, còn
+  `--edu-card-line` ban đêm là `#233049` = **1,195**. Gán thẳng token mới vào là làm
+  TỆ ĐI một bề mặt đang đúng. Nên `--edu-card-line` ban đêm NÂNG `#233049` → `#303c4e`
+  (**1,414**), rồi cả hai mới dùng chung. Đo trước khi gán, đừng gán rồi mới đo.
+  **Bóng MẶT NỔI bị bỏ sót hai vòng:** `--edu-panel-shadow` vẫn là
+  `rgba(83,102,137,.24)` xanh lạnh, vì ca cũ chỉ canh `--edu-card-shadow`. Nay
+  `rgba(42,32,23,.19)` — GIỮ hình dạng 20/50 (đây là mặt NỔI: dropdown, thẻ hover,
+  không phải thẻ nằm trên giấy, nên trần toả 24px KHÔNG áp ở đây), alpha hạ theo đúng
+  tỉ lệ lần đổi `--edu-card-shadow` (.10 → .08) vì nâu đọc nặng hơn xanh xám.
+  Bán kính `home.module.css` 20px → 16px, 4 chỗ (thang lofi là 4/8/12/16/pill).
+  Ca mới ghim CẤU TRÚC, không ghim mã màu: `--edu-panel-border` phải LÀ
+  `var(--edu-card-line)`. Phép chứng minh "đường kẻ có thấy được không" đã nằm ở ca
+  card-line và kiểm cả hai chiều ngày/đêm — nuôi một màu thứ hai ở đây là nuôi một
+  thứ sẽ trôi khỏi nó.
+  Ablate 4 chiều, mỗi chiều **1 đỏ**: viền ngày về trắng · viền đêm về `rgba` · bóng
+  nổi về xanh lạnh · hạ `--edu-card-line` đêm xuống dưới nền thẻ.
+  **GIỚI HẠN PHẢI NÓI RA:** ca card-line kiểm CHIỀU (sáng hơn / tối hơn nền), không
+  kiểm ĐỘ LỚN — nên bản nâng 1,195 → 1,414 KHÔNG được ghim bằng một sàn. Hạ ngược về
+  `#233049` vẫn xanh. Đặt sàn ở đây thì phải thêm một mục vào
+  `scripts/nguong-mot-chieu.json`; chưa làm, và đó là lựa chọn chứ không phải bỏ sót.
+  `ASSET_VERSION` bump theo (`2026-11-04d`) vì `edu-theme.css` nằm trong `public/`.
+
+  **NỀN TRANG CÒN VẼ MESH XANH–ĐỎ — bề mặt LỚN NHẤT, và là thứ chủ dự án thật sự
+  đang nhìn thấy.** Sau khi viền thẻ xong, tôi mở production bằng Chrome (đúng cái
+  tôi đã khai là "chưa làm" vòng trước) và chụp ảnh: thẻ CÓ cạnh, nhưng trang vẫn
+  hồng/tím. Đo ra ngay: `body` vẽ `rgba(255,90,110,.20)` đỏ góc trên-phải +
+  `rgba(79,141,255,.30)` xanh góc dưới-trái + một đốm xanh nhạt giữa, ĐÈ lên
+  `#eaeff6`. Đó là bảng xanh–đỏ của bố cục TRƯỚC việc thiết kế (commit `070886a`).
+  **BÀI HỌC VỀ PHÉP ĐO, không phải về CSS:** hai vòng trước tôi chứng minh bằng công
+  thức WCAG tính từ chính file CSS — đúng từng số, và cả hai lần đều BỎ SÓT thứ to
+  nhất, vì tôi chỉ tính những token mình đang sửa. Một ảnh chụp 30 giây trả lời câu
+  "trang đọc ra cái gì" mà không phép tính nào trong repo trả lời được.
+  **NỬA CÒN LẠI của cùng lỗi, và bỏ sót nó là bản sửa trông như xong:** hai QUẦNG
+  SÁNG BÁM CHUỘT (`html.edu-fx::before/::after`) tô `rgba(37,99,235,.22)` +
+  `rgba(229,51,75,.17)` lên MỌI trang — `edu-fx.js` nạp ở layout gốc nên chúng
+  đang sống. Sửa mỗi nền thì hai đốm brand vẫn chạy theo con trỏ.
+  **XOÁ, không tô lại:** trên giấy sáng `#EAEFF6` một quầng trung tính là một vệt mờ
+  bẩn, và một đốm sáng chạy theo con trỏ ngược hẳn với "chill". `edu-fx.js` vẫn nạp và
+  vẫn làm đốm sáng cho THẺ (`data-fx`); nó chỉ ghi `--ax/--ay/--bx/--by` nên không
+  lời gọi nào hỏng.
+  Giữ NGUYÊN dốc `160deg` ba mốc để không đổi nhịp bố cục; chỉ bỏ ba radial và đưa
+  màu về giấy trung tính (ngày `#f7fafd → #eaeff6 → #e4eaf4`).
+  **Cổng ghim TÍNH CHẤT bằng |R − B|:** giấy lofi lệch 6–16, đỏ brand lệch **145**,
+  xanh brand lệch **176**. Ghim nguyên chuỗi CSS thì đổi một mốc dốc là đỏ oan.
+  Ablate 4 chiều: trả mesh đỏ vào nền ngày → **1 đỏ** · trả mesh xanh vào nền đêm →
+  1 · dựng lại quầng bám chuột → 1 · **nới trần `TRAN_LECH_KENH_NEN` 24 → 200 rồi
+  trả mesh đỏ vào → 0 đỏ**. Chiều thứ tư đúng là "nới phép kiểm cho xanh" mà LOOP.md
+  gọi tên, nên con số ấy nay có một mục trong `scripts/nguong-mot-chieu.json`
+  (17 → 18 ngưỡng); ablate lại qua sổ: nới 24 → 200 thì `check-nguong` **1 lỗi**.
+  `ASSET_VERSION` → `2026-11-04e`.
+
+- **BẢNG 74 TOKEN `--ds-*` LẤY NGUYÊN TỪ NHÁNH `test` — và câu "bê cả nhánh" là câu
+  tôi đóng khung SAI.** Chủ dự án hỏi *"cần gì bê nhánh, chỉ lấy phần frontend thôi"*,
+  và đúng: tôi phản đối việc MERGE, mà không ai đề xuất merge. Số đo cho cả hai vế:
+  · `main` đi TRƯỚC `tester/test` **170 commit**; `test` đi trước main **10**; commit
+    cuối của `test` là **22/10**. Merge cả nhánh thì **45 file** main đã xoá sống lại
+    (417 KB tài nguyên chết + font Be Vietnam Pro đã bỏ), và **7/10 commit** là
+    dashboard / Góc học / minigame — thứ chủ dự án đã loại khỏi phạm vi;
+  · nhưng `studio-tokens.css` của `test` là một file **CHỈ KHAI BIẾN, không một quy
+    tắc nào áp lên phần tử** (chính đầu file nói vậy), nên lấy nguyên là an toàn và
+    rẻ. Đó là cách port đúng, và tôi đã port TAY từng token suốt bốn vòng trước.
+  **ĐO TRƯỚC KHI LẤY, và phép đo quyết định cách làm:** 40/41 `--st-*` trùng tên; đúng
+  **MỘT** token mất — `--st-streak-bg`, có **đúng một** chỗ dùng
+  (`LessonChrome.module.css:177`). Trả nó về trỏ `--ds-violet-tint`. Thiếu bước này là
+  một bề mặt MẤT NỀN mà không gì ném ra: CSS chỉ lặng lẽ bỏ qua một `var` không có.
+  **CỔNG BẮT ĐƯỢC THỨ ĐÁNG GIÁ NHẤT — nhưng vì lý do SAI, và đó là bài học.**
+  Vừa thay file thì `ds-contrast` **3 ca ĐỎ**: *":root không có --st-code-bg"*. Đọc
+  như "bảng mới xoá mất bảng code NÂU". Đo lại: `--ds-code-bg` của `test` là
+  **`#221A13`**, trùng TỪNG KÝ TỰ với bảng đang chạy. Bảng v2 chia HAI TẦNG — `:root`
+  giữ mã màu `--ds-*`, `body` giữ `--st-*` làm BÍ DANH — còn cổng chỉ đọc `:root` và
+  chỉ nhận mã màu TRỰC TIẾP. Tức **cổng BÁO OAN**, và lối thoát trông hợp lý nhất lúc
+  đó là bỏ bảng mới đi. Sửa CỔNG, đừng bỏ bảng.
+  **MỘT NẤC bí danh, cố ý** — hai nấc là bảng tự vòng vo và cổng phải ĐỎ chứ không
+  đoán tiếp. **Và bản đầu của luật ấy KHÔNG CÓ RĂNG:** `token()` trả `null`, chỗ gọi
+  nuốt bằng `??`, ablate bí danh hai nấc ra **0 đỏ** — cổng im lặng đúng lúc nó không
+  đọc nổi bảng. Nay "chưa khai" vẫn trả null (chỗ gọi cần rơi về bảng ngày) nhưng "ĐÃ
+  KHAI mà không giải ra mã màu" thì `assert.match` ĐỎ. Ablate lại: **2 đỏ**.
+  **HAI PHÉP ABLATE ĐẦU CỦA TÔI TRƯỢT, và "0 đỏ" của chúng vô nghĩa** — một cái lệch
+  escaping, một cái đếm thiếu dấu cách (`--ds-code-str:` có BỐN space). Đúng bẫy
+  `NP02#1` đã ghi ở trên: bịa khoá sai là tự lừa mình rằng bộ kiểm hỏng. Nay mỗi phép
+  ablate kiểm chuỗi ĐÃ vào file rồi mới chạy.
+  Ablate 4 chiều: trả cổng về chỉ-đọc-`:root` → **3 đỏ** · cổng thôi giải bí danh → 3 ·
+  đổi `--ds-code-bg` sang xanh `#1c2536` → 3 · hạ `--ds-code-str` xuống dưới sàn → 2.
+  **~~ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC~~ — CÂU NÀY TÔI VIẾT SAI, xem mục đính chính
+  ngay dưới.** Tôi ghi "bảng v2 KHÔNG có màu xanh lá, `--st-ok-*` nay là hổ phách" vì
+  chép CHÚ THÍCH đầu file. Đo giá trị thật thì `--ds-ochre` = `#047857`, **một màu
+  XANH LÁ**. Thay đổi thật nhỏ hơn hẳn: ok `#1f9d59` → `#047857`, err `#d0344b` →
+  `#CF2338`. Điều kiện WCAG 1.4.1 (icon + chữ kèm màu) vẫn đạt và pha 4 đã đo:
+  **2 288 ca trượt / 0 ca im lặng**.
+  `ASSET_VERSION` → `2026-11-04f`.
+  **CÒN LẠI, nói cho đúng:** 74 token nay CÓ MẶT trên main, nhưng mới `--st-*` (41 bí
+  danh) là có người dùng. Nhóm `violet/sanguine/ochre/action` và thang bán kính vẫn
+  chưa bề mặt nào gọi tới — **đó là token suông, đúng thứ luật dưới đây cấm**, và nó
+  được chấp nhận ĐÚNG MỘT VÒNG này vì file là một khối không tách được. Vòng sau phải
+  nối bề mặt, không thêm token.
+
+- **TÔI CHÉP MỘT CÂU THAY VÌ ĐỌC MỘT GIÁ TRỊ — và câu đó sai với chính file chứa nó.**
+  Chú thích đầu `studio-tokens.css` khai *"Bảng v2 không có màu xanh lá… `--st-ok-*` nay
+  là ochre… chứ không còn là xanh lá"*. Tôi đưa nguyên câu ấy vào mô tả commit và vào
+  file này như một phần "ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC". Đo trong trình duyệt ở vòng
+  sau: `--ds-ochre` = **`#047857`**, một màu **XANH LÁ** đậm — chỉ `--ds-mark-ochre`
+  `#E0B062` mới là hổ phách. Token mang TÊN ochre nhưng GIÁ TRỊ là xanh lá, và chú
+  thích không ai sửa theo. Thay đổi thật: ok `#1f9d59` → `#047857` (xanh đậm hơn),
+  err `#d0344b` → `#CF2338` (đỏ, gần như cũ) — nhỏ hơn hẳn câu tôi viết.
+  Đúng họ lỗi file này đã gọi tên hai lần ("đọc CÂU, không đọc MÀU"; "đừng chép một con
+  số vì nó được viết cạnh màu"), lần này tôi là người vấp. **Một chú thích là lời KHAI,
+  giá trị mới là sự THẬT** — và khi hai cái lệch nhau thì chú thích luôn là cái sai.
+  Đã sửa cả hai chỗ; chú thích trong file nay mang đoạn đính chính để không ai chép lại.
+
+- **HAI CHIP CỦA TRANG CHỦ TRƯỢT AA, và nguyên nhân là một KHUÔN chứ không phải hai
+  dòng CSS.** Đo trên production 04/11 bằng phép hợp thành alpha THẬT (đi ngược cây tổ
+  tiên, KHÔNG lấy nền `body`): "Cơ bản" `#e5334b` trên `rgba(229,51,75,.10)` =
+  **3,20:1**, "Sẵn sàng sử dụng" `#059669` trên `rgba(5,150,105,.20)` = **2,95:1**.
+  Cả hai 13px/500, tức chữ THƯỜNG, ngưỡng 4,5.
+  Khuôn gây lỗi: **tô 10–20% CHÍNH màu chữ lên nền rồi đặt màu đó lên trên**. Nền càng
+  đậm thì chữ càng chìm, mà nó vẫn "hợp tông" nên không ai nghi. Bảng lofi có sẵn cặp
+  tint ĐỤC cho đúng hai vai này: `#CF2338` trên `#FFF1F3` = **4,84** · `#047857`
+  trên `#E7F6F0` = **4,92**. Đây cũng là lần đầu nhóm sanguine/ochre có bề mặt dùng.
+  **PHÉP ĐO ĐẦU CỦA TÔI BÁO OAN BA CHỖ, và cả ba vì cùng một thiếu sót:** nó lấy nền
+  `body` thay vì nền tổ tiên đã hợp thành, nên một chip `rgba(x,.1)` ra tương phản
+  **1,00** (màu chữ so với chính nó). Và nó không xét CỠ/ĐỘ ĐẬM: chữ logo 20px **bold**
+  là chữ LỚN (≥18,66px + bold), ngưỡng **3:1**, đo được 4,47 và 3,70 ⇒ **ĐẠT**. Tôi suýt
+  báo cáo ba lỗi không có thật. Phép đo tương phản phải hợp thành alpha VÀ đọc
+  `fontSize`/`fontWeight`, nếu không nó vừa báo oan vừa bỏ sót.
+  **CA TEST CỦA CHÍNH NÓ ĐỎ OAN NGAY LẦN ĐẦU:** regex dựng từ template literal —
+  ``\.${ten}\s*\{`` trong template là escape của ký tự thường, ra `.tagReds*{`. Đúng
+  bẫy "viết regex THẲNG, đừng dựng từ chuỗi" đã ghi ở ca thanh sticky. Nay dùng
+  `indexOf` + `split`, không regex.
+  Ablate 4 chiều, mỗi chiều **1 đỏ**: trả `.tagRed` về nền alpha · trả `.tagOk` về cặp
+  cũ · đổi TÊN lớp (ca nói thẳng "đổi tên thì sửa ca này") · hạ `--ds-ochre` xuống dưới
+  AA. **Cả bốn đều kiểm chuỗi ĐÃ vào file rồi mới chạy** — hai vòng trước tôi có hai phép
+  ablate trượt mà vẫn đọc "0 đỏ" như một kết quả.
+  **GIỚI HẠN:** ca đọc CSS TĨNH, nên nó mù với chip tô màu bằng `style={{…}}` trong TSX.
+
+- **TRANG KHOÁ HỌC: grep nói 128 chỗ brand, trình duyệt nói 22 — và chỉ 22 mới đáng sửa.**
+  Trang này nạp **8 file CSS tĩnh** cộng `CourseShell.module.css`. Đếm bằng grep các
+  token brand ra **128** (edu-theme 84 · edu-dashboard 29 · edu-course-detail 10 ·
+  course_detail 3 · CourseShell 2). Quét MỌI phần tử đang **VẼ RA** màu brand trong
+  trình duyệt thì chỉ **22**, vì phần lớn selector của edu-theme/edu-dashboard là
+  dashboard/forum/roadmap di sản Django mà không trang nào render — đúng bài học
+  "61 chỗ là con số của grep, không phải con số của người học", lần này tỉ lệ là 6:1.
+  22 chỗ đó: nút **"Bắt đầu học"** (gradient `#1f5fe0→#4f8dff` + bóng xanh) · 5 biểu
+  tượng `#2563eb` · 8 chấm mục tiêu · 4 thẻ dính `--edu-sheen` · 3 chữ logo.
+  **CHỮ LOGO GIỮ NGUYÊN, có chủ đích:** đó là BẢN SẮC, không phải bảng giao diện. Đổi
+  nó là đổi thương hiệu, một quyết định của chủ dự án chứ không của vòng lặp.
+  **Và nó KHÔNG trượt AA như phép đo đầu của tôi báo:** 20px **bold** là chữ LỚN
+  (≥18,66px + bold ⇒ ngưỡng 3:1), đo được 4,47 và 3,70 — đạt.
+  `--edu-sheen` thì brand NHẠT vẫn là brand: hai radial `rgba(37,99,235,.06)` +
+  `rgba(229,51,75,.04)` phủ lên 4 thẻ LỚN (thẻ cao nhất **2 296px**). Giữ vệt sáng
+  trắng góc trên-trái (nó tạo chiều sâu, không mang màu), bỏ hai radial màu.
+  **MỘT THỨ ĐÃ ĐO VÀ BÁC, đừng đi tìm lại:** nhìn ảnh chụp thì trang như còn một dải
+  hồng/xanh. Quét mọi mảng > 40 000 px² và cả pseudo-element: **không có mesh nào** —
+  `body` đã là dốc trung tính `#f7fafd → #eaeff6 → #e4eaf4`. Cái mắt thấy là vệt
+  sáng của `--edu-sheen` trên bốn thẻ cộng thanh đầu trang, không phải nền.
+  **Cổng nay là một DANH SÁCH CHỈ ĐƯỢC DÀI THÊM** (`DA_SANG_LOFI`): mỗi vòng chuyển
+  xong một bề mặt thì thêm một dòng, không bao giờ bớt. Ca cũ chỉ canh trang chủ, nên
+  nó im lặng với đúng trang mà người học bấm vào tiếp theo.
+  Ablate 3 chiều, mỗi chiều **1 đỏ**: trả gradient brand vào nút "Bắt đầu học" · trả
+  chấm mục tiêu về `--edu-accent` · trả outline của `CourseShell` về `--edu-accent`.
+  Số ca KHÔNG đổi (524) vì đây là mở rộng ca sẵn có, không phải ca mới — một vòng
+  thêm phạm vi mà không thêm con số là chuyện bình thường, đừng bịa một ca để bảng đẹp.
+
+  **Còn lại của hệ `--ds-*`:** main mới chỉ lấy nhóm CODE. 58 token còn lại (giấy, thẻ,
+  nút, tím/đỏ/lục, bán kính, bóng) vẫn ở nhánh `test`. Port tiếp thì theo đúng luật này:
+  **mỗi vòng token + nối ít nhất một bề mặt THẬT**, không thêm token suông — thêm token mà
+  chưa mặt nào dùng là đúng lỗi thống trị của repo, lần thứ mười ba.
+
+- **BÊ GIAO DIỆN TỪ NHÁNH KHÁC LÀ BÊ CẢ NHỮNG BẢN SỬA MÀ NHÁNH ĐÓ CHƯA CÓ — và tôi
+  push mà không chạy bậc thang.** 4d5f86d chép nguyên trang chủ Góc học + `CourseDetail`
+  + `CourseShell` từ `tester/test` (commit cuối 22/10). Main đi trước nhánh đó 170 commit,
+  nên bản chép VIẾT ĐÈ những bản sửa main đã có sau ngày ấy. Bộ test frontend đỏ **6 ca ở 4
+  file**, cổng tài nguyên chết **2 lỗi**, và không cái nào được chạy trước khi push:
+  · `course-resume` 3 đỏ — `CourseDetail` của `test` ghim lại module 0: đóng bài là rơi về
+    đầu khoá 179 bài, đúng lỗi NĂM người thử báo ngày 27/10. Khối đọc `?lesson=` + effect
+    cuộn RIÊNG đã đưa về; và một ca mới đòi hàng bài mang id mà effect tìm — bản chép mất
+    đúng cái id đó mà không ca nào đỏ (ablate trước khi có ca: **0 đỏ**);
+  · `feedback-link` 1 đỏ — trang chủ mới KHÔNG có đường tới form góp ý, tức cửa vào của
+    người thử mất kênh góp ý. Nay link nằm dưới thẻ "Khoá đang học";
+  · `review-quiz` 1 đỏ, và đỏ vì lý do SAI: regex khớp chữ `apiFetch` trong một CHÚ THÍCH.
+    Nhưng tính chất ca ấy khẳng định ("trang công khai không có đường tới API") thì đúng là
+    đã sai — nên viết lại theo hợp đồng mới chứ không chỉ bóc chú thích;
+  · `ds-contrast` 1 đỏ — `home.module.css` thành file chết (chỉ `CatalogTile.tsx` import, mà
+    `CatalogTile` không ai dùng; cổng tài nguyên chết MIỄN `app/` nên không thấy). Xoá cả
+    hai cùng `skeleton.css` + `course_detail.css` (2 lỗi của cổng). Ca chip gỡ theo, dòng
+    `DA_SANG_LOFI` trỏ sang `goc-hoc/scene.css` để danh sách không ngắn lại.
+  **Và phép thay chữ hàng loạt làm hỏng CHÚ THÍCH:** `s/apiFetchSessionOnly/apiFetch/g` biến
+  câu giải thích thành *"Dùng `apiFetch`, không dùng `apiFetch`"* ở hai file. Thay tên một
+  hàm thì đọc lại mọi câu văn chứa nó.
+  **Luật rút ra: bê từ nhánh khác thì chạy CẢ bộ unit + bốn cổng TRƯỚC khi push**, vì thứ bị
+  viết đè là thứ bên kia không biết là có.
+
+- **LIGHTPANDA: ĐÃ ĐỌC TÀI LIỆU VÀ BÁC cho việc ĐO GIAO DIỆN — nó KHÔNG có layout.**
+  Chủ dự án hỏi 07/11 liệu nó có hơn Chrome DevTools không. Đọc README +
+  lightpanda.io/docs: nó viết bằng Zig, chạy JS trên V8, dựng DOM thật — nhưng
+  tài liệu kiến trúc nói nguyên văn *"Because Lightpanda does not render, it does
+  not compute a real visual layout. Element size is a fair approximation from CSS
+  and HTML attributes, but element position is **simulated from DOM depth and
+  sibling order**, not real layout"*, và *"`Page.captureScreenshot` returns a
+  **placeholder image**, not a real render"*. README: *"No graphical rendering
+  engine"*.
+  **Vì sao đó là chí tử ĐÚNG VỚI REPO NÀY, chứ không phải một thiếu sót chung
+  chung:** mọi phép đo giao diện ở đây đều đứng trên layout thật —
+  `getBoundingClientRect` (nút 13×6px), `getComputedStyle` + hợp thành alpha
+  (tương phản AA), `elementFromPoint` (vùng bấm thật, thứ đã lộ ra rằng
+  `overflow:hidden` nuốt `::after`), CLS/LCP/FCP, ảnh chụp. Trên Lightpanda
+  chúng vẫn TRẢ VỀ SỐ — số mô phỏng. Một công cụ trả về con số trông hợp lý mà
+  không phải sự thật là đúng cái đã cắn repo này ba lần ở mục đo độ giật ngay
+  dưới. Chrome tốn hơn, nhưng nó là thứ duy nhất nói được "người học thấy gì".
+  **Số tự công bố, ghi lại để khỏi tra lại:** 100 trang — 123 MB / 5 s so với
+  Chrome 2 GB / 46 s (~16× bộ nhớ, ~9× tốc độ); một trang — 16 ms / 21,2 MB so
+  với 185 ms / 402 MB. Bảng README (123 MB cho "100 pages") và bảng docs (123 MB
+  cho 25 tiến trình song song, 410 MB cho 100) KHÔNG khớp cấu hình — ghi lại chứ
+  không phán xét.
+  **Ba rào kỹ thuật nữa nếu có ngày cần nó cho việc KHÔNG-giao-diện:** không có
+  bản Windows native (phải WSL/Docker — máy dự án là Windows 11); một tiến trình
+  chỉ mở được MỘT tab; giấy phép AGPL-3.0. Và hôm nay chẳng có việc nào cần: mọi
+  cổng không-giao-diện của repo (`check-*.mjs`, `check.py`) chạy thẳng trong Node
+  hoặc Python, không cần trình duyệt nào.
+
+- **`--ds-action` BẰNG ĐÚNG màu nút đang vẽ — "port nốt token" ở trang bài học là
+  việc KHÔNG đổi một pixel nào.** Quét trên production (94b7504) mọi phần tử đang
+  VẼ RA màu brand, bốn màn của một bài: màn 5/8/12 **sạch**; màn 1 chỉ có một
+  `span.num` 7×15px `#EC9277` — tông đất của chính bảng lofi, phép dò bắt oan vì
+  luật "đỏ" của nó quá lỏng. Hai nút lớn (`primaryBtn` 480×52 "Nộp & Chấm điểm",
+  `runBtn` "▶ Chạy thử") vẽ `#1F5FE0` — mà `--ds-action` cũng ĐÚNG LÀ `#1F5FE0`.
+  Chúng chỉ đi qua `--edu-accent-2` thay vì `--ds-action`: cùng một pixel, nên đổi
+  dây là token hygiene chứ không phải cải tiến, và nó vi phạm chính luật "mỗi vòng
+  phải nối một bề mặt THẬT". `segmentFill` `#1d4ed8` là `--ds-violet`, chấm
+  `#cf2338` là `--ds-sanguine` — cả hai đã đúng bảng từ trước.
+  **Hệ quả cho nhánh lofi:** lát tiếp theo KHÔNG nằm ở trang bài học. Phải quét
+  một bề mặt khác (trang `(standalone)`, màn lỗi, trang 404) rồi mới mở việc —
+  và quét bằng trình duyệt, vì grep đã sai 6:1 một lần rồi.
+
+- **ĐO ĐỘ GIẬT CỦA TRANG CHỦ: ba cách đo đã nói dối, và một cách thì không.**
+  Trang chủ Góc học bận 98% luồng chính khi ĐỨNG YÊN trên điện thoại giả lập (390×844,
+  CPU 4×); 2059211 hạ còn ~62%. Ba bẫy của chính phép đo, đều đã cắn trong vòng đó:
+  · **Đếm fps bằng rAF tự làm hỏng phép đo**: rAF ép luồng chính dựng một khung MỖI
+    vsync, mà khung nào luồng chính dựng thì nó tính lại style cho MỌI phần tử đang
+    chạy hoạt ảnh (~147 ở đây). Đầu dò đúng: đếm nhịp trống bằng vòng `MessageChannel`
+    trong 2 giây, so với sàn "dừng hết hoạt ảnh" (`dau-do.js` của vòng đó).
+  · **`tom.mjs` chọn renderer BẬN NHẤT, và đó có thể là tab khác.** Một tab cũ của
+    agent còn mở trang chủ production chạy vòng rAF, nên phép đo "sau sửa" đọc ra rAF
+    142 ms/s trong khi trang đang đo có 0. Lọc theo pid có URL đúng, hoặc đóng tab lạ.
+  · **Vết cũ không có cờ `compositeFailed`** cho hoạt ảnh bắt đầu TRƯỚC khi ghi vết.
+    Muốn biết hoạt ảnh nào không lên compositor: ghi vết rồi `cancel()`+`play()` mọi
+    hoạt ảnh. Kết quả: chỉ mưa SVG (`fall`, mã 1024) hỏng.
+  **Hai giả thuyết đã BÁC bằng số, đừng dựng lại:** (1) sự kiện `animationiteration`
+  nổi lên React ép khung — đổi cả 145 hoạt ảnh sang WAAPI thì style còn TĂNG; (2) một
+  nhóm là thủ phạm — dừng từng nhóm không nhóm nào hạ dưới 85%, mỗi nhóm CHẠY RIÊNG
+  đều ăn nhịp tỉ lệ theo số phần tử. Nên luật thật là: **mọi hoạt ảnh đang chạy đều có
+  giá, kể cả trên compositor** — dừng cái vô hình (sao ban ngày, mưa khi tạnh, bụi 2,7px
+  trên điện thoại), và đừng để vòng rAF chạy khi không có gì đổi.
+  **Còn lại là quyết định thiết kế:** 39 quầng sáng `breathe` + 54 bóng đèn `twk` là
+  chính cảnh; mỗi nhóm một mình vẫn ăn ~45–60% nhịp trống.
+
+- **"GIẬT LAG LIÊN TỤC" KHÔNG TÁI HIỆN ĐƯỢC TRÊN CHÍNH MÁY ĐÓ — bảy hướng, bảy số, và
+  hướng thứ bảy suýt thành một bản sửa SAI.** Chủ dự án báo 07/11/2026: *"tôi đang vào thử
+  trang, và giật lag liên tục, có vẻ nó rất tốn RAM và phần cứng"*. Đo bằng Chrome 157
+  THẬT trên đúng máy đó (GTX 1660 Ti · 16 GB · 12 lõi · dpr 1,25 · KHÔNG throttle):
+  · **trang chủ rơi 0 khung / 180**, trung vị 16,7 ms · p99 17,0 · max 17,1. Tạm dừng CẢ
+    147 hoạt ảnh rồi đo lại: vẫn **0 / 180**, không một con số nào đổi. Nhịp trống 64 455
+    (chạy) so 72 220 (dừng hết) ⇒ hoạt ảnh ăn **10,8%** — không phải 98% như trên điện
+    thoại CPU 4×, nên nền cảnh KHÔNG phải cổ chai trên GPU rời;
+  · **trang bài rơi 3 khung / 1 399** trong 14 giây, 1 hoạt ảnh, heap 6,4 MB;
+  · texture GPU **19,3 MB / 163 lớp** đã đề cử (tính w×h×dpr²×4 trên mọi phần tử đang đổi
+    transform/opacity, khai `will-change`, hoặc có `mask`); blur chỉ **4** phần tử =
+    **0,01** diện tích màn; `backdrop-filter` **0**. Cả ba đều thấp;
+  · **trang không cuộn được một pixel nào** (`scrollHeight == innerHeight == 732`) ⇒ "tạm
+    dừng hoạt ảnh khi ra khỏi màn" là BẤT KHẢ với trang này, không phải chưa làm;
+  · **không rò worker**: `dispose()` → `kill()` chạy ở cleanup effect của `useCodeRunner`;
+    đo bằng cách bọc `globalThis.Worker` → **1 tạo / 0 dừng / 1 sống** mỗi lần mở bài;
+  · `prefers-reduced-motion` **đã làm xong từ trước**, cả hai nửa: `scene.css` 598–602 tạm
+    dừng `.wisp/.mote/.bulb i/.city/.drops/.star/.snote/.glowi`, và nút trong trang BẤM
+    TỚI ĐƯỢC — bánh răng "Tùy chỉnh khung cảnh" (38×38, góc trên phải) → "Giảm chuyển
+    động", bật lên tạm dừng **127/131** hoạt ảnh. Đừng dựng lại.
+  **HƯỚNG THỨ BẢY LÀ BÀI HỌC, vì nó suýt thành một bản sửa sai.** Mở bài nào cũng tải
+  `pyodide.asm.wasm` **9,15 MB** + `python_stdlib.zip` **2,43 MB** = **11,58 MB**, xác nhận
+  bằng danh sách request — fetch của worker KHÔNG hiện trong
+  `performance.getEntriesByType('resource')` của luồng chính, nên đọc ở đó ra "0 byte
+  Pyodide" là đọc sai. Quét gói dựng thì **24/179 bài** không có `step_4.tests` lẫn ô chạy
+  thử ở màn luyện tập (`answerCode && answerExpected`), gồm cả PY02 và PY03 — bài thứ hai
+  và thứ ba của người mới. Trông như 24 lần nạp runtime vô ích, và tôi đã định siết
+  `shouldPrewarm`. **Đọc renderer thì nó SAI:** `buildScreens` đẩy màn sandbox khi có
+  `step_4.task.body` — **cả 179 bài đều có** — và `SandboxScreen` dòng 244–245 nói nguyên
+  văn *"ô này để bạn thử lại ví dụ trong bài. Gõ rồi bấm Chạy thử"*. Mọi bài ĐỀU có ô
+  chạy, nên siết cổng chỉ làm lần chạy đầu của 24 bài chậm thêm ~2,7 s mà không đổi lấy
+  gì. **Phép quét DỮ LIỆU không thay được việc đọc RENDERER** — cùng bài học "61 chỗ là
+  con số của grep, không phải con số của người học", lần này theo chiều ngược.
+  Siết `shouldPrewarm` cũng KHÔNG cứu được byte dù giả thuyết có đúng: cổng trả `true`
+  ngay khi `lesson === null`, nên prewarm đã bắn trước lúc nội dung về.
+  **MỘT PHÉP ĐO KHÔNG KẾT LUẬN ĐƯỢC, phải nói ra:** working set của Chrome đo bằng
+  PowerShell ra **666,4 MB ở `about:blank`** so với **623 MB khi đang mở bài** — nhiễu (số
+  tiến trình 7→8, working set lười) lớn hơn tín hiệu, nên câu "runtime Pyodide giữ bao
+  nhiêu RAM" vẫn CHƯA có số. Muốn số đó thì cần
+  `performance.measureUserAgentSpecificMemory()` (đòi cross-origin isolation, trang này
+  không có) hoặc Task Manager của Chrome.
+  **Kết luận trung thực: số trong trình duyệt KHÔNG cho thấy cái giật mà người dùng cảm
+  nhận**, nên nguyên nhân còn lại nằm NGOÀI trang — máy này chạy song song nhiều dự án
+  (ghi chú `tai-nguyen-may`), 16 GB, và một dev server cộng vài agent là đủ.
+  **~~Lead DUY NHẤT còn sống cho nhánh #96: trang khoá học ở 390×844 + CPU 4× có LCP
+  1 626 ms mà render delay 1 098 ms = 67%.~~ ĐO LẠI 08/11 VÀ BÁC — xem mục bẫy "CÁCH
+  THỨ TƯ phép đo hiệu năng nói dối" ở cuối file.** LCP thật là **324–652 ms**; con số
+  1 626 là của chính CÔNG CỤ ĐO.
+
+- **THANG CHỮ BAN NGÀY BỊ CHIA ĐÔI: t1/t2 đã nâu, t3–t6 còn xanh lạnh — và t5 trượt AA
+  trên giấy.** Đợt warm lofi trước đổi `--edu-t1` (#2A2018) và `--edu-t2` (#4A3B2E) rồi
+  DỪNG. Bốn bậc còn lại không có chú thích tỉ số nào — đó là dấu hiệu bản port dừng giữa
+  đường. Đo bằng cách quét phần tử ĐANG VẼ ra màu trong Chrome, trên màn "Đang tải bài
+  học…" (07/11/2026): tiêu đề nâu `#2A2018` ở **25 phần tử**, ngay cạnh chữ phụ XANH LẠNH
+  `#5b6a85` (t3, 4 phần tử) và `#62718c` (t5, 4 phần tử). Cùng một màn, hai họ màu.
+  Số chỗ dùng: t1 139 · t2 63 · **t3 108 · t4 31 · t5 18 · t6 7**.
+  **VÀ MỘT LỖI THẬT, KHÔNG CHỈ LỆCH BẢNG MÀU:** giấy nay là kem `#F4EEE3`, nên phải đo
+  trên CẢ HAI mặt chữ được vẽ lên. Trên thẻ trắng t5 là 4,93:1 (đạt AA), nhưng **trên giấy
+  chỉ 4,27:1 — DƯỚI AA 4,5**. Đo một mặt thôi là bỏ sót đúng bậc đang trượt.
+  Giá trị mới nằm trên ĐÚNG đường ấm t1→t2 (delta +32,+27,+22 mỗi bậc), chọn bậc NHẠT NHẤT
+  còn vượt mốc cũ trên cả hai mặt: t3 `#7C6551` 5,47/4,74 · t4 `#7A634F` 5,64/4,88 ·
+  t5 `#806853` **5,22/4,52** (cũ 4,93/4,27) · t6 `#6D5846` 6,70/5,80. Mọi bậc NÂNG, không
+  hạ một con số nào.
+  **BAN ĐÊM CỐ Ý KHÔNG ĐỔI, và đó là phép đo chứ không phải bỏ sót:** cả sáu bậc ban đêm
+  lạnh ĐỒNG NHẤT (t1 `#e8eefb` cũng lạnh) và đều vượt AA trên thẻ `#1d232d` — 13,57 · 9,59
+  · 5,86 · 5,24 · 4,84 · 6,92. Warm riêng t3–t6 ban đêm là TẠO ra đúng cái lệch ban ngày
+  vừa xoá. Port cả thang đêm là lát sau.
+  **SÀN PHẢI THẤP HƠN SỐ ĐO THẬT MỘT NHỊP — ablate dạy điều đó.** Bản đầu ghim đúng con số
+  cũ (t3 5.46) và phép ablate ra kết quả KHÔNG NHẤT QUÁN: trả t3 về chính `#5b6a85` — màu
+  vẫn đạt sàn của nó — vẫn **2 ca đỏ** thay vì 1, còn t6 cùng tình huống lại **1**. Nguyên
+  nhân là làm tròn float ở phép so bằng. Một cổng đỏ không nhất quán là cổng sẽ bị tắt.
+  Nay sàn là 5.4 / 5.6 / 4.9 / 6.6 (thẻ) và 4.7 / 4.85 / 4.5 / 5.7 (giấy); riêng t5 giữ
+  ĐÚNG 4.5 vì đó là AA, không phải một mốc cũ.
+  **LẠI VẤP ĐÚNG HAI BẪY FILE NÀY ĐÃ GHI, trong cùng một vòng:**
+  · dựng regex từ chuỗi — `new RegExp(`${ten}:\s*…`)` trong một template literal biến
+    `\s` thành CHỮ `s`, nên pattern thành `--edu-t1:s*…` và không khớp gì. Cổng ĐỎ oan với
+    câu "không có --edu-t1 dạng mã màu" trong khi file khai đúng. Nay dùng `indexOf` cộng
+    một regex viết THẲNG;
+  · đếm ca đỏ bằng `grep -E "^. fail"` — dòng tổng kết của `node --test` mở đầu bằng `ℹ`
+    (multibyte) nên `^.` không khớp, và cả bảy phép ablate trả RỖNG mà không báo lỗi. Đọc
+    bảng rỗng đó như "chưa chạy" thì may; đọc như "0 đỏ" thì đã commit một cổng rỗng.
+    Dùng `sed -n 's/.*fail \([0-9]\+\)[[:space:]]*$/\1/p'`.
+  **Ablate 7 chiều:** t3 về xanh lạnh → **1 đỏ** · t5 về `#62718c` → **2** (ấm + giấy dưới
+  AA, tức chiều thứ hai bắt đúng lỗi AA) · t6 về xanh lạnh → 1 · t3 ấm nhưng hạ dưới sàn →
+  1 · đổi TÊN token → **2** (cổng nói thẳng "khối NGÀY không khai --edu-t3", không im lặng
+  xanh) · trả regex về bản dựng-từ-chuỗi → 2.
+  **Chiều thứ bảy ra 0 đỏ, và nó là lý do tám con số này phải vào SỔ:** nới chính cái sàn
+  (t5 giấy 4.5 → 4.0) rồi trả màu cũ về → `ds-contrast` **0 đỏ**. Đúng cách THỨ NHẤT một
+  vòng lặp nói dối mà LOOP.md gọi tên. Nay 8 mục trong `scripts/nguong-mot-chieu.json`
+  (18 → **26 ngưỡng**); ablate lại qua sổ: nới 4.5 → 4.0 thì `check-nguong` **1 lỗi, exit
+  1**, còn siết 4.5 → 4.52 thì **0 lỗi** kèm dòng `GHI SỔ`.
+  **`DA_SANG_LOFI` KHÔNG dài thêm vòng này, và đó là đúng:** danh sách đó quét một file
+  xem còn `var(--edu-accent)` không, mà `edu-theme.css` là chỗ ĐỊNH NGHĨA token — thêm nó
+  vào là tự tạo một cổng báo oan. Luật "chỉ được dài thêm" là luật CẤM BỚT, không phải
+  hạn ngạch mỗi vòng.
+  `ASSET_VERSION` bump theo (`2026-11-07a`) vì `edu-theme.css` nằm trong `public/`.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** mọi chữ phụ trên mọi trang đổi từ xanh xám sang
+  nâu ấm, và chữ ở bậc t5 đọc rõ hơn trên giấy kem.
+
+- **SỐ CA TEST là con số ĐÃ TRÔI 70 ĐƠN VỊ, và nó vẫn chưa có ai canh cho tới hôm nay.**
+  Hàng đợi `todo` rỗng nên vòng này tự chọn mục **7(b)+8(c)** của bảng xếp hạng; hai mục
+  đó gặp nhau ở một chỗ trống đo được bằng ba con số:
+  · `grep` cả `scripts/*.mjs`: **0 cổng nào đếm ca test**;
+  · `check-moc-nen.mjs` ĐỌC đúng dòng ấy, nhưng regex của nó là
+    `/\*\*\d+ ca\*\* \/ (\d+) tệp/` — bắt số **TỆP** (48) và **BỎ QUA** số CA. Chính nó
+    khai số ca là "NGOÀI TẦM", vì cổng đó cố ý không chạy bộ test nào (nó phải nhanh);
+  · mà `npm run test:unit` chạy MỘT tiến trình và in sẵn `tests 573 / pass 573 / fail 0`.
+    Con số có sẵn, miễn phí, và không ai đọc.
+  Đây không phải lo xa: mục mốc nền ở trên ghi rằng nó **từng là 204 trong khi cây mã chỉ
+  có 134**, sống sót vì phép đếm tay dùng `grep -E "^. pass"` và bẫy `ℹ` multibyte trả
+  RỖNG mà không báo lỗi. ImpossibleBench đo được các mô hình Claude **>79% số lần SỬA
+  TEST** khi nhiệm vụ không làm được, nên đây đúng là chỗ cần một tín hiệu máy đọc.
+  **HAI CỔNG, VÀ ABLATE CHỨNG MINH KHÔNG CÁI NÀO THAY ĐƯỢC CÁI KIA.** Đó là phần đáng ghi
+  nhất của vòng này, vì trước khi đo thì một cái trông như đủ:
+
+  | Chiều ablate | `check-moc-chay` | `check-nguong` |
+  |---|---|---|
+  | nguyên bản | 0 | 0 |
+  | 1. bảng ghi 580, bộ test vẫn 573 | **1** | 0 |
+  | 2. một ca → `test.skip`, bảng GIỮ 573 | **1** | 0 |
+  | 3. ca bị skip **và** bảng hạ xuống 572 | **0** | **1** |
+  | 4. đổi CHỮ của hàng ("573 phep kiem") | **1** | **1** |
+  | 5. THÊM một ca thật + bảng lên 574 | 0 | 0 + dòng `GHI SỔ` |
+
+  Chiều **3** là lý do phải có cả hai: hạ con số trong bảng cho khớp một bộ đã bị cắt bớt
+  thì cổng chạy-bộ-test **XANH** — nó chỉ biết "bảng khớp bộ test", không biết "bộ test đã
+  nhỏ đi". Chỉ sổ ngưỡng (`san-so-ca-test-frontend`, sàn 573, 26 → **27 ngưỡng**) đỏ. Và
+  ngược lại, chiều **1** và **2** thì sổ im lặng vì con số trong bảng không hề bị HẠ.
+  Chiều **4** đỏ ở cả hai, mỗi bên một lý do khác nhau, và đó là hành vi đúng: regex hết
+  khớp phải là LỖI chứ không phải im lặng xanh — mục mốc nền đã dặn đúng câu đó.
+  **CỔNG THAY BƯỚC TEST TRONG CI, không chạy thêm một lượt.** Nó tự gọi
+  `npm run test:unit`, nên để cả hai là chạy 48 file hai lần cho cùng một kết quả. Nó đỏ
+  khi `fail > 0` VÀ khi không đọc được dòng tổng kết — fail-closed cả hai chiều, nên thay
+  bước cũ không làm mất lớp nào.
+  **BA LỖI CỦA CHÍNH CỔNG NÀY, cả ba chỉ lộ khi CHẠY THẬT, và hai cái đầu là cùng một dòng:**
+  · `spawnSync('npm', ['run','test:unit'], { shell: true })` làm Node ném
+    **DeprecationWarning DEP0190** (args không được thoát, chỉ nối chuỗi) — một cảnh báo
+    đổ vào log CI mỗi lần chạy;
+  · sửa thành `spawnSync('npm.cmd', [...])` không kèm shell thì trên Git Bash/Windows nó
+    **ENOENT** và `r.status` ra **`null`** — cổng đỏ với câu "không đọc được dòng tổng kết",
+    tức nó tố oan BỘ TEST trong khi thứ hỏng là LỆNH. Bản đúng là MỘT chuỗi lệnh
+    (`spawnSync('npm run test:unit', { shell: true })`): hết DEP0190, vẫn qua được `.cmd`;
+  · và thông điệp lỗi nay NÓI RA chuyện đó — in `r.error.message` cộng câu "mã thoát
+    `null` nghĩa là không chạy được LỆNH, không phải bộ test hỏng". Thiếu câu ấy thì người
+    đọc đi tìm sai chỗ, đúng bệnh "một dữ kiện ĐÚNG mà im lặng về giới hạn của nó".
+  **HÀNG MỚI TRONG BẢNG CHỨA CHỮ `test:unit`, và đó là một bẫy suýt tự gài.** Ba regex
+  đang neo vào hàng đó (`check-moc-chay`, mục sổ ngưỡng, `tepTest` của `check-moc-nen`),
+  và sổ ngưỡng đòi khớp ĐÚNG MỘT LẦN. Đã đếm lại sau khi thêm hàng: **1 / 1 / 1** — thoát
+  được chỉ vì `[^|\n]*?` dừng ở dấu `|` của ô bảng. Thêm chữ vào bảng mốc nền thì đếm lại
+  số lần khớp, đừng tin là còn một.
+  **~~GIỚI HẠN~~ — LÁT SAU ĐÃ ĐÓNG PHẦN NÀY, xem đoạn dưới.** Vòng đó chỉ canh bộ FRONTEND; số ca
+  **backend (501)** khi ấy còn NGOÀI TẦM — `npx jest --ci --runInBand` chạy lâu hơn nhiều và máy
+  dự án chạy song song việc khác. Đó là một lát riêng, không phải bỏ sót. Và con số 573
+  hôm nay không có dấu cách ngăn nhóm nghìn; ngày nó vượt 1000 thì regex `(\d+)` của sổ
+  hết khớp — sửa regex, đừng bỏ mục.
+
+  **LÁT SAU, cùng ngày: ĐÓNG ba trong năm con số NGOÀI TẦM — và phép đo nói ĐỪNG dựng cái
+  tôi định dựng.** Vòng này mở ra với ý định làm bảng kỷ luật của vòng lặp (mục 7c + 8c của
+  bảng xếp hạng). Đo trước đã, trên 60 commit gần nhất: nhắc "ablate" **50/60 (83%)** ·
+  ablate KÈM SỐ ca đỏ **42/60 (70%)** · chạm CẢ code lẫn hàng rào **28/60** (báo cáo xếp
+  hạng ghi 21/60, tức đã TĂNG) · chỉ chạm hàng rào 17 · **chỉ chạm code, không hàng rào
+  nào: 7** · docs/gói 8 · **revert: 0**. Và **6 trong 7** commit "chỉ code" là cùng ngày
+  04/11, trong đó có `4d5f86d` — đúng commit mà chính file này đã ghi là *"tôi push mà không
+  chạy bậc thang"* (6 ca đỏ + 2 lỗi cổng). Phép đo tự tìm lại đúng chỗ đã biết, nên nó đo
+  đúng thứ nó nói. **Nhưng nó KHÔNG đáng thành cổng:** một bảng phần trăm trên cửa sổ trượt
+  60 commit thì không có răng và gài được bằng cách nhồi chữ vào mô tả commit; còn chiều
+  NGUY HIỂM mà ImpossibleBench chỉ ra (sửa/cắt test) thì đã bị khoá từ lát trước —
+  `check-moc-chay` bắt ca biến mất, sổ ngưỡng bắt con số bị hạ, `check-nguong` bắt trần bị nới.
+  **PHÉP ĐO ĐÓ SUÝT NÓI DỐI THEO CHIỀU TỰ KHEN, lần thứ hai trong một phiên.** Bản đầu in
+  "chạm CẢ code lẫn hàng rào: **0/60**" và "chỉ chạm code: **0/60**" — đọc ra thành "mọi
+  commit đều ship kèm cổng của nó", một kết luận dễ nghe và SAI. Nguyên nhân: `git log
+  --format=…%b…` kết thúc mỗi bản ghi bằng một NEWLINE, nên sau khi cắt theo dấu phân cách
+  thì sha của **59/60** bản ghi mang `
+` ở đầu ⇒ `git show` trả RỖNG ⇒ mọi con số theo-file
+  thành rác, mà bản ghi ĐẦU tiên vẫn đúng nên bảng trông có vẻ chạy. Phải `.strip()` sha và
+  `assert` mọi sha khớp `[0-9a-f]{40}` TRƯỚC khi đếm. Cùng họ bẫy `grep -E "^. fail"` ở trên:
+  **một phép đo trả về 0 là thứ phải nghi ngờ trước nhất**, vì 0 thường là "không đọc được"
+  chứ không phải "không có".
+  **VÀ LÁT NÀY LÀ: đóng ba con số.** Đo lại cả bốn mục NGOÀI TẦM thì **không cái nào đang
+  trôi** — tracer 65/trượt 0 · backend lint 104 lỗi/2 cảnh báo (bằng ĐÚNG lệnh CI) · backend
+  **35 bộ / 501 ca** trong 54 s · frontend lint 146 cảnh báo. Nên đây không phải sửa một lỗi
+  đang sống, mà là gắn răng cho một tín hiệu dừng. `check-so-ca-test.mjs` đổi tên thành
+  **`check-moc-chay.mjs`** (tên cũ nói dối ngay khi nó canh thêm thứ không phải "số ca test")
+  và nhận **MỘT THAM SỐ mỗi job** — ba lệnh đó nằm ở BA job CI chạy SONG SONG, gộp lại là tự
+  serialize; nó THAY cả ba bước nên không chạy thêm lượt nào.
+  **HAI CON SỐ LINT CỐ Ý Ở NGOÀI, và lý do không phải tiết kiệm:** chúng phải ĐI XUỐNG. Ghim
+  bằng phép so BẰNG thì mỗi đợt dọn `any` là một lần cổng đỏ — đúng cái "dạy người ta THÔI
+  SIẾT" mà `check-nguong` đã tránh bằng dòng `GHI SỔ`. Chiều của chúng đã có sổ canh
+  (`ci-lint-backend`, trần 115).
+  **ĐÍNH CHÍNH 08/11/2026:** trần ấy nay là **100** (hạ ở lát dọn `any` của
+  `PrismaExceptionFilter`), và con số lint FRONTEND lúc viết mục này **chưa có sổ nào
+  canh** — `eslint` thoát 0 khi chỉ có cảnh báo. Nay có `ci-lint-frontend` (trần 146,
+  thi hành bằng `--max-warnings`). Câu trên nói "chúng" như thể cả hai đã được canh;
+  chỉ một cái đã.
+  **MỘT LỖI SẼ CHỈ HIỆN TRÊN CI, bắt được nhờ ĐỌC chú thích CI chứ không nhờ chạy:** cổng ghi
+  cứng `py -I …`, mà chú thích ngay cạnh bước tracer nói nguyên văn *"`python`, không phải
+  `py` — đây là runner Linux"*. `py` là launcher CHỈ có trên Windows, nên bản đầu chạy được ở
+  đúng một nửa số chỗ gọi nó và sẽ đỏ ở nửa kia. Nay chọn theo `process.platform`.
+  Ablate 5 chiều (`tracer` cho các chiều chung vì nó chạy 5 s, `backend` cho chiều có hai
+  trường): bảng ghi 70 chạy ra 65 → **1 đỏ** · đổi CHỮ của hàng → 1 kèm câu "KHÔNG CÒN DÒNG" ·
+  tham số lạ → 1 · bảng ghi "36 bộ, 520 ca" → **2 đỏ**, mỗi trường một lỗi · lệnh trỏ vào file
+  không có → 1 kèm "spawn hỏng". Sổ ngưỡng 27 → **30** (thêm sàn 501 · 35 · 65).
+
+- **L11 "GỌI CÙNG MỘT THỨ BẰNG HAI TÊN": 16 lỗi → 0, và BA trong số đó là CỔNG tự nói
+  ngược chính nó.** Bảng xếp hạng đã hết mục vòng lặp làm được, và ba vòng liền chỉ dựng
+  cổng — tức đang tối ưu BỘ ĐO chứ không phải sản phẩm. Cụm có bằng chứng người thử mạnh
+  nhất là văn phong: *"văn phong hơi lủng củng"*, *"mấy đứa bạn e đọc có những chỗ nó ko
+  hiểu"*. L11 đúng hình dạng đó — một đoạn dùng CẢ `thread` lẫn `luồng` cho cùng một thứ,
+  nên người mới không có cách nào biết chúng là một.
+  **VÌ SAO CHỌN L11 chứ không L3 (39) hay L8 (35), tuy chúng lớn hơn:** L11 là cụm DUY
+  NHẤT có thẩm quyền nằm NGOÀI khẩu vị của tôi. `thuatngu.json` đã chốt từng từ (nhóm B →
+  dùng tiếng Việt) và chốt BÀI chú giải đầu tiên, nên mỗi phép sửa là tra sổ chứ không
+  phải chọn. Còn L1/L3 thì VAN-PHONG.md §2 **cấm** chiến dịch rút câu hàng loạt.
+  **BA MIS-FIRE, và cả ba cùng một họ: cổng đọc tiếng ANH trong khi luật đòi tiếng VIỆT.**
+  · **biên từ không loại dấu nối.** `(?<![\w])string(?![\w])` khớp chữ "string" TRONG
+    `f-string`, vì `-` không thuộc `\w`. SY24 bị L11 báo *"gọi cùng một thứ bằng hai tên —
+    string và chuỗi"* cho một đoạn **KHÔNG dùng chữ "string" lần nào**. Cùng lớp lỗi với
+    `thread-safe`, `single-thread`. Sửa đúng HAI dòng regex của THUẬT NGỮ — các luật tiếng
+    Việt (L5/L6/L7/HEDGE) dùng cùng khuôn nhưng KHÔNG được đụng: chúng là cụm từ, không
+    nằm trong từ ghép gạch nối. Đo: L11 16 → 15, L8 cb 31 → 30, L13 221 → 220, và **không
+    luật nào khác động** — tức phép sửa không quá tay;
+  · **dấu hiệu B của L15 chỉ khớp `re_tn`.** L13 đòi dùng tiếng Việt cho nhóm B; làm đúng
+    điều đó thì L15 THÔI THẤY khái niệm được mang sang. Đo được: sửa CT09/CT10 từ `thread`
+    sang `luồng` làm L15 đi **0 → 1 cảnh báo**, trong khi CT09 nói về luồng suốt cả bài.
+    Hai luật của cùng một bộ đánh nhau. Nay B khớp theo CẢ HAI tên đã chốt;
+  · **ratchet so TỪNG BẬC nên nó phạt đúng lúc văn phong tốt lên.** Sửa L11 làm **EX05,
+    EX08, SY09** rời bậc LỖI của L8 sang bậc cảnh báo ⇒ `lỗi` 35 → 32 nhưng `cảnh báo`
+    31 → 33, và `--doi-chieu` ĐỎ vì cột cảnh báo tăng, còn `--ghi-so` thì từ chối ghi khi
+    còn luật tăng. Nay luật là HAI điều kiện: `lỗi` không được tăng, VÀ `lỗi + cảnh báo`
+    không được tăng. Nó **KHÔNG lỏng hơn bản cũ ở chiều nguy hiểm** — cảnh báo chỉ được
+    tăng khi lỗi giảm ít nhất bằng mức đó, nên không ai đổi được 1 lỗi thành 10 cảnh báo.
+    Ablate 4 chiều: lỗi tăng → **1 lỗi** · cảnh báo tăng mà lỗi KHÔNG đổi → 1 · đổi 1 lỗi
+    thành 13 cảnh báo (tổng phình) → 1 · chiều đang dùng (lỗi giảm, tổng giảm) → **0**.
+  **15 LỖI NỘI DUNG, và phép sửa không đồng nhất — ba kiểu, mỗi kiểu một lý do:**
+  · từ đó là ĐỊNH DANH CODE ⇒ bọc backtick, và §4-A vốn đã đòi thế: `cups.value` (SY10),
+    `.value` (SY23), cả đoạn `for name, value in values.items(): …` (SY23), `value`/`text`
+    của Tkinter (GU06), `Thread` (CT10). Bọc backtick làm L11 im vì backtick được thay
+    bằng `◆` TRƯỚC khi quét — nhưng nó chỉ hợp lệ khi từ đó THẬT là định danh; dùng
+    backtick cho một từ văn xuôi nhóm B là nới phép kiểm cho xanh;
+  · bài đang CHÚ GIẢI LẠI một thuật ngữ đã chú giải ở bài trước ⇒ bỏ cái ngoặc:
+    "(version)" ở SY28 (chốt ở PD10), ", gọi là snapshot" ở GU12 (CT13), "Thread là một
+    luồng thực thi" ở CT09 (PY17). Khuôn chú giải đặt hai tên cạnh nhau là ĐÚNG — nhưng
+    chỉ ở bài đầu tiên, và L11 miễn đúng bài đó;
+  · còn lại là văn xuôi thuần ⇒ dùng tiếng Việt: `object` → đối tượng · `class` → lớp ·
+    `thread` → luồng · `array` → mảng.
+  **MỘT CÂU SỐNG Ở HAI CHỖ, và phép thay đòi khớp DUY NHẤT đã bắt được:** câu GIL của EX05
+  có cả ở `reading[4]` lẫn `reviewExercises[0].answer` — cùng người đọc, nên sửa cả hai.
+  Phép thay dừng lại và không ghi gì cho tới khi mỗi chuỗi khớp đúng một lần.
+  **SỐ ĐÃ ĐO:** **135 → 116 lỗi** (−19) · 699 → 694 cảnh báo. L11 **16 → 0** · L8 lỗi
+  35 → 32 · §4-A 256 → 250 · L13 221 → 220 · L15 0 → 0. `check.py --strict` 0 lỗi 0 cảnh
+  báo. Sổ `van-phong-moc.json` đã ghi 4 mục siết.
+  **GIÁ PHẢI TRẢ:** bài chờ nạp DB **15 → 25**. Nội dung đọc từ DB, nên 11 bài này chưa
+  tới người học cho tới khi chủ dự án chạy `update-lesson-content.ts`.
+
+- **L4 + L5 + L6 về 0, nhưng 8/13 "lỗi" là CỔNG BÁO OAN — và một vòng trước đã ĐO ra điều
+  đó rồi để nguyên vì tin là không sửa được.** Cụm này được chọn vì nó là cụm văn phong
+  nhỏ nhất KHÔNG đòi phán xét độ dài (VAN-PHONG.md §2 cấm chiến dịch rút câu hàng loạt,
+  nên L1 21 và L3 39 phải để riêng).
+  **ĐO TRƯỚC KHI SỬA, trên 807 đoạn:**
+
+  | Khuôn | Khớp | Lỗi THẬT | Báo oan |
+  |---|---|---|---|
+  | `một cách + tính từ` (L6) | 7 | **0** | **7** |
+  | `Tính` mở câu (L4) | 1 | **0** | **1** |
+  | `Việc` mở câu (L4) | 2 | 2 | 0 |
+  | `thực hiện` (L6) | 2 | 2 | 0 |
+  | `được/bị + V + bởi` (L5) | 1 | 1 | 0 |
+
+  Cả 7 chỗ "một cách X" là DANH TỪ *cách* (= phương thức): *một cách truy cập · một cách
+  gom · một cách nêu · một cách nén · một cách archive · một cách thấy · một cách đóng
+  gói*. Không chỗ nào là trạng ngữ kiểu "một cách hiệu quả" mà §6 nhắm tới. Và
+  `Tính trung bình từ hai điểm đã có:` là động từ RA LỆNH, không phải danh-từ-hoá.
+  **PHẦN ĐÁNG GHI NHẤT: docstring của chính file đó đã ghi phát hiện này từ 29/10** —
+  *"ít nhất 4 trong 8 ca `một cách` là DƯƠNG TÍNH GIẢ"* — rồi kết luận *"phân biệt hai
+  nghĩa đó cần biết từ loại của từ đứng sau, tức cần tách từ — thứ §10 nói rõ là đừng
+  cài"*, và để nguyên khuôn lỏng. Phản bác đó đúng với cách tiếp cận NÓ đang nghĩ tới
+  (tách từ), nhưng **kể TÊN đúng khuôn thì không cần từ loại nào**: danh sách ĐÓNG 20 tính
+  từ thật (`hiệu quả|nhanh chóng|dễ dàng|…`) cho 0 báo oan mà vẫn bắt được thứ luật cấm.
+  Bài học rộng hơn: *"không sửa được"* trong một chú thích là lời khai về MỘT cách làm, không
+  phải về bài toán — đọc nó như điều thứ hai là tự đóng một cửa còn mở.
+  Danh sách CHỈ ĐƯỢC DÀI THÊM (dài thêm là siết, ngắn đi là nới), và hôm nay nó khớp 0 chỗ
+  — **0 là số ĐÚNG**, không phải dấu hiệu luật đã chết.
+  `Tính` thì KHÔNG bỏ khỏi danh sách (nó CÓ nghĩa danh-từ-hoá: "Tính chính xác của phép
+  đo…"); chỉ thêm `trung` vào `SAU_KHONG_PHAI_DONG_TU` — dùng CƠ CHẾ ĐÃ CÓ, không thêm
+  khái niệm mới.
+  **5 LỖI NỘI DUNG THẬT, mỗi cái một kiểu:** bỏ "Việc" đầu câu để động từ đứng thẳng
+  (PD07, SY23) · đổi sao phỏng `được sinh ra bởi dictionary` sang chủ động `do dictionary
+  tự sinh ra` (SY26) · `thực hiện` → `chạy` ở hai chỗ mà nghĩa thật đúng là "chạy" (CT01
+  "vị trí lệnh đang chạy hoặc sẽ chạy tiếp", CT11 "sleep chạy bên trong run" — chỗ này bỏ
+  luôn cả thể bị động).
+  **Ablate 6 chiều, gieo câu vào một bản SAO qua cờ `--nguon`** (sàn riêng: L6 2, L4 2):
+  gieo "một cách hiệu quả" → L6 **3** · "một cách tường minh" → 3 · gieo DANH NGỮ "một
+  cách truy cập" → **2, im đúng chiều báo oan** · gieo "Tính chính xác của…" → L4 **3** ·
+  gieo "Tính trung bình…" → **2, im** · gieo "Việc đọc file…" → 3.
+  **SỐ ĐÃ ĐO:** 116 → **103 lỗi** (−13) · 694 → 693 cảnh báo. L4 3 → 0 · L5 1 → 0 ·
+  L6 9 → 0 · L1 cảnh báo 89 → 88 (một câu ngắn lại nhờ bỏ "Việc"). Ba luật nay ở 0.
+  `check.py --strict` 0 lỗi 0 cảnh báo. Sổ đã ghi 4 mục siết.
+  **GIÁ PHẢI TRẢ:** bài chờ nạp DB 25 → **27** (thêm PD07, CT11).
+
+- **L12 "hedge chồng": CẢ 4 lỗi là cổng báo oan, và đây là lần thứ TƯ LIỀN một luật văn
+  phong bắt HOMOGRAPH hoặc SUBSTRING.** Vòng này không sửa một chữ nội dung nào.
+  **HAI nguyên nhân khác nhau, cùng nằm trong 4 ca:**
+  · **`khoảng` là HOMOGRAPH.** Đo trên corpus: **61 lần dùng, ~59 là DANH TỪ** — khoảng
+    trắng · khoảng cách · khoảng thời gian · khoảng tin cậy · khoảng tứ phân vị · các
+    khoảng · trong khoảng. Chỉ ~2 là nghĩa "xấp xỉ" (CT03 "tỷ lệ khoảng 96.2%", VZ07
+    "chứa khoảng một nửa"). Tỉ lệ báo oan **~97%**, và một mình nó gây **3 trong 4** lỗi:
+    VZ06 `['thường','khoảng','khoảng']` · VZ13 `['có thể','khoảng','khoảng']` ·
+    GU03 `['thường','thường','khoảng']`;
+  · **SPAN TRÙNG bị đếm hai lần.** `sum(len(rx.findall(c)) for rx in HEDGE)` cộng từng
+    khuôn độc lập, mà `thường` khớp BÊN TRONG `thông thường` và `thường xuyên`. PD17 bị báo
+    `['có thể','thường','thông thường']` = 3 cho một câu chỉ có **2** hedge thật — cổng tự
+    đẩy câu đó từ bậc cảnh báo lên bậc LỖI.
+  **Cách sửa:** `khoảng` chỉ tính là hedge khi đứng trước một SỐ
+  (`khoảng(?=\s+(?:\d+|một|hai|…))`), và phép đếm chuyển sang GIỮ SPAN DÀI NHẤT —
+  `dem_hedge()` bỏ mọi span bị chứa trong span khác, nên không cần biết khuôn nào chứa
+  khuôn nào.
+  **ABLATE BẮT ĐƯỢC LỖI TRONG CHÍNH BẢN SỬA, và đó là chiều dễ bỏ qua nhất:** bản đầu viết
+  `(?:\d|một|…)` nên lookahead TRƯỢT ở "khoảng 10" — `\d` khớp đúng một chữ số rồi
+  `(?![\w-])` thấy chữ số thứ hai và trả về False. Tức phép siết đã siết QUÁ TAY và bỏ mất
+  đúng nghĩa hedge mà nó phải giữ; chiều "gieo nghĩa xấp xỉ, cổng phải BẮT" là chiều duy
+  nhất lộ ra chuyện đó. Nay là `\d+`.
+  Ablate 7 chiều (gieo câu vào bản SAO qua `--nguon`): 3 hedge thật → **1 lỗi** ·
+  "khoảng 10" + 2 hedge → **1 lỗi** · "khoảng một nửa" + 2 → **1 lỗi** · "khoảng trắng"
+  (danh từ) + 2 → **0 lỗi, +1 cảnh báo** · "khoảng cách" + 2 → 0 lỗi, +1 cảnh báo ·
+  "thông thường" + "có thể" → 0 lỗi, +1 cảnh báo (đếm 2, không 3) · "thường xuyên" +
+  "có thể" → 0 lỗi, +1 cảnh báo.
+  **SỐ ĐÃ ĐO:** 103 → **99 lỗi** · 693 → **671 cảnh báo**. L12 lỗi 4 → 0, cảnh báo
+  39 → **17** (22 cảnh báo kia cũng là báo oan của hai nguyên nhân trên). Bốn luật nay ở 0
+  lỗi: L4, L5, L6, L12. Bài chờ nạp DB **vẫn 27** — không nội dung nào đổi.
+  **BỐN LẦN LIỀN, và đó là một khuôn chứ không phải trùng hợp:** `f-string` chứa `string` ·
+  "một cách truy cập" là danh ngữ · `Tính trung bình` là động từ ra lệnh · `khoảng cách` là
+  danh từ. Luật văn phong dò bằng CHỮ trong tiếng Việt thì mặc định sẽ bắt homograph, vì
+  tiếng Việt không có hình thái để phân biệt từ loại. **Phép thử trước khi tin một con số
+  của bộ này: in ra ĐÚNG chuỗi nào đã khớp, rồi đọc nghĩa của nó trong câu.** Đếm mà không
+  in chuỗi khớp là đếm một con số không ai kiểm được.
+
+- **L8 ĐẾM MỖI CHỮ "thread" HAI LẦN, và dấu hiệu lộ ra đúng lúc in từng từ.** Vòng trước
+  tự dặn: trước khi tin con số của L3/L8, in ra ĐÚNG chuỗi nào đã khớp. Làm thế thì thấy
+  ngay — số luôn BẰNG NHAU: RC01 `Thread×7, thread×7` · CT14/EX06/CT11/GU11 `Thread×3,
+  thread×3` · toàn khoá **`Thread ×40` và `thread ×40`**. Hai con số bằng nhau là CHỮ KÝ
+  của đếm trùng, không phải của hai cách dùng khác nhau.
+  **NGUYÊN NHÂN:** termbank có HAI mục cùng chính tả — `Thread` (nhóm A, ngữ cảnh
+  `lop-threading`) và `thread` (nhóm B, `da-luong`) — và **cả hai KHÔNG có `phamVi`**, tức
+  áp cho mọi bài. Khớp nhóm A là `re.IGNORECASE` (vì `"Thread".isupper()` là False), nên
+  hai mục khớp CÙNG một chữ, mà L8 thì `sum(n for _, n in thuat_ngu_trong(...))` — cộng
+  từng mục độc lập.
+  **BẢY cặp trùng chính tả, nhưng chỉ MỘT cặp hỏng:** `fork · stack · pipe · index ·
+  method · kernel` đều có `phamVi` rời nhau (ví dụ `stack` nhóm A cho PD/RD là
+  `DataFrame.stack()`, nhóm C cho CT/RC/EX/SY là call stack), nên `trong_bai()` đã lọc
+  chúng. Chỉ `Thread`/`thread` toàn khoá. Đừng "dọn" sáu cặp kia — khoá hai trường
+  (thuật ngữ, ngữ cảnh) đang làm đúng việc của nó ở đó.
+  **Phép sửa là đếm VỊ TRÍ, không phải cộng số lần khớp của từng mục:** một chữ "thread"
+  là MỘT lần người đọc gặp một thuật ngữ, bất kể termbank có mấy mục trùng chính tả.
+  `so_lan_thuat_ngu()` thu span rồi bỏ span bị chứa trong span khác — cùng kỹ thuật
+  `dem_hedge()` của vòng L12. **`thuat_ngu_trong()` KHÔNG đổi hợp đồng**: L9/L10/L11/L13/
+  §4-A vẫn cần (mục, số lần) theo TỪNG mục, nên hàm mới là hàm thứ hai, không phải bản
+  sửa của hàm cũ.
+  **SỐ ĐÃ ĐO — 11 bài có mật độ SAI, lệch tới −27:**
+
+  | Bài | Cũ | Đúng | | Bài | Cũ | Đúng |
+  |---|---|---|---|---|---|---|
+  | RC01 | 137 | **110** | | EX06 | 128 | **113** |
+  | CT11 | 127 | **104** | | GU11 | 116 | **101** |
+  | CT14 | 133 | **123** | | CT09 | 104 | **81** |
+  | CT02 | 83 | 78 | | CT13 | 74 | 64 |
+  | SY28 | 90 | 86 | | CT10 | 68 | **55** |
+  | EX05 | 53 | 51 | | CT12 | >40 | <40 |
+
+  CT10 rời bậc LỖI (68 → 55) và CT12 rời cả bậc cảnh báo, nên L8 lỗi **32 → 31** và cảnh
+  báo giữ 33 (CT10 vào, CT12 ra). Tổng khoá 99 → **98 lỗi**. Con số LỚN nhất của bảng
+  (RC01 "137/1000") từng là một con số sai 25%.
+  Ablate 6 chiều, so bản CŨ với bản MỚI trên cùng corpus: 4 chữ "thread" → cũ **8**, mới
+  **4** · 20 chữ "thread" → cũ **40**, mới **20** · **4 thuật ngữ KHÁC nhau → cả hai bản
+  ra 4** (chiều ngược: phép dedup không nuốt thuật ngữ khác nhau) · "stack" ×3 trong phạm
+  vi CT → 3 · "stack" ×3 trong phạm vi PD → 3 · 0 thuật ngữ → không báo gì.
+  **GHI KÈM, ĐO ĐƯỢC NHƯNG KHÔNG LÀM VÒNG NÀY:** L3 cũng có mis-fire cùng họ, và nguồn
+  của nó nằm ở luật KHÁC. PD13 bị L3 đếm 3 dấu phân cách, nhưng một trong số đó là dấu
+  phẩy BÊN TRONG `pd.read_excel(book, sheet_name=0)` — code đứng trần ngoài backtick, tức
+  đúng một trong 250 cảnh báo §4-A. GU09 thì "x, y" và "width, height" là liệt kê ĐỊNH
+  DANH, không phải mệnh đề. Nên dọn §4-A sẽ hạ L3 như một tác dụng kèm; sửa L3 trước là
+  sửa sai đầu.
+
+- **CÙNG MỘT CẶP TERMBANK ĐẦU ĐỘC RULE THỨ BA, và lần này nó còn làm một GIÁ TRỊ trong
+  termbank sai suốt từ đầu.** Vòng trước sửa L8 đếm trùng `Thread`/`thread` bằng phép đếm
+  theo span. Nguồn thật thì nằm ở phép KHỚP, và nó còn chảy sang §4-A.
+  **ĐO — mỗi mục nhóm A có chữ hoa, khớp ĐÚNG chính tả so với khớp LỎNG:**
+
+  | Mục | Đúng chính tả | Lỏng | Lỏng bắt thêm |
+  |---|---|---|---|
+  | **Thread** | **3** | **40** | **+37** |
+  | Axes | 12 | 13 | +1 |
+  | Popen | 4 | 5 | +1 |
+  | True · False · None · DataFrame · Series · Figure | = | = | **0** |
+
+  **Cả 39 chỗ "lỏng bắt thêm" đều là báo oan, đã đọc từng chỗ:** `Thread` ×37 là chữ
+  `thread` CHỮ THƯỜNG, tức khái niệm nhóm B ("Hai thread cùng sửa dữ liệu", "sleep chặn
+  thread đang gọi nó") — §4-A đi bảo bọc backtick cho chúng, mà cách đúng là L13 (viết
+  "luồng") và L13 đã cảnh báo chúng rồi. Nặng nhất: **PY17 bị bắt ngay trong khuôn chú
+  giải `luồng (thread)`**. Thêm `Axes` bắt `"axes fraction"` — một GIÁ TRỊ CHUỖI của
+  matplotlib — và `Popen` bắt `os.popen`, một hàm KHÁC `subprocess.Popen`.
+  **NGUYÊN NHÂN:** `co = 0 if self.tn.isupper() else re.IGNORECASE`. `isupper()` chỉ True
+  với TOÀN HOA (`GIL`, `CPU`, `API`), nên `Thread`, `Figure`, `DataFrame`, `True` rơi vào
+  nhánh IGNORECASE. Lý do có IGNORECASE vẫn ĐÚNG, nhưng chỉ cho mục CHỮ THƯỜNG bị viết hoa
+  đầu câu ("Stack giữ khung lời gọi hàm"); một định danh Python viết hoa thì **chính tả của
+  nó LÀ chữ hoa theo định nghĩa** — không câu nào viết thường nó. Nay điều kiện là
+  `any(c.isupper() for c in self.tn)`, và mục toàn hoa giữ nguyên hành vi.
+  **PHÁT HIỆN KÈM, lớn hơn con số: `baiDauTien` của `Thread` SAI suốt từ đầu.** Vừa sửa
+  phép khớp thì **TB đỏ 1 lỗi**: *"`baiDauTien`=PY17 nhưng corpus dùng lần đầu ở CT11"*.
+  PY17 chỉ có chữ `thread` chữ thường trong khuôn chú giải, không có class `Thread` lần
+  nào. **Và TB trước đó XANH — vì nó tính "bài đầu tiên" bằng CHÍNH phép khớp sai ấy.** Một
+  luật bất biến tự tính mốc bằng cùng bộ dò mà nó phải canh thì nó nhất quán với cái sai,
+  không phải đúng. Đã sửa về CT11.
+  **ĐIỀU NÀY KHÔNG làm L10 hỏng, và lý do đáng biết:** nhánh §4-A `continue` TRƯỚC khi tới
+  L10, nên L10 chưa bao giờ kiểm chú giải cho mục nhóm A — đúng thiết kế (nhóm A phải nằm
+  trong backtick, và khi đã bọc thì phép quét không thấy nó). Nên `bai_dau` của mục nhóm A
+  chỉ có TB dùng; `bai_dau` của mục nhóm B (`thread`, PY17) là chỗ L11/L13 miễn khuôn chú
+  giải, và nó không đổi.
+  **SỐ ĐÃ ĐO:** §4-A **250 → 228 cảnh báo** (−22, không phải −39: §4-A dồn theo (thuật ngữ,
+  màn) nên 37 lần xuất hiện gộp lại thành ít cảnh báo hơn). Tổng khoá 98 lỗi · 671 → **649
+  cảnh báo**. Không luật nào khác động; TB 1 → 0 sau khi sửa termbank.
+  Ablate 5 chiều: trả bộ dò về khớp lỏng (termbank giữ CT11) → **+1 lỗi TB** kèm đúng câu
+  "`baiDauTien`=CT11 nhưng corpus dùng lần đầu ở PY17", cộng 22 cảnh báo quay lại · trả
+  `baiDauTien` về PY17 (bộ dò giữ phân biệt hoa-thường) → **+1 lỗi TB**, câu ngược lại —
+  tức hai nửa nay KHOÁ NHAU, không gỡ được nửa nào im lặng · gieo class `Thread` chữ hoa →
+  §4-A **1** (còn răng) · gieo khái niệm `thread` chữ thường → §4-A **0**, L13 **1** (đúng
+  luật: dùng "luồng").
+  **MỘT TỒN ĐỌNG ĐỐI XỨNG, đo rồi mới bỏ:** khi class `Thread` đứng trần thì L13 CŨNG cảnh
+  báo "đã chốt gọi là luồng" — vì mục nhóm B chữ thường vẫn cần IGNORECASE (để bắt "Thread"
+  viết hoa đầu câu). Lời khuyên đó sai với một tên class. Nhưng số chỗ bị là **3**, và cách
+  đúng cho cả hai cảnh báo là BỌC BACKTICK — bọc xong thì cả §4-A lẫn L13 đều im. Nên đây
+  là việc nội dung, không phải lỗi cổng thứ hai.
+  **GIỚI HẠN PHẢI NÓI RA:** 228 cảnh báo §4-A còn lại là định danh ĐỨNG TRẦN THẬT (`list`
+  ×36 · `True` ×25 · `False` ×21 · `Figure` ×18 · `tuple` ×12…), và chúng vẫn đang thổi mật
+  độ L8 lên — bọc backtick sẽ hạ cả §4-A lẫn L8, vì backtick bị thay bằng `◆` trước khi
+  quét. Đó là việc NỘI DUNG, chưa làm.
+
+- **BỌC BACKTICK 54 HẰNG PYTHON — và nó làm TB BẤT KHẢ, vì TB đòi đúng cái §4-A cấm.**
+  §4-A còn 228 cảnh báo / 31 định danh. Làm đúng lời tự dặn vòng trước ("in ngữ cảnh trước
+  khi bọc hàng loạt, đừng sửa mù"): in **toàn bộ 54 ngữ cảnh** của `True`/`False`/`None` và
+  **không một chỗ nào** là chữ "none"/"true" tiếng Anh dùng như từ thường — tất cả là hằng
+  Python. Đó là lý do chọn đúng cụm này: nó không có một phán xét nào.
+  **HAI HÌNH DẠNG, phải phân biệt:** đối số từ khoá (`ignore_index=True`, `dropna=False`,
+  `header=None`, 23 cụm) thì bọc CẢ CỤM vì tên đối số cũng là code đứng trần; hằng đứng một
+  mình ("cả hai trả None", "True được tính là 1 và False là 0") thì bọc riêng. Phép biến đổi
+  đi theo từng khoảng NGOÀI backtick và `assert` hai bất biến sau mỗi đoạn: số backtick CHẴN
+  và không có `` `` `` kề nhau.
+  **TB ĐỎ 3, và đó là một luật tự nói ngược một luật khác — lần thứ ba trong bộ này.**
+  Bọc xong thì ba hằng không còn xuất hiện TRẦN ở đâu, nên TB báo *"khai `baiDauTien`=PY04
+  nhưng KHÔNG xuất hiện ở đâu trong corpus (ngoài backtick)"*. Tức TB **đòi một định danh
+  code phải đứng trần ở đâu đó**, đúng thứ §4-A tồn tại để xoá — và yêu cầu đó thành BẤT KHẢ
+  chính vào lúc §4-A được thoả hoàn toàn.
+  **Phép sửa, và phép đo chọn nó chứ không phải khẩu vị:** cho nhóm A tính lần-đầu trên văn
+  bản RAW (còn backtick), nhóm B/C giữ nguyên phần TRẦN. Đo trước khi sửa: chuyển sang raw
+  thì **chỉ 3 mục đổi giá trị** (`print` PY03→PY01 · `float` PY05→PY04 · `Thread` CT11→CT10)
+  và **ba hằng vừa bọc GIỮ NGUYÊN giá trị cũ** (PY04/PY04/PY10) — một phép sửa mà các giá
+  trị đang có tự khớp lại là dấu hiệu ngữ nghĩa đó đúng.
+  **Vì sao KHÔNG làm ngược (cho cả B/C đọc raw):** `baiDauTien` của nhóm B/C phải là lần đầu
+  ĐỨNG TRẦN, vì đó mới là chỗ L10 đòi chú giải và L11/L13 miễn khuôn chú giải — một thuật
+  ngữ nằm trong backtick thì không ai đi đòi chú giải cho nó. Ablate chứng minh phép chia
+  theo nhóm CÓ TẢI: cho cả B/C đọc raw → **5 lỗi TB**, đúng tên `index` (NP02 → PY10),
+  `object` (PY04 → PY03), `value` (PY14 → PY04).
+  **`Thread` đổi giá trị LẦN THỨ HAI trong hai vòng, và lần này nó đúng vì lý do đúng:**
+  vòng trước sửa PY17 → CT11 dưới luật "chỉ đếm phần trần"; nay là CT10 dưới luật đúng. Hai
+  lần đổi một con số trong hai vòng là dấu hiệu luật tính nó còn đang sai, không phải dấu
+  hiệu con số khó.
+  **SỐ ĐÃ ĐO:** §4-A **228 → 176 cảnh báo** (−52) · L8 lỗi **31 → 30** · L2 cảnh báo 16 → 15
+  · tổng khoá 98 → **97 lỗi**, 649 → **596 cảnh báo** (−53). Lợi kép đúng như dự đoán: bọc
+  backtick vừa hạ §4-A vừa hạ mật độ L8, vì backtick bị thay bằng `◆` TRƯỚC khi quét.
+  Ablate 5 chiều: trả TB về chỉ-đọc-phần-trần cho nhóm A → **6 lỗi TB** (3 "không xuất hiện"
+  + 3 lệch giá trị) · cho cả B/C đọc raw → **5 lỗi TB** · gieo hằng `True` đứng trần → §4-A
+  **1** (còn răng) · nguyên bản → 0 · `check.py --strict` 0 lỗi 0 cảnh báo.
+  **GIÁ PHẢI TRẢ, và nó lớn:** bài chờ nạp DB **27 → 61**. Hàng "Đã nạp DB chưa" nay KHÔNG
+  liệt kê mã bài nữa — một danh sách 61 mã trong bảng là thứ sẽ trôi, và cổng đã in đúng
+  danh sách đó mỗi lần chạy.
+  **CÒN LẠI của §4-A: 176 cảnh báo / 28 định danh**, dẫn đầu `list` ×29 · `tuple` ×13 ·
+  `bytes` ×11 · `DataFrame` ×11 · `Figure` ×11. Cụm `list`/`tuple`/`dict`/`set`/`bytes`/
+  `int`/`float`/`str` là TÊN KIỂU Python nên cũng không có phán xét nào — ứng viên rõ cho
+  lát sau, và mỗi lát sẽ lại đẩy số bài chờ nạp lên.
+
+- **CHIP `code nội tuyến` KHÔNG CÓ NỀN — 1,003:1 so với thẻ, lần thứ TƯ của họ "trắng trên
+  trắng".** Vòng này mở ra để đóng một rủi ro tôi tự khai: cụm backtick dài nằm giữa câu có
+  ngắt dòng xấu không. **Rủi ro đó ĐÃ ĐÓNG bằng phép đo** — `inline-code.module.css` có
+  `overflow-wrap: anywhere`, nên token dài chỉ ngắt dòng chứ không tràn. Nhưng cùng khối CSS
+  đó lộ ra lỗi thật:
+
+  | Đo | Giá trị |
+  |---|---|
+  | giấy | `#F4EEE3` |
+  | thẻ bài học (`--edu-panel-bg` .96 trên giấy) | `#FFFEFE` |
+  | **NỀN chip** (`--edu-card-bg` = `rgba(255,255,255,.55)`) | `#FFFFFE` — **1,003:1** |
+  | VIỀN chip (`--edu-sidebar-border` .28) | `#E2E5EB` — **1,252:1** |
+  | chữ trong chip (`--edu-t1`) | 15,89:1 — đạt |
+
+  Chip **không có nền gì cả**, và viền 1,252 còn thấp hơn mức **1,42** mà chính repo đã phải
+  nâng hai thanh sticky lên. Dấu "đây là code" khi đó chỉ còn font monospace và cỡ 0,92em,
+  trên MỌI code nội tuyến của 565 màn đọc cộng 54 chỗ vừa bọc backtick vòng trước.
+  **Nguyên nhân là TÁI DÙNG TOKEN SAI VAI**, đúng khuôn ba lần trước: `--edu-card-bg` là nền
+  của một THẺ, cố ý nửa trong suốt để nổi trên nền KHÔNG-trắng của các trang di sản. Đặt nó
+  lên một thẻ TRẮNG thì nó biến mất. Nên bản sửa là token MỚI `--edu-code-inline-bg`, không
+  phải sửa `--edu-card-bg` (thứ 7 chỗ khác đang dùng đúng vai).
+  **Giá trị do phép đo chọn, và hai chế độ đi NGƯỢC nhau:** ngày `#E8D9C0` → 1,381:1 trên
+  thẻ, chữ 11,47:1, ấm (R−B 40). Đêm thì mọi nâu ĐẬM đều TỆ HƠN mức cũ 1,139 (`#2A2018` chỉ
+  1,009 · `#32261C` 1,074 · `#3A2C20` 1,173) vì nâu đậm gần luminance với thẻ tối — phải đi
+  SÁNG hơn: `#4A392B` → **1,436:1**, chữ 9,45:1. Đo trước khi gán, đừng gán rồi mới đo —
+  cùng bài học đã ghi cho `--edu-card-line` ban đêm.
+  **CỔNG RỖNG Ở BẬC QUAN TRỌNG NHẤT, và chỉ ablate lộ ra:** bản đầu của ca chỉ kiểm GIÁ TRỊ
+  token, không kiểm ai DÙNG nó. Trả `.inlineCode` về `--edu-card-bg` cho **0 ca đỏ** — cổng
+  rỗng đúng ở chỗ nó phải canh, cùng hình dạng lỗi mà bản đầu của `check-duong-toi.mjs` đã
+  mắc. Nay ca đọc `inline-code.module.css` và đòi `background: var(--edu-code-inline-bg)`.
+  Ablate lại 5 chiều, mỗi chiều **1 đỏ**: trả `.inlineCode` về token cũ · nền ngày về gần
+  trắng (`#FBF7F1`) · nền ngày sang XANH LẠNH (`#C0D4E8`) · nền đêm về mức cũ (`#272D36`) ·
+  đổi TÊN token (ca nói thẳng "sửa ca này", không im lặng xanh).
+  **SỐ ĐÃ ĐO:** `ds-contrast` 15 → **16 ca**; frontend unit 573 → **574**; sổ ngưỡng 30 →
+  **32** (hai sàn 1.35 / 1.4, đặt thấp hơn số đo thật một nhịp). `ASSET_VERSION` →
+  `2026-11-07b` vì `edu-theme.css` nằm trong `public/`.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** mọi `code nội tuyến` nay có nền kem ấm, nhìn ra ngay
+  là code. Bài chờ nạp DB **vẫn 61** — không nội dung nào đổi.
+  **GIỚI HẠN, nói ra vì nó là chỗ tôi dừng có chủ đích:** viền chip vẫn là
+  `--edu-sidebar-border` = `rgba(152,165,188,.28)`, một màu XANH LẠNH (|R−B| 10 sau hợp
+  thành) trên một trang giấy kem. Với một nền ấm đã thấy rõ thì viền 1px đó không còn gánh
+  việc gì, nên tôi để nguyên thay vì mở thêm một token — nhưng nó là thứ còn lại của bảng
+  cũ, và nếu có vòng dọn viền thì đây là một mục.
+
+- **BỌC BACKTICK 85 TÊN KIỂU PYTHON — và hai phép đo đều ĐỔI kế hoạch tôi đã nói ra ở vòng
+  trước.** Vòng trước tôi gọi cụm này là "không có phán xét nào" và khai một rủi ro ("đoạn
+  dày chip bị đốm, chưa xem"). Đo cả hai trước khi sửa, và cả hai câu đó đều phải sửa lại.
+  **PHÉP ĐO 1 — rủi ro "đốm" NHỎ và ĐÃ CÓ SẴN, nên không dựng trần mật độ:**
+
+  | Số chip / đoạn | Hiện nay | Sau khi bọc |
+  |---|---|---|
+  | ≥ 8 chip | **4 đoạn** | **5 đoạn** |
+  | nhiều nhất trong một đoạn | 9 | 10 |
+
+  Mật độ cao nhất là 10 chip / 65 tiếng (15%), ở PY10[4] — một đoạn *nói về* phép toán
+  list, nên mọi chip ở đó là tham chiếu code THẬT, không phải nhiễu. Đặt một trần
+  chip-trên-đoạn sẽ là **bịa một luật không có bằng chứng**, đúng thứ VAN-PHONG.md §2 cấm
+  cho độ dài câu. Không dựng.
+  **PHÉP ĐO 2 — cụm này KHÔNG "zero judgment", và con số cũng không phải 72:** §4-A dồn
+  theo (thuật ngữ, màn) nên 72 CẢNH BÁO tương ứng **96 chỗ** trong nguồn. Trong đó:
+  · **9 chỗ VIẾT HOA đầu câu** dùng tên kiểu như danh từ chủ đề ("**List** có thứ tự…",
+    "**Tuple** phù hợp cho bản ghi đã chốt", "**Set** chỉ giữ các phần tử khác nhau",
+    "**List** comprehension…"). Bọc ở đó sẽ hiện `` `List` `` — mà kiểu Python là `list`
+    CHỮ THƯỜNG, tức bọc xong là hiện ra code SAI. Sửa đúng phải viết lại câu, đó là quyết
+    định biên tập riêng. **Giữ nguyên, và không gì canh chúng** — nói ra vì đó là chỗ trôi
+    được;
+  · **1 chỗ `int` KHÔNG phải kiểu Python**: "Số nguyên Python có thể vượt giới hạn `int` 64
+    bit" (EX07) — đó là int của C/máy, và cả câu đang nói rằng `int` của Python KHÔNG có
+    giới hạn đó. Bọc nó là dạy ngược. Phép biến đổi nhận diện bằng `int\s+64\s*bit`.
+  **VÀ DỰ ĐOÁN CỦA TÔI SAI Ở MỘT CHỖ, theo chiều thận trọng quá:** tôi khai 3 chỗ `set` là
+  ngoại lệ "tên phương thức". Chạy thật thì chỉ VZ11 (`ax.set(`) bị loại — bởi lookbehind
+  `(?<![\w.-])`, tức bằng dấu `.` chứ không bằng luật `(` tôi viết — còn GU06 và GU07 thì
+  chữ `set` đứng MỘT MÌNH trong văn xuôi (tên phương thức `StringVar.set`), nên bọc riêng
+  nó là ĐÚNG. Kết quả thật: **85 bọc · 9 viết hoa giữ · 1 `int 64 bit` giữ**, không phải
+  83/4 như tôi đoán. Một ước lượng bằng mắt trên 96 chỗ lệch 2 — đó là lý do phép biến đổi
+  phải IN RA từng chỗ nó bỏ qua kèm lý do, và phải kiểm lại "còn 0 chỗ trần" cho từng từ.
+  **SỐ ĐÃ ĐO — năm luật cùng siết, vì backtick thành `◆` TRƯỚC khi quét:**
+  §4-A **176 → 114** (−62) · L8 lỗi **30 → 29** · L8 cảnh báo **33 → 29** · L1 cảnh báo
+  88 → 87 · L2 cảnh báo 15 → 14. Tổng khoá 97 → **96 lỗi**, 596 → **528 cảnh báo** (−68).
+  Ablate: gỡ bản sửa ra (trả `course.json` về HEAD) → ratchet **4 lỗi**, gọi đúng cả bốn
+  luật (`§4-A` TỔNG 114 → 176 · `L8` lỗi 29 → 30 · `L1` TỔNG 108 → 109 · `L2` 21 → 22),
+  exit 1. `check.py --strict` 0 lỗi 0 cảnh báo.
+  **GIÁ PHẢI TRẢ:** bài chờ nạp DB **61 → 87**. Ba vòng văn phong liền đã đẩy nó 27 → 87;
+  mỗi lát nội dung còn lại sẽ tiếp tục đẩy, nên lúc nào cũng chỉ có MỘT lệnh bàn giao
+  (`--all`) chứ không liệt kê mã.
+  **CÒN LẠI của §4-A: 114 cảnh báo.** Nhóm lớn nhất nay là tên CLASS (`DataFrame` ·
+  `Figure` · `Axes` · `Series`) và tên biến quy ước (`plt` · `ax` · `fig`) — chúng cũng
+  không có phán xét, nhưng 9 chỗ viết hoa ở trên nhắc rằng phải in ngữ cảnh trước, vì tên
+  class VIẾT HOA là chính tả ĐÚNG của nó nên không có phép thử "chữ thường" nào để lọc.
+
+- **MỘT BÀI TẬP ĐƯỢC CHẤM BIẾN MẤT KHỎI NGUỒN THÌ CẢ BẬC THANG IM LẶNG — và cổng duy
+  nhất thấy nó thì tự dặn "Sửa AGENTS.md".** Đo ngày 07/11/2026 bằng cách xoá
+  `exercises` của TH01 khỏi `source/practice.json` rồi chạy cả bậc thang:
+  · `py scripts/pe-da/build.py` → **exit 0, KHÔNG MỘT DÒNG NÀO**;
+  · `py scripts/pe-da/check.py --strict` → **0 lỗi, 0 cảnh báo**;
+  · thứ DUY NHẤT đỏ là `check-moc-nen` so con số trong bảng (143/480 → 142/477), và câu
+    nó in ra là *"Sửa AGENTS.md"*. **Hạ hai con số đó là hai hàng ấy XANH** — chỗ đỏ còn
+    lại chỉ là hàng biên nhận DB (92 → 91), một hàng hôm nay ĐÃ đỏ sẵn vì 87 bài chờ nạp,
+    nên nó không mang tín hiệu nào về bài tập vừa mất. Không có mục nào trong
+    `scripts/nguong-mot-chieu.json` canh 143 hay 480.
+  Tức lối thoát rẻ nhất của một vòng lặp là sửa BẢNG chứ không là trả bài tập về — đúng
+  cách THỨ NHẤT một vòng lặp nói dối mà LOOP.md gọi tên, và đúng chỗ ImpossibleBench đo
+  được các mô hình Claude **>79% số lần là SỬA TEST**.
+  **NGUYÊN NHÂN, một dòng:** `kiem_bai_tap_doi_nguon` mở đầu bằng
+  `for b in nguon['lessons']: ex = b.get('exercises') or []; if ex:` — nên bài MẤT
+  `exercises` **biến khỏi `ca_nguon`** và cả ba luật của nó không chạy tới, kể cả luật 3
+  (tổng ca) vì `tong` co lại cho khớp. Luật tự nhất quán với bất kỳ thứ gì nguồn tình cờ
+  chứa: nó bắt "nguồn CÓ mà build đánh rơi", không bắt được "nguồn MẤT".
+  Nay có **luật 4 — THÀNH VIÊN, hai chiều** cộng bảng khai `KHONG_CO_BAI_TAP` (23 mục):
+  bài hết `exercises` mà không có tên trong bảng là LỖI, và mục khai mà nguồn ĐÃ có bài
+  tập cũng LỖI ("NGOẠI LỆ ĐÃ LỖI THỜI") — thiếu chiều sau thì danh sách chỉ dài ra rồi
+  thành chỗ giấu rác, đúng bài học `DAP_AN_MAU_KHONG_CHAY`.
+  **ĐO TRƯỚC KHI VIẾT LÝ DO, và phép đo bác bỏ lý do hiển nhiên:** `local` KHÔNG phải lý
+  do — bảng chéo mode × trạng thái cho **2 bài `local` và 5 bài `mixed` VẪN có ca chấm**,
+  nên câu "bài chạy trên máy nên không chấm được" là một câu SAI, và thông điệp lỗi của
+  luật 4 nói thẳng là đừng viết nó. Bốn nhóm thật: **11 bài** thiếu thư viện WASM (SY14
+  `curses`; GU02–GU11 `tkinter` — hai module duy nhất còn thiếu ở Pyodide 314, nên ở đây
+  chấm là BẤT KHẢ) · **7 bài** thủ tục/khái niệm, không có giá trị trả về để hỏi (PY02,
+  PY03, SY04, SY12, GU01, EX03, EX05) · **1 bài** mà CHÍNH VĂN nói không chấm (TH07) ·
+  **4 bài CHẤM ĐƯỢC mà nguồn chưa soạn** (CT01, CT02, CT14, CT15).
+  **Nhóm thứ tư là phần bảng này mang THÔNG TIN MỚI.** Bốn bài đó nói về process/shell, mà
+  CT07–CT13 ĐÃ được chấm nhờ `cho_mo_phong=True` và `check-practice.mjs` đã chạy thật 9
+  lời giải ấy — nên "không thể" là sai, đây là việc NỘI DUNG chưa ai làm, cỡ đo được
+  **4 bài × 3 ca**. Trước bản này, sự thật đó không nằm ở đâu cả. Quyết định của chủ dự
+  án, không của vòng lặp.
+  **MỘT MỤC TIÊU ĐÃ ĐO RỒI BỎ, đừng dựng lại:** vòng này mở ra để làm mục 4 của bảng xếp
+  hạng ("cho bài 1 một thành công máy chấm được"), và phép đo GIẾT nó theo hai nhịp. Nhịp
+  một: phép đếm đầu của tôi in `tests=0` cho **cả 12 bài đầu** — sai vì đọc nhầm tầng
+  (`step_4` nằm trong `content_json`, không ở cấp bài). **PY01 CÓ bài tập được chấm**, nên
+  tiền đề "bài 1 không có gì để chấm" đã lỗi thời. Một con số 0 là thứ phải nghi ngờ
+  trước nhất — cùng bẫy đã ghi ở mục bảng kỷ luật git. Nhịp hai: ứng viên còn lại là TH07,
+  bài CUỐI khoá, và chính văn bài nói *"Bài này không có ca chấm nào. Bạn tự chọn câu hỏi
+  và tự bảo vệ câu trả lời."* — soạn ca chấm cho nó là bắt NỘI DUNG chiều một phép kiểm,
+  đúng thứ "Luật 6 của cổng INSERT" cấm.
+  Ablate 4 chiều: xoá `exercises` của TH01 → **1 lỗi** đúng tên bài (trước bản sửa: **0**)
+  · gán `exercises` cho PY02 (đang khai là không có) → **1 lỗi** "NGOẠI LỆ ĐÃ LỖI THỜI" ·
+  gỡ một mã khỏi bảng (GU02) → 1 lỗi · xoá `exercises` của TH01 **cộng** hạ bảng mốc nền
+  xuống 142/477, tức đi đúng lối thoát rẻ → `check.py` **VẪN ĐỎ**, nên lối thoát đó không
+  còn chạy.
+  **GIỚI HẠN PHẢI NÓI RA, hai cái.** Bảng canh THÀNH VIÊN, không canh việc câu lý do có
+  ĐÚNG không — một dòng lý do sai vẫn qua cửa. Và con số `480` còn sống ở HAI hàng của
+  bảng mốc nền ("143 bài tập được chấm / 480 ca" và "480 ca đạt"), mà `check-moc-nen` chỉ
+  đối chiếu hàng ĐẦU: hàng thứ hai trôi độc lập được. Chưa làm, và đó là lựa chọn chứ
+  không phải bỏ sót — nó là một con số khác, không phải lỗ hở này.
+
+- **CÙNG MỘT CON SỐ SỐNG Ở HAI HÀNG CỦA BẢNG MỐC NỀN, và canh một hàng là đủ để cổng
+  XANH trong khi hàng kia đã trôi.** Đo 07/11/2026, quét mọi con số của bảng rồi tìm con
+  số xuất hiện ở ≥2 hàng: hàng "Frontend unit test" ghi **574 ca**, hàng "Mốc phải CHẠY
+  mới biết" ghi **573** — lệch suốt **hai vòng**, và `check-moc-chay frontend` XANH cả hai
+  lần vì regex của nó neo vào `test:unit`, tức chỉ hàng ĐẦU. Con số sai là do chính commit
+  thêm ca thứ 574: nó sửa một hàng, bỏ hàng kia.
+  **Bốn cặp bản sao THẬT** (cùng một lượng, hai hàng): ca test frontend 574/**573** ·
+  backend 35 bộ + 501 ca · tracer 65 · số ca chấm 480 ở "Giáo trình pe-da" và "pe-da chấm
+  BÀI TẬP". **Các trùng khác là trùng GIÁ TRỊ của hai lượng khác nhau** (16 wheel với 16 ca
+  xuất hình; 11 module với ngày 11; 48 tệp test với 48 bài pe-v4) — đừng gộp chúng vào, một
+  cổng canh chúng sẽ báo oan ngay lần đổi tiếp theo.
+  Nay `check-moc-chay.mjs` có `bang2` cho cả ba mục: mỗi bản sao so RIÊNG với con số CHẠY
+  RA (chạy-ra là thẩm quyền, không phải hàng này so với hàng kia), nên thông điệp chỉ đúng
+  vào bản SAI. `check-moc-nen.mjs` thêm `caDat` cho bản sao của số ca chấm, 18 → **20 mục**.
+  **VÀ MỤC THỨ 20 CANH CHÍNH CON SỐ CỦA CỔNG ẤY:** "N mục đối chiếu được" cũng là một con
+  số trong bảng, và cho tới hôm nay **không gì canh nó** — nó trôi được đúng như mọi con số
+  khác. `doDuoc.mucDoiChieu = DOI_CHIEU.length`, tự đối chiếu, gồm cả chính nó.
+  Ablate 5 chiều: hạ bản sao tracer 65 → 60 → **1 lỗi** nói rõ "bản sao ở hàng Mốc phải
+  CHẠY mới biết" · **gỡ `bang2` của tracer ra, giữ nguyên bản sao sai → 0 LỖI, exit 0**
+  (chiều này là bằng chứng cổng RỖNG ở đúng chỗ đó, và nó là trạng thái đã sống hai vòng)
+  · đổi CHỮ của bản sao (`tracer` → `bo-ghi-vet`) → 1 lỗi "KHÔNG CÒN DÒNG … BẢN SAO THỨ
+  HAI", không im lặng xanh · hạ "480 ca đạt" → 477 → 1 lỗi đúng tên bản sao · hạ "20 mục"
+  → 19 → 1 lỗi.
+  **GIỚI HẠN PHẢI NÓI RA:** phép quét tìm bản sao chạy BẰNG TAY một lần, không thành cổng.
+  Một con số thứ ba của cùng lượng, thêm vào bảng ngày mai, sẽ lại không ai canh — và cách
+  duy nhất thấy nó là quét lại. Dựng cổng cho việc đó đòi biết hai con số có cùng NGHĨA hay
+  không, mà đúng ba cặp trùng-giá-trị ở trên cho thấy phép suy đó sai bằng phép so chữ.
+
+- **BỌC BACKTICK 22 CHỖ GỌI `plt`/`ax`/`fig` — và nó làm lộ ra luật THỨ HAI trong cùng
+  file xét thuật ngữ nhóm A trên văn bản TRẦN, tức tự nói ngược §4-A.** §4-A còn 114 cảnh
+  báo; phân rã bằng `--chi-tiet 0` (công cụ chỉ in 5 mục mặc định — một trần in, không phải
+  một con số): tên CLASS **39** (`Figure` 11 · `DataFrame` 11 · `Axes` 9 · `Series` 8) · biến
+  quy ước matplotlib **16** (`plt` 6 · `ax` 6 · `fig` 4) · còn lại 59.
+  **IN NGỮ CẢNH TỪNG CHỖ TRƯỚC KHI SỬA, như chính mục trên đã tự dặn** — và phép in đổi cách
+  sửa: 22 chỗ (cổng dồn theo thuật-ngữ + màn nên ra 16 cảnh báo), **cả 22 là định danh code,
+  KHÔNG một ngoại lệ nào**, nhưng phần lớn là **LỜI GỌI** chứ không phải tên trần:
+  `plt.subplots()` · `plt.setp(lines, linewidth=2.5)` · `ax.set_xlim(0, 3)` · `ax.clear()` ·
+  `fig.clear()` · `plt.close(fig)` · `transform=ax.transAxes`. Bọc mỗi `plt` lẻ ra là để lại
+  một nửa biểu thức nằm trần; bọc CẢ LỜI GỌI mới đúng. Chỉ 6 chỗ là tên đứng một mình
+  ("Dùng `fig` để lưu hình và `ax` để thêm dữ liệu").
+  **PHÉP KIỂM CHÉO tự xác nhận:** tồn đọng của lát trước là `tuple` 4 · `list` 3 · `set` 2 ·
+  `int` 1 = **đúng 10**, khớp 9 chỗ viết hoa đầu câu + 1 chỗ `int 64 bit` đã cố ý giữ. Không
+  có chỗ nào mới lọt vào.
+  **RỦI RO TÔI TỰ KHAI VÒNG TRƯỚC, đo lại và nó KHÔNG tăng:** đoạn có ≥ 8 chip giữ **5**,
+  nhiều nhất vẫn **10 chip** (PY10#2, PY12#5). Không dựng trần mật độ.
+  **VÀ RATCHET BẮT ĐƯỢC MỘT LUẬT KHÁC HỎNG — đây là phần đáng giá nhất của vòng.** Vừa bọc
+  xong thì `--doi-chieu` ĐỎ: *"L15: TỔNG (lỗi + cảnh báo) TĂNG 0 → 1"*, kèm
+  *"VZ02: đoạn mở bài không nối gì với VZ01"*. Nguyên nhân: dấu hiệu B của L15 ("đoạn mở bài
+  nhắc lại một thuật ngữ mà bài liền trước cũng dùng") tìm trên `doan_cua`, tức bản ĐÃ thay
+  mọi cụm backtick bằng `◆`. Khái niệm mang sang giữa VZ01 và VZ02 CHÍNH LÀ `plt`, và nó vẫn
+  nằm đó — chỉ là nằm trong backtick. Nên tín hiệu của L15 **mù dần ĐÚNG theo mức §4-A được
+  thoả**: một tín hiệu xuống cấp đơn điệu khi dự án tốt lên là một KHIẾM KHUYẾT, không phải
+  một phép siết.
+  Đây là **lần thứ HAI** cùng một lỗi trong cùng một file: bất biến TB đã mắc nó và đã được
+  sửa bằng phép chia "nhóm A đọc RAW, B/C đọc bản trần". L15 không được sửa theo. Nay cả hai
+  dùng CHUNG một hàm `raw_doan()` — hai bản chép sẽ trôi khỏi nhau, và L15 mắc đúng lỗi này
+  vì nó không có bản nào. Nhóm B/C KHÔNG đổi: §4-A không đòi backtick cho chúng nên đứng
+  trần là trạng thái bình thường, không có sự xuống cấp nào để chữa — và nới chúng ra là nới
+  phép kiểm cho xanh.
+  **ABLATE CỦA TÔI TỰ TRƯỢT MỘT LẦN, và "0 cảnh báo" của nó vô nghĩa:** câu gieo thử
+  *"…không dính gì tới trang vừa rồi."* kết thúc bằng `rồi.`, khớp đúng khuôn `rồi\s*[.,]`
+  của `CUM_NOI` ⇒ bài ĐẠT bằng dấu hiệu A và L15 im lặng, trông y như cổng hỏng. Đúng bẫy
+  `NP02#1` đã ghi: gieo sai là tự lừa mình. Nay phép gieo **assert trước** rằng câu không
+  khớp `CUM_NOI` nào.
+  Ablate 4 chiều: gieo đoạn mở bài không nối gì (đã kiểm không khớp `CUM_NOI`) → L15 **1
+  cảnh báo**, còn răng · trả L15 về chỉ-đọc-phần-TRẦN, giữ nguyên backtick → **1 cảnh báo**
+  (chiều này là chính lỗi vừa sửa) · làm `raw_doan()` bỏ backtick → **TB 14 lỗi + L15 1 cảnh
+  báo**, tức cả hai người dùng đều phụ thuộc hàm chung · gỡ bản sửa nội dung ra → ratchet đỏ.
+  **SỐ ĐÃ ĐO:** §4-A **114 → 98** (−16) · L8 lỗi 29 → **27** (2 bài rời bậc lỗi sang bậc
+  cảnh báo nên L8 cảnh báo 29 → 31, TỔNG L8 giữ 58) · L1 cảnh báo 87 → 86 · L15 0 → 0 · tổng
+  khoá 96 → **94 lỗi**, 528 → **513 cảnh báo**. `check.py --strict` 0 lỗi 0 cảnh báo;
+  `check-pyodide` 154 bài / 420 đoạn / 0 hỏng; `check-practice` 480 ca đạt / 773 biến thể sai
+  đều trượt. Sổ `van-phong-moc.json` đã ghi 3 mục siết.
+  **GIÁ PHẢI TRẢ:** bài chờ nạp DB **87 → 93**.
+  **CÒN LẠI của §4-A: 98 cảnh báo**, và nhóm lớn nhất vẫn là **tên CLASS (39 chỗ cảnh báo /
+  50 lần xuất hiện)**. Cả bảy mục này là **nhóm A trong termbank**, nên quyết định "phải bọc
+  backtick" đã có sẵn ở đó, không phải của vòng lặp. Hai nhóm GIAO NHAU (`ax.transAxes` chứa
+  cả `ax` lẫn `Axes`), nên lát này đã bọc kèm vài chỗ `Axes`/`Figure` như tác dụng phụ đúng —
+  đừng đọc "50 lần" như một con số độc lập.
+
+- **BỌC BACKTICK 50 CHỖ TÊN CLASS (`Figure` · `DataFrame` · `Axes` · `Series`) — và phép đo
+  mật độ chip LẦN NÀY TĂNG, đúng như dự đoán, nhưng nó chỉ ra một khiếm khuyết ĐÃ CÓ.**
+  §4-A còn 98 cảnh báo sau lát trước; nhóm tên class là 39 cảnh báo / **50 lần xuất hiện**.
+  In ngữ cảnh đủ 50 chỗ trước khi sửa: **không một ngoại lệ nào** — tất cả là tên class dùng
+  làm danh từ, cộng một chỗ thuộc tính (`Series.plot`) và hai chỗ cặp `Figure/Axes` nối bằng
+  dấu gạch chéo (dấu gạch là chấm câu của VĂN XUÔI, không thuộc tên nào, nên bọc riêng từng
+  tên: `` `Figure`/`Axes` ``).
+  **VÌ SAO LÀM CẢ BỐN TÊN TRONG MỘT LÁT, chứ không chia pandas với matplotlib:** hai chỗ
+  (VZ20#0, VZ21#0) có **cả `Figure` lẫn `DataFrame` trong CÙNG MỘT CÂU** — *"Plotly Express
+  tạo Figure từ DataFrame"*, *"lọc DataFrame trước khi tạo Figure"*. Bọc một nửa là để lại
+  một chỗ trần ngay cạnh một chip, và người học đọc ra sự không nhất quán đó trước khi đọc
+  ra bất cứ ý nghĩa nào.
+  **PHÉP ĐO MẬT ĐỘ: lần này TĂNG, và tôi nói ra trước khi chạy.** Đoạn có ≥ 8 chip **5 → 7**,
+  nhiều nhất **10 → 11** (VZ02#1). NHƯNG đo theo MẬT ĐỘ thì nó không phải đoạn nặng nhất:
+  11/134 tiếng = **8,2%**, thấp hơn PY10#2 (10/74 = **13,5%**) và PY12#5 (10/69 = **14,5%**).
+  VZ02#1 chỉ dẫn đầu về SỐ TUYỆT ĐỐI vì nó là đoạn DÀI nhất — và chính chỗ đó là phát hiện:
+  **`L2 VZ02 đoạn 1: 120 tiếng / 7 câu` đã là một LỖI từ trước**, vượt trần 110 tiếng. Nên
+  đoạn 11 chip chính là đoạn cổng đã bắt vì quá dài; chip không tạo ra lỗi đó, nó chỉ làm nó
+  dễ thấy. Tách đoạn ấy là một lát NỘI DUNG riêng (một trong 7 lỗi L2), chưa làm.
+  **Vẫn KHÔNG dựng trần mật độ chip:** số liệu nói đoạn mới không vượt mật độ đã tồn, và một
+  luật không có bằng chứng là thứ §2 của VAN-PHONG.md cấm.
+  **LÁT TRƯỚC LÀ ĐIỀU KIỆN để lát này không làm vỡ gì:** bản sửa L15 (nhóm A đọc RAW qua
+  `raw_doan()`) vừa vào ở commit trước. Không có nó thì bọc 50 chỗ tên class sẽ làm L15 nổ
+  hàng loạt — `DataFrame` là khái niệm mang sang giữa PD01→PD02, `Figure`/`Axes` giữa chuỗi
+  bài VZ. Đo được: L15 giữ **0**, TB giữ **0**.
+  **SỐ ĐÃ ĐO:** §4-A **98 → 59** (−39) · L8 lỗi 27 → **26** · L8 cảnh báo 31 → **24** (TỔNG
+  L8 58 → **50**, giảm thật chứ không chỉ đổi bậc) · tổng khoá 94 → **93 lỗi**, 513 → **467
+  cảnh báo** (−46). `check.py --strict` 0/0 · `check-pyodide` 154 bài / 420 đoạn / 0 hỏng ·
+  `check-practice` 480 ca đạt / 773 biến thể sai đều trượt. Sổ đã ghi 3 mục siết.
+  **GIÁ PHẢI TRẢ:** bài chờ nạp DB **93 → 101**.
+  **CÒN LẠI của §4-A: 59 cảnh báo**, và hình dạng đã ĐỔI — không còn nhóm nào ≥ 6: `gzip` 6 ·
+  `subprocess` 5 · `groupby` 5 · `curses` 5 · `pip` 4 · `mainloop` 4 · `exec` 4 · `Popen` 4 ·
+  rồi đuôi dài. Mười chỗ trong đó là **ngoại lệ đã cố ý giữ** (9 chỗ viết hoa đầu câu của tên
+  kiểu + 1 chỗ `int 64 bit`), nên phần còn làm được là ~49 chỗ rải trên ~15 định danh. Từ đây
+  mỗi lát sẽ nhỏ và vụn hơn hẳn ba lát trước — đó là dấu hiệu cụm này gần hết, không phải dấu
+  hiệu nên nới luật.
+
+- **ĐẶC TẢ CỦA CHÍNH BỘ KIỂM MANG SỐ CỦA MỘT PHÉP ĐO KHÁC — và nó đã sai HAI LẦN ở hai
+  mục khác nhau.** `VAN-PHONG.md` là tệp mà `check_vanphong.py` thi hành, và nó chứa những
+  con số SỐNG mà `check-moc-nen.mjs` không với tới (cổng đó chỉ đọc AGENTS.md). Hai lần đã
+  xảy ra: §11 từng trích *"mốc trần lint trong CI là 245"* khi trần thật là **115**, và dòng
+  đính chính tại đó tự ghi rằng nó sai *"suốt nhiều tháng"*; §2 ghi *"Corpus hiện chỉ 14 câu
+  và vài đoạn vi phạm"* khi đo được **32** câu > 30 tiếng.
+  **NẶNG HƠN "cũ": bảng §2 không đến từ định nghĩa của chính nó.** §2 khai phép chẻ câu
+  chuẩn là `.!?…` và CHỈ ở đó, rồi tự nói ra rằng bản đầu của đặc tả mang ba con số câu từ
+  ba phép chẻ — **2 182** (`.!?…`) · **2 750** (thêm `;`/`:`) · **3 059** (§2). Mà 3 059
+  chính là con số §2 đang dùng. Đo lại bằng `cau_cua` + `tieng` (hàm mà MỌI luật đếm câu
+  dùng) thì cả năm hàng đều khác: tổng câu 3 059 → **2 549** · trung vị 13 → **15** · p90
+  22 → **23** · dài nhất 49 → **43** · tỉ lệ > 30 tiếng 1,2% → **1,3%** (32 câu).
+  Nay có luật **TL** (17 → **18 luật**): sáu con số của bảng §2 cộng tỉ lệ % được đối chiếu
+  với số đo mỗi lần chạy. Đổi CHỮ một hàng là TL báo "KHÔNG CÒN DÒNG", và một regex khớp
+  **hai** chỗ cũng là LỖI — không lấy chỗ đầu tiên, đúng luật `check-nguong.mjs` đã phải đặt.
+  **PHÁT HIỆN KÈM, và nó giải thích một con số dễ đọc sai:** các nhánh trong `kiem_do_dai()`
+  LOẠI TRỪ NHAU (`elif`), nên một câu đã bị L3 bắt thì L1 **không** đếm nữa. Đo được 32 câu
+  > 30 tiếng mà L1 chỉ báo **21** — 11 câu kia nằm trong 39 lỗi L3. Không báo trùng là đúng,
+  nhưng **"L1 21" KHÔNG phải "21 câu dài"**.
+  **CHÍNH VÒNG NÀY VẤP LẠI LỖI BẢN-SAO vừa sửa hai vòng trước:** bản đầu của tôi viết con số
+  32 ở CẢ hàng bảng lẫn ghi chú ⚠️, mà regex chỉ neo vào hàng bảng — tức bản sao trong ghi
+  chú không ai canh. Lộ ra vì phép gieo ablate khớp 2 chỗ và TRƯỢT. Đã chữa bằng cách BỎ số
+  khỏi ghi chú: ghi chú ấy nói một CƠ CHẾ, nó không cần con số, và ít con số hơn là câu trả
+  lời đúng khi một con số không thêm thông tin nào mà cổng không in ra được.
+  **VÀ THÊM MỘT LUẬT LÀM LỘ MỘT THẾ BẾ TẮC trong nếp của chính ratchet.** `--doi-chieu` đỏ
+  với *"TL: luật có trong mã mà SỔ CHƯA KHAI"*, rồi `--ghi-so` TỪ CHỐI kèm câu *"đang có
+  luật TĂNG"* — trong khi KHÔNG luật nào tăng. Thông điệp vừa chặn vừa nói sai, nên không có
+  đường nào thêm được một luật mới. Nay hai loại mục đi riêng: **HỒI QUY** (một luật TĂNG)
+  chặn `--ghi-so`, vì ghi lúc đó đúng là "nới phép kiểm cho xanh"; **SỔ SÁCH** (luật mới
+  chưa khai, hoặc sổ khai một luật mã không còn) KHÔNG chặn, vì ghi CHÍNH LÀ cách sửa.
+  **Bản đầu của phép tách đó lại hỏng theo chiều ngược, và chỉ ablate thấy:** mục sổ sách in
+  một dòng LỖI rồi `exit 0`, tức CI xanh và luật mới không bao giờ được canh — đúng lỗi nó
+  ra đời để bắt. Mã thoát nay đếm CẢ HAI loại.
+  Ablate 11 chiều. Sáu con số của bảng §2, mỗi con số đổi một đơn vị → **1 lỗi** mỗi chiều ·
+  đổi CHỮ một hàng → 1 lỗi "KHÔNG CÒN DÒNG" · nhân đôi một hàng (regex khớp 2 chỗ) → 1 lỗi
+  "đòi ĐÚNG MỘT" · gỡ mục TL khỏi sổ → `--doi-chieu` **exit 1** nhưng `--ghi-so` **exit 0**
+  và ghi được · khai một luật `L99` mã không còn → 1 lỗi, exit 1 · gieo hồi quy thật (L3 moc
+  38 khi thật là 39) → `--ghi-so` **exit 1**, sổ KHÔNG bị ghi.
+  **GIỚI HẠN PHẢI NÓI RA:** TL canh SÁU con số của bảng §2 cộng tỉ lệ, **không** canh mọi
+  con số trong tệp. §3 (các chỉ số độ khó đọc), §7 và các bảng văn liệu là trích dẫn NGOÀI
+  repo — không hàm nào ở đây đo lại được chúng, nên chúng vẫn trôi được. Và trích dẫn ở §11
+  (trần lint 115) vẫn là một bản sao của AGENTS.md mà không gì đối chiếu.
+  **MỘT VIỆC ĐÃ BỊ ĐẶC TẢ BÁC, đừng mở lại:** vòng trước tôi nêu "7 lỗi L2" làm ứng viên
+  tiếp theo. §2 nói nguyên văn *"Hai luật này [L1 và L2] là **hàng rào chống tụt**, không
+  phải việc phải làm."* Nên đó là một việc mà đặc tả CẤM mở thành chiến dịch, và tôi đã nêu
+  nó vì đọc bảng số thay vì đọc câu.
+
+- **BẢNG §11 CỦA ĐẶC TẢ LÀ MỘT BẢN CHÉP SỐ LỖI TỪNG LUẬT, và nó trôi gần hết — 10/17 hàng
+  sai cùng lúc, dòng tổng lệch 2,4 LẦN.** Vòng trước dựng luật TL cho bảng §2 và tự nêu rằng
+  trích dẫn trần lint ở §12 còn là một bản sao không ai canh. Đo rộng hơn thì §11 tệ hơn hẳn:
+
+  | Hàng | §11 ghi | Đo được |
+  |---|---|---|
+  | L1 | 21 lỗi · 89 cb | 21 · **86** |
+  | L2 | 7 lỗi · 17 cb | 7 · **14** |
+  | L3 | **43 câu** | **39** |
+  | L4 · L5 · L6 | 3 · 1 · 9 | **0 · 0 · 0** |
+  | L8 | **35 lỗi · 31 cb** | **26 · 24** |
+  | L11 | 16 | **0** |
+  | L12 | 4 lỗi · 39 cb | **0 · 17** |
+  | L13 | 0 · 221 cb | 0 · **220** |
+  | §4-A | **256** | **59** |
+  | **TỔNG** | **227 lỗi · 718 cb** | **93 · 467** |
+
+  Bảy hàng còn lại (L7, L9, L10, L14, L15, TB) đúng; TL thì chưa có hàng nào.
+  **VÌ SAO NÓ SỐNG ĐƯỢC LÂU: format mỗi hàng một kiểu.** Bản cũ viết "43 câu" · "3" ·
+  "0 (29/10 là 65)" · "0 (max đo được 3)" — không regex nào đọc nổi, và **một bảng không
+  đọc được là một bảng không ai canh**. Format nay đồng nhất `N lỗi · N cb` cho MỌI hàng;
+  đó không phải thẩm mỹ, nó là điều kiện để có cổng.
+  **PHÉP ĐỐI CHIẾU PHẢI NẰM TRONG RATCHET, không trong luật TL** — và đó là một ràng buộc
+  thật, không phải chỗ để tuỳ: bảng §11 nói về số lỗi của TỪNG LUẬT, mà con số ấy chỉ có
+  sau khi MỌI luật đã chạy. TL chạy GIỮA pass nên nó không thể biết. `doi_chieu_moc` thì có
+  sẵn `nay[t]` cho từng luật.
+  **VÀ NÓ VÀO `so_sach`, KHÔNG VÀO `loi_ra`:** một bản sửa nội dung làm L8 đi 26 → 25 thì
+  bảng §11 phải cập nhật, mà chặn `--ghi-so` ở đó là dựng lại ĐÚNG thế bế tắc vừa phải sửa
+  khi thêm luật TL một vòng trước. Ablate đã kiểm: lệch bảng §11 → `--doi-chieu` **exit 1**
+  nhưng `--ghi-so` **vẫn ghi được**.
+  **TL nhận thêm hai bản sao KHÔNG phụ thuộc số lỗi:** độ lớn termbank (§1 ghi **110 mục**
+  khi `thuatngu.json` có **112** — và §1 dùng con số đó để biện minh câu "mọi con số xấp xỉ
+  gấp đôi", nên lệch nó là lệch cả lời biện minh), và **trần lint backend** — nay so với
+  CHÍNH `ci.yml`, cùng tệp mà `scripts/nguong-mot-chieu.json` đọc trần ấy từ. Ablate chiều
+  đó đặc biệt đáng: đổi `const TRAN` trong `ci.yml` thành 150 mà giữ trích dẫn 115 → TL đỏ
+  với *"§12 trích 115, `ci.yml` đặt 150. Sửa trích dẫn, đừng sửa trần."* Tức nó đọc NGUỒN,
+  không đọc bản sao.
+  **§12 CŨNG ĐƯỢC VIẾT LẠI, không chỉ sửa số.** Nó đề xuất "đặt trần ở 227, hạ dần" — một
+  kế hoạch đã được THAY bằng thứ chặt hơn: ratchet giữ mốc TỪNG LUẬT, nên một luật xấu đi
+  không núp được sau một luật khác vừa tốt lên. Để nguyên câu cũ là để đặc tả khuyên một
+  việc kém hơn việc đã làm.
+  Ablate 8 chiều, mỗi chiều đỏ: đổi một hàng (L8 26 → 25) → *"bảng §11 hàng L8"* · trả một
+  hàng về format cũ ("43 câu") → *"hàng L3 khớp 0 chỗ, đòi ĐÚNG MỘT và đúng format"* · đổi
+  dòng tổng → 1 · đổi "hôm nay cho 93 lỗi" → 1 · đổi độ lớn termbank → TL đỏ · đổi trích dẫn
+  trần lint → TL đỏ · đổi `ci.yml` (nguồn) → TL đỏ · lệch §11 + `--ghi-so` → vẫn ghi được.
+  **GIỚI HẠN, hai cái.** (1) Một lỗi TL gieo vào làm **cascade**: nó đổi hàng TL của §11 và
+  cả hai dòng tổng, nên một khiếm khuyết sinh ~4 thông điệp. Ồn nhưng không sai — cứ sửa cái
+  gốc. (2) Năm hàng **M1–M5** của §11 (luật trắc nghiệm) do `check.py` thi hành, không do
+  `check_vanphong.py`, nên `doi_chieu_moc` KHÔNG đo được chúng và chúng **vẫn trôi được**.
+  Đã khai ra ở đây thay vì để im lặng.
+
+- **§8 CỦA ĐẶC TẢ GỘP NGUỒN VỚI BẢN PHÁT RA, nên nó công bố ĐÚNG CÁI BỆNH MÀ M2 ĐÃ CHỮA
+  như thể còn nguyên.** Vòng trước khai 5 hàng M1–M5 của §11 là chỗ còn trôi được. Đo thì
+  chuyện lớn hơn nằm ở §8: nó viết *"Số đo của ngân hàng **hiện tại**: 1 032 câu, … **50,3%
+  đáp án ở vị trí 1**, …"* mà KHÔNG nói đó là đâu. Người đọc hôm nay kết luận đề ĐANG PHÁT
+  RA vẫn thiên vị vị trí 1 — trong khi `tron_vi_tri_dap_an()` đã chữa nó ở khâu BUILD.
+  **Phép trộn nằm ở build, nên nguồn vẫn lệch và đó là bình thường; thứ người học gặp mới là
+  bản phát ra.** Số đã đo:
+
+  | | §8 ghi | NGUỒN (đo) | PHÁT RA (đo) |
+  |---|---|---|---|
+  | tổng câu | 1 032 | **1 053** | 537 |
+  | có đúng 3 phương án | "tất cả" | 1 053 / 1 053 | — |
+  | đáp án ở vị trí 1 | 50,3% | **51,3%** | **32,8%** |
+  | câu trùng tiêu đề | 172 | **174** | — |
+  | câu trùng câu dẫn | 124 | **131** | — |
+
+  Bốn trong năm con số lệch, và chúng lệch ÍT (gói nguồn lớn thêm khi module 11 vào) — đó là
+  kiểu lệch dễ sống nhất, vì nó không trông sai.
+  **TL nay canh bốn số nguyên của NGUỒN chính xác, còn bản PHÁT RA thì canh TÍNH CHẤT**
+  ("không vị trí nào vượt 40%") thay vì ba con số: ba con số ấy đổi theo mỗi lần gói nguồn
+  đổi, mà tính chất thì không — và tính chất mới là thứ M2 hứa. Cùng lý lẽ "ít con số hơn là
+  câu trả lời đúng" đã dùng cho ghi chú §2.
+  **Phép kiểm tính chất ĐỌC BẢN DỰNG, không đọc một hằng** — ablate: hạ `TRAN_VI_TRI_PHAT_RA`
+  xuống 30 thì nó đỏ với *"một vị trí giữ 34.1% đáp án, vượt trần 30% — phép trộn ở khâu
+  build đã hỏng"*.
+  **NĂM HÀNG M1–M5 CỦA §11: BỎ SỐ, không gắn cổng.** Chúng do `check.py` thi hành nên
+  `doi_chieu_moc` không đo được. Bản cũ ghi "1 032/1 032" · "172/172" · "toàn bộ" — cả ba
+  đều trôi, và cột ấy đang bị dùng với HAI nghĩa trong cùng một bảng (hàng L là số VI PHẠM,
+  hàng M là "N/N đều đạt"). Nay cả năm hàng ghi `— (do check.py --strict)`: không còn con số
+  nào để trôi, và cột lại chỉ có một nghĩa. **Đó là lựa chọn, không phải bỏ sót** — gắn cổng
+  cho chúng đòi `check_vanphong` gọi `check.py`, tức hai cổng dính nhau để canh một con số
+  không ai đọc.
+  **Mẫu số 172 trong §8 (ước lượng "~19/172 bài") thì GIỮ và dán nhãn LỊCH SỬ:** nó là số
+  của một phép thử `rng.randrange()` đã chạy, không phải số đo của corpus hôm nay. Phân biệt
+  ấy phải viết ra, nếu không vòng sau lại đi "sửa" một con số đúng.
+  Ablate 8 chiều, mỗi chiều đỏ: bốn số nguyên của §8 (1 053 → 1 032 · 1 053 → 1 032 ·
+  174 → 172 · 131 → 124) → 1 lỗi mỗi chiều, đúng tên hàng · tỉ lệ 51,3% → 50,3% → 1 ·
+  đổi trần khai 40% → 50% → 1 ("mã đặt 40%") · BỎ hẳn lời khai tính chất → 1 ("bỏ nó đi là
+  bỏ chỗ duy nhất nói ra rằng phép trộn nằm ở khâu build") · hạ trần trong mã xuống 30 →
+  phép kiểm tính chất bắn trên dữ liệu thật.
+  **MỘT PHÉP GIEO CỦA TÔI TRƯỢT, lần thứ ba trong bốn vòng:** chuỗi gieo mang `\)` nên shell
+  ăn mất escape và nó khớp 0 chỗ. Phép gieo in ra "GIEO TRƯỢT" nên tôi thấy; không có dòng
+  đó thì "0 đỏ" sẽ bị đọc thành "cổng không có răng". **Mọi phép ablate phải tự khai khi
+  chuỗi gieo không vào được file.**
+  **GIỚI HẠN:** TL nay canh §1 · §2 · §8 · §12 và bảng §11. §3 (chỉ số độ khó đọc), §5–§7 và
+  các bảng văn liệu vẫn là trích dẫn NGOÀI repo — không đo lại được, vẫn trôi được.
+
+- **BỌC BACKTICK 21 CHỖ TÊN THƯ VIỆN VÀ LỚP — và phép đo lộ ra rằng SCRIPT IN NGỮ CẢNH CỦA
+  TÔI ĐÃ OVER-REPORT suốt bốn lát.** §4-A còn 59 cảnh báo. Lát này lấy cụm `curses` ·
+  `gzip` · `subprocess` · `Popen`.
+  **SCRIPT ĐO CỦA TÔI THIẾU HAI PHÉP LỌC mà chính cổng áp:** nó không lọc theo NHÓM (§4-A
+  chỉ đòi backtick cho nhóm A) và không áp `trong_bai()` (phạm vi của từng mục). Hệ quả đo
+  được: `pipe` hiện ra **5 chỗ** trong bản in của tôi nhưng §4-A chỉ đòi **1** — vì termbank
+  đã tách nó thành hai mục, `pipe` nhóm **A** phạm vi `['PD']` (phương thức
+  `DataFrame.pipe`) và `pipe` nhóm **C** phạm vi `['CT','SY','EX','RC']` (khái niệm đường
+  ống giữa tiến trình, nhóm C thì KHÔNG bị đòi backtick). Ba lát trước không bị sai vì
+  `Figure`/`DataFrame`/`plt` đều không có `phamVi`; lát này thì bị. **Phép đo phải dùng
+  chính hàm lọc của cổng, không dựng lại một bản gần đúng** — script nay gọi `nap_termbank()`
+  và `trong_bai()`. Số đúng: **62 lần xuất hiện → 59 cảnh báo**.
+  **MỘT CHỖ CẦN PHÁN XÉT, và lần này có cách đúng mà lát tên kiểu đã BỎ QUA.** SY14#3 viết
+  `Curses là UI terminal…` — **viết hoa đầu câu**, trong khi module là `curses` chữ thường.
+  Đó đúng lớp 9 ngoại lệ tôi đã GIỮ ở lát tên kiểu với lý lẽ "bọc xong là hiện ra code SAI".
+  Nhưng lý lẽ ấy chỉ đúng nếu bọc mà KHÔNG sửa chính tả. Cách đúng là bọc với chính tả đúng:
+  `` `curses` là UI terminal… `` — một chip code ở đầu câu KHÔNG theo luật viết hoa của văn
+  xuôi, vì nó là code. Corpus đã có tiền lệ từ lát `plt`/`ax`/`fig`: RD01#1 mở đầu bằng
+  `` `ax.text(x, y, ...)` ``.
+  **NÊN QUYẾT ĐỊNH CŨ CỦA TÔI QUÁ THẬN TRỌNG, và nói thẳng ra ở đây:** 9 ngoại lệ viết hoa
+  của `List`/`Tuple`/`Set` (cộng `int 64 bit`, vốn là một ca KHÁC — int của C/máy) có thể
+  nghỉ bằng đúng kỹ thuật này. **Chưa làm vòng này** vì nó là một cụm khác và mở rộng phạm vi
+  giữa vòng là cách bỏ sót một phép kiểm; nhưng nó không còn là "ngoại lệ bất khả", nó là
+  việc chưa làm.
+  **SỐ ĐÃ ĐO:** §4-A **59 → 39** (−20) · L8 lỗi 26 → **24** · L8 cảnh báo 24 → **26** (TỔNG
+  L8 giữ 50 — hai bài rời bậc lỗi sang bậc cảnh báo) · tổng khoá 93 → **91 lỗi**, 467 →
+  **449 cảnh báo** (−18). Phép kiểm "còn chỗ nào đứng trần" sau khi sửa: **0**.
+  **VÀ ĐÂY LÀ PHÉP THỬ THẬT CHO CỔNG DỰNG VÒNG TRƯỚC:** nội dung đổi làm bảng §11 lệch, và
+  ratchet bắt **đúng cả bốn** con số — hàng L8, hàng §4-A, dòng tổng §11, con số §12 — ngay
+  lần chạy đầu. Một cổng chống trôi tài liệu chỉ chứng minh được mình khi tài liệu THẬT SỰ
+  trôi, và nó vừa làm được điều đó một vòng sau khi dựng.
+  Ablate: gỡ bản sửa nội dung ra → ratchet **4 LỖI** hồi quy + 4 lỗi sổ sách, exit 1, gọi
+  đúng tên: *"L8: lỗi TĂNG 24 → 26"* · *"§4-A: TỔNG TĂNG 39 → 59"* · ba hàng/dòng của §11
+  và §12.
+  **GIÁ PHẢI TRẢ:** bài chờ nạp DB **101 → 103**.
+  **CÒN LẠI của §4-A: 39 cảnh báo / 41 lần xuất hiện**, dẫn đầu `conda` 5 · `groupby` 5 ·
+  `pip` 4 · `exec` 4 · `mainloop` 4 · `print` 3 · `Thread` 3 · `stack` 2 · `pipe` 1, cộng
+  **10 ngoại lệ đã khai** (9 chỗ viết hoa tên kiểu + `int 64 bit`) — mà mục trên vừa cho
+  thấy 9 chỗ ấy KHÔNG còn bất khả.
+
+- **9 NGOẠI LỆ "BẤT KHẢ" CỦA §4-A NGHỈ HẾT — danh sách khai đi từ 10 xuống 1, và bằng chứng
+  mạnh nhất nằm NGAY TRONG chính các đoạn đó.** Lát tên kiểu (07/11) giữ 9 chỗ viết hoa đầu
+  câu (`List`/`Tuple`/`Set`) với lý lẽ *"bọc xong là hiện ra code SAI, vì kiểu Python là chữ
+  thường"*. Lát trước đã đính chính: lý lẽ ấy chỉ đúng nếu bọc mà KHÔNG sửa chính tả.
+  **Nhưng lý do THẬT để sửa không phải §4-A — nó là L11 ở dạng người đọc thấy được.** Chính
+  những đoạn ấy đã viết tên kiểu bọc backtick chữ thường ở chỗ khác, trong CÙNG MỘT ĐOẠN.
+  PY11#3 là chỗ rõ nhất: *"**List** phù hợp khi còn thêm và sửa… **Tuple** phù hợp cho bản
+  ghi đã chốt. String, `list`, `tuple` và range đều là sequence."* — cùng một kiểu, hai cách
+  viết, cách nhau ba dòng.
+  **L11 KHÔNG bắt, và lý do đáng biết:** mục `list` trong termbank là chữ thường nên nó khớp
+  `IGNORECASE`, tức L11 coi `List` và `list` là MỘT. Đúng về THUẬT NGỮ, mù về CHÍNH TẢ hiện
+  ra trên màn hình. Nên chỗ này chỉ có §4-A nhìn thấy, mà §4-A thì đang bị khai ngoại lệ.
+  **Tám chỗ chỉ cần hạ chữ + bọc. Hai chỗ cần hơn thế:**
+  · **PY14#4** mở đầu bằng `List comprehension` — "list comprehension" là TÊN một cấu trúc
+    ngôn ngữ, không phải tham chiếu tới kiểu. Termbank KHÔNG có mục cho cụm đó (đã tra), chỉ
+    có `list`, nên bọc phần là kiểu và giữ nguyên chữ "comprehension" là đúng;
+  · **PD27#1** viết `Tuple ("A", "Feb") chỉ rõ hai tầng`. Bọc thẳng ra
+    `` `tuple` ("A", "Feb") `` sẽ bị đọc thành một **LỜI GỌI** `tuple(...)`, mà đây là một
+    GIÁ TRỊ tuple. Nên tách: *Một `tuple` như `("A", "Feb")`*. Đây là chỗ phép bọc máy móc
+    tạo ra một nghĩa SAI, không chỉ một nghĩa xấu — và nó là lý do phải in ngữ cảnh từng chỗ
+    thay vì thay hàng loạt.
+  **SỐ ĐÃ ĐO:** §4-A **39 → 30** (−9) · tổng khoá giữ **91 lỗi**, 449 → **440 cảnh báo**.
+  L8 · L9 · L10 · L11 · TB · TL đều KHÔNG động — `baiDauTien` của nhóm A tính trên văn bản
+  RAW nên bọc backtick không dịch chuyển lần-đầu, đúng như bản sửa TB đã thiết kế.
+  **DANH SÁCH NGOẠI LỆ CÒN ĐÚNG MỘT MỤC: `int 64 bit`** (EX07) — và nó là ngoại lệ THẬT,
+  không phải chỗ chưa làm: đó là int của C/máy, còn cả câu đang nói rằng `int` của Python
+  KHÔNG có giới hạn đó. Bọc nó là dạy ngược.
+  Ablate: gỡ bản sửa nội dung ra → ratchet **3 LỖI**, exit 1 — *"§4-A: TỔNG TĂNG 30 → 39"*
+  cộng hàng §4-A và dòng tổng của bảng §11.
+  **VÀ CỔNG §11 BẮT ĐÚNG HAI LẦN TRONG HAI VÒNG LIỀN**, trên hai thay đổi nội dung khác
+  nhau. Đó là mức bằng chứng mà một cổng chống trôi tài liệu hiếm khi có.
+  **GIÁ PHẢI TRẢ:** bài chờ nạp DB **103 → 104**.
+  **MỘT CHỖ CÙNG HỌ MÀ §4-A KHÔNG BẮT, khai ra để không ai tưởng đã hết:** PY11#3 còn viết
+  `String` và `range` đứng trần cạnh `` `list` ``/`` `tuple` `` đã bọc. Termbank không có mục
+  cho hai chữ đó (`str` thì có, `String` thì không), nên không cổng nào thấy. Đó là một
+  quyết định về TERMBANK, không phải về nội dung — và nó thuộc chủ dự án.
+
+- **L3 KHÔNG PHẢI TÁC PHẨM PHỤ CỦA §4-A — đo được 3, không phải 6–8 như tôi ước lượng bằng
+  mắt.** §2 chỉ đích danh L3 là cái sai thật của những câu dài, và một mục bẫy ở trên đoán
+  rằng "dọn §4-A sẽ hạ L3 như một tác dụng kèm". Đo thật, phân loại 39 lỗi L3 theo chỗ dấu
+  phẩy ĐẾN TỪ ĐÂU (đếm dấu nằm trong cặp ngoặc `()[]{}`): **3 chỗ** là dấu phẩy BÊN TRONG
+  một biểu thức code đứng trần, **36 chỗ** là nhồi mệnh đề THẬT. Ước lượng bằng mắt của tôi
+  vòng trước ("6–8") sai gần gấp đôi — **lần thứ hai trong hai vòng một ước lượng bằng mắt
+  lệch**, nên con số phải đến từ một phép đếm, kể cả khi việc trông nhỏ.
+  **Ba chỗ ấy §4-A KHÔNG THẤY**, và lý do đáng biết: `read_excel` · `add_axes` · `imshow` ·
+  `interpolation` không có trong termbank, nên không luật nào đòi chúng nằm trong backtick.
+  L3 thì đếm dấu phẩy trên văn bản đã thay backtick bằng `◆`, nên bọc chúng là **xoá luôn
+  nguyên nhân** chứ không phải nới luật. Cả 3 câu rời ngưỡng sau khi bọc; lớp báo oan về **0**.
+  **CÙNG VIỆC VỚI CỤM LỆNH CÔNG CỤ, nên làm chung một lát:** `pip` 4 · `conda` 5. Bằng chứng
+  mạnh nhất lại nằm trong chính corpus — **PY03#5 đã viết `` `python -m pip install
+  notebook` `` và `` `conda install -c conda-forge notebook` `` bọc backtick, còn EX03#1 viết
+  Y NGUYÊN hai lệnh ấy đứng trần.** Cùng lệnh, hai cách viết, trong cùng khoá. Ở EX03#1 phải
+  bọc **CẢ DÒNG LỆNH**, không bọc riêng chữ `pip`: một nửa dòng lệnh nằm trong chip là vô
+  nghĩa.
+  **Và lại một chỗ VIẾT HOA đầu câu:** PY02#5 mở bằng `Conda quản lý cả môi trường lẫn gói`
+  trong khi công cụ là `conda` chữ thường — cùng ca `Curses`, sửa bằng cùng kỹ thuật (bọc với
+  chính tả đúng).
+  **SỐ ĐÃ ĐO:** L3 **39 → 36** · §4-A **30 → 23** (−7, không phải −9: §4-A dồn theo thuật ngữ
+  + màn, hai lệnh của EX03 gộp lại) · L8 lỗi 24 → **23** · tổng khoá 91 → **87 lỗi**, 440 →
+  **434 cảnh báo**. L1 **KHÔNG** nhận thêm câu nào — đáng kiểm vì các nhánh `elif` nghĩa là
+  một câu rời L3 có thể rơi vào L1; phép bọc hạ số tiếng đủ để cả ba câu nằm dưới trần 25.
+  **TL BẮT ĐƯỢC, LẦN THỨ BA TRONG BA VÒNG LIỀN:** bảng §2 hàng "Câu L3 bắt" ghi 39, đo được
+  36. Và nó lộ ra cái CASCADE mà mục §8 đã khai là giới hạn: dòng tổng của §11 lúc đó in
+  **88** lỗi vì con số ấy ĐẾM CẢ lỗi TL đang mở. Sửa §2 xong thì tổng về **87**. Nên khi TL
+  đỏ, đừng ghi ngay con số tổng mà cổng vừa in — sửa gốc rồi đo lại.
+  Ablate: gỡ bản sửa nội dung ra → ratchet **11 LỖI**, exit 1, gồm *"L3: lỗi TĂNG 36 → 39"* ·
+  *"L8: lỗi TĂNG 23 → 24"* · *"§4-A: TỔNG TĂNG 23 → 30"* · *"TL: lỗi TĂNG 0 → 1"* · bốn hàng
+  bảng §11 và hai dòng tổng.
+  **GIÁ PHẢI TRẢ:** bài chờ nạp DB **104 → 107**.
+  **GIỚI HẠN, nói ra vì tôi cố ý dừng ở đó:** phép bọc chỉ đi hết CÂU mà L3 bắt, không đi hết
+  ĐOẠN. PD13#3 còn `startrow=1` · `skiprows=[0]` · `usecols` · `ExcelFile.parse` đứng trần;
+  VZ02#1 còn `add_subplot(111)` và `add_axes()`. Không cổng nào thấy chúng (termbank không
+  có), nên chúng sẽ không tự lộ ra — đó là một lượt biên tập riêng, không phải chỗ bỏ sót vô
+  ý.
+  **VÀ 36 LỖI L3 CÒN LẠI LÀ VIỆC THẬT, cỡ đã đo:** mỗi câu cần viết lại thành bullet hoặc
+  bảng (đúng thứ §2 kê). Nhiều câu trong đó là LIỆT KÊ định danh — SY12 bốn file, CT02 bốn
+  đối số `CreateProcess`, GU09 `x, y` / `width, height`, CT15 `ls, bc, ps và grep` — tức dạng
+  chuyển sang bảng gọn nhất. 36 lượt viết lại là quá một vòng, và mỗi lượt cần phán xét, nên
+  nó là một chuỗi lát chứ không phải một việc.
+
+- **CI CHƯA BAO GIỜ CHẠY TRÊN `main` — trigger là `[master]` từ chính commit tạo file, và
+  câu "đã có trong CI" tôi viết suốt mười vòng ĐÚNG VỚI FILE, SAI VỚI THỰC TẾ.** Lớp ngoài
+  cùng lại là lớp không ai canh, lần thứ hai sau vụ Vercel.
+  **Số đã đo** (08/11/2026, `gh run list -R ProgrammingEdu-USTH/pe-usth`):
+  · `.github/workflows/ci.yml` mở đầu bằng `on: push: branches: [master]`, mà MỌI việc nằm
+    trên `main`. `git log -L` trên khối đó: nó là `[master]` **từ commit tạo file** (`c3b0dbb`),
+    chưa bao giờ là `main`;
+  · **110 commit trong tháng 11, 0 lần CI được TẠO**;
+  · toàn bộ lịch sử repo này có **14 lần chạy, 14/14 `startup_failure`**, mỗi lần **0 giây**,
+    lần cuối **15/10**. API trả `path = BuildFailed`, `jobs: 0`.
+  **VÌ SAO 14 LẦN ĐÓ LẠI CÓ `head_branch = main` trong khi bộ lọc là `master`:** chúng
+  `startup_failure` vì GitHub KHÔNG PARSE NỔI file — mà không parse được thì nó cũng không
+  áp được bộ lọc nhánh. Khi file trở lại parse được, bộ lọc `[master]` có hiệu lực và CI
+  **thôi được tạo hoàn toàn**. Hai triệu chứng rất khác nhau, cùng một file.
+  **ĐỪNG CHỈ LẬT BỘ LỌC SANG `main` — đã đo lý do.** Job `giao-trinh-da` chạy
+  `check-da-nap.mjs`, và cổng đó ĐỎ CÓ CHỦ ĐÍCH cho tới khi chủ dự án nạp DB. Lật trigger
+  vào đúng lúc nó đang đỏ là làm `main` đỏ thường trực vì một việc chỉ chủ dự án làm được —
+  đúng thứ chính file này cấm ("một CI đỏ thường trực thì không ai đọc nữa").
+  **CÁCH ĐO MÀ KHÔNG ĐỤNG CẤU HÌNH:** workflow có sẵn `workflow_dispatch`, và chú thích
+  ngay cạnh nó nói đó là đường chạy tay. `gh workflow run ci.yml --ref main` cho một lần
+  chạy THẬT đầu tiên của repo. Kết quả: **4 xanh · 3 đỏ**.
+  · ✅ `thay-doi` · `hinh-ly-thuyet` · `frontend` · `giao-trinh`;
+  · ❌ `backend` — `npx jest --ci --runInBand` thoát 1;
+  · ❌ `giao-trinh-da` — `check-da-nap` (đã giải: chủ dự án nạp DB lúc 21:26 cùng ngày);
+  · ❌ `e2e` — Playwright `toHaveCount` / `toBeVisible` / `element(s) not found`. **Job này
+    chưa bao giờ nằm trong bậc thang tôi chạy ở máy**, nên nó là vùng tối thật sự.
+  **VÀ LỖI `backend` LỘ RA MỘT KHIẾM KHUYẾT CỦA CHÍNH CỔNG TÔI VIẾT.** `check-moc-chay.mjs`
+  dùng `spawnSync` nên nó BẮT hết stdout/stderr của jest; khi không parse được con số, log
+  CI chỉ có đúng câu *"không đọc được số"* và **không một dòng nào của jest** — tức người
+  đọc log mù hoàn toàn về nguyên nhân. Một cổng nuốt bằng chứng của chính thứ nó vừa tố là
+  một cổng sẽ bị gỡ. Nay nó in **30 dòng cuối** của lệnh. Ablate: cho lệnh in `1 2 3` rồi
+  thoát 1 → cổng in lại đúng ba dòng đó; trước bản sửa nó im.
+  **CÒN LẠI, và nó là quyết định của chủ dự án chứ không của vòng lặp:** sửa trigger thành
+  `[main, master]` thì CI mới thật sự canh mỗi lần push. Trước khi lật, phải xử lý `e2e`
+  (đang đỏ, nguyên nhân chưa rõ) — nếu không thì `main` đỏ ngay từ commit đầu tiên.
+
+- **BỐN VÙNG CUỘN ĐƯỢC MÀ KHÔNG CÓ DẤU HIỆU NÀO — người thử báo, và số đo nói nó không
+  hiếm.** Phản hồi 07/11/2026: *"scroll mà ko thấy scroll bar đâu"*. Đo trên PRODUCTION
+  bằng Chrome ở **1366×768** (độ phân giải laptop phổ biến nhất):
+  · `#side` tràn **28px dọc**;
+  · `.shelfrow` có **11 hàng, 5 hàng TRÀN NGANG: 101 · 350 · 809 · 709 · 603 px**. Tới
+    **809px** của một kệ — gần gấp đôi bề rộng thấy được — mà không gì báo là cuộn được.
+  `scene.css` ẩn thanh cuộn ở BỐN chỗ bằng `scrollbar-width:none`, và `#side` ẩn THÊM một
+  lần nữa bằng `::-webkit-scrollbar{display:none}` — hai phép ẩn khác nhau, gỡ một cái mà
+  để cái kia là bản sửa trông như xong.
+  **`.menu` KHÔNG nằm trong đợt sửa, và đó là cố ý.** Nó đã có mặt nạ mờ mép phải kèm chú
+  thích nói rõ lý do (*"để nó đọc ra là còn nữa, vuốt sang"*). Một quyết định đã ghi lại thì
+  đừng đè lên; hai cách báo chồng nhau là thừa. Nó thành mục khai trong `CO_CACH_BAO_KHAC`.
+  **MÀU CHỌN BẰNG PHÉP ĐO, và phép đo LOẠI phương án hiển nhiên.** Thanh cuộn là THÀNH PHẦN
+  GIAO DIỆN nên WCAG 1.4.11 đòi 3:1, và nó nằm trên HAI nền: panel tối `#0d0b13` và ván gỗ
+  `#5a3a26` của kệ. Tương phản của kem `#ffecdc` theo alpha:
+
+  | alpha | trên panel | trên gỗ |
+  |---|---|---|
+  | 0,26 — `--line-hi` có sẵn | **2,09** | **1,99** |
+  | 0,38 | 3,24 | **2,68** |
+  | **0,44** | **3,93** | **3,07** |
+
+  Nên **dùng lại `--line-hi` là TRƯỢT cả hai nền** — token đó là đường kẻ chia, vai khác.
+  0,44 là giá trị THẤP NHẤT vượt 3:1 trên cả hai.
+  **ĐÃ XEM THẬT TRONG CHROME, trên production:** tiêm đúng bộ luật mới thì số phần tử CÓ
+  thanh cuộn đi **1 → 7**; gỡ ra về **1**; tiêm lại **7**.
+  Cổng: `frontend/e2e/unit/goc-hoc-thanh-cuon.test.mjs` (5 ca), luật HAI CHIỀU — vùng cuộn
+  được mà ẩn thanh cuộn phải có tên trong `CO_CACH_BAO_KHAC`, và mục khai mà THÔI ẩn cũng là
+  lỗi thời. Ablate 5 chiều: trả `none` về `#side` → **1 đỏ** · gỡ `none` khỏi `.menu` → 1 ·
+  trả lại `::-webkit-scrollbar{display:none}` → 1 · hạ alpha về .26 → 1 · **làm hỏng phép
+  bóc CSS → 3 đỏ** (ca canh chính phép bóc bắn đúng, nên "regex trượt thì mọi ca rỗng"
+  không xảy ra được).
+  **MỘT PHÉP ĐO CỦA TÔI SAI, và nó sai theo chiều TỐ OAN.** Lần đo đầu tôi báo *"29/59 phần
+  tử giá sách có opacity < 1, thấp nhất 0,279"* — khớp ảnh người thử gửi. Đo lại bằng
+  selector đúng trên tab giá sách: **179 cuốn, opacity min 1 / max 1, 0 cuốn dưới 1**.
+  Selector `[class*=book]` của tôi bắt nhầm `k-notebook` của CẢNH. Ảnh của người thử bắt
+  trạng thái sách đang hiện dần. **Lỗi "sách xám" KHÔNG tái hiện** — và tôi đã tự ghi chú
+  "phép đo này over-broad" ngay lúc báo cáo, nên nó không kịp thành một vòng sửa nhầm.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** panel bên phải và 5 kệ sách nay có thanh cuộn mảnh.
+  **KHÔNG bump `ASSET_VERSION`:** `scene.css` nằm trong `frontend/src/`, đi qua bundler nên
+  URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
+
+- **"CON SỐ NÀY CHỈ GIẢM KHI NGƯỜI SOẠN THÊM NHÃN" — SAI với 17/19, và nó đẩy việc sang
+  người không cần làm.** Chú thích ở `TRAN_ALT_KHUON` giải thích 19 hình còn mang alt
+  khuôn bằng một câu nghe hợp lý: chúng thiếu dữ liệu, nên người soạn giáo trình phải thêm
+  nhãn vào code của bài. Đo thì **17/19 CÓ nhãn** — chúng chỉ dùng lời gọi vẽ mà
+  `LOAI_BIEU_DO` không biết, còn 2 hình kia đặt nhãn bằng `set_axis_labels` thay vì
+  `ax.set(xlabel=…)`. **Lỗi ở PHÉP BÓC, không ở nội dung** — cùng hình dạng với mục ngay
+  dưới, hai vòng liền.
+  **THỨ `LOAI_BIEU_DO` KHÔNG BIẾT:** `errorbar` (VZ13) · `histplot` · `ecdfplot` ·
+  `kdeplot` (VZ16) · `countplot` · `stripplot` (VZ17) · `lineplot` · `scatterplot` (VZ18) ·
+  `relplot` · `catplot` · `regplot` (VZ19) · `contour` · `contourf` (VZ28) · `quiver` ·
+  `streamplot` · `arrow` (VZ29). Gần hết là **seaborn** — danh sách cũ chỉ biết matplotlib.
+  **SỐ ĐÃ ĐO: alt khuôn 19 → 1.** 79/80 hình nay có một câu nói được điều gì; độ dài trung
+  vị 86 → **97**. Trần trong sổ ngưỡng siết theo.
+  **MỘT HÌNH Ở LẠI, và nó ở lại có lý do đứng được:** VZ28-1 gọi **ĐỘNG** —
+  `getattr(ax, method)` với `method` chạy qua `["pcolor", "pcolormesh"]` — nên không có
+  chuỗi `.pcolormesh(` nào trong mã để một phép bóc TĨNH nhìn thấy. Đoán loại từ một chuỗi
+  trong danh sách là bịa, mà một câu bịa còn tệ hơn một câu chung chung vì người đọc không
+  có cách nào biết nó bịa.
+  **KIỂM VA CHẠM CHUỖI CON TRƯỚC KHI THÊM, đã làm từng cái:** `.plot(` KHÔNG nằm trong
+  `.lineplot(` (ký tự trước `plot(` là `e`), `.bar(` không nằm trong `.barplot(`,
+  `.contour(` không nằm trong `.contourf(`, `.arrow(` không khớp `arrowprops=`. Danh sách
+  khớp bằng `in` và lấy mục ĐẦU TIÊN, nên thêm loại mới thì kiểm lại phép này.
+  Ablate 4 chiều: bỏ một loại (`errorbar`) → **1 đỏ** · bỏ nguồn nhãn `set_axis_labels` →
+  1 đỏ · hạ trần 1 → 0 → 1 đỏ · **đổi tên một loại thành chuỗi vô nghĩa → 0 đỏ**.
+  **CHIỀU THỨ TƯ LÀ MỘT KHOẢNG TRỐNG ĐÃ KHAI, không phải chỗ bị quên:** luật chống trôi so
+  phần TRONG NHÁY KÉP với code, mà cụm nói LOẠI biểu đồ là tiếng Việt do `LOAI_BIEU_DO`
+  đặt — nó không có trong code để mà so. Phủ nốt thì phải chép bảng ấy sang `check.py`,
+  tức nuôi bản thứ hai của đúng thứ docstring ở đó vừa dặn là đừng nuôi.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 162/179 → **155/179**, thêm bảy bài VZ.
+
+- **BA HÌNH KHÁC NHAU DÙNG CHUNG MỘT ALT, và phép sinh alt thiếu theo một chiều CÓ HỆ
+  THỐNG: nó tả đúng phần KHÔNG ĐỔI.** Bốn vòng liền tôi làm cổng, nên vòng này đo một thứ
+  user-facing chưa ai kiểm — 80 alt text, nhóm lớn nhất trong 99 chuỗi NGOÀI TẦM bộ văn
+  phong mà chính tôi đã khai là "khác genre".
+  **ĐO — nhìn chung TỐT:** 80/80 hình có alt · độ dài trung vị 77, p90 116, max 131 · **0**
+  câu mở bằng "Hình ảnh của…" · **0** ngắn dưới 25 ký tự · **0** dài quá 300.
+  **MỘT phát hiện, và nó không nhỏ:** ba hình của RD01 mang CÙNG một câu —
+  *"Biểu đồ đường, trục ngang "Day", trục dọc "Revenue (million VND)"."* — trong khi ba ảnh
+  **khác nhau thật** (md5 `a3230218c0aa` / `122e46155833` / `d2675c5b9c68`; 38 430 / 27 812
+  / 29 234 byte). Người dùng trình đọc màn hình nghe y hệt ba lần.
+  **NGUYÊN NHÂN CÓ HỆ THỐNG, không phải một ca lẻ.** `alt_cua_hinh` dựng câu từ **nhãn
+  trục** (+ `title=`). Mà khuôn dạy của khoá này là *"cùng một biểu đồ, đổi MỘT thứ"* —
+  nên nhãn trục chính là phần **giữ nguyên** giữa các hình của một bài. Alt tả phần không
+  đổi và bỏ phần đổi. Ở RD01 điều đó đặc biệt mỉa mai: bài tên là *"Đặt chú thích theo dữ
+  liệu hoặc theo vùng vẽ"*, tức thứ ba hình khác nhau **chính là thứ bài đang dạy**.
+  **CÁCH SỬA — thêm hai nguồn chữ mà alt đang bỏ qua:** chữ ĐẶT TRÊN hình
+  (`ax.text(x, y, "…")` và `ax.annotate("…", …)`) và `ax.set_title("…")` (dạng thứ hai của
+  cùng một nhãn, `_NHAN` chỉ thấy `title=`). Sau sửa: **0 alt trùng**, RD01 ra ba câu nói
+  đúng thứ khác nhau (`"Three days only"` · `"Peak: 10"` · `"$y=10$"` + tiêu đề), độ dài
+  trung vị 77 → **86**, max 131 → **177**.
+  **VÀ TRẦN ALT KHUÔN TỰ SIẾT:** phép bóc `set_title` cho thêm hai hình đủ dữ liệu, nên số
+  hình còn mang chuỗi khuôn đi **21 → 19**. `check.py` in ra dòng *"hạ trần đi"* và sổ
+  ngưỡng đã ghi.
+  **LUẬT MỚI nằm trong `kiem_alt_hinh` đã có sẵn**, không dựng cổng thứ hai: hai hình cùng
+  bài không được dùng chung alt. Alt KHUÔN được miễn — 19 hình cố ý dùng chung nó và trần
+  riêng ở trên đã canh chúng.
+  Ablate 5 chiều: build thôi đọc chữ trên hình (tái lập RD01) → **1 đỏ** · **cặp đối
+  chứng** cùng trạng thái ấy nhưng BỎ luật → **0 đỏ** · hạ trần alt khuôn 19 → 10 → 1 đỏ ·
+  bỏ phép bóc `set_title` (19 → 21, vượt trần) → 1 đỏ · cho alt trích một chuỗi KHÔNG có
+  trong code → **62 đỏ** (luật chống trôi có sẵn, bắn trên mọi hình dính).
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 167/179 → **162/179**, thêm 5 bài đổi alt (VZ08 · VZ09 ·
+  VZ27 · VZ30 · RD01).
+
+- **TRẦN 5 GIÂY LÀ TRẦN CỦA ĐƯỜNG KHÁC — hai vòng trước tôi đi chỉnh NGƯỠNG mà không hỏi
+  ngưỡng ấy LÀ NGƯỠNG CỦA CÁI GÌ.** Đây là nguyên nhân thật của vụ cổng chập chờn ở mục
+  ngay dưới, và nó làm cả hai bản sửa trước thành chữa triệu chứng.
+  **HAI ĐƯỜNG, HAI TRẦN:**
+
+  | code | người học chạy nó ở đâu | trần |
+  |---|---|---|
+  | khối `code` của **màn đọc** | **CHỈ** qua nút "Thử ngay trong IDE" → `/ide` | `IDE_RUN_TIMEOUT_MS` = **15 000 ms** |
+  | `answerCode` màn luyện tập · `step_4` | ô chạy trong chính bài → `PyodideRunner` | `DEFAULT_LIMITS.execMs` = **5 000 ms** |
+
+  Màn đọc **KHÔNG có ô soạn mã** (`CodeBlock`, chỉ đọc) — AGENTS.md đã ghi điều đó từ mục
+  bảng-từng-bước. Nên 5 000 ms **chưa bao giờ** là trần của pha 1, mà nó lại là trần DUY
+  NHẤT `check-pyodide.mjs` từng áp, và nó chỉ áp cho pha 1. Hai cái sai chồng nhau:
+  · pha 1 bị kiểm khắt hơn thực tế **3×** — VZ25 đo 2 304–6 699 ms nên vắt qua 5 000, trong
+    khi nó còn cách 15 000 tới **2,2×**;
+  · pha 2 — đường mà 5 000 ms ĐÚNG — **không có phép kiểm thời gian nào**.
+  **BẰNG CHỨNG SỐNG, ngay trong vòng này:** sau khi đổi trần, một lần chạy cho VZ25
+  **6 219 ms** — ĐỎ dưới trần cũ, xanh với trần đúng (biên 2,4×). Lần khác 4 928 ms (biên
+  3,0×). Cùng cây mã.
+  **CÁCH SỬA:** `TRAN_IDE_MS = 15 000` cho pha 1, `TRAN_O_BAI_MS = 5 000` cho pha 2 (phép
+  kiểm MỚI), mỗi pha in biên riêng. Bội số phương sai `BOI_PHUONG_SAI` của vòng trước bị
+  GỠ — nó ra đời để che một trần sai, và trần đúng thì biên 2,2× đã nằm ngoài khoảng biến
+  thiên nên phép so thẳng lại xác định được.
+  **BÀI HỌC đáng hơn con số: khi một cổng chập chờn quanh một hằng số, hãy kiểm HẰNG SỐ
+  trước khi kiểm phương sai.** Hai vòng liền tôi đo lại, dựng phép chạy lại, dựng danh sách
+  khai, dựng bội số — bốn việc, tất cả quanh một con số mà tôi chưa bao giờ hỏi nó đến từ
+  đâu. Câu hỏi đúng tốn một lệnh `grep`.
+  Ablate 5 chiều: hạ trần pha 1 xuống 1 000 → **1 đỏ** `[quá 15 giây]` · **cặp đối chứng**
+  trần 1 000 + BỎ nhánh → **0 đỏ** · hạ trần pha 2 xuống −1 → **1 đỏ** `[quá 5 giây]` ·
+  cặp đối chứng trần −1 + BỎ nhánh pha 2 → **0 đỏ** · đổi tên `TRAN_IDE_MS` → **exit 1 kèm
+  `ReferenceError`**.
+  **MỘT PHÉP GIEO 10 ms VẪN QUÁ CAO:** chiều 3 lần đầu ra 0 đỏ vì đáp án luyện tập chạy
+  ~5 ms, và lần trước đó còn ra 0 vì tôi chọn PD13 — bài mà câu duy nhất của nó `continue`
+  ở nhánh "khai không chạy được" trước khi tới phép kiểm. **Hai lần "0 đỏ" đều là phép gieo
+  hỏng, không phải cổng hỏng.**
+
+- **MỘT PHÉP ĐO BIẾN THIÊN 2,9× KHÔNG PHÁN XỬ ĐƯỢC MỘT ĐƯỜNG NẰM GIỮA KHOẢNG ẤY — và tôi
+  đã chẩn đoán SAI hai lần trước khi đo đủ.** `check-pyodide.mjs` có trần 5 000 ms và nó
+  làm cổng đỏ khi vượt.
+  **LẦN SAI THỨ NHẤT (#129):** tôi gọi nó là *"đỏ giả do tranh CPU"* — 2 lần `1 hỏng` trên
+  6 lần chạy — rồi chỉ GHI LẠI chứ không sửa, và còn viết một câu `luuY` khẳng định nguyên
+  nhân.
+  **LẦN SAI THỨ HAI:** vòng này tôi đo biên bằng cách lấy max của các dòng `✓` trong
+  `--verbose` → "max 3 336 ms, biên 1,5×". **Lấy max của một tập ĐÃ LOẠI phần tử lớn nhất
+  là một phép đo tự khẳng định** — dòng `✓` chỉ in bài ĐẠT, tức đã bỏ đúng bài trượt. Dựa
+  vào đó tôi dựng một phép CHẠY LẠI MỘT LẦN. Rồi đo VZ25 riêng ba lần: **6 699 · 5 619 ·
+  5 959 ms**, chạy lại cũng 5 147–5 195 → kết luận ngược lại rằng nó CHẬM THẬT, gỡ phép
+  chạy lại, khai nó vào một danh sách vượt-trần HAI CHIỀU.
+  **PHÉP ABLATE CỦA CHÍNH BẢN SỬA ẤY LỘ RA CÁI SAI:** ngay sau đó VZ25 chạy **2 304 ms**,
+  và luật hai chiều bắn *"NGOẠI LỆ ĐÃ LỖI THỜI"*. Tôi vừa đổi một cổng chập chờn lấy một
+  cổng chập chờn **theo chiều ngược**.
+  **SỐ ĐẦY ĐỦ, cùng một bài, cùng một cây mã, 6 lần chạy:**
+  **2 304 · 5 042 · 5 619 · 5 787 · 5 959 · 6 699 ms — spread 2,9×.**
+  Đường 5 000 nằm GIỮA khoảng ấy, nên không có cách khai nào làm cổng hết chập chờn: đặt
+  trần ở đó thì đỏ oan, khai ngoại lệ thì "ngoại lệ lỗi thời". Cả hai tôi đều đã làm.
+  **CÁCH SỬA: cổng thôi phán xử đường nó không đo nổi.** Nó chỉ làm đỏ khi một đoạn chạy
+  **LỒNG** — quá `BOI_PHUONG_SAI = 2` lần trần, tức **ngoài** khoảng biến thiên đã đo.
+  Đường 5 giây KHÔNG biến mất: mỗi lần chạy vẫn in bài chậm nhất, số ms và biên còn lại,
+  cộng danh sách bài vượt 5 000 trong lần chạy ấy. **Thứ bỏ đi là quyền của một phép đo
+  không lặp lại được trong việc làm CI đỏ.**
+  **VÀ CÂU HỎI THẬT THÌ CHƯA TRẢ LỜI, phải nói ra:** VZ25 có `tryIt=True` ở **cả ba khối**,
+  nên một người học bấm "Thử ngay trong IDE" nhận cả ba khối nối lại — đúng chương trình
+  vừa đo được 2,3–6,7 s. *"Người học có bị cắt ở 5 giây không"* phải đo trên **MÁY NGƯỜI
+  HỌC**, không đo bằng đồng hồ treo tường của máy dựng. Đó là việc của chủ dự án.
+  Ablate 4 chiều: **trả trần phán xử về 5 000** → 0 đỏ ba lần liên tiếp trên máy đang rảnh
+  (chiều này KHÔNG tái hiện được theo ý muốn, và đó chính là bằng chứng phép đo phụ thuộc
+  trạng thái máy chứ không phụ thuộc mã) · hạ `BOI_PHUONG_SAI` xuống 0,3 → **1 đỏ** đúng
+  loại · **cặp đối chứng** `BOI=0,3` có nhánh → 1 đỏ, bỏ nhánh → **0 đỏ** · đổi tên
+  `LIMIT_MS` → **exit 1 kèm `ReferenceError`**, tức to tiếng chứ không im lặng xanh.
+  **MỘT CON SỐ ABLATE RỖNG KHÔNG PHẢI SỐ 0:** chiều cuối lần đầu in ra chuỗi RỖNG vì script
+  chết trước khi kịp in dòng tổng kết. Đọc rỗng thành "0 đỏ" là kết luận ngược hẳn.
+
+- **HAI HÀNG CHẤM NỘI DUNG CỦA BẢNG MỐC NỀN LÀ SỐ CHẠY-MỚI-BIẾT MÀ KHÔNG CỔNG NÀO CANH —
+  và chính việc gắn cổng đã lộ ra bộ chấm sinh ĐỎ GIẢ.** `check-moc-chay` canh 4 mục,
+  `check-moc-nen` đối chiếu 20 con số **đọc ra được từ `out/`**. Giữa hai cái đó có một
+  khe: *"154 bài · **420 đoạn code** chạy thật trong Pyodide"* và *"143 bài · 480 ca ·
+  **773 biến thể sai đều trượt**"* chỉ biết được bằng cách CHẠY, và `out/` không chứa
+  chúng. **Hôm nay cả hai hàng ĐÚNG** — đã chạy và đối chiếu — nên đây không phải sửa một
+  lỗi đang sống, mà là gắn răng cho một tín hiệu dừng. Đúng thế của con số **204 vs 134**.
+  Nay `check-moc-chay` có **6 mục**, và hai mục mới THAY bước cũ trong job `giao-trinh-da`
+  (dòng 376 và 391) chứ không thêm lượt chạy.
+  **VÀ ĐÂY LÀ PHÁT HIỆN KÈM, lớn hơn chính việc đang làm: `check-pyodide.mjs` SINH ĐỎ GIẢ.**
+  Đo trong cùng một phiên, **không đổi một dòng mã nào**: **2 lần ĐỎ GIẢ trên 6 lần chạy**,
+  mỗi lần đúng `1 hỏng`, ba lần còn lại `0 hỏng`. Bộ chấm có trần **5 giây MỖI ĐOẠN**, nên
+  máy bận là một đoạn chậm bị đánh trượt — cùng họ với bẫy *"tranh CPU sinh ĐỎ GIẢ"* của
+  jest. Nếu không nói ra, lần đỏ đầu tiên trên CI sẽ bị đổ cho NỘI DUNG, và ai đó sẽ đi sửa
+  một bài học không hỏng. Nên mục `pyodide` mang một trường `luuY` in kèm mỗi lần có ca
+  trượt: *"bộ này có trần 5 giây MỖI ĐOẠN… chạy LẠI một mình trước khi kết luận"*.
+  **CHÍNH PHÉP ABLATE CŨNG DÍNH, và nó dạy cách đọc một con số ablate:** chiều "bảng ghi
+  421 đoạn" lần đầu cho **2 đỏ**, không phải 1. Chạy lại riêng thì đúng **1 đỏ** — con thứ
+  hai là một lần đỏ giả nữa. **Một con số ablate cao hơn dự tính phải được chạy lại trước
+  khi ghi**, nếu không thì bảng ablate tự khai khống.
+  `doc` của mục `practice` gộp hai nguồn trượt vào một trường: ca chấm KHÔNG đạt **cộng**
+  biến thể sai KHÔNG bị bắt — cả hai đều là "bộ chấm hỏng", và gộp giữ đúng hợp đồng
+  `truot` của bốn mục kia.
+  Ablate 5 chiều: bảng ghi 144 bài → **1 đỏ** · bản SAO ghi sai CẢ ca lẫn biến thể → **2
+  đỏ**, mỗi trường một lỗi · đổi CHỮ hàng bảng → 1 ("KHÔNG CÒN DÒNG") · gỡ bản SAO khỏi
+  hàng "Mốc phải CHẠY mới biết" → 1 · bảng ghi 421 đoạn → 1.
+
+- **9 ĐOẠN VĂN GIẢNG RỜI `build.py` VỀ GÓI NGUỒN — 108 → 99 chuỗi ngoài tầm, và hàng rào
+  đầu tiên của tôi KHÔNG RÀO GÌ.** Lead tự ghi ở mục dưới: trong 5 nhóm chuỗi ngoài tầm,
+  `paragraph.text` là nhóm DUY NHẤT là văn GIẢNG thật.
+  **ĐO — chúng là gì:** 9 đoạn **viết tay, khác nhau hoàn toàn**, mỗi bài một đoạn (PD13 ·
+  PD16 · TH01–TH07), sống trong `KHOI_DU_LIEU` của `build.py`. Mục ấy trộn HAI việc khác
+  hẳn nhau: `files` là **khai báo file** (chuyện nền tảng, lý do giữ ở build vẫn đứng) và
+  `paragraph` là **văn xuôi người học đọc** (lý do kia không phủ được). Tách đúng chỗ ghép
+  sai là xong.
+  **GIÁ, đo trên bản SAO trước khi làm:** L1 **21 → 24 lỗi** (3 câu > 30 tiếng), mọi luật
+  khác không đổi. Trả được trong cùng vòng.
+  **PHÉP ĐO ĐẦU CỦA TÔI NHIỄM, lần thứ ba trong bốn vòng:** nó nhét **84** đoạn thay vì 9,
+  vì tôi bỏ mất phép so bản ĐÃ THOÁT JSON (`json.dumps(t)[1:-1]`). Chuỗi có `"` hoặc `\`
+  trông như "không có trong source". Đo lại mới ra 9.
+  **VÀ KHI VÀO TẦM KIỂM, NỢ THẬT LỚN HƠN DỰ TÍNH MỘT CHÚT:** ngoài 3 câu > 30 tiếng còn
+  **L4 0 → 1** (PD13 mở câu bằng "Việc đầu tiên") và **L1 cảnh báo +3** (ba câu tôi vừa
+  tách ra rơi vào khoảng 25–30 tiếng). Tất cả đều là văn CŨ, lần đầu được một luật nhìn
+  thấy. Đã sửa cả bốn câu; L1 về **21 · 86**, L4 về **0**.
+  **HÀNG RÀO ĐẦU TIÊN CỦA TÔI KHÔNG RÀO GÌ, và chỉ ablate lộ ra.** Nó kiểm *"khối CUỐI của
+  `reading` là một đoạn văn"*. Ablate: xoá hẳn đoạn dẫn của PD13 → **build VẪN exit 0**, vì
+  khối đứng trước nó cũng là một đoạn văn. Một hàng rào không phân biệt được "đoạn dẫn" với
+  "một đoạn văn bất kỳ" thì nó không rào gì. Nay mỗi mục có `danMoc` — một cụm chữ ngắn
+  PHẢI có trong đoạn ấy; ablate lại thì build đỏ kèm đúng tên bài và đúng mốc.
+  Ablate 4 chiều: xoá đoạn dẫn khỏi gói nguồn → **build exit 1** (trước khi có `danMoc`:
+  **exit 0**) · gieo lại một câu > 30 tiếng vào đoạn dẫn → ratchet **L1 21 → 22** (tức
+  đoạn ấy nay THẬT SỰ nằm trong tầm kiểm) · hạ trần độ phủ 99 → 90 → 1 đỏ · khai lại
+  `paragraph.text` là NGOÀI TẦM → 1 đỏ ("ngoại lệ đã lỗi thời").
+  **CÒN LẠI 99 chuỗi ngoài tầm, 4 mục khai** — và hai nhóm lớn nhất đều có lý do đứng
+  vững: 80 `figure.alt` khác genre (mô tả ảnh), 19 chuỗi `SO_DO_DOC` có quyết định đã ghi
+  là giữ ở build cho tới khi quá chục bài. Nhóm dễ nhất đã xong.
+
+- **108 CHUỖI VĂN XUÔI NGƯỜI HỌC ĐỌC NẰM NGOÀI TẦM BỘ VĂN PHONG — gồm CẢ 80 ALT TEXT, và
+  lần này nới hàm thu chữ KHÔNG cứu được.** Lần thứ BA của cùng lớp lỗi trong ba vòng:
+  `raw_doan` đọc bản TRẦN thay vì RAW · `doan_cua` + vòng duyệt màn bỏ khối `table` · và
+  nay là chữ **không nằm trong tệp mà bộ kiểm đọc**. Hai lần trước sửa được bằng cách nới
+  hàm thu chữ; lần này không, vì chữ ở một tệp khác.
+  **ĐO — so TỪNG CHUỖI của `out/lessons.json` với `source/course.json`:**
+
+  | chuỗi | đường dẫn trường | nguồn |
+  |---|---|---|
+  | 811 | `paragraph.text` | ✓ có trong source |
+  | 76 | `table.rows[][]` | ✓ |
+  | 20 | `table.headers[]` | ✓ |
+  | **80** | `figure.alt` | ✗ `build.py` sinh |
+  | **9** | `paragraph.text` | ✗ `build.py` chèn |
+  | **19** | `diagram.title` + `lanes[].label` + `lanes[].note` | ✗ `SO_DO_DOC` |
+
+  **NỢ ẨN, đo bằng cách nhét 183 chuỗi ngoài tầm vào một bản SAO rồi chạy bộ kiểm:**
+  L3 **32 → 41** · L13 cb **217 → 229** · §4-A cb **23 → 30** · L1 21·86 → 24·94 ·
+  L14 **0 → 3 lỗi**. Tức **tín hiệu dừng của vòng lặp đang báo thiếu ~20%**.
+  **KHÔNG đổi bộ kiểm sang đọc `out/`:** chính nó đã ghi lý do — *"bắt lỗi ở `out/` là bắt
+  lỗi ở một bản chép; người sửa phải sửa ở source"*. Nên `check-phu-van-phong.mjs` **không
+  bịt khe, nó làm khe THẤY ĐƯỢC và có trần**: mỗi đường dẫn trường mang văn xuôi phải được
+  khai `NGOAI_TAM` kèm LÝ DO, luật hai chiều, cộng một trần 108 CHỈ ĐƯỢC HẠ (vào sổ ngưỡng,
+  33 → 34 mục).
+  **MỤC ĐÁNG GỠ SỚM NHẤT trong năm mục là `paragraph.text` (9 chuỗi)** — đó là văn GIẢNG
+  thật, cùng loại với 811 đoạn đang được kiểm, chỉ khác là `build.py` chèn nó. `figure.alt`
+  thì khác genre (mô tả ảnh), và `SO_DO_DOC` có một quyết định đã ghi là giữ ở build cho
+  tới khi quá chục bài.
+  Ablate 5 chiều: đổi tên một dòng khai → **2 đỏ** (chưa khai + ngoại lệ lỗi thời) · khai
+  NGOÀI TẦM cho một đường ĐÃ được kiểm → 1 · hạ trần 108 → 100 → 1 · làm hỏng phép duyệt →
+  **6 đỏ** (tự kiểm bắn, không im lặng xanh) · gieo một TRƯỜNG văn xuôi MỚI vào bản dựng →
+  **2 đỏ** (chưa khai + vượt trần).
+  **GIỚI HẠN:** cổng đếm chuỗi và canh khai báo; nó KHÔNG làm cho một luật văn phong nào
+  chạy trên 108 chuỗi ấy. Đừng đọc "0 lỗi" thành "chữ ấy đã được kiểm".
+
+- **Ô BẢNG LÀ ĐIỂM MÙ CỦA BỘ VĂN PHONG, và §2 kê "phải thành bảng" làm CÁCH SỬA — tức
+  ratchet TỰ GAME ĐƯỢC, và tôi vừa game nó một cách vô tình.** Đây là lỗ thủng trong chính
+  TÍN HIỆU DỪNG của vòng lặp, nên nó nặng hơn mọi lỗi nội dung.
+  **ĐO BẰNG CÁCH GIEO, trên một bản SAO qua `--nguon`:** một câu **5 dấu phẩy, > 20
+  tiếng**, kèm `DataFrame` **đứng trần**, đặt vào một ô bảng → **L3 giữ 32 · §4-A giữ 23 ·
+  L13 giữ 217**. Mù hoàn toàn.
+  **NGUYÊN NHÂN, và nó ở HAI chỗ chứ không một:** `doan_cua()` — hàm gần như mọi luật dùng
+  — chỉ đọc khối `paragraph`, docstring cũ xếp `table` cùng nhóm `figure` là "nhãn giao
+  diện". Và vòng duyệt theo MÀN của L9/L10/§4-A lặp khối TRỰC TIẾP, cũng lọc `paragraph`.
+  Sửa một mình `doan_cua` là bịt nửa khe: ablate đo được **L3 32 → 33** trong khi **§4-A
+  vẫn 23** với cùng một ô gieo.
+  **VÌ SAO NÓ LÀ LỖ THỦNG CỦA TÍN HIỆU DỪNG:** §2 của VAN-PHONG.md kê *"phải thành
+  bullet/bảng"* làm **cách sửa** cho L3. Nghĩa là cách rẻ nhất để hạ BẤT KỲ luật nào là
+  chuyển chữ vào một ô bảng — không sửa gì cả. Đúng cách THỨ NHẤT một vòng lặp nói dối mà
+  LOOP.md gọi tên, ở dạng DỮ LIỆU chứ không dạng mã.
+  **VÀ TÔI ĐÃ LÀM ĐÚNG VIỆC ĐÓ, VÔ TÌNH.** Lát L3 ngay trước đó ghi *"L13 220 → 217 (hai
+  định danh rời văn xuôi vào backtick trong ô bảng)"* — **sai**. Chúng không vào backtick,
+  chúng vào **vùng không ai nhìn**. Mở điểm mù ra thì L13 bật lên **224**, tức **7 lần xuất
+  hiện** đã bị giấu: 3 của lát ấy cộng 4 có sẵn từ các bảng cũ.
+  **TRẢ NỢ, KHÔNG NỚI SỔ.** Ratchet chặn `--ghi-so` khi một luật TĂNG, và nó chặn đúng — nó
+  không phân biệt được "văn xấu đi" với "phép đo trung thực lên". Nên cách đi là sửa 6 ô
+  (SY12 `class` → lớp · CT15 `input`/`output` → đầu vào/đầu ra · CT03 `process` → tiến
+  trình), và L13 về đúng **217**. Thêm một escape hatch cho ratchet thì chính nó là cái nút
+  tắt mà vòng sau sẽ bấm.
+  **MỘT CÂU TÔI ĐÃ VIẾT SAI, phải đính chính:** hai mô tả commit và mục bẫy trước ghi
+  *"`check_vanphong.py` CÓ quét ô bảng"* / *"`doan_cua()` ĐÃ quét headers/rows"*. Chỗ tôi
+  grep trúng là `van_ban_hoc_vien`, hàm có **đúng MỘT** người dùng là L14. Grep trúng một
+  cái tên không nói hàm nào gọi nó.
+  **SỐ ĐÃ ĐO:** L13 **217 → 224 → 217** (mở điểm mù, rồi trả nợ) · L8 lỗi **23 → 22**, cảnh
+  báo 27 → 28 (chữ trong bảng vào mẫu số nên mật độ thuật ngữ giảm — đó là mẫu số ĐÚNG, vì
+  người học đọc cả chữ ấy) · tổng **83 → 82 lỗi**, 431 → 432 cảnh báo · tổng số câu phần
+  giảng **2 552 → 2 651**.
+  Ablate 4 chiều: gieo câu nhồi + định danh trần vào ô bảng → **L3 32 → 33 VÀ §4-A 23 → 24**
+  (trước vòng này: không gì đổi) · gỡ bản sửa `doan_cua`, gieo lại → L3 về 32 · gỡ bản sửa
+  vòng-duyệt-màn → §4-A về 23 · **chuyển 6 ĐOẠN VĂN nguyên vẹn vào ô bảng**: có bản sửa thì
+  L8 đứng yên 22·28, không có bản sửa thì nó nhảy **23·26** — tức phép đo đổi chỉ vì chữ
+  DỜI CHỖ, đúng cái lỗ vừa bịt.
+  **GIỚI HẠN:** `van_ban_hoc_vien` (L14) vốn đã đọc ô bảng nên không đổi, và khối `code` /
+  `terminal` / `figure` vẫn ở ngoài — đó là cố ý: đo văn phong trên mã là đo sai thứ.
+
+- **BỐN CÂU LIỆT KÊ THÀNH BẢNG (L3 36 → 32) — và việc tách bảng làm VỠ một bất biến của
+  chính bộ văn phong, theo một chiều không ai đoán trước.** Lát thứ ba của chuỗi L3
+  (#93: 43→41 · #94: 41→39). Chọn theo SỐ DẤU PHÂN CÁCH, nặng nhất trước, vì đó là dạng
+  liệt kê — dạng chuyển sang bảng ít phán xét nhất: PD32 (6 dấu) · SY25 (5) · SY12 (4) ·
+  SY23 (3).
+  **ĐỔI MỘT BÀI SO VỚI KẾ HOẠCH, và lý do là phép đo:** kế hoạch ghi PD12 (4 dấu), nhưng
+  câu của nó — *"kiểm tra shape, kiểu cột, ô thiếu và mã đơn"* — chỉ có TÊN, không có
+  nghĩa đi kèm. Dựng bảng hai cột cho nó thì cột thứ hai phải do tôi BỊA. SY23
+  (`keys()` / `values()` / `items()`) thì mỗi mục đã có sẵn nghĩa trong chính câu. Lấy
+  cái có nguyên liệu, đừng lấy cái vừa đủ nặng.
+  **VỠ BẤT BIẾN: `raw_doan()` KHÔNG thấy ô bảng.** `curses` của SY12 theo ô bảng mà đi,
+  và TB đỏ: *"`baiDauTien`=SY12 nhưng corpus dùng lần đầu ở SY14"*. Cái sai KHÔNG ở
+  termbank — SY12 vẫn nói về `curses`, chỉ là nói trong một ô bảng. Khe hở: `doan_cua()`
+  ĐÃ quét `headers`/`rows` còn `raw_doan()` thì chưa, tức **hai phép quét bất đồng về
+  việc chữ nào tồn tại**, và luật nào đứng giữa hai phép ấy thì sai theo một chiều không
+  ai đoán trước. Nay `raw_doan()` gồm cả ô bảng.
+  Đây là lần thứ HAI cùng một hàm thiếu một nguồn chữ: lần trước nó đọc bản TRẦN thay vì
+  RAW (L15 mù dần khi §4-A được thoả); lần này nó đọc thiếu một LOẠI KHỐI.
+  **CASCADE CỦA TL, đúng như đã ghi:** sửa nội dung xong thì cổng in **88 lỗi** — cao hơn
+  87 trước đó — vì TL đang đỏ 4 và chính nó được đếm vào tổng. Sửa §2 của VAN-PHONG.md
+  trước, đo lại, rồi mới ghi §11/§12. Số cuối: **83 lỗi · 431 cảnh báo**.
+  **SỐ ĐÃ ĐO:** L3 **36 → 32** · L13 cảnh báo **220 → 217** (hai định danh rời văn xuôi
+  vào backtick trong ô bảng) · tổng **87 → 83 lỗi**, **434 → 431 cảnh báo** · màn đọc
+  **565 → 567** · khối `paragraph` 816 → 820, `table` **7 → 11**. Ratchet: đúng **2 luật
+  động, cả hai SIẾT**, 0 luật tăng.
+  Ablate 2 chiều: gỡ bản sửa NỘI DUNG ra (dựng lại từ `course.json` của HEAD) → ratchet
+  **3 lỗi hồi quy** (`L3 32 → 36` · `L13 TỔNG 217 → 220` · `TL 0 → 4`) cộng 8 lỗi sổ
+  sách, exit 1 · gỡ bản sửa `raw_doan` ra mà GIỮ nội dung mới → **TB 1 lỗi**, đúng tên
+  thuật ngữ và đúng hai mã bài.
+  **GIÁ PHẢI TRẢ, và nó là giá đã nói trước:** `check-da-nap` từ XANH 179/179 về
+  **175/179, 4 bài chờ**. Bốn bài ấy chưa tới người học cho tới khi chủ dự án chạy
+  `npx ts-node scripts/update-lesson-content.ts --all --apply --backup=<file.json>`.
+
+- **LẦN THỨ BA CỦA LỖI BACKTICK, và AGENTS.md ĐÃ ĐOÁN TRƯỚC NÓ BẰNG CHỮ — hoá ra là 32
+  chuỗi trên SÁU đường, không phải một chỗ.** Mục "withInlineCode phải dùng CHUNG một
+  bản" kết lại bằng một câu tiên đoán: *"Ca test canh 'hai nơi dùng CHUNG một hàm',
+  không canh 'Recap có gọi bóc backtick': **nơi thứ ba mượn lại cùng dữ liệu sẽ lại hỏng
+  đúng kiểu này**."* Nó hỏng thật.
+  **CÁCH TÌM RA, và nó đáng hơn chỗ hỏng:** vòng này mở ra để làm lát văn phong L3 (câu
+  liệt kê → bảng). Để đặt định danh vào ô bảng thì ô phải dựng được `code nội tuyến` —
+  đo thì ô bảng **không** đi qua `withInlineCode`, trong khi `check_vanphong.py` **có**
+  quét ô bảng. Hai điều kiện xung đột, và chính chỗ xung đột là chỗ hỏng.
+  **ĐẾM TRÊN BẢN DỰNG, theo ĐƯỜNG DẪN TRƯỜNG** — đây là phép đo đổi hình dạng cả việc:
+
+  | chuỗi có backtick | đường dẫn trường | trước vòng này |
+  |---|---|---|
+  | 382 | `step_1.read[][].text` | ✓ |
+  | 58 | `step_2.practice[].prompt` | ✓ |
+  | 54 | `step_1.read[][].trace.predict.prompt` | ✓ |
+  | 37 | `step_2.practice[].answer` | ✓ |
+  | **8** | `step_2.mcq[].question` | **DỰNG TRẦN** |
+  | **8** | `step_4.hints[].body` | **DỰNG TRẦN** |
+  | 6 | `step_4.task.body` | ✓ |
+  | 5 | `step_1.read[][].lanes[].note` | ✓ |
+  | **5** | `step_1.read[][].rows[][]` (ô bảng) | **DỰNG TRẦN** |
+  | **5** | `step_2.mcq[].options[].detail` | **DỰNG TRẦN** |
+  | **5** | `step_2.mcq[].options[].text` | **DỰNG TRẦN** |
+  | 2 | `step_1.read[][].lanes[].label` | ✓ |
+  | **1** | `step_2.mcq[].explanation` | **DỰNG TRẦN** |
+
+  **32 chuỗi trên 6 đường** đang hiện ra kèm nguyên dấu backtick, không phải một chỗ. Ô
+  bảng chỉ là chỗ tôi tình cờ đi qua; nếu dừng ở đó thì năm đường kia ở lại.
+  **CỔNG THÔI LIỆT KÊ NƠI.** Ca cũ ghim ĐÚNG HAI nơi, nên nó không thể bắt nơi thứ ba —
+  một cổng đếm danh sách thì luôn thiếu đúng mục chưa ai nghĩ tới. Ba ca mới đọc BẢN
+  DỰNG, gom MỌI đường dẫn trường có backtick, và đòi mỗi đường có một dòng khai kèm
+  BIỂU THỨC dựng nó — biểu thức ấy phải **có thật** trong tệp renderer. Hai chiều: đường
+  có backtick mà chưa khai là LỖI; dòng khai trỏ vào biểu thức không còn tồn tại cũng là
+  LỖI. Cộng một phép tự kiểm (quét bản dựng trượt thì đỏ).
+  **GIỚI HẠN PHẢI NÓI RA:** cổng chỉ thấy đường ĐANG có backtick trong bản dựng. Một
+  renderer dựng trần mà nội dung chưa dùng backtick thì nó im — nó bắt lỗi ĐÚNG LÚC lỗi
+  thành thấy được, không sớm hơn.
+  **MỘT CA CŨ PHẢI SỬA, và nó là ca ĐÚNG:** `mcq-next-after-wrong.test.mjs` ghim nguyên
+  văn biểu thức dựng trần `{opt.sub}`. Nó đỏ ngay khi tôi sửa — đúng việc của nó. Ca ấy
+  nay canh ĐIỀU KIỆN `opt.sub &&` và class của `<span>`, KHÔNG canh "trần hay đã bóc";
+  phần ấy là việc của cổng kia, và ghim cả hai ở hai chỗ là nuôi hai bản mô tả của cùng
+  một dòng.
+  **Nhánh `<pre>` của gợi ý CỐ Ý không bóc:** ở đó cả khối đã là code, nên backtick trong
+  đó là ký tự thật của code chứ không phải dấu đánh dấu.
+  Ablate 5 chiều, mỗi chiều **1 đỏ**: trả ô bảng về `{cell}` trần · trả nhãn phương án
+  MCQ về chuỗi trần · gỡ một dòng khai → "chưa khai" · khai trỏ vào biểu thức không có
+  thật · làm hỏng phép quét bản dựng (tự kiểm bắn, không im lặng xanh).
+  **GIÁ PHẢI TRẢ: 0 bài vào hàng chờ nạp DB** — đây là bản sửa RENDERER, không đụng một
+  chữ nội dung nào, nên `check-da-nap` giữ XANH 179/179. Lát văn phong L3 thì hoãn sang
+  vòng sau, và nay nó làm được vì ô bảng đã dựng được định danh.
+
+- **EXPORT CHẾT: điểm mù tôi tự ghi hai vòng trước nay có cổng — và phép đo của tôi tố
+  oan BỐN LẦN trước khi đứng, mỗi lần một lý do khác.** Mục 417 KB ở trên tự dặn: mỗi
+  lần thêm một LOẠI tệp vào `src/` thì phải hỏi *"mục nào của cổng này quét nó?"*. Với
+  ký hiệu được `export` ra mà không ai gọi, câu trả lời là **không mục nào** —
+  `check-tai-nguyen-chet` quét `public/static` · `.tsx` · `.module.css`, không quét ký
+  hiệu. `catalog.TOOLS` chết **bốn ngày** trong chỗ trống đó, và thứ tìm ra nó là một
+  bộ test e2e, tình cờ.
+  **BỐN LẦN TỐ OAN, và số đo đi 75 → 4:**
+
+  | lần | sai ở đâu | "chết" |
+  |---|---|---|
+  | 0 | đếm cả `type`/`interface` | **116** (gần hết là `*Props`, quy ước hợp lệ) |
+  | 1 | chỉ quét `frontend/src` + `e2e` tìm người dùng | **75** |
+  | 2 | + `scripts/`, backend `src/`, `prisma/` | **22** (`ASSET_VERSION` lọt vào vì `check-da-deploy.mjs` đọc nó) |
+  | 3 | + `.js`/`.mjs` **nằm trong** `frontend/src` | **21** (`engine.js` dùng `lessonHref`) |
+  | 4 | tách "chết thật" khỏi "export thừa" | **4** |
+
+  **Lần 4 là lần đổi hình dạng cả việc.** Trong 21, có **17 ký hiệu được dùng trong
+  CHÍNH tệp khai nó** — chúng chỉ thừa từ khoá `export`, tức chuyện bề mặt module, chứ
+  không phải mã không ai tới được. Chỉ **4** ký hiệu xuất hiện **đúng một lần trong cả
+  repo**, tức chính dòng khai. Đó mới là hình dạng của `catalog.TOOLS`. Gộp 21 vào một
+  cổng là một cổng **kêu oan 17 lần**, và một cổng kêu oan sẽ bị tắt.
+  **LỖI CỦA CHÍNH CỔNG, và nó TỰ MÂU THUẪN nên không giấu được:** lần chạy đầu in ra
+  vừa *"khai là chết nhưng giữ"* vừa *"nay KHÔNG còn chết"* cho cùng hai ký hiệu.
+  Nguyên nhân: `scripts/` nằm trong phạm vi tìm người dùng, mà danh sách ngoại lệ
+  `GIU_DU_CHET` **nằm trong chính file cổng** và chứa TÊN của chúng. **Khai một ký hiệu
+  vào sổ làm nó thôi chết, rồi chiều thứ hai của luật bắn vào chính cái khai ấy.** Một
+  cổng đọc sổ của mình rồi tính đó là người dùng thì nó sai theo CẢ HAI chiều. Nay nó
+  loại chính nó khỏi phạm vi quét.
+  **GIỚI HẠN PHẢI NÓI RA:** phép so là `\bTÊN\b` trên văn bản đã bỏ chú thích, nên một
+  tên NGẮN hoặc trùng từ thường (`num`, `el`) trông như còn sống dù không ai gọi. Đó là
+  chiều AN TOÀN — cổng kêu ÍT đi — nhưng đừng đọc "0 lỗi" thành "không còn export chết".
+  **VÀ MỘT KÝ HIỆU ĐÃ ĐI:** `initialOf` trong `lib/goc-hoc.ts`. Không ai gọi, trong khi
+  `engine.js` viết thẳng CÙNG MỘT luật — `(x.trim()[0] || '?').toUpperCase()` — ở **bốn
+  chỗ**. Tức luật ấy có **năm bản**: bốn bản đang chạy và một bản không ai tới được.
+  Ba ký hiệu còn lại được KHAI GIỮ kèm lý do: `daDongYGhiNhatKy` (một thành viên của mặt
+  tiền `BO_GHI`), `presentSteps` và `assembleScaffold` (màn `brief`/`explain`/`scaffold`
+  — 0/179 bài hiện có, nhưng pe-v4 có; cùng lý do AGENTS.md giữ `scripts/pe-v4/**`).
+  Ablate 6 chiều: gieo một export chết mới → **1 đỏ** · khai ngoại lệ cho một ký hiệu
+  ĐANG SỐNG → 1 ("NGOẠI LỆ ĐÃ LỖI THỜI") · bỏ `scripts/` khỏi phạm vi quét (tái lập tố
+  oan lần 2) → 1 · bỏ `.js`/`.mjs` trong `frontend/src` (tái lập lần 3) → 1 · thôi loại
+  chính file cổng → **2 đỏ** · làm hỏng phép duyệt thư mục → **4 đỏ** (phép tự kiểm bắn,
+  không im lặng xanh).
+
+- **CÁCH THỨ TƯ PHÉP ĐO HIỆU NĂNG NÓI DỐI: chính CÔNG CỤ ĐO thổi LCP lên GẤP BA, và
+  gần hết phần thổi rơi đúng vào ô mà một vòng trước đã ghi làm VIỆC PHẢI LÀM.**
+  Mục #96 ở trên liệt kê ba cách đo đã nói dối, rồi kết lại bằng một lead: *"trang khoá
+  học ở 390×844 + CPU 4× có LCP 1 626 ms mà render delay 1 098 ms = 67% — chưa ai sửa,
+  và nó là việc của vòng sau."* Vòng sau là vòng này, và việc đầu tiên nó làm là ĐO LẠI.
+
+  | cách đo (cùng máy, cùng 390×844 + CPU 4×) | LCP | render delay |
+  |---|---|---|
+  | **CÓ vết DevTools** (3 mẫu, 1 mẫu từ vòng trước) | **1 626 · 1 597 · 1 524** | 1 098 · 1 369 · 1 275 |
+  | **KHÔNG vết**, `PerformanceObserver`, cache SẠCH | **652 · 324** | ~150 |
+  | **KHÔNG vết**, cache ấm | **448 · 524** | — |
+
+  **Chiều của khoảng lệch là thứ loại bỏ mọi giải thích khác.** Lần chạy KHÔNG vết mà
+  *bỏ qua cache hoàn toàn* vẫn **nhanh hơn** lần chạy CÓ vết — nên "lần traced là lần
+  cold" không giải thích được gì; nó đi ngược. Ba mẫu có vết nằm trong 100 ms của nhau,
+  ba mẫu không vết nằm dưới một nửa. Phần chênh dồn gần hết vào **render delay**, tức
+  ĐÚNG ô mà lead được dựng trên.
+  **LCP THẬT của trang khoá học là 324–652 ms** — trong mức "tốt" của Core Web Vitals
+  (≤ 2 500 ms) với biên gần bốn lần. **Không có việc để làm ở đây.**
+  **VÌ SAO CÁCH NÀY NGUY HIỂM HƠN BA CÁCH KIA:** ba cách trước cho một con số sai rồi
+  thôi. Cách này cho một con số sai **đã được ghi vào file như một nhiệm vụ cho vòng
+  sau** — nó không chỉ sai, nó còn ĐIỀU KHIỂN. Đúng điều mục mốc nền đã nói: một con số
+  cũ không phải chú thích lỗi thời vô hại.
+  **LUẬT RÚT RA, dùng cho mọi phép đo hiệu năng sau này:** vết DevTools trả lời câu
+  **"AI"** (hàm nào, layout nào, script nào), KHÔNG trả lời câu **"BAO LÂU"**. Con số
+  thời gian phải đến từ `PerformanceObserver` trong một lần tải KHÔNG có vết. Trộn hai
+  thứ là lấy độ phóng đại của công cụ làm số đo của người dùng.
+  **MỘT THỨ CŨNG LÀ ẢO, cùng lý do:** vết báo *"Layout update: 740 ms · 623 ms · 382 ms"*
+  cho một DOM chỉ **1 127 phần tử**. Đo reflow cưỡng bức trên chính trang đã ổn định,
+  không vết, cùng CPU 4×: **19,8 · 21,6 · 18,2 ms**. Gấp hơn 30 lần.
+  **CÒN LẠI MỘT SỐ ĐO THẬT, và phải nói ra cho đúng tầm:** `domInteractive` cold là
+  **1 700–2 488 ms** với **256–669 ms** long task — đo KHÔNG vết nên nó đứng. Nhưng nó
+  KHÔNG phải thứ lead nói tới, nó xảy ra SAU khi trang đã vẽ xong (LCP 324–652), và nó
+  chưa được chứng minh là có ai gặp. Ghi lại làm lead MỚI, không phải việc đang mở.
+  **MỘT THỨ ĐÃ XEM VÀ BỎ, đừng dựng lại:** `/static/images/python.webp` trả
+  `cache-control: public, max-age=0, must-revalidate`. Trông như một chỗ dễ sửa, nhưng
+  ảnh trong `public/` KHÔNG có `?v=` như các tệp CSS, nên cho nó `immutable` là đổi một
+  lượt revalidate **0,6 ms** lấy nguy cơ ảnh cũ kẹt lại ở máy người học. Giữ nguyên.
+
+- **28 NHÃN BÀI CHỒNG LÊN NHAU, và dòng sửa nó ĐÃ NẰM SẴN trong hàm từ đầu — nó chỉ bị
+  dòng ngay trên làm cho vô nghĩa.** Lỗi thứ 1 trong năm lỗi `will` báo 07/11. Đo trên
+  production bằng cách bắn `pointerenter` lên từng mục menu rồi đếm nhãn `.on`:
+
+  | mục menu | nhãn hiện | cặp chồng nhau |
+  |---|---|---|
+  | **Khoá học** | **28** | **116** |
+  | Học tiếp | 2 | 0 |
+  | Lộ trình · Ôn tập · Thành tựu · Bảng xếp hạng | 1 | 0 |
+
+  (Vòng trước đếm 118 cặp ở khổ khác — con số ấy PHỤ THUỘC KHỔ MÀN, nên cổng không ghim nó.)
+  **NGUYÊN NHÂN, và nó nằm ở hai dòng liền nhau.** 28 cuốn sách trên kệ đều mang
+  `route:'book'`; `lightRoute('courses')` gọi `setOn` cho tất cả, mà `setOn` bật LUÔN nhãn.
+  Ngay dưới vòng lặp ấy đã có `const main = GROUPS.find(…); main.tag.classList.toggle('on')`
+  — tức tác giả ĐÃ viết ra ý định *"sáng cả nhóm đồ vật, hiện MỘT nhãn"*. Dòng đó chưa bao
+  giờ có hiệu lực, vì `setOn` ở trên đã bật hết rồi. Bản sửa không thêm ý tưởng nào: nó cho
+  `setOn` một cờ `nhan` và để dòng `main` làm đúng việc nó được viết ra để làm.
+  **VÀ `main` KHÔNG GIẢI RA ĐƯỢC CHO `courses`:** sách mang `route:'book'`, không nhóm nào
+  mang `'courses'`, nên `find` trả `undefined`. Chỉ sửa `setOn` thôi thì mục "Khoá học" đi
+  từ 28 nhãn xuống **0** — một lỗi đổi lấy một lỗi. Nhánh dự phòng lấy cuốn của bài ĐANG
+  HỌC, không có thì cuốn đầu kệ.
+  **CỜ `nhan` CHỈ ĐƯỢC CHẶN CHIỀU BẬT.** Viết `if (nhan) toggle(...)` thì `setOn(G,false,
+  false)` không tắt được nhãn nữa, và một nhãn do nhánh khác bật lên sẽ kẹt lại trên cảnh.
+  Đúng một dòng khác nhau (`on && nhan && …` so với `if (nhan)`), và có một ca riêng cho nó.
+  **ĐO SAU KHI SỬA, trên bản CHẠY THẬT ở máy (`npm run dev`), không suy từ code:** mọi mục
+  menu đúng **1 nhãn**, **0 cặp chồng**, rời chuột về **0**; và khi rê "Khoá học" thì
+  **57 phần tử của cảnh vẫn sáng** — tức phần có ích của `lightRoute` còn nguyên.
+  **CỔNG CHẠY THẬT HAI HÀM ĐÓ, không đọc regex.** `goc-hoc-nhan-mot.test.mjs` bóc `setOn`
+  và `lightRoute` khỏi `engine.js` bằng phép đếm ngoặc rồi `new Function` chúng với phụ
+  thuộc giả (cảnh giả: 1 laptop, 1 bảng ghim, 28 cuốn cùng `route:'book'`) — cùng khuôn
+  `forum-xss.test.mjs` lôi `escHtml` ra khỏi `dashboard.js`, và cùng bài học của
+  `da-nap-hash-sync.spec.ts`: một spec TỰ CHÉP hàm vào trong nó thì ablate vẫn xanh.
+  Ablate 5 chiều: gỡ cờ `nhan` khỏi `setOn` → **3 đỏ** · `lightRoute` thôi truyền `false`
+  → 2 · bỏ nhánh dự phòng cho `courses` → 1 · cho `nhan` chặn cả chiều TẮT → 1 · đổi tên
+  `setOn` → **6 đỏ** (phép bóc hết khớp, và nó TO TIẾNG chứ không im lặng xanh).
+  **GIỚI HẠN:** cổng chạy hàm trên cảnh GIẢ, nên nó chứng minh LUẬT ("một mục menu ⇒ một
+  nhãn"), không chứng minh "nhãn đó không đè lên nhãn khác trên cảnh thật" — phép đếm cặp
+  chồng ở bảng trên là của Chrome, không của cổng.
+
+- **"SIZE NHỎ PHÁT LÀ MẤT NÚT": 3/5 mục điều hướng nằm ngoài mép, và chúng KHÔNG mất —
+  chúng đòi một cú vuốt mà người thử không tìm ra.** Lỗi thứ 5 trong năm lỗi `will` báo
+  07/11, và là lỗi duy nhất chưa ai đo. Đo trên `programmingedu.io.vn` bằng Chrome, không
+  suy từ CSS:
+
+  | khổ | hàng nút tràn ngang | mục trong mép |
+  |---|---|---|
+  | 360×640 | **425px** | **2/5** |
+  | 390×844 | **395px** | **2/5** |
+  | 480×800 | 305px | 3/5 |
+  | 768×1024 | 17px | 4/5 |
+
+  **PHÉP ĐO PHẢI PHÂN BIỆT "MẤT HẲN" VỚI "CẦN CUỘN", nếu không là tố oan** — đúng lỗi tôi
+  vừa mắc ở bài sách-xám vòng trước. Bản đo thứ hai đi ngược cây tổ tiên tìm vùng cuộn
+  được: **0 nút mất hẳn**, cả ba nằm trong `.menu` cuộn ngang, và `#courseLink`/`#fbLink`
+  nằm trong `#side` cuộn dọc (`#musicBtn` thì `display:none` ở mobile, cố ý). Nên câu
+  trung thực không phải "mất nút" mà là: **dấu hiệu duy nhất là 28px mờ ở mép phải một
+  dải cao 48px**, và `will` là người THỨ HAI trong repo này đọc một đường đi phải-đoán
+  thành "không có" — lần đầu là nút "Quay lại", năm người cùng báo.
+  **CÁCH SỬA LÀ CÁCH CHÍNH NGƯỜI THỬ ĐỀ XUẤT, và nó đã là nếp của chính khối CSS đó:**
+  `.dots` ngay dưới trong cùng `@media` đã chọn `flex-wrap:wrap` cho chấm bài với lý do
+  ghi sẵn ("xuống hàng ở cỡ thật thay vì co lại"). Đo lại sau khi sửa: **5/5 trong mép ở
+  MỌI khổ**, tràn ngang **0**, chip vẫn **48px**, chữ không bị cắt. 3 hàng ở 360–390,
+  **2 từ 480 lên**.
+  **"2 HÀNG" ĐÚNG NHƯ `will` XIN THÌ KHÔNG ĐẠT ĐƯỢC MÀ KHÔNG TRẢ GIÁ — đã đo cả ba cách:**
+  · bỏ icon → 2 hàng, menu 159 → **81px**, nhưng chip tụt **48 → 37px** (dưới cỡ ngón tay,
+    và repo vừa phải sửa một đích bấm 13×6px) và mất luôn màu phân biệt năm mục;
+  · siết `gap`/`padding` → hàng đầu ra **361px** trên **358px** khả dụng, tức THIẾU **3px**.
+    Hạ `gap` của `.menu` xuống 6px thì ép được, nhưng bố cục khi đó đứng cách mép đúng
+    **1px** — một lần đổi nhãn là vỡ về 3 hàng;
+  · `flex:1 1 auto` → hai ô lọt ra ngoài **1px** vì làm tròn sub-pixel.
+  Ba hàng chip 48px là cái giá rẻ nhất trong bốn. Giá phải trả: `#side` cuộn thêm **111px**
+  (61 → 172 ở 390×844), và nó đã có thanh cuộn thấy được từ `87a32db`.
+  **CỔNG CỦA VÒNG TRƯỚC TỰ BẮT BẢN SỬA NÀY, và đó là lần đầu nó bắt một thay đổi THẬT.**
+  `.menu` là mục DUY NHẤT trong `CO_CACH_BAO_KHAC` của `goc-hoc-thanh-cuon.test.mjs`; thôi
+  cuộn ngang thì ngoại lệ ấy lỗi thời, và chiều thứ hai của luật đỏ ngay với đúng câu
+  *"NGOẠI LỆ ĐÃ LỖI THỜI, gỡ dòng ấy đi"*. Danh sách nay **RỖNG**, và rỗng là đầu NGHIÊM
+  của thang chứ không phải luật chết — ca kia đọc nó làm miễn trừ, nên rỗng nghĩa là không
+  vùng nào được phép ẩn thanh cuộn.
+  **VÀ CỔNG MỚI CỦA TÔI BÓC NHẦM KHỐI @media — `scene.css` có BA khối `max-width: 820px`**
+  (dòng 83 · 618 · 631) và luật hàng nút nằm ở khối CUỐI; bản đầu `search()` rồi dừng ở
+  khối thứ nhất, bóc được **169 ký tự** không có `.menu` nào. Lần này nó ĐỎ nên tôi thấy —
+  nhưng nếu khối đầu tình cờ có một luật `.menu` thì cổng đã **XANH vì lý do sai**. Đúng
+  bẫy "một regex mơ hồ là một cổng hỏng, và nó hỏng theo CẢ HAI chiều". Nay gộp cả ba khối
+  và đòi **ĐÚNG MỘT** luật `.menu` trong đó.
+  Ablate 6 chiều (`goc-hoc-hang-nut.test.mjs` 4 ca + `goc-hoc-thanh-cuon` 5 ca): trả về bản
+  TRƯỚC khi sửa → **3 đỏ** (hai cổng cùng bắn — gỡ bản sửa mà không trả lại dòng ngoại lệ
+  thì cả hai nói) · chỉ bỏ `flex-wrap` → 1 · giữ wrap nhưng trả lại mặt nạ mờ → 1 · bỏ icon
+  → 1 · đổi ngưỡng 820 → 821px → **4 đỏ** (phép bóc hết khớp, và nó TO TIẾNG chứ không im
+  lặng xanh) · thêm một luật `.menu` thứ hai → 1.
+  **GIỚI HẠN:** cổng đọc CSS TĨNH — nó chứng minh "đã khai xuống hàng và thôi cuộn ngang",
+  KHÔNG chứng minh "năm mục nằm trong mép". Bảng số ở trên là của Chrome trên production.
+  **BA LỖI CÒN LẠI CỦA `will`:** nhãn bài chồng chéo (đã có số: 28 nhãn, 118 cặp, lúc đo cả
+  28 đều `opacity:0` ⇒ ảnh của anh ấy là trạng thái hẹn giờ dồn khi tab ở nền — cần đọc
+  `goc-hoc/engine.js`) · avatar vỡ ở màn to (**chưa tái hiện được**: ở 2560×1440 tỉ lệ đúng
+  1,0 — cần hỏi anh ấy khổ màn/zoom) · sách xám (**KHÔNG tái hiện**, phép đo đầu của tôi
+  tố oan).
+
+- **BỘ e2e CHƯA BAO GIỜ NẰM TRONG BẬC THANG, và HAI ca của nó đã chết từ 4d5f86d — bốn
+  ngày, không cổng nào thấy.** Mục này là nửa sau của vụ CI: vòng trước phát hiện
+  `ci.yml` trigger `[master]` nên CI chưa chạy lần nào trên `main`, và lần chạy TAY đầu
+  tiên cho **4 xanh · 3 đỏ**. Hai cổng đỏ kia đã giải (`check-da-nap` — chủ dự án nạp DB;
+  `backend` — V8 OOM khi chạy song song). Còn `e2e`, và nó đỏ vì một lý do riêng:
+  **không ai từng chạy nó.** Số đo:
+  · bậc thang trong file này liệt kê `typecheck`/`lint`/`test:unit`/`build` — **không có
+    `test:e2e`**; bảng mốc nền có hàng cho unit, backend, tracer, văn phong — **không có
+    hàng nào cho e2e**; `check-moc-chay` canh **3 mục**, không mục nào là e2e;
+  · nên e2e chỉ được chạy bởi CI, mà CI thì không chạy. Hai lớp cùng im lặng, và
+    **mỗi lớp một mình đã đủ để che** — đó là vì sao nó sống được bốn ngày.
+  Tái hiện ở máy: `mobile-responsive.spec.ts:87` đỏ nguyên văn
+  `toHaveCount(expected) failed · Locator: a[href="/ide"] · Expected: 1 · Received: 0`.
+  **HAI CA ĐỎ VÌ SẢN PHẨM ĐỔI THEO QUYẾT ĐỊNH ĐÃ GHI, không vì hồi quy:**
+  · 4d5f86d đổi trang chủ sang cảnh "Góc học" và xoá `CatalogTile`, mang theo ô công cụ
+    "Python IDE". Ca này vẫn đòi ô đó. Đo trên production: trang chủ có **ĐÚNG MỘT** liên
+    kết nội bộ, `/courses/python_advanced`;
+  · ca "khoá python cũ (v1)" mở `/lesson/python?lesson=0`, mà `prisma/seed-courses.js` nay
+    tạo khoá `python` **RỖNG** — một bẫy chính file này đã ghi từ trước.
+  **KHÔNG XOÁ ASSERT, ĐỔI CHỖ NÓ.** `/ide` KHÔNG mồ côi — nó có **411** nút "Thử ngay
+  trong IDE" ở màn đọc (`check-duong-toi` canh, sàn 300) cộng lối vào `SiteHeader` ở trang
+  khoá học. Nên ca chuyển sang `toHaveCount(0)` ở trang chủ **cộng** một assert mới
+  `toBeVisible()` cho `/ide` ở trang khoá. Bỏ hẳn assert là làm ca mất răng; đổi chỗ thì
+  nó vẫn đỏ vào ngày `/ide` thật sự mồ côi — ablate: `if (false && ideEnabled)` trong
+  `site-nav.ts` → **1 đỏ**, đúng dòng assert mới. Ca v1 thì XOÁ chứ không `skip`, và nói
+  thẳng cái MẤT: **luồng v1 S1–S4 nay KHÔNG còn ca nào canh.**
+  **MỘT EXPORT CHẾT LỘ RA NHÂN DỊP, và cổng tài nguyên chết MÙ VỚI NÓ.**
+  `CatalogTool` · `IDE_TOOL` · `TOOLS` trong `catalog.ts` chỉ có MỘT người dùng là
+  `CatalogTile`, xoá ở 4d5f86d ⇒ **0 người đọc** từ hôm đó. Hai chỗ còn nhắc tên
+  `catalog.TOOLS` là **CHÚ THÍCH**, không phải lời gọi — đúng bẫy "đếm tham chiếu thô quét
+  cả chú thích" đã ghi ở mục 417 KB. `check-tai-nguyen-chet.mjs` không thấy vì nó quét
+  `public/static/{js,css}` · component `.tsx` · `.module.css`, **KHÔNG quét export chết
+  trong `lib/*.ts`** — đúng cái điểm mù mà mục ấy đã tự dặn phải hỏi mỗi lần thêm một LOẠI
+  tệp: *mục nào của cổng này quét nó?* Lần này câu trả lời là "không mục nào", và thứ tìm
+  ra nó là một bộ TEST, không phải một cổng.
+  **VÀ PHÉP THAY CHỮ LÀM HỎNG HAI CÂU CHÚ THÍCH, lần thứ hai trong repo này.** Xoá
+  `catalog.TOOLS` thì hai chú thích nhắc nó phải viết lại — tôi thay đúng DÒNG ĐẦU của mỗi
+  câu, nên phần còn lại treo lơ lửng (*"Thẻ công cụ mà câu này từng so công cụ khi…"*).
+  Cùng lỗi với `s/apiFetchSessionOnly/apiFetch/g` ở 4d5f86d. **Thay tên một ký hiệu thì
+  đọc lại CẢ CÂU, không chỉ dòng chứa nó.**
+  **CỔNG: `check-moc-chay` nhận mục thứ TƯ, `e2e`** — nó CHẠY `npm run test:e2e` rồi đối
+  chiếu số ca với bảng, nên nó THAY bước cũ trong job `e2e` chứ không thêm một lượt
+  (~2,5 phút, `webServer` tự build). Phép đọc phải CỘNG `passed + failed`: đọc riêng
+  `passed` thì một ca trượt làm con số tụt và cổng kêu "bảng ghi sai" thay vì kêu "bộ test
+  đỏ" — tố oan đúng chỗ CI cần câu trả lời.
+  Ablate 4 chiều: bảng ghi 12 **và** bản sao ghi 13 → **2 đỏ**, mỗi câu gọi đúng bản sao
+  của nó · đổi CHỮ hàng bảng → 1 đỏ "KHÔNG CÒN DÒNG" (và nó dừng TRƯỚC khi chạy lệnh, nên
+  phép ablate này tức thì) · gỡ bản sao thứ hai → 1 đỏ "KHÔNG CÒN DÒNG BẢN SAO THỨ HAI" ·
+  gieo một ca ĐỎ THẬT → `ca 11/11 · 1 TRƯỢT` kèm "1 ca TRƯỢT", **không** kêu bảng sai.
+  **VÀ MỘT CỔNG LÀ CHƯA ĐỦ, đúng lý lẽ đã ghi cho số ca frontend:** `check-moc-chay` bắt
+  "số trong bảng SAI", nhưng nó XANH khi ai đó cắt một ca **rồi hạ con số trong bảng cho
+  khớp** — chiều mà ImpossibleBench đo được Claude chọn **>79%** số lần. Nên 11 vào sổ
+  `scripts/nguong-mot-chieu.json` làm SÀN (32 → **33 ngưỡng**). Ablate qua sổ: hạ bảng
+  11 → 10 → **1 lỗi** "NỚI NGƯỢC CHIỀU" · siết 11 → 13 → **0 lỗi** kèm dòng `GHI SỔ`.
+  **GIỚI HẠN PHẢI NÓI RA:** cổng canh SỐ CA, không canh "bộ e2e có phủ đúng thứ đáng phủ".
+  Hôm nay nó phủ 11 ca trên 2 tệp spec, và sau vòng này luồng v1 có **0** ca. Và job `e2e`
+  mới chỉ XANH Ở MÁY — CI vẫn chưa chạy trên `main` vì trigger còn là `[master]`; lật nó
+  là **quyết định của chủ dự án**, và giờ thì lật được, vì đây là cổng cuối cùng trong
+  bảy cổng của lần chạy tay còn đỏ.
+
+- **ĐỢT ĐỔI 32 BÀI SANG MIỀN QUÁN CÀ PHÊ BỎ SÓT MỘT CỤM, và nó bỏ sót vì bộ kiểm xếp
+  chúng ở bậc CẢNH BÁO — mà chiến dịch chỉ đọc bậc LỖI.** L14 còn **30 cảnh báo**
+  *"không có bối cảnh nào"*, và 4 trong số đó — NP04 (điểm của ba bạn học), NP15 (điểm
+  của ba học viên), NP17 (một cảm biến ghi 28°C), NP20 — dùng đúng hai miền mà đợt
+  29/10 đã đổi. `boi-canh.json` không có từ khoá nào gọi tên chúng Ở DẠNG CHÚNG XUẤT
+  HIỆN (`điểm` trần, `cảm biến`, `°C`), nên chúng không thành LỖI "dùng miền ngoài" mà
+  rơi xuống CẢNH BÁO "chưa neo".
+  **ĐO TRƯỚC KHI SỬA — bốn vòng liền đã bắt một luật văn phong báo oan, nên lần này
+  phải hỏi trước:** quét chữ NGOÀI phần giảng (`title` · `drills` · `reviewExercises` ·
+  `manualLab` · MCQ và bài tập của `practice.json`) thì **28/30 bài không có một dấu
+  hiệu miền chính/kèm-chính nào ở đâu cả**; 2 bài (SY15, PD25) chỉ neo ở phần bài tập.
+  **L14 lần này TRUNG THỰC** — 30 cảnh báo là 30 khoảng trống nội dung thật.
+  **PHÉP ĐO ĐẦU CỦA TÔI SUÝT RA 0 VÌ LÝ DO TẦM THƯỜNG:** nó đọc `l['exercises']` và
+  `l['quiz']`, hai khoá KHÔNG tồn tại ở cấp bài (MCQ và bài tập sống ở
+  `source/practice.json`, một gói riêng). Một con số 0 là thứ phải nghi ngờ trước nhất
+  — kiểm tên khoá bằng `sorted(l.keys())` rồi mới tin phép đếm.
+  **NEO BẰNG VĂN XUÔI, KHÔNG ĐỔI CODE — và đó là một ràng buộc đo được, không phải
+  khẩu vị:** `traces.json` có mục `codeHash` cho cả 4 bài **kể cả khi số vết là 0**
+  (`blocks` ghi lại phần khâu sinh bỏ qua), nên sửa một ký tự trong `code` là
+  `build.py` `return 1` và buộc chạy `gen_traces.py` (~20 phút, cần
+  numpy/pandas/matplotlib trên máy, KHÔNG chạy được trên CI). Dữ liệu của bốn bài này
+  là số trung tính (6/8/9 · 0.1/0.2), nên thứ làm chúng thành ví dụ "điểm học sinh" hay
+  "đánh giá món" CHỈ LÀ văn xuôi — và `scores`, `temps`, `parts` đều đọc đúng ở khung
+  mới. Neo bằng chữ ở đây là bản sửa THẬT, không phải rắc từ khoá cho qua cổng.
+  **LẦN THỨ NĂM một luật văn phong bắt chuỗi con không có ngữ cảnh — nhưng lần này FILE
+  DỮ LIỆU ĐÃ ĐOÁN TRƯỚC và nói sẵn cách sửa.** Khung mới của NP17 ("nhiệt độ sữa ở
+  quán") làm L14 **nổ 1 LỖI** *"dùng miền Thời tiết"*, vì `nhiệt độ` là từ khoá của
+  miền `thoi-tiet`. Lối thoát trông hợp lý nhất lúc đó là đổi NỘI DUNG để chiều một
+  phép kiểm sai — đúng bệnh "Luật 6 của cổng INSERT". Mà `ghiChu` của chính miền ấy
+  viết nguyên văn: *"`nhiệt độ` cũng là một đại lượng THẬT của quán cà phê… Ngày câu
+  chuyện quán dùng tới nó, thêm đúng cụm đó vào `loaiTru` — ví dụ "nhiệt độ nước",
+  "nhiệt độ sữa" — đừng xoá từ khoá, vì xoá là mất luôn phép dò bảng dữ liệu thời
+  tiết."* Làm đúng thế: `loaiTru` của `thoi-tiet` nhận `"nhiệt độ sữa"`, và câu thứ hai
+  của bài đổi từ `nhiệt độ 0°C` sang `nhiệt độ sữa 0°C` cho cả hai lần nhắc cùng một
+  nghĩa.
+  **Đây là mặt ĐỐI của bẫy "chú thích là lời KHAI, giá trị mới là sự THẬT".** Một chú
+  thích nói về HIỆN TẠI thì trôi được và sẽ sai; một chú thích đoán trước một hỏng
+  hóc TƯƠNG LAI và nói ra cách sửa thì không trôi được, vì nó chưa khẳng định gì về
+  một con số. Chỉ thêm `"nhiệt độ sữa"`, KHÔNG thêm `"nhiệt độ nước"` mà chú thích
+  cũng nêu: corpus chưa dùng cụm ấy, và một mục khai không ai với tới là đúng thứ repo
+  này có bốn cổng để bắt.
+  **KHÔNG DỰNG CỔNG MỚI, và lý do là phép đo:** `van-phong-moc.json` đã ratchet L14,
+  nên 30 → 26 là một mục SIẾT và tăng lại là ĐỎ. Cổng đã có từ trước; thứ thiếu là ai
+  đi đọc cảnh báo của nó. Dựng thêm một cổng ở đây là tối ưu BỘ ĐO thay vì sản phẩm.
+  **SỐ ĐÃ ĐO:** L14 cảnh báo **30 → 26**, L14 lỗi 0 → 1 → **0** · tổng khoá giữ **82
+  lỗi**, 432 → **428 cảnh báo** · không luật nào khác động (L1 21·86 · L2 7·14 · L3 32 ·
+  L8 22·28 · L13 217 · §4-A 23 đều y nguyên) · tổng số câu phần giảng 2 683 → **2 684**
+  (NP20 chẻ một câu làm hai). `check.py --strict` 0 lỗi 0 cảnh báo · `check-pyodide`
+  154 bài / 420 đoạn / 0 hỏng · `check-practice` 480 ca đạt / 773 biến thể sai đều
+  trượt · frontend unit 592.
+  **ABLATE 4 chiều**, và chiều 2 là phép kiểm NGƯỢC đáng nhất: gỡ `loaiTru` (giữ văn
+  xuôi mới) → L14 **1 lỗi** · trả văn xuôi về HEAD (giữ `loaiTru`) → **0 lỗi, 30 cảnh
+  báo**, tức y hệt HEAD ⇒ mục `loaiTru` MỘT MÌNH không nới cổng cho bài nào đang có ·
+  gỡ cả hai → 30 cảnh báo · ratchet khi gỡ cả hai → **6 lỗi**, gọi đúng tên *"L14: TỔNG
+  TĂNG 26 → 30"* và *"TL: lỗi TĂNG 0 → 1"*.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 155/179 → **151/179, 28 bài CHỜ NẠP**.
+  **MỘT LEAD ĐỂ LẠI, đo được và nhỏ:** `drills` của NP01 còn *"Tạo một array chứa ba
+  nhiệt độ 28, 30 và 29"* — miền cũ, và **L14 không đọc `drills`** (`van_ban_hoc_vien`
+  chỉ đọc `reading`, cố ý: "phần giảng"). Nó dưới ngưỡng `NGUONG_MIEN` nên `loaiTru`
+  mới không chạm tới. Sửa nó là sửa vào một vùng không cổng nào đo, nên nó là một lát
+  riêng — và câu hỏi thật ở đó là **L14 có nên đọc cả `drills` không**, một quyết định
+  về phạm vi luật chứ không về một chuỗi.
+  **CÒN LẠI 26 cảnh báo L14**, dồn ở GU 8 (Tkinter) · SY 5 · PD 4 · VZ 4 · CT 4 · NP 1.
+  Cụm GU là cụm lớn nhất và nó KHÔNG neo được bằng văn xuôi: ví dụ của nó là nhãn và
+  nút của giao diện, tức neo thật thì phải đổi CODE — mà GU không có mục nào trong
+  `traces.json`, nên ở đó đổi code lại RẺ. Đo lại trước khi làm.
+
+- **PHẦN ĐUÔI CỦA ĐỢT ĐỔI MIỀN NẰM Ở MÀN LUYỆN TẬP, nơi L14 không đọc — và cùng lớp
+  lỗi này nay đã xảy ra NĂM lần.** Vòng trước neo bốn bài NP vào hành trình quán. Lead
+  để lại là *"`drills` của NP01 còn 'ba nhiệt độ 28, 30 và 29', và L14 không đọc
+  `drills`"*. Đo rộng ra thì nó không phải một chuỗi lẻ.
+  **ĐO TRƯỚC KHI DỰNG, và phép đo bác ngay ý định đầu của tôi.** Ý định là nới L14 cho
+  đọc cả `drills`. Nhưng nới cả hai nhánh thì:
+  · nhánh "dùng miền ngoài" ở `drills` ngưỡng 2 → **1 bài**;
+  · nhánh "chưa neo" → **0/26 bài im lặng** hết im nếu L14 đọc `drills`.
+  Tức nới cả hai gần như không mua gì, còn nhánh "chưa neo" thì SAI về nguyên tắc: một
+  câu luyện tập dài hai dòng không thể bị đòi kể lại cả bối cảnh. Nên nửa mới chỉ gồm
+  **nhánh "miền ngoài", ngưỡng RIÊNG bằng 1**.
+  **NGƯỠNG LỆCH CÓ LÝ DO ĐO ĐƯỢC, không phải nới tay:** đoạn giảng dài thì một lần nhắc
+  qua miền lạ là bình thường (vì thế `NGUONG_MIEN` = 2); một câu luyện tập thì MỘT từ
+  khoá miền lạ LÀ miền của câu ấy. Ngưỡng 1 bắt đúng **4 bài, cả 4 đều thật, 0 báo oan**:
+  NP01 1 lần (`nhiệt độ`) · NP09 3 (`bảng điểm` + `marks`×2) · NP17 4 (`tín chỉ` +
+  `marks`×3) · SY09 4 (`sinh viên` + `tín chỉ` + `student`×2).
+  **IN NGỮ CẢNH TỪNG CHỖ ĐỔI PHÂN LOẠI BA LẦN — không in thì ba bản sửa sai:**
+  · **SY13** bị bắt `tín chỉ`, mà câu đó là *"Cùng công thức này ở trường được gọi là
+    điểm trung bình (GPA), với trọng số là số tín chỉ"* — một CÂU CẦU NỐI tới khái niệm
+    người học đã biết, đúng phương pháp, không phải tàn dư. Nó ở `reading` nên nửa mới
+    không chạm tới;
+  · **TH01** bị bắt `tác giả`, mà câu đó là *"phát hành theo CC0 1.0, tức tác giả đã bỏ
+    mọi quyền"* — tác giả của BỘ DỮ LIỆU, không phải miền thư viện sách. Báo oan tiềm
+    ẩn (1 lần, dưới ngưỡng), lần thứ SÁU của họ bắt-chuỗi-con;
+  · **VZ28** bị bắt `temperature` trong `label="Temperature (arbitrary units)"` — và
+    AGENTS.md đã ghi rằng ba ảnh `VZ28-*.png` mang ĐÚNG nhãn ấy TRONG PIXEL. Sửa code
+    mà không xuất lại ảnh (gói nguồn nằm ngoài repo) là làm code và hình nói khác nhau.
+  **BA BÀI CÓ MÀN ĐỌC ĐÃ NEO ĐÚNG mà câu luyện tập còn ở miền cũ** — NP01 (*"Sổ tay của
+  quán đã ghi được một tuần"* / drill: *"ba nhiệt độ"*), NP09 (*"Bảng số cốc hai quầy"* /
+  drill: *"bảng điểm… mọi học viên"*), NP17 (màn đọc tôi vừa neo VÒNG TRƯỚC / drill:
+  *"Bỏ điểm thiếu và tín chỉ tương ứng"*). Bài thứ ba là lỗi do CHÍNH VÒNG LẶP vừa tạo
+  ra một vòng trước: tôi sửa màn đọc sang "số đo có trọng số" rồi để câu luyện tập nói
+  "tín chỉ". Đó là lý do nửa mới đáng dựng — không phải một giả định về tương lai.
+  **SY09 dùng lại ĐÚNG ba tên class mà SY26 đã chốt**, không nghĩ tên mới:
+  `Student`/`Course`/`StudentMark` → `Item`/`Ingredient`/`RecipeLine`. SY26 (PW2–PW4)
+  là bài đã đổi sang "quản lý món, nguyên liệu và định lượng", nên SY09 nay trỏ vào một
+  bài trong cùng khoá thay vì vào một lược đồ không tồn tại.
+  **NỬA MỚI PHẢI ĐỌC `answerCode`, và ablate chứng minh bằng con số:** sửa CÂU HỎI mà
+  để nguyên `marks` trong `answerCode` → **2 lỗi**. Nếu cổng chỉ đọc `prompt`/`answer`
+  thì một bản sửa nửa vời như vậy XANH trong khi học viên vẫn đọc `marks = np.array(…)`
+  — đúng họ "bản sửa nửa vời trông như xong". Và `check-pyodide` chạy thật 53 đáp án
+  mẫu, nên phép đổi tên biến được một cổng KHÁC xác nhận: 52/53 giữ nguyên.
+  **ABLATE 5 chiều:** trả nội dung về HEAD, giữ cổng mới → **4 lỗi**, gọi đúng cả bốn
+  bài · **CẶP ĐỐI CHỨNG** nội dung HEAD + cổng CŨ → **0 lỗi** (chứng minh cái bắt là
+  CỔNG, không phải nội dung) · nâng `NGUONG_MIEN_LUYEN` 1 → 2 → **3 lỗi** · cổng thôi
+  đọc `answerCode` (nội dung HEAD) → 4 lỗi · sửa câu hỏi mà bỏ `answerCode` → **2 lỗi**.
+  **VÀ ABLATE BÁC MỘT CHÚ THÍCH TÔI VỪA VIẾT.** Tôi ghi *"nâng lên 2 thì mất ba trong
+  bốn"* — chiều 3 đo được **mất ĐÚNG MỘT** (NP01). Sai vì phép đo đầu của tôi chỉ đọc
+  `prompt`/`answer` còn cổng đọc cả `answerCode`, nơi `marks` xuất hiện thêm 2–3 lần.
+  Đã sửa chú thích bằng số thật. **Một chú thích viết TRƯỚC khi ablate là một lời khai
+  chưa được kiểm**, kể cả khi nó nằm cạnh con số nó nói về.
+  **SỐ ĐÃ ĐO:** L14 **0 lỗi · 26 cảnh báo** trước và sau (nửa mới bắt 4, nội dung sửa
+  hết 4) · tổng khoá giữ **82 lỗi · 428 cảnh báo**, không luật nào động · `check.py
+  --strict` 0/0 · `check-pyodide` 154 bài / 420 đoạn / 0 hỏng / 52-53 đáp án mẫu ·
+  `check-practice` 480 ca đạt / 773 biến thể sai đều trượt · frontend unit 592 ·
+  `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi.
+  **BA LẦN PHÉP THAY CHUỖI TRƯỢT VÌ CÙNG MỘT CHUYỆN, và nó đáng ghi riêng:** heredoc
+  của công cụ Bash ở đây **XỬ LÝ dấu gạch chéo ngược dù delimiter đã nháy** (`<<'PY'`).
+  Nên `"a\nb"` trong thân heredoc tới Python thành `a` + newline THẬT + `b` — lần một
+  khớp 0 chỗ, lần hai `assert` bắt, lần ba lọt vào file và làm `SyntaxError`. Cộng thêm
+  `check_vanphong.py` là **CRLF** (1 530 dòng, 0 LF trần) nên mọi chuỗi nhiều dòng phải
+  mang `\r\n`, và `readlines(newline='')` còn chẻ cả ở `\r` lẻ. Luật: trong Python viết
+  qua heredoc, dựng dấu gạch chéo bằng `chr(92)` và đầu dòng bằng `chr(13)+chr(10)` —
+  đừng gõ chúng.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 151/179 → **147/179, 32 bài CHỜ NẠP**.
+  **CÒN LẠI, đo được:** 26 cảnh báo L14 ("chưa neo") dồn ở GU 8 · SY 5 · PD 4 · VZ 4 ·
+  CT 4 · NP 1; cụm GU không neo được bằng văn xuôi vì ví dụ của nó là nhãn và nút giao
+  diện, nhưng GU **không có mục nào trong `traces.json`** nên ở đó đổi code lại rẻ.
+  Và nửa mới của L14 hôm nay canh một vùng ĐÃ SẠCH — nó chống hồi quy, không chứng minh
+  hôm nay có ai được đỡ.
+
+- **"Ở GU ĐỔI CODE LẠI RẺ" — SAI theo chiều quan trọng: không cổng nào CHẠY code của GU,
+  nên 36 `expected` của 12 bài chưa bao giờ được xác minh.** Lead của vòng trước là câu
+  tôi tự viết. Đo: `node scripts/pe-da/check-pyodide.mjs GU09` → **0 bài · 0 đoạn code**,
+  vì GU là `local` (Pyodide 314 chỉ còn thiếu `curses` và `tkinter`, và đó là giới hạn
+  WASM chứ không phải thiếu wheel). Hàng mốc nền ĐÃ ghi "25 bài chạy trên máy", nên đây
+  không phải phát hiện mới — cái mới là biết nó nghĩa gì khi đi SỬA: rẻ để dựng, không ai
+  kiểm được `expected`. Hai `expected` tôi đổi ở vòng này an toàn vì chúng là chuỗi mà
+  `print(root.title())` dội lại nguyên văn — suy ra được chắc chắn mà không cần chạy. Đổi
+  một `expected` của GU mà KHÔNG suy ra được từng ký tự thì không có cổng nào bắt.
+  **VÀ ĐO TIẾP RA HAI CHUYỆN KHÁC, cả hai là cổng nói sai.**
+  **(1) GU02 ĐÃ neo bằng tiếng người mà L14 gọi là "chưa neo".** Đoạn mở bài: *"giờ dựng
+  cửa sổ đầu tiên cho **quầy**. Ứng dụng nhận đơn có một cửa sổ chính. Khi xem chi tiết
+  một **món**…"* — `quan-ca-phe.tuKhoa` không có `món` lẫn `quầy`. Nếu đi theo lead mà
+  không đo, tôi đã "neo" một bài ĐÃ neo, tức rắc thêm từ khoá quán cho vừa một phép đo
+  sai. Đo ứng viên: `món` 39 bài · `quầy` 21 bài, và trong đó chỉ GU02 + GU06 là bài chưa
+  có neo nào khác — cả hai neo thật. **0 báo oan.**
+  **(2) L14 MÙ VỚI TIẾNG VIỆT BỎ DẤU, và chuỗi trong code của khoá này bỏ dấu.** GU02
+  mang `root.title('Quan ly diem')` và `detail.title('Sinh vien S01')` — học viên ĐỌC
+  chúng trên thanh cửa sổ — còn từ khoá `quản lý điểm`/`sinh viên` có dấu nên không khớp.
+  Quét 27 từ khoá miền ngoài có dạng bỏ dấu khác dạng có dấu: **đúng 1 bài dính, 4 lần.**
+  Nhỏ, nhưng nó là chỗ một bài trông "chưa neo" trong khi thật ra nó đang neo vào MIỀN
+  SAI — hai khiếm khuyết khác hẳn nhau bị gộp thành một bậc cảnh báo.
+  **PHƯƠNG ÁN TỔNG QUÁT ĐÃ ĐO VÀ BÁC — đừng dựng lại.** Cho `dem()` bỏ dấu CẢ HAI vế thì
+  va chạm ở cả hai chiều: `quán` → `quan` khớp "**quản** lý" **7 lần ở PY02**, biến một
+  bài nói về `pyenv`/`conda` thành bài có neo quán; và `cửa hàng` → `cua hang` khớp
+  "**của hàng**" ở NP06, nơi câu đang nói về HÀNG của ma trận. Cả hai ở đúng chiều nguy
+  hiểm (làm một bài CHƯA neo trông như ĐÃ neo, rồi luật im lặng). Nên dạng bỏ dấu phải
+  khai TƯỜNG MINH từng cụm — đúng luật `khopTuKhoa` của file đã đặt cho dạng số nhiều
+  ("khai tường minh thì người sau đọc file là biết luật, không phải đoán script nối thêm
+  gì"). Thêm đúng hai cụm corpus thật sự dùng, và bằng chứng va chạm vào `ghiChu`.
+  **MỘT CHÚ THÍCH TRONG CHÍNH FILE ẤY ĐÃ TRÔI, và nó nói ngược sự thật.**
+  `sinh-vien.ghiChu` viết *"SY25–SY28 là một project bốn bài về quản lý sinh viên. Sửa nó
+  là sửa nội dung, không phải sửa một chữ"* — bốn bài đó ĐÃ đổi sang "quản lý món, nguyên
+  liệu và định lượng" từ 29/10, và đo lại thì cả bốn có **0 dấu hiệu** miền ấy. Câu đó là
+  lý lẽ duy nhất biện minh cho việc để luật này ở mức LỖI, nên nó không phải chú thích
+  lỗi thời vô hại. Đã viết lại kèm đoạn đính chính.
+  **ABLATE 4 chiều:** trả nội dung GU02 về HEAD, giữ cổng mới → **1 lỗi**, gọi đúng
+  `sinh vien×2, quan ly diem×2` · **CẶP ĐỐI CHỨNG** nội dung HEAD + gỡ hai dạng bỏ dấu →
+  **0 lỗi** (cái bắt là từ khoá, không phải nội dung) · gỡ `món` + `quầy` → **25 cảnh
+  báo** · gỡ riêng `quầy` → 25.
+  **CHIỀU 3 RA 25 CHỨ KHÔNG 26, và phải hỏi vì sao trước khi ghi:** sau khi sửa nội dung,
+  GU02 có `latte`×3 từ chuỗi `'Mon latte'` MỚI, nên nó vẫn neo kể cả khi gỡ hai từ khoá.
+  Tức **`quầy` là từ khoá duy nhất quyết định một bài (GU06), còn `món` nay không quyết
+  định bài nào.** Giữ `món` vì nó là từ lõi của miền chính và khai tường minh là luật của
+  file, nhưng `ghiChu` phải nói ra điều đó — một từ khoá "đang đỡ một bài" và một từ khoá
+  "có mặt cho đủ" là hai thứ khác nhau.
+  **SỐ ĐÃ ĐO:** L14 cảnh báo **26 → 24**, lỗi 0 → 1 → **0** · tổng khoá giữ **82 lỗi**,
+  428 → **426 cảnh báo**, không luật nào khác động · `check.py --strict` 0/0 ·
+  `check-pyodide` 154 bài / 420 đoạn / 0 hỏng / 52-53 đáp án mẫu · `check-practice` 480 ca
+  đạt / 773 biến thể sai đều trượt · frontend unit 592 · ratchet 18 luật 0 lỗi ·
+  `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 147/179 → **146/179, 33 bài CHỜ NẠP**.
+  **CÒN LẠI, và nó KHÔNG phải cụm GU như lead cũ nói:** 24 cảnh báo L14 dồn ở SY 5 · PD 4 ·
+  VZ 4 · CT 4 · GU 6 · NP 1. Cụm GU còn 6 bài (GU04/05/08/09/10/11) và neo chúng thật thì
+  phải đổi chuỗi trong code — mà `expected` của GU KHÔNG cổng nào chạy, nên mỗi lần đổi là
+  một lần phải suy ra từng ký tự bằng tay. Đó là lý do kỹ thuật để cụm GU đi SAU các cụm
+  khác, không phải đi trước.
+
+- **CHÈN BẢNG SAU ĐOẠN, ĐỪNG THAY ĐOẠN BẰNG BẢNG — `chia_man` chẻ màn ở ĐOẠN VĂN sau
+  code.** Lát L3 thứ tư (43 → 41 → 39 → 36 → 32 → **29**). Hai đợt trước chuyển "1 đoạn
+  nhồi → 1 đoạn dẫn + 1 bảng + 1 đoạn còn lại", tức +1 paragraph mỗi lần. Lần này tôi
+  kiểm cấu trúc TRƯỚC khi sửa và thấy cả ba bài có dạng `0:para 1:code 2:para 3:code…`:
+  thay khối `2:para` bằng một `table` sẽ **xoá một ranh giới màn**, vì `chia_man()` chỉ
+  chẻ khi gặp một `paragraph` đứng sau code. Nên cách làm là RÚT NGẮN đoạn văn và CHÈN
+  bảng ngay sau nó. Đo xác nhận: `màn đọc` giữ **567**, `paragraph` giữ **820**,
+  `table` 11 → **14**.
+  **BA CÂU ĐƯỢC CHỌN THEO "CÓ NGUYÊN LIỆU", không theo "vừa đủ nặng":** CT02 (6 dấu /
+  29 tiếng — bốn đối số của `CreateProcess`) · CT09 (4 / 27 — "riêng mỗi luồng" so với
+  "chung cả tiến trình", **đúng câu hỏi ở TIÊU ĐỀ bài**) · GU09 (4 / 27 — bốn tham số
+  của `place`). **PD12 (4 dấu) BỎ QUA có chủ đích:** AGENTS.md đã ghi câu của nó chỉ có
+  TÊN ("shape, kiểu cột, ô thiếu và mã đơn") nên cột thứ hai sẽ phải BỊA — một quyết
+  định đã ghi thì không mở lại.
+  **BẢNG MỚI CỦA TÔI LÀM L13 TĂNG, và cái tăng là CHỮ CỦA CHÍNH TÔI.** Vừa chuyển xong
+  thì L13 đi **217 → 219**. Không phải nội dung cũ xấu đi: hai ô bảng tôi tự viết dùng
+  `process` ("bộ biến môi trường cấp cho process con", "thư mục làm việc của process
+  con") và một tiêu đề cột cũng vậy — mà L13 đã chốt gọi là "tiến trình" (chú giải ở
+  SY15). Đổi sang tiếng Việt thì L13 về **215**, tức SIẾT so với trước.
+  **Luật rút ra: chữ MỚI của một lát sửa phải đi qua chính bộ luật mà lát ấy đang hạ.**
+  Phép đo chỉ ra điều đó vì nó so TỪNG BÀI với HEAD (`CT02 process 3 → 5`,
+  `CT09 process 3 → 4`, `GU09 label 1 → 0`); đọc con số TỔNG thì chỉ thấy "+2" mà không
+  biết nó từ đâu.
+  **RỒI L11 NỔ, và nó nổ vì phép sửa L13 đúng một nửa.** Đổi `process` sang "tiến trình"
+  trong ô bảng làm CT09 có cả `process` (câu "Single-threaded process", có từ trước) lẫn
+  "tiến trình" (chữ mới) **trong cùng một đoạn** — đúng luật L11 "gọi cùng một thứ bằng
+  hai tên". Sửa nốt câu cũ ("Một tiến trình chỉ có một luồng thì chỉ có một stack và một
+  ngữ cảnh CPU") thì L11 về 0. Hai luật này khoá nhau: **không thể dịch một nửa thuật
+  ngữ của một đoạn**, và đó là tính chất đúng chứ không phải chướng ngại.
+  **ĐẦU DÒNG KHÁC NHAU THEO TỪNG TỆP — dò, đừng đoán.** `check_vanphong.py` là CRLF
+  (vòng trước đã ghi), còn `frontend/e2e/unit/studio-lesson.test.mjs` là **LF thuần**
+  (0 CRLF / 1 276 LF). Phép thay nhiều dòng của tôi khớp 0 chỗ vì dùng lại `\r\n` của
+  vòng trước. Nay script tự dò (`EOL = '\r\n' if '\r\n' in t else '\n'`).
+  **SỐ ĐÃ ĐO:** L3 **32 → 29** · L2 lỗi **7 → 6** (cảnh báo 14 → 15, TỔNG giữ 21 — một
+  lỗi đổi thành một cảnh báo, ratchet cho qua đúng luật) · L13 cảnh báo **217 → 215** ·
+  tổng khoá **82 → 78 lỗi**, 428 → **425 cảnh báo** · câu phần giảng 2 684 → **2 715**
+  (ô bảng là đoạn riêng nên số câu tăng) · thời lượng khoá **2 439 → 2 438 phút** ·
+  `màn đọc` 567, `paragraph` 820, `table` 11 → 14 · `check.py --strict` 0/0 ·
+  `check-pyodide` 154 bài / 420 đoạn / 0 hỏng · `check-practice` 480 ca đạt / 773 biến
+  thể sai đều trượt · frontend unit **592** · ratchet 18 luật 0 lỗi (3 mục SIẾT đã ghi
+  sổ) · `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi.
+  **ABLATE 3 chiều:** trả nội dung về HEAD → L3 **32**, ratchet **10 lỗi** gọi đúng tên
+  (L2 6→7 · L3 29→32 · L13 TỔNG 215→217 · TL 0→2) · gieo lại RIÊNG câu của CT09 →
+  L3 **30** · gieo lại RIÊNG câu của GU09 → L3 **30**. Mỗi bảng đáng đúng 1 lỗi L3.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 146/179 → **143/179, 36 bài CHỜ NẠP**.
+  **CÒN LẠI 29 lỗi L3**, và hình dạng đã đổi: không còn câu nào ≥ 4 dấu phân cách TRỪ
+  CT15 (4), PD12 (4, đã khai bỏ qua) và PD26 (4, không phải liệt kê mà là một luật kèm
+  hệ quả — chẻ câu KHÔNG phải cách sửa §2 chốt). Phần còn lại là 26 câu 3 dấu, và nhiều
+  câu trong đó là hai mệnh đề nối bằng `;` chứ không phải một bảng bị nén — tức mỗi lát
+  sau sẽ nhỏ hơn và cần phán xét nhiều hơn. Đó là dấu hiệu cụm này gần cạn, không phải
+  dấu hiệu nên nới luật.
+
+- **TRANG 404 LÀ BẢN MẶC ĐỊNH CỦA NEXT: tiếng Anh, 0 liên kết, 0 CSS — và bookmark cũ
+  của bản Django rơi đúng vào đó.** Năm vòng liền đã ở một chiều (văn phong), nên vòng
+  này đi theo đúng chỉ dẫn đã ghi ở mục `--ds-action`: *"lát tiếp theo KHÔNG nằm ở trang
+  bài học. Phải quét một bề mặt khác (trang `(standalone)`, màn lỗi, trang 404) — và
+  quét bằng trình duyệt."*
+  **ĐO TRÊN PRODUCTION bằng Chrome** (`programmingedu.io.vn/practice`, 08/11/2026):
+  chữ `404 / This page could not be found.` — **tiếng Anh** trên một khoá tiếng Việt ·
+  **0 liên kết**, không có đường về · nền `rgb(255,255,255)` thay cho giấy kem
+  `#F4EEE3` · font `"Times New Roman"` · **0 tệp CSS**. Cây mã: **không có
+  `not-found.tsx` lẫn `error.tsx`** trên 15 tệp route.
+  **BỀ MẶT NÀY CÓ NGƯỜI ĐI VÀO, không phải lo xa — ba bằng chứng độc lập:**
+  `(standalone)/courses/[courseId]/page.tsx` gọi `notFound()` cho mã khoá lạ, nên 404
+  nằm trong đường đi THEO THIẾT KẾ · AGENTS.md đã ghi một 404 THẬT đã xảy ra ("Ôn tập"
+  và nút trong cảnh Góc học cùng dẫn tới `/practice`) · đo được **6 đường trả 404** cùng
+  một trang 13 990 byte, trong đó `/login`, `/dashboard`, `/forum` là **URL của bản
+  Django cũ** mà người thử còn bookmark.
+  **MỘT PHÉP ĐO CỦA TÔI SAI, và nó sai theo chiều TỐ OAN KHẮP NƠI:** bản đầu dò 404
+  bằng `fetch` rồi khớp chuỗi `This page could not be found` trong HTML — nó trả `true`
+  cho CẢ `/ide` và trang khoá hợp lệ, vì Next nhúng chuỗi ấy vào bundle của MỌI trang.
+  **Một phép đo trả `true` ở mọi nơi là phép đo hỏng**, cùng họ với "một phép đo trả 0
+  là thứ phải nghi ngờ trước nhất". Đo lại bằng mã trạng thái cộng chữ ĐÃ RENDER.
+  **VÌ SAO 0 TỆP CSS, và vì sao một file là đủ:** layout gốc CỐ Ý không import CSS global
+  nào — chú thích tại chỗ nói *"mỗi page/layout con tự import ĐÚNG tổ hợp CSS của
+  template gốc để tránh class trùng tên giữa các file đè nhau"*. Nên không nạp gì là
+  không có style nào. `edu-theme.css` một mình đặt `body` background + `font-family` +
+  `color`, nên `<PageStyles hrefs={['/static/css/edu-theme.css']} />` là phụ thuộc nhỏ
+  nhất đủ dùng.
+  **NÚT CHÍNH ĐẢO ĐÚNG CẶP MÀU CỦA `body`** (`background: var(--edu-t1)` ·
+  `color: var(--edu-bg-solid)`), nên nó tự đúng ở cả hai chế độ mà không phải khai một
+  cặp màu thứ hai sẽ trôi — đo được **13,80:1** ở cả tiêu đề lẫn nút. Đường kẻ nút phụ
+  dùng `--edu-card-line`, KHÔNG `--edu-card-border`: token kia là
+  `rgba(255,255,255,.85)`, tức trắng trên thẻ trắng, lỗi đã gặp bốn lần.
+  **XEM THẬT TRONG CHROME trên bản `next build` + `next start`, không suy từ cây mã:**
+  giấy kem `rgb(244,238,227)` · font **Montserrat** · 4 tệp CSS · 2 liên kết cao 46px ·
+  tương phản 13,8:1 · **không cuộn ngang**. Ở **360×640**: hai nút CÙNG MỘT HÀNG, cả hai
+  trong mép (x 16 → 343 trên vw 360, giữ đúng gutter 16px), không cuộn ngang lẫn dọc.
+  **ABLATE 7 chiều, cả 7 đỏ:** trả chữ về tiếng Anh → 1 · đường về trỏ vào một 404 khác
+  (`/practice`) → 1 · bỏ `PageStyles` → 1 · thêm một lời gọi `apiFetch` → 1 · dùng
+  `--edu-card-border` → 1 · hạ đích bấm xuống 24px → 1 · **làm hỏng phép quét cây route
+  (tự kiểm)** → 1. Chiều cuối là chiều đáng nhất: phép kiểm "đường về là route CÓ THẬT"
+  đọc CÂY TỆP `src/app`, và nếu phép quét trượt thì tập route RỖNG và luật sẽ đạt rỗng
+  mà không chứng minh gì — đúng bẫy đã ghi ở `insert-gate-sync.test.mjs`, nên có một
+  `assert` đòi tập đó ≥ 8 route và chứa `/`.
+  **LUẬT `apiFetch` LÀ LUẬT THẬT Ở ĐÂY, không phải phòng xa:** trang 404 là nơi bot quét
+  web rơi vào nhiều nhất, và `apiFetch` gặp 401 thì TỰ TẠO một tài khoản khách — mỗi
+  lượt quét một hàng `@guest.local`, ăn vào `THROTTLE_GUEST_LIMIT` tính theo IP.
+  **MỘT CA ĐỎ OAN Ở LẦN CHẠY ĐẦU:** regex so câu tiếng Việt chạy trên văn bản THÔ, mà
+  JSX ngắt câu giữa dòng rồi thụt lề ("Tiến độ học của\n          bạn vẫn còn nguyên").
+  Phải gộp khoảng trắng trước khi so. Cùng họ bẫy CRLF và bẫy `ℹ` multibyte.
+  **SỐ ĐÃ ĐO:** frontend unit **592 → 598 ca / 51 → 52 tệp** · CSS module trong `src/`
+  **14 → 15** (chính cổng mốc nền bắt con số này, đúng việc nó ra đời để làm) · sổ ngưỡng
+  siết sàn 592 → 598 · frontend typecheck sạch · lint 0 lỗi / 146 cảnh báo (không đổi) ·
+  `npm run build` exit 0 · `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi ·
+  `tai-nguyen-chet` / `export-chet` / `duong-toi` / ratchet văn phong / `check.py --strict`
+  đều 0 lỗi. **Không đụng một dòng nội dung nào**, nên `check-da-nap` giữ 36 bài chờ.
+  **KHÔNG bump `ASSET_VERSION`:** cả hai tệp mới nằm trong `frontend/src/` nên đi qua
+  bundler, URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
+  **`error.tsx` VẪN THIẾU, và đó là lựa chọn chứ không phải bỏ sót:** nó cũng không có
+  trên 15 tệp route, nhưng KHÁC 404 ở một chỗ quyết định — **không có bằng chứng ai đã
+  đi vào nó**. Trang 404 có ba bằng chứng độc lập ở trên; màn lỗi thì chưa có một lượt
+  nào được ghi nhận. Dựng nó cùng vòng là mở phạm vi dựa trên suy đoán.
+
+- **`/lesson/python` MỜI GHI DANH vào một khoá không còn giáo trình — và quyết định
+  13/10 KHÔNG kể tên nó.** Vòng này tiếp nếp vòng trước: đo một bề mặt chưa ai nhìn,
+  bằng trình duyệt.
+  **MỘT GIẢ THUYẾT CỦA TÔI BỊ PHÉP ĐO BÁC NGAY, và đó là phần đáng ghi đầu tiên.** Tôi
+  thấy `/courses/{python,java,htmlcss}` trả **404** còn `/lesson/{python,java,htmlcss}`
+  trả **200** và tưởng đã tìm ra một lỗi bất đối xứng. Đọc `catalog.ts` thì nó khai rõ
+  đó là **quyết định có chủ đích 13/10/2026**: *"Đây là thay đổi TRÌNH BÀY… các route
+  tự có của chúng (`/courses/db_design*`, `/lesson/java`, `/lesson/htmlcss`,
+  `/interface`) vẫn chạy khi mở bằng đường dẫn trực tiếp — chỉ không còn lối vào từ
+  trang chủ"*. Và `curricula.json` CÓ `java`/`htmlcss`/`cpp`/`db_design` với 4 học phần
+  mỗi khoá. **Đọc chú thích TRƯỚC khi gọi một bất đối xứng là lỗi** — repo này đã trả
+  giá cho chiều ngược (chú thích trôi), nhưng chiều này cũng có giá.
+  **NHƯNG DANH SÁCH ẤY KHÔNG CÓ `/lesson/python`**, và khoá `python` khác hẳn bốn khoá
+  kia: nó **không có mục nào trong `curricula.json`** (file đó có `cpp`, `db_design`,
+  `htmlcss`, `java`, `python_advanced` — không có `python`). Nên kể cả khi hàng khoá
+  còn trong DB, giao diện không có giáo trình để vẽ và `/courses/python` cũng 404 nên
+  không có đường quay về.
+  **ĐO TRONG CHROME tới trạng thái cuối (33,2 s vì cold start):** *"Bài học Python —
+  Đăng ký khóa học miễn phí để mở bài học và lưu tiến độ"* kèm nút *"Đăng ký khóa Python
+  & bắt đầu"*, **0 liên kết**. Bấm nút đó là **GHI một hàng `enrollments`** rồi vào ngõ
+  cụt. `metadata.description` còn hứa *"Giáo trình Python 40 bài"* — giáo trình đó không
+  còn, tức tài liệu nói sai ra tới công cụ tìm kiếm.
+  **KHÔNG XOÁ ROUTE, chỉ chặn nhánh không-demo:** `?demo=list` là lối **DUY NHẤT** tới
+  `PythonStudio` (bài "List & Mutability" dựng tay) — grep ra đúng một chỗ mount. Xoá
+  route là biến một component đang sống thành code không ai tới được.
+  **`notFound()` chứ không `redirect('/courses/python')`:** route động
+  `/lesson/[courseId]` đã chuyển mã lạ về `/courses/<id>`, mà đích đó cũng 404 — thêm
+  một chặng chỉ làm người học chờ thêm một vòng để tới đúng trang ấy. Và nó đáp xuống
+  đúng trang 404 tiếng Việt dựng ở vòng trước: hai vòng khớp nhau.
+  **LUẬT CỦA CỔNG LÀ "CÒN GIÁO TRÌNH", KHÔNG PHẢI "CÒN TRONG DANH MỤC"** — và sự khác
+  nhau ấy là cả vấn đề. Bốn khoá rời `catalog.ts` được giữ CÓ CHỦ ĐÍCH, nên một luật
+  "phải có trong danh mục" sẽ báo oan đúng bốn bài đang làm đúng. Luật đứng được: một
+  route `/lesson/<id>` chỉ được dựng NỘI DUNG BÀI (`StudioLesson`/`LessonDbDesign`) khi
+  `<id>` còn một mục trong `curricula.json`.
+  **HAI LỖ TRONG CHÍNH CỔNG CỦA TÔI, cả hai chỉ lộ nhờ ablate, và một trong hai là lỗi
+  ĐIỂN HÌNH của ca test:**
+  · ca "giữ nhánh demo" chỉ đòi hai CHUỖI `notFound()` và `<PythonStudio` **cùng có
+    mặt**. Ablate thay cả nhánh bằng một `notFound()` TRẦN → **0 đỏ**, vì
+    `<PythonStudio />` vẫn nằm trong JSX phía dưới, chỉ là không còn ai tới được. **Một
+    ca đòi "chuỗi có mặt" không chứng minh được "nhánh còn sống."** Nay nó cắt nguồn
+    theo `;{}\n` rồi đòi MỖI câu lệnh chứa `notFound()` phải có `PYTHON_DEMO_PARAM`;
+    ablate lại → **1 đỏ**;
+  · phép gieo thứ hai của tôi SAI, không phải cổng sai: tôi gỡ `java` khỏi
+    `curricula.json` và đọc **0 đỏ** như "cổng rỗng". Đo lại thì `/lesson/java` dựng
+    **HTML di sản ghi cứng** (`LegacyScripts` + CSS inline), không đọc `content_json`
+    lần nào — nên luật ĐÚNG là im. Gieo đúng chỗ (`python_advanced`, khoá duy nhất còn
+    content-driven) → **1 đỏ**. Và chiều `java` giữ **0 đỏ** chính là phép kiểm NGƯỢC.
+  **GHI NHẬN TRUNG THỰC, vì ràng buộc của vòng lặp là KHÔNG ghi DB production:** chính
+  phép đo của tôi đã tạo một tài khoản khách trên production — mở `/lesson/python` trong
+  trình duyệt là `apiFetch` gặp 401 rồi `ensureGuest()`. Đúng thứ mọi khách mở trang đều
+  làm, và không chạm dữ liệu bài học, nhưng nó là một lần GHI. **Mở một trang bài học
+  trên production bằng trình duyệt là một phép đo CÓ GHI** — chọn `fetch` HEAD khi chỉ
+  cần mã trạng thái.
+  **XEM THẬT trên `next build` + `next start`:** `/lesson/python` → **404** kèm trang
+  tiếng Việt, 2 liên kết `['/courses/python_advanced', '/']`, Montserrat, giấy kem ·
+  `/lesson/python?demo=list` → **200** và có nội dung studio · `/lesson/python_advanced`
+  → 200 · `/lesson/java` → 200 (quyết định 13/10 không bị đụng).
+  **ABLATE 6 chiều:** trang về HEAD → **3 đỏ** (luật chung + hai ca riêng) · CẶP ĐỐI
+  CHỨNG trang HEAD + gỡ luật chung → **2 đỏ** · `notFound()` trần → 1 · metadata về câu
+  "40 bài" → 1 · gỡ `python_advanced` khỏi giáo trình → 1 · làm hỏng phép quét route
+  (tự kiểm) → 1. Chiều NGƯỢC: gỡ `java` khỏi giáo trình → **0 đỏ**, đúng.
+  **SỐ ĐÃ ĐO:** frontend unit **598 → 602 ca / 52 → 53 tệp** · sổ ngưỡng siết sàn
+  598 → 602 · typecheck sạch · lint 0 lỗi / 146 cảnh báo (không đổi) · `npm run build`
+  exit 0 · `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi ·
+  `duong-toi` / `tai-nguyen-chet` / `export-chet` 0 lỗi. **Không đụng một dòng nội dung
+  nào**, nên `check-da-nap` giữ 36 bài chờ.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** một bookmark cũ tới `/lesson/python` nay nhận
+  trang 404 tiếng Việt có đường về, thay cho một lời mời ghi danh vào ngõ cụt.
+  **`/interface` ĐÃ ĐO VÀ ĐỂ NGUYÊN:** nó là minigame "CODEGEN Z" (kéo khối lệnh cứu
+  robot), và ràng buộc của vòng lặp nói thẳng KHÔNG đầu tư vào minigame.
+
+- **`PrismaExceptionFilter`: 12 lỗi `any` làm hai dòng khai kiểu chỉ là CHỮ, và spec
+  của nó có đúng MỘT ca `should be defined`.** Chiều lint backend chưa vòng nào trong
+  phiên chạm. Đo bằng ĐÚNG lệnh CI dùng: **104 lỗi**, dồn ở `stats.service.spec` 20 ·
+  `oauth-login-csrf.spec` 18 · `user.service.spec` 13 · **`prisma-exception.filter.ts`
+  12** · `oauth-state.spec` 10, rồi đuôi dài 12 tệp. Theo luật:
+  `no-unsafe-member-access` 43 · `no-unsafe-assignment` 27 · prettier 14 ·
+  `no-unsafe-call` 10.
+  **CHỌN TỆP CODE CHẠY THẬT, KHÔNG CHỌN TỆP TO NHẤT.** Ba spec đầu cộng lại là 51/104
+  (49%), nhưng tệp thứ tư có hai thứ chúng không có: nó là `@Catch` đăng ký
+  **APP_FILTER toàn cục**, nên MỌI lỗi Prisma đi qua nó và nó dựng **9 thông điệp tiếng
+  Việt người dùng đọc trực tiếp** — mà spec của nó có đúng một ca `should be defined`,
+  tức **không thông điệp nào trong chín thông điệp ấy từng được chứng minh**.
+  **LỖ KIỂU CÓ HẬU QUẢ THẬT, và nó là một PHÉP TUNG ĐỒNG XU.** `const constraint:
+  string | undefined = …` nhận giá trị từ `any` rồi gọi `constraint?.includes('user_id')`.
+  Khi giá trị là MẢNG thì phép gọi VẪN chạy (`Array.prototype.includes`) nhưng đổi nghĩa
+  **theo nội dung mảng**:
+
+      'enrollments_user_id_fkey'.includes('user_id')   -> true   (câu ĐÚNG)
+      ['enrollments_user_id_fkey'].includes('user_id') -> FALSE  (câu SAI)
+      ['user_id'].includes('user_id')                  -> true   (đúng do TÌNH CỜ)
+
+  Tức tên RÀNG BUỘC thì sai, tên CỘT thì tình cờ đúng; người dùng nhận *"Dữ liệu liên
+  quan không còn tồn tại"* khi lẽ ra phải là *"Phiên đăng nhập không hợp lệ"*, và không
+  exception nào ném.
+  **ABLATE (TRONG ĐẦU) BÁC BẢN SỬA ĐẦU CỦA TÔI.** Tôi viết `chuoiHoacRong()` — chỉ nhận
+  chuỗi, mảng thành `undefined` — rồi nhận ra nó cho **CÙNG kết quả** như bản `any` ở ca
+  `['enrollments_user_id_fkey']`: cả hai rơi về câu chung. **Một ca test cho chiều đó sẽ
+  RỖNG.** Bản đúng là `join(',')`: mảng nào cũng về một chuỗi để tìm chuỗi con, nên cả
+  ba dòng trên đều ra `true`. Đó không phải vệ sinh kiểu, nó là **sửa hành vi**. Ablate
+  chiều "trả về bản chỉ-nhận-chuỗi" → **1 đỏ**, nên phép bỏ ấy có bằng chứng.
+  **VÀ TÔI SUÝT ĐỔI MỘT HÀNH VI KHÔNG AI YÊU CẦU.** Bản đầu viết
+  `if (chiChuoi(fields).length) return …`, tức `constraint.fields` RỖNG sẽ rơi xuống
+  `meta.target`; bản gốc dùng `Array.isArray(fields)` nên trả `[]` NGAY. Khác biệt nhỏ,
+  nhưng ở một filter toàn cục thì mọi thay đổi không cố ý phải chặn lại. Giữ
+  `Array.isArray`, và có một ca khoá đúng luồng đó — ablate → **1 đỏ**.
+  **`chiChuoi` LỌC chứ không ép kiểu, và lý do đo được:** `['user_id', 7].join(',')` ra
+  `"user_id,7"` — không khớp khoá nào — nên người dùng mất câu đúng VÀ một con số lọt ra
+  `detail` của response. Lọc thì phần chuỗi còn dùng được; ép kiểu thì cả hai sai mà
+  không ai thấy. Cùng cách `mapChuoi()` của `all-exceptions.filter.ts` xử lý biên của nó.
+  **SPEC: 1 → 22 ca**, và chúng chấm thứ chưa ai chấm: cả **9 khoá** của
+  `UNIQUE_FIELD_MESSAGES` (mỗi khoá một ca `it.each`) · THỨ TỰ CỘT có nghĩa (đảo
+  `course_id,lesson_code` là mất câu riêng — chú thích nói "theo đúng thứ tự Postgres
+  trả về", ca này biến lời dặn ấy thành ràng buộc) · engine CŨ `meta.target` cả mảng lẫn
+  chuỗi · `constraint.fields` rỗng KHÔNG rơi xuống `target` · phần tử không phải chuỗi
+  bị lọc · ba hình dạng của P2003 · `request_id` · và `meta` thiếu hẳn/sai hình dạng
+  (`undefined`, `null`, `'chuoi'`, `42`, `[]`, `{target: 7}`) không làm filter ném.
+  **`json` KHAI KIỂU THAM SỐ** (`jest.fn<void, [ThanPhanHoi]>`): với `jest.fn()` trần
+  thì `json.mock.calls[0][0]` là `any` và mọi phép so trên thân response KHÔNG được TS
+  kiểm — đúng bài học đã ghi cho `all-exceptions.filter.spec.ts`.
+  **FIXTURE LÀ OBJECT THUẦN, có lý do:** filter chỉ đọc `code`/`meta`/`message`/`stack`,
+  không gọi method nào của lớp lỗi Prisma. Dựng một `PrismaClientKnownRequestError` xịn
+  đòi `clientVersion` và đổi chữ ký giữa các bản Prisma — một fixture phải sửa mỗi lần
+  nâng là một fixture sẽ trôi.
+  **ABLATE 6 chiều, cả 6 đỏ:** trả filter về HEAD → **2 đỏ + lint 12** · `chiChuoi` ép
+  kiểu → 1 · `chuoiTimKiem` chỉ nhận chuỗi → 1 · `Array.isArray` thành `.length` → 1 ·
+  gỡ một khoá khỏi bảng thông điệp → 1 · gõ sai một khoá (`course_id` → `courseId`) → 2.
+  **SỐ ĐÃ ĐO:** lint backend **104 → 92 lỗi** (2 cảnh báo không đổi) · backend test
+  **35 bộ / 501 → 522 ca**, chạy `--runInBand` 28,7 s · typecheck sạch · trần lint trong
+  `ci.yml` **115 → 100** (đo 92, giữ 8 chỗ dư — sổ ngưỡng đã ghi) · `check-moc-nen`
+  20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi · `export-chet` / `duong-toi` 0 lỗi.
+  **Không đụng một dòng nội dung nào**, nên `check-da-nap` giữ 36 bài chờ.
+  **HAI CHỖ TRONG AGENTS.MD CÒN GHI "104 lỗi" VÀ CỐ Ý GIỮ:** dòng ở mục mốc nền và dòng
+  ở mục `check-moc-chay` là BẢN GHI của một phép đo đã xảy ra ("đo lại ngày đó ra 104"),
+  không phải lời khai về hiện trạng. Chỉ hàng mốc nền và chú thích của cổng — hai chỗ
+  nói về HIỆN TẠI — được sửa. Phân biệt ấy là thứ giữ cho lịch sử đo lường còn đọc được.
+  **CÒN LẠI 92 lỗi, và hình dạng đã rõ:** `stats.service.spec` 20 · `oauth-login-csrf
+  .spec` 18 · `user.service.spec` 13 · `oauth-state.spec` 10 — bốn tệp spec = **61/92
+  (66%)**, và công thức bốn bước của AGENTS.md áp nguyên cho cả bốn. Sau tệp này thì
+  KHÔNG còn tệp code-chạy-thật nào trên 4 lỗi, nên các lát sau là lát spec.
+
+- **"0 ĐỎ" LÀ CON SỐ DỄ GIẢ NHẤT CỦA VÒNG LẶP — ba lần trong một phiên nó nghĩa là
+  "không chạy", và lần đắt nhất suýt thành một khẳng định SAI VỀ BẢO MẬT.**
+  **LEAD CỦA TÔI VÒNG TRƯỚC SAI, và phép đo bác nó.** Tôi ghi *"92 lỗi lint còn lại dồn
+  ở bốn tệp spec (66%), nên các lát sau là lát spec, nơi giá trị là 'test thôi nói
+  dối'"*. Đo bằng tiêu chí THẬT — một phép so ĐẠT được trên `undefined`:
+  `stats.service.spec` **0** · `oauth-login-csrf.spec` 4 · `user.service.spec` 1 ·
+  `oauth-state.spec` 5. Rồi áp tiêu chí mạnh hơn (phá CHỦ THỂ, đếm đỏ) lên tệp đáng ngờ
+  nhất: gỡ hẳn state store khỏi `GoogleStrategy` (tắt chống login CSRF) → **2 đỏ / 8
+  ca**; guard thôi ghi `req.oauthError` → **4 đỏ**. ⇒ `any` ở bốn tệp đó là **ồn, không
+  phải lời nói dối**; dọn chúng là vệ sinh kiểu, không phải sửa một test đang nói dối.
+  Lead cũ nói quá giá trị của nó, và lát spec vì vậy KHÔNG phải việc đáng ưu tiên.
+  **NHƯNG PHÉP ĐO ĐẦU CỦA TÔI SUÝT TẠO MỘT KHẲNG ĐỊNH SAI VỀ BẢO MẬT.** Lần gieo đầu
+  tôi cắt khối `store:` bằng `s.index('),', i)` — trúng dấu `),` SAI — sinh TypeScript
+  không biên dịch được. Jest in `Test Suites: 1 failed · Tests: 0 total`, mà phép đếm
+  của tôi (`sed` tìm "N failed" trong dòng `Tests:`) không khớp gì nên trả RỖNG → đọc
+  thành **0 đỏ** → suy ra *"gỡ chống login CSRF mà spec vẫn xanh"*. Một khẳng định sai,
+  ở chiều đáng sợ nhất, và nó đã vào bình luận Kanzo nếu tôi không đi kiểm con số 0 ấy.
+  **BA LẦN TRONG MỘT PHIÊN:** `grep -E "^. fail"` trả rỗng vì `ℹ` multibyte · phép đếm
+  chuỗi ngoài-tầm ra 84 thay vì 9 vì thiếu phép so bản đã thoát JSON · và lần này.
+  AGENTS.md đã ghi luật *"một con số ablate RỖNG không phải số 0"* từ trước, mà **không
+  gì thi hành nó**, và mỗi vòng lại viết lại một script shell ad-hoc với cùng một regex
+  mong manh.
+  **Nay có `node scripts/ablate.mjs`, giữ ba bất biến, mỗi cái đến từ một lần đã vấp:**
+  phép gieo phải khớp **ĐÚNG MỘT LẦN** (0 hoặc >1 là DỪNG) · bộ test phải **CHẠY ĐƯỢC**
+  (không đọc được dòng tổng kết, hoặc tổng số ca bằng 0, là DỪNG kèm 30 dòng cuối của
+  lệnh) · tệp phải **được phục hồi** kể cả khi lệnh ném, và nó in ra một dòng xác nhận.
+  **Mã thoát phân biệt hai chuyện mà `0` đang gộp:** 0 khi ĐỌC ĐƯỢC một con số (kể cả 0
+  đỏ — "cổng rỗng" là kết quả hợp lệ và phải báo được), 1 khi KHÔNG đọc được. Gộp hai
+  thứ đó là cả lý do công cụ này tồn tại.
+  **VÀ NÓ NHẬN SEED TỪ TỆP (`--cu-tep`/`--moi-tep`), hoặc `--ve-head`.** Đó là bản sửa
+  cho một bẫy riêng: heredoc của công cụ Bash ở đây XỬ LÝ dấu gạch chéo ngược dù
+  delimiter đã nháy, nên `"a\nb"` trong thân heredoc tới Python/Node thành `a` + newline
+  THẬT + `b` — ba phép thay chuỗi đã trượt vì đúng chuyện đó. Seed đi qua tệp thì không
+  còn lớp thoát nào để đếm sai; `--ve-head` thì không có chuỗi nào để thoát cả.
+  **CHẠY THẬT trên chính ca đã lừa tôi:** seed ĐÚNG (gỡ cả khối `store`) → **`2 đỏ / 8
+  ca`**, mã thoát 0 · seed HỎNG (cắt sai dấu ngoặc) → **từ chối** với *"KHÔNG ĐỌC ĐƯỢC
+  SỐ CA — đây KHÔNG phải '0 đỏ'"* kèm nguyên văn lỗi `TS1005`, mã thoát 1 · cả hai lần
+  tệp đều về nguyên.
+  **ABLATE TÌM RA MỘT LỖ TRONG CHÍNH CỔNG CỦA TÔI, vòng thứ ba liền:** gỡ hẳn phép phục
+  hồi trong `finally` cho **0 đỏ**, vì ca "lệnh không in dòng tổng kết" đã ghi tệp lại
+  TRƯỚC khi ném nên `finally` không bao giờ chạy tới. Thứ chỉ `finally` cứu được là khi
+  **chính `spawnSync` ném** — tức tệp đang mang khiếm khuyết gieo vào, và một công cụ
+  gieo khiếm khuyết để lại khiếm khuyết trong cây mã là thứ tệ nhất nó có thể làm. Thêm
+  một ca dùng byte null trong chuỗi lệnh (`spawnSync` ném `ERR_INVALID_ARG_VALUE`);
+  ablate lại → **1 đỏ**.
+  **VÀ ABLATE BÁC MỘT CÂU TRONG CHÚ THÍCH TÔI VỪA VIẾT.** Tôi đặt tên một ca là *"KỂ CẢ
+  dòng mở đầu bằng `ℹ` multibyte"*; trả regex về bản neo `^.` thì **0 đỏ**. Lý do: bẫy
+  `ℹ` là bẫy của **grep/sed** — chúng làm việc trên BYTE nên `^.` ăn một byte của một ký
+  tự ba byte — còn chuỗi JavaScript là UTF-16 và `ℹ` chỉ là MỘT code unit. Ca ấy vẫn có
+  giá trị (nó canh việc `node --test` in tổng và số trượt ở HAI DÒNG RIÊNG), nhưng nói
+  nó canh chiều multibyte là **nói quá**. Đã viết lại.
+  **ABLATE 8 chiều:** bỏ bất biến "phải CHẠY ĐƯỢC" ở nhánh jest → **1 đỏ** · ở nhánh
+  `node --test` → 1 · bỏ bất biến "khớp đúng một lần" → **2** · trả về `0 đỏ` thay vì từ
+  chối → 1 · thôi in đầu ra của lệnh (nuốt bằng chứng) → 1 · thôi phục hồi tệp khi lệnh
+  ném → **0 rồi 1 sau khi thêm ca** · bỏ câu khai phân biệt mã thoát → 1 · trả regex
+  `node --test` về neo `^.` → **0, đã khai là khoảng trống**.
+  **MỘT BẪY NỮA TRONG CHÍNH SCRIPT ABLATE CỦA TÔI, và nó là cùng một bệnh:** tôi viết
+  `gieo … >/dev/null`, nên một phép gieo TRƯỢT in `GIEO TRUOT` vào `/dev/null` và chiều
+  đó im lặng không chạy — bảng ablate vẫn trông đủ dòng. Đừng redirect đầu ra của phép
+  gieo. (Công cụ mới không có cửa đó: nó ném, không in.)
+  **SỐ ĐÃ ĐO:** frontend unit **602 → 613 ca / 53 → 54 tệp** · sổ ngưỡng siết hai sàn
+  (frontend 602 → 613, backend 501 → 522) · typecheck sạch · lint backend 92 lỗi và
+  frontend 146 cảnh báo **không đổi** (`.mjs` ngoài tầm lệnh lint backend) ·
+  `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi · `tai-nguyen-chet` /
+  `export-chet` / `duong-toi` 0 lỗi. **Không đụng một dòng nội dung nào**, nên
+  `check-da-nap` giữ 36 bài chờ.
+  **GIỚI HẠN PHẢI NÓI RA:** công cụ đọc được dòng tổng kết của **jest** và
+  `node --test`. `check.py`, `check-pyodide.mjs`, `check_vanphong.py` in khuôn RIÊNG, nên
+  ablate chúng vẫn phải đếm bằng tay — và ba khuôn ấy là nơi bẫy đếm sai từng xảy ra
+  nhiều nhất. Thêm khuôn thì thêm một nhánh vào `docSoDo` kèm một ca "tổng = 0 trả
+  `null`", đừng thêm một regex ở chỗ gọi.
+
+- **"CÓ CHỖ MOUNT" KHÔNG PHẢI "ĐANG SỐNG" — và tôi đã lấy cái thứ nhất làm lý lẽ giữ
+  một trang không dùng được.** Vòng #139 cho `/lesson/python` trả 404 nhưng GIỮ nhánh
+  `?demo=list`, với câu: *"đó là lối DUY NHẤT tới `PythonStudio`, xoá route là biến một
+  component đang sống thành code không ai tới được."* Câu ấy đúng về MOUNT và sai về
+  TRANG.
+  **ĐO TRÊN PRODUCTION** (Chrome, phiên khách đã có từ #139 nên lượt đo **không tạo thêm
+  hàng nào**): `/lesson/python?demo=list` tới trạng thái cuối sau **39,3 giây** cold
+  start rồi hiện *"Đăng ký khóa học miễn phí để lưu tiến độ"* kèm nút *"Đăng ký khóa
+  Python & bắt đầu"* — **đúng lời mời ghi danh vào ngõ cụt mà #139 vừa gỡ, chỉ nằm sâu
+  hơn một lớp**; nút *"Tiếp tục bước tiếp theo"* ở trạng thái `disabled`; và liên kết
+  thoát trỏ `/courses/python`, đã đo là **404**.
+  **BA KHIẾM KHUYẾT NỐI NHAU, đọc từ cây mã:** `PythonStudio.load()` gọi `/api/user` +
+  `/api/enrolled` ngay khi mount **không có cổng `hasStoredSession`**, nên mỗi lượt bot
+  quét URL này sinh một hàng `@guest.local` · cả demo bị chặn sau `!enrolled && !isAdmin`
+  với khoá `python`, khoá **không có mục nào** trong `curricula.json` · liên kết thoát
+  trỏ vào một 404. Mà trang tự khai *"Bài demo… không ghi tiến độ"* — nên hai lượt API
+  cùng cổng ghi-danh đều không mua gì cho nó.
+  **ĐÂY LÀ MỘT LỚP LỖI MÀ BỐN CỔNG CỦA REPO KHÔNG BẮT, và phải nói ra:**
+  `check-duong-toi.mjs` chứng minh *"có một màn MOUNT tính năng này"* —
+  `check-tai-nguyen-chet` chứng minh *"có ai import nó"* — cả hai đều XANH với trang
+  này suốt. Thứ không cổng nào nói được là *"đường đó dẫn tới một trang DÙNG ĐƯỢC"*.
+  Lỗ ấy chỉ đóng được bằng cách MỞ TRANG RA XEM, và nó là lý do mục `--ds-action` đã dặn
+  *"quét bằng trình duyệt, vì grep đã sai 6:1 một lần rồi"*.
+  **CÁCH SỬA: 404 ở MỌI tham số, và KHAI component là chết-mà-giữ kèm ba việc phải
+  sửa.** Không xoá 69 126 byte của `PythonStudio` — quyết định "xoá hẳn hay hồi sinh
+  demo" là của chủ dự án, cùng lý lẽ đang giữ `scripts/pe-v4/**`. Hai cổng nay khoá nhau:
+  bỏ mục khai thì `check-tai-nguyen-chet` đỏ; nối lại mount mà không gỡ mục khai thì ca
+  test đỏ. Và lời khai phải NÓI RA ba việc (`hasStoredSession` · `!enrolled` · `404`) —
+  có một ca đọc đúng ba chữ đó, vì một danh sách ngoại lệ không kèm lý do là danh sách
+  không ai dám dọn.
+  **GIỮ TỆP chứ không xoá thư mục:** xoá thì `/lesson/python` rơi xuống route động
+  `[courseId]`, mà route đó chuyển hướng Ở PHÍA CLIENT (`window.location.replace`) —
+  thêm một lần nháy trang rồi mới tới 404. Một `notFound()` ở máy chủ cho đúng kết quả
+  mà không có chặng đó. Bản dựng còn đổi route từ `ƒ` (dynamic) sang `○` (static) vì nó
+  thôi đọc `searchParams`.
+  **CA TEST CỦA #139 PHẢI VIẾT LẠI, và đó là nửa trung thực của vòng này.** Ca cũ đòi
+  `<PythonStudio` phải CÒN và `notFound()` phải có điều kiện trên `PYTHON_DEMO_PARAM` —
+  tức nó đang **bảo vệ một đường chết**. Nay nó đòi ngược: không mount nữa, và
+  `notFound()` phải đứng TRẦN (`canh.length === 1 && canh[0] === 'notFound()'`), vì một
+  `notFound()` sau điều kiện nghĩa là có tham số nào đó lại mở ra trang cũ. Tên ca cũng
+  đổi — *"nhánh demo phải Ở LẠI"* nay là một lời khai sai.
+  **DÙNG CHÍNH CÔNG CỤ ABLATE DỰNG VÒNG TRƯỚC, và nó bắt HAI phép gieo sai của tôi:**
+  · `--ve-head` với đường dẫn tương đối từ `frontend/` → `git show HEAD:<đường dẫn>`
+    giải theo GỐC REPO nên nó `fatal:`. Công cụ từ chối to tiếng thay vì in "0 đỏ"; đã
+    sửa bằng `git rev-parse --show-prefix` để mọi cờ nhận cùng kiểu đường dẫn;
+  · seed `notFound()` khớp **2 chỗ** — chỗ thứ hai nằm trong CHÚ THÍCH của chính bản
+    sửa. Công cụ dừng với *"khớp 2 chỗ, phải đúng 1"*. Nếu vẫn dùng script shell cũ thì
+    phép thay sẽ sửa cả hai rồi cho một con số vô nghĩa.
+  Hai lần ấy là bằng chứng công cụ đáng dựng, và cả hai đều ở dạng "0 đỏ" giả nếu không
+  có nó.
+  **ABLATE 5 chiều:** trả trang về HEAD (mount lại `PythonStudio`) → **1 đỏ** ·
+  `notFound()` sau một điều kiện → 1 · đổi tên mục khai trong `GIU_DU_CHET` → 1 · lời
+  khai bỏ một việc phải sửa (`hasStoredSession`) → 1 · gỡ HẲN mục khai →
+  `check-tai-nguyen-chet` **1 lỗi** đúng tên và đúng số byte.
+  **SỐ ĐÃ ĐO:** `/lesson/python` và `?demo=list` cùng **404** trên bản `next build` ·
+  `/lesson/python_advanced` và `/lesson/java` giữ **200** · frontend unit **613 → 614
+  ca** (54 tệp) · tài nguyên chết **1 → 2 mục, 2 khai giữ, 0 chưa khai** · sổ ngưỡng
+  siết sàn 613 → 614 · typecheck sạch · lint 0 lỗi / 146 cảnh báo không đổi ·
+  `npm run build` exit 0 · `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi
+  · `export-chet` / `duong-toi` 0 lỗi. **Không đụng một dòng nội dung nào**, nên
+  `check-da-nap` giữ 36 bài chờ.
+  **`PYTHON_DEMO_PARAM` đi cùng nhánh đó**, và chú thích ở `lib/python-studio.ts` đã
+  được đính chính: nó còn ghi *"Khoá python giờ là 40 bài PE Python v3… chỉ mở bằng
+  /lesson/python?demo=list"* — cả hai nửa đã lỗi thời.
+
+- **§4-A 23 → 1: cụm định danh đóng lại, và một trong 23 chỗ KHÔNG phải định danh.**
+  **VÒNG MỞ BẰNG VIỆC TỔNG QUÁT HOÁ PHÁT HIỆN CỦA #142 — và không tìm ra lỗi nào.**
+  Quyết định 13/10 "giữ các route tự có" nói về route TỒN TẠI, không về trang CHẠY
+  ĐƯỢC — đúng sự lẫn #142 vừa sửa. Mở bốn bề mặt ấy ra xem: `/lesson/java` và
+  `/lesson/htmlcss` là **minigame** kéo-thả khối lệnh ("Bảo Vệ Cổng Vào", "Thiết Kế
+  Responsive"), tự đủ, không cổng API — CHẠY, và ngoài phạm vi theo ràng buộc ·
+  `/courses/db_design{,_nc,_tc}` dựng **ba khoá RIÊNG** (`_nc` = *"Bên trong Database
+  Engine"*, 25 bài) · `/lesson/db_design_nc?lesson=1` đủ 4 bước, 8 021 ký tự, **không
+  ngõ cụt**, tải tức thì. Quyết định 13/10 đứng vững cho cả bốn; lead của #142 đóng lại.
+  **VÀ MỘT PHÉP ĐO CỦA TÔI SAI — lỗi đo thứ tư trong phiên, kiểu mới.** Tôi `fetch` ba
+  trang `db_design*` rồi so HTML và kết luận *"ba route dựng nội dung giống nhau TỪNG KÝ
+  TỰ"* (`viTriKhacDauTien: -1`). Ba trang đó là `'use client'`: HTML lấy bằng `fetch`
+  chỉ là **vỏ SSR**, giống nhau **THEO CẤU TẠO**, còn dữ liệu khoá nạp ở client.
+  **Luật: `fetch` + so HTML không phân biệt được trang render ở client** — phải mở trong
+  trình duyệt và chờ JS. Cùng họ "grep hits chú thích" và "0 nghĩa là không chạy", và nó
+  đáng ghi riêng vì nó cho một phép so BẰNG NHAU, tức một kết luận TÍCH CỰC sai.
+  **IN NGỮ CẢNH ĐỦ 23 CHỖ bằng ĐÚNG đường của cổng** (màn đọc → `chia_man` → nhóm A →
+  `trong_bai`), và nó chia làm ba, không một:
+  · **21 chỗ là định danh thuần** → bọc backtick, không phán xét nào: `groupby` 5 ·
+    `exec` 4 · `mainloop` 4 · `print` 3 · `Thread` 2 · `stack` 2 · `pipe` 1;
+  · **1 chỗ KHÔNG phải định danh:** EX06 viết *"**Thread** chính trong ví dụ dòng lệnh
+    dùng join"* — đó là KHÁI NIỆM "luồng chính" viết hoa đầu câu, không phải class
+    `threading.Thread`. Bọc backtick ở đây sẽ hiện ra `` `Thread` `` cho một thứ mà L13
+    đã chốt gọi là "luồng". Cùng ca `Curses`/`Conda` đã ghi; cách đúng là dùng tiếng
+    Việt → *"Luồng chính… dùng `join`"*;
+  · **1 chỗ là ngoại lệ đã khai:** EX07 *"vượt giới hạn int 64 bit"* — int của C/máy,
+    bọc nó là dạy ngược. Nó là cảnh báo §4-A **duy nhất còn lại**.
+  **BỌC KÈM NHỮNG ĐỊNH DANH ANH EM KHÔNG BỊ CỔNG BẮT**, vì để chúng trần cạnh một chip
+  là sự không nhất quán người học đọc ra trước khi đọc ra ý nghĩa: `sum` (cạnh
+  `groupby`), `unstack` (cạnh `stack`), `quit`/`destroy` (cạnh `mainloop`),
+  `fork`/`wait` (cạnh `exec`), `compile` (cạnh `exec`), `join` (ở câu EX06). Không mục
+  nào trong số đó có trong termbank nên không cổng nào thấy — đúng khoảng trống đã khai
+  ở lát `String`/`range`.
+  **CỔNG TL BẮT MỘT THỨ TỒN TỪ VÒNG #140, và nó bắt vì đọc NGUỒN chứ không đọc bản
+  chép.** §12 của VAN-PHONG.md còn trích *"mốc trần trong CI là 115"* trong khi `ci.yml`
+  đã hạ xuống **100** ở #140 — tôi hạ trần mà không sửa trích dẫn, và nó sống qua hai
+  vòng. Luật TL so trích dẫn với CHÍNH `ci.yml`, nên nó đỏ với câu *"Sửa trích dẫn, đừng
+  sửa trần"*. Đây là lần thứ hai cùng chỗ ấy trôi (trước đó nó ghi 245 suốt nhiều tháng).
+  **SỐ ĐÃ ĐO:** §4-A **23 → 1** · L8 lỗi **22 → 21** · L13 cảnh báo **215 → 213** ·
+  tổng khoá **78 → 77 lỗi**, 425 → **401 cảnh báo** (−24) · L1/L2/L3/L7/L12/L14 không
+  động · `check.py --strict` 0/0 · `check-pyodide` 154 bài / 420 đoạn / 0 hỏng / 52-53
+  đáp án mẫu · `check-practice` 143 bài / 480 ca đạt / 773 biến thể sai đều trượt ·
+  `phu-van-phong` 0 lỗi · frontend unit 614 · ratchet 18 luật 0 lỗi (3 mục SIẾT đã ghi
+  sổ) · `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi.
+  **ABLATE:** trả `source/course.json` về HEAD → ratchet **8 lỗi**, gọi đúng ba luật
+  (`L8` lỗi 21 → 22 · `L13` TỔNG 213 → 215 · `§4-A` TỔNG 1 → 23) cộng năm lỗi sổ sách.
+  **VÀ CÔNG CỤ ABLATE CỦA #141 TỪ CHỐI ĐÚNG Ở ĐÂY, đúng giới hạn đã khai:**
+  `check_vanphong.py` in khuôn RIÊNG nên nó in *"KHÔNG ĐỌC ĐƯỢC SỐ CA — đây KHÔNG phải
+  '0 đỏ'"* kèm 30 dòng cuối, mã thoát 1 — **không bịa ra một số 0**. Nên chiều này đếm
+  bằng tay. Đầu vòng tôi đã BỎ ý định mở rộng `docSoDo` sang ba khuôn ấy vì "chưa có
+  bằng chứng ai cần"; nay **đã có bằng chứng** (chính tôi cần, trong cùng phiên), nên đó
+  là lead có cơ sở cho vòng sau — thêm một nhánh vào `docSoDo` kèm một ca "tổng = 0 trả
+  `null`", đừng thêm regex ở chỗ gọi.
+  **MỘT LỖI CỦA TÔI TRONG CHÍNH BẢNG THAY CHUỖI:** tôi để một mục là `None` làm chỗ
+  trống ("xem dưới") rồi **quên lấp**, nên §4-A dừng ở 2 thay vì 1. Cổng chỉ ra ngay
+  bài và nguyên văn. Đừng để chỗ trống trong một bảng dữ liệu — hoặc điền, hoặc bỏ dòng.
+  **VÀ MỘT BẪY ĐÃ GHI LẠI CẮN LẦN NỮA:** chuỗi cần thay có dấu nháy kép
+  (`groupby(["store", "month"])`), mà trong JSON nó là `\"` — phép so không thoát khớp
+  **0 chỗ**. Đúng vụ 84-vs-9. Phép thay nay `json.dumps(...)[1:-1]` cả hai vế.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 143/179 → **127/179, 52 bài CHỜ NẠP** — lát này một
+  mình thêm 16 bài.
+  **CỤM §4-A ĐÓNG LẠI:** còn đúng 1 cảnh báo và nó là ngoại lệ đã khai. Sáu lát đã đi
+  54 hằng → 85 tên kiểu → 22 chỗ gọi `plt`/`ax`/`fig` → 50 tên class → 21 tên thư viện →
+  9 chỗ viết hoa + 9 lệnh công cụ → 21 định danh cuối. Việc văn phong còn lại là L3 29 ·
+  L1 21 · L8 21, và cả ba đòi phán xét từng câu chứ không còn danh sách nào để quét.
+
+- **`ablate.mjs` đọc được năm khuôn của bộ kiểm NỘI DUNG — và việc DÙNG nó lộ ra cách
+  THỨ TƯ để "0 đỏ" nói dối: PHÉP GIEO VÔ HIỆU.**
+  **LEAD NÀY CÓ BẰNG CHỨNG, và nó đến theo đúng thứ tự đáng có.** Đầu vòng #143 tôi đã
+  BỎ ý định mở rộng `docSoDo`, vì kiểm lại thì ba lần đếm sai của phiên đều ở jest /
+  `node --test` / một script đo chuỗi — **không lần nào** ở khuôn nội dung, nên nó là
+  "dựng cho một lỗi chưa xảy ra". Cuối vòng đó thì **chính tôi cần**: muốn ablate một
+  lát văn phong, công cụ từ chối (đúng giới hạn đã khai), phải đếm tay. Nay nó là việc
+  có cơ sở.
+  **ĐO NGUYÊN VĂN TRƯỚC KHI VIẾT REGEX**, năm khuôn cộng bảy cổng `.mjs`. Ba quyết định
+  thiết kế, mỗi cái từ một phép đo chứ không từ khẩu vị:
+  · **thứ tự ƯU TIÊN**: `--doi-chieu` in CẢ HAI dòng (tổng văn phong và dòng ratchet),
+    và con số đáng đọc là của ratchet — nên khuôn `Đối chiếu sổ` đứng TRƯỚC. Đo trên
+    một seed thật: cùng một phép gieo cho **3 đỏ** khi đọc dòng ratchet và **77 đỏ** khi
+    đọc dòng mặc định. Hai con số đều đúng với dòng của chúng; công cụ báo cái mà LỆNH
+    báo, nên chọn lệnh là chọn nghĩa;
+  · **`check-practice` in số ĐẠT, không in số trượt** — số đỏ là HIỆU. Đọc "480 đạt"
+    rồi kết luận 0 đỏ là bỏ qua đúng trường hợp có ca không đạt;
+  · **khuôn `N lỗi` trần có `tong: null`**, vì bảy cổng `.mjs` không in tổng nào. Bằng
+    chứng-chạy ở đó là MÃ THOÁT: một cổng in "0 lỗi" mà thoát khác 0 là **tự nói
+    ngược**, và một bộ kiểm tự nói ngược thì con số của nó không dùng được. Công cụ in
+    `0 đỏ (khuôn không in tổng)` chứ không in `0 đỏ / null ca` — một con số trông như số
+    mà không phải số là đúng thứ nó ra đời để chặn.
+  **VÀ ĐÂY LÀ PHẦN ĐÁNG NHẤT: dùng công cụ trên ca thật lộ ra một lỗ của chính nó.**
+  Chạy `--ve-head` trên `source/course.json` để ablate lát văn phong của #143 thì nó in
+  **`0 đỏ / 179 ca`**. Con số ấy TRUNG THỰC về việc bộ kiểm đã chạy — và vô nghĩa, vì
+  lát ấy ĐÃ COMMIT nên `--ve-head` là một phép thay **không thay gì**. `--ve-head` không
+  có luật nào canh (nhánh `--cu`/`--cu-tep` thì đã được luật "khớp ĐÚNG MỘT LẦN" che).
+  Nay `chayMot()` so nội dung sau khi gieo với nguyên bản và DỪNG với *"GIEO VÔ HIỆU"*,
+  kèm câu chỉ đúng việc phải làm ("thay đổi cần ablate đã được commit rồi, hãy gieo bằng
+  `--cu-tep`/`--moi-tep`").
+  **Bốn cách "0 đỏ" nói dối, nay đủ bốn và đều có cổng:** bộ test không chạy (`tong = 0`
+  hoặc không có dòng tổng kết) · phép gieo không vào được tệp (khớp 0 hoặc >1 chỗ) ·
+  bộ kiểm tự nói ngược (in 0 lỗi mà thoát khác 0) · **phép gieo không đổi gì**.
+  **ABLATE CHÍNH CÔNG CỤ, BẰNG CHÍNH NÓ — 6 chiều, cả 6 đỏ:** bỏ kiểm GIEO VÔ HIỆU → 1 ·
+  bỏ kiểm TỰ NÓI NGƯỢC → 1 · bỏ luật MƠ HỒ (nhiều dòng khớp một khuôn) → 1 · `so()` thôi
+  bóc khoảng trắng → 1 · bỏ luật `tong === 0 → null` → 1 · đổi TÊN khuôn ratchet →
+  **2 đỏ** (ca nói thẳng, không im lặng xanh).
+  **`so()` LÀ MỘT BẪY ĐÃ GHI, cắn lại ở chỗ mới:** bộ kiểm in số kiểu Việt ("2 715", có
+  chỗ dấu cách là U+00A0) và `Number('2 715')` ra `NaN`. Không bóc khoảng trắng là đọc ra
+  `NaN` rồi mọi phép so sau đó im lặng sai — cùng bẫy `check-moc-nen.mjs` đã phải đặt.
+  **MỘT CA TEST CỦA TÔI ĐỎ VÌ ĐẦU VÀO SAI, không vì cổng sai:** tôi viết ca cho khuôn
+  `N lỗi` trần nhưng đưa dòng của `check-duong-toi`
+  (`17 tính năng · … · 0 lỗi`) — dòng ấy không phải `N lỗi` TRẦN. Nới khuôn để nhận cả
+  hai hình dạng (tiền tố tuỳ chọn phải kết thúc bằng `·`, nên nó KHÔNG khớp dòng liệt kê
+  `LỖI: …`), rồi kiểm trên đầu ra THẬT của bảy cổng: cả bảy đọc đúng.
+  **SỐ ĐÃ ĐO:** `docSoDo` 2 → **8 khuôn** · frontend unit **614 → 621 ca** (54 tệp) · sổ
+  ngưỡng siết sàn 614 → 621 · `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng
+  0 lỗi · `export-chet` / `tai-nguyen-chet` 0 lỗi · ratchet văn phong 18 luật 0 lỗi ·
+  `check.py --strict` 0/0. **Không đụng một dòng nội dung nào**, nên `check-da-nap` giữ
+  52 bài chờ.
+  **CÒN LẠI, nói cho đúng:** công cụ đọc được 8 khuôn, nhưng `build.py` thì KHÔNG —
+  nó `return 1` mà không in dòng tổng kết nào, nên ablate nó vẫn phải đọc mã thoát bằng
+  tay. Đó là khuôn duy nhất còn thiếu trong bậc thang, và nó thiếu vì không có gì để
+  đọc, không vì chưa ai viết regex.
+
+- **DANH SÁCH MIỄN TRỪ CỦA L14 CÓ 14 MỤC VÀ 13 KHÔNG CÒN CẦN — chỉ dài ra, chưa bao giờ
+  ngắn lại, và không luật nào canh chiều đó.**
+  **VÒNG MỞ RA ĐỂ LÀM MỘT LÁT L14, và phép đo đổi hẳn việc — hai lần.**
+  **ĐO 1: neo 23/24 bài im lặng là BỊA một khung quán, không phải thêm một câu.** Quét
+  dấu hiệu quán trong CODE của 24 bài (kể cả dạng bỏ dấu và `snake_case`): **đúng 1/24**
+  (PD26) có dữ liệu đã thuộc quán. 23 bài kia dùng dữ liệu kỹ thuật thuần — múi giờ,
+  regex `"Paid by S012 today"`, `abc.ABC`, `tempfile`, `subprocess.Popen`, widget
+  Tkinter. Mà `NGUONG_NEO = 1` nghĩa là bản sửa RẺ NHẤT đúng là rắc một từ khoá. Nên
+  **cụm L14 còn lại KHÔNG phải nợ nội dung đồng nhất** — đừng mở một lát "neo cho hết".
+  **ĐO 2, và đây là việc thật:** chạy phép thử "bỏ miễn trừ thì L14 có nói gì không"
+  trên cả 14 mục → **13 mục KHÔNG CÒN CẦN**. CT01–CT06, CT09, CT12, CT15, EX03–EX05,
+  EX07 đều đã được neo ở các đợt đổi miền (`quán`, `quầy`, `cups`) nhưng **không ai gỡ
+  mục miễn trừ của chúng**. Chỉ **SY04** còn load-bearing: bỏ nó ra thì SY04 ra LỖI
+  "dùng miền Sinh viên, môn học, điểm".
+  **TÁC HẠI LÀ CỤ THỂ, không phải vệ sinh: một mục miễn trừ chết CHE được một lỗi thật
+  về sau.** Ngày ai đó viết lại CT03 và làm mất câu neo, L14 vẫn im vì CT03 đang được
+  miễn trừ. `kiem_boi_canh` canh được ba thứ (mã bài có thật · không miễn trừ hai lần ·
+  phải có `lyDo`) nhưng **không có chiều "mục đã lỗi thời"** — khác hẳn
+  `DAP_AN_MAU_KHONG_CHAY`, `GIU_DU_CHET`, `CO_CACH_BAO_KHAC`, cả ba đều hai chiều. Đây
+  là lần thứ TƯ cùng một hình dạng, và lần này nó ở một file DỮ LIỆU chứ không ở một
+  hằng trong code.
+  **`can_mien_tru()` LÀ HÀM RIÊNG, không phải điều kiện chép vào nhánh miễn trừ:** hai
+  bản chép của cùng một phép phán xử sẽ trôi khỏi nhau, và trôi theo đúng chiều nguy
+  hiểm (một mục được coi là "còn cần" mãi mãi). Cùng lý lẽ `raw_doan()` đã phải gom hai
+  người dùng về một hàm.
+  **HAI `phepThu` ĐƯỢC GIỮ NGUYÊN VĂN, dời lên tầm trên** (`nguyenTacMienTru`): chúng là
+  LUẬT quyết một bài có được miễn hay không — *"dữ liệu của bài CHỌN ĐƯỢC không? CT03
+  không chọn được (hàng đợi của scheduler là của hệ điều hành), nên miễn. SY11 chọn được
+  …, nên KHÔNG miễn"* — và luật ấy còn đúng kể cả khi danh sách ngắn lại. Danh sách co
+  thì nguyên tắc phải ở chỗ không co theo.
+  **VÀ NÓ TRẢ LỜI MỘT CÂU TƯỞNG LÀ PHẢN BIỆN:** nhóm "ĐỐI TƯỢNG HỌC LÀ CÁI MÁY" nay
+  **không còn mục nào**, trong khi chủ đề của chúng không đổi. Nghĩa là mười ba bài "là
+  cái máy" VẪN neo được — bằng một câu VÍ VON chứ không bằng một bảng dán vào. CT12 viết
+  *"như hai quầy dùng chung một máy xay"*. Đó là bằng chứng rằng nhóm (1) chưa bao giờ
+  cần miễn trừ, và nó cũng là phép thử cho **CT08 · CT10 · CT11 · CT14** — bốn bài im
+  lặng cùng dải: hãy ví von, đừng miễn.
+  **`phamViMienTru` SAI THEO HAI CHIỀU CÙNG LÚC:** nó ghi *"14/172 bài = 8%"* — mẫu số
+  đã thành **179** từ lâu, còn tử số xuống **1**. Một con số sai ở cả tử lẫn mẫu thì
+  không đọc ra được là nó đang nói về cái gì.
+  **SỐ ĐÃ ĐO:** `mienTru` **14 → 1 mục** · L14 **0 lỗi · 24 cảnh báo** TRƯỚC VÀ SAU (13
+  bài nay được KIỂM THẬT và tất cả tự qua, nên không con số nào phình) · tổng khoá giữ
+  **77 lỗi · 401 cảnh báo**, không luật nào động · `check.py --strict` 0/0 ·
+  `phu-van-phong` 0 lỗi · frontend unit 621 · ratchet 18 luật 0 lỗi · `check-moc-nen` 20
+  mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi. **Không đụng một dòng nội dung bài nào**,
+  nên `check-da-nap` giữ 52 bài chờ.
+  **ABLATE 6 chiều, dùng `scripts/ablate.mjs`:** trả CT12 vào `mienTru` → **1 đỏ** · trả
+  cả 13 mục vào → **13 đỏ** · `can_mien_tru` bỏ nhánh MIỀN NGOÀI → 1 · gỡ SY04 (mục CÒN
+  CẦN) → **2 đỏ** · gỡ luật hai chiều trên danh sách ĐÃ SẠCH → **0 đỏ** · **CẶP ĐỐI
+  CHỨNG** CT12 lỗi thời + gỡ luật → **0 đỏ**, cùng trạng thái mà GIỮ luật → **1 đỏ**.
+  Chiều thứ năm một mình không chứng minh gì — nó là lý do phải có cặp đối chứng.
+  **MỘT CÁCH ĐỌC SAI CẦN CHẶN TRƯỚC:** "gỡ 13 mục miễn trừ" nghe như nới luật, nhưng nó
+  là SIẾT: 13 bài từ chỗ KHÔNG được kiểm sang chỗ được kiểm, và chúng qua. Phép thử phân
+  biệt hai chiều: nếu gỡ miễn trừ mà một luật TĂNG thì đó là nới (phải sửa nội dung
+  trước); ở đây mọi con số đứng yên.
+
+- **NEO BỐN BÀI CƠ CHẾ-MÁY BẰNG MỘT CÂU VÍ VON — và bằng chứng nó làm được nằm trong
+  chính corpus, không trong lý lẽ.** #145 đo được nhóm miễn trừ *"ĐỐI TƯỢNG HỌC LÀ CÁI
+  MÁY"* nay không còn mục nào: mười ba bài "là cái máy" đều neo được bằng một câu ví von
+  chứ không bằng một bảng dán vào (CT12: *"như hai quầy dùng chung một máy xay"*). Nên
+  bốn bài im lặng cùng dải — CT08 · CT10 · CT11 · CT14 — đi đường đó, không đi đường
+  miễn trừ.
+  **CÂU VÍ VON PHẢI ÁNH XẠ CƠ CHẾ, không trang trí.** Đọc đủ bốn bài trước khi viết:
+  CT08 `Popen` mở một kênh HAI CHIỀU và pipeline nối đầu ra vào đầu vào → *"việc nặng
+  được đẩy qua ô cửa cho người phía sau rồi chờ nhận lại ở đúng ô đó"* · CT10 `start` +
+  `join` khác `run()` gọi trực tiếp → *"giao một việc cho người ở quầy sau rồi quay lại
+  chờ họ xong, khác với tự tay làm nó"* · CT11 thuộc tính riêng từng instance nhưng
+  `list` truyền vào vẫn chung → *"mỗi người ở quầy có khay riêng, nhưng cuốn sổ đặt giữa
+  bàn thì vẫn là của chung"* · CT14 process con không dùng chung bộ nhớ → *"mở thêm một
+  quầy ở chỗ khác thì nó có sổ riêng, nên muốn biết kết quả phải gửi về"*. Mỗi câu nói
+  đúng cái mà đoạn văn phía sau sẽ giải thích bằng thuật ngữ.
+  **RÀNG BUỘC ĐỘ DÀI LÀ MỘT PHÉP ĐO, không phải khẩu vị:** mỗi câu mới ≤ 21 tiếng và
+  ≤ 1 dấu phẩy. Ablate xác nhận: gieo một câu **30 tiếng** vào đúng chỗ ấy → ratchet
+  **3 đỏ** (L1 cảnh báo phình, và ratchet đỏ vì *"TỔNG không được phình"*). Nên một câu
+  ví von dài là một câu ví von không ship được.
+  **MỘT PHÉP GIEO 25 TIẾNG CỦA TÔI RA 0 ĐỎ, và nó đúng — seed sai, không phải cổng
+  sai.** L1 cảnh báo khi **> 25**, nên 25 tiếng chưa vượt. Tôi đã suýt ghi "câu 27 tiếng
+  đẩy L1 lên" như một SỐ ĐO trong khi nó là một dự đoán chưa kiểm; gieo lại cho đủ 30
+  tiếng mới có con số. **Một ngưỡng dạng `>` thì phép gieo phải vượt nó, không phải
+  bằng nó.**
+  **VÀ LỖI ĐO THỨ NĂM CỦA PHIÊN, lần này do chính luật tôi tự ghi.** Ba chiều ablate đầu
+  ra **0 đỏ** vì tôi chạy `--luat L14`, mà L14 "chưa neo" là **CẢNH BÁO** còn dòng tổng
+  kết của lệnh ấy in số **LỖI**. Đúng điều #144 đã ghi: *"công cụ báo cái mà LỆNH báo,
+  nên chọn lệnh là chọn nghĩa"*. Chạy lại bằng `--doi-chieu` — nơi một cảnh báo TĂNG
+  thành lỗi — thì ba chiều ra **6 · 6 · 3 đỏ**. Luật rút ra: **ablate một CẢNH BÁO thì
+  phải đo bằng ratchet, không bằng bộ kiểm trần.**
+  **SỐ ĐÃ ĐO:** L14 cảnh báo **24 → 20** · tổng khoá giữ **77 lỗi**, 401 → **397 cảnh
+  báo** · L1 21·86 · L2 6·15 · L3 29 · L8 21·28 · L13 213 · §4-A 1 **đều không động** ·
+  câu phần giảng 2 715 → **2 719** · thời lượng khoá **2 438 → 2 439 phút** (cổng mốc
+  nền bắt con số này — thêm ~80 tiếng văn xuôi đủ để đổi một phút) · `check.py --strict`
+  0/0 · `check-pyodide` 154 bài / 420 đoạn / 0 hỏng · `check-practice` 480 ca đạt / 773
+  biến thể sai đều trượt · `phu-van-phong` 0 lỗi · frontend unit 621 · ratchet 18 luật
+  0 lỗi · `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi.
+  **ABLATE 6 chiều:** trả nội dung về HEAD → ratchet **6 đỏ** · gỡ RIÊNG câu của CT10 →
+  6 · gỡ RIÊNG câu của CT14 → 6 · đổi `quầy` sang một từ KHÔNG phải từ khoá → **3** ·
+  câu ví von 30 tiếng → **3** · **MIỄN TRỪ bốn bài này thay vì neo** → **4 đỏ**, do
+  chính luật hai chiều dựng ở #145. Chiều cuối là thứ chốt lại rằng hai đường không
+  thay nhau được: neo thì xanh, miễn trừ thì đỏ.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 52 → **55 bài CHỜ NẠP** (ba bài, không bốn: CT14 nằm
+  trong đợt chờ từ lát trước).
+  **CÒN LẠI 20 cảnh báo L14**, và hình dạng nay đã rõ: GU 6 · SY 5 · PD 4 · VZ 4 · NP 1.
+  Cụm GU phải đổi CODE (ví dụ của nó là nhãn và nút giao diện) mà `expected` của bài
+  `local` không cổng nào chạy — nên nó đi sau. Và #145 đã đo: chỉ 1/24 bài im lặng có
+  dữ liệu đã thuộc quán, nên **đừng mở một lát "neo cho hết"** — mỗi bài còn lại cần một
+  câu ví von riêng, viết được thì viết, không thì để im chứ không rắc từ khoá.
+
+- **BỐN BÀI PD ĐÃ NÓI VỀ SỔ ĐƠN VÀ DOANH THU CỦA QUÁN mà L14 không thấy — vì `đơn` cố
+  ý không phải từ khoá.**
+  **ĐO LẠI DANH SÁCH, KHÔNG TIN LEAD CỦA CHÍNH MÌNH — và lead sai hai chỗ.** #146 tôi
+  ghi *"20 cảnh báo L14 còn lại: GU 6 · SY 5 · PD 4 · VZ 4 · NP 1"*. Đo lại:
+  **SY 6 · GU 6 · PD 4 · VZ 4 = 20**, và **không có bài NP nào** — NP20 đã được neo từ
+  #134 ("Quán đong hai phần sữa 0.1 và 0.2 lít"), tôi đếm nó vào bằng một bản đo cũ.
+  Một lead viết ở vòng TRƯỚC vẫn là một lời khai phải kiểm, không phải một dữ kiện.
+  **BA BÀI ĐANG NÓI VỀ QUÁN RỒI:** PD21 *"**Ngày đặt hàng** đang là chuỗi"* · PD23
+  *"Hệ thống **ghi đơn** lúc 00:00 UTC… phân đơn vào đúng **ngày kinh doanh**"* · PD25
+  *"Cột `status` chỉ ghi P và C… tính **doanh thu** sau chiết khấu"*. L14 không thấy vì
+  `đơn` và `đặt hàng` **cố ý không phải từ khoá** — `đơn` trần khớp cả "đơn giản" và
+  "đơn vị" (81 bài), đã đo và bác ở #136. Nên bản sửa không bịa khung nào: nó chỉ gọi
+  tên cái quầy mà ví dụ vốn đang nói về.
+  **ĐÂY LÀ MỘT HÌNH DẠNG RIÊNG, đáng tách khỏi "chưa neo":** bài neo được trong ĐẦU
+  người đọc nhưng không neo được với bộ dò, vì từ chỉ miền của nó là một từ đã bị loại
+  có lý do. Nó KHÁC "bài dùng dữ liệu kỹ thuật thuần" (23/24 ở #145) và khác "bài cơ chế
+  máy cần một câu ví von" (#146). Ba hình dạng, ba cách sửa.
+  **PD25 ĐƯỢC HAI:** nó có `doanh thu` (nhóm `kemChinh`), nên câu neo vừa xoá cảnh báo
+  "chưa neo" vừa chặn sẵn nhánh LỖI "dữ liệu trơ" cho ngày `doanh thu` lên 2 lần.
+  **PD26 LÀ BÀI DUY NHẤT KHÁC:** `['low','medium','high']` là nhãn phân loại chung chung,
+  khung quán có thật (mức ưu tiên của đơn) nhưng đổi chính dữ liệu là đổi CODE — mà PD26
+  **có mục trong `traces.json`** nên phải chạy `gen_traces` (~20 phút, cần
+  numpy/pandas/matplotlib, không chạy được trên CI). Nên nó cũng chỉ sửa văn xuôi, và
+  câu mới **bỏ luôn 2 dấu phẩy** ("low rồi medium rồi high") để một câu dài hơn không
+  đẩy L3 lên.
+  **SỐ ĐÃ ĐO:** L14 cảnh báo **20 → 16** · tổng khoá giữ **77 lỗi**, 397 → **393 cảnh
+  báo** · L1 21·86 · L2 6·15 · L3 29 · L8 21·28 · L13 213 · §4-A 1 **đều không động** ·
+  TL **0** (số CÂU không đổi — bốn phép sửa chỉ thêm tiếng, không thêm câu; đó là lý do
+  vòng này không phải sửa §2 như ba vòng trước) · `check.py --strict` 0/0 ·
+  `check-pyodide` 154 bài / 420 đoạn / 0 hỏng · `check-practice` 480 ca đạt / 773 biến
+  thể sai đều trượt · `phu-van-phong` 0 lỗi · frontend unit 621 · ratchet 18 luật 0 lỗi
+  · `check-nguong` 34 ngưỡng 0 lỗi.
+  **ABLATE 5 chiều, đo bằng RATCHET** (bài học #146: L14 "chưa neo" là CẢNH BÁO, nên bộ
+  kiểm trần in 0 lỗi ở cả hai phía): trả nội dung về HEAD → **3 đỏ** · gỡ RIÊNG câu neo
+  của PD21 → 3 · gỡ RIÊNG câu neo của PD25 → 3 · đổi `quán` thành "hệ thống trung tâm" ở
+  PD23 → 3 · PD26 giữ 2 dấu phẩy và dài 27 tiếng → **6 đỏ** (hai luật cùng động).
+  **Ba đỏ là 1 luật hồi quy + 2 dòng sổ sách**, không phải ba luật — ratchet đếm SỐ LUẬT
+  xấu đi, không đếm độ lớn. Đọc "3 đỏ" thành "ba luật hỏng" là đọc sai cấu tạo của nó.
+  **CỔNG MỐC NỀN BẮT MỘT CON SỐ TÔI SẼ QUÊN:** hàng "Đã nạp DB chưa" ghi "124/179 khớp"
+  mà đo được 120 — bốn bài vừa sửa rời khỏi nhóm khớp biên nhận. Con số ấy đổi MỖI lát
+  nội dung, nên nó là hàng dễ trôi nhất của bảng.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 55 → **59 bài CHỜ NẠP**.
+  **CÒN LẠI 16 cảnh báo L14: SY 6 · GU 6 · VZ 4.** Cụm VZ là biểu đồ (dữ liệu vẽ ra là
+  số của quán được, nhưng đổi là đổi CODE và cả bốn có mục trong `traces.json`); cụm SY
+  là file/regex/OOP; cụm GU phải đổi nhãn widget mà `expected` của bài `local` không cổng
+  nào chạy. Cả ba cụm đều KHÔNG còn đường "sửa một câu", nên đừng hứa một lát dọn hết.
+
+- **CT02 ĐÃ CÓ một bảng cho một danh sách rồi nhồi danh sách SONG SINH vào một câu — trong
+  CÙNG bài, và EX04 nhồi ĐÚNG danh sách đó.** Lát L3 thứ năm (43 → 41 → 39 → 36 → 32 → 29 →
+  **27**). Bốn lát trước chọn câu theo SỐ DẤU PHÂN CÁCH; lát này đọc CẤU TRÚC bài trước, và
+  nó cho một lý lẽ mạnh hơn "nó là liệt kê nên làm thành bảng":
+  · CT02 có khối `table` ở `reading[1]` (`Đối số | Nó là gì`) cho bốn đối số của
+    `CreateProcess`, rồi ở `reading[5]` nhồi một danh sách **cùng cấu trúc** — bốn hậu tố
+    `l`/`v`/`p`/`e` của họ `exec`, mỗi hậu tố một nghĩa — vào một câu 26 tiếng / 3 dấu. Tiền
+    lệ, cặp tiêu đề cột VÀ hình dạng hai-cột đều lấy từ chính bài đó, do chính tác giả ấy đặt;
+  · EX04`[4]` nhồi ĐÚNG danh sách ấy bằng cách diễn đạt khác (`chương trình` so với
+    `executable`, `vector argv` so với `vector/list đối số`): 25 tiếng / 3 dấu. **Một bảng,
+    hai bài, hai câu nhồi** — nên bản sửa là MỘT khối `table` dùng lại ở cả hai chỗ, và câu
+    trỏ lấy nguyên khuôn của CT02`[0]` (*"`CreateProcess` nhận bốn đối số ở bảng dưới"*), nơi
+    tác giả đã đặt tiền lệ cho con trỏ đứng GIỮA đoạn với bốn câu đi sau.
+  **CT15 ĐÚNG hình dạng đó mà BỎ QUA có chủ đích:** nó cũng có `TABLE ['Dấu','Shell làm gì']`
+  ở `[1]` rồi nhồi `ls, bc, ps và grep` ở `[6]`. Nhưng câu ấy chỉ có TÊN, không có nghĩa đi
+  kèm, nên cột thứ hai sẽ phải BỊA — đúng lý do PD12 đã bị bỏ ở lát #137 (*"lấy cái có nguyên
+  liệu, đừng lấy cái vừa đủ nặng"*).
+  **CHÈN SAU ĐOẠN VĂN, ĐỪNG THAY NÓ — nay có số, và đo được KHÔNG CHẠM FILE.** `chia_man()`
+  chỉ cắt màn trước một `paragraph` đứng sau code, và khối `table` không đặt `da_co_code`, nên
+  chèn bảng là trung tính. Gọi `chia_man` trực tiếp trên hai biến thể: chèn SAU → **567 màn**,
+  THAY đoạn bằng bảng → **565** — tức xoá đúng hai ranh giới màn. Một phép đo trong tiến trình
+  như vậy trả lời câu hỏi mà không cần gieo khiếm khuyết vào cây mã, và `check-moc-nen` thì
+  chỉ nói được "số màn sai", không nói được "bạn vừa xoá một ranh giới".
+  **CHỮ MỚI PHẢI ĐI QUA CHÍNH BỘ LUẬT NÓ ĐANG HẠ — bài học #137, nay có răng đo được.**
+  CT02`[5]` có `process` trong văn xuôi cũ, mà `process` là nhóm **B** của termbank (L13 đã
+  chốt gọi là "tiến trình"). Ablate: đổi câu trỏ thành *"Bốn hậu tố trong tên họ hàm của tiến
+  trình ở bảng dưới"* → **L11 1 đỏ** (*"gọi cùng một thứ bằng hai tên"*). Nên ô bảng CỐ Ý
+  không nhắc tiến trình/process ở đâu cả; bốn ô là "nhận từng đối số rời nhau" · "nhận một
+  vector đối số" · "tìm chương trình qua `PATH`" · "nhận `environment` tường minh".
+  `PATH`/`environment` bọc backtick theo đúng tiền lệ `bInheritHandles` của bảng cũ (tên tham
+  số C), còn `vector` là nhóm C nên không đòi gì.
+  **CASCADE LÀM "8 ĐỎ" MẤT SỨC PHÂN BIỆT, và phải đọc số trên LUẬT.** Trả CT02 một mình, trả
+  EX04 một mình, hay trả cả hai — **cả ba đều ra 8 đỏ**, vì mỗi lần đều làm L3 tăng rồi kéo
+  theo TL (ba con số §2) và năm dòng sổ sách của §11/§12. Đo lại bằng `--luat L3` thì mỗi bài
+  đáng ĐÚNG MỘT lỗi: CT02 một mình → **28**, EX04 một mình → **28**, nguyên bản → **27**.
+  Phân rã của 8 đỏ: **3 luật hồi quy** (L2 TỔNG 19 → 21 · L3 27 → 29 · TL 0 → 3) cộng **5
+  dòng sổ sách**. Giới hạn cascade này đã khai ở mục §8; đây là lần nó làm mờ một phép ablate
+  thật, nên luật dùng là: **ablate một lát văn phong thì đọc `--luat <L>`, dùng ratchet chỉ để
+  biết có luật nào xấu đi.**
+  **SỐ ĐÃ ĐO:** L3 **29 → 27** · L2 cảnh báo **15 → 13** (hai đoạn ngắn lại nhờ rút câu) ·
+  tổng khoá **77 → 75 lỗi**, 393 → **391 cảnh báo** · L1 21·86 · L8 21·28 · L13 213 · L14 0·16
+  · §4-A 0·1 **đều không động** · câu phần giảng 2 719 → **2 731** và **p90 23 → 22** (ô bảng
+  là câu riêng và chúng ngắn, nên phân bố tụt — phép đo đang trung thực, không phải trôi) ·
+  màn đọc **567** · `table` 14 → **16**, `paragraph` GIỮ 820 · thời lượng khoá **2 439 phút** ·
+  `check.py --strict` 0/0 · `check-pyodide` 154 bài / 420 đoạn / 0 hỏng (VZ25 2 578 ms, biên
+  5,8×) · `check-practice` 143 bài / **480 ca đạt** / 773 biến thể sai đều trượt ·
+  `check-phu-van-phong` 0 lỗi · frontend unit **621** · ratchet 18 luật 0 lỗi (2 mục SIẾT đã
+  ghi sổ) · `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi ·
+  `check-doi-hoi`/`check-duong-toi` 0 lỗi.
+  **GIÁ PHẢI TRẢ: 0 bài THÊM vào hàng chờ nạp** — CT02 và EX04 đã nằm trong đợt chờ từ các lát
+  trước, nên `check-da-nap` giữ **59 bài**. Đây là lần đầu một lát nội dung không đẩy con số đó
+  lên, và lý do là nó rơi vào hai bài đã chờ sẵn.
+  **MỘT KHOẢNG TRỐNG ĐO ĐƯỢC TRONG VÒNG NÀY, chưa làm:** hàng "pe-da VĂN PHONG" của bảng mốc
+  nền mang **sáu** con số (75 lỗi · 391 cảnh báo · L3 27 · L1 21 · L8 21 · 18 luật) mà
+  **KHÔNG cổng nào đối chiếu** — `check-moc-nen` cố ý không chạy bộ kiểm nào (nó phải nhanh) và
+  `check-moc-chay` mới có 6 mục, không mục nào là văn phong. Bằng chứng: cổng vẫn in **0 lỗi**
+  trong khi hàng ấy còn ghi 77/393 và bộ kiểm đo 75/391. Ratchet thì canh §11 của
+  VAN-PHONG.md, không canh AGENTS.md. Mười lát văn phong liền tôi sửa sáu con số ấy BẰNG TAY,
+  tức đúng lớp "con số không ai canh thì sẽ trôi" — và chỗ đúng cho nó là mục thứ bảy của
+  `check-moc-chay`, không phải `check-moc-nen`.
+
+- **HÀNG "pe-da VĂN PHONG" MANG BẢY CON SỐ MÀ KHÔNG CỔNG NÀO ĐỐI CHIẾU — mười lát liền
+  tôi sửa chúng bằng tay, và một bản sao trong chính hàng ấy đã trôi.** Lead này tôi tự
+  ghi ở lát trước; #147 vừa dạy rằng một lead viết ở vòng trước vẫn là lời khai phải
+  kiểm, nên đo trước: `grep -ln "VĂN PHONG\|check_vanphong" scripts/check-*.mjs` → **RỖNG**.
+  `check-moc-nen` cố ý không chạy bộ kiểm nào (nó phải nhanh) nên nó tự khai các con số ấy
+  là NGOÀI TẦM; `check-moc-chay` lúc đó có **6 mục**, không mục nào là văn phong; ratchet
+  `--doi-chieu` canh §11 của VAN-PHONG.md, **không** canh AGENTS.md. Bằng chứng cứng: ở lát
+  trước `check-moc-nen` in **0 lỗi** trong khi hàng ghi 77/393 và bộ kiểm đo 75/391.
+  Và bản sao TRONG CHÍNH hàng đó (*"nó KHÔNG đỏ vì N lỗi đang tồn"*) đã trôi thật — nó ghi
+  **82** khi số thật là **77**.
+  Nay `check-moc-chay` có **mục thứ bảy** (`vanphong`), và nó CHẠY đúng lệnh `--doi-chieu`
+  mà CI đã chạy ở job `giao-trinh-da`, nên nó THAY bước đó chứ không thêm lượt chạy.
+  **BA TẦNG CỦA CÙNG MỘT LẦN CHẠY** được đọc một lượt: bảng TỪNG LUẬT (L3 · L1 · L8), dòng
+  tổng của bộ kiểm (bài · lỗi · cảnh báo), và dòng của ratchet (số luật · số lỗi). `truot`
+  lấy từ ratchet, nên một luật xấu đi làm cổng đỏ vì "bộ test đỏ" chứ không vì "bảng ghi
+  sai" — cùng lý lẽ đã viết cho mục `e2e`.
+  **VÀ BA CON SỐ L3/L1/L8 KHÔNG CHỈ LÀ SỐ: hàng khai chúng là ba luật DỒN nhiều lỗi nhất,
+  tức một lời khai về THỨ TỰ.** Ngày L2 vượt L3 thì con số có thể vẫn khớp trong khi câu
+  "dồn ở" đã sai, và một phép so BẰNG sẽ im lặng ở đúng chỗ đó. Nên mục này có `themLuat`:
+  ba luật được kể tên phải là ba luật nhiều lỗi nhất, so theo TẬP (L1 và L8 đang BẰNG nhau
+  ở 21 nên so theo vị trí sẽ báo oan). Câu trong thông điệp SUY RA từ chính mảng — bản đầu
+  của tôi ghi cứng `"dồn ở L3 · L1 · L8"` cạnh `['L1','L3','L8']`, tức nuôi một bản sao thứ
+  hai ngay trong mã của cổng chống-bản-sao.
+  **BẢN SAO TRONG CHÍNH HÀNG THÌ BỎ SỐ, KHÔNG CANH.** Câu *"nó KHÔNG đỏ vì … lỗi đang
+  tồn"* nói về CƠ CHẾ (không đỏ vì lỗi đang tồn, chỉ đỏ khi một luật TĂNG) — nó không cần
+  con số. Cùng nước đi đã làm cho ghi chú §2 khi dựng luật TL: **ít con số hơn là câu trả
+  lời đúng khi một con số không thêm thông tin nào mà cổng không in ra được.**
+  **`f in khai2`: bản sao được phép chở một TẬP CON.** Hàng "Mốc phải CHẠY mới biết" chở 2
+  trong 7 con số (`vanphong 75/391`), mà vòng so cũ đọc `khai2[f]` cho MỌI trường của
+  `khai` — thiếu một trường là `undefined !== that[f]`, tức một lỗi GIẢ. Nó KHÔNG nới phép
+  kiểm: chính regex của `bang2` đã đòi đúng hình dạng, nên mất một con số ở đó là "KHÔNG
+  CÒN DÒNG", không phải im lặng.
+  **SỐ MỤC CỦA CHÍNH CỔNG cũng là một con số không ai canh** — hàng ghi "6 mục" suốt trong
+  khi thêm/bớt một mục chỉ sửa một file. `check-moc-nen` đã tự canh `mucDoiChieu` của nó từ
+  trước; đây là nửa còn thiếu, và nó chạy ở MỌI lần gọi vì con số ấy không phụ thuộc tham số.
+  **VÀ MỘT CON SỐ TRONG ĐẦU RA CỦA CHÍNH CỔNG ĐÃ TRÔI:** dòng NGOÀI TẦM còn ghi "Backend
+  lint 104 lỗi" trong khi lint đã xuống **92** ở vòng dọn `prisma-exception.filter`. Một
+  cổng chống trôi mà tự in một con số cũ thì nó dạy người đọc thôi tin nó.
+
+  **CÁCH THỨ NĂM ĐỂ "0 ĐỎ" NÓI DỐI: một cổng in LẠI đầu ra của cổng con.** Phát hiện này
+  đến từ việc DÙNG `ablate.mjs` trên chính `check-moc-chay`, đúng như #141 và #142.
+  Chiều "phá phép đọc bảng TỪNG LUẬT" (phép tự kiểm `≥ 15 luật`) in ra **`0 đỏ / 179 ca
+  (ratchet văn phong)`** — một con số trông hợp lệ. Thật ra cổng ngoài ĐỎ và thoát **1**:
+  khi `doc()` trả `null`, `check-moc-chay` in lại **30 dòng cuối** của lệnh con (bản sửa
+  07/11, để log CI không bị mù), nên đầu ra của nó CHỨA đầu ra của cổng trong, và thứ tự ưu
+  tiên của `docSoDo` khớp dòng `Đối chiếu sổ: … 179 bài · 0 lỗi` của cổng TRONG thay vì lời
+  phán của cổng NGOÀI.
+  Phép kiểm "TỰ NÓI NGƯỢC" đã có từ #141 nhưng nó chỉ áp cho khuôn **không in tổng**, mà
+  khuôn ratchet CÓ tổng (số bài) — nên nó bỏ qua đúng ca này. Nay mã thoát là bằng chứng
+  cho **MỌI** khuôn.
+  **ĐO TRƯỚC KHI SIẾT, vì một phép kiểm báo oan sẽ bị tắt:** `check_vanphong.py` không cờ
+  in "75 lỗi" và thoát **1**; `--doi-chieu` in "0 lỗi" và thoát **0**; `check.py --strict`
+  0 lỗi thoát 0; `check-duong-toi.mjs` 0 lỗi thoát 0. Bất biến "thoát 0 ⟺ 0 đỏ" đứng cho
+  cả tám khuôn.
+  **VÀ PHÉP SIẾT LÀM HAI CA SẴN CÓ ĐỎ — đó là chiều phải kiểm, không phải tai nạn.** Hai
+  fixture TỔNG HỢP in `Tests: 3 failed, 5 passed, 8 total` rồi thoát **0**, trong khi jest
+  THẬT thoát 1 khi có ca trượt. Fixture mô hình sai mã thoát, nên bản sửa là sửa FIXTURE,
+  không nới phép kiểm — cùng luật "sửa cổng, đừng sửa nội dung" ở Luật 6 của cổng INSERT,
+  lần này theo chiều ngược.
+  **Bẫy nhỏ khi viết ca mới:** `echo` của cmd GIỮ nguyên dấu nháy kép, nên
+  `echo "Đối chiếu sổ: …"` in ra một dòng mở đầu bằng `"` và regex `^Đối chiếu sổ:` không
+  khớp — ca ĐỎ OAN với câu "KHÔNG ĐỌC ĐƯỢC SỐ". Ca sẵn có ở trên đã echo KHÔNG nháy; làm
+  theo nó.
+  **Chiều hậu quả, phải nói ra:** nay `ablate.mjs` **TỪ CHỐI** đo chiều "phá phép tự kiểm"
+  của `check-moc-chay` thay vì in một con số giả. Đó là kết quả ĐÚNG và là kiểu bằng chứng
+  mạnh nhất công cụ ấy đưa ra được (nó thà không trả lời còn hơn trả lời sai), nhưng nó
+  nghĩa là chiều ấy không có SỐ — và thông điệp nói ra cách sửa nếu cần số: thêm một khuôn
+  cho cổng ngoài, đừng nới phép kiểm.
+
+  **ABLATE 8 chiều.** Năm chiều trên AGENTS.md, mỗi chiều **1 đỏ**: đổi `L3 27 → 26` trong
+  hàng · đổi bản sao `vanphong 75/391 → 75/390` · đổi CHỮ của hàng (regex hết khớp → "KHÔNG
+  CÒN DÒNG") · gỡ hẳn bản sao thứ hai · đổi số mục `7 → 6`. Hai chiều trên cây mã: đổi tập
+  luật kỳ vọng của `themLuat` → **1 đỏ** kèm đúng thông điệp của nó (nên con đỏ ấy đến từ
+  `themLuat`, không từ phép so số) · phá phép đọc bảng TỪNG LUẬT → **ablate TỪ CHỐI** với
+  "LỆNH TỰ NÓI NGƯỢC", mã thoát 1. Chiều thứ tám trên chính `ablate.mjs`: trả bất biến về
+  bản chỉ-áp-cho-khuôn-không-tổng → **1 đỏ / 19 ca**.
+  **SỐ ĐÃ ĐO:** `check-moc-chay` **6 → 7 mục**, 0 trượt 0 lỗi, và nó đối chiếu 7 con số của
+  hàng văn phong (179 · 75 · 391 · 27 · 21 · 21 · 18) cộng 2 con số của bản sao · frontend
+  unit **621 → 622 ca** / 54 tệp · sổ ngưỡng siết sàn 621 → 622 · `check-moc-nen` 20 mục
+  0 lỗi · `check-nguong` 34 ngưỡng 0 lỗi · `export-chet` / `tai-nguyen-chet` /
+  `duong-toi` / `check-wheel` 0 lỗi. **KHÔNG đụng một dòng nội dung nào**, nên `check-da-nap`
+  giữ **59 bài chờ**.
+  **GIỚI HẠN PHẢI NÓI RA:** mục này đối chiếu BẢY con số của hàng, không phải mọi con số
+  trong bảng mốc nền có liên quan tới văn phong. Hàng "pe-da ĐỘ PHỦ văn phong" (99 chuỗi
+  ngoài tầm · 4 mục khai) và hàng "Bảng mốc nền" vẫn do cổng khác canh, và các bảng số
+  trong VAN-PHONG.md thì do luật TL canh. Và cascade của TL vẫn còn: một con số trôi trong
+  VAN-PHONG.md làm `lỗi` phình lên nên mục này sẽ kêu CẢ "bảng ghi sai" — `luuY` của nó nói
+  ra điều đó cùng cách sửa (sửa cái GỐC rồi đo lại, đừng ghi ngay con số cổng vừa in).
+
+- **BÀI CÓ MẬT ĐỘ THUẬT NGỮ CAO NHẤT KHOÁ LÀ 23/29 LẦN GẶP THUỘC NHÓM B — nên sửa L13 hạ
+  luôn L8, và chính bài đó đã tự chú giải rồi quay lại tiếng Anh.** Ba vòng trước là hai
+  lát nội dung cộng một cổng, nên vòng này nhắm cụm L8 — cụm lớn thứ ba mà người thử gọi
+  tên (*"mấy đứa bạn e đọc có những chỗ nó ko hiểu"*).
+  **ĐO TRƯỚC KHI DỰNG, và phép đo chọn cả bài lẫn cách sửa.** 21 lỗi L8 (mật độ > 60/1000).
+  Phân rã bài cao nhất, RC01 = **110/1000 (29 lần / 263 tiếng)**: `child` ×8 · `process` ×8 ·
+  `thread` ×7 · `parent` ×1 — **cả bốn là nhóm B**, tức termbank ĐÃ chốt tiếng Việt cho
+  chúng (tiến trình con · tiến trình · luồng · tiến trình cha) và L13 đã cảnh báo đúng
+  những chữ ấy. Bộ dò khớp CHÍNH TẢ TIẾNG ANH, nên dùng tiếng Việt là chúng rời khỏi phép
+  đếm ⇒ **L8 tụt theo**. Cùng cấu trúc "lợi kép" của chiến dịch backtick §4-A (256 → 1, và
+  nó kéo cả L8 lẫn L3 xuống).
+  **ĐÂY KHÔNG PHẢI GAMING L8, và phép thử phân biệt là: ai quyết?** Quyết định "từ này dùng
+  tiếng Việt" nằm ở `thuatngu.json` kèm chú giải viết sẵn, không ở tôi. Phép sửa gaming sẽ
+  là nhồi thêm chữ cho mẫu số phình ra — đo được là cần **+221 tiếng** cho RC01, và đó đúng
+  là thứ KHÔNG nên làm.
+  **BẰNG CHỨNG MẠNH NHẤT NẰM TRONG CHÍNH BÀI:** đoạn [0] của RC01 viết *"một tiến trình cha
+  (parent) quản lý nhiều tiến trình con (child)"* — đúng khuôn chú giải — rồi bốn đoạn sau
+  quay về tiếng Anh: *"Mỗi ô child"*, *"child process"*, *"các child"*, *"ô thread"*,
+  *"browser process"*, *"main thread"*. Bài tự đặt tên tiếng Việt rồi tự bỏ. Cùng hình dạng
+  lý lẽ của lát #148 (CT02 đã có bảng cho danh sách song sinh).
+  **HAI TỪ RIÊNG CỦA CHROMIUM KHÔNG DỊCH, và đã tra:** `browser` và `renderer` KHÔNG có
+  trong termbank, nên không luật nào đòi gì — giữ nguyên làm tên riêng (*"tiến trình
+  browser"*, *"tiến trình renderer"*), và phép đếm `process` vẫn giảm. `heap`/`dictionary`/
+  `worker`/`slide` là nhóm C, cũng giữ. `inter-process` KHÔNG bị đếm vì biên từ loại trừ
+  dấu nối — chính bản sửa cho bẫy `f-string`/`string`.
+  **GIÁ PHẢI TRẢ ĐO ĐƯỢC NGAY, và ratchet bắt:** tiếng Việt DÀI hơn, nên đoạn cuối đi từ
+  dưới 90 lên **92 tiếng** và L2 cảnh báo 13 → 14 ⇒ TỔNG L2 phình ⇒ ratchet ĐỎ. Cắt 3 tiếng
+  chữ đệm (*"có các luồng của nó"* → *"có luồng riêng"*, *"được ghi IPC"* → *"ghi IPC"*) là
+  về 13. **Dịch sang tiếng Việt làm đoạn dài ra — đo L2 ngay sau khi dịch, đừng để ratchet
+  phát hiện hộ.**
+  **TIÊU ĐỀ CŨNG ĐỔI**, vì một tiêu đề tiếng Anh trên một bài tiếng Việt là đúng khiếm
+  khuyết L11 ở chỗ dễ thấy nhất: *"process ở ngoài, thread ở trong"* → *"tiến trình ở ngoài,
+  luồng ở trong"*. Đổi tiêu đề thì `check.py` đỏ cho tới khi chạy `sync_curricula.py` — hai
+  nguồn danh sách bài, bẫy đã ghi.
+  **MỘT LẦN CHÚ GIẢI PHẢI Ở LẠI, và nó load-bearing cho TB chứ KHÔNG cho L10.** `child` và
+  `parent` có `baiDauTien = RC01`. Ablate gỡ `(child)` khỏi đoạn [0]: `--luat L10` ra **0
+  đỏ** — vì sau khi dịch hết, `child` không còn xuất hiện TRẦN ở đâu nên L10 không có gì để
+  đòi chú giải. Thứ bắn là **TB**: *"khai `baiDauTien`=RC01 nhưng KHÔNG xuất hiện ở đâu
+  trong corpus (ngoài backtick)"*. Cùng hình dạng vụ `Thread` ở lát §4-A — một luật của bộ
+  này canh lời khai của một luật khác. Nên khi dịch trọn một thuật ngữ sang tiếng Việt,
+  **giữ đúng một lần chú giải ở `baiDauTien`**, và lý do là TB, không phải L10.
+  **SỐ ĐÃ ĐO:** L8 **21 → 20 lỗi** (RC01 110 → rời hẳn danh sách) · L13 cảnh báo **213 →
+  208** (L13 dồn theo cụm nên 22 lần gặp gộp thành 5 cảnh báo — đừng đọc "−22 lần" thành
+  "−22 cảnh báo") · tổng khoá **75 → 74 lỗi**, 391 → **386 cảnh báo** · L1 21·86 · L2 6·13 ·
+  L3 27 · L11 0 · TB 0 · TL 0 · §4-A 0·1 **đều không động** · màn đọc **567** · thời lượng
+  **2 439 phút** · `check.py --strict` 0/0 · `check-pyodide` 154 bài / 420 đoạn / 0 hỏng ·
+  `check-practice` 143 bài / 480 ca đạt / 773 biến thể sai đều trượt · `check-phu-van-phong`
+  0 lỗi · `check-doi-hoi` 0 lỗi · frontend unit **622** · `check-nguong` 34 ngưỡng 0 lỗi.
+  **ABLATE 4 chiều.** Trả nội dung về HEAD, đọc `--luat L8` → **21** (nay 20) · đọc qua
+  ratchet → **6 đỏ** (2 luật hồi quy: L8 20→21, L13 TỔNG 208→213; cộng 4 dòng sổ sách) ·
+  dịch NỬA một đoạn (để lại *"child process"* cạnh *"tiến trình con"*) → **L11 1 đỏ** · gỡ
+  chú giải `(child)` → **TB 1 đỏ**.
+  **CHIỀU 2 LÀ BÀI HỌC #146 LẶP LẠI:** đọc chiều "trả về HEAD" bằng `--luat L13` ra **0 đỏ**,
+  vì L13 chỉ sinh CẢNH BÁO còn dòng tổng của lệnh ấy in số LỖI. Ablate một luật chỉ-cảnh-báo
+  thì phải đo bằng ratchet.
+  **VÀ CỔNG DỰNG VÒNG TRƯỚC BẮT THẬT, đúng một vòng sau khi dựng:** `check-moc-chay vanphong`
+  in **5 lỗi** với `loi 75/74 · canhBao 391/386 · L8 21/20` — tức ba trong bảy con số của
+  hàng mốc nền đã lệch, và trước vòng #149 thì không gì thấy. `check-moc-nen` thì bắt hàng
+  biên nhận DB (120 → 119). Một cổng chống trôi chỉ chứng minh được mình khi tài liệu THẬT
+  SỰ trôi.
+  **Bẫy nhỏ khi sửa bảng:** `vanphong 75/391` khớp **3 chỗ** trong AGENTS.md — một ở hàng
+  mốc nền và hai trong mục BẪY của vòng #149. Hai chỗ sau là BẢN GHI của một phép đo đã xảy
+  ra, không phải lời khai về hiện trạng; giữ nguyên, đúng luật đã dùng cho con số "104 lỗi"
+  ở lát dọn `prisma-exception.filter`.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 59 → **60 bài CHỜ NẠP**.
+  **CÒN LẠI 20 lỗi L8, và phép đo đã chỉ ra lát nào rẻ:** SY21 109 (`pickle`×7 · `JSON`×6 ·
+  `file`×5 — gần hết là nhóm **C**, nên lát này KHÔNG dùng lại được) · CT14 106 (`process`×8 ·
+  `thread`×3 · `queue`×3 · `object`×2 = 16/32 nhóm B) · SY12 82 (`package`×9 nhóm B, 9/21) ·
+  GU11 88 (`thread`×3 · `queue`×3 = 6/17). Tức khuôn "dịch nhóm B" chỉ còn ăn ở CT14, SY12,
+  GU11; các bài còn lại dồn vào nhóm C, nơi termbank CỐ Ý không chốt tiếng Việt — ở đó hạ
+  mật độ nghĩa là viết thêm lời giải thích, một việc khác hẳn và đắt hơn. Đo nhóm trước khi
+  mở lát, đừng đọc con số mật độ một mình.
+
+- **LÁT THỨ HAI CỦA KHUÔN "dịch nhóm B hạ luôn L8" — và nó chỉ ăn ở BA trong bốn ứng viên,
+  phép đo nói trước bài nào.** Chiếu cả bốn bài L8 cao nhất còn lại trước khi mở việc:
+
+  | bài | nay | nhóm B | chiếu | thật sau khi sửa |
+  |---|---|---|---|---|
+  | **SY12** | 82 | `package`×9 · `class`×1 · `method`×1 | ~39 | **39 — rời CẢ HAI danh sách** |
+  | **CT14** | 106 | `process`×8 · `thread`×3 · `queue`×3 · `object`×2 | ~53 | **52 — rời bậc LỖI** |
+  | **GU11** | 88 | `thread`×3 · `queue`×3 | ~57 | **56 — rời bậc LỖI** |
+  | SY21 | 109 | chỉ 6/28 là B | ~86 | **bỏ qua** |
+
+  SY21 là bài cao THỨ HAI mà khuôn này không ăn: nó dồn vào nhóm **C** (`pickle`×7 ·
+  `JSON`×6 · `file`×5), nơi termbank CỐ Ý không chốt tiếng Việt — ở đó hạ mật độ nghĩa là
+  viết thêm lời giải thích, việc khác hẳn và đắt hơn. **Đọc NHÓM trước khi mở lát, đừng đọc
+  con số mật độ một mình** — chiếu lệch ≤ 1 điểm ở cả ba bài làm được, nên phép chiếu này
+  dùng lại được.
+  **PHÉP SỬA CỦA CT14 LÀ HỖN HỢP, và đó là phần đáng ghi nhất:** `process`/`thread`/`object`
+  là văn xuôi nhóm B ⇒ dịch; nhưng `queue` ×3 KHÔNG phải văn xuôi — chúng là
+  `multiprocessing.Queue` và `queue.Queue`, tức **định danh code** ⇒ bọc backtick. Hai công
+  cụ, hai loại chỗ, và backtick cũng xoá chúng khỏi phép đếm (backtick → `◆` trước khi
+  quét). Ablate chiều "bỏ backtick 3 định danh ấy, giữ nguyên phần dịch": L8 **17 → 18**,
+  vì CT14 quay lại 61/1000 — tức phép bọc backtick MỘT MÌNH là thứ đưa CT14 ra khỏi bậc
+  LỖI. Dịch một định danh code sang tiếng Việt sẽ là sai; bọc nó là đúng.
+  **GU11 cũng có một ca như thế:** *"gửi kết quả qua Queue"* là class `queue.Queue`, không
+  phải khái niệm hàng đợi ⇒ `` `Queue` ``. Còn *"poll đọc queue"* và *"Phần thread, queue"*
+  là khái niệm ⇒ "hàng đợi". Cùng một chữ, hai vai, hai cách sửa — phải đọc từng chỗ.
+  **L11 BẮN NGAY, và nó bắn vào một quyết định tôi tưởng là tử tế.** Tôi giữ chú giải
+  *"gói thông thường (regular package)"* để người học còn tra được tiếng Anh. L11 đỏ: *"gọi
+  cùng một thứ bằng hai tên — package và gói trong một đoạn"*. Khuôn chú giải được MIỄN chỉ
+  ở `baiDauTien`, và `package` có `baiDauTien = PY02` — tức tiếng Anh thuộc PY02, không
+  thuộc SY12. Bỏ nó đi; `namespace packages` → "gói namespace". Ablate chiều "trả chú giải
+  về" → **L11 1 đỏ**.
+  **Và lưu ý: dạng SỐ NHIỀU không bị đếm** — biên từ là `(?![\w-])` nên `packages` không
+  khớp `package`. Nghĩa là `namespace packages` chưa bao giờ nằm trong mật độ, và nếu để
+  nguyên thì L11 cũng không thấy nó cạnh "gói thông thường". Dịch nó là quyết định về văn
+  phong, không phải để chiều một con số.
+  **GIÁ PHẢI TRẢ, đúng như #150 đã dặn, và lần này ở L1 chứ không L2:** tiếng Việt dài hơn
+  nên hai câu vượt 25 tiếng (SY12 26 · CT14 29) và L1 cảnh báo 86 → 87 ⇒ TỔNG L1 phình ⇒
+  ratchet sẽ đỏ. Sửa: bỏ một chữ đệm ở SY12, và **chẻ câu** CT14 làm hai. Kết quả L1 cảnh
+  báo về **85**, tức THẤP hơn mốc cũ — chẻ một câu 29 tiếng thành 12 + 15 là siết thật, không
+  phải bù trừ. **Dịch sang tiếng Việt thì đo CẢ L1 LẪN L2 ngay, không chỉ L2.**
+  **CASCADE CỦA TL LÀM TÔI GHI SAI MỘT CON SỐ, và `luuY` của cổng #149 đã dặn đúng điều
+  đó.** Sau khi sửa nội dung, cổng in **72 lỗi** — nhưng 1 trong 72 là chính TL (số câu phần
+  giảng đổi vì tôi chẻ một câu). Tôi ghi 72 vào §11/§12/AGENTS.md, rồi sửa §2 xong thì tổng
+  về **71** và ratchet lại đỏ 2. Luật: **sửa §2 TRƯỚC, đo lại, rồi mới ghi dòng tổng.**
+  **SỐ ĐÃ ĐO:** L8 **20 → 17 lỗi** (cảnh báo 28 → 30: CT14 và GU11 đổi bậc, SY12 rời hẳn;
+  TỔNG L8 48 → 47) · L13 cảnh báo **208 → 187** (−21) · L1 cảnh báo **86 → 85** · tổng khoá
+  **74 → 71 lỗi**, 386 → **366 cảnh báo** (−20) · L2 6·13 · L3 27 · L11 0 · TB 0 · TL 0 ·
+  §4-A 0·1 **đều không động** · màn đọc **567** · thời lượng **2 439 phút** · `check.py
+  --strict` 0/0 · `check-pyodide` 154 bài / 420 đoạn / 0 hỏng / 52-53 đáp án mẫu ·
+  `check-practice` 143 bài / 480 ca đạt / 773 biến thể sai đều trượt · `check-phu-van-phong`
+  0 lỗi · `check-doi-hoi` 0 lỗi · frontend unit **622** · `check-nguong` 34 ngưỡng 0 lỗi.
+  **ABLATE 5 chiều.** Trả cả ba bài về HEAD, đọc `--luat L8` → **20** (nay 17) · đọc qua
+  ratchet → **10 đỏ** = 4 luật hồi quy (L1 TỔNG 106→107 · L8 17→20 · L13 TỔNG 187→208 ·
+  TL 0→1) cộng 6 dòng sổ sách · bỏ backtick 3 định danh của CT14 → **18** · trả chú giải
+  tiếng Anh về SY12 → **L11 1 đỏ** · trả RIÊNG hai chỗ `package` của SY12 → `--luat L8` giữ
+  **17**, qua ratchet **6 đỏ**.
+  **Chiều cuối là một phép đo đáng đọc đúng:** trả một PHẦN của SY12 KHÔNG làm L8 đổi bậc,
+  vì SY12 nay ở 39 và cách trần LỖI **21 điểm**. Biên lớn là kết quả tốt, nhưng nó cũng
+  nghĩa là `--luat L8` mù với phần sửa ấy — con số nói được nằm ở ratchet (nó thấy cảnh báo
+  và L13). Một chiều ablate ra "không đổi" phải được đọc là *"luật này không đo chỗ đó"*,
+  không phải *"phần sửa đó vô ích"*.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` 60 → **62 bài CHỜ NẠP** (ba bài sửa, nhưng CT14 đã chờ
+  sẵn từ lát #146).
+  **CÒN LẠI 17 lỗi L8, và khuôn này đã CẠN:** sau ba bài này không bài L8 nào còn có nhóm B
+  chiếm đa số. Phần còn lại dồn vào nhóm C — `file` · `pickle` · `JSON` · `callback` ·
+  `stdout` · `descriptor` — nơi termbank cố ý giữ tiếng Anh. Hạ mật độ ở đó là viết thêm lời
+  giải thích cho một bài 250 tiếng, tức một việc biên tập khác hẳn: nó LÀM BÀI DÀI RA, nên
+  phải đo L1 và L2 trước, và nó không có một quyết định sẵn trong termbank để dựa vào.
+
+- **`eslint` THOÁT 0 KHI CHỈ CÓ CẢNH BÁO — nên con số "146 cảnh báo" của bảng mốc nền lên
+  1 000 thì CI vẫn XANH, và bốn tầng đều mù.** Lead của #151 nói đừng kéo khuôn văn phong đi
+  tiếp, nên vòng này đo một con số MỘT CHIỀU chưa ai nhìn trong phiên. Bất đối xứng với
+  backend là bốn tầng, và nó đo được:
+
+  | | backend lint | frontend lint |
+  |---|---|---|
+  | trần trong CI | **`const TRAN = 100`**, job ĐỎ khi vượt | **không có gì** |
+  | mục sổ ngưỡng | **`ci-lint-backend`** | **không có** |
+  | `check-moc-chay` | cố ý NGOÀI TẦM | cố ý NGOÀI TẦM |
+  | `check-moc-nen` | không chạy bộ nào | không chạy bộ nào |
+
+  Script frontend là `eslint` TRẦN (không `--fix`, không `--max-warnings`), và CI chỉ
+  `- run: npm run lint`. Nay là `npm run lint -- --max-warnings 146` cộng một mục sổ
+  `ci-lint-frontend` (34 → **35 ngưỡng**).
+  **KHÔNG để dư như trần backend (100 cho 92 đo được), và lý do là một phép phân biệt:** chỗ
+  dư ở backend là cho spec đang viết dở sinh lỗi `no-unsafe-*` tạm thời. Cảnh báo
+  `no-unused-vars` thì không xuất hiện vì đang viết dở — nó xuất hiện vì một biến bị bỏ lại.
+  Và siết thì `check-nguong` in `GHI SỔ` rồi vẫn xanh, nên hạ con số này không có ma sát nào.
+  **PHÂN RÃ 146, để lát dọn sau biết chỗ và biết GIÁ:** `no-unused-vars` **132** ·
+  `no-unused-expressions` 6 · `no-page-custom-font` 5 · `no-img-element` 2. Trong 132 thì
+  **127 ở JS di sản** `public/static/js/` (`main.js` 44 · `lesson_db_design.js` 24 ·
+  `drag_game.js` 17 · `dashboard.js` 12 · `course_db_design.js` 9 · `pe-bridge.js` 7 …) và
+  **5 ở `src/components/goc-hoc/engine.js`**, tức code đang chạy. **Vòng này KHÔNG dọn:** 127
+  cảnh báo nằm trong JS di sản không có một bài test nào, mà các trang ấy (`/lesson/java`,
+  `/lesson/htmlcss`, `/courses/db_design*`, `/interface`) là những trang #143 đã xác nhận còn
+  sống theo quyết định 13/10. Dọn chúng là rủi ro không đổi lấy giá trị cho người học; cổng
+  này là điều kiện để lát ấy đo được mình.
+  **PHÉP ĐO ĐẦU CỦA TÔI SAI VÀ TÔI TỰ BẮT:** `grep -oE … | grep -c warning` ra **148** trong
+  khi dòng tổng kết của eslint nói **146** — hai dòng khác cũng chứa chữ ấy (dòng tổng và
+  dòng "0 errors and 1 warning potentially fixable"). Suýt ghi "con số đã trôi lên 148" làm
+  một phát hiện. **Đọc DÒNG TỔNG KẾT, đừng đếm bằng grep** — cùng họ bẫy `^. pass` và bẫy
+  "0 nghĩa là không đọc được".
+  **VÀ ABLATE CỦA VÒNG NÀY TÌM RA MỘT CON SỐ KHÔNG AI CANH NỮA: số mục của chính sổ.** Chiều
+  "đổi 35 ngưỡng thành 34 trong AGENTS.md" cho **0 đỏ** ở CẢ `check-nguong` LẪN
+  `check-moc-nen` — cổng ấy đối chiếu 20 con số đọc ra từ `out/` và cây tệp, và không mục nào
+  là sổ ngưỡng. Nay `check-nguong` tự canh số mục của nó, cùng khuôn `check-moc-chay` đã phải
+  đặt cho "N mục" ở #149. Ablate lại: **1 đỏ**.
+  **Phép tự kiểm đặt SAU nhánh `--ghi-so`, có chủ đích, và tôi KIỂM thay vì giả định:**
+  `--ghi-so` ở dòng 94, phép tự kiểm ở 151, nên một con số cũ trong AGENTS.md KHÔNG chặn việc
+  ghi sổ một ngưỡng vừa siết. Đo được: gieo "34 ngưỡng" rồi chạy `--ghi-so` → **0 đỏ**. Đúng
+  phép chia HỒI QUY / SỔ SÁCH đã phải đặt khi thêm luật TL: lỗi sổ sách thì ghi CHÍNH LÀ cách
+  sửa, chặn nó là dựng lại thế bế tắc.
+  **HAI TRÍCH DẪN CŨ ĐI KÈM, và chúng khác nhau về cách sửa.** Cả `check-moc-chay.mjs` lẫn
+  một mục bẫy của AGENTS.md trích *"`ci-lint-backend`, trần 115"* — trần ấy đã là **100** từ
+  lát dọn `PrismaExceptionFilter`. Chú thích của CỔNG là lời khai về HIỆN TẠI ⇒ sửa thẳng
+  (và thêm mục frontend). Mục BẪY là BẢN GHI của một phép đo đã xảy ra ⇒ **không sửa con số**,
+  thêm một đoạn ĐÍNH CHÍNH — vì câu ấy viết ở thì hiện tại ("chúng đã có sổ canh") nên nó sẽ
+  bị đọc như hiện trạng, mà lúc viết thì chỉ MỘT trong hai đã được canh.
+  **SỐ ĐÃ ĐO:** frontend lint **146 cảnh báo / 0 lỗi**, nay có trần · sổ ngưỡng 34 → **35
+  mục** · frontend typecheck sạch · frontend unit **622** · `check-moc-nen` 20 mục 0 lỗi ·
+  `check-moc-chay frontend` 0 lỗi · `check-nguong` 35 ngưỡng 0 lỗi · `export-chet` /
+  `tai-nguyen-chet` / `duong-toi` 0 lỗi. **KHÔNG đụng một dòng nội dung nào**, nên
+  `check-da-nap` giữ **62 bài chờ**.
+  **ABLATE 8 chiều.** Trên sổ/CI: nới trần 146 → 200 → **1 đỏ** · **siết** 146 → 120 →
+  **0 đỏ** kèm `GHI SỔ` (siết không được đỏ — bắt nó đỏ là dạy người ta THÔI SIẾT) · gỡ hẳn
+  cờ `--max-warnings` → **1 đỏ** (regex hết khớp là LỖI, không im lặng xanh) · đổi số mục
+  35 → 34 → **1 đỏ** sau khi có tự kiểm, **0 đỏ** trước đó · đổi CHỮ của hàng → 1 đỏ ·
+  `--ghi-so` với số mục cũ → **0 đỏ** (không bị chặn). Trên CODE: gieo một biến không ai dùng
+  vào `not-found.tsx` (cảnh báo thứ 147) → **1 đỏ** · không gieo gì → exit **0**.
+  **Chiều thứ bảy cần một ADAPTER, và nó phải giữ MÃ THOÁT:** eslint in tiếng Anh
+  ("147 problems") nên `docSoDo` của `ablate.mjs` không có khuôn nào đọc được. Bọc bằng
+  `bash -c "…; c=$?; echo $c lỗi; exit $c"` — in con số VÀ truyền lại mã thoát. Nếu bỏ
+  `exit $c` thì bất biến TỰ NÓI NGƯỢC dựng ở #149 sẽ bắn ngay ("đọc ra 1 đỏ nhưng mã thoát
+  0"), tức công cụ tự chặn một adapter gian. Đó là cách đúng để ablate một lệnh có khuôn lạ:
+  thêm một adapter TRUNG THỰC, đừng nới `docSoDo`.
+  **CÒN LẠI, nói cho đúng:** trần này canh TỔNG số cảnh báo, không canh "cảnh báo nào". Một
+  đợt dọn 10 cảnh báo ở JS di sản rồi thêm 10 cảnh báo mới ở `src/` sẽ qua cửa — và `src/`
+  mới là chỗ đáng canh. Chia trần theo thư mục đòi hai lần chạy eslint, nên chưa làm; đó là
+  lựa chọn, không phải bỏ sót.
+
+- **KHÔNG CÓ BIÊN LỖI NÀO TRONG CẢ APP — và `reset()` một mình không cứu được lớp lỗi ĐÃ
+  XẢY RA.** `find src -name "error.tsx" -o -name "global-error.tsx" -o -name "ErrorBoundary*"`
+  → **RỖNG**; `grep -rln "componentDidCatch\|ErrorBoundary" src/` → **RỖNG**. Nên một lỗi
+  render bất kỳ cho trang mặc định của Next ("Application error: a client-side exception has
+  occurred") — tiếng Anh, 0 liên kết, 0 CSS, đúng hình dạng trang 404 đã sửa trước đó.
+  **LÁT 404 HOÃN `error.tsx` VÌ "không có bằng chứng ai đã đi vào nó" — BẰNG CHỨNG NẰM NGAY
+  TRONG FILE NÀY.** Mục bẫy về kho quiz ghi: `screenVerdict` dùng `Number.isInteger(picked)`
+  để chặn index xấu, mà `keyIndex('')` trả **−1** và `Number.isInteger(-1)` là TRUE ⇒ nó gọi
+  `optionDetail(q.options[-1])` và ném TypeError. Nguyên văn: *"nháp cũ trong localStorage giữ
+  khoá của bản bài có nhiều lựa chọn hơn — học viên đó mở bài là crash, MÃI MÃI."* Tôi đọc
+  câu ấy ở một mục khác của chính file này, không phải suy ra.
+  **VÀ ĐÓ LÀ LÝ DO `reset()` KHÔNG ĐỦ:** nó render lại CHÍNH cái cây vừa ném, nên với một
+  nháp đã nhiễm trong `localStorage` thì nó crash lại ngay — đúng chữ "mãi mãi". Phép khôi
+  phục thật sự là XOÁ NHÁP của bài đó, nên nút thứ hai là nửa CÓ BẰNG CHỨNG của trang này,
+  không phải tiện thể. Nó **do học viên bấm**, không tự chạy: nháp giữ code họ đang viết và
+  server không có bản sao nào (`lesson_progress` chỉ biết "đã hoàn thành").
+  **BA BẢN CHÉP CỦA MỘT KHUÔN KHOÁ, và bản thứ ba là chỗ tôi sắp thêm.** Khoá nháp
+  `pe-studio-lesson-v1:<owner>:<khoá>:<bài>` được dựng **HAI LẦN trong chính
+  `useLessonDraft.ts`** (chỗ tự lưu và chỗ `restore`), và trang lỗi cần nó lần thứ ba. Khi
+  chúng trôi thì học viên mất nháp mà không exception nào ném — `getItem` chỉ trả `null`. Nay
+  một định nghĩa ở `lib/nhap-bai.ts`, ba chỗ dùng.
+  **VÀ PHÉP ÁNH XẠ `?lesson=` → `sort_order` CŨNG CHỈ CÓ MỘT BẢN, nhưng không có test nào.**
+  Nó nằm inline trong `lesson/python_advanced/page.tsx`, và AGENTS.md đã ghi một vụ lệch MỘT
+  đơn vị ở đúng chỗ này (*"vẫn mở đúng module ở hầu hết các bài, chỉ sai ở bài ĐẦU của mỗi
+  module"* — hỏng im lặng). Trang lỗi cần ĐÚNG phép tính ấy để xoá đúng nháp, nên nó rời vào
+  `nhap-bai.ts` cùng khoá nháp: 2 người dùng, 1 định nghĩa, và nay có ca gọi thẳng.
+  **XEM THẬT TRONG CHROME, trên `next build` + `next start`, và nhánh xoá nháp được đi qua.**
+  Gieo một trang tạm ném lỗi — và nó phải ném **chỉ trong trình duyệt** (`typeof window !==
+  'undefined'`): ném lúc prerender thì `next build` **exit 1** chứ không tới `error.tsx`, đã
+  thử. Đo trên `/lesson/zz-boom?lesson=11`: tiêu đề *"Trang này vừa gặp lỗi"* · giấy kem
+  `rgb(244,238,227)` · font **Montserrat** · 23 stylesheet · 2 liên kết, cả hai là route có
+  thật · nút "Thử lại" cao **46px**. Rồi gieo HAI nháp (`:zz-boom:12` của bài trong URL và
+  `:zz-boom:3` của bài khác): nút xoá hiện ra, bấm nó thì **`:12` đi, `:3` ở lại**, trang tải
+  lại. Ở **360×640** (emulate mobile): 0 cuộn ngang, 0 cuộn dọc, 4 mục trong mép, đích bấm nhỏ
+  nhất **44px**, 3 hàng.
+  **LINT ĐỎ 1 LỖI NGAY, và đó là bẫy file này ĐÃ GHI HAI LẦN:** React 19 cấm `setState` đồng
+  bộ trong thân effect (`react-hooks/set-state-in-effect`). Bản đầu viết
+  `useEffect(() => setNhap(nhapCuaBaiNay()), [])`. Hoãn bằng `setTimeout(…, 0)` kèm
+  `clearTimeout` trong cleanup. **KHÔNG chuyển phép đọc vào `useState(() => …)`:** server
+  không có `localStorage` nên HTML trả về không có nút, dựng nút ngay lượt đầu ở client là một
+  hydration mismatch — luật là "hoãn", không phải "đọc sớm hơn".
+  Và nói cho đúng công: con số lint 1 LỖI ấy do `eslint` bắt (nó thoát 1 với lỗi từ trước),
+  không phải nhờ trần `--max-warnings` dựng ở lát trước — trần đó canh CẢNH BÁO.
+  **HAI LẦN CỔNG CỦA TÔI RỖNG, cả hai chỉ lộ nhờ ablate, và cả hai là cùng một bệnh: so với
+  dạng ÍT KHẢ NĂNG nhất.**
+  · Phép kiểm "đường về là route CÓ THẬT" cho một route ĐỘNG khớp MỌI segment, nên chiều
+    "đổi đường về thành `/courses/python`" ra **0 đỏ** — trong khi đường đó đã được đo là
+    **404** (khoá `python` không còn trong `COURSES`). Nay `[courseId]` khớp đúng danh sách id
+    mà `generateStaticParams()` sinh ra, đọc từ chính `catalog.ts`. Ablate lại: **1 đỏ**.
+  · Phép kiểm "không ghi cứng tiền tố khoá" tìm `'pe-studio-lesson` (nháy ĐƠN), nên chiều
+    "chép lại khuôn khoá bằng TEMPLATE LITERAL" ra **0 đỏ** — mà template literal chính là
+    cách người ta sẽ viết nó, vì khoá có nội suy. Bỏ dấu nháy khỏi phép so. Ablate lại:
+    **1 đỏ**.
+  **Và một ca ĐỎ OAN trên chính lời giải thích của bản sửa, lần thứ hai trong repo:** ca
+  "không dùng token brand" đọc CSS THÔ, mà chú thích đầu file kể tên `--edu-accent` để nói vì
+  sao không dùng nó. Bỏ chú thích trước khi so — y hệt bẫy đã mắc khi viết ca cho trang 404.
+  **Phép đếm try/catch phải TÍCH LUỸ:** `split('localStorage')` cho các đoạn RỜI NHAU, nên
+  đếm `try`/`catch` trong một đoạn không nói gì về việc nó có nằm trong try hay không. Bản đầu
+  đếm theo từng đoạn và báo oan lần chạm thứ hai.
+  **ABLATE 6 chiều, cả 6 đỏ:** chép lại khuôn khoá thay vì import → **1** · bỏ cổng "thật có
+  nháp" → 1 · đường về trỏ vào một 404 → 1 (trước khi siết: **0**) · đẩy một lần chạm
+  `localStorage` ra ngoài try/catch → 1 · `setState` đồng bộ trong thân effect → 1 · chép lại
+  tiền tố trong `useLessonDraft` bằng template literal → 1 (trước khi siết: **0**).
+  **SỐ ĐÃ ĐO:** frontend unit **622 → 634 ca / 54 → 55 tệp** · CSS module trong `src/`
+  **15 → 16** · sổ ngưỡng siết sàn 622 → 634 · typecheck sạch · lint **146 cảnh báo / 0 lỗi**
+  (trần 146 giữ nguyên) · `npm run build` exit 0 · `check-moc-nen` 20 mục 0 lỗi ·
+  `check-moc-chay frontend` 0 lỗi · `check-nguong` 35 ngưỡng 0 lỗi · `tai-nguyen-chet` /
+  `export-chet` / `duong-toi` 0 lỗi. **KHÔNG đụng một dòng nội dung nào**, nên `check-da-nap`
+  giữ **62 bài chờ**.
+  **VÌ SAO VÒNG NÀY NHẮM PHẦN CODE:** `check-da-deploy` đo được production đang chạy
+  **`ae48ee4`** — commit của vòng trước. Tức Vercel đã nối lại org mới và thay đổi CODE tới
+  người học NGAY, còn nội dung thì đang có 62 bài nằm chờ DB. Khi hai đường có độ trễ khác
+  nhau thế, chọn đường ngắn.
+  **HAI ỨNG VIÊN ĐÃ ĐO VÀ BỎ, ghi lại để không ai dựng lại phép đo:**
+  · `GET courses/:id/quiz/history` — route tối DUY NHẤT không có xung đột đã biết (read-only,
+    không tạo `review_quiz_results`). Nhưng `getQuizHistory` trả về **chỉ điểm số**
+    (`score`/`total`/`submittedAt`), tức dạng phản hồi mà chính văn liệu trong file này đo
+    được **d = 0,05** — yếu nhất. Nối nó như hiện tại là ship đúng dạng yếu. Dữ liệu cho dạng
+    **d = 0,49** thì CÓ (`answersJson` + `tallyMistakesByLesson` đã tính sai-theo-bài), nhưng
+    phơi nó ra là một quyết định về nội dung hiển thị, không phải một lát nối dây.
+  · 6 cảnh báo `no-unused-expressions` đều là **idiom cố ý**: `parent && parent.appendChild(e)`
+    (guard ngắn mạch) và `el.offsetWidth;` (đọc layout để FLUSH style trước transition — gỡ
+    nó là hỏng phép reset hoạt ảnh). **0 lỗi thật.**
+  **GIỚI HẠN PHẢI NÓI RA:** `error.tsx` ở gốc `app/` KHÔNG bắt lỗi của `layout.tsx` gốc — thứ
+  bắt được nó là `global-error.tsx`, và file này chưa có. Nó cũng không bắt lỗi ở Server
+  Component lúc render trên máy chủ. Và bẫy heredoc lại cắn khi viết test (dấu gạch chéo bị
+  xử lý dù delimiter đã nháy), nên ba bản sửa cuối đi qua Edit chứ không qua heredoc.
+
+- **HAI THANH STICKY CỦA VỎ BÀI HỌC CHƯA BAO GIỜ GHIM, và thứ phá chúng nằm ở một file
+  khác.** Vòng này mở ra bằng một phép quét có biên trên production (Chrome, 390×844 emulate
+  mobile, `/lesson/python_advanced?lesson=0`, màn tổng kết) chứ không bằng một lead sẵn.
+  **SỐ ĐO:** `.topBar` khai `position: sticky; top: 0; z-index: 50` mà ở `scrollY = 400` thì
+  `y = **−400**` (cuộn mất hẳn); `.bottomBar` khai `sticky; bottom: 0` mà
+  `y = 1362 − scrollY` **đúng dòng chảy TĨNH**, chỉ thấy được ở đáy tuyệt đối
+  (`scrollY = 606`). Tức nút **"Quay lại"** — thứ NĂM người thử đòi ngày 27/10 — và nút chính
+  của màn đều ngoài màn hình, phải **cuộn 606px** mới tới.
+  **NGUYÊN NHÂN:** `edu-responsive.css` §6 ("CHỐNG TRÀN NGANG") khai
+  `@media (max-width: 1023.98px) { html, body { overflow-x: hidden } }`. Một `overflow` khác
+  `visible` ở GỐC biến html/body thành scroll container, và `position: sticky` thôi ghim theo
+  viewport. Trang bài học chỉ khai hai tệp CSS (`edu-theme` + `studio-tokens`) nên nó không
+  nằm trong tầm nhìn của ai đọc trang ấy — phải hỏi TRÌNH DUYỆT rule nào đang có hiệu lực
+  (`document.styleSheets` → `edu-responsive.css`, media `(max-width: 1023.98px)`).
+  **PHÉP THỬ ĐẦU CỦA TÔI LÀ GIEO VÔ HIỆU, và nó im lặng đúng như một kết quả âm:** đặt
+  `overflow-y: visible` cho html/body → **không đổi một pixel nào** (`topY` vẫn −400). Vì khi
+  một trục là `hidden`, CSS tính trục `visible` kia lại thành `auto`. Tôi suýt đọc nó thành
+  "overflow không phải thủ phạm" và đi tìm chỗ khác. Đặt `overflow: visible` CẢ HAI trục mới
+  thấy: `topY −400 → 0`, `botY 962 → 755` (= 844 − 89, đúng đáy viewport). **Khi phép thử một
+  thuộc tính CSS ra "không đổi gì", hỏi xem giá trị đó có bị tính lại hay không trước khi
+  loại giả thuyết.**
+  **CÁCH SỬA: `overflow-x: clip`, MỘT thuộc tính.** `clip` clip mà KHÔNG tạo scroll
+  container, nên sticky chạy lại; và `clip` nằm trong tập mà CSS cho phép đi cùng `visible`
+  nên trục kia không bị tính lại thành `auto` — khai thêm `overflow-y` là dư, và dư ở đây là
+  đè một thứ chỗ khác có thể đặt có chủ đích. Kiểm trên chính trang production sau khi tiêm:
+  `topY` **0** · `botY` **755** · `scrollWidth` GIỮ **390**. Tức phép chống tràn ngang của
+  mục §6 **vẫn còn nguyên** — bản sửa không đổi lấy gì.
+  **MỘT TIỀN ĐỀ ĐÃ GHI TRONG FILE NÀY LÀ SAI, và tôi đã đính chính nó tại chỗ:** mục "HAI
+  THANH STICKY phải có cạnh" viết *"Cả hai sticky, nội dung cuộn LỌT xuống dưới chúng"*.
+  Chúng KHAI sticky, nhưng chưa bao giờ ghim — nội dung cuộn QUA chúng. Cạnh vẫn đúng việc
+  của nó (hai mặt phẳng cùng màu thì cần một đường chia), nhưng lý do nêu ra thì không. Một
+  câu viết ở THÌ HIỆN TẠI trong một mục bẫy sẽ bị đọc như hiện trạng, nên nó cần đính chính
+  chứ không chỉ cần một mục mới.
+  **CỔNG CANH HAI NỬA Ở HAI FILE, và một nửa thôi là cổng rỗng:** khai sticky mà gốc `hidden`
+  thì không ghim; gốc đúng mà thanh thôi khai sticky thì cũng không ghim.
+  `lesson-chrome-sticky.test.mjs` (4 ca) quét **mọi** tệp trong `public/static/css`, không
+  chỉ `edu-responsive.css` — trang bài học nạp nhiều file hơn nó khai, nên luật phải đúng ở
+  bất cứ file nào đặt overflow cho gốc.
+  **HAI LẦN CA CỦA TÔI BÁO OAN, cả hai vì neo sai chỗ:**
+  · `indexOf('.topBar')` bắt rule DÙNG CHUNG ở đầu file (`.topBar, .topBar *, .bottomBar,
+    .bottomBar * { … }`) chứ không bắt rule thật ở dòng 55 — rule dùng chung không có
+    `position`, nên ca đỏ oan. Neo vào `.topBar {` CÓ DẤU NGOẶC;
+  · phép quét overflow so "selector có CHỨA html/body" và bắt hai chỗ hợp lệ:
+    `body #sidebar-detail { overflow-x: hidden }` (overflow áp cho CON, không cho body) và
+    `body.rm-sidebar-open { overflow: hidden }` (khoá cuộn khi drawer mở — khuôn thường dùng,
+    chỉ sống trong lúc có class ấy, và ở trang dashboard di sản). Nay luật nhắm **COMPOUND
+    CUỐI** của selector và chỉ cấm khi nó là ĐÚNG `html`/`body`, không class không id. Một
+    `overflow` bật/tắt theo class nằm NGOÀI TẦM cổng này, và điều đó được khai ra.
+  **ABLATE 5 chiều:** trả về `overflow-x: hidden` → **2 đỏ** · khai thêm `overflow-y` (dư) →
+  1 · gỡ hẳn dòng chống tràn ngang → 1 · gieo một `overflow` gốc vào một tệp CSS KHÁC → 1 ·
+  `.topBar` thôi khai sticky → 1.
+  **Chiều thứ năm ra 0 đỏ ở lần gieo đầu, và lỗi là của PHÉP GIEO:** tôi chèn
+  `position: static;` vào đầu rule trong khi `position: sticky` vẫn còn ở dưới, nên phép so
+  `match(/position:\s*sticky/)` vẫn đạt. Gieo lại bằng cách THAY chính dòng ấy (neo vào
+  `height: var(--st-chrome-h);` — chỉ `.topBar` có) → **1 đỏ**. Cùng họ bẫy `NP02#1`: một
+  phép gieo THÊM chứ không THAY là một phép gieo vô hiệu.
+  **SỐ ĐÃ ĐO:** frontend unit **634 → 638 ca / 55 → 56 tệp** · sổ ngưỡng siết sàn 634 → 638 ·
+  typecheck sạch · lint **146 cảnh báo / 0 lỗi** · `npm run build` exit 0 · `ASSET_VERSION`
+  → `2026-11-08a` (edu-responsive.css nằm trong `public/` nên URL không đổi theo nội dung) ·
+  `check-moc-nen` 20 mục 0 lỗi · `check-moc-chay frontend` 0 lỗi · `check-nguong` 35 ngưỡng
+  0 lỗi · `tai-nguyen-chet` / `export-chet` / `duong-toi` 0 lỗi. **KHÔNG đụng một dòng nội
+  dung nào**, nên `check-da-nap` giữ **62 bài chờ**.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** trên điện thoại, thanh tiến độ + nút đóng ở trên và
+  nút "Quay lại" + nút chính ở dưới nay GHIM trong màn ở mọi vị trí cuộn, thay vì phải cuộn
+  tới đáy. Và nó áp cho MỌI màn của 179 bài, không riêng màn tổng kết.
+  **GIỚI HẠN PHẢI NÓI RA, hai cái.** (1) Cổng đọc CSS TĨNH: nó chứng minh "đã khai đúng", chứ
+  không chứng minh "thanh ghim trên màn" — bảng số ở trên là của Chrome trên production. (2)
+  Tôi **không** mở lại một trang bài học trên bản dựng CÓ bản sửa, vì localhost trỏ API
+  production nên mở nó là một lần GHI (tạo tài khoản khách). Chuỗi bằng chứng vì vậy gồm ba
+  mắt: tiêm `overflow-x: clip` vào trang production THẬT → hai thanh ghim; CSS đã dựng chứa
+  đúng khai báo đó (`grep -c` = 1 trên URL có `?v=`); và trang dài nhất (5 807px) giữ
+  `scrollWidth` 390 ở mọi mốc cuộn.
+  **HAI KHIẾM KHUYẾT ĐÍCH BẤM ĐO ĐƯỢC CÙNG LÚC, KHÔNG làm vòng này — mỗi cái một quyết
+  định:**
+  · 15 đoạn thanh tiến độ có vùng chạm THẬT **11×24** (đo bằng `elementFromPoint`, không bằng
+    `getBoundingClientRect` — rect chỉ 11×6 và bản sửa cũ nới hit area bằng `::after`). `::after`
+    là `inset: -9px 0px`, tức chỉ nới chiều DỌC; trục ngang vẫn 11px. **Và 15 đích 44px không
+    nhét được vào 358px** (cần 660px), nên đây là việc THIẾT KẾ (một bộ chọn màn riêng cho
+    điện thoại) chứ không phải một dòng CSS. WCAG 2.5.8 ngoại lệ "spacing" KHÔNG áp vì các
+    đoạn kề nhau;
+  · nút `×` "Đóng bài học" là **40×40** (vùng chạm 39×39), dưới mức 44px mà repo tự đặt trong
+    `not-found`/`error`. Nhỏ và sửa được, nhưng nó không nằm trong việc của vòng này.
+
+- **Ô SOẠN MÃ Ở 13px, VÀ ĐÓ LÀ MỘT LỖI iOS CHỨ KHÔNG PHẢI CHUYỆN CỠ CHỮ.** Vòng này tiếp
+  phép quét điện thoại của #154 sang các màn chưa ai đo (ôn giãn cách · đọc · trắc nghiệm ·
+  ô soạn mã). Ba màn đầu SẠCH về layout — 0 tràn ngang ở mọi màn, 0 phần tử ngoài mép. Màn
+  thứ tư thì đủ **cả hai** điều kiện của một lỗi đã tài liệu hoá:
+  · `textarea.codeBody` = **13px**;
+  · viewport = `width=device-width, initial-scale=1.0` — **không** `maximum-scale`, **không**
+    `user-scalable=no`.
+  Safari trên iOS TỰ PHÓNG viewport khi một form control có `font-size < 16px` nhận focus, và
+  nó KHÔNG phóng lại ra. Hệ quả: học viên gõ code trong một trang đã phóng, phải kéo ngang —
+  và hai thanh vỏ bài học vừa được ghim ở #154 lại ra ngoài màn.
+  **NĂM Ô `<textarea>`/`<input>` DƯỚI 16px, và `.tracePredictInput` thì ĐÃ ĐÚNG 16px** — tức
+  quy ước CÓ mà không áp đều:
+
+  | lớp | px | tới được người học? |
+  |---|---|---|
+  | `textarea.codeBody` | **13** | **CÓ** — ô bài tập được chấm, 143 bài (xác nhận live) |
+  | `.practiceInput` | **15** | **CÓ** — ô chạy thử màn luyện tập |
+  | `.fallbackInput` | **13,5** | **CÓ** — ô dự phòng của `/ide` |
+  | `.explanationInput` | 13 `!important` | không — `PythonStudio` đã khai chết-mà-giữ |
+  | `.codeInput` | 11 `!important` | không — cùng component ấy |
+
+  **KHÔNG chữa bằng `maximum-scale=1`/`user-scalable=no`:** nó chặn phép phóng của iOS nhưng
+  cũng chặn người học phóng chữ — vi phạm WCAG 1.4.4. 16px là cách duy nhất còn lại, nên nó
+  là một SÀN chứ không phải một lựa chọn thẩm mỹ. Một ca canh chính `layout.tsx` để hai thứ
+  không bị gỡ cho nhau.
+  **GIÁ ĐÃ ĐO, KHÔNG ĐOÁN:** ô rộng 317px ở khổ 390; ở 16px mono vừa ~36 ký tự/dòng, ở 13px
+  ~44. Trên **688 dòng** khung bài tập của khoá: **22,7% vượt 36** so với **14,8% vượt 44** —
+  tức thêm ~54 dòng bị NGẮT DÒNG MỀM (textarea đang soft-wrap, `scrollWidth == clientWidth`),
+  không phải bị cắt mất. Và **chỉ ở khổ điện thoại**: desktop không có lỗi này nên 13px ở đó
+  giữ nguyên.
+  **`.codeBody` GẮN LÊN CẢ `<div>` VÀ `<pre>`, nên selector phải là `textarea.codeBody`.**
+  Đếm được 6 chỗ `<div>`, 1 chỗ `<pre>`, 1 chỗ `<textarea>`. Viết `.codeBody { 16px }` là
+  phóng to luôn mọi khối mã CHỈ ĐỌC của màn đọc — một thay đổi lớn hơn hẳn việc đang làm, và
+  không chữa gì thêm (iOS chỉ phóng khi focus một CONTROL). Ablate chiều đó: **1 đỏ**.
+  **DANH SÁCH KHAI HAI CHIỀU, và lý do nó phải là một danh sách:** CSS một mình KHÔNG biết
+  một lớp được gắn lên `<textarea>` hay `<div>`. Nên `o-go-16px.test.mjs` giữ 4 mục
+  (lớp + tệp CSS + tệp TSX), và kiểm CẢ HAI chiều: mục nào không còn nằm trên một form
+  control là ngoại lệ lỗi thời; lớp nào có mặt mà thiếu sàn là lỗi.
+  **CA ĐẦU CỦA TÔI HẸP QUÁ VÀ BÁO OAN:** nó đòi đúng `<textarea>`, nên `.tracePredictInput`
+  — vốn là `<input>` và vốn ĐÃ 16px — làm nó đỏ. iOS phóng cho `input` và `select` nữa. Nới
+  thành tập form control; thứ phải chặn là một lớp đã khai mà nay nằm trên `<div>`/`<pre>`,
+  vì ở đó sàn 16px vô nghĩa.
+  **HAI Ô CÒN LẠI: KHAI, KHÔNG SỬA — và đó là một lựa chọn có cấu trúc.** Chúng thuộc
+  `PythonStudio`, component đã được khai CHẾT-MÀ-GIỮ ở vòng #142 với ba việc phải sửa nếu
+  hồi sinh. Sửa CSS của một component không ai tới là việc không có người dùng; để nó im lặng
+  thì ngày hồi sinh nó sẽ sai y nguyên. Nên nó thành **việc thứ (4)** trong chính lời khai
+  ấy, và ca test canh dòng khai đó hai chiều — kể cả chiều "ai sửa chúng rồi thì gỡ dòng khai
+  đi" (ablate: nâng `.codeInput` lên 16px → **1 đỏ**).
+  **XEM THẬT TRÊN BẢN DỰNG, hai mắt chứ không một:** stylesheet đã dựng chứa cả hai rule
+  (`.fallbackInput` 13,5px thường + 16px trong `@media (max-width: 1023.98px)`), và giá trị
+  **TÍNH RA** ở khổ 390 là **16px** — rule có mặt là một chuyện, rule THẮNG là chuyện khác.
+  **KHÔNG bump `ASSET_VERSION`:** ba tệp sửa đều là CSS module trong `src/`, đi qua bundler
+  nên URL đã đổi theo nội dung. Luật bump chỉ áp cho `public/`.
+  **ABLATE 6 chiều, cả 6 đỏ:** hạ `codeBody` về 13px → **1** · hạ `practiceInput` về 15px →
+  1 · đổi selector thành `.codeBody` (nhắm cả div) → 1 · thêm `maximum-scale=1` vào viewport
+  → 1 · gỡ dòng khai thứ (4) khỏi `GIU_DU_CHET` → 1 · nâng `.codeInput` lên 16px (dòng khai
+  thành lỗi thời) → 1.
+  **BA PHÉP GIEO TRƯỢT, và `ablate.mjs` từ chối cả ba thay vì in "0 đỏ":** `.codeInput {`
+  khớp **3 chỗ**; rồi seed nhiều dòng khớp **0 chỗ** vì `studio.module.css` là **CRLF**
+  trong khi tôi dựng seed bằng `\n`. Bẫy "đầu dòng khác nhau theo từng tệp — dò, đừng đoán"
+  đã ghi từ trước; nay nó cắn ở một tệp CSS. Dò bằng `'\r\n' in raw`.
+  **SỐ ĐÃ ĐO:** frontend unit **638 → 643 ca / 56 → 57 tệp** · sổ ngưỡng siết sàn 638 → 643 ·
+  typecheck sạch · lint **146 cảnh báo / 0 lỗi** · `npm run build` exit 0 · `check-moc-nen`
+  20 mục 0 lỗi · `check-moc-chay frontend` 0 lỗi · `check-nguong` 35 ngưỡng 0 lỗi ·
+  `tai-nguyen-chet` / `export-chet` / `duong-toi` 0 lỗi. **KHÔNG đụng một dòng nội dung
+  nào**, nên `check-da-nap` giữ **62 bài chờ**.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** trên điện thoại, chữ trong ba ô gõ to hơn (13→16,
+  15→16, 13,5→16) và trang thôi bị iOS phóng khi bấm vào chúng.
+  **GIỚI HẠN PHẢI NÓI RA, và nó là giới hạn chính:** tôi **KHÔNG có iOS** để xem phép phóng
+  xảy ra hay thôi xảy ra. Đây là bản sửa theo ĐIỀU KIỆN — hành vi đã tài liệu hoá cộng hai số
+  đo (13px và viewport không chặn) — không phải theo quan sát. Thứ ĐÃ quan sát được là: giá
+  trị tính ra nay 16px ở khổ 390, và không màn nào sinh tràn ngang sau bản sửa.
+  **BA MÀN ĐÃ QUÉT VÀ SẠCH, ghi lại để không ai quét lại:** ôn giãn cách · đọc · trắc nghiệm,
+  ở 390×844 — `scrollWidth` = 390 ở cả bốn màn đi qua, 0 phần tử ngoài mép, 0 khối (`pre`/
+  `table`/`img`/`figure`) tràn nội bộ. Lề nội dung là 16px (container) + 20px (padding thẻ) =
+  36px mỗi bên: đó là THIẾT KẾ (thẻ cần padding), không phải vi phạm luật 16px của repo.
+
+- **LUẬT 44px CHO ĐÍCH BẤM LÀ LUẬT CỦA CHÍNH REPO, VÀ KHÔNG GÌ CANH NÓ — 21 rule
+  `cursor: pointer`, 0 rule khai `min-height`.** Luật nằm trong `not-found.module.css` và
+  `error.module.css` (*"44px: đích bấm tối thiểu. Repo đã phải sửa một đích 13×6px một
+  lần"*), và hai vòng quét điện thoại vừa rồi đo được hai vi phạm trong vỏ bài học — tức vỏ
+  mà MỌI màn của 179 bài đều hiện.
+  **SỐ ĐO** (production, 390×844, đi qua **cả 15 màn** của một bài, vùng chạm bằng
+  `elementFromPoint`):
+
+  | lớp | vùng chạm | CSS khai |
+  |---|---|---|
+  | `.closeBtn` | **39×39** | `width/height: 40px`, **không override mobile nào** |
+  | `.backBtn` | 41×43 | `@media ≤560px` nâng CAO lên 44, nhưng **không `min-width`** ⇒ rộng **41,6px** vì chữ "Quay lại" ngắn |
+  | `.secondaryBtn` | — | cao 52/48 ✓, **không `min-width`**, mà nhãn đổi theo màn (`cta.ts` sinh) |
+  | `.primaryBtn` | — | cao 52/48 + `min-width: 132px` ✓ |
+  | `button.segment` | 11×24 | ngoại lệ có chủ đích |
+
+  **CÓ NGƯỜI ĐÃ NGHĨ TỚI ĐIỆN THOẠI, và đó là chỗ đáng chú ý:** cùng
+  `@media (max-width: 560px)` ấy đã nâng `.backBtn` lên 44 và cho `.primaryBtn` một
+  `min-width` — nên quy ước CÓ, chỉ áp một nửa. `.closeBtn` bị bỏ sót ở MỌI khổ.
+  **`height` KHÔNG BẢO ĐẢM ĐƯỢC BỀ RỘNG, và đó là cả vấn đề:** bề rộng của một nút chữ do
+  NỘI DUNG quyết (`padding` + nhãn), nên `.backBtn` đạt trục dọc mà trượt trục ngang. Chỉ
+  `min-width` bảo đảm được nó, và cả ba module đều không dùng `min-*` cho đích bấm nào.
+  **CỔNG CANH THEO ĐỘ PHỦ, KHÔNG THEO DANH SÁCH — và ablate chứng minh phần ấy.** Mọi rule
+  `cursor: pointer` trong `LessonChrome.module.css` phải đạt sàn bằng KHAI BÁO
+  (`min-height`/`height` ≥ 44 **và** `min-width`/`width` ≥ 44 hoặc `100%`) ở khổ điện thoại,
+  hoặc có tên trong `NGOAI_TAM` kèm lý do. Chiều ablate "gieo một nút MỚI có `cursor: pointer`
+  mà không khai sàn" → **1 đỏ**: một danh sách các nút đã biết sẽ không phủ nút mới, còn
+  `cursor: pointer` thì phủ, vì không ai làm một đích bấm mà quên nó.
+  **Phép đọc phải cắt `@media` TRƯỚC khi duyệt rule:** `height: 44px` trong
+  `@media (max-width: 560px)` là giá trị của KHỔ ĐIỆN THOẠI, còn `height: 40px` ngoài đó là
+  desktop. Gộp lại là đọc sai cả hai — và sàn này phải đo ở khổ ĐIỆN THOẠI, nơi có ngón tay.
+  **NGOẠI LỆ HAI CHIỀU, và lý do phải mang SỐ:** `button.segment` khai sẵn rằng 15 đích 44px
+  cần 660px trong khi khổ 390 chỉ có 358px khả dụng — tức sàn ở đó **BẤT KHẢ**, không phải
+  chưa làm; `::after { inset: -9px 0 }` đã nới vùng chạm theo chiều DỌC (11×24). Chiều thứ
+  hai: cho đoạn ấy đạt sàn → **1 đỏ** ("NGOẠI LỆ ĐÃ LỖI THỜI"). Và một ca đòi mỗi lý do dài
+  > 120 ký tự, có chữ số, và trỏ vào một selector CÓ THẬT — một danh sách ngoại lệ không kèm
+  lý do là danh sách không ai dám dọn.
+  **XEM THẬT, HAI MẮT, và mắt thứ hai sửa một phép dò hỏng của tôi.** (1) CSS đã dựng chứa
+  đúng ba khai báo (`closeBtn` 44×44 · `min-width: 44px` ở hai nút kia · `@560` còn nguyên).
+  (2) Tiêm đúng ba khai báo ấy vào TRANG PRODUCTION THẬT ở 390px: `closeBtn` **40×40 → 44×44**
+  · `backBtn` **41,6×44 → 44×44** · và **không** thanh trên, thanh dưới hay trang nào tràn,
+  trước hay sau. Đó là câu trả lời cho rủi ro bố cục (+4px trong thanh trên cao 56px).
+  **PHÉP DÒ ĐẦU CỦA TÔI ĐO HƯ KHÔNG, và nó trả về số trông hợp lệ:** tôi fetch
+  `/_next/static/chunks/<tên trên đĩa>.css` rồi tiêm, nhưng URL ấy trả **404** (đường dẫn
+  trên đĩa không phải đường được phục vụ), nên `hash` ra `undefined`, class không khớp rule
+  nào, và tôi đo nút KHÔNG CÓ STYLE: `closeBtn` 15,2×5,2. Nếu đọc nó thành "bản sửa không
+  chạy" thì đã đi gỡ một bản sửa đúng. **Khi một phép đo trong trình duyệt ra số lạ, kiểm
+  `response.status` trước khi kết luận về sản phẩm.**
+  **ABLATE 5 chiều, cả 5 đỏ:** trả `closeBtn` về 40×40 → **2** (luật chung + ca ghim riêng)
+  · gỡ `min-width` của `backBtn` → 1 · gỡ `min-width` của `secondaryBtn` → 1 · gieo một nút
+  MỚI có `cursor: pointer` không khai sàn → 1 · cho `button.segment` đạt sàn → 1.
+  **SỐ ĐÃ ĐO:** frontend unit **643 → 647 ca / 57 → 58 tệp** · sổ ngưỡng siết sàn 643 → 647 ·
+  typecheck sạch · lint **146 cảnh báo / 0 lỗi** · `npm run build` exit 0 · `check-moc-nen`
+  20 mục 0 lỗi · `check-moc-chay frontend` 0 lỗi · `check-nguong` 35 ngưỡng 0 lỗi ·
+  `tai-nguyen-chet` / `duong-toi` 0 lỗi. **KHÔNG đụng một dòng nội dung nào**, nên
+  `check-da-nap` giữ **62 bài chờ**. **KHÔNG bump `ASSET_VERSION`:** tệp sửa là CSS module
+  trong `src/`, đi qua bundler.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** nút `×` đóng bài to hơn (40 → 44) và nút "Quay lại"
+  rộng hơn (41,6 → 44) trên mọi màn của 179 bài.
+  **PHẠM VI ĐÃ KHAI, để "0 lỗi" không bị đọc quá:** cổng chỉ phủ `LessonChrome.module.css`
+  (5 rule). **16 rule `cursor: pointer` còn lại** ở `studio-chrome.module.css` (12) và
+  `exercises.module.css` (4) CHƯA được canh — nhiều cái trong đó là chip/toggle nhỏ có chủ
+  đích nên phải triage từng cái, và đó là một lát riêng. Hai đích tôi đã đo dưới sàn ở đó:
+  `practiceReveal` **61×37** (nút "Viết thử rồi mới xem đáp án") và option của màn ôn giãn
+  cách **61×43** — con số thứ hai nằm trong sai số ±1px của phép dò, con số đầu thì không.
+
+- **NĂM ĐÍCH BẤM DƯỚI 44px Ở HAI MODULE CÒN LẠI, và nút thấp nhất là "Xem lời giải mẫu" —
+  CAO 24px.** Lead của vòng trước: cổng 44px chỉ phủ `LessonChrome.module.css`, còn **16 rule
+  `cursor: pointer`** ở `studio-chrome.module.css` (12) và `exercises.module.css` (4) chưa ai
+  canh. Triage cả 16 thì **không một rule nào khai `min-height`/`min-width`/`height`** — mọi
+  kích thước đến từ `padding` + nội dung, tức không gì bảo đảm sàn.
+  **SỐ ĐO** (production, 390×844, đi qua cả 15 màn, bằng `offsetHeight` trên màn ĐÃ LẮNG):
+
+  | lớp | cao | rộng | nút |
+  |---|---|---|---|
+  | `.chip` | **24** | 124 | **"Xem lời giải mẫu"** |
+  | `.tracePredictGo` | **36** | 119 | "Xem kết quả" của cổng dự đoán |
+  | `.runBtn` | **37** | 121 | "▶ Chạy thử" của ô bài tập được chấm |
+  | `.practiceReveal` | **37** | 221 | "Viết thử rồi mới xem đáp án" |
+  | `.onGianCachNut` | **43** | 321 | option màn ôn giãn cách |
+
+  **Tất cả chỉ thiếu trục DỌC** — bề rộng đều ≥ 44, nên `min-height: 44px` chữa đúng chỗ mà
+  không chạm bố cục ngang. Tiêm năm khai báo ấy vào trang production và đi lại cả 15 màn: cả
+  năm lên **đúng 44**, **0 màn tràn ngang**.
+  **HOẠT ẢNH VÀO MÀN LÀM `getBoundingClientRect` NÓI DỐI 0,7px, và tôi đã suýt đi tìm một
+  giới hạn không tồn tại.** Lần đo đầu, ngay sau khi bấm một đoạn thanh tiến độ, ba nút ra
+  **43,3** trong khi computed `min-height` là `44px` và `box-sizing` là `border-box` — một mâu
+  thuẫn. Nguyên nhân: tổ tiên `.stepEnter` chạy hoạt ảnh vào màn, nên rect bị CO khi animation
+  còn bay. `offsetHeight`/`clientHeight` là LAYOUT nên không bị, và chúng ra đúng 44. Cùng họ
+  sai số với *"đếm fps bằng rAF tự làm hỏng phép đo"* đã ghi ở mục độ giật. **Sai số chỉ lệch
+  phần thập phân, KHÔNG đổi kết luận** — cả năm vẫn dưới 44 trên màn đã lắng; nhưng nếu đọc
+  43,3 như một số thật thì đã đi tìm một `max-height` hay một phép scale không có.
+  **Và một lần nữa cùng họ:** tiêm rule cho `.chip` rồi đo qua `Range` ra 43,3, nhưng đọc
+  `getComputedStyle` TRƯỚC (buộc layout) thì ra đúng 44. **Khi đo kích thước sau khi vừa đổi
+  CSS, buộc layout trước — và dùng `offsetHeight` nếu có hoạt ảnh trong cây.**
+  **HAI DANH SÁCH KHAI, VÀ CHÚNG NÓI HAI ĐIỀU KHÁC NHAU** — gộp lại là mất phân biệt "đã
+  quyết" với "chưa biết":
+  · `NGOAI_TAM` — ĐÃ ĐO, sàn BẤT KHẢ ở đó, kèm lý do mang số (`button.segment`: 15 đích 44px
+    cần 660px trong khi khổ 390 có 358px);
+  · `CHUA_DO` — **11 rule** chưa đo trên thiết bị, nên không ai được nói nó đạt. Phần lớn nằm
+    trên bề mặt tôi chưa đi qua được trong một lượt (toast, bảng giải thưởng, panel gập, chú
+    thích hình, hoặc màn của pe-v4). Danh sách này **CHỈ ĐƯỢC NGẮN ĐI**, cùng luật một chiều
+    của `DA_SANG_LOFI`.
+  **VÌ SAO PHẢI KHAI "CHƯA ĐO" THAY VÌ NÓI CHÚNG ĐẠT:** tỉ lệ vi phạm trong nhóm ĐÃ ĐO là
+  **5/7**. Khai 11 cái còn lại là "đạt" khi chưa mở màn chứa chúng ra xem là một lời khẳng
+  định không có số đo — và nó tệ hơn không khai, vì nó làm "0 lỗi" đọc ra thành "mọi đích bấm
+  của màn bài học đã đạt".
+  **MỘT PHÉP NỚI CÓ CHỦ ĐÍCH, ghi ra vì nó là phép nới:** ở hai module mới, cổng đòi TRỤC DỌC
+  bằng khai báo nhưng chấp nhận số đo đã có cho trục ngang. Lý do: năm nút này đều đã ≥ 44 bề
+  rộng, và ép `min-width` lên một chip trong hàng ngang là đổi bố cục mà tôi chưa đo. Vỏ bài
+  học (`LessonChrome.module.css`) vẫn đòi CẢ HAI trục.
+  **ABLATE 5 chiều, cả 5 đỏ:** đổi tên `.chip` (mất khai sàn) → **1** · đổi tên
+  `.tracePredictGo` → 1 · đổi tên `.runBtn` → 1 · gỡ một mục khỏi `CHUA_DO` → 1 · khai
+  `CHUA_DO` cho một selector KHÔNG CÓ THẬT → 1.
+  **BA PHÉP GIEO TRƯỢT TRƯỚC ĐÓ, và `ablate.mjs` từ chối cả ba:** tiền tố 14 ký tự tôi dựng
+  để neo dòng `min-height` khớp **2 chỗ** (hai lớp trong cùng file có chú thích giống nhau),
+  rồi một seed nhiều dòng khớp 0 chỗ vì tệp là **CRLF**. Cách đi đúng là gieo vào chính thứ
+  cổng kiểm — TÊN SELECTOR — chứ không vào một dòng khai báo mà nhiều lớp dùng chung khuôn.
+  **SỐ ĐÃ ĐO:** frontend unit **647 → 649 ca** / 58 tệp (hai ca mới, cùng tệp) · sổ ngưỡng
+  siết sàn 647 → 649 · typecheck sạch · lint **146 cảnh báo / 0 lỗi** · `npm run build`
+  exit 0 · `check-moc-nen` 20 mục 0 lỗi · `check-moc-chay frontend` 0 lỗi · `check-nguong`
+  35 ngưỡng 0 lỗi · `tai-nguyen-chet` / `duong-toi` 0 lỗi. **KHÔNG đụng một dòng nội dung
+  nào**, nên `check-da-nap` giữ **62 bài chờ**. **KHÔNG bump `ASSET_VERSION`:** hai tệp sửa
+  đều là CSS module trong `src/`.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** năm nút cao hơn trên điện thoại — đáng kể nhất là
+  "Xem lời giải mẫu" (24 → 44, gần gấp đôi) và "▶ Chạy thử" (37 → 44).
+  **CÒN LẠI:** 11 rule trong `CHUA_DO`. Mỗi lần ai mở được một bề mặt chứa chúng thì đo rồi
+  gỡ tên khỏi danh sách — đó là cách danh sách ngắn đi, và là lát tiếp theo của cụm này.
+- **NĂM NÚT BƯỚC CỦA CODE VISUALIZER LÀ 40×36 — dưới sàn ở CẢ HAI trục, và chúng là đích
+  bấm của chính tính năng đó.** Lead #158: 8 mục `CHUA_DO`, mỗi mục nay nói ra cách đo nó.
+  Mục rẻ nhất là `/ide` — một trang CHƯA BAO GIỜ được đo ở khổ điện thoại cho đích bấm, và
+  là chỗ DUY NHẤT của sản phẩm có bước-từng-dòng.
+  **ĐỌC CSS TRƯỚC đã thấy, không có `@media` nào override bề cao ở khổ cảm ứng** — rồi ĐO
+  trên production (390×844, `offsetHeight`, màn đã lắng, 13 đích):
+
+  | lớp | đo được | nút |
+  |---|---|---|
+  | `.ctrl` ×5 | **40×36** | ⏮ ◀ ▶ ⏭ ⏩ — **dưới sàn CẢ HAI trục** |
+  | `.scrub` | 329×**16** | thanh trượt chọn bước (`input[type=range]`) |
+  | `.detail summary` | 307×**16** | hàng "Traceback" / "Chi tiết kỹ thuật" |
+  | `.restoredClose` | **26×26** | ✕ của băng khôi phục — nhỏ nhất |
+  | `.restoredAction` | 167×**31** | "Dùng ví dụ mặc định" |
+  | `.start` | 125×**38** | "Xem từng bước" / "Ghi vết lại" |
+  | `.select` · `.run` · `.stop` | **42** | thanh công cụ |
+
+  **HÀNG NÚT VỪA CHỖ, đo chứ không suy:** 5 × 44 + 4 × 6 gap = **244px**, trong khi
+  `.controls` rộng **333 / 302 / 262** px ở khổ 390 / 360 / 320. Tiêm thật ở cả ba khổ: 13
+  đích lên 44, `scrollWidth` giữ đúng bề rộng màn, **0 phần tử ngoài mép**.
+  **CHỈ SIẾT Ở KHỔ CẢM ỨNG (`max-width: 1023.98px`), không đụng desktop** — `.ctrl`,
+  `.restoredClose`, `.select`/`.run`/`.stop` khai `height` (và `width`) TƯỜNG MINH, nên sửa
+  thẳng là đổi cả bố cục desktop, một thay đổi lớn hơn việc đang làm mà không ai đo. 1023.98
+  là đúng mốc sàn 16px đã chọn cho dải ấy, nên không sinh một breakpoint thứ hai.
+
+  **LỖ TRONG CHÍNH `moiRule`: nó ĐÁNH RƠI selector, và rơi IM LẶNG.** Phép bóc là
+  `m[1].split(/[\n;]/).pop()` — DÒNG CUỐI — nên một rule viết `.restoredAction,` xuống dòng
+  `.restoredClose {` chỉ còn `.restoredClose`. **`.restoredAction` chưa bao giờ được quét**,
+  và nó là một trong năm đích tôi vừa đo dưới sàn. Thứ làm nó im lặng: một selector rơi ra
+  thì ĐỘ PHỦ chỉ co lại, không có luật nào đỏ — đúng hình dạng "cổng tự khai khống độ phủ"
+  mà file này đã bắt ba lần ở chỗ khác. Nay `selCua()` giữ MỌI tên (cắt sau dấu `;` cuối để
+  bỏ at-rule không khối, rồi tách theo `,`), và có một assert đơn vị ghim chính phép bóc đó.
+  Kiểm trước khi tách theo `,`: **0/5 tệp** có `:is()`/`:where()`/`:not(…,…)`, nên phép tách
+  không gặp dấu phẩy trong selector.
+
+  **LUẬT TRỤC NGANG MỚI LÀ MỘT LUẬT SUY RA ĐƯỢC, không phải một danh sách:** nếu rule khai
+  `width` TƯỜNG MINH thì tác giả đã ấn định bề rộng, nên nó không do nội dung quyết và phải
+  đạt sàn. Nó phủ cả năm tệp, và đó là thứ DUY NHẤT bắt được `.ctrl` (khai `width: 40px`) —
+  luật "chỉ đòi trục dọc" của các module studio cho qua, vì `.ctrl` đã cao 44 sau bản sửa.
+  Kiểm không báo oan: trong 5 tệp chỉ có `.closeBtn` 44px và ba chỗ `width: 100%`
+  (`hieuLuc` trả `Infinity`) là khai tường minh — cả bốn đạt.
+
+  **VÀ CỔNG BẮT ĐÚNG TÔI, ở chỗ tôi tưởng mình đang tử tế.** Tôi áp sàn cho `.retry` (nút
+  "thử lại" của trình soạn thảo dự phòng) **đồng thời** khai nó vào `CHUA_DO` để nói "chưa
+  đo trên thiết bị". Chiều thứ hai của luật đỏ ngay: *"NGOẠI LỆ ĐÃ LỖI THỜI"*. Hai thứ ấy
+  LOẠI TRỪ NHAU theo thiết kế, và cổng đúng: **`CHUA_DO` là lối thoát cho rule KHÔNG chứng
+  minh được bằng CSS**, không phải cho rule "chưa đo bằng ngón tay". Một khi `min-height:
+  44px` đã khai thì cổng VERIFY được nó, nên áp sàn **mạnh hơn** khai một khoản nợ — và
+  giữ cả hai là tự khai khống một khoản nợ đã trả. Danh sách vì vậy vẫn **8 mục**.
+  Bài học rộng hơn: khi một danh sách nợ và một bản sửa cùng nhắm một mục, bản sửa thắng;
+  nếu luật không nói ra điều đó thì danh sách sẽ phình bằng những món đã trả.
+
+  **MỘT LÝ DO TRONG `CHUA_DO` TRỎ SAI TỆP, và nó là lý do do CHÍNH #158 viết.** #158 đổi
+  danh sách từ tên trần sang "tên + tệp dựng nó", và một trong tám dòng ấy ghi `.panel
+  summary` là của `CodeVisualizer.tsx`. Sai: `styles.panel` ở `CodeVisualizer.tsx:292` là
+  `.panel` của module RIÊNG của nó, không phải lớp này. Chủ thật là **`SandboxScreen.tsx:127`
+  và `:148`** — hai `<details>` của màn BÀI TẬP ĐƯỢC CHẤM, tức nó nằm trên đường người học
+  (143 bài), không ở `/ide`. **Thêm tệp vào một dòng khai không làm dòng đó đúng** — phải
+  tra `styles.X` thuộc module nào, vì hai module khác nhau có thể có cùng tên lớp.
+  Nó vẫn CHƯA ĐO: bấm qua 26 đoạn thanh tiến độ của SY05 không đoạn nào mở được màn sandbox,
+  nên lý do nay nói ra đúng điều đó thay vì nói nó ở `/ide`.
+
+  **KHOẢNG TRỐNG ĐÃ ĐO VÀ KHAI: nửa ĐỘ PHỦ của cổng khoá vào `cursor: pointer`, nên một
+  CONTROL GỐC không khai nó thì cổng mù.** `.scrub` là `input[type=range]` — range có con
+  trỏ riêng của trình duyệt nên không rule nào của nó có `cursor: pointer`. Ablate chứng
+  minh: hạ nó về 16 chỉ ra **1 đỏ**, và con đỏ ấy đến từ ca ghim CU **theo TÊN**, không từ
+  ca độ phủ. Tức một range input THÊM MỚI ngày mai sẽ không ai canh. Khoá thêm vào
+  `accent-color` thì phủ được, nhưng đó là một luật thứ hai chưa có bằng chứng ai cần.
+
+  **CA MỘT-TỆP KHÔNG DƯ, và đó là chỗ tôi suýt xoá một ca.** Sau khi `TEP` lên 5 thì ca cũ
+  (chỉ `LessonChrome.module.css`, đòi cả hai trục) trông như bị ca năm-tệp bao trọn — và xoá
+  nó thì số ca tụt 649 → 648, tức đụng sàn một chiều. Khác biệt thật: ở ca ấy lối thoát DUY
+  NHẤT là `NGOAI_TAM` (đã đo, sàn bất khả, kèm số). **Không ai dời được một đích bấm của vỏ
+  bài học sang `CHUA_DO`** — vỏ ấy hiện ở MỌI màn của 179 bài, nên "chưa đo" không phải một
+  lời khai đứng được ở đó. Đã đổi tên ca cho nói ra tính chất ấy thay vì xoá nó.
+
+  **ABLATE 8 chiều, dùng `scripts/ablate.mjs`:** `.ctrl` → 40×36 → **2 đỏ** · `.scrub` → 16
+  → **1** · `.restoredClose` → 26×26 → **2** · `.select`/`.run`/`.stop` → 42 → **2** ·
+  `selCua` chỉ lấy selector CUỐI → **3** · `.retry` trở lại `CHUA_DO` → **1** · `.ctrl` chỉ
+  sai TRỤC NGANG (40×44) → **1** · gỡ luật `width` tường minh trên CSS ĐÚNG → **0**.
+  Chiều thứ bảy là chiều đáng nhất: cao vẫn 44 mà vẫn đỏ ⇒ luật `width` tường minh gánh một
+  phần tải mà luật chiều cao không gánh. Chiều thứ tám ra 0 và phải đọc đúng: nó nói luật ấy
+  là hàng rào cho SAU, không phải thứ đang giữ xanh hôm nay.
+  **GIỚI HẠN của phép ablate:** `ablate.mjs` nhận MỘT `--tep`, nên cặp đối chứng thật (vừa
+  hạ `.ctrl` về 40 vừa gỡ luật, cùng lúc) không gieo được bằng một lệnh. Chiều 7 chạy một
+  nửa ở mỗi phía, và nói ra ở đây thay vì gọi nó là cặp đối chứng.
+
+  **BẪY MỚI CỦA CÔNG CỤ, và nó hỏng IM LẶNG: backtick trong một chuỗi Python truyền qua
+  `bash -c` vẫn là COMMAND SUBSTITUTION của shell.** Tôi ghi một chú thích 9 dòng kèm 10 cụm
+  backtick; bash chạy `cursor:`, `.scrub`, `input[type=range]`, `accent-color` như lệnh,
+  in bốn dòng `command not found`, rồi thay mỗi cụm bằng **chuỗi rỗng**. Script in "xong",
+  bộ test vẫn **6/6 xanh** — một chú thích mất nội dung không làm assert nào đỏ. Cùng họ bẫy
+  heredoc ăn dấu gạch chéo, và cách chữa giống nhau: **ghi script ra TỆP rồi chạy tệp**,
+  đừng truyền mã nhiều dòng qua `-c`.
+  **Và một bẫy CRLF kiểu mới:** `open(f, encoding='utf-8')` ở chế độ text **dịch CRLF về
+  `\n` khi ĐỌC**, nên một chuỗi seed mang CRLF khớp **0 chỗ** trên đúng tệp đang chứa nó.
+  Phải `newline=''` cả khi đọc lẫn khi ghi. Bẫy "đầu dòng khác nhau theo từng tệp — dò, đừng
+  đoán" đã ghi từ trước; đây là nửa còn lại của nó: dò xong rồi vẫn phải ĐỌC đúng cách.
+
+  **SỐ ĐÃ ĐO:** `TEP` **3 → 5 tệp** · sàn tự kiểm `thay.size` **15 → 24** · `CU` ghim
+  **7 → 16** nút (thêm 9 nút của `/ide` + visualizer) · `CHUA_DO` giữ **8 mục**, một lý do
+  sửa lại · frontend unit giữ **649 ca / 58 tệp** (thêm assert vào ca sẵn có, không thêm ca
+  — nên bảng mốc nền KHÔNG đổi) · typecheck sạch · lint **146 cảnh báo / 0 lỗi** ·
+  `npm run build` exit 0 · CSS ĐÃ DỰNG chứa 4 khối `@1023.98` · 3 chỗ `width:44px;height:44px`
+  · 2 chỗ `padding:13px 0` · `check-moc-nen` 20 mục 0 lỗi · `check-moc-chay frontend`
+  649/649 · `check-nguong` 35 ngưỡng 0 lỗi · `tai-nguyen-chet` / `export-chet` /
+  `duong-toi` 0 lỗi. **KHÔNG đụng một dòng nội dung nào**, nên `check-da-nap` giữ **62 bài
+  chờ**. **KHÔNG bump `ASSET_VERSION`:** hai tệp sửa đều là CSS module trong `src/`.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** trên điện thoại, năm nút bước của bước-từng-dòng đi
+  từ 40×36 lên 44×44, thanh trượt chọn bước từ cao 16px lên 44px, và nút ✕ của băng khôi
+  phục từ 26×26 lên 44×44.
+  **CÒN LẠI 7 mục `CHUA_DO` chưa đo + 1 mục `KHONG_CO_DUONG_TOI`** (`.panel summary` nay
+  biết đúng đường: đi tới màn sandbox của một bài có ca chấm). Và nửa độ phủ vẫn mù với
+  control gốc không khai `cursor: pointer` — đã khai ở trên, chưa làm.
+- **`.panel summary` KHÔNG PHẢI "CHƯA ĐO" — hai khối renderer của `SandboxScreen` chưa bao
+  giờ hiện cho một người học nào, và cổng bắt đúng lỗi ấy thì KHÔNG CÓ TRONG CI.**
+  Vòng này mở ra để đo một mục `CHUA_DO`, và phép đo đổi hẳn việc — lần thứ ba liền.
+  **ĐO BẰNG CÁCH LIỆT KÊ MỌI KHOÁ `step_4` của HAI gói**, không bằng cách đọc lại chỗ dùng
+  trong TSX:
+
+  | khoá | pe-da (179 bài, đang xuất bản) | pe-v4 (48 bài, đã ẩn) | nghĩa |
+  |---|---|---|---|
+  | `contract` (SỐ ÍT) | **52** | — | hợp đồng CA CHẤM (mode · inputVariable · resultVariable · returnType) |
+  | `contracts` (SỐ NHIỀU) | **0** | 44 | mô tả HÀM cho người đọc — thứ renderer này dựng |
+  | `files` | **0** | 11 | KHÁC `dataFiles` (9 bài): gói pe-da cố ý chỉ nhúng TÊN file |
+
+  `SandboxScreen.tsx:88-89` đọc `four?.files` và `four?.contracts`, nên cả hai
+  `<details className={c.panel}>` là đường của **pe-v4**. `.panel summary` vì vậy thuộc hạng
+  `KHONG_CO_DUONG_TOI`, cùng hạng `.toggleBtn` — không phải "chưa đo".
+  **BẪY MỘT CHỮ CÁI, và nó nằm đúng chiều tự khen:** tra `contract` ra **52** rồi kết luận
+  "panel hiện ở 52 bài" là một con số có thật, đúng cú pháp, và sai hoàn toàn về thứ đang
+  hỏi. Hai khoá cách nhau một chữ `s`, ở hai gói, với hai nghĩa không liên quan.
+  **MỤC NÀY ĐÃ KHAI SAI HAI LẦN TRƯỚC KHI ĐÚNG, và cách sai mới là bài học:**
+  · #158 khai "CHƯA ĐO", lý do ghi *"panel từng bước của `/ide`"* — sai tệp;
+  · #159 sửa tệp thành `SandboxScreen.tsx:127`/`:148` (ĐÚNG) nhưng GIỮ hạng CHƯA ĐO và viết
+    *"nằm trên đường người học, 143 bài có ca chấm"* — cũng sai, vì `.panel` không đọc
+    `tests`. Tôi lấy con số của một khoá KHÁC trong cùng `step_4` làm blast radius.
+  Cả hai lần tôi đều ĐỌC LẠI chỗ dùng trong TSX và cả hai lần vẫn sai. Thứ sửa được là một
+  **phép ĐẾM trên bản dựng** — đọc renderer nói được "nó dựng từ khoá nào", không nói được
+  "khoá ấy có ai phát ra không".
+
+  **HAI DANH SÁCH KHAI THAY NHAU ĐƯỢC, và ablate tìm ra.** `CHUA_DO` và
+  `KHONG_CO_DUONG_TOI` nhận CÙNG một bộ phép kiểm (selector có thật · lý do > 80 ký tự ·
+  trỏ vào một `.tsx`), nên dời một mục từ hạng này sang hạng kia **không làm đỏ gì** — tức
+  bản sửa của vòng này không được cổng nào thi hành. Luật riêng duy nhất của hạng no-path là
+  `/\d+\/\d+/`, mà nó nhận cả `143/179`: một mục CÓ đường tới vẫn đậu được vào danh sách
+  KHÔNG-CÓ-ĐƯỜNG-TỚI. Nay siết thành `\b0\/\d+` — "không có đường" nghĩa là phép đếm ra
+  KHÔNG. Cặp đối chứng: luật siết + gieo `9/179` → **1 đỏ**; luật cũ + CÙNG seed → **0 đỏ**.
+  **KHE CÒN LẠI, khai ra vì nó KHÔNG đóng được ở đó:** chiều NGƯỢC — một mục thật sự không
+  có đường mà bị parked trong `CHUA_DO` — thì cổng mù, vì chỉ `ban-do-tinh-nang.mjs` biết
+  một bề mặt có đường hay không. Đòi mọi mục no-path phải có một mục tương ứng trong bản đồ
+  thì sẽ kêu oan: `.toggleBtn` không có mục nào ở đó (màn game của pe-v4 chưa ai khai).
+
+  **VÀ PHÁT HIỆN LỚN HƠN CẢ VIỆC ĐANG LÀM, thấy khi đang sửa chính hàng mốc nền:**
+  · ba con số của hàng "Bản đồ tính năng" (**mục · có đường tới · còn tối**) **KHÔNG ai
+    canh** — `check-moc-nen` không đọc hàng đó, `check-duong-toi` không đọc AGENTS.md. Bằng
+    chứng cứng: thêm một bề mặt tối thứ tư làm 17/3 thành 18/4 và `check-moc-nen` vẫn in
+    **0 lỗi**. Cùng lớp với hàng VĂN PHONG mà #149 phải đóng sau MƯỜI lát sửa tay;
+  · **và cổng ấy chưa bao giờ có một bước `- run:` nào trong `ci.yml`.** Đo bằng cách liệt
+    kê: **10/12** cổng `check-*.mjs` có trong CI. Hai cái thiếu là `check-da-deploy` (CỐ Ý —
+    cần mạng, và nó chỉ cảnh báo) và **`check-duong-toi`**, tức cổng dựng riêng để bắt LỖI
+    THỐNG TRỊ của repo này. Nó vẫn đúng suốt vì vòng lặp gọi nó bằng tay mỗi vòng; thứ thiếu
+    là ai thi hành GIỮA hai vòng. AGENTS.md **không** khai sai ở đây — nó chỉ chưa bao giờ
+    nói cổng ấy ở đâu, và không ai hỏi.
+  Nay `check-moc-chay` có **mục thứ TÁM** (`duongToi`) và `ci.yml` có bước gọi nó, đặt ngay
+  cạnh `check-tai-nguyen-chet` — cổng hỏi câu NGƯỢC với nó ("tệp này có ai tới được không"
+  so với "tính năng này có ai đi qua không"). Gọi qua `check-moc-chay` nên nó THAY một bước
+  trực tiếp, không thêm một lượt chạy.
+  **PHÉP TỰ XÁC NHẬN `sang + toi === muc`, và nó không phải trang trí:** nếu một nhóm của
+  regex `doc` trượt thì giá trị là `undefined`, và `undefined !== undefined` là **false** —
+  tức phép so BẰNG với bảng sẽ IM LẶNG ĐẠT trên một con số không đọc được. Ablate: phá regex
+  (`còn tối` → `ZZ tối`) → **1 đỏ**, và con đỏ ấy đến từ `themLuat`, không từ phép so số.
+
+  **ABLATE 10 chiều.** Bản đồ: `contracts` → `contract` (dem đi **0 → 52**, khai tối mà hoá
+  ra sáng) → **1 đỏ** · `thucHien` trỏ ký hiệu không còn → **1**. Cổng 44px: số đo `0/179` →
+  `9/179` → **1** · **CẶP ĐỐI CHỨNG** luật cũ + cùng seed → **0**. Mục `duongToi` mới: bảng
+  ghi 17 mục → **1** · bảng ghi 3 tối → **1** · đổi LỆNH mà regex neo vào → **1** ("KHÔNG
+  CÒN DÒNG") · phá regex `doc` → **1** · hàng `check-moc-chay` ghi 7 mục → **1**.
+  **Một chiều ra 0 đỏ và nó ĐÚNG, phải đọc cho đúng:** đổi NHÃN hàng ("Bản đồ tính năng" →
+  "Ban do tinh nang") không làm đỏ, vì regex neo vào LỆNH chứ không vào nhãn. Nhãn là văn
+  xuôi; lệnh là hợp đồng. Đừng đọc nó thành "cổng không bắt được việc đổi chữ".
+  **VÀ MỘT PHÉP GIEO CỦA TÔI VÔ HIỆU mà `ablate.mjs` KHÔNG bắt:** tôi thêm `toiThieu: 1,`
+  ngay sau `id:` trong khi mục ấy đã có `toiThieu: 0,` ở dưới — **khoá trùng trong object
+  literal thì cái SAU thắng**, nên văn bản ĐỔI mà hành vi không đổi, và bất biến "GIEO VÔ
+  HIỆU" (so nội dung trước/sau) đi qua được vì nội dung thật sự khác. Cách gieo đúng là sửa
+  CHÍNH dòng đang có hiệu lực. Ghi lại vì đây là một cách thứ SÁU để "0 đỏ" nói dối, và nó
+  nằm ngoài tầm năm bất biến hiện có.
+
+  **SỐ ĐÃ ĐO:** bản đồ tính năng **17 → 18 mục · 14 sáng · 3 → 4 tối**, 0 lỗi ·
+  `check-moc-chay` **7 → 8 mục** · `ci.yml` 41 → **42 bước run**, YAML parse OK, 7 job ·
+  `CHUA_DO` **8 → 7 mục** (`.panel summary` sang hạng khác), `KHONG_CO_DUONG_TOI` **1 → 2** ·
+  frontend unit giữ **649 ca / 58 tệp** (sửa assert trong ca sẵn có, không thêm ca) ·
+  typecheck sạch · lint **146 cảnh báo / 0 lỗi** · `check-moc-nen` 20 mục 0 lỗi ·
+  `check-nguong` 35 ngưỡng 0 lỗi · `check-doi-hoi` / `tai-nguyen-chet` / `export-chet` 0 lỗi.
+  **KHÔNG đụng một dòng nội dung nào**, nên `check-da-nap` giữ **62 bài chờ**. KHÔNG bump
+  `ASSET_VERSION` (không tệp nào trong `public/`).
+  **KHÔNG ĐỔI HÀNH VI NGƯỜI HỌC:** vòng này không sửa một pixel nào — nó đổi chỗ một lời
+  khai từ hạng sai sang hạng đúng, và nối một cổng vào CI. Nói ra để không ai đọc nó như
+  một bản sửa giao diện.
+  **GIỚI HẠN:** trigger của `ci.yml` vẫn là `branches: [master]`, nên bước mới — như 41 bước
+  kia — chưa chạy lần nào trên `main`. Lật nó là quyết định của chủ dự án.
+- **NÚT "▶ Chạy thử" CAO 38px — NẰM NGAY TRÊN một nút đã 44px từ hai vòng trước, cùng cột,
+  cùng font.** Và nó bị bỏ sót vì một lý do đo được: cổng `{chayDuoc && …}` không dựng nó
+  trên bài tôi chọn hôm ấy.
+  **PHÉP QUÉT MỞ VÒNG RA ĐỜI RỖNG, và đó là kết quả đúng.** Vòng trước tìm ra
+  `check-duong-toi` vắng khỏi CI bằng cách liệt kê rồi so; vòng này quét hệ thống **cả 21
+  lệnh** của bảng mốc nền so với `ci.yml`. Bản đo đầu báo **7 lệnh VẮNG** — và **5/7 là báo
+  oan**: `pe_tracer_test` · `check-pyodide` · `check-practice` · `check_vanphong` ·
+  `check-duong-toi` đều được CI gọi **QUA `check-moc-chay`**, nên phép grep theo đường dẫn
+  script không thấy. Hai cái còn lại (`gen_traces` ~20 phút cần numpy trên máy ·
+  `check-da-deploy` cần mạng) vắng CÓ CHỦ ĐÍCH. Nên khe duy nhất là cái vòng trước vừa
+  đóng. **Một phép quét ra 7 kết quả mà 5 là báo oan thì nó đang đo CÁCH GỌI, không đo ĐỘ
+  PHỦ** — muốn đo độ phủ thì phải theo cả đường gián tiếp.
+  **ĐO TRÊN BẢN DỰNG trước khi mở trình duyệt:** 63 câu luyện tập chạy được ở **62/179
+  bài** — một phần ba khoá. Khi khai `.practiceRun` là nợ ở #157 tôi không có con số này,
+  nên nó bị xếp ngang với mấy mục overlay chỉ hiện sau một mốc.
+  **ĐO TRÊN PRODUCTION** (NP06, `?lesson=23`, 390×844, `offsetHeight` trên màn đã lắng):
+
+  | lớp | kích thước | `min-height` |
+  |---|---|---|
+  | `.practiceRun` "▶ Chạy thử" | **117 × 38** | `auto` — dưới sàn |
+  | `.practiceReveal` "Viết thử rồi mới xem được" | 221 × **44** | `44px` ✓ sửa ở #157 |
+
+  Hai nút XẾP DỌC trong cùng một cột `align-self: flex-start`, một đạt sàn một không. CSS
+  của chúng khác nhau đúng **2px padding ngang** (`9px 18px` so với `9px 16px`), cùng font
+  14px — nên #157 đo cái dưới ra 37, sửa, và cái trên ở lại 38.
+  **VÌ SAO #157 KHÔNG THẤY, và đây là bài học dùng lại được:** lượt đi hôm ấy dùng SY05, và
+  **cả 5 câu luyện tập của nó không câu nào có `answerCode`** — nên cổng `{chayDuoc && …}`
+  không dựng nút, và một đích bấm không được RENDER thì không phép đo nào trên màn hình
+  thấy nó. Chính AGENTS.md đã ghi đúng điều kiện ấy vào dòng khai `CHUA_DO` ("chọn bài có
+  câu chạy được thì đo được") — nên lần này chỉ cần ĐỌC dòng khai rồi chọn bài theo nó.
+  Đó là lần đầu một dòng trong `CHUA_DO` trả lại đúng thứ nó được viết ra để trả: một
+  đường đi, không phải một tên.
+  **LƯỢT ĐI CŨNG LÀ MỘT PHÉP KIỂM DEPLOY, và cả bốn bản sửa trước đều đã live:**
+  `closeBtn` **44×44** (#156) · `backBtn` **44×44** (#156) · `practiceInput` font **16px**
+  (#155) · `primaryBtn` 48 · `.segment` 15×6 (ngoại lệ đã khai, vùng chạm 11×24 qua
+  `::after`). Một lượt quét thường cộng một con số CŨ để so là đủ thành phép kiểm deploy.
+  **GIÁ ĐÃ ĐO bằng cách tiêm trên trang thật:** nút 38 → 44, cột cha 337 → **343px**, không
+  tràn ngang, **0 phần tử ngoài mép**.
+  **ABLATE 3 chiều:** gỡ dòng sàn của `.practiceRun` → **2 đỏ** (phép độ phủ + ca ghim CU) ·
+  trả `.practiceRun` vào `CHUA_DO` → **1 đỏ** ("NGOẠI LỆ ĐÃ LỖI THỜI") · gỡ RIÊNG mục khỏi
+  `CU` → **0 đỏ**.
+  **Chiều thứ ba ra 0 và phải đọc cho đúng:** ca ghim CU là hàng rào CHỐNG HỒI QUY, không
+  phải thứ đang giữ xanh — khi sàn đã khai thì phép độ phủ tự đạt, nên chỉ lúc ai GỠ sàn nó
+  mới nói thêm được điều gì (và lúc đó nó là con đỏ thứ hai của chiều 1).
+  **BẪY EOL CẮN LẦN THỨ BA, ở một tệp mới:** `studio-chrome.module.css` là **LF**, trong khi
+  `studio.module.css` và `exercises.module.css` (cùng thư mục họ hàng) là **CRLF**. Phép
+  thay của tôi mang CRLF nên khớp **0 chỗ**, và `thay()` dừng đúng chỗ. Luật cũ ("đầu dòng
+  khác nhau theo từng tệp — dò, đừng đoán") vẫn đúng; cái mới là **dò cho TỪNG tệp, đừng
+  suy từ tệp cạnh nó**.
+  **SỐ ĐÃ ĐO:** `CHUA_DO` **7 → 6 mục** · `CU` ghim **16 → 17** nút · frontend unit giữ
+  **649 ca / 58 tệp** (sửa danh sách trong ca sẵn có, không thêm ca) · typecheck sạch · lint
+  **146 cảnh báo / 0 lỗi** · `npm run build` exit 0, CSS đã dựng có **16 chỗ**
+  `min-height:44px` · `check-moc-nen` 20 mục 0 lỗi · `check-moc-chay frontend` 0 lỗi ·
+  `check-nguong` 35 ngưỡng 0 lỗi · `check-duong-toi` 18/14/4 0 lỗi · `tai-nguyen-chet` /
+  `export-chet` 0 lỗi. **KHÔNG đụng một dòng nội dung nào**, nên `check-da-nap` giữ **62 bài
+  chờ**. KHÔNG bump `ASSET_VERSION` (tệp sửa là CSS module trong `src/`).
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** nút "▶ Chạy thử" của màn luyện tập cao hơn (38 → 44)
+  ở **62/179 bài**, và nay bằng đúng nút ngay dưới nó.
+  **CÒN LẠI 6 mục `CHUA_DO`**, và `.onGianCachTiep` nay gần đo được: lượt đi vòng này bấm
+  phương án đầu cho mọi câu trắc nghiệm và nhận "Đã xem đáp án →" **hai lần**, tức đã có
+  câu sai để màn ôn giãn cách rút ra ở một bài sau. Đo nó là chọn đúng bài tiếp theo của
+  cùng phiên, không phải mở một bài bất kỳ.
+  **MỘT LẦN GHI ĐÃ NÓI RA:** phép đo này mở một trang bài học trên production nên `apiFetch`
+  gặp 401 rồi `ensureGuest()` — một hàng `@guest.local`. Không chạm dữ liệu bài học, và đó
+  là đúng thứ mọi khách mở trang đều làm, nhưng nó là một lần GHI.
+- **NÚT "XEM TỪNG BƯỚC" CAO 34px, và danh sách nợ 11 mục là một danh sách KHÔNG CÓ ĐƯỜNG
+  ĐI.** Lead vòng trước để lại `CHUA_DO` gồm 11 tên trần. Vòng này mở đúng bề mặt chứa chúng
+  và phân loại cả 11 — vì một danh sách tên trần thì vòng sau phải đi tìm lại từ đầu "nút này
+  ở màn nào", và đó đúng là việc tôi vừa phải làm.
+  **CHỌN BÀI BẰNG BẢN DỰNG, không bằng cảm giác:** quét `out/lessons.json` tìm bài có CẢ vết
+  + luyện tập + ca chấm, ra SY05 (`?lesson=107`) với **3 vết · 5 màn luyện tập · 4 ca chấm ·
+  2 gợi ý** — nhiều bề mặt nhất trong một lượt đi. Đi qua màn 1→12 ở 390×844, đo bằng
+  `offsetHeight` trên màn ĐÃ LẮNG:
+  · `.traceOpen` **34 × 157** ("Xem từng bước ▸") — **VI PHẠM**, và nó có ở **56 bài có vết**;
+  · `.optionCard` **53** · `.optionSelected` 53 · `.optionWrong` 66 · `.optionCorrect` 81 —
+    đạt, nhưng KHÔNG khai gì bảo đảm.
+  **VÀ LƯỢT ĐI NÀY XÁC NHẬN BẢN SỬA VÒNG TRƯỚC ĐÃ LÊN PRODUCTION:** `chip` · `runBtn` ·
+  `practiceReveal` đo đúng **44**, và `onGianCachNut` đi **43 → 44**. Một lượt quét thường
+  cũng là một phép kiểm deploy, miễn là có con số CŨ để so.
+  **`.optionCard` ĐẠT MÀ VẪN KHAI SÀN, và lý do không phải hình thức:** bề cao thẻ phương án
+  do NỘI DUNG quyết (phương án dài hai dòng thì 53, một dòng ngắn thì bao nhiêu?). 53 là số
+  đo của MỘT bài; khai `min-height: 44px` biến nó thành một bảo đảm. Đây là chỗ phân biệt
+  "đo được 53" với "không tụt dưới 44".
+  **PHÂN LOẠI 9 LỚP CÒN LẠI — tra chỗ dùng trong TSX thì KHÔNG cái nào chết, nhưng chúng
+  không cùng một hạng:**
+
+  | lớp | ở đâu | vì sao chưa với tới |
+  |---|---|---|
+  | `.toggleBtn` | `TrueFalse.tsx` ← `TrueFalseGame.tsx` | **0/179 bài có màn game** — bản dựng chỉ phát `step_2.mcq` (179) và `step_2.practice` (179). Đây là "KHÔNG CÓ ĐƯỜNG TỚI", không phải "chưa đo" |
+  | `.resetLink` · `.answerKeyHead` | `AdminAnswerKey.tsx` | bề mặt **QUẢN TRỊ** |
+  | `.panel summary` | `CodeVisualizer.tsx` | panel từng bước của `/ide` |
+  | `.toast button` · `.awards button` | `LessonOverlays.tsx` | overlay thoáng qua, phải kích mới hiện |
+  | `.theoryFigure figcaption a` | `ReadScreen.tsx` | link nguồn trong chú thích hình |
+  | `.practiceRun` | `PracticeScreen.tsx:134` | sau cổng `{chayDuoc && …}` — chỉ hiện ở câu luyện tập CHẠY ĐƯỢC (53/63 câu có `answerCode`), và 5 câu của SY05 không có cái nào |
+  | `.onGianCachTiep` | `OnGianCach.tsx` | chỉ hiện SAU khi trả lời |
+
+  **TÁCH `.toggleBtn` SANG MỘT HẠNG RIÊNG, và đó là điểm chính của vòng.** Gộp nó vào "chưa
+  đo" là sai: nó sẽ KHÔNG BAO GIỜ đo được trên đường sản phẩm hiện tại — không phải thiếu một
+  lượt đi, mà là thiếu một MÀN. Cùng hạng với nút "Thử ngay trong IDE" ở màn brief/explain mà
+  `check-duong-toi.mjs` đã khai là còn tối. `KHONG_CO_DUONG_TOI` vì vậy bị đòi một SỐ ĐO dạng
+  `N/M` (ca test khớp `/\d+\/\d+/`) — cùng mức bằng chứng mà cổng đường-tới đòi, chứ không
+  phải một lời khẳng định.
+  **`.theoryFigure figcaption a` LÀ MỘT CA KHÁC HẲN, phải nói ra:** nó là thẻ `a` **INLINE**,
+  nên `min-height` KHÔNG áp được. Bản sửa ở đó phải là `display: inline-block` + padding —
+  một quyết định về dòng chảy văn bản, không phải một dòng sàn. Nếu không khai điều này thì
+  vòng sau sẽ thêm `min-height` rồi tưởng đã xong.
+  **HAI PHÉP ABLATE ĐẦU CỦA TÔI ILL-POSED, và "0 đỏ" của chúng không nói gì.** Tôi đổi tên
+  `.traceOpen` → `.traceOpenZZ` để "gỡ khai sàn" — nhưng đổi tên mang `min-height` ĐI THEO,
+  nên cổng theo-độ-phủ vẫn thấy một rule đạt sàn và đúng ra phải im. Thứ cần gieo là **gỡ
+  chính dòng sàn**, neo vào chú thích RIÊNG của từng rule (mỗi rule có một câu mô tả khác
+  nhau). Gieo lại: **2 đỏ** mỗi chiều. **Một phép ablate "di chuyển" thứ cần kiểm chứ không
+  "lấy đi" nó là một phép ablate vô nghĩa** — họ hàng với bẫy "gieo THÊM chứ không THAY" đã
+  ghi ở vòng #154.
+  **ABLATE 5 chiều, cả 5 đỏ:** gỡ dòng sàn của `.traceOpen` → **2** · gỡ dòng sàn của
+  `.optionCard` → **2** · `CHUA_DO` quay về danh sách tên trần (lý do quá ngắn) → 1 · gỡ số
+  đo khỏi `KHONG_CO_DUONG_TOI` → 1 · bỏ hẳn `.toggleBtn` khỏi cả hai danh sách → 1.
+  **SỐ ĐÃ ĐO:** frontend unit giữ **649 ca / 58 tệp** (mở rộng ca sẵn có, không thêm ca — nên
+  bảng mốc nền KHÔNG đổi, và đó là trạng thái bình thường chứ không phải quên sửa) ·
+  typecheck sạch · lint **146 cảnh báo / 0 lỗi** · `npm run build` exit 0 · `check-moc-nen`
+  20 mục 0 lỗi · `check-moc-chay frontend` 649/649 · `check-nguong` 35 ngưỡng 0 lỗi ·
+  `tai-nguyen-chet` / `duong-toi` 0 lỗi. **KHÔNG đụng một dòng nội dung nào**, nên
+  `check-da-nap` giữ **62 bài chờ**. **KHÔNG bump `ASSET_VERSION`:** hai tệp sửa là CSS module
+  trong `src/`.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** nút "Xem từng bước ▸" cao hơn (34 → 44) ở 56 bài có
+  bảng từng bước. Kiểm trên trang production: tiêm khai báo ấy ở màn 3/13 của SY05 → **34 →
+  44**, không tràn ngang.
+  **CÒN LẠI 8 mục `CHUA_DO` + 1 mục `KHONG_CO_DUONG_TOI`**, và nay mỗi mục nói ra cách đo nó:
+  `/ide` cho `.panel summary` · một bài có câu luyện tập chạy được cho `.practiceRun` · trả
+  lời xong màn ôn giãn cách cho `.onGianCachTiep` · ép overlay hiện cho `.toast`/`.awards` ·
+  bề mặt quản trị cho hai mục của `AdminAnswerKey`.
+
+- **CỔNG 44px IN "0 LỖI" TRONG KHI NÓ PHỦ 31/46 SELECTOR — và 15 cái ngoài tầm gồm HỘP ĐỒNG Ý,
+  vỏ MỌI màn bài học, và đề ôn tập chấm ở máy chủ.** Năm vòng liền (#156–#161) đo từng đích bấm
+  rồi áp sàn từng cái; vòng này hỏi câu khác: **cổng ấy phủ bao nhiêu phần của sản phẩm?**
+  **ĐO** — `cursor: pointer` trên toàn `frontend/src`, so với `TEP` của cổng:
+
+  | tệp | selector | trước vòng này |
+  |---|---|---|
+  | `studio-chrome.module.css` | 12 | phủ |
+  | `ide.module.css` | 7 | phủ |
+  | `LessonChrome.module.css` | 5 | phủ |
+  | `exercises.module.css` | 4 | phủ |
+  | `CodeVisualizer.module.css` | 3 | phủ |
+  | **`review-quiz.module.css`** | **3** | **NGOÀI** |
+  | **`scene.css`** | **3** | **NGOÀI** |
+  | **`CourseShell.module.css`** | **2** | **NGOÀI** |
+  | **`studio.module.css`** | **2** | **NGOÀI** |
+  | **`error.module.css`** | **2** | **NGOÀI** |
+  | **`ShellB.module.css`** | **1** | **NGOÀI** |
+  | **`consent-banner.module.css`** | **1** | **NGOÀI** |
+  | **`SiteHeader.module.css`** | **1** | **NGOÀI** |
+  | **TỔNG** | **46** | **31 phủ · 15 ngoài (33%)** |
+
+  **HAI ĐƠN VỊ, và tôi lẫn chúng trong phép đo mở vòng:** đếm KHAI BÁO `cursor: pointer` ra
+  **44**, đếm SELECTOR ra **46** — hai rule dùng chung một thân nên mang 2 selector mỗi cái.
+  Selector mới là đơn vị đúng, vì sàn áp cho TỪNG selector. Báo cáo con số nào thì nói ra nó
+  là con số của cái gì.
+  **BỐN RULE TRÊN ĐƯỜNG NGƯỜI HỌC KHÔNG CÓ SÀN NÀO:** `.onGianCachTiep` (9px 18px, 13px) ·
+  `.nutPhu` (8px 14px, 13px) · `.hintToggle` (8px 16px, 13px) · `.chon` (9px 14px, 13px).
+  Và cùng tệp với chúng đã có sàn từ trước: `.nut` 44 · `.theme` 48 · `.btn` 48 — **đúng khuôn
+  NỬA-ÁP-NỬA-KHÔNG** mà `LessonChrome` đã mắc ở #156 và `.practiceRun` ở #161.
+  **MỘT CON SỐ ĐO ĐƯỢC, ba cái còn lại là sàn KHAI BÁO** — nói ra vì đó là hai mức bằng chứng
+  khác nhau. `.onGianCachTiep` đo trên production (NP06, 390×844, sau khi trả lời câu ôn):
+  **106 × 36**, `min-height` là `0px`. Tôi **DỰ ĐOÁN 38** vì nó có CÙNG công thức CSS với
+  `.practiceRun` (`padding: 9px 18px`, font 14px) mà #161 đo ra 38 — đo ra **36**, vì chữ
+  "Vào bài →" không có glyph cao như "▶". **Một công thức CSS giống nhau cho một con số GẦN
+  nhau, không cho CÙNG con số** — nên đừng suy một kích thước từ một rule họ hàng.
+  Ba cái kia không mở được trong một lượt (`.nutPhu` cần xong ≥ 2 bài · `.hintToggle` cần màn
+  có panel gợi ý · `.chon` cần `consent?.shouldAsk` mà phiên khách đã trả lời xong), nhưng áp
+  sàn vẫn ĐÚNG: đó là thứ cổng VERIFY được, và nó MẠNH HƠN khai một khoản nợ — bài học #159
+  với `.retry`.
+  **HỘP ĐỒNG Ý LÀ BỀ MẶT PHÁP LÝ, nên ở đó sàn không phải tiện tay.** AGENTS.md đã ghi rằng
+  hai nút của nó phải CÙNG class và CÙNG cỡ (`flex: 1`), vì làm nút "Đồng ý" nổi hơn là lấy sự
+  đồng ý bằng ma sát. Một đích bấm dưới cỡ ngón tay là cùng một họ lỗi — nó làm một trong hai
+  lựa chọn khó bấm hơn. Cả hai nút dùng CHUNG lớp `.chon` nên sàn áp đều, không nghiêng bên nào.
+  **HAI RULE DO NỘI DUNG QUYẾT thì KHAI NỢ, không áp sàn mù:** `.phuongAn` (phương án của đề
+  ôn, hàng full-width nên bề cao do số dòng của câu quyết) và `.moduleHead` (hàng tiêu đề học
+  phần, chữ là một heading). Một sàn gieo mù ở đó vừa có thể là no-op vừa có thể che một vấn đề
+  thiết kế thật. Phép chia của vòng này: **nút pill cỡ cố định thì ÁP SÀN, hàng do nội dung
+  quyết thì KHAI NỢ kèm đường đo.**
+  **HAI TỆP KHAI NGOÀI TẦM, và cả hai là quyết định đã có chứ không phải nợ mới:**
+  `scene.css` (3) — Góc học, và ràng buộc đứng của vòng lặp nói thẳng KHÔNG đầu tư vào Góc học
+  / minigame / leaderboard; `studio.module.css` (2) — `PythonStudio`, component đã khai
+  CHẾT-MÀ-GIỮ ở #142 với bốn việc phải sửa nếu hồi sinh, trong đó đã có việc nâng hai ô gõ lên
+  16px. Sửa CSS của một component không ai tới là việc không có người dùng.
+
+  **PHÉP TỰ KIỂM BẮT ĐÚNG DANH SÁCH CỦA CHÍNH TÔI, ngay lần chạy đầu.** Nó đỏ với
+  *"`SiteHeader.module.css` (1 rule): TỆP CÓ ĐÍCH BẤM MÀ KHÔNG PHỦ LẪN KHÔNG KHAI"* — phép đếm
+  mở vòng CÓ kể nó, mà `TEP` thì tôi gõ thiếu. `.theme` của nó đã 48×48 kèm `flex: none` từ
+  trước nên thêm tệp ấy vào `TEP` không phải một bản sửa; nó là **bịt một lỗ trong lời khai độ
+  phủ**. Bài học: một cổng theo-độ-phủ phải đếm độ phủ của CHÍNH NÓ, vì danh sách tệp là thứ
+  người ta gõ bằng tay và gõ thiếu im lặng.
+  **SÀN TỰ KIỂM ĐẦU CỦA TÔI SAI THEO CHIỀU BÁO OAN:** tôi đặt `tep.length >= 20` theo cảm giác,
+  đo thật ra **17** (16 module + `scene.css`) ⇒ cổng đỏ với "phép duyệt CSS trượt" trong khi
+  phép duyệt đúng. Nay là 10 — sàn ấy chỉ để bắt "duyệt ra 0–1 tệp", còn con số 16 đã có
+  `check-moc-nen` canh riêng. **Ghim con số thật vào một phép tự kiểm là nuôi bản sao thứ hai**,
+  và nó sẽ đỏ oan vào ngày một đợt dọn tài nguyên chết xoá một module.
+
+  **VÀ ABLATE TÌM RA MỘT LỖ TRONG CHÍNH CỔNG VỪA DỰNG: hai danh sách CHỒNG NHAU được.** Khai
+  một tệp ĐANG được phủ vào `TEP_NGOAI_TAM` cho **0 đỏ**, vì nhánh `if (TEP.includes(p))` thắng
+  trước. Vô hại hôm nay, có hại ngày mai — ngày ai gỡ tệp ấy khỏi `TEP`, lời khai nằm sẵn ở đó
+  **HẤP THỤ** nó và cổng im lặng thay vì đỏ. Đúng lỗ mà #160 đã bắt giữa `CHUA_DO` và
+  `KHONG_CO_DUONG_TOI`: **hai hạng khai thay nhau được thì bản sửa không được cổng nào thi
+  hành.** Nay một tệp nằm trong cả hai là LỖI; ablate lại → **0 → 1 đỏ**.
+  **CẶP ĐỐI CHỨNG phải làm TAY, và nói ra vì sao:** `ablate.mjs` nhận MỘT `--tep` một cặp
+  chuỗi, mà cặp đối chứng ở đây cần hai chỗ cách xa nhau trong CÙNG tệp (gỡ khỏi `TEP` **và**
+  khai vào `TEP_NGOAI_TAM`). Làm tay kèm `assert` cho cả hai phép thay và kèm phép đọc số ca →
+  **0 đỏ / 7 ca**, tức luật đúng là "phủ HOẶC khai", không phải "phải phủ".
+
+  **ABLATE 7 chiều:** gỡ sàn `.onGianCachTiep` → **2 đỏ** (độ phủ + ca ghim CU) · gỡ sàn
+  `.nutPhu` → 1 · gỡ sàn `.hintToggle` → 1 · gỡ sàn `.chon` → 1 · gỡ một tệp khỏi `TEP` mà
+  không khai → 1 · tệp nằm trong CẢ HAI danh sách → 1 (trước khi siết: **0**) · CẶP ĐỐI CHỨNG
+  gỡ khỏi `TEP` + khai NGOÀI TẦM → **0**.
+  **MỘT PHÉP GIEO TRƯỢT và `ablate.mjs` từ chối in số:** tôi neo vào `.onGianCachTiep {\n  min-height`
+  trong khi giữa hai dòng ấy có một khối chú thích 6 dòng. Công cụ in "GIEO TRƯỢT: khớp 0 chỗ,
+  phải đúng 1" thay vì "0 đỏ". Neo vào DÒNG SÀN cộng hai dòng sau nó là xong.
+  **SỐ ĐÃ ĐO:** độ phủ cổng **31/46 → 41/46 selector** (5 khai NGOÀI TẦM, 0 chưa khai) ·
+  `TEP` **5 → 11 tệp** · `CHUA_DO` **6 → 7 mục** (gỡ `.onGianCachTiep` đã đo, thêm `.phuongAn`
+  + `.moduleHead`) · `CU` ghim **17 → 18** nút · frontend unit **649 → 650 ca** / 58 tệp · sổ
+  ngưỡng siết sàn 649 → 650 · typecheck sạch · lint **146 cảnh báo / 0 lỗi** · `npm run build`
+  exit 0, CSS đã dựng có **20 chỗ** `min-height:44px` (16 ở #161 + 4 mới) và cả bốn lớp có mặt ·
+  `check-moc-nen` 20 mục 0 lỗi · `check-moc-chay frontend` 650/650 · `check-nguong` 35 ngưỡng
+  0 lỗi · `tai-nguyen-chet` 2/2/0 · `export-chet` 0 lỗi · `duong-toi` 18/14/4 0 lỗi.
+  **KHÔNG đụng một dòng nội dung nào**, nên `check-da-nap` giữ **62 bài chờ**. KHÔNG bump
+  `ASSET_VERSION`: cả bốn tệp sửa là CSS module trong `src/`, đi qua bundler.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** trên điện thoại, nút "Vào bài →" của màn ôn giãn cách
+  cao hơn (36 → 44), và ba nút nữa có sàn — trong đó hai nút của hộp đồng ý và nút mở gợi ý của
+  vỏ mọi màn bài học.
+  **GIỚI HẠN PHẢI NÓI RA, hai cái.** (1) Ba trong bốn sàn CHƯA ĐO trên thiết bị — chúng là sàn
+  KHAI BÁO, tức cổng chứng minh được "đã khai 44px", không chứng minh "đo ra 44px". (2) Phép
+  độ phủ đếm `cursor: pointer`, nên nó vẫn MÙ với một CONTROL GỐC không khai nó — khoảng trống
+  này đã khai ở #159 (`input[type=range]` của `.scrub`) và vòng này không đóng nó.
+
+- **BỀ MẶT BRAND LỚN NHẤT CÒN LẠI LÀ THANH CUỘN — một gradient XANH → ĐỎ chạy gần hết mép
+  phải, trên MỌI trang, và cổng lofi mù với nó vì nó nằm trong chính tệp ĐỊNH NGHĨA token.**
+  Tám vòng liền đo đích bấm, nên vòng này đổi chiều sang **vòng bàn phím và vành focus**.
+  Ba giả thuyết, **ba kết quả ÂM** — ghi lại để không ai đo lại:
+  · **phần tử bấm được không tới được bằng bàn phím**: đo đúng bằng cách lùi về THẺ MỞ của
+    từng `onClick` (grep thô báo 40) → **118/121 trên thẻ native**, 3 ngoại lệ đều ở tệp
+    ngoài phạm vi (`LessonDbDesign`, `PythonStudio` chết-mà-giữ). Grep sai **13:1**, cùng
+    họ "61 chỗ là con số của grep, không phải con số của người học";
+  · **vành focus bị `overflow: hidden` cắt** (repo đã hai lần dính họ lỗi đó): đo phần bị
+    cắt trên cả 19 phần tử focus được của một màn → **0px ở tất cả**;
+  · **vành mặc định của trình duyệt vô hình ở chế độ đêm**, vì `color-scheme` KHÔNG được
+    khai ở đâu trên trang bài học (0 rule, 0 meta, computed `normal`). Tôi tính ra
+    **1,21:1** và suýt báo một vi phạm WCAG 2.4.7. **Ảnh chụp bác nó: vành TRẮNG, thấy rõ.**
+  **BÀI HỌC VỀ PHÉP ĐO, và nó là bài học chính của vòng:** `getComputedStyle().outlineColor`
+  trả `rgb(16,16,16)` cho `outline-style: auto`, nhưng Chrome CHỌN MÀU VÀNH LÚC VẼ theo nền
+  phía sau. **Không đo được `outline-style: auto` bằng `getComputedStyle`** — cùng họ với
+  "`performance.memory` VÔ DỤNG", "vết DevTools trả lời câu AI chứ không câu BAO LÂU", và
+  "`getBoundingClientRect` nói dối 0,7px khi có hoạt ảnh". Một ảnh chụp 30 giây trả lời được
+  câu mà phép tính trả lời sai.
+  **VÀ PHÉP ĐO ÂM THỨ BA DẪN THẲNG TỚI THỨ THẬT:** đi tìm hệ quả của việc thiếu
+  `color-scheme` thì đọc ra `scrollbar-color` của trang là **`rgb(37, 99, 235)`** — đúng
+  brand blue `#2563eb` mà năm vòng lofi đã gỡ khỏi nền trang, quầng bám chuột, nút "Bắt đầu
+  học" và viền thẻ.
+  **ĐO — nguồn là một KHỐI, không phải một dòng.** `edu-theme.css:785–792` tự khai là
+  *"XANH–ĐỎ: lớp hoàn thiện giao diện (cuối file để đè lên mọi quy tắc trên)"*, tức lớp
+  brand tiền-lofi đặt cuối file có chủ đích. Nó sống sót cả năm vòng lofi. Trong khối đó:
+
+  | khai báo | vẽ ra trên trang bài học? |
+  |---|---|
+  | `::selection` `rgba(37,99,235,.22)` / đêm `rgba(79,141,255,.34)` | **CÓ** — mọi chữ |
+  | `html { scrollbar-color: var(--edu-accent) }` | **CÓ** — trang cuộn 1 494px |
+  | `::-webkit-scrollbar-thumb` `linear-gradient(XANH → ĐỎ)` | **CÓ** |
+  | `.edu-fx-card::after` quầng xanh | 0 phần tử |
+  | `.progress-fill` gradient xanh + quầng | 0 phần tử |
+  | `.cd-block` · `.cd-card` · `.edu-fx-tilt` | 0 phần tử |
+
+  Bốn hàng cuối là selector dashboard di sản — đo **0 phần tử trên CẢ trang bài học LẪN
+  trang khoá học**, nên để nguyên và khai ra đây thay vì "dọn cho gọn".
+  Trang khoá học cuộn **5 354px**, nên dải brand ấy chạy gần hết mép phải trang dài nhất của
+  sản phẩm.
+  **VÌ SAO CỔNG LOFI KHÔNG THẤY — và đây là một khe có hình dạng chung.** `ds-contrast` giữ
+  `DA_SANG_LOFI`, một danh sách CHỈ ĐƯỢC DÀI THÊM, và nó kiểm từng tệp xem còn
+  `var(--edu-accent)` không. Nhưng `edu-theme.css` **CỐ Ý nằm ngoài danh sách** — vòng
+  thang-chữ đã ghi lý do: *"nó là chỗ ĐỊNH NGHĨA token, thêm nó vào là tự tạo một cổng báo
+  oan"*. Lý do ấy đúng, và cái giá của nó là: **một chỗ DÙNG nằm trong chính tệp định nghĩa
+  thì vô hình với cổng.** Ca mới vì vậy nhắm vào HAI SELECTOR cụ thể thay vì cả tệp.
+  **MÀU THAY DO PHÉP ĐO CHỌN, không do khẩu vị.** Thanh cuộn là THÀNH PHẦN GIAO DIỆN nên
+  WCAG 1.4.11 đòi **3:1** so với nền — mà nền ngày là giấy kem `#F4EEE3` còn nền đêm là
+  `#080C15`. Quét bảng ấm:
+
+  | ứng viên | ngày | đêm | min |
+  |---|---|---|---|
+  | `#2A2018` (t1) | 13,80 | 1,23 | 1,23 |
+  | `#4A3B2E` (t2) | 9,30 | 1,82 | 1,82 |
+  | `#7C6551` (t3) | 4,74 | 3,57 | **3,57** |
+  | **`#806853`** (t5) | **4,52** | **3,75** | **3,75** |
+  | `#E0B062` (mark) | 1,72 | 9,83 | 1,72 |
+  | `#E3D9C8` (line) | 1,21 | 13,99 | 1,21 |
+
+  **Chỉ HAI màu vượt 3:1 ở CẢ HAI chế độ với MỘT giá trị**, và lấy cái có biên nhỏ nhất cao
+  hơn. Một giá trị thì **không có bản đêm để trôi khỏi bản ngày** — đó là lý do kỹ thuật,
+  không phải tiết kiệm.
+  **TOKEN RIÊNG `--edu-scrollbar-thumb`, không tái dùng `--edu-t5`:** t5 là token CHỮ, và
+  repo đã **bốn lần** hỏng vì tái dùng một token sai vai (`--edu-card-bg` trên thẻ trắng,
+  `--edu-card-border` trắng-trên-trắng). Cùng khuôn `--edu-code-inline-bg`.
+  `::selection` dùng `#E0B062` — token mang đúng vai "đánh dấu". `color: inherit` nên chữ
+  GIỮ màu, thứ phải đo là mực trên nền **ĐÃ TRỘN**: ngày `@.40` → **11,15:1**, đêm `@.30` →
+  **9,09:1**. Alpha ngày cao hơn đêm vì ochre nhạt: trộn vào giấy kem thì nhoà, trộn vào nền
+  đêm thì nổi.
+  **MỘT PHÉP ĐO CỦA TÔI RA RÁC VÌ ĐỌC TOKEN SAI CHỖ:** `--edu-bg-solid` được override trong
+  `body.dark` (`#080c15`) chứ không trong `:root`, mà tôi đọc bằng
+  `getComputedStyle(document.documentElement)` nên nhận giá trị NGÀY ở cả hai chế độ — bốn
+  con số đêm đầu tiên (1,10–1,19) là rác. Nền đêm THẬT đọc từ `getComputedStyle(body)
+  .backgroundColor` là `rgb(8,12,21)`. **Token khai trên `body` thì đừng tra ở `:root`.**
+  **CỔNG CŨ BẮT ĐÚNG CHÚ THÍCH TÔI VỪA VIẾT, lần thứ BA của lớp lỗi ấy.** `docThemeToken`
+  tìm chuỗi `<tên token>` + dấu hai chấm trên văn bản THÔ, và chú thích mới của tôi chứa
+  `--edu-t3/--edu-t5:` — hai ca thang chữ ĐỎ OAN với câu *"`--edu-t5` ở khối NGÀY khai
+  'chúng là token CHỮ, và'"*. Sửa ở **HELPER** (bỏ chú thích trước khi cắt khối) chứ không
+  sửa câu chú thích: hai lần trước (ca trang 404, ca viền thẻ) đã sửa ở chỗ gọi, nên lỗi
+  quay lại.
+  **`docTokenCascade` — rơi về `:root` khi khối đêm không khai lại**, đúng điều trình duyệt
+  làm. Cần nó vì token này cố ý chỉ có một giá trị; đòi khai hai lần là ép nuôi một bản sao.
+  Ba hàm tra token khác giữ nguyên: chúng canh những token THẬT SỰ phải có hai bản.
+  **ABLATE 9 chiều:** trả `scrollbar-color` về brand → **1 đỏ** · trả thumb về gradient
+  xanh–đỏ → 1 · trả `::selection` ngày về brand → 1 · trả `::selection` đêm về brand → 1 ·
+  thumb quá NHẠT (`#E3D9C8`, 1,21 ngày) → 1 · thumb quá ĐẬM (`#4A3B2E`, 9,30 ngày nhưng
+  **1,82 đêm**) → 1 · thumb đạt ngưỡng nhưng XANH LẠNH (`#536880`) → 1.
+  **Chiều thứ tám ra 0 đỏ, và nó là lý do hai con số này phải vào SỔ:** nới chính `SAN_THANH_CUON`
+  xuống 1,0 rồi trả thumb nhạt về → **0 đỏ**, đúng "nới phép kiểm cho xanh" mà LOOP.md gọi
+  tên. Sổ ngưỡng 35 → **37 mục**; ablate lại qua sổ: nới → **2 đỏ**, siết (4,3 → 4,4) →
+  **0 đỏ** kèm dòng `GHI SỔ`.
+  **VÀ CỔNG SỐ-MỤC-CỦA-SỔ (dựng ở vòng #152) BẮT NGAY:** thêm hai mục mà chưa sửa hàng
+  "Ngưỡng một chiều" → `check-nguong` **1 lỗi**. Lần đầu nó bắt một thay đổi thật.
+
+  **MỘT PHÁT HIỆN KÈM, lớn hơn việc đang làm: DÒNG PHÂN RÃ SỐ CA ĐÃ TRÔI 59 ĐƠN VỊ.**
+  Sửa một con số trong đó (`ds-contrast 16 → 17`) thì thấy cả dòng cộng ra **592** trong khi
+  bộ chạy ra **651** — nó đứng yên suốt **chín vòng** trong khi hàng "Frontend unit test"
+  được sửa đúng mỗi lần, vì `check-moc-chay` đối chiếu HÀNG chứ không đối chiếu bảng phân
+  rã. **Mười tệp test chưa bao giờ có mặt ở đó**: `ablate-trung-thuc`, `dich-bam-vo-bai-hoc`,
+  `khoa-roi-giao-trinh`, `lesson-chrome-sticky`, `o-go-16px`, `trang-404`, `trang-loi`…
+  Đây là lần THỨ HAI cùng con số ấy trôi — lần trước 5 đơn vị, lần này 59 — và chính AGENTS.md
+  đã tự khai nó là *"con số THỨ BA của bảng phân rã không ai canh"*. Nay nó được ĐO (chạy
+  từng tệp, cộng ra đúng 651), **chưa được CANH**: dựng cổng cho nó đòi chạy 58 tệp riêng lẻ
+  thay vì một lượt, tức đổi ~4 phút CI lấy một con số mà hàng tổng đã canh. Đó là lựa chọn,
+  không phải bỏ sót.
+  **SỐ ĐÃ ĐO:** frontend unit **650 → 651 ca** / 58 tệp (`ds-contrast` 16 → 17) · dòng phân
+  rã **592 → 651** · sổ ngưỡng **35 → 37 mục** (hai sàn thanh cuộn) · typecheck sạch · lint
+  **146 cảnh báo / 0 lỗi** · `npm run build` exit 0 · `check-moc-nen` 20 mục 0 lỗi ·
+  `check-moc-chay frontend` 651/651 · `check-nguong` 37 ngưỡng 0 lỗi · `tai-nguyen-chet` /
+  `export-chet` 0 lỗi · `duong-toi` 18/14/4 0 lỗi. **KHÔNG đụng một dòng nội dung nào**, nên
+  `check-da-nap` giữ **62 bài chờ**.
+  **`ASSET_VERSION` bump `2026-11-08a` → `2026-11-09a`** vì `edu-theme.css` nằm trong
+  `public/`: không bump thì người đã mở trang giữ CSS cũ, tức bản đổi không tới được đúng
+  những người đang dùng.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** thanh cuộn của mọi trang đổi từ gradient xanh–đỏ sang
+  nâu ấm, và vệt bôi chọn đổi từ xanh brand sang hổ phách. Đã XEM THẬT trong Chrome ở cả hai
+  chế độ bằng cách tiêm đúng ba khai báo lên trang production.
+  **GIỚI HẠN:** `color-scheme` VẪN chưa được khai trên trang bài học. Vòng này đo được ba hệ
+  quả của nó và cả ba ÂM (vành focus tự thích ứng; 0 thanh cuộn native con; 0 `input`/`select`
+  trên màn), nên không có bằng chứng ai đang bị. Khai nó đúng cách là buộc vào class
+  `body.light`/`body.dark` chứ KHÔNG phải `color-scheme: light dark` — cái sau đi theo hệ điều
+  hành và sẽ lệch với công tắc của chính trang.
+
+- **"KHÔNG DỰNG ĐƯỢC CỔNG VÌ ĐẮT" LÀ LỜI KHAI VỀ MỘT CÁCH LÀM — và tôi vừa viết đúng bài học
+  ấy vào file này rồi mắc lại nó một vòng sau.** Vòng #163 đo được dòng PHÂN RÃ số ca test đã
+  trôi **59 đơn vị** (cộng ra 592 trong lúc bộ chạy ra 651), sửa nó, rồi kết lại:
+  *"Chưa được CANH: dựng cổng cho nó đòi chạy 58 tệp riêng lẻ thay vì một lượt, tức đổi ~4
+  phút CI lấy một con số mà hàng tổng đã canh. Đó là lựa chọn, không phải bỏ sót."*
+  Câu ấy sai, và nó sai theo đúng khuôn mà mục dọn L4/L5/L6 đã gọi tên: **một lời khai
+  "không sửa được" là lời khai về CÁCH TIẾP CẬN đang nghĩ tới, không phải về bài toán.**
+  Cách tôi nghĩ tới là một vòng `for` gọi `node --test` từng tệp. Đo ba cách:
+
+  | cách | lấy được phân rã? | thời gian |
+  |---|---|---|
+  | vòng `for` 58 lượt `node --test` | có | ~4 phút (ước lượng của #163) |
+  | `--test-reporter=tap`, một lượt | **KHÔNG** — TAP làm phẳng, bỏ tên tệp | — |
+  | **`run()` của `node:test`, một lượt** | **CÓ** — `test:pass` mang `d.file` | **5,5 s** |
+
+  Sai gấp **~44 lần**, và lệnh đang dùng (`npm run test:unit`) thì mất **6,3 s** — tức bản
+  mới còn NHANH HƠN cái nó thay. Phép đo tốn hai lệnh.
+  **VÌ SAO `npm run test:unit` KHÔNG ĐỦ:** nó chỉ in con số TỔNG (`ℹ pass 651`), nên cổng
+  đọc nó mù với phân rã theo tệp. Đó là lý do dòng ấy trôi được **chín vòng** trong khi hàng
+  tổng được sửa đúng mỗi lần. Nay mục `frontend` của `check-moc-chay` gọi
+  `node scripts/dem-ca-test.mjs`, và `themLuat` của nó so **từng tệp** với khối phân rã.
+  **PHÂN RÃ LẤY TỪ CHÍNH LƯỢT CHẠY ẤY, không từ lượt thứ hai** — hai lượt là hai thứ có thể
+  lệch nhau, và khi chúng lệch thì không có gì nói cho người đọc biết họ đang nhìn cái nào.
+  **LUẬT HAI CHIỀU, và chiều thứ hai là chiều hay bị quên:** một tệp CHẠY RA mà không có
+  trong khối là lỗi, VÀ một mục trong khối mà không còn tệp nào tên đó cũng là lỗi. Thiếu
+  chiều sau thì khối chỉ dài ra rồi thành chỗ giấu rác — đúng bài học `DAP_AN_MAU_KHONG_CHAY`.
+  Cộng một phép tự xác nhận: khối phải tự cộng ra đúng con số nó tự ghi ở cuối.
+  **TỰ KIỂM PHÉP DUYỆT, vì phép đếm trả 0 là thứ phải nghi ngờ trước nhất:** `dem-ca-test.mjs`
+  thoát 1 khi glob tìm ra dưới 20 tệp. Không có nó thì glob hỏng cho ra "0 ca" và cổng đọc
+  con số ấy như một kết quả.
+  **MỘT PHÉP SỬA LÀM VỠ CHỖ KHÁC, bắt được vì chạy chứ không vì đọc:** bỏ `cwd: 'frontend'`
+  làm `join(ROOT, c.cwd)` nhận `undefined` và cả cổng ném `ERR_INVALID_ARG_TYPE`. Phải đặt
+  `cwd: '.'`. Và vì `ROOT` suy từ `import.meta.url` chứ không từ thư mục làm việc, bước CI
+  `node ../scripts/check-moc-chay.mjs frontend` (chạy từ `frontend/`) vẫn đúng — đã chạy thử
+  đúng cách CI gọi, không suy từ cây mã.
+  **ABLATE 8 chiều:** một mục trong khối ghi SAI (`ds-contrast 17 → 16`) → **1 đỏ** · GỠ một
+  tệp khỏi khối → 1 · KHAI một tệp không tồn tại → 1 · TỔNG của khối lệch với các mục → 1 ·
+  đổi CHỮ của khối (regex hết khớp) → 1 (nói "KHÔNG CÒN KHỐI", không im lặng xanh) · phá phép
+  duyệt tệp → 1 (tự kiểm bắn) · gieo một ca ĐỎ THẬT → **1 đỏ kèm đúng câu "1 ca TRƯỢT — con
+  số chỉ đúng khi bộ test xanh"**, KHÔNG kêu "bảng ghi sai" · **CẶP ĐỐI CHỨNG** cùng lệch
+  `ds-contrast` mà GỠ `themLuat` → **0 đỏ**, giữ `themLuat` → **1 đỏ**.
+  **Cặp đối chứng phải làm TAY và nói ra vì sao:** `ablate.mjs` nhận MỘT `--tep` một cặp
+  chuỗi, mà cặp này cần hai tệp khác nhau (AGENTS.md và cổng). Làm tay kèm `assert` cho cả
+  hai phép thay.
+  **BỐN PHÉP GIEO ĐẦU CỦA TÔI TRƯỢT VÌ EOL, và `ablate.mjs` từ chối in số cả bốn lần:**
+  AGENTS.md là **CRLF**, seed của tôi là LF. Bẫy "đầu dòng khác nhau theo từng tệp — dò, đừng
+  đoán" đã ghi ba lần; lần này nó cắn ở tệp mà tôi sửa nhiều nhất. Một seed thứ năm cũng
+  trượt vì tôi neo vào `trang-404 6 ·` mà chuỗi ấy đứng ĐẦU DÒNG sau khi bọc — phải neo kèm
+  mục đứng trước nó.
+  **HAI CÂU TRONG BẢNG ĐÃ LỖI THỜI TỪ #160, sửa nhân dịp:** hàng "Mốc phải CHẠY mới biết"
+  ghi **8 mục** nhưng vẫn nói *"chạy chính BẢY lệnh đó nên THAY cả BẢY bước"* — mục thứ tám
+  (`duongToi`) vào từ vòng ấy mà hai chữ số đếm thì không ai sửa.
+  **SỐ ĐÃ ĐO:** `check-moc-chay` giữ **8 mục**, mục `frontend` nay đối chiếu **58 tệp / 651
+  ca** theo từng tệp thay vì chỉ con số tổng · `dem-ca-test.mjs` **5,5 s** so với `npm run
+  test:unit` **6,3 s** · frontend unit **651 ca / 58 tệp** (KHÔNG đổi — vòng này không thêm
+  ca nào) · typecheck sạch · lint **146 cảnh báo / 0 lỗi** · `ci.yml` 7 job / **42 bước run**,
+  YAML parse OK · `check-moc-nen` 20 mục 0 lỗi · `check-nguong` 37 ngưỡng 0 lỗi ·
+  `tai-nguyen-chet` / `export-chet` 0 lỗi · `duong-toi` 18/14/4 0 lỗi · `ablate-trung-thuc`
+  19/19. **KHÔNG đụng một dòng nội dung nào**, nên `check-da-nap` giữ **62 bài chờ**. KHÔNG
+  bump `ASSET_VERSION` (không tệp nào trong `public/`).
+  **KHÔNG ĐỔI HÀNH VI NGƯỜI HỌC:** vòng này không sửa một pixel nào — nó gắn răng cho một
+  con số đã trôi hai lần. Nói ra để không ai đọc nó như một bản sửa giao diện.
+  **GIỚI HẠN:** cổng đối chiếu SỐ CA theo tệp, không đối chiếu "tệp ấy canh đúng thứ đáng
+  canh". Và nó chỉ phủ bộ FRONTEND — backend (35 bộ / 522 ca) vẫn chỉ có con số tổng, vì
+  `jest --runInBand` in khuôn khác và chưa có bằng chứng con số ấy từng trôi.
+
+- **NHÁNH `test` CÓ BỐN COMMIT GIAO DIỆN MỚI, và thứ đáng port NHẤT không nằm trong
+  bất kỳ cái nào — nó là một khối CSS mà một lần REVERT đã cuốn đi.** Vòng này mở ra
+  theo yêu cầu "đọc nhánh test xem đã có push gì mới về giao diện chưa rồi cải tiến
+  dần". Đo trước: `tester/test` commit cuối **09/11/2026** (Cao Trí Thành, "cập nhật
+  giao diện mới"), **main đi trước 280 commit · test đi trước 14**. Bê nguyên một tệp
+  là viết đè ~280 commit bản sửa của main — đúng bẫy `4d5f86d`. Nên phép đo là
+  `git diff main...tester/test` theo TỪNG tệp TRONG PHẠM VI (bỏ dashboard / Góc học /
+  minigame / world-map theo ràng buộc đứng), rồi đọc từng khối.
+  **BA ỨNG VIÊN, và hai cái đầu ĐÃ CÓ hoặc KHÔNG đáng:**
+  · `studio-tokens.css` — test thêm khối `:root, body` cho bí danh `--st-*` (sửa một
+    lỗi ban đêm thật). **Main đã có nó từ dòng 189**, vào qua đợt port bảng v2;
+  · `StudioLesson.tsx` — `wide` cho màn `scaffold` và game `fill`. Bộ 179 bài có
+    **0** màn nào trong hai loại đó, nên nó là no-op cho khoá đang xuất bản;
+  · `.start` của CodeVisualizer — ứng viên THẬT, xem dưới.
+  **VÀ MỘT LỖI CỦA TÔI BỊ PHÉP ĐO CHẶN HAI LẦN, cùng một kiểu: bê CON SỐ của test.**
+  Test đặt `.start` cao **52px** và `font-size: var(--ds-fs-ui)`. Nhưng ở nhánh ấy cả
+  thanh công cụ đã thiết kế lại (nút Chạy cũng 52), còn `.run` của main là **42** —
+  bê 52 sang đây là làm lệch TO HƠN. Và `--ds-fs-ui` trên main là **17px** trong khi
+  `.run` là 15px, tức nút PHỤ sẽ to hơn nút CHÍNH. Test cũng dùng `var(--ds-ink)` cho
+  ink, mà `--ds-ink` là **#0F1B33 — navy LẠNH (B > R)** trên một trang giấy kem, trái
+  luật ấm của bảng lofi; tệp ấy vốn đã dùng `--edu-t1` (#2A2018). **Port QUYẾT ĐỊNH,
+  lấy SỐ của main** — đó là cả nội dung của việc bê từ một nhánh đi sau 280 commit.
+
+- **BỐN CONTROL ĐỨNG CÙNG MỘT HÀNG FLEX Ở HAI TỆP, và một cái khai 38px trong khi ba
+  cái kia 42.** `.visualizeSlot { display: contents }` nên nút "Xem từng bước" của
+  CodeVisualizer là con TRỰC TIẾP của `.actions`, cạnh `.select`, `.run`, `.stop`. Đo
+  trên production ở **1442px** ngày 10/11/2026:
+
+  | | cao | top | bot | nền | cỡ chữ |
+  |---|---|---|---|---|---|
+  | `.select` | 42 | 90 | 132 | trắng .55 | 14px |
+  | **`.start`** | **38** | **92** | **130** | `rgb(31,95,224)` | 14px |
+  | `.run` | 42 | 90 | 132 | `rgb(31,95,224)` | 15px |
+
+  Nút phụ thụt **2px mỗi mép**. Và nó cùng nền, cùng bóng, cùng bán kính với nút
+  chính — đo được CẢ HAI `rgb(31, 95, 224)`, tức hai nút trông chính ngang nhau trong
+  khi "Chạy" là việc của trang còn "Xem từng bước" là đọc lại thứ vừa chạy.
+  **KHỔ HẸP GIẤU LỖI NÀY:** lần đo đầu của tôi ở khổ mặc định cho cả ba **44px** —
+  vì sàn mobile của #159 đang áp VÀ thanh công cụ đã wrap (`.run` ở hàng khác, top
+  222 so với 166). Hai con số 42/38 chỉ hiện ở desktop. **Đo một hàng nút thì phải đo
+  ở khổ mà nó CÒN LÀ một hàng.**
+  **KHÔNG cổng nào phủ trục này:** `dich-bam-vo-bai-hoc.test.mjs` canh sàn 44px ở khổ
+  ĐIỆN THOẠI (`hieuLuc` cố ý giải giá trị trong `max-width`), `ds-contrast` canh màu.
+  Nay `ide-thanh-cong-cu.test.mjs` ghim QUAN HỆ (bốn cái BẰNG nhau), không ghim con
+  số — ghim 42 thì một đợt đổi thang là đỏ oan ở bốn chỗ, mà thứ hỏng thật chỉ xảy ra
+  khi chúng LỆCH nhau.
+  **Thứ bậc ghim bằng TÍNH CHẤT:** `.start` không được mang CÙNG `background` với
+  `.run`, phải có nền trong suốt, không `box-shadow` (bóng là dấu của mặt NỔI), và
+  không dùng `--ds-ink`. Đo sau khi sửa, trên bản dựng: ba control **cùng top 90 /
+  bot 132**, chữ+viền `#2A2018` **13,80:1** trên giấy kem ban ngày và `#E8EEFB`
+  **16,81:1** ban đêm, 0 tràn ngang; ở 390px cả ba vẫn **44** (sàn mobile còn thắng).
+
+- **SÁU RULE `:hover` KẸT SAU CÚ CHẠM — và khối guard từng CÓ, bị một lần revert cuốn
+  đi.** `grep` ra đúng **2 rule** `:hover` + `translateY` không guard trong phạm vi
+  (`.run`, `.start`; cái thứ ba ở `scene.css` là Góc học, ngoài phạm vi), và **6 rule
+  `:hover` tổng** trong hai tệp `/ide`, không cái nào có `(hover: hover) and
+  (pointer: fine)`. Merge-base của main và `tester/test` **CÓ** khối ấy kèm nguyên câu
+  giải thích; `git log -S` chỉ đúng thủ phạm: **`070886a`** — chính commit revert đưa
+  main về `2c12049` mà file này đã ghi là *"95 commit thiết kế bị gỡ theo"*. Nó là
+  **thiệt hại kèm của lần revert**, không phải chuyện chưa ai nghĩ tới.
+  **TÁI HIỆN, không tin cơ chế:** ở 390×844 cảm ứng, dựng hai nút thử cùng khuôn CSS
+  rồi chạm bằng CDP input thật. Nút KHÔNG guard: `:hover` còn **true**,
+  `transform: matrix(1,0,0,1,0,-1)`, `top` 299 thay vì 300 — **kẹt ở trạng thái nhấc
+  sau khi ngón tay rời**. Nút CÓ guard: `:hover` **false**, `transform: none`. Và
+  `(hover: hover) and (pointer: fine)` đo được **false** dưới cảm ứng, nên guard chặn
+  đúng chỗ; thiết bị lai (laptop có màn chạm) vẫn có con trỏ fine nên vẫn được hover.
+  **PHẦN ĐỔI MÀU PHẢI NẰM TRONG GUARD, và nhánh `test` làm sai nửa đó:** bên ấy đặt
+  `.start:hover { color/background đảo }` NGOÀI khối guard. Một nút kẹt ở màu nghịch
+  đảo còn dễ thấy hơn một nút kẹt lệch 1px.
+  **`prefers-reduced-motion` KHÔNG tính là guard** — nó là OVERRIDE, không phải trạng
+  thái gốc, và nó không nói gì về việc có con trỏ hay không. Cổng khai rõ điều đó
+  (`KHONG_PHAI_GUARD`), cộng danh sách `NGOAI_GUARD` hai chiều (nay RỖNG).
+
+- **TÁCH PARSER CSS RA MODULE DÙNG CHUNG, vì chính `selCua` đã từng hỏng một lần.**
+  Cổng mới cần đúng phép bóc rule mà `dich-bam-vo-bai-hoc.test.mjs` đang có. Chép nó
+  là nuôi bản thứ hai của một hàm mà #159 vừa tìm thấy lỗi (bản đầu lấy DÒNG CUỐI của
+  phần selector nên `.restoredAction,\n.restoredClose {` đánh rơi hẳn tên đầu, và rơi
+  IM LẶNG). Nay năm hàm thuần ở `frontend/e2e/unit/_css-rule.mjs`; tên tệp KHÔNG mang
+  `.test.mjs` nên glob `e2e/unit/*.test.mjs` của `package.json` và `dem-ca-test.mjs`
+  không chạy nó như một bộ rỗng. `moiRule(van)` bỏ tham số mặc định: một mặc định trỏ
+  vào một tệp cụ thể, trong một module dùng chung, là chỗ để gọi sai mà không ai thấy.
+  Phép tự kiểm sẵn có của cổng 44px (`selCua` deepEqual, `rules.length >= 40`) xác
+  nhận bản tách: **7/7 vẫn đạt**.
+  **VÀ TRẦN LINT DỰNG Ở #153 BẮT ĐÚNG TÔI:** sau khi tách, `boChuThich` không còn ai
+  gọi trong tệp cũ nhưng vẫn nằm trong dòng `import` — một cảnh báo
+  `no-unused-vars` thứ **147**, tức vỡ `--max-warnings 146`. Trước #153 thì `eslint`
+  thoát 0 với cảnh báo và chuyện này đi thẳng vào commit. Đếm bằng
+  `grep -c` ra **1 dòng** cho `boChuThich` — một ký hiệu chỉ xuất hiện trên chính dòng
+  import của nó là một ký hiệu không ai dùng.
+
+- **PHÉP ĐO ĐỌC GIỮA LÚC TRANSITION ĐANG CHẠY — lần thứ hai cùng họ, ở một thuộc tính
+  mới.** Kiểm chế độ đêm bằng cách đổi class trên `body` rồi đọc ngay: `border-color`
+  ra đúng `#E8EEFB` (đêm) trong khi `color` vẫn `#2A2018` (ngày) — **từ CÙNG một
+  `var(--edu-t1)` trong CÙNG một rule**, tương phản báo **1,23:1**. Một mâu thuẫn như
+  thế là dấu hiệu phép đo sai, không phải CSS sai: tôi vừa thêm `color` vào
+  `transition` còn `border-color` thì không, nên cái sau nhảy tức thì và cái trước
+  đang bò. Chờ 450 ms (> 150 ms transition) rồi đo lại: **13,80 / 16,81**.
+  Cùng luật đã ghi cho `getBoundingClientRect` dưới `.stepEnter`: **khi một phép đo
+  cho hai giá trị KHÔNG THỂ cùng đúng, nghi phép đo trước khi nghi sản phẩm** — và ở
+  đây thứ tố giác là chính cặp `color`/`border-color` phải bằng nhau theo cấu tạo.
+
+- **ABLATE 10 chiều** (`scripts/ablate.mjs --tu-so`, 9 chiều + 1 cặp đối chứng làm
+  tay): gỡ CẢ bản sửa CodeVisualizer về HEAD → **3 đỏ** · gỡ CẢ bản sửa
+  `ide.module.css` → 1 · `.start` về 38px → 1 · `.start` mượn lại nền nút chính → 1 ·
+  `.start` dùng `--ds-ink` → 1 · trả `box-shadow` về `.start` → 1 · gỡ guard của
+  `.run:hover` → 1 · `.visualizeSlot` thôi `display: contents` → 1 (tự kiểm — nó là
+  TIỀN ĐỀ của ca căn hàng) · phá phép đọc `@media` trong chính cổng → 1 (tự kiểm).
+  **CẶP ĐỐI CHỨNG** phải làm tay vì `ablate.mjs` nhận MỘT `--tep` mà cặp này cần hai
+  tệp: lệch chiều cao + GIỮ ca → **1 đỏ / 4 ca**; cùng lệch ấy + GỠ ca → **0 đỏ /
+  3 ca**. Con đỏ đến từ CA MỚI, không từ một ca sẵn có nào.
+  **SỐ ĐÃ ĐO:** frontend unit **651 → 655 ca / 58 → 59 tệp** · sổ ngưỡng siết sàn
+  650 → 655 · typecheck sạch · lint **146 cảnh báo / 0 lỗi** (đúng trần) ·
+  `npm run build` exit 0 · `check-moc-nen` 20 mục 0 lỗi · `check-moc-chay frontend`
+  655/655 · `check-nguong` 37 ngưỡng 0 lỗi · `tai-nguyen-chet` / `export-chet` /
+  `duong-toi` 0 lỗi. **KHÔNG đụng một dòng nội dung nào**, nên `check-da-nap` giữ
+  **62 bài chờ**. **KHÔNG bump `ASSET_VERSION`:** hai tệp sửa là CSS module trong
+  `src/`, đi qua bundler nên URL đã đổi theo nội dung.
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** trên `/ide`, nút "Xem từng bước" nay thẳng
+  hàng với nút Chạy và đọc ra là nút PHỤ (viền, không nền đặc); và trên điện thoại,
+  sáu nút của trang thôi kẹt ở trạng thái "đang trỏ vào" sau mỗi cú chạm.
+  **CÒN LẠI, nói cho đúng:** `scene.css` còn một rule `:hover` + `translateY(-8px)`
+  không guard (Góc học — ngoài phạm vi theo ràng buộc đứng), và cổng mới chỉ phủ HAI
+  tệp của `/ide`. Mười một tệp CSS module khác có `:hover` chưa ai đo theo trục này.
+
+- **PORT CẤU TRÚC TỪ NHÁNH `test`, KHÔNG PORT BẢNG MÀU — và lần thứ HAI liền phép đo
+  chặn đúng chỗ đó.** Chủ dự án nói rõ cách làm: *"không phải bê nguyên commits sang, mà
+  là tìm phần nào cải tiến giao diện rồi check xem nếu đẹp thì bê lên main luôn"*. Ứng
+  viên còn lại của `/ide` sau vòng trước là **thanh tiêu đề hai khung**. Nhánh `test` gọi
+  đúng bệnh: hai mặt phẳng trắng cạnh nhau mà **không gì gọi tên chúng** — *"hai tấm thẻ
+  trắng trống không"*. Chụp màn `/ide` ở 1280 xác nhận: khung trái là editor, khung phải
+  là kết quả, và thứ duy nhất phân biệt chúng là một câu placeholder.
+  **NHƯNG CẢ BA TOKEN BÊN ẤY LẠNH**, đo trong trình duyệt chứ không đọc tên:
+  `--ds-tint` **#E8F0FE** · `--ds-soft` **#3A4A66** · `--ds-line` **#CFD9E8** — B > R cả
+  ba, trên trang giấy kem **#F4EEE3** của main. Tiêm bản nguyên của test lên trang thật
+  rồi chụp: hai dải xanh ngang đầu hai khung, đọc ra là một hệ thiết kế khác. Đó là nửa
+  bảng v2 mà main đã warm đi qua nhiều vòng lofi.
+  Lần trước cùng lớp lỗi là `--ds-ink` #0F1B33 cho nút "Xem từng bước". **Hai lần liên
+  tiếp ⇒ nó là một KHUÔN, không phải trùng hợp: nhánh `test` dừng ở bảng v2 LẠNH, main
+  đã đi tiếp sang bảng ẤM, nên MỌI token `--ds-*` mang màu đều phải đo lại trước khi
+  dùng.** Bản port dùng `--edu-t2` / `--edu-bg-solid` / `--edu-card-line`; đo sau khi
+  dựng: chữ trên dải **9,30:1** ban ngày và **11,88:1** ban đêm.
+  **NỀN DẢI LẤY GIẤY, VÀ ĐƯỜNG KẺ MỚI LÀ THỨ CHIA** — dải so với mặt thẻ trắng đo được
+  **1,15:1**, tức ở khoảng sáng này màu nền không tách nổi hai mặt phẳng. Đúng kết luận
+  đã ghi cho hai thanh sticky, và nó là lý do `border-bottom` không phải trang trí.
+  **BỎ CHẤM TRÒN `--ds-action` của test:** trong một trình soạn thảo, chấm cạnh tên tệp
+  NGHĨA LÀ "chưa lưu". Ở đây mã tự lưu vào localStorage nên chấm ấy không bao giờ nói
+  điều gì — một đốm brand xanh làm cảnh trên một trang vừa dọn hết brand.
+  **BA THỨ CỦA TEST KHÔNG PORT, mỗi thứ một lý do đo được:**
+  · `renderLineHighlight: 'none'` + `overviewRulerLanes: 0` — chúng **GỠ** hai chỉ dẫn
+    định hướng (dòng đang đứng, vạch đánh dấu trên thanh cuộn) chứ không thêm gì, và
+    không có bằng chứng nào nói người học muốn mất chúng;
+  · `split` 1.25fr → 1fr và `.toolbar { padding-top: 16px }` — không có bằng chứng nào
+    theo chiều nào, và VAN-PHONG §2 đã đặt luật "một luật không có bằng chứng thì đừng";
+  · `.kbd` viền thay nền tint — đo được **5,02:1** trên nền nút (so với 5,57 nếu bỏ chip),
+    tức VẪN vượt AA 4,5. Lời khai "chữ Ctrl+Enter mờ đi" đúng về CHIỀU nhưng không phải
+    một vi phạm, nên nó là thẩm mỹ.
+  **MONACO 14 → 15px + lineHeight 24 thì CÓ port**, và bằng chứng có sẵn: ba trên bốn
+  người trả lời khảo sát 29/10 chọn *"nhiều chỗ chữ quá nhỏ"*, và repo đã nâng ba ô gõ
+  của bài học lên 16px vì cùng lý do.
+  **VÀ `CodeVisualizer` NẰM KHÁC CHỖ Ở HAI NHÁNH** — trên main nó ở NGOÀI `.outputPane`,
+  bên `test` nó ở trong `.outputBody`. Chép JSX nguyên là dời nó mà không ai quyết.
+  **CỔNG** (`ide-thanh-cong-cu.test.mjs`, ca thứ năm) ghim đúng quyết định ấy: cả HAI
+  khung phải dựng một dải (một cái thôi là nửa bản sửa), dải KHÔNG được mang ba token
+  lạnh, ba token nó DÙNG phải ẤM (đọc giá trị thật từ `edu-theme.css`, không ghim mã
+  màu), và phần cuộn phải ở `.outputBody` chứ không ở `.outputPane` — pane giữ
+  `overflow: hidden` của rule dùng chung để bo góc 16px cắt đúng hai đầu dải.
+  **`aria-hidden` trên CẢ HAI dải, và đó là chỗ bản port khác bản gốc:** hai `<section>`
+  đã mang `aria-label` nói đúng điều dải nói ("Trình soạn thảo mã Python" / "Kết quả"),
+  nên để dải đọc được là bắt trình đọc màn hình nói hai lần cho một khung. Nhánh `test`
+  ẩn dải trái mà để lộ dải phải.
+  **ABLATE 9 chiều** (8 qua `ablate.mjs --tu-so` + 1 cặp đối chứng làm tay): nền dải về
+  `--ds-tint` → **1 đỏ** · chữ về `--ds-soft` → 1 · gỡ dải khung kết quả → 1 · gỡ
+  `aria-hidden` → 1 · `.outputPane` lấy lại `overflow: auto` → 1 · `.outputBody` mất
+  `overflow` → 1 · **gieo `--edu-t2` thành navy trong `edu-theme.css` → 1** (ca đọc bảng
+  THẬT, không ghim mã màu) · phá phép đọc rule → **3** (tự kiểm). CẶP ĐỐI CHỨNG: token
+  lạnh + GIỮ ca → **1 đỏ / 5 ca**; cùng thế + GỠ ca → **0 đỏ / 4 ca**.
+  **SỐ ĐÃ ĐO:** hai dải cao **39px**, đủ bề rộng pane ở cả 1280 lẫn 390 · Monaco
+  **15px / 24px** · pane `padding 0` + `overflow hidden` · 0 tràn ngang, 0 phần tử ngoài
+  mép ở 390 · frontend unit **655 → 656 ca** / 59 tệp · sổ ngưỡng siết sàn 655 → 656 ·
+  typecheck sạch · lint **146 cảnh báo / 0 lỗi** · `npm run build` exit 0.
+  **KHÔNG đụng nội dung bài** → `check-da-nap` giữ **62 bài chờ**. **KHÔNG bump
+  `ASSET_VERSION`** (hai tệp sửa nằm trong `src/`).
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** trên `/ide`, hai khung nay có tên — "main.py" và
+  "Kết quả" — và chữ trong trình soạn thảo to hơn (14 → 15px, giãn dòng 24).
+  **BẪY BACKTICK CẮN LẦN THỨ HAI, cùng một chỗ:** ba tên token viết trong backtick, nằm
+  trong một chuỗi Python truyền qua `bash -c`, bị shell chạy như LỆNH và thay bằng chuỗi
+  RỖNG — dòng mốc nền ra *"bộ // bên ấy LẠNH cả ba"*. #159 đã ghi đúng bẫy này và đúng
+  cách tránh (ghi script ra TỆP rồi chạy tệp), và tôi vẫn truyền qua `-c`. Nó hỏng IM
+  LẶNG: script in "ok", không assert nào đỏ, vì một chú thích mất chữ không làm gì đỏ.
+
+- **MỘT PHÉP ĐO ĐÃ XONG NHƯNG CHƯA LÀM — `:hover` không guard trên TOÀN `src/`.** Vòng
+  này mở đầu bằng việc quét trục guard ra khỏi `/ide`, rồi dừng khi chủ dự án chỉ lại
+  đúng việc (bê cải tiến từ `test`, không đi vá lỗi khác của main). Số đã đo, giữ cho
+  vòng sau:
+  **43 rule `:hover` / 13 tệp, chỉ 7 đã guard (16%).** Ngoài phạm vi: `scene.css` 13
+  (Góc học) · `studio.module.css` 2 (PythonStudio chết-mà-giữ). Còn **20 rule / 9 tệp**,
+  và bốn cái nặng nhất đổi thứ làm LỆCH BỐ CỤC chứ không chỉ đổi màu:
+  `LessonChrome .primaryBtn` (**filter, transform** — nút chính của MỌI màn, 179 bài) ·
+  `exercises .optionCard` (**transform, box-shadow** — thẻ phương án trắc nghiệm) ·
+  `exercises .runBtn` (**transform, box-shadow**) · `CourseShell .back` (**gap**).
+  **TÁI HIỆN TRÊN MỘT CONTROL THẬT CỦA SẢN PHẨM** (trang khoá học, 390×844 cảm ứng — chọn
+  trang này vì nó không gọi `apiFetch` nên không tạo tài khoản khách): nút đổi giao diện
+  có nền `rgb(255,255,255)` trước khi chạm và **`rgb(232,240,254)`** sau khi chạm, với
+  `:hover` còn **true**; một nút KHÔNG chạm trong cùng header thì `false`. Tức nó kẹt ở
+  màu hover đúng như hai nút thử tổng hợp của vòng trước.
+  Việc còn lại là bọc 20 rule ấy và mở cổng guard ra toàn `src/` thay vì hai tệp `/ide`.
+
+- **SOÁT NHÁNH `test` KHÉP LẠI: phần còn lại là 500 dòng cho một màn KHÔNG BÀI NÀO DÙNG.**
+  Hai tệp trong phạm vi tôi chưa đọc sau #166 — `studio-chrome.module.css` (+500 dòng) và
+  `studio-lesson.ts` (+46). Đọc ra: toàn bộ là `.book*` · `.review*` · `.scaffoldScreen`
+  và hàm `scaffoldReview`, tức **màn lắp khung mã** (`step_3.scaffold`). Đếm trên bản
+  dựng: **`step_3.scaffold` 0/179 bài** (và `step_3.trace` 0, `step_3.memory` 0 — pe-da
+  chỉ dùng `step_1.read` + `step_2` + `step_4`). Bê sang là thêm 500 dòng CSS và một hàm
+  **không ai tới được**, đúng lỗi thống trị repo đã ghi 12 lần.
+  Vậy toàn bộ việc port từ `tester/test` đã hết: `studio-tokens.css` main ĐÃ CÓ ·
+  `StudioLesson.tsx` no-op (0/179 màn scaffold/game) · `.start` xong ở #165 ·
+  `ide.module.css` + `IdeClient.tsx` xong ở #166 · phần còn lại 0 người dùng.
+  **Luật rút ra, dùng cho mọi lần soát một nhánh khác:** đếm NGƯỜI DÙNG trên bản dựng
+  TRƯỚC khi đọc CSS. Một diff 500 dòng trông như công sức lớn, và nó đúng là công sức
+  lớn — cho một màn mà khoá đang xuất bản không có.
+
+- **20 RULE `:hover` CÒN LẠI VÀO GUARD, và cổng mở từ 2 tệp ra TOÀN `src/`.** #165 bọc
+  6 rule của `/ide`; phép đo khi đó cho thấy khe rộng hơn nhiều: **43 rule `:hover` /
+  13 tệp, chỉ 7 đã guard (16%)**. Ngoài phạm vi 15 (Góc học 13 · PythonStudio chết-mà-giữ
+  2), còn **20 rule / 9 tệp** — và bốn cái nặng nhất đổi thứ làm LỆCH BỐ CỤC chứ không
+  chỉ đổi màu: `LessonChrome .primaryBtn` (**filter, transform** — nút chính của MỌI màn,
+  179 bài) · `exercises .optionCard` (**transform, box-shadow**) · `exercises .runBtn`
+  (**transform, box-shadow**) · `CourseShell .back` (**gap**).
+  **TÁI HIỆN TRÊN SẢN PHẨM THẬT, cả hai chiều.** Trước: trang khoá học production,
+  390×844 cảm ứng, chạm nút đổi giao diện → nền `rgb(255,255,255)` thành
+  **`rgb(232,240,254)`** và `:hover` còn **true**; một nút KHÔNG chạm trong cùng header
+  thì false. Sau, trên bản dựng có bản sửa: `:hover` VẪN true — trình duyệt vẫn đặt nó,
+  đó không phải thứ sửa được — nhưng style tính ra **giống hệt một bản sao chưa bao giờ
+  hover**, tức rule hết hiệu lực. **Phép đo đúng ở đây là so với một CLONE, không so với
+  một mã màu nhớ từ lần trước:** cú chạm ấy đổi luôn sang chế độ tối, nên so với
+  `rgb(232,240,254)` của production là so nhầm bảng.
+  **BẪY OFFSET LÀM BẢN ĐẦU HỎNG HÌNH DẠNG.** Script bọc tự động tìm đầu rule bằng
+  `rfind('}')` rồi bỏ khoảng trắng TIẾN lên — nhưng `m.start()` của regex `([^{}]*)\{` ĐÃ
+  nằm ngay sau dấu `}` ấy, nên điều kiện `d < m.start()` sai ngay lần đầu và vòng không
+  chạy lần nào. Kết quả: `}/* Guard…` dính liền và một dòng trống thừa trong mỗi khối.
+  Hoàn tác, đi TIẾN từ `m.start()` và bỏ khoảng trắng trên văn bản GỐC (không phải bản đã
+  xoá chú thích) — nhờ thế một chú thích của chính rule đi VÀO trong guard cùng nó.
+  **CỔNG MỚI THAY ca `:hover` của `ide-thanh-cong-cu.test.mjs`, không chạy song song với
+  nó.** Hai cổng hỏi cùng một câu trên hai tập chồng nhau thì không ai biết cái nào là
+  thẩm quyền, và bản hẹp sẽ trôi khỏi bản rộng. Gỡ ca cũ cũng phải gỡ ba hằng chỉ nó dùng
+  (`GUARD`, `NGOAI_GUARD`, `KHONG_PHAI_GUARD`) — để lại là ba cảnh báo `no-unused-vars`
+  làm vỡ trần lint 146.
+  **ABLATE TÌM RA MỘT LỖ TRONG CHÍNH CỔNG VỪA VIẾT, và đó là phần đáng nhất.** Bản đầu
+  duyệt từng RULE và viết `if (media khác) continue` để bỏ qua một OVERRIDE đi kèm
+  (`.start:hover { transform: none }` trong `prefers-reduced-motion`). Chiều ablate "đổi
+  guard thành `prefers-reduced-motion`" cho **0 đỏ**: dòng ấy không phân biệt được
+  "override kèm theo" với "chỗ DUY NHẤT", nên giấu định nghĩa duy nhất của một `:hover`
+  vào một override là lọt hoàn toàn. Luật đúng gọn hơn: **gom theo SELECTOR, đòi ít nhất
+  MỘT lần xuất hiện nằm trong guard thật** — `.start:hover` có mặt ở cả hai nên đạt. Sửa
+  xong, chiều ấy ra **1 đỏ**, và `KHONG_PHAI_GUARD` không còn ai gọi nên gỡ luôn.
+  **HAI CHIỀU KHÁC "không như khai" là TÔI KHAI SAI, không phải cổng sai** — và phân biệt
+  ấy phải nói ra: lý do gieo dài 102 ký tự (< sàn 120) nên ca kiểm-lý-do bắn kèm; và tệp
+  gieo không có `:hover` nào nên ca "ngoại lệ lỗi thời" cũng bắn. Sửa SEED cho mỗi chiều
+  cô lập đúng một luật, không nới luật.
+  **VÀ BẬC THANG BẮT ĐƯỢC MỘT CA VỠ Ở BỀ MẶT PHÁP LÝ.** `consent-banner.test.mjs` đòi
+  đúng **3** selector `.chon*` (không có selector thứ hai nào làm một trong hai nút nổi
+  hơn — Điều 9(4): sự đồng ý phải tự nguyện). Phép quét của nó neo `^\.chon` vào CỘT 0,
+  mà `.chon:hover` nay thụt vào trong `@media` ⇒ đếm 2 ⇒ **1 ca đỏ**. Tính chất cần không
+  đổi một li; thứ sai là phép quét giả định rule nằm ở tầng gốc. Sửa thành `^\s*\.chon`.
+  Nếu chỉ chạy cổng mới mà không chạy CẢ bộ thì ca này đỏ trên CI chứ không đỏ ở đây —
+  đúng luật "bê từ nhánh khác thì chạy CẢ bộ unit TRƯỚC khi push", lần này là một phép
+  biến đổi hàng loạt chứ không phải một bản bê.
+  **ABLATE 9 chiều** (8 qua `--tu-so` + 1 cặp đối chứng làm tay): gỡ guard `.primaryBtn`
+  → **1 đỏ** · gỡ guard `.theme` → 1 · đổi guard thành `prefers-reduced-motion` → 1 · gỡ
+  mục `NGOAI_TAM` của `scene.css` → **2** · khai `NGOAI_TAM` cho một tệp đã guard hết →
+  1 ("lỗi thời") · lý do quá ngắn và không có số → 2 · phá phép duyệt tệp → **3** (tự
+  kiểm) · phép đọc `@media` thôi nhận guard → 1 (tự kiểm). CẶP ĐỐI CHỨNG: gỡ guard +
+  GIỮ ca → **1 đỏ / 3 ca**; cùng thế + GỠ ca → **0 đỏ / 2 ca**.
+  **SỐ ĐÃ ĐO:** 20 rule bọc / 9 tệp · sau khi sửa: **27 trong guard · 0 ngoài guard · 1
+  trong `@media` khác** (override `prefers-reduced-motion` của `.start`, đúng) · dấu
+  ngoặc cân bằng ở cả 9 tệp · frontend unit **656 → 658 ca / 59 → 60 tệp** · sổ ngưỡng
+  siết sàn 656 → 658 · typecheck sạch · lint **146 cảnh báo / 0 lỗi** · `npm run build`
+  exit 0. **KHÔNG đụng nội dung bài** → `check-da-nap` giữ **62 bài chờ**. **KHÔNG bump
+  `ASSET_VERSION`** (cả 9 tệp nằm trong `src/`).
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** trên điện thoại, 20 nút/thẻ nữa thôi kẹt ở trạng
+  thái "đang trỏ vào" sau mỗi cú chạm — trong đó có nút chính của MỌI màn bài học (179
+  bài), thẻ phương án trắc nghiệm, nút "Chạy thử", hai nút của hộp đồng ý, và mọi hàng
+  bài ở trang khoá học.
+  **CÒN LẠI, nói cho đúng:** cổng phủ MỌI `.css` trong `src/` trừ hai tệp đã KHAI
+  (`scene.css` 13 rule — Góc học, ràng buộc đứng · `studio.module.css` 2 rule —
+  PythonStudio chết-mà-giữ). Nó KHÔNG phủ CSS trong `public/static/css` (JS di sản), và
+  không phủ `style={{…}}` nội tuyến trong TSX.
+
+- **BẪY BACKTICK CẮN LẦN THỨ BA TRONG BA VÒNG, và nay nó có một luật.** Dấu backtick
+  trong một chuỗi Python truyền qua `bash -c` vẫn là **command substitution của shell**:
+  nó chạy phần trong backtick như LỆNH rồi thay bằng chuỗi RỖNG. #159 đã ghi bẫy và ghi
+  cách tránh; #166 vẫn mắc (ba tên token biến mất khỏi mốc nền); vòng này mắc lần nữa
+  (bốn dòng chú thích của `consent-banner.test.mjs` mất sạch tên tệp và tên selector).
+  Nó hỏng **IM LẶNG** ở mức tệ nhất: script in "ok", bộ test vẫn xanh, vì một chú thích
+  mất chữ không làm assert nào đỏ — chỉ đọc lại bằng mắt mới thấy.
+  **LUẬT: Python có backtick thì GHI RA TỆP rồi `py -I <tệp>`, không bao giờ `-c`.** Và
+  mỗi phép vá như thế tự `assert` rằng chuỗi backtick CÒN trong file sau khi ghi — đó là
+  thứ duy nhất biến một lỗi im lặng thành một lỗi to tiếng.
+
+- **BẢNG XẾP HẠNG ĐÃ CẠN PHẦN CỦA VÒNG LẶP — soát lại 13 mục rồi mới tự chọn.**
+  `reports/Hướng đi tối ưu tiếp theo.md` là nơi LOOP.md bảo lấy việc khi hàng đợi rỗng,
+  và tôi đã tự chọn nhiều vòng mà chưa đọc lại nó. Soát: mục **1** (nạp DB) và **13**
+  (xác minh pháp lý) là việc của CHỦ DỰ ÁN · **2** (phễu `lesson_progress`) và **3**
+  (tên đơn vị "tài khoản khách") đã làm · **5** (phản hồi có giải thích) đã làm, pha 4
+  của `check-practice` · **4** đã ĐO RỒI BỎ (PY01 vốn CÓ bài tập được chấm — phép đếm
+  đầu của tôi đọc nhầm tầng; TH07 thì chính văn nói nó không có ca chấm) · **6** (74
+  khối im lặng) là quyết định của chủ dự án, AGENTS.md ghi "trần dòng chỉ được HẠ,
+  KHÔNG tự đổi" · **7** còn đúng một mảnh là "đặt file test chỉ-đọc", mà ImpossibleBench
+  đo được nó **không** chặn special-casing và nó sẽ chặn chính nếp ship-tính-năng-kèm-cổng
+  của repo này · **8, 9** đã là nếp (`check-moc-chay` 8 mục, `check-duong-toi` vào CI ở
+  #160) · **10–12** là "đừng làm".
+  **Ghi lại để vòng sau không phải soát lại:** bảng ấy nay là một bản ghi, không còn là
+  một hàng đợi. Việc tiếp theo phải đến từ một phép ĐO trên cây mã, như ba vòng vừa rồi.
+
+- **PHÉP QUÉT ĐẦU CỦA TÔI BÁO OAN 10/11 CHỖ, và cả hai lỗi đều đã có tên trong file này.**
+  Đo độ phủ `prefers-reduced-motion`: bản đầu báo **4 keyframe hở ở `studio-chrome`**,
+  1 ở `exercises`, 1 ở `CodeVisualizer`, 15 ở `scene.css`. Đọc từng chỗ thì:
+  · nó chỉ nhận `animation: none`, bỏ sót **`animation-duration: 0.01ms`** — đúng cách
+    `studio-chrome` tắt bốn keyframe ấy ở dòng 605;
+  · nó lấy **DÒNG CUỐI** của phần selector (`m.group(1).split('\n')[-1]`) — chính lỗi
+    `selCua` đã mắc một lần và #159 đã sửa.
+  Đo lại bằng CHÍNH parser đã gỡ lỗi (`_css-rule.mjs`): `studio-chrome` **đủ**,
+  `CodeVisualizer` **đủ**. Còn `exercises` 1 và `scene.css` 9.
+  **Luật: khi đo một chiều mới, dùng parser ĐÃ CÓ của repo thay vì viết lại một bản gần
+  đúng** — bản gần đúng sẽ mang lại đúng những lỗi bản cũ đã trả giá để sửa.
+
+- **LUẬT PHẢI NHẮM VÀO *DỊCH CHUYỂN*, KHÔNG NHẮM MỌI `@keyframes` — và một ca cụ thể dạy
+  điều đó.** Ý tưởng đầu là "mọi keyframe phải tắt được dưới `prefers-reduced-motion`".
+  Nó báo oan ngay ở `pe-burst-life`: keyframe ấy là `from { opacity: 1 } to { opacity: 1 }`
+  — nó **không đổi một pixel nào**, nó là một bộ đếm thời gian 1,8 s dùng `forwards` để
+  JS biết lúc nào gỡ phần tử. Bắt nó khai ngoại lệ là bắt người ta khai một thứ không
+  phải chuyển động. `blink` (chỉ `opacity`) cũng vậy — một chỗ nhấp nháy không gây chóng
+  mặt.
+  Nên luật là: keyframe đổi `transform` (hoặc `top`/`left`/`right`/`bottom`/`width`/
+  `height`/`margin`) mới bị đòi. Với luật ấy, **7 tệp có keyframe dịch chuyển · 6 đủ ·
+  1 khe thật**. Ablate chiều "nới thành MỌI keyframe" → **2 đỏ**, tức luật hẹp này đang
+  gánh tải thật chứ không phải một phép lọc cho đẹp.
+
+- **MỘT KHE THẬT: băng phản hồi sau khi chấm trượt 12px và không tắt được.**
+  `.feedbackBanner` chạy `feedbackIn` — `translateY(12px) → none` trong 0,3 s — và nó
+  hiện ở **MỌI lần nộp bài được chấm, 143 bài**. WCAG 2.3.3 (Animation from
+  Interactions): chuyển động do tương tác phải tắt được.
+  **Bằng chứng không phải một nguyên tắc nhập khẩu — nó nằm ngay trong chính file ấy:**
+  `consoleIn` chỉ trượt **4px** và khối `prefers-reduced-motion` ở dòng 467 ĐÃ tắt nó.
+  Một cú trượt 12px không tắt là lệch với quyết định mà tác giả file đã ra, chứ không
+  phải một tiêu chuẩn tôi mang từ ngoài vào.
+  **`scene.css` KHÔNG hở thật, và lý do đáng ghi:** 9 keyframe dịch chuyển của nó tắt qua
+  một class `.rm` do nút "Giảm chuyển động" trong cảnh bật (`animation-play-state:
+  paused`, dòng 623+), chứ không qua media query — nên một cổng quét theo `@media` MÙ với
+  nó. Khai NGOÀI TẦM kèm đúng lý do ấy, không phải "Góc học nên bỏ qua".
+
+- **ABLATE 10 chiều** (9 qua `--tu-so` + 1 cặp đối chứng làm tay), và hai chiều trong đó
+  là **phép kiểm NGƯỢC** — thứ chứng minh cổng không kêu oan:
+  gỡ bản sửa `.feedbackBanner` → **1 đỏ** · **gỡ một selector ĐANG tắt mà keyframe của nó
+  chỉ đổi `opacity` (`.caret`/`blink`) → 0 đỏ, đúng** · gỡ guard của `.consoleRow*` (chạy
+  `consoleIn`, trượt 4px) → 1 · gỡ khối RM của `CodeVisualizer` → 1 · gỡ mục `NGOAI_TAM`
+  của `scene.css` → 1 · khai `NGOAI_TAM` cho một tệp đã tắt hết → 1 ("lỗi thời") · nới
+  luật thành MỌI keyframe → **2** · phá phép duyệt tệp → **2** (tự kiểm) · phép đọc khối
+  RM thôi nhận `animation-duration` → 1 (tự kiểm). CẶP ĐỐI CHỨNG: bỏ bản sửa + GIỮ ca →
+  **1 đỏ / 3 ca**; cùng thế + GỠ ca → **0 đỏ / 2 ca**.
+  **MỘT CHIỀU "KHÔNG NHƯ KHAI" HOÁ RA LÀ MỘT PHÁT HIỆN:** tôi gieo "gỡ guard của `.trace`"
+  và mong 1 đỏ, ra **0**. Đo lại: `.trace` có HAI rule trong `studio-chrome.module.css`
+  và **không rule nào khai `animation`** — tức dòng `animation: none` cho nó trong khối
+  reduced-motion là một **no-op**. Cổng đúng khi im. Giữ nguyên dòng ấy (nó là hàng rào
+  cho một hoạt ảnh `.trace` ngày mai), nhưng đổi chiều ablate sang `.consoleRow*` — một
+  chiều có thông tin.
+
+- **BUILD THOÁT 134 KHI CHẠY NỐI ĐUÔI SAU LINT, và đó KHÔNG phải lỗi mã.** `npm run build`
+  trong một chuỗi `typecheck && lint && build && dem-ca` ném `RtlUserThreadStart` rồi
+  "Next.js build worker exited with code: 134". 134 là SIGABRT, và trên máy này nó là
+  **V8 OOM** (ghi chú `tai-nguyen-may`: máy chạy song song nhiều dự án). Chạy `build`
+  MỘT MÌNH → exit 0. Cùng họ với bẫy "tranh CPU sinh ĐỎ GIẢ" của `npx jest --ci`: một mã
+  thoát lạ sau một chuỗi lệnh là tín hiệu về TÀI NGUYÊN trước khi nó là tín hiệu về mã.
+  **SỐ ĐÃ ĐO:** 7 tệp có keyframe dịch chuyển · 6 đủ · 1 khe → **0 khe** sau bản sửa ·
+  frontend unit **658 → 661 ca / 60 → 61 tệp** · sổ ngưỡng siết sàn 658 → 661 · typecheck
+  sạch · lint **146 cảnh báo / 0 lỗi** · `npm run build` exit 0 (chạy riêng). **KHÔNG
+  đụng nội dung bài** → `check-da-nap` giữ **62 bài chờ**. **KHÔNG bump `ASSET_VERSION`**
+  (tệp sửa là CSS module trong `src/`).
+  **ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC:** người đã bật "giảm chuyển động" ở mức hệ điều hành
+  nay không còn thấy băng phản hồi trượt lên sau mỗi lần nộp bài — ở 143 bài có ca chấm.
+  **GIỚI HẠN:** cổng quét `src/**.css` và chỉ thấy khối `@media (prefers-reduced-motion)`.
+  Nó KHÔNG thấy cơ chế tắt bằng CLASS (như `.rm` của Góc học), không phủ
+  `public/static/css`, và không phủ hoạt ảnh dựng bằng JS (Web Animations API) — chính
+  `CodeVisualizer.tsx` có một chỗ như thế, và chú thích tại chỗ đã nói ra rằng media query
+  không với tới nó.
+
+- **ĐO 320px (WCAG 1.4.10 Reflow) VÀ KHÔNG TÌM RA GÌ — một kết quả ÂM, ghi lại để không
+  ai đo lại.** Ba vòng trước đo đích bấm, hover và giảm chuyển động ở **390**; chưa vòng
+  nào đo ở **320**, tức đúng ngưỡng của 1.4.10. Đo trên production:
+  · `/courses/python_advanced` → `scrollWidth 320`, **0 phần tử ngoài mép**;
+  · `/ide` → `scrollWidth 320`; 38 phần tử "ngoài mép" đều là DOM NỘI BỘ của Monaco
+    (`lines-content` rộng 16 777 216px, bị chính container của nó cắt) — và mã nguồn là
+    ngoại lệ 1.4.10 nêu đích danh;
+  · bài SY05 màn 0–3 và NP02 màn 0–3 (**gồm cả màn có khối `table`**) → tràn 0, ngoài mép 0;
+  · bài PD03 màn 2 — **bảng từng bước**: bảng rộng **616px** trong khung **214px** và nó
+    cuộn ngang NỘI BỘ, nhưng TRANG thì `tràn 0`. Bảng dữ liệu cũng là ngoại lệ 1.4.10. Và
+    hàng cao nhất đo được **58px**, chứ không phải 621 như lỗi 360px đã sửa trước đây.
+  **Chuỗi khung ở 320 lành:** `320 → 288 (gutter 16) → 252 (thẻ 18) → 250px chữ`, tức 78%
+  bề rộng dành cho nội dung. Không có chỗ nào ăn mất bề rộng một cách vô lý.
+  **Kết luận: việc làm ở 360/390 đã TỔNG QUÁT xuống 320.** Không có gì để sửa ở chiều này.
+
+- **BA CÂU LIỆT KÊ CỦA L3 THÀNH BẢNG — và chữ MỚI của tôi vi phạm chính luật đang hạ.**
+  Lát L3 thứ sáu (43 → 41 → 39 → 36 → 32 → 29 → 27 → **24**). Chọn theo tiêu chí của lát
+  #148 — câu phải là LIỆT KÊ CÓ NGHĨA ĐI KÈM — và ba câu rơi đúng một hình dạng *"hai
+  trường hợp, mỗi cái một luật"*, nên cột thứ hai không phải bịa:
+  · **VZ11** *"Với cột biểu diễn lượng, giữ mốc 0; với đường cần xem biến động nhỏ, có thể
+    thu hẹp trục nhưng phải hiển thị mốc rõ."* → bảng `Loại hình | Trục đứng`;
+  · **SY21** *"Để trao đổi dữ liệu với hệ khác, JSON thường tiện hơn; để lưu state Python
+    trong lab, pickle có thể phù hợp…"* → bảng `Dùng để | Chọn`;
+  · **GU12** *"Nếu file chưa tồn tại, ứng dụng bắt đầu rỗng; nếu dữ liệu hỏng, nó báo lỗi
+    và không tự ghi đè file đó."* → bảng `Tình huống | Ứng dụng làm gì`.
+  **L4 ĐI 0 → 1 VÌ MỘT TIÊU ĐỀ CỘT TÔI VỪA GÕ.** Bản đầu đặt tiêu đề `"Việc cần làm"`, mà
+  L4 cấm mở bằng danh-từ-hoá (`Việc/Sự/Quá trình/Khả năng…`) — và ô bảng nay NẰM TRONG tầm
+  quét từ vòng bịt điểm mù ô-bảng. Đổi thành `"Dùng để"` thì L4 về 0. Đúng bài học #148
+  (*"chữ MỚI của một lát sửa phải đi qua chính bộ luật mà lát ấy đang hạ"*), lần này nó
+  cắn ở chỗ dễ quên nhất: một tiêu đề cột không đọc ra như một câu, nhưng bộ kiểm thì coi
+  nó là một.
+  **CHÈN SAU đoạn văn, KHÔNG thay đoạn** — và lần này đo được bằng một con số: `màn đọc`
+  giữ **567** trước và sau. (#148 đã đo: THAY đoạn bằng bảng thì nó tụt 567 → 565, tức xoá
+  hai ranh giới màn.)
+  **SỐ ĐÃ ĐO:** L3 **27 → 24** · L12 cảnh báo **17 → 16** · L4 0 → 1 → **0** · tổng khoá
+  **71 → 68 lỗi · 366 → 365 cảnh báo** · câu phần giảng 2 732 → **2 750** · trung vị
+  15 → **14 tiếng** · câu > 30 tiếng 30 → **29** · `màn đọc` **567** (không đổi) · `table`
+  16 → **19** · thời lượng **2 439 → 2 438 phút** · `check.py --strict` 0/0 ·
+  `check-pyodide` 154 bài / 420 đoạn / 0 hỏng / 52-53 đáp án mẫu · `check-practice` 143
+  bài / 480 ca đạt / 773 biến thể sai đều trượt · `check-phu-van-phong` 99 chuỗi / trần 99
+  / 0 lỗi · frontend unit **661** (bảng đếm khối `table` 16 → 19 trong
+  `studio-lesson.test.mjs` phải sửa cùng commit) · ratchet 18 luật 0 lỗi, 2 mục đã ghi sổ.
+  **ABLATE** (gỡ bản sửa nguồn về HEAD rồi dựng lại): ratchet **8 đỏ** — **3 HỒI QUY**
+  (`L3 24 → 27` · `L12 TỔNG 16 → 17` · `TL 0 → 4`) và **5 SỔ SÁCH** (§11 ba hàng + dòng
+  tổng + §12). Tổng khoá quay về **75 lỗi / 366 cảnh báo** — 75 chứ không 71 vì bốn lỗi TL
+  cũng được đếm vào tổng, đúng cascade đã ghi.
+  **GIÁ PHẢI TRẢ:** `check-da-nap` **62 → 65 bài CHỜ NẠP**.
+
+- **`ablate.mjs` CHẠY LỆNH QUA cmd.exe TRÊN WINDOWS, không qua Git Bash — và cả hai cú
+  pháp chuyển hướng đều hỏng.** `spawnSync(lenh, { shell: true })` dùng shell MẶC ĐỊNH của
+  hệ điều hành. Thử `>/dev/null` → *"The system cannot find the path specified"*; thử
+  `>nul 2>&1 && …` → cùng một câu. Nên một lệnh ablate nhiều bước (dựng rồi đo) phải viết
+  bằng cú pháp cmd, hoặc làm TAY.
+  Làm tay thì phải tự mang theo ba bất biến mà công cụ vốn giữ: `assert` nội dung sau khi
+  gieo KHÁC nguyên bản (chống GIEO VÔ HIỆU), `sys.exit` khi không đọc được con số (chống
+  đọc rỗng thành "0 đỏ"), và phục hồi trong `finally` **kèm một lần DỰNG LẠI** — với một
+  lát nội dung thì khôi phục tệp nguồn chưa đủ, `out/` vẫn mang bản gieo.
+
+- **HAI LẦN OOM TRONG MỘT VÒNG, và cả hai ở lệnh chạy NỐI ĐUÔI.** `check-practice.mjs` và
+  `check-phu-van-phong.mjs` ném V8 crash dump khi nối sau một lệnh khác; chạy MỘT MÌNH thì
+  cả hai xanh. Cùng tín hiệu với `build` thoát 134 ở vòng trước. **Với bộ kiểm nặng
+  (Pyodide, Next build), chạy từng lệnh một — nối `&&` là tự tạo đỏ giả.**
+  Và một lỗi của tôi đi kèm: tôi gọi `node scripts/check-phu-van-phong.mjs` trong khi tệp
+  nằm ở `scripts/pe-da/`. Nó in `MODULE_NOT_FOUND` + `Node.js v24.15.0`, mà đuôi ấy TRÔNG
+  GIỐNG một crash dump OOM. **Hai nguyên nhân rất khác nhau có cùng hình dạng đầu ra —
+  đọc dòng `code:` trước khi quy cho tài nguyên.**
+
+- **GIAO DIỆN THỨ HAI "ĐÀI THIÊN VĂN" — vòng B1: một TRỤC chọn riêng, token ở TỆP RIÊNG, và bản design
+  KHÔNG phải thứ tôi tưởng.** Chủ dự án muốn theme chiêm tinh cho màn bài học, người dùng được CHỌN, và nó phải
+  "có animation như lofi đang làm". Đọc design trước khi dựng thì ra ba điều đảo hướng:
+  · màn bài học của canvas "Đài thiên văn — concept" là **giấy dưới đèn**, không phải nền trời sao: nền sheet
+    `#EFE6D4`, thẻ vellum `#FBF5E3` xếp lớp như tập giấy, mực nâu, ĐỒNG `#8A6D1E`/`#C9A646`, tiêu đề EB Garamond,
+    nút chính vẫn xanh `#1F5FE0`. Bản đồ sao cũ (`070886a^`, nhánh `chiem-tinh`) **chưa từng chạm màn bài học**
+    (grep `sky-|star-map|nebula` trong lesson-chrome/python-studio rỗng) và gắn cứng vào 48 bài/8 module của pe-v4;
+  · **nhánh `test` không có gì để bê**: bộ `Lofi*` (`d834674`, +734 dòng) có **0 chỗ mount** trên chính nhánh đó, dùng
+    token phòng-đêm của Góc học (`--glass`, `--sky`, `--lilac`) chỉ khai trong `scene.css`, và vào `src/` là đỏ BA cổng
+    (8 `:hover` không guard · `@keyframes spin` không tắt · đích bấm 30–40px). `206708e` thay cả trang bài học bằng
+    `<LofiWorkspace>` 2 057 dòng, gọi `apiFetch` lúc mount. Ba Ý còn lại (thanh tiến độ khoá, `aria-busy` cho nút
+    chính) nằm ở nhánh A của kế hoạch, dựng lại trên component của main;
+  · **"như lofi" nghĩa là gì, ĐO trên production (trang chủ, 504×732): 133 animation vô hạn** = `breathe` 39 · `twk` ~55 ·
+    `tw` 25 · `city` 5 · `steam` 4 · `blink` 1. Màn bài học lofi thì chuyển động theo SỰ KIỆN (`stepIn`, `feedbackIn`,
+    `consoleIn`, `pop`/`burst`/`awards`). Luật motion của theme nay: mọi chuyển động sự kiện lofi có bản chiêm tinh,
+    cộng nền sống có NGÂN SÁCH ≤ 12 animation vô hạn (≤ 4 dưới 561px), chỉ `opacity`/`transform`, tắt dưới
+    `prefers-reduced-motion`. Lý do con số 12: 133 animation tốn ~11% luồng chính ở GPU rời nhưng 62–98% ở điện thoại
+    + CPU 4× (mục "ĐO ĐỘ GIẬT CỦA TRANG CHỦ"). Luật cũ trong kế hoạch ("không vòng lặp khi đứng yên", lấy từ nếp của
+    bản đồ sao) bị chủ dự án bác — ĐÃ BỎ.
+  **KIẾN TRÚC, đã phản biện với mã thật trước khi viết (hai lượt đọc, 8 điểm sửa):**
+  · `data-theme="thien-van"` trên `<html>` (VẮNG = lofi) + khoá `pe-giao-dien`; sáng/tối vẫn là `body.dark`, nên có
+    BỐN tổ hợp. `lib/giao-dien.ts` là NGUỒN DUY NHẤT (id, whitelist, chuỗi script trước-paint, hàm áp), không import
+    gì vì test nạp thẳng `.ts`. Tên không phải `theme.ts`: `check-duong-toi` so theo basename và `LessonChrome.tsx`
+    đã chứa chữ "theme";
+  · token ở `public/static/css/theme-thien-van.css` (RANK 55, tự thêm vào mọi trang như `studio-tokens.css`), KHÔNG
+    ở `edu-theme.css`: `ds-contrast.test.mjs` đọc file đó bằng neo chuỗi (đếm ĐÚNG hai khai báo mỗi token, luật ấm R ≥ B,
+    `DEM` cắt từ `body.dark` tới CUỐI tệp). Mọi selector mở bằng `html[data-theme="thien-van"]:has([data-tv-surface])`,
+    nên trang chưa thiết kế (java, htmlcss, db_design, /interface) **không đổi nửa vời**. Đã đo: trang khoá học khi
+    theme đã chọn vẫn ra token lofi nguyên vẹn;
+  · **`--st-*` KHÔNG ghi đè ở khối `html`** — studio-tokens.css khai lại chúng trên `body` dưới dạng `var(--ds-*)`,
+    nên chúng tự đi theo `--ds-*` và một khai báo `--st-*` ở `html` là code chết. Khối đêm phải khai lại MỌI token mà
+    `body.dark` của lofi cũng khai (đặc hiệu của nó nằm trên `html[…]`), nên có luật "đêm không rò";
+  · `--edu-scrollbar-thumb` chỉ MỘT giá trị cho cả hai chế độ (`scrollbar-color` tính trên `<html>`, giá trị ở
+    `body.dark` không bao giờ tới). `#8A6D1E`: 3,95:1 trên nền ngày, 3,82:1 trên nền đêm.
+  **MÀU ĐÃ TÍNH LẠI — bản design có chỗ không qua nổi, và tôi suýt chép nó:** đồng `#8A6D1E` làm CHỮ chỉ 3,95–4,50
+  (eyebrow phải dùng mực `#5C4F2C`, 7,2:1) · đồng `#C9A646` trên thanh chỉ 2,05:1 (vạch thước ngày phải `#8A6D1E`) ·
+  tint ok/lỗi của lofi-ĐÊM trên thẻ nâu `#2A2416` là **1,00–1,01:1** — vô hình, nên theme khai tint riêng
+  (`#1B3A2C` · `#4A2229` · `#2C3A5E`, tách 1,14–1,38:1, chữ ≥ 5,9:1) · `--edu-card-bg` trắng 55% trên vellum chỉ 1,05:1
+  nên mất hẳn mặt phẳng, theme dùng nền ĐỤC.
+  **NÚT CHỌN Ở ĐÂU — đã hỏi chủ dự án, vì số đo làm lộ một đánh đổi:** thanh trên của màn bài học KHÔNG còn pixel
+  trống nào dưới 861px (ở 390px mỗi đoạn thanh tiến độ rộng 11,1px; thêm một nút 44px ép nó 7,7px, mẹo chồng lên nhãn
+  "n/N" còn 9,3px). Trả lời: nút nằm trong lề phải 90px đã chừa sẵn (`right: 23px`, 23+44 < 90, **không reflow**) và CHỈ
+  từ 861px; dưới đó ẩn, người dùng điện thoại đổi giao diện ở trang khoá học (vòng B2). Đã đo ở 320px: nút ẩn, không
+  tràn ngang, thanh tiến độ giữ 110px. Trong bài học trước giờ KHÔNG có chỗ đổi sáng/tối (nút chỉ ở `SiteHeader`,
+  header đó không dựng trên trang bài học) nên bảng chọn gồm cả hai nhóm radio THẬT (`<input type="radio">`, mũi tên
+  và đọc màn hình đúng sẵn).
+  **BA LỖI CỦA CHÍNH TÔI, hai cái đã có tên trong file này:**
+  · dựng regex từ template literal (`\s` thành chữ `s`) — bẫy ca trang 404, vấp lần thứ ba;
+  · bộ bóc chú thích `/\/\*[\s\S]*?\*\//` NUỐT MẤT bảng `RANK` của `PageStyles.tsx`: dòng chú thích
+    `// các file pages/*.inline.css → 30` chứa `/*` và mở một khối giả chạy tới `*/` kế tiếp. Test tra RANK trên văn
+    bản THÔ. Cùng họ "một phép đọc trả về rỗng là thứ phải nghi ngờ trước nhất";
+  · `npm run lint:tokens` dùng `!` ở đầu lệnh — KHÔNG chạy được trong cmd của Windows (`'!' is not recognized`) và
+    `grep` của nó cũng bắt chú thích. Chạy thẳng `grep -rnE '#[0-9a-fA-F]{3,8}' src/ --include=*.module.css`: toàn bộ
+    kết quả là chú thích cũ, 0 mã màu trong khai báo.
+  **CỔNG `giao-dien.test.mjs` (7 ca), và ABLATE 14 chiều đều đỏ:** chạy script trong `node:vm` với giá trị bơm vào
+  localStorage (`"><script>`, `__proto__`, `THIEN-VAN`, chuỗi có dấu cách…) → 0 thuộc tính · khớp BA nơi (id ⇔ script ⇔
+  CSS ⇔ nút) · cấu trúc tệp (mọi selector mở bằng `html[data-theme]`, ngày không `var()`/`--st-*`, đêm không thanh
+  cuộn) · đêm không rò · tương phản ngày/đêm TÍNH từ chính tệp CSS. Số đỏ: xoá `--edu-t3` khỏi đêm **2** · `--st-*` ở khối
+  html **1** · thanh cuộn ở đêm **1** · script nhận chuỗi bất kỳ **1** · gỡ `<ThemePicker />` **1** · gõ sai id **5** ·
+  tint đêm về giá trị lofi **1** · theme nạp trước studio-tokens **1** · gỡ `data-tv-surface` **1** · PageStyles không
+  tự thêm tệp **1** · quy tắc `body {` trần **2** · nút 40px (cổng 44px) **1** · mất dòng reduced-motion **1** ·
+  bản đồ tính năng `toiThieu: 1700` **1**. Chiều đối chứng (không gieo gì) bị `ablate.mjs` TỪ CHỐI với "GIEO VÔ HIỆU"
+  — đúng. **Một phép thử cho 0 đỏ và đúng:** đổi tên khoá localStorage — khoá do MỘT hằng sinh ra ở cả script lẫn nút
+  nên không thể lệch; không dựng ca cho một bất biến đã đúng theo cấu tạo.
+  **SỐ ĐÃ ĐO:** frontend unit **661 → 668 ca / 61 → 62 tệp** · sổ ngưỡng **37 → 43** (sáu sàn `san-*-thien-van`, chỉ
+  được NÂNG) · bản đồ tính năng **18 → 19 mục, 15 có đường tới** · CSS module trong `src/` **16 → 17** · typecheck sạch ·
+  lint **146 cảnh báo** (đúng trần) · `npm run build` exit 0 · `check-moc-nen` / `check-nguong` / `check-tai-nguyen-chet` /
+  `check-export-chet` / `check-duong-toi` / `check-moc-chay frontend` 0 lỗi. Xem THẬT trong Chrome trên `next build` +
+  `next start` (chặn mọi `fetch` ra ngoài bằng `initScript` để KHÔNG ghi gì lên production — khung bài học vẫn dựng ở
+  trạng thái "đang tải"): ngày nền `rgb(239,230,212)`, đêm `rgb(11,18,32)` + `color-scheme: dark`, bảng chọn 4 hàng
+  44px, lofi y nguyên. `ASSET_VERSION` → `2026-11-12a`. **KHÔNG đụng nội dung bài** nên `check-da-nap` giữ 65 bài chờ.
+  **GIỚI HẠN PHẢI NÓI RA:** vòng này mới chạm TOKEN. Màn bài học đã đổi màu giấy/mực/thanh cuộn, nhưng CHƯA có thước
+  đồng, đĩa đồng A/B/C, EB Garamond, hay chuyển động riêng — đó là B3–B9. Cổng đọc CSS TĨNH: nó chứng minh "token
+  khai đúng", không chứng minh "bề mặt nào đổi màu" (phần đó là ảnh chụp trình duyệt từng vòng). Chưa đo trên thiết
+  bị cảm ứng thật. Tiến độ cả nhánh nằm ở Kanzo `pe-usth#202`.
+
+  **B2 (cùng ngày) — ba đường tới nút chọn, và chủ dự án chỉ ra đường thứ ba.** Ngoài thanh bài học (≥ 861px), nút
+  nay còn ở (a) đầu hàng "Tất cả khoá học" của trang khoá, và (b) panel "Tùy chỉnh khung cảnh" của TRANG CHỦ — mục
+  "Giao diện bài học" với một công tắc "Đài thiên văn" (`#tTv` trong `goc-hoc/shell.js`, gắn ở `engine.js` theo khuôn
+  `tog(...)` của các công tắc cảnh). (b) là gợi ý của chủ dự án ("chỗ setting theme này được mà"), và nó đúng hơn tôi
+  nghĩ: panel vào được trên điện thoại — đúng nơi thanh bài học không còn chỗ. Trang chủ KHÔNG đổi theo vì cảnh Góc học
+  không dùng token `--ds/--edu/--st` nào; công tắc chỉ GHI lựa chọn, bài học và trang khoá đọc khi mở (có dòng chú giải
+  trong panel nói đúng điều đó, nếu không người dùng bật xong thấy không gì đổi).
+  · **Không đổi một pixel bố cục lofi — đã đo, không suy.** Chỗ đặt nút ở header trang khoá bị loại ngay: 195px tên +
+  nút sáng/tối 48px đã chiếm hàng ở 320–390px, thêm nút nữa đẩy nó xuống hàng. Nút nằm ở đầu hàng liên kết bằng vị trí
+  TUYỆT ĐỐI trong một khối bọc `position: relative` (khối bọc không thêm chiều cao). So production với bản dựng, cùng
+  cửa sổ: header `[170,0,1180,86]` · liên kết `[194,78,147,34]` · lưới `top 124,4` · cao trang `3449` — **trùng từng số**.
+  `top: 50%` ban đầu đặt nút lệch xuống ~10px (hàng cao 34px nhưng `.back` có margin −8px/12px nên tâm HỘP thấp hơn tâm
+  CHỮ) và chạm mép thẻ; `top: -13px` đưa tâm nút về đúng 95/95 và cách thẻ 7px;
+  · trang khoá dùng `--ds-ink/--ds-soft/--ds-paper/--ds-tint` (không phải `--edu-t*`), nên theme phải ghi đè thêm bốn
+    token — nếu không trang khoá có chữ navy lạnh `#0F1B33` trên giấy kem, hai bảng màu cùng một khung nhìn. Mực ≥ 7,8:1
+    trên cả bốn nền phụ, ngày lẫn đêm;
+  · nút ở trang khoá gọi `<ThemePicker cheDo={false} />`: không hiện nhóm sáng/tối vì nút trăng/mặt trời của
+    `SiteHeader` đã ở ngay trên đầu — hai chỗ đổi cùng một thứ là hai nơi người dùng không biết cái nào đúng;
+  · gỡ id công tắc khỏi `shell.js` mà `engine.js` vẫn gọi `$('#tTv')` thì **trang chủ ném lỗi lúc khởi tạo** (không
+    phải im lặng): cổng bắt nó ở ca "đường tới" trước khi tới người dùng. Id viết tay trong `engine.js` cũng được đối
+    chiếu với danh sách (gõ `thien-vam` thì công tắc ghi một giá trị bị whitelist loại, không lỗi nào hiện);
+  · đã xem thật ở 1280, 320: nút 44×44 trúng đích (`elementFromPoint`), không tràn ngang, không chồng lên liên kết.
+  **ABLATE 7 chiều, cả 7 đỏ (mỗi chiều 1 ca):** gỡ `data-tv-surface` khỏi trang khoá · gỡ `<ThemePicker cheDo={false} />` ·
+  đổi id ở `shell.js` · gõ sai id ở `engine.js` · bỏ import `datGiaoDien` · mực ngày `#A09070` · quên khai `--ds-ink` ở
+  khối đêm. Số ca không đổi (668): chỉ thêm khẳng định vào ca sẵn có. `ASSET_VERSION` → `2026-11-12b`: `theme-thien-van.css`
+  đổi SAU khi B1 đã push, mà tệp `public/` được cache `immutable` theo `?v=` — không bump thì người đã tải bản B1 giữ
+  CSS cũ (thiếu bốn token trang khoá).
+
+  **BM (cùng ngày) — theme chiêm tinh CÓ chuyển động, và nó có NGÂN SÁCH.** Chủ dự án nhấn lại: theme phải "có animation
+  như programmingedu.io.vn đang làm với lofi". Số đo đã ghi ở trên (lofi trang chủ: 133 animation vô hạn); điều tôi đo
+  thêm là **màn BÀI HỌC lofi lúc đứng yên có 0 animation đang chạy** — lofi "sống" ở trang chủ, còn bài học chỉ chuyển động
+  theo sự kiện. Theme chiêm tinh ở bài học vì vậy có CẢ HAI, nhưng nền sống chỉ 3:
+  · **sự kiện** `tvSlip`: vào màn như một phiếu giấy được đặt xuống (`translateY(20px) rotate(-0.5deg)` → thẳng, 520 ms,
+    `cubic-bezier(.22,1,.36,1)` của bản Góc học, fill `backwards`);
+  · **nền sống** `tvLamp` (quầng đèn thở, 9 s) + `tvStarsA`/`tvStarsB` (hai lớp sao ngược pha, 7 s / 11 s, CHỈ ban đêm).
+  **ĐO THẬT, 390×844 + CPU 4× (nhịp trống bằng `MessageChannel`, không rAF — rAF tự ép khung):** lofi 0 animation ·
+  chiêm tinh ngày **1** (`tvLamp`) · chiêm tinh đêm **3**. Nhịp trống/giây: lofi 2 472 · ngày 3 016 · đêm 3 771 / 2 217 —
+  **trong nhiễu của máy** (hai mẫu cùng chế độ lệch nhau ~70%), nên kết luận trung thực là "không phân biệt được với lofi",
+  KHÔNG phải "nhanh hơn". Dưới `prefers-reduced-motion`: **0 animation chạy**, mọi `animation-name` về `none`.
+  **THIẾT KẾ: tránh hai cái bẫy của chính việc làm nền sống.**
+  · lớp nền z-index ÂM phải nằm TRÊN nền của `.chrome` mà DƯỚI nội dung. Không có `isolation: isolate` ở `.chrome` thì lớp
+    ấy rơi xuống dưới nền opaque của nó (thứ tự vẽ: nền gốc → z-index âm → nền khối trong dòng) và quầng đèn biến mất;
+  · sao đi theo token `--tv-star-display` (ngày `none`, đêm `block`): phần tử `display: none` KHÔNG dựng nên animation
+    không tồn tại — đo được ngày có đúng 1 animation. Nếu chỉ để `opacity: 0` ban ngày thì hai lớp sao vẫn chạy vô ích;
+  · mỗi lớp sao là MỘT phần tử 2×2px mang 14 chấm bằng `box-shadow` ⇒ 14 ngôi sao = 1 animation, không phải 14.
+  **CỔNG `giao-dien-chuyen-dong.test.mjs` (5 ca) — và vì sao không dựa vào `giam-chuyen-dong`:** cổng cũ chỉ đòi tắt keyframe
+  DỊCH CHUYỂN và coi hoạt ảnh chỉ-opacity là vô hại. Đúng với một lần nhấp nháy, SAI với một vòng lặp vô hạn (vẫn chiếm một
+  lớp compositor và một lượt tính style mỗi khung). Cổng mới đòi: ≤ 12 vô hạn (≤ 4 dưới 561px) · chỉ `opacity`/`transform` ·
+  MỌI hoạt ảnh của theme tắt dưới reduced-motion kể cả chỉ-opacity · không `forwards`/`both` (giữ trạng thái cuối đè
+  style nội tuyến của màn) · không longhand `animation-name` (cổng chỉ đọc shorthand) · tệp token công khai không chứa
+  animation (để mọi hoạt ảnh đi qua các cổng quét `src/`). **Hai ca TỰ KIỂM là lời hứa với chủ dự án**: theme phải có chuyển
+  động vào màn và ≥ 3 hoạt ảnh nền — gỡ hết animation để "cho xanh" thì ĐỎ.
+  **CỔNG BẮT LỖI CỦA CHÍNH TÔI ngay lần chạy đầu:** luật "không `var()` trong `animation`" của bản đầu đỏ trên
+  `var(--tv-ease)` ở vị trí easing — hợp lệ, vì tên keyframe vẫn đọc được. Luật quá tay; bỏ. Còn ca "mọi hoạt ảnh phải tìm
+  thấy @keyframes" giữ nguyên chính là thứ phát hiện được tên keyframe nằm trong var().
+  **ABLATE 9 chiều, cả 9 đỏ:** gỡ `tvLamp` (còn 2 < 3) **1** · gỡ chuyển động vào màn **2** · lớp sao B không tắt dưới RM **1** ·
+  keyframe đổi `margin` **1** · fill `both` **1** · longhand `animation-name` **1** · hạ ngân sách tổng xuống 2 **1** · hạ ngân
+  sách điện thoại xuống 2 **1** · khai animation trong tệp token công khai **1**.
+  **SỐ ĐÃ ĐO:** frontend unit **668 → 673 ca / 62 → 63 tệp** · sổ ngưỡng **43 → 45** (hai trần `tran-chuyen-dong-*`, chỉ
+  được HẠ) · `ASSET_VERSION` → `2026-11-12c`.
+  **GIỚI HẠN PHẢI NÓI RA:** (1) chuyển động `tvSlip` chưa xem được trên MỘT MÀN CÓ NỘI DUNG — API bị chặn để không ghi gì
+  lên production nên khung dựng ở trạng thái "đang tải"; tên keyframe, thời lượng và việc tắt dưới RM đã đo, còn "trông
+  thế nào khi lật sang màn thứ hai" thì chưa. (2) Nhiễu của phép đo nhịp trống (±30–70%) lớn hơn khác biệt cần phát hiện;
+  nó chỉ bắt được một lớp nền gây sụt LỚN (như 133 animation của trang chủ), không bắt được +15%. Muốn bắt mức đó phải đo
+  bằng vết DevTools (câu "AI", không phải "BAO LÂU" — xem mục đo hiệu năng) hoặc lặp ≥ 10 lần. (3) Chưa có chuyển động
+  cho thanh tiến độ, phương án, phản hồi, overlay — đó là B4, B5, B8 và dùng phần ngân sách còn lại (hôm nay 3/12).
+
+- **THEME CHIÊM TINH PHỦ TRANG CHỦ — và vì sao nó là lớp KHOÁC, không phải cảnh mới (vòng H1, 12/11/2026).**
+  Chủ dự án hỏi "sao chỉ áp vào kia": theme mới có ở màn bài học và trang khoá, còn trang chủ vẫn dòng chữ
+  "Trang chủ này giữ nguyên". Nguyên nhân đo được: Góc học có bảng token RIÊNG ở `:root` của `scene.css`
+  (`--glass --amber --sakura --ground`…), không dùng một `--ds-*`/`--edu-*` nào, nên lớp ghi đè token của theme
+  không chạm tới. `scene-thien-van.css` đổi kính tím → kính nâu, hổ phách/hồng → đồng, đường kẻ → đồng, cộng một
+  lớp `soft-light` phủ lên TRANH (`#tags::before` — phần tử nằm giữa `#cam` và HUD, nên phủ tranh mà không phủ HUD).
+  **GIỚI HẠN PHẢI NÓI RA:** bản design có phòng quan trắc VẼ RIÊNG (ống kính, cửa sổ ra vũ trụ khoá học); tranh ấy
+  là blob của artifact, không có trong repo. Căn phòng vẫn là căn phòng lofi. Muốn cảnh riêng thì cần minh hoạ.
+  Cổng `giao-dien-trang-chu.test.mjs` (4 ca): đường tới (import + `data-tv-surface` ở host) · mọi selector mở bằng
+  tiền tố theme · mọi `--x` ghi đè phải có ở `:root` scene.css (đổi tên token thì lớp khoác thành code chết, CSS
+  không báo) · tương phản HUD ≥ 7,5 (đo 8,03 ở `--sakura`, một CẬN vì nền đổi theo giờ). Ablate 5 hướng, mỗi hướng
+  1 đỏ. `goc-hoc-khung-cho` đòi host là `<div ref={hostRef} />` đúng chữ: sửa thành "tự đóng, thuộc tính chuỗi thuần
+  được" — tính chất canh là "không có con", ablate host có con → 1 đỏ.
+  **Hai bẫy của chính vòng này:** (1) chú thích CSS chứa `src/**/*.css` có `*/` ở giữa — đóng chú thích sớm, Turbopack
+  báo lỗi cú pháp và máy chủ dev treo ở 4,3 GB; (2) `taskkill //IM node.exe` bị chặn đúng: máy chạy song song nhiều dự án,
+  chỉ tắt đúng PID của mình (`netstat -ano | grep :3000`).
+
+- **THEME CHIÊM TINH Ở /ide, 404, TRANG LỖI — và MONACO KHÔNG ĐỌC CSS (vòng H2, 12/11/2026).** Ba bề mặt dùng token
+  `--edu-*` sẵn có nên chỉ cần `data-tv-surface`. Nhưng `/ide` ban đêm lộ ra: ô mã xám trung tính `#1E1E1E` cạnh khung
+  kết quả nâu `#2A2416`, ban ngày trắng `#FFFFFF` trên vellum `#FBF5E3` — vì `theme={dark ? 'vs-dark' : 'light'}` là
+  chuỗi của Monaco, không phải biến CSS. `lib/monaco-thien-van.ts` định nghĩa hai theme riêng (gọi ở `beforeMount`);
+  nền của chúng là BẢN CHÉP của `--ds-card`, nên `giao-dien-monaco.test.mjs` đòi hai bên bằng nhau (ablate nền đêm
+  về `#1E1E1E` → 1 đỏ) và canh tương phản cú pháp (đo thấp nhất 5,51:1, chuỗi/chú thích ban ngày trên dòng đang đứng;
+  sàn 5,4 — bản đầu tôi đặt 5,8 theo cảm giác và chính số đo bác nó). Ô soạn mã của MÀN BÀI HỌC là `<textarea>`, đi
+  theo token, không cần theme Monaco. **Chưa làm:** trang `/card` (db_design di sản), `/courses/db_design*`, java/htmlcss/
+  `/interface` — mỗi trang phải xem bằng mắt rồi mới khai `data-tv-surface`, nếu không là đổi nửa vời.
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 
@@ -514,9 +7206,22 @@ Hai đường, chọn sai là xoá tiến độ của người đang học:
   npx ts-node scripts/update-lesson-content.ts --codes=P01,P02,P03 --offline   # kiểm gói
   npx ts-node scripts/update-lesson-content.ts --codes=P01,P02,P03             # xem trước
   npx ts-node scripts/update-lesson-content.ts --codes=P01,P02,P03 --apply --backup=bak.json
+  # Nạp CẢ KHOÁ: dùng --all. Dựng chuỗi 172 mã bằng shell là câu lệnh chỉ chạy
+  # được trên bash, mà người nạp dùng PowerShell — đã hỏng hai lần vì chuyện đó.
+  npx ts-node scripts/update-lesson-content.ts --all --apply --backup=bak.json
   ```
 
   Luật chọn/so sánh nằm ở `src/course-admin/lesson-content-update.ts` (có test Jest).
+
+  **Hạn transaction phải NÓI RA — mặc định 5 giây không nạp nổi cả khoá.** Lần đầu nạp 124
+  bài (27/10/2026): 124 câu UPDATE trong một transaction tương tác chạy 5 140 ms trên Neon,
+  Prisma huỷ ở mốc 5 000 ms. Transaction rollback nên DB không hỏng — nhưng file sao lưu ĐÃ
+  ghi xong trước đó, nên nhìn vào thư mục backup thì tưởng đã nạp, và lỗi in ra chỉ là một
+  đối tượng Prisma có `timeout: 5000`, không câu nào nói phải làm gì. Nay
+  `$transaction(..., { timeout: 120_000, maxWait: 20_000 })`. 120 giây là 24× biên so với số
+  đo thật (~5 s): hạn này canh TREO, không canh tốc độ, nên đặt sát số đo là tự tạo lỗi ngẫu
+  nhiên vào ngày DB chậm hơn thường. `maxWait` là thời gian chờ LẤY kết nối từ pool, chuyện
+  khác hẳn.
 
 Sau MỌI lần nạp, vẫn phải chạy `py scripts/pe-v4/sync_curricula.py` — xem bẫy "Hai nguồn
 danh sách bài" ở trên.

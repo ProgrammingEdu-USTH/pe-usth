@@ -1,0 +1,230 @@
+{
+ "lesson_code": "SY11",
+ "sort_order": 114,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY11 · Module và các cách import",
+ "subtitle": "Trung cấp · M5 · 15 phút",
+ "estimated_minutes": 15,
+ "xp_reward": 9,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY11 · Module và các cách import",
+  "subtitle": "Trung cấp · M5 · 15 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY11",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 136-142; Python — Modules"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Lớp vừa dựng đã giữ được dữ liệu hợp lệ, giờ đến chỗ đặt code của quán. Bạn dùng công thức làm tròn xuống ở nhiều báo cáo. Thay vì chép lại hàm, đặt nó trong một file .py rồi import. Trước hết xem namespace của module có sẵn:"
+     },
+     {
+      "type": "code",
+      "code": "import math\nprint(math.floor(8.79 * 10) / 10)\nfrom math import floor\nprint(floor(8.79 * 10) / 10)",
+      "expected": "8.7\n8.7",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`import math` giữ tên module, nên gọi math.floor. `from math import floor` đưa tên floor vào module hiện tại. `import ... as ...` đặt bí danh. Cả ba cách cùng dùng một công cụ nhưng tạo các tên khác nhau ở nơi gọi."
+     },
+     {
+      "type": "code",
+      "code": "import math as mt\nfrom math import floor as down\nprint(mt.pi > 3)\nprint(down(-1.2))",
+      "expected": "True\n-2",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Khi tự tạo module, file pricing.py có thể chứa các hàm tính tiền của quán. Import dùng tên pricing, không viết pricing.py hay đường dẫn hệ điều hành. Ví dụ dưới tạo một module nhỏ trong thư mục tạm và nạp đúng file đó để minh họa mà không sửa dự án của bạn:"
+     },
+     {
+      "type": "code",
+      "code": "import tempfile, importlib.util\nfrom pathlib import Path\nwith tempfile.TemporaryDirectory() as folder:\n    path = Path(folder) / \"pricing.py\"\n    path.write_text(\"def has_discount(cups): return cups >= 5\\n\", encoding=\"utf8\")\n    spec = importlib.util.spec_from_file_location(\"pricing_demo\", path)\n    module = importlib.util.module_from_spec(spec)\n    spec.loader.exec_module(module)\n    print(module.has_discount(6))",
+      "expected": "True",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Trong dự án thông thường, đặt pricing.py bên cạnh main.py rồi viết `import pricing`; không cần importlib như ví dụ tự chứa. Module giúp nhiều file cùng dùng một hàm; sửa công thức ở một nơi sẽ dễ bảo trì hơn chép nhiều bản. Module còn có thể chứa class và hằng số, chẳng hạn Item và BULK_MIN. `from math import *` đưa nhiều tên vào nơi gọi và có thể che tên cũ, nên ưu tiên import rõ tên."
+     },
+     {
+      "type": "paragraph",
+      "text": "Trang 137 còn minh họa thành phần dùng lại trong hệ thống: .ko là module của hạt nhân (kernel) Linux, .so là thư viện dùng chung (shared library) thường gặp ở UNIX và .dll là thư viện động trên Windows. Đó là liên hệ về ý tưởng chia thành phần; Python module .py và package dùng import không có cùng định dạng hay API với các file nhị phân này."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "PY18 · Ngoại lệ và dữ liệu không hợp lệ"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Sau from math import floor as down, muốn làm tròn xuống 3.8 thì gọi gì?",
+     "options": [
+      {
+       "text": "floor.py(3.8)",
+       "detail": "Tên module/hàm Python không được gọi kèm đuôi file theo cách đó."
+      },
+      {
+       "text": "down(3.8)",
+       "detail": "Bí danh down trỏ tới hàm floor đã import.",
+       "correct": true
+      },
+      {
+       "text": "math.down(3.8)",
+       "detail": "Lời import này không tạo thuộc tính math.down."
+      }
+     ],
+     "explanation": "Bí danh down trỏ tới hàm floor đã import."
+    },
+    {
+     "question": "Sau import math, cách gọi floor nào đúng?",
+     "options": [
+      {
+       "text": "math.floor(8.9)",
+       "detail": "import math đưa tên module math vào nơi gọi; hàm nằm trong module đó.",
+       "correct": true
+      },
+      {
+       "text": "math(8.9).floor",
+       "detail": "Chưa đúng. import math đưa tên module math vào nơi gọi; hàm nằm trong module đó."
+      },
+      {
+       "text": "floor.math(8.9)",
+       "detail": "Chưa đúng. import math đưa tên module math vào nơi gọi; hàm nằm trong module đó."
+      }
+     ],
+     "explanation": "import math đưa tên module math vào nơi gọi; hàm nằm trong module đó."
+    },
+    {
+     "question": "Sau from math import floor, tên nào có sẵn để gọi trực tiếp?",
+     "options": [
+      {
+       "text": "math luôn tự có sẵn",
+       "detail": "Chưa đúng. Câu import này đưa riêng tên floor vào namespace hiện tại."
+      },
+      {
+       "text": "math.py",
+       "detail": "Chưa đúng. Câu import này đưa riêng tên floor vào namespace hiện tại."
+      },
+      {
+       "text": "floor",
+       "detail": "Câu import này đưa riêng tên floor vào namespace hiện tại.",
+       "correct": true
+      }
+     ],
+     "explanation": "Câu import này đưa riêng tên floor vào namespace hiện tại."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "import math và from math import floor khác tên gọi thế nào?",
+     "answer": "Cách đầu gọi math.floor; cách sau gọi floor trực tiếp."
+    },
+    {
+     "prompt": "np trong import numpy as np có phải keyword không?",
+     "answer": "Không. Đó là alias do người viết chọn; np là quy ước phổ biến cho NumPy."
+    },
+    {
+     "prompt": "Tạo pricing.py có has_discount và main.py dùng hàm đó.",
+     "answer": "pricing.py: def has_discount(cups): return cups >= 5. main.py: import pricing; print(pricing.has_discount(6)). Chạy python main.py từ thư mục dự án. Kiểm không còn bản công thức sao chép trong main."
+    },
+    {
+     "prompt": "Module riêng có thể chứa gì và giúp bảo trì thế nào? Viết import pricing.py hay import pricing? from math import * có thể gây vấn đề gì?",
+     "answer": "Một file .py có thể chứa hàm, class và hằng để dùng lại/chia sẻ. Nhiều nơi import cùng công thức nên chỉ sửa một nơi. Viết import pricing, không ghi .py hay đường dẫn. Import * có thể che tên đang có và làm khó biết hàm đến từ đâu."
+    },
+    {
+     "prompt": "import numpy as np và from math import floor as down đưa các tên nào vào nơi gọi? __init__.py có giống __init__(self) không?",
+     "answer": "Tên np trỏ module NumPy; tên down trỏ floor. __init__.py là file khởi tạo regular package; __init__(self) là method khởi tạo instance, không phải hai cách viết cùng việc."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận dict có price (giá một cốc, số thực) và cups (số cốc). Quán tính tiền làm tròn XUỐNG tới 1 chữ số thập phân bằng floor của module math, như ở màn đọc. Trả tổng tiền đã làm tròn xuống.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'price': 8.79, 'cups': 1}"
+     },
+     {
+      "label": "trả về",
+      "value": "8.7"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import math\n\ndef solve(data):\n    tong = data[\"price\"] * data[\"cups\"]\n    return math.floor(tong * 10) / 10\n",
+   "tests": [
+    {
+     "name": "Một cốc giá 8.79",
+     "input": {
+      "price": 8.79,
+      "cups": 1
+     },
+     "expected": 8.7
+    },
+    {
+     "name": "Ba cốc, tổng có phần trăm lẻ",
+     "input": {
+      "price": 1.25,
+      "cups": 3
+     },
+     "expected": 3.7
+    },
+    {
+     "name": "Tổng vừa tròn",
+     "input": {
+      "price": 2.5,
+      "cups": 4
+     },
+     "expected": 10.0
+    },
+    {
+     "name": "Làm tròn thường sẽ lên 10 — làm tròn xuống thì không",
+     "input": {
+      "price": 3.33,
+      "cups": 3
+     },
+     "expected": 9.9
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "math.floor đưa một số thực về số nguyên bằng cách làm tròn XUỐNG; muốn giữ 1 chữ số thập phân thì nhân 10 trước, chia 10 sau."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Nhớ import math (hoặc from math import floor) trước khi gọi — thiếu dòng import là NameError."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

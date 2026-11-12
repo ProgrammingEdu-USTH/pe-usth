@@ -1,0 +1,404 @@
+{
+ "lesson_code": "VZ08",
+ "sort_order": 81,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ08 · Heatmap: màu, ma trận và thang đo chung",
+ "subtitle": "Trung cấp · M4 · 19 phút",
+ "estimated_minutes": 19,
+ "xp_reward": 11,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "VZ08 · Heatmap: màu, ma trận và thang đo chung",
+  "subtitle": "Trung cấp · M4 · 19 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#VZ08",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 329; Heatmap: màu, ma trận và thang đo chung"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Hai nhóm so được rồi, nhưng bảng của quán có cả quầy lẫn khung giờ. Một bảng đếm có hai cửa hàng và ba khung giờ. Heatmap biến mỗi ô thành một màu để bạn tìm giờ đông khách. imshow nhận array hai chiều; hàng và cột vẫn cần nhãn để biết ô màu đang nói về cửa hàng và giờ nào."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\ncounts = np.array([[2, 5, 3], [4, 1, 6]])\nim = ax.imshow(counts, cmap=\"viridis\", vmin=0, vmax=6, aspect=\"auto\")\nax.set_xticks([0, 1, 2], [\"Morning\", \"Noon\", \"Evening\"])\nax.set_yticks([0, 1], [\"Store A\", \"Store B\"])\nax.set_title(\"Orders by store and time\")\nfig.colorbar(im, ax=ax, label=\"Orders\")\nprint(counts.shape)\nplt.show()",
+      "expected": "(2, 3)",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ08-1.png",
+      "alt": "Bản đồ nhiệt, tiêu đề \"Orders by store and time\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Colorbar giải thích con số ứng với màu. Nếu hai heatmap dùng hai thang màu tự co giãn, cùng một màu có thể đại diện cho hai giá trị khác nhau. Khi so sánh, giữ chung vmin, vmax và đơn vị. Các ô ít có thể ghi thêm số để người đọc không phải ước lượng màu. cmap chọn quy tắc đổi số thành màu, còn vmin/vmax đặt hai đầu thang số. orientation=\"horizontal\" đặt colorbar nằm ngang; \"vertical\" đặt nó đứng dọc. Muốn giữ các ô như các khối màu rõ, `imshow(..., interpolation=\"nearest\")` tránh làm mượt giữa ô; màu trung gian do nội suy không phải số đo mới."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\ncounts = np.array([[2, 5], [4, 1]])\nim = ax.imshow(counts, cmap=\"Blues\", vmin=0, vmax=6)\nfor (row, col), value in np.ndenumerate(counts):\n    ax.text(col, row, str(value), ha=\"center\", va=\"center\", color=\"black\")\nax.set(xticks=[0, 1], xticklabels=[\"Morning\", \"Noon\"], yticks=[0, 1], yticklabels=[\"A\", \"B\"], title=\"Read the count in each cell\")\nfig.colorbar(im, ax=ax, label=\"Orders\")\nprint(int(counts.sum()))\nplt.show()",
+      "expected": "12",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "count",
+        "line": 7,
+        "prompt": "Dòng 7 chạy bao nhiêu lần?",
+        "answer": "4"
+       },
+       "rows": [
+        {
+         "line": 1
+        },
+        {
+         "line": 2
+        },
+        {
+         "line": 3
+        },
+        {
+         "line": 4,
+         "set": [
+          [
+           "counts",
+           "ndarray: array([[2, 5], [4, 1]])"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "set": [
+          [
+           "im",
+           "AxesImage(_extent=[-0.5, 1.5, 1.5, -0.5], _stale=True, stale_callback=<…"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "set": [
+          [
+           "col",
+           "0"
+          ],
+          [
+           "row",
+           "0"
+          ],
+          [
+           "value",
+           "int64: np.int64(2)"
+          ]
+         ]
+        },
+        {
+         "line": 7
+        },
+        {
+         "line": 6,
+         "set": [
+          [
+           "col",
+           "1"
+          ],
+          [
+           "value",
+           "int64: np.int64(5)"
+          ]
+         ]
+        },
+        {
+         "line": 7
+        },
+        {
+         "line": 6,
+         "set": [
+          [
+           "col",
+           "0"
+          ],
+          [
+           "row",
+           "1"
+          ],
+          [
+           "value",
+           "int64: np.int64(4)"
+          ]
+         ]
+        },
+        {
+         "line": 7
+        },
+        {
+         "line": 6,
+         "set": [
+          [
+           "col",
+           "1"
+          ],
+          [
+           "value",
+           "int64: np.int64(1)"
+          ]
+         ]
+        },
+        {
+         "line": 7
+        },
+        {
+         "line": 6
+        },
+        {
+         "line": 6,
+         "exc": "StopIteration:"
+        },
+        {
+         "line": 8
+        },
+        {
+         "line": 9
+        },
+        {
+         "line": 10,
+         "out": "12"
+        },
+        {
+         "line": 11
+        }
+       ]
+      }
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ08-2.png",
+      "alt": "Bản đồ nhiệt, tiêu đề \"Read the count in each cell\"."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\nchange = np.array([[-2, 1], [0, 3]])\nim = ax.imshow(change, cmap=\"RdBu\", vmin=-3, vmax=3)\nax.set(xticks=[0, 1], xticklabels=[\"Mon\", \"Tue\"], yticks=[0, 1], yticklabels=[\"A\", \"B\"], title=\"Change relative to last week\")\nfig.colorbar(im, ax=ax, label=\"Change (orders)\", orientation=\"horizontal\")\nprint(int(change.min()), int(change.max()))\nplt.show()",
+      "expected": "-2 3",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ08-3.png",
+      "alt": "Bản đồ nhiệt, tiêu đề \"Change relative to last week\"."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "VZ02 · Figure, Axes và biểu đồ đầu tiên, NP07 · Đọc shape, ndim và size"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Hai heatmap tự chọn vmax khác nhau nhưng cùng có ô xanh đậm. Có chắc cùng số không?",
+     "options": [
+      {
+       "text": "Chỉ cần cùng số hàng",
+       "detail": "Kích thước ma trận không quyết định thang màu."
+      },
+      {
+       "text": "Không, cần đọc thang màu chung",
+       "detail": "Đúng: màu đậm nhất có thể gắn với hai cực đại khác nhau.",
+       "correct": true
+      },
+      {
+       "text": "Có, cùng màu luôn cùng số",
+       "detail": "Chỉ đúng khi dùng cùng phép ánh xạ màu và đơn vị."
+      }
+     ],
+     "explanation": "vmin/vmax cùng đơn vị giúp màu mang cùng ý nghĩa."
+    },
+    {
+     "question": "Heatmap 2 hàng và 3 cột có bao nhiêu ô dữ liệu?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\ncounts = np.array([[2, 5, 3], [4, 1, 6]])\nim = ax.imshow(counts, cmap=\"viridis\", vmin=0, vmax=6, aspect=\"auto\")\nax.set_xticks([0, 1, 2], [\"Morning\", \"Noon\", \"Evening\"])\nax.set_yticks([0, 1], [\"Store A\", \"Store B\"])\nax.set_title(\"Orders by store and time\")\nfig.colorbar(im, ax=ax, label=\"Orders\")\nprint(counts.shape)\nplt.show()",
+     "options": [
+      {
+       "text": "Có 7 ô vì tính cả colorbar.",
+       "detail": "Colorbar giải thích màu, không thêm quan sát vào ma trận."
+      },
+      {
+       "text": "Có 5 ô vì cộng hai kích thước.",
+       "detail": "Cộng số hàng và cột không đếm được số cặp ô."
+      },
+      {
+       "text": "6 ô; colorbar và nhãn không phải ô dữ liệu.",
+       "detail": "6 ô; colorbar và nhãn không phải ô dữ liệu.",
+       "correct": true
+      }
+     ],
+     "explanation": "6 ô; colorbar và nhãn không phải ô dữ liệu."
+    },
+    {
+     "question": "Hai cửa hàng dùng cùng màu xanh đậm có chắc cùng số đơn không?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\ncounts = np.array([[2, 5], [4, 1]])\nim = ax.imshow(counts, cmap=\"Blues\", vmin=0, vmax=6)\nfor (row, col), value in np.ndenumerate(counts):\n    ax.text(col, row, str(value), ha=\"center\", va=\"center\", color=\"black\")\nax.set(xticks=[0, 1], xticklabels=[\"Morning\", \"Noon\"], yticks=[0, 1], yticklabels=[\"A\", \"B\"], title=\"Read the count in each cell\")\nfig.colorbar(im, ax=ax, label=\"Orders\")\nprint(int(counts.sum()))\nplt.show()",
+     "options": [
+      {
+       "text": "Chỉ khi cùng thang màu và cùng đơn vị. Cần đọc vmin, vmax hoặc colorbar.",
+       "detail": "Chỉ khi cùng thang màu và cùng đơn vị. Cần đọc vmin, vmax hoặc colorbar.",
+       "correct": true
+      },
+      {
+       "text": "Có; đơn vị dữ liệu không ảnh hưởng cách đọc màu.",
+       "detail": "Cùng màu nhưng khác đơn vị cũng không cho cùng lượng."
+      },
+      {
+       "text": "Có; màu giống nhau luôn mang cùng một con số.",
+       "detail": "Một màu có thể ứng với hai số khác nhau nếu thang tự giãn khác nhau."
+      }
+     ],
+     "explanation": "Chỉ khi cùng thang màu và cùng đơn vị. Cần đọc vmin, vmax hoặc colorbar."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Heatmap 2 hàng và 3 cột có bao nhiêu ô dữ liệu?",
+     "answer": "6 ô; colorbar và nhãn không phải ô dữ liệu."
+    },
+    {
+     "prompt": "Hai cửa hàng dùng cùng màu xanh đậm có chắc cùng số đơn không?",
+     "answer": "Chỉ khi cùng thang màu và cùng đơn vị. Cần đọc vmin, vmax hoặc colorbar."
+    },
+    {
+     "prompt": "Khi biểu diễn chênh lệch âm và dương, chọn mốc màu nào?",
+     "answer": "Chọn mốc 0 với thang phân kỳ hai phía; ví dụ vmin=-3, vmax=3."
+    },
+    {
+     "prompt": "Hai heatmap cần chung thang 0–10 và colorbar nằm ngang. Điền các tham số; muốn thấy rõ từng ô thay vì làm mượt thì chọn gì?",
+     "answer": "im = ax.imshow(a, cmap=\"viridis\", vmin=0, vmax=10, interpolation=\"nearest\"); fig.colorbar(im, ax=ax, orientation=\"horizontal\"). Giữ cùng cmap/vmin/vmax ở cả hai hình. Nội suy chỉ đổi cách hiển thị, không tạo số đo ở giữa các ô."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.z là ma trận chữ nhật, data.maximum >0. Tạo imshow với vmin=0,vmax=maximum,interpolation=\"nearest\"; thêm colorbar nằm ngang. Trả shape từ image.get_array().shape, clim từ image.get_clim(), và orientation của colorbar. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'z': [[1, 2, 3], [4, 5, 6]], 'maximum': 10}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'shape': [2, 3], 'clim': [0.0, 10.0], 'orientation': 'horizontal'}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     fig, ax = plt.subplots()\n     image = ax.imshow(data['z'],vmin=0,vmax=data['maximum'],interpolation='nearest')\n     colorbar = fig.colorbar(image,ax=ax,orientation='horizontal')\n     result = {'shape':list(image.get_array().shape),'clim':list(image.get_clim()),'orientation':colorbar.orientation}\n     plt.close(fig)\n     return result\n",
+   "tests": [
+    {
+     "name": "bảng 2x3",
+     "input": {
+      "z": [
+       [
+        1,
+        2,
+        3
+       ],
+       [
+        4,
+        5,
+        6
+       ]
+      ],
+      "maximum": 10
+     },
+     "expected": {
+      "shape": [
+       2,
+       3
+      ],
+      "clim": [
+       0.0,
+       10.0
+      ],
+      "orientation": "horizontal"
+     }
+    },
+    {
+     "name": "một ô",
+     "input": {
+      "z": [
+       [
+        0
+       ]
+      ],
+      "maximum": 4
+     },
+     "expected": {
+      "shape": [
+       1,
+       1
+      ],
+      "clim": [
+       0.0,
+       4.0
+      ],
+      "orientation": "horizontal"
+     }
+    },
+    {
+     "name": "bảng khác cực đại",
+     "input": {
+      "z": [
+       [
+        8,
+        2
+       ]
+      ],
+      "maximum": 20
+     },
+     "expected": {
+      "shape": [
+       1,
+       2
+      ],
+      "clim": [
+       0.0,
+       20.0
+      ],
+      "orientation": "horizontal"
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cần tránh làm mượt màu giữa những ô dữ liệu rời rạc."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Giữ cùng thang màu khi so các ma trận."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 1,
+  "bo": 2,
+  "loi": []
+ }
+}

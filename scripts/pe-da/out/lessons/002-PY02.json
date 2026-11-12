@@ -1,0 +1,185 @@
+{
+ "lesson_code": "PY02",
+ "sort_order": 2,
+ "module": "M1 · Python nền tảng",
+ "title": "PY02 · Chọn đúng Python và tách môi trường học",
+ "subtitle": "Cơ bản · M1 · 16 phút",
+ "estimated_minutes": 16,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PY02 · Chọn đúng Python và tách môi trường học",
+  "subtitle": "Cơ bản · M1 · 16 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PY02",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 19-22; Python — Tutorial"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Ở bài trước bạn vừa tính doanh thu ngày đầu bằng mấy dòng code. Sổ sách của quán sẽ lớn dần, nên trước khi viết thêm, hãy dọn cho nó một góc riêng. Giả sử bạn có hai dự án: sổ bán hàng của quán và một bài tập cũ. Nếu cài mọi thứ vào cùng một Python, một lần nâng cấp cho quán có thể làm bài tập cũ đổi kết quả. Trước hết, hãy biết mình đang chạy Python nào:"
+     },
+     {
+      "type": "code",
+      "code": "import sys\nprint(sys.version_info.major)",
+      "expected": "3",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Số 3 cho biết đang dùng Python 3. `sys` là một module (file Python nạp được vào file khác) có sẵn của Python, và `import sys` cho bạn đọc thông tin môi trường. Khi cần xem đường dẫn Python đang chạy, gõ `print(sys.executable)`. Đường dẫn trên máy bạn sẽ khác máy người khác."
+     },
+     {
+      "type": "paragraph",
+      "text": "Môi trường ảo giữ thư viện của từng dự án riêng nhau. Một lần cài cho dự án khác sẽ không làm đổi sổ của quán. Mở terminal (cửa sổ bạn gõ câu lệnh vào) trong thư mục dự án rồi chạy lệnh sau. Đây là lệnh terminal, không phải code để dán vào một ô code:"
+     },
+     {
+      "type": "terminal",
+      "code": "python -m venv .venv",
+      "expected": "Nếu thành công, lệnh thường không in thông báo. Trong thư mục dự án xuất hiện .venv, có file pyvenv.cfg và trình thông dịch riêng."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Tên `.venv` là thư mục bạn chọn để chứa môi trường của quán. Bước này chỉ tạo môi trường, chưa cài NumPy (thư viện tính toán trên cả dãy số một lượt). Bạn sẽ cần tới nó khi sổ bán hàng dài hàng nghìn dòng. Trên Windows, kiểm tra `pip` của môi trường vừa tạo bằng:"
+     },
+     {
+      "type": "terminal",
+      "code": ".venv\\Scripts\\python -m pip --version",
+      "expected": "Một dòng bắt đầu bằng pip, kèm phiên bản và đường dẫn thư viện bên trong .venv. Số phiên bản thay đổi tùy máy."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Trên Linux/macOS, lệnh tương ứng là `.venv/bin/python -m pip --version`. Gọi `pip` qua đúng Python giúp bạn không cài nhầm thư viện sang môi trường khác. Khi tới bài NumPy, cài bằng `.venv\\Scripts\\python -m pip install numpy` trên Windows hoặc `.venv/bin/python -m pip install numpy` trên Linux/macOS. `pip` cài gói (package), tức một tập module nạp được như một đơn vị, thường lấy từ kho PyPI. Nó không tự đổi phiên bản Python."
+     },
+     {
+      "type": "paragraph",
+      "text": "`sys` và `venv` thuộc thư viện chuẩn nên đã có sẵn cùng Python, còn NumPy là gói bên ngoài phải cài thêm. Quanh việc này còn vài công cụ khác mà bạn sẽ gặp trong tài liệu. `virtualenv` cũng tạo môi trường; `pyenv` chủ yếu giúp quản lý các phiên bản Python. `conda` quản lý cả môi trường lẫn gói, trong đó Miniconda gọn hơn Anaconda vốn kèm sẵn nhiều gói."
+     },
+     {
+      "type": "paragraph",
+      "text": "Sơ đồ trong slide (trang trình bày của bài giảng gốc) còn nhắc pipenv và Poetry để quản lý dự án và các phụ thuộc. Nó cũng nhắc `setup.py` trong cách đóng gói truyền thống. Trước mắt bạn chỉ cần biết tạo một môi trường và biết Python nào sẽ chạy bài. Khi gửi dự án cho người khác, ghi lại các phiên bản thư viện để họ dựng lại đúng môi trường của bạn."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PY01 · Chạy một phép tính và đọc kết quả"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Bạn đã tạo .venv. Lệnh nào kiểm pip của đúng môi trường đó trên Windows?",
+     "options": [
+      {
+       "text": "pip --version",
+       "detail": "Lệnh này có thể tìm pip ở nơi khác trên PATH."
+      },
+      {
+       "text": ".venv\\Scripts\\python -m pip --version",
+       "detail": "Đúng. Lệnh dùng chính trình thông dịch trong .venv.",
+       "correct": true
+      },
+      {
+       "text": "python -m venv pip",
+       "detail": "Lệnh này tạo một thư mục môi trường tên pip; nó không kiểm pip trong .venv."
+      }
+     ],
+     "explanation": "Đúng. Lệnh dùng chính trình thông dịch trong .venv."
+    },
+    {
+     "question": "Lệnh nào tạo môi trường .venv cho dự án?",
+     "options": [
+      {
+       "text": "python -m venv .venv",
+       "detail": "venv tạo môi trường; pip dùng để quản lý các gói bên trong môi trường.",
+       "correct": true
+      },
+      {
+       "text": "python -m pip .venv",
+       "detail": "pip không phải module tạo venv."
+      },
+      {
+       "text": "python .venv",
+       "detail": "Lệnh này cố chạy .venv như một script."
+      }
+     ],
+     "explanation": "venv tạo môi trường; pip dùng để quản lý các gói bên trong môi trường."
+    },
+    {
+     "question": "Trên Windows, cách nào kiểm pip thuộc chính .venv?",
+     "options": [
+      {
+       "text": "python -m venv --pip-version",
+       "detail": "Đây không phải cách xem pip của môi trường đã tạo."
+      },
+      {
+       "text": "pip --version luôn thuộc .venv",
+       "detail": "Lệnh pip trong PATH có thể thuộc Python khác."
+      },
+      {
+       "text": ".venv\\Scripts\\python -m pip --version",
+       "detail": "Dùng đường dẫn interpreter của .venv rồi gọi module pip.",
+       "correct": true
+      }
+     ],
+     "explanation": "Dùng đường dẫn interpreter của .venv rồi gọi module pip."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "pip và pyenv quản lý cùng một việc không?",
+     "answer": "Không. pip quản lý package trong môi trường Python; pyenv giúp chọn/cài các phiên bản Python."
+    },
+    {
+     "prompt": "Viết lệnh tạo môi trường .venv và kiểm tra pip của nó trên Windows.",
+     "answer": "python -m venv .venv; sau đó chạy .venv\\Scripts\\python -m pip --version. Đây là hai lệnh riêng."
+    },
+    {
+     "prompt": "Vì sao hai dự án nên có môi trường riêng?",
+     "answer": "Để phụ thuộc của mỗi dự án không bị thay bởi việc cài hoặc nâng cấp package cho dự án khác. Kiểm tra interpreter thực tế và ghi phiên bản khi bàn giao."
+    },
+    {
+     "prompt": "Khóa học dùng Python 2 hay Python 3? Vì sao không bắt đầu dự án mới bằng Python 2?",
+     "answer": "Dùng Python 3. Python 2 đã ngừng được hỗ trợ nên không còn là lựa chọn phù hợp để bắt đầu dự án mới."
+    },
+    {
+     "prompt": "Bạn muốn cài NumPy từ PyPI và ghi phụ thuộc của dự án. pip, PyPI, pipenv/Poetry và setup.py có vai trò gì?",
+     "answer": "PyPI là kho phân phối package; pip là công cụ cài package vào môi trường Python đã chọn. pipenv và Poetry giúp quản lý môi trường hoặc phụ thuộc dự án. setup.py là file cấu hình trong cách đóng gói Python truyền thống, không phải một môi trường ảo."
+    },
+    {
+     "prompt": "Conda khác pyenv ở đâu? Nếu muốn bắt đầu với ít package được cài sẵn, bạn chọn Miniconda hay Anaconda?",
+     "answer": "pyenv chủ yếu quản lý các phiên bản Python. Conda quản lý môi trường và package, kể cả một số phụ thuộc ngoài Python. Miniconda là bản khởi đầu gọn; Anaconda cài sẵn nhiều package hơn."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Chạy thử",
+    "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào."
+   },
+   "starterCode": "import sys\nprint(sys.version_info.major)\n"
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "khong co",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

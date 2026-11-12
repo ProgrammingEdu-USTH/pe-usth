@@ -1,0 +1,222 @@
+{
+ "lesson_code": "SY08",
+ "sort_order": 111,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY08 · Đa kế thừa: method được tìm ở đâu?",
+ "subtitle": "Trung cấp · M5 · 13 phút",
+ "estimated_minutes": 13,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY08 · Đa kế thừa: method được tìm ở đâu?",
+  "subtitle": "Trung cấp · M5 · 13 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY08",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 123-124, 126-127; Python — super"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Quán có một lớp tạo báo cáo doanh thu và một phần mở rộng thêm tiền tố. Đa kế thừa ghép hành vi từ nhiều lớp, nhưng cần biết thứ tự tìm method:"
+     },
+     {
+      "type": "code",
+      "code": "class A:\n    def label(self): return \"A\"\nclass B:\n    def label(self): return \"B\"\nclass C(A, B): pass\nprint(C().label())\nprint([x.__name__ for x in C.__mro__])",
+      "expected": "A\n['C', 'A', 'B', 'object']",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`__mro__` cho biết thứ tự tìm method, viết đầy đủ là Method Resolution Order (MRO). Trong ví dụ, Python tìm label ở C rồi A trước B. Đổi thứ tự lớp cha có thể đổi kết quả; đừng coi super là cách gọi cố định một lớp cha bất kỳ."
+     },
+     {
+      "type": "code",
+      "code": "class Report:\n    def render(self): return \"doanh thu\"\nclass UpperMixin:\n    def render(self): return super().render().upper()\nclass LoudReport(UpperMixin, Report): pass\nprint(LoudReport().render())",
+      "expected": "DOANH THU",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "UpperMixin gọi method tiếp theo theo MRO rồi đổi kết quả thành chữ hoa. Nhờ super, phần mở rộng phối hợp được với Report mà không cần gọi đích danh Report.render. Mixin nên đảm nhiệm một phần hành vi nhỏ; nếu nhiều lớp cùng sửa một trạng thái, cần kiểm kỹ thứ tự gọi."
+     },
+     {
+      "type": "code",
+      "code": "class A:\n    def label(self): return \"A\"\nclass B:\n    def label(self): return \"B\"\nclass C(B, A): pass\nprint(C().label())",
+      "expected": "B",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "Khi thứ tự kế thừa khó giải thích hoặc hai lớp cùng quản lý một trạng thái, để một object chứa hoặc sử dụng object khác, gọi là composition, có thể dễ đọc hơn. Đa kế thừa được hỗ trợ nhưng không cần dùng cho mọi báo cáo của quán."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "SY07 · Kế thừa, override và super"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "A và B đều có label, C(B, A) không ghi đè label. Python tìm thấy nhãn ở đâu trước?",
+     "options": [
+      {
+       "text": "A vì đứng đầu bảng chữ cái",
+       "detail": "Python không chọn method theo tên chữ cái."
+      },
+      {
+       "text": "B",
+       "detail": "MRO của cấu trúc đơn giản này đặt B trước A.",
+       "correct": true
+      },
+      {
+       "text": "Chạy cả A và B rồi nối lại",
+       "detail": "Một lời gọi không tự gọi mọi lớp cha."
+      }
+     ],
+     "explanation": "MRO của cấu trúc đơn giản này đặt B trước A."
+    },
+    {
+     "question": "A và B đều có label. C(A,B) không override label sẽ tìm lớp nào trước?",
+     "options": [
+      {
+       "text": "A",
+       "detail": "Trong ví dụ kế thừa đơn giản này, MRO tìm C rồi A trước B.",
+       "correct": true
+      },
+      {
+       "text": "Ngẫu nhiên giữa A và B",
+       "detail": "Chưa đúng. Trong ví dụ kế thừa đơn giản này, MRO tìm C rồi A trước B."
+      },
+      {
+       "text": "B",
+       "detail": "Chưa đúng. Trong ví dụ kế thừa đơn giản này, MRO tìm C rồi A trước B."
+      }
+     ],
+     "explanation": "Trong ví dụ kế thừa đơn giản này, MRO tìm C rồi A trước B."
+    },
+    {
+     "question": "Để xem chính xác thứ tự tìm method của class C, dùng gì?",
+     "options": [
+      {
+       "text": "C.__dict__[\"random\"]",
+       "detail": "Chưa đúng. __mro__ chứa các class theo thứ tự tra cứu method."
+      },
+      {
+       "text": "C.__name__ để suy đoán",
+       "detail": "Chưa đúng. __mro__ chứa các class theo thứ tự tra cứu method."
+      },
+      {
+       "text": "C.__mro__",
+       "detail": "__mro__ chứa các class theo thứ tự tra cứu method.",
+       "correct": true
+      }
+     ],
+     "explanation": "__mro__ chứa các class theo thứ tự tra cứu method."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "C(A, B) và C(B, A) có luôn cùng hành vi không?",
+     "answer": "Không. Với method label trùng tên trong ví dụ, thứ tự lớp cha quyết định nơi tìm thấy trước."
+    },
+    {
+     "prompt": "Xem MRO của một class bằng gì?",
+     "answer": "ClassName.__mro__ hoặc ClassName.mro()."
+    },
+    {
+     "prompt": "Thêm PrefixMixin đặt \"DA: \" trước kết quả render của Report.",
+     "answer": "class PrefixMixin: def render(self): return \"DA: \" + super().render(). Tạo class PrefixedReport(PrefixMixin, Report). Thử đổi thứ tự hai lớp và giải thích vì sao mixin có thể không được gọi."
+    },
+    {
+     "prompt": "LoudReport(UpperMixin,Report) cần gọi cả hai render. Vì sao super trong UpperMixin đi tới Report thay vì một lớp cha cố định?",
+     "answer": "super tiếp tục sau UpperMixin trong MRO của instance LoudReport. Nhờ thứ tự này, Report.render tạo sales rồi mixin đổi thành SALES. Đổi thứ tự lớp cha có thể bỏ qua mixin hoặc làm lời gọi khác đi."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Tạo Report(content) trả content qua render và UpperMixin.render() đổi kết quả super thành chữ hoa. Tạo LoudReport(UpperMixin, Report). solve(data) nhận list chuỗi, trả các nội dung viết hoa qua LoudReport.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "['daily sales']"
+     },
+     {
+      "label": "trả về",
+      "value": "['DAILY SALES']"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "class Report:\n    def __init__(self, content): self.content = content\n    def render(self): return self.content\nclass UpperMixin:\n    def render(self): return super().render().upper()\nclass LoudReport(UpperMixin, Report): pass\ndef solve(data): return [LoudReport(s).render() for s in data]\n",
+   "tests": [
+    {
+     "name": "chữ thường",
+     "input": [
+      "daily sales"
+     ],
+     "expected": [
+      "DAILY SALES"
+     ]
+    },
+    {
+     "name": "nhiều mẫu",
+     "input": [
+      "a1",
+      "MiXeD"
+     ],
+     "expected": [
+      "A1",
+      "MIXED"
+     ]
+    },
+    {
+     "name": "rỗng",
+     "input": [],
+     "expected": []
+    },
+    {
+     "name": "chữ có dấu cũng phải thành chữ hoa",
+     "input": [
+      "3 đơn"
+     ],
+     "expected": [
+      "3 ĐƠN"
+     ]
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

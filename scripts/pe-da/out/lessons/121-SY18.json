@@ -1,0 +1,250 @@
+{
+ "lesson_code": "SY18",
+ "sort_order": 121,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY18 · Đường dẫn, cây thư mục và symlink",
+ "subtitle": "Trung cấp · M5 · 21 phút",
+ "estimated_minutes": 21,
+ "xp_reward": 13,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY18 · Đường dẫn, cây thư mục và symlink",
+  "subtitle": "Trung cấp · M5 · 21 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY18",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 153, 184-188, 328; Python — os; Python — pathlib"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Dữ liệu có thể nằm trong nhiều thư mục con. Bạn muốn liệt kê tất cả file .txt mà không nhầm tên thư mục là dữ liệu:"
+     },
+     {
+      "type": "code",
+      "code": "from pathlib import Path\nimport tempfile, os\nwith tempfile.TemporaryDirectory() as folder:\n    root = Path(folder)\n    (root / \"sub\").mkdir()\n    (root / \"a.txt\").write_text(\"A\", encoding=\"utf8\")\n    (root / \"sub/b.txt\").write_text(\"B\", encoding=\"utf8\")\n    with os.scandir(root) as entries:\n        print(sorted((e.name, e.is_dir()) for e in entries))\n    print(sorted(p.relative_to(root).as_posix() for p in root.rglob(\"*.txt\")))",
+      "expected": "[('a.txt', False), ('sub', True)]\n['a.txt', 'sub/b.txt']",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "scandir trả DirEntry của tầng trực tiếp; walk hoặc rglob đi nhiều tầng. `os.getcwd` đọc thư mục làm việc; đường dẫn tương đối được hiểu từ thư mục đó. `os.chdir` thay working directory của process, không di chuyển file. Trong notebook, !ls, %cd, %pwd thuộc IPython, không phải cú pháp dùng được trong script Python thuần."
+     },
+     {
+      "type": "code",
+      "code": "from pathlib import Path\nimport tempfile, os, shutil\nwith tempfile.TemporaryDirectory() as folder:\n    root = Path(folder)\n    os.makedirs(root / \"a/b\")\n    (root / \"old.txt\").write_text(\"A\", encoding=\"utf8\")\n    os.rename(root / \"old.txt\", root / \"new.txt\")\n    print(sorted(os.listdir(root)))\n    os.remove(root / \"new.txt\")\n    os.rmdir(root / \"a/b\")\n    shutil.rmtree(root / \"a\")\n    print(list(root.iterdir()))",
+      "expected": "['a', 'new.txt']\n[]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`mkdir` tạo một tầng; `makedirs` tạo nhiều tầng, không có hàm os.mkdirs như typo trong slide. `rmdir` chỉ xóa thư mục rỗng; `rmtree` xóa cả cây. Ví dụ chỉ tác động cây tạm nó vừa tạo. Khi làm thật, xác định đường dẫn tuyệt đối và giới hạn vùng được phép trước thao tác xóa."
+     },
+     {
+      "type": "terminal",
+      "code": "from pathlib import Path\nimport tempfile\nwith tempfile.TemporaryDirectory() as folder:\n    root = Path(folder)\n    target = root / \"data.txt\"; target.write_text(\"A\", encoding=\"utf8\")\n    link = root / \"alias.txt\"\n    link.symlink_to(target)\n    print(link.is_symlink(), link.read_text(encoding=\"utf8\"))\n    link.unlink()\n    print(target.exists())",
+      "expected": "True A\nTrue"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Symlink lưu liên kết tới một đường dẫn; nó không chứa bản sao dữ liệu đích. Xóa link không xóa target. Tạo symlink trên Windows có thể cần Developer Mode hoặc quyền phù hợp; nếu môi trường từ chối, đó là giới hạn lab, không phải kết quả `False` để học thuộc. Shell (chương trình nhận câu lệnh bạn gõ) review trong nguồn có ls để liệt kê, cat để đọc và grep để lọc dòng. Bạn có thể làm tác vụ tương đương bằng code Python theo dòng."
+     },
+     {
+      "type": "paragraph",
+      "text": "Directory chứa tên file và các directory con, tạo thành cây. Path mô tả vị trí trong cây; file dữ liệu ở vị trí đó mới chứa nội dung. `os.walk(root)` lần lượt trả bộ ba folder, dirs, files cho từng tầng; nó không trả DirEntry như scandir. Shell UNIX dùng `ls` liệt kê, `cat report.txt` hiện nội dung và `grep paid report.txt` chỉ hiện các dòng chứa paid."
+     },
+     {
+      "type": "paragraph",
+      "text": "Thử đổi thư mục trong một khối nhỏ rồi trả về chỗ cũ, kể cả khi có lỗi: `old = os.getcwd(); try: os.chdir(folder); ... finally: os.chdir(old)`. Chỉ đổi vào thư mục tạm đã tạo cho bài, và khôi phục trước khi thư mục tạm bị xóa. Đường dẫn tương đối sau chdir được hiểu theo nơi mới; các file không tự di chuyển."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "SY17 · Buffer, flush, file tạm và lỗi đọc ghi"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "os.scandir(folder) tự đi qua toàn bộ thư mục cháu không?",
+     "options": [
+      {
+       "text": "Không; nó liệt kê các mục trực tiếp",
+       "detail": "Muốn duyệt cây thư mục có thể dùng os.walk.",
+       "correct": true
+      },
+      {
+       "text": "Có, mọi cấp",
+       "detail": "scandir không tự đệ quy."
+      },
+      {
+       "text": "Chỉ trả tên file .txt",
+       "detail": "Nó không tự lọc phần mở rộng hay loại mục."
+      }
+     ],
+     "explanation": "Muốn duyệt cây thư mục có thể dùng os.walk."
+    },
+    {
+     "question": "os.chdir(folder) có chuyển các file sang folder không?",
+     "options": [
+      {
+       "text": "Có; mọi file tự đi theo",
+       "detail": "Chưa đúng. Đường dẫn tương đối từ đó được hiểu theo nơi mới; dữ liệu trên đĩa không tự di chuyển."
+      },
+      {
+       "text": "Không; chỉ đổi working directory của process",
+       "detail": "Đường dẫn tương đối từ đó được hiểu theo nơi mới; dữ liệu trên đĩa không tự di chuyển.",
+       "correct": true
+      },
+      {
+       "text": "Chỉ chuyển các file .py",
+       "detail": "Chưa đúng. Đường dẫn tương đối từ đó được hiểu theo nơi mới; dữ liệu trên đĩa không tự di chuyển."
+      }
+     ],
+     "explanation": "Đường dẫn tương đối từ đó được hiểu theo nơi mới; dữ liệu trên đĩa không tự di chuyển."
+    },
+    {
+     "question": "Muốn tạo cả chuỗi thư mục cha còn thiếu, dùng hàm nào?",
+     "options": [
+      {
+       "text": "os.rmdir",
+       "detail": "Chưa đúng. Tên API là makedirs; mkdir đơn thường tạo một tầng."
+      },
+      {
+       "text": "os.mkdirs",
+       "detail": "Chưa đúng. Tên API là makedirs; mkdir đơn thường tạo một tầng."
+      },
+      {
+       "text": "os.makedirs",
+       "detail": "Tên API là makedirs; mkdir đơn thường tạo một tầng.",
+       "correct": true
+      }
+     ],
+     "explanation": "Tên API là makedirs; mkdir đơn thường tạo một tầng."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "os.chdir có đổi vị trí file không?",
+     "answer": "Không. Nó đổi nơi giải đường dẫn tương đối của process; lưu cwd cũ và khôi phục bằng finally nếu cần dùng."
+    },
+    {
+     "prompt": "scandir và walk khác gì?",
+     "answer": "scandir liệt kê trực tiếp và trả DirEntry; walk đi đệ quy theo cây và cho folder/dirs/files."
+    },
+    {
+     "prompt": "Viết text_files(root), không theo symlink directory.",
+     "answer": "for folder, dirs, files in os.walk(root, followlinks=False): lấy tên kết thúc .txt rồi tạo đường dẫn tương đối; trả sorted. Thử một file tầng1, một file tầng sâu, file .csv và link directory. Không dùng rmtree trên nguồn thật."
+    },
+    {
+     "prompt": "Phân biệt file/directory/path/symlink và text/binary. Trong UNIX, everything is a file có nghĩa mọi thứ là text không? Nêu lệnh liệt kê, đọc và lọc paid trong report.txt.",
+     "answer": "Directory chứa tên file/thư mục con; path là vị trí; file chứa dữ liệu; symlink liên kết tới path, không sao nội dung. Text được giải mã theo encoding; binary xử lý bytes. Mô hình file UNIX áp dụng giao diện IO cho nhiều tài nguyên, không biến chúng thành text. Dùng ls, cat report.txt và grep paid report.txt."
+    },
+    {
+     "prompt": "scandir trả object gì; walk đi cây thế nào? Tạo a/b nhiều tầng và xóa nó: mkdir/makedirs/rmdir/rmtree khác gì?",
+     "answer": "scandir trả DirEntry ở tầng trực tiếp; walk đi đệ quy với folder/dirs/files. mkdir tạo một tầng, makedirs tạo nhiều tầng. rmdir chỉ xóa directory rỗng; rmtree xóa cây và dữ liệu bên trong. Chỉ thử trong cây tạm đã xác định; xóa symlink không xóa target."
+    },
+    {
+     "prompt": "Bạn đang ở thư mục dự án và muốn thử chdir sang thư mục tạm. Nêu cách lưu/khôi phục cwd kể cả khi đọc file lỗi. !ls, %cd, %pwd chạy trong script .py thuần được không?",
+     "answer": "Lưu old=os.getcwd(); try: os.chdir(folder); ... finally: os.chdir(old). Khôi phục trước khi TemporaryDirectory bị xóa. !ls, %cd, %pwd là lệnh/magic IPython, không phải Python script thuần; trong Python dùng os.listdir/os.chdir/os.getcwd."
+    },
+    {
+     "prompt": "Trong cây thư mục tạm tự tạo, dùng os.mkdir tạo a, đổi old.txt thành new.txt, liệt kê rồi xóa new.txt. Đổi working directory vào a rồi trả về chỗ cũ kể cả khi đọc file lỗi; nêu thứ tự thao tác và các lệnh.",
+     "answer": "os.mkdir(root/\"a\"); os.rename(root/\"old.txt\",root/\"new.txt\"); os.listdir(root); os.remove(root/\"new.txt\"). Lưu old=os.getcwd(); try: os.chdir(root/\"a\"); ... finally: os.chdir(old). Khôi phục cwd trước khi cây tạm bị xóa. mkdir chỉ tạo thư mục; rename/remove chỉ tác động các đường dẫn trong cây bài thử."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "solve(data) nhận dictionary đường dẫn tương đối → nội dung, chỉ gồm tên an toàn như reports/a.txt, không có .. hay đường dẫn tuyệt đối. Tạo các file này trong TemporaryDirectory, dùng os.walk tìm mọi .txt, trả đường dẫn tương đối chuẩn dấu / theo thứ tự chữ cái. Hãy thực sự tạo và duyệt cây.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'a.txt': 'A', 'reports/b.txt': 'B', 'reports/c.csv': 'C'}"
+     },
+     {
+      "label": "trả về",
+      "value": "['a.txt', 'reports/b.txt']"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import os, tempfile\nfrom pathlib import Path\ndef solve(data):\n    with tempfile.TemporaryDirectory() as folder:\n        base = Path(folder)\n        for name, text in data.items():\n            path = base / name\n            path.parent.mkdir(parents=True, exist_ok=True)\n            path.write_text(text, encoding='utf-8')\n        found = []\n        for root, dirs, files in os.walk(base):\n            for name in files:\n                if name.endswith('.txt'): found.append((Path(root) / name).relative_to(base).as_posix())\n        return sorted(found)\n",
+   "tests": [
+    {
+     "name": "hai cấp",
+     "input": {
+      "a.txt": "A",
+      "reports/b.txt": "B",
+      "reports/c.csv": "C"
+     },
+     "expected": [
+      "a.txt",
+      "reports/b.txt"
+     ]
+    },
+    {
+     "name": "chỉ csv",
+     "input": {
+      "d/a.csv": "1"
+     },
+     "expected": []
+    },
+    {
+     "name": "ba cấp",
+     "input": {
+      "z/q/e.txt": "E"
+     },
+     "expected": [
+      "z/q/e.txt"
+     ]
+    },
+    {
+     "name": "nhiều file cùng cấp phải xếp theo tên",
+     "input": {
+      "b.txt": "B",
+      "a.txt": "A",
+      "n/a.txt": "X"
+     },
+     "expected": [
+      "a.txt",
+      "b.txt",
+      "n/a.txt"
+     ]
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 2,
+  "co": 0,
+  "bo": 2,
+  "loi": []
+ }
+}

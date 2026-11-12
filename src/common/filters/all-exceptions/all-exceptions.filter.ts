@@ -25,22 +25,37 @@ const DB_UNAVAILABLE_PATTERNS = [
   'ETIMEDOUT',
 ];
 
-/**
- * Cùng khuôn `asRecord()` ở `quizzes/quizzes.service.ts`: thân của một
- * HttpException là `string | object` nên bản cũ ép `as any` để đọc `.message` /
- * `.fields`. Giá phải trả: gõ `resObj.fieldss` vẫn biên dịch, `fields` ra
- * `undefined`, form phía FE thôi tô đỏ ô nhập sai mà không có gì báo.
- */
-function asRecord(value: unknown): Record<string, unknown> | null {
-  return typeof value === 'object' && value !== null
-    ? (value as Record<string, unknown>)
-    : null;
-}
-
 function isDbUnavailable(exception: unknown): boolean {
   if (!(exception instanceof Error)) return false;
   const msg = exception.message ?? '';
   return DB_UNAVAILABLE_PATTERNS.some((p) => msg.includes(p));
+}
+
+/**
+ * Phần payload của một `HttpException` mà bộ lọc này THẬT SỰ đọc. Khai hẹp đúng
+ * bằng thứ dùng tới, và để `unknown` chứ không `string[]`/`Record<string,string>`:
+ * đây là dữ liệu từ NGOÀI vào (bất kỳ ai cũng ném được `HttpException`), nên
+ * khai kiểu đẹp ở đây là tự hứa hộ người khác — hai hàm dưới mới là chỗ kiểm.
+ */
+type ThanLoiHttp = { message?: unknown; fields?: unknown };
+
+/** Giữ nguyên nếu là chuỗi, nếu không thì dùng câu dự phòng. */
+function chuoiHoac(v: unknown, duPhong: string): string {
+  return typeof v === 'string' && v ? v : duPhong;
+}
+
+/**
+ * Chỉ giữ các cặp mà CẢ khoá lẫn giá trị là chuỗi; không còn cặp nào thì trả
+ * `null` để `...(fields ? …)` ở dưới bỏ hẳn trường này khỏi response — đúng
+ * hành vi cũ khi không có `fields`.
+ */
+function mapChuoi(v: unknown): Record<string, string> | null {
+  if (typeof v !== 'object' || v === null) return null;
+  const ra: Record<string, string> = {};
+  for (const [k, giaTri] of Object.entries(v)) {
+    if (typeof giaTri === 'string') ra[k] = giaTri;
+  }
+  return Object.keys(ra).length ? ra : null;
 }
 
 @Catch()
@@ -49,16 +64,19 @@ export class AllExceptionsFilter<T> implements ExceptionFilter {
 
   catch(exception: T, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    // Khai tham số kiểu cho getResponse/getRequest: không khai thì cả hai trả
-    // `any` và mọi phép đọc `request.method` / `request.requestId` bên dưới mất
-    // kiểm tra (đổi tên field vẫn biên dịch, log ra `undefined undefined`).
+    // Tham số kiểu là GỐC của mọi `any` từng chảy qua file này: không có nó,
+    // `getResponse()`/`getRequest()` trả `any`, nên `message` (khai `string`) và
+    // `fields` (khai `Record<string, string>`) nhận giá trị mà TS KHÔNG kiểm —
+    // hai dòng khai kiểu ở dưới trước đây chỉ là chữ. Hai kiểu này đã được
+    // import ở đầu file từ lâu và chưa dùng lần nào.
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Đã có lỗi xảy ra, xin vui lòng thử lại sau';
-    // `detail` chỉ từng mang mảng message của class-validator.
-    let detail: string[] | null = null;
+    // `unknown` chứ không `any`: `detail` chỉ được ĐƯA VÀO response, không ai
+    // đọc thuộc tính của nó ở đây, nên `unknown` đủ và nó không rò ra tiếp.
+    let detail: unknown = null;
     let fields: Record<string, string> | null = null;
 
     if (exception instanceof ThrottlerException) {
@@ -88,26 +106,25 @@ export class AllExceptionsFilter<T> implements ExceptionFilter {
 
       if (typeof res === 'string') {
         message = res;
-      } else {
-        const resObj = asRecord(res);
-        if (resObj && Array.isArray(resObj.message)) {
-          const cac = resObj.message as string[];
+      } else if (typeof res === 'object' && res != null) {
+        const resObj = res as ThanLoiHttp;
+        if (Array.isArray(resObj.message)) {
           // Nói RÕ sai ở đâu thay vì câu chung chung 'Dữ liệu không hợp lệ':
           // client hiển thị message này trực tiếp cho người dùng.
-          message = cac[0] ?? 'Dữ liệu không hợp lệ';
-          detail = cac;
+          // `chuoiHoac` vì bộ lọc này là `@Catch()` TOÀN CỤC: hôm nay chỉ
+          // `validationExceptionFactory` sinh mảng và nó luôn sinh `string[]`,
+          // nhưng bất kỳ ai ném `HttpException` với payload khác cũng rơi vào
+          // đây — và một object lọt vào `message` thì người dùng đọc được đúng
+          // chữ "[object Object]".
+          message = chuoiHoac(resObj.message[0], 'Dữ liệu không hợp lệ');
+          detail = resObj.message;
           // Map field -> message (do validationExceptionFactory sinh ra) giúp
-          // form tô đỏ đúng ô nhập.
-          const f = asRecord(resObj.fields);
-          if (f) {
-            fields = f as Record<string, string>;
-          }
-        } else if (resObj) {
-          // `message` của HttpException là `string` ở mọi nhánh còn lại, nhưng
-          // kiểu khai của getResponse() không hứa điều đó -> kiểm lúc chạy thay
-          // vì ép `as string` (ép thì một thân lạ sẽ đẩy object vào JSON lỗi).
-          const m = resObj.message;
-          message = typeof m === 'string' && m ? m : message;
+          // form tô đỏ đúng ô nhập. LỌC lại thay vì gán thẳng: trước đây
+          // `fields` khai `Record<string, string>` mà nhận từ `any`, nên một
+          // map lồng sẽ được gửi nguyên và form tô đỏ bằng "[object Object]".
+          fields = mapChuoi(resObj.fields);
+        } else {
+          message = chuoiHoac(resObj.message, message);
         }
       }
 
@@ -129,7 +146,6 @@ export class AllExceptionsFilter<T> implements ExceptionFilter {
       }
     }
 
-    // Giữ `||` (không đổi sang `??`): chuỗi rỗng cũng phải ra null như trước.
     const requestId = request.requestId || null;
 
     if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {

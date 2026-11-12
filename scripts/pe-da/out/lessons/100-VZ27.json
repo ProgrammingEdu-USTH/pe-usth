@@ -1,0 +1,268 @@
+{
+ "lesson_code": "VZ27",
+ "sort_order": 100,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ27 · Cơ cấu của tổng, vùng tô và đa giác",
+ "subtitle": "Trung cấp · M4 · 16 phút",
+ "estimated_minutes": 16,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "VZ27 · Cơ cấu của tổng, vùng tô và đa giác",
+  "subtitle": "Trung cấp · M4 · 16 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#VZ27",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 329; Cơ cấu của tổng, vùng tô và đa giác"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Báo cáo vừa dựng xong trả lời một câu hỏi, còn đây là cơ cấu của một tổng. Đơn hàng có 60% cà phê và 40% trà. Nếu câu hỏi là cơ cấu của một tổng, có thể dùng cột chồng hoặc pie; phải chắc các phần thuộc cùng một tổng và không chồng lặp. Khi cần so chênh lệch chính xác, cột thường dễ đọc hơn góc của lát tròn."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.bar([\"All drinks\"], [60], label=\"Coffee\")\nax.bar([\"All drinks\"], [40], bottom=[60], label=\"Tea\")\nax.set(ylabel=\"Share (%)\", title=\"Parts of the same total\", ylim=(0, 100))\nax.legend()\nprint(60 + 40)\nplt.show()",
+      "expected": "100",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ27-1.png",
+      "alt": "Biểu đồ cột, tiêu đề \"Parts of the same total\", trục dọc \"Share (%)\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Pie phù hợp với ít phần của một tổng dương. Luôn ghi nhãn hoặc tỷ lệ thay vì chỉ dựa vào màu, không thêm phối cảnh 3D. Với dữ liệu nhiều nhóm hoặc tổng không có ý nghĩa, quay lại bar chart. Trong ví dụ, 60 và 40 là tỷ lệ của cùng tập đơn, không phải hai tỷ lệ có mẫu số khác nhau."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nwedges, labels, values = ax.pie([60, 40], labels=[\"Coffee\", \"Tea\"], autopct=\"%.0f%%\", colors=[\"#0072B2\", \"#D55E00\"])\nax.set_title(\"Only two mutually exclusive shares\")\nprint([text.get_text() for text in values])\nplt.show()",
+      "expected": "['60%', '40%']",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ27-2.png",
+      "alt": "Biểu đồ tròn, tiêu đề \"Only two mutually exclusive shares\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "fill vẽ một đa giác từ các đỉnh, còn fill_between tô vùng giữa hai đường y theo x. Vùng tô là cách mã hóa diện tích, nên cần giải thích nó đang biểu diễn miền hình học, tổng tích lũy hay khoảng nào. Tô nền dưới một đường không tự biến dữ liệu thành doanh thu tích lũy."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.fill([0, 2, 2, 0], [0, 0, 1, 1], color=\"lightblue\", alpha=0.6, label=\"Rectangle\")\nax.plot([0, 2], [0, 1], color=\"black\", label=\"Boundary\")\nax.set(xlabel=\"Width (m)\", ylabel=\"Height (m)\", title=\"A polygon with a known area\", xlim=(-0.2, 2.2), ylim=(-0.2, 1.2))\nax.legend()\nprint(2 * 1)\nplt.show()",
+      "expected": "2",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ27-3.png",
+      "alt": "Biểu đồ đường, tiêu đề \"A polygon with a known area\", trục ngang \"Width (m)\", trục dọc \"Height (m)\"."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "VZ04 · Bar chart: so sánh nhóm và sắp thứ tự, VZ13 · Error bar: phân tán và độ bất định"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Hai tỷ lệ lấy từ hai tập người khác nhau có ghép thành một pie không?",
+     "options": [
+      {
+       "text": "Không, cần các phần cùng một tổng và không chồng lặp",
+       "detail": "Đúng: các lát phải có chung mẫu số.",
+       "correct": true
+      },
+      {
+       "text": "Có nếu dùng hai màu khác",
+       "detail": "Màu không sửa được định nghĩa phần của tổng."
+      },
+      {
+       "text": "Có, chỉ cần cùng đơn vị %",
+       "detail": "Cùng ký hiệu phần trăm chưa chứng minh cùng mẫu số."
+      }
+     ],
+     "explanation": "Cơ cấu có ý nghĩa khi các phần cộng về cùng một tổng dương."
+    },
+    {
+     "question": "Hai tỷ lệ lấy từ hai tập khách khác nhau có nên ghép pie không?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.bar([\"All drinks\"], [60], label=\"Coffee\")\nax.bar([\"All drinks\"], [40], bottom=[60], label=\"Tea\")\nax.set(ylabel=\"Share (%)\", title=\"Parts of the same total\", ylim=(0, 100))\nax.legend()\nprint(60 + 40)\nplt.show()",
+     "options": [
+      {
+       "text": "Có nếu mỗi phần dùng một màu riêng.",
+       "detail": "Màu khác nhau không sửa được vấn đề mẫu số khác nhau."
+      },
+      {
+       "text": "Có; mọi tỷ lệ phần trăm đều cộng vào một pie được.",
+       "detail": "Tỷ lệ từ các mẫu số khác nhau không tự tạo thành một cơ cấu hợp lệ."
+      },
+      {
+       "text": "Không. Các phần của pie phải thuộc cùng một tổng và có ý nghĩa cộng lại.",
+       "detail": "Không. Các phần của pie phải thuộc cùng một tổng và có ý nghĩa cộng lại.",
+       "correct": true
+      }
+     ],
+     "explanation": "Không. Các phần của pie phải thuộc cùng một tổng và có ý nghĩa cộng lại."
+    },
+    {
+     "question": "fill có tự tính diện tích hay tổng tích lũy cho bạn không?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nwedges, labels, values = ax.pie([60, 40], labels=[\"Coffee\", \"Tea\"], autopct=\"%.0f%%\", colors=[\"#0072B2\", \"#D55E00\"])\nax.set_title(\"Only two mutually exclusive shares\")\nprint([text.get_text() for text in values])\nplt.show()",
+     "options": [
+      {
+       "text": "Có; fill tự tính đường tích lũy từ mọi tọa độ.",
+       "detail": "Dữ liệu tích lũy phải được tính nếu đó là mục tiêu cần biểu diễn."
+      },
+      {
+       "text": "Không. Nó tô đa giác từ tọa độ; ý nghĩa và phép tính do bạn xác định.",
+       "detail": "Không. Nó tô đa giác từ tọa độ; ý nghĩa và phép tính do bạn xác định.",
+       "correct": true
+      },
+      {
+       "text": "Có; fill tự tích phân dữ liệu và báo tổng.",
+       "detail": "Hàm vẽ không tự xác định ý nghĩa thống kê hay tích phân bạn muốn."
+      }
+     ],
+     "explanation": "Không. Nó tô đa giác từ tọa độ; ý nghĩa và phép tính do bạn xác định."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Hai tỷ lệ lấy từ hai tập khách khác nhau có nên ghép pie không?",
+     "answer": "Không. Các phần của pie phải thuộc cùng một tổng và có ý nghĩa cộng lại."
+    },
+    {
+     "prompt": "fill có tự tính diện tích hay tổng tích lũy cho bạn không?",
+     "answer": "Không. Nó tô đa giác từ tọa độ; ý nghĩa và phép tính do bạn xác định."
+    },
+    {
+     "prompt": "Muốn tô khoảng giữa cận dưới và trên theo ngày dùng hàm nào?",
+     "answer": "ax.fill_between(days, lower, upper); ghi rõ hai cận là gì."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.names và data.values là các phần của cùng tổng dương, giá trị không âm. Vẽ pie với labels và autopct=\"%.0f%%\". Trả names là chữ của labels và percentages là chữ phần trăm của kết quả ax.pie. Không tự đổi dữ liệu sang phần của hai tổng khác nhau. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'names': ['Book', 'Pen'], 'values': [3, 1]}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'names': ['Book', 'Pen'], 'percentages': ['75%', '25%']}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     fig, ax = plt.subplots()\n     wedges, labels, percentages = ax.pie(data['values'],labels=data['names'],autopct='%.0f%%')\n     result = {'names':[t.get_text() for t in labels],'percentages':[t.get_text() for t in percentages]}\n     plt.close(fig)\n     return result\n",
+   "tests": [
+    {
+     "name": "tỷ lệ mới",
+     "input": {
+      "names": [
+       "Book",
+       "Pen"
+      ],
+      "values": [
+       3,
+       1
+      ]
+     },
+     "expected": {
+      "names": [
+       "Book",
+       "Pen"
+      ],
+      "percentages": [
+       "75%",
+       "25%"
+      ]
+     }
+    },
+    {
+     "name": "hai phần bằng nhau",
+     "input": {
+      "names": [
+       "A",
+       "B"
+      ],
+      "values": [
+       5,
+       5
+      ]
+     },
+     "expected": {
+      "names": [
+       "A",
+       "B"
+      ],
+      "percentages": [
+       "50%",
+       "50%"
+      ]
+     }
+    },
+    {
+     "name": "một phần",
+     "input": {
+      "names": [
+       "Only"
+      ],
+      "values": [
+       7
+      ]
+     },
+     "expected": {
+      "names": [
+       "Only"
+      ],
+      "percentages": [
+       "100%"
+      ]
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cột này bắt đầu từ mức 60 rồi cao thêm 40; xác định tọa độ đáy."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Dựng các phần có chung một tổng và đọc nhãn phần trăm."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

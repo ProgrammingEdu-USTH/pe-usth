@@ -1,0 +1,244 @@
+{
+ "lesson_code": "PY15",
+ "sort_order": 15,
+ "module": "M1 · Python nền tảng",
+ "title": "PY15 · While, break và continue",
+ "subtitle": "Cơ bản · M1 · 14 phút",
+ "estimated_minutes": 14,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PY15 · While, break và continue",
+  "subtitle": "Cơ bản · M1 · 14 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PY15",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 90-94, 330; Python — Tutorial"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Vòng `for` ở bài trước biết trước phải đi qua bao nhiêu ô. Một ca bán hàng của quán thì không: nó chạy tới khi bạn đóng cửa. Trước hết hãy xem ca dễ hơn — buổi sáng bạn chiết thử tối đa ba lượt để cân chỉnh máy pha:"
+     },
+     {
+      "type": "code",
+      "code": "luot = 0\nwhile luot < 3:\n    luot += 1\n    print(luot)",
+      "expected": "1\n2\n3",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`while` kiểm điều kiện trước mỗi lượt. Dòng `luot += 1` là thứ làm điều kiện cuối cùng thành `False`, nên vòng dừng sau lượt thứ ba. Nếu bạn quên đổi trạng thái mà điều kiện luôn đúng, chương trình lặp mãi và máy pha không bao giờ được nghỉ."
+     },
+     {
+      "type": "code",
+      "code": "for don in range(6):\n    if don == 1:\n        continue\n    if don == 4:\n        break\n    print(don)",
+      "expected": "0\n2\n3",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Giờ đến một ca có sự cố. Sáu đơn vào quầy, đơn số 1 bị khách huỷ, và tới đơn số 4 thì hết nguyên liệu. `continue` bỏ phần còn lại của lượt hiện tại, nên đơn bị huỷ không được in. `break` thoát vòng gần nhất, nên cả ca dừng ở đơn số 4."
+     },
+     {
+      "type": "paragraph",
+      "text": "Vị trí dòng cập nhật rất quan trọng. Nếu `total += don` nằm sau `continue`, đơn bị bỏ qua cũng không được cộng vào doanh thu. Trong `while`, nếu dòng cập nhật điều kiện dừng nằm sau `continue`, bạn có thể bỏ luôn bước giúp vòng lặp kết thúc."
+     },
+     {
+      "type": "code",
+      "code": "lenh = iter([\"pha\", \"dong_cua\", \"pha\"])\nwhile True:\n    viec = next(lenh, \"dong_cua\")\n    if viec == \"dong_cua\":\n        break\n    print(viec)",
+      "expected": "pha",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Đây là hình dạng thật của một ca: quầy nhận lệnh tới khi gặp lệnh đóng cửa. `iter(...)` tạo đối tượng để lấy lần lượt các lệnh trong dãy. Mỗi lần gọi `next(lenh, \"dong_cua\")` lấy lệnh tiếp theo, và khi hết dữ liệu nó trả về giá trị mặc định `\"dong_cua\"`."
+     },
+     {
+      "type": "paragraph",
+      "text": "Chuỗi đó là sentinel, tức giá trị báo dừng, nên ví dụ không lặp mãi dù vòng ngoài viết `while True`. Khi bạn làm một màn nhận lệnh trong terminal (CLI) cho quầy, mỗi lệnh sẽ đến từ `input()` và quy tắc thoát vẫn giữ nguyên như vậy."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PY14 · For, range và biến tích lũy"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Duyệt [2,-1,4,0,8], bỏ số âm bằng continue và dừng khi gặp 0 bằng break. Tổng là gì?",
+     "options": [
+      {
+       "text": "5",
+       "detail": "Số -1 đã bị bỏ nên không góp vào tổng."
+      },
+      {
+       "text": "6",
+       "detail": "Đúng. Chỉ 2 và 4 được cộng; 8 nằm sau điểm dừng.",
+       "correct": true
+      },
+      {
+       "text": "14",
+       "detail": "Không được cộng 8 vì đã break ở số 0."
+      }
+     ],
+     "explanation": "Đúng. Chỉ 2 và 4 được cộng; 8 nằm sau điểm dừng."
+    },
+    {
+     "question": "Tăng số lượt cho tới 3. Kết quả ở lệnh print cuối có giá trị nào?\n\nattempt = 0\nwhile attempt < 3:\n    attempt += 1\nprint(attempt)",
+     "options": [
+      {
+       "text": "2",
+       "detail": "Vòng vẫn chạy khi attempt là 2."
+      },
+      {
+       "text": "3",
+       "detail": "Biến tăng lên 3 sau lượt cuối rồi vòng dừng.",
+       "correct": true
+      },
+      {
+       "text": "4",
+       "detail": "Khi attempt bằng 3, điều kiện đã sai."
+      }
+     ],
+     "explanation": "Biến tăng lên 3 sau lượt cuối rồi vòng dừng."
+    },
+    {
+     "question": "Bỏ riêng số 2. Kết quả ở lệnh print cuối có giá trị nào?\n\nkept = []\nfor number in range(4):\n    if number == 2:\n        continue\n    kept.append(number)\nprint(kept)",
+     "options": [
+      {
+       "text": "[0, 1, 3]",
+       "detail": "continue chỉ bỏ phần còn lại của lượt hiện tại.",
+       "correct": true
+      },
+      {
+       "text": "[0, 1, 2, 3]",
+       "detail": "Số 2 bỏ qua append."
+      },
+      {
+       "text": "[0, 1]",
+       "detail": "continue không kết thúc cả vòng lặp."
+      }
+     ],
+     "explanation": "continue chỉ bỏ phần còn lại của lượt hiện tại."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Vòng đầu chạy mấy lượt?",
+     "answer": "3 lượt, với luot được in là 1, 2 và 3."
+    },
+    {
+     "prompt": "break và continue có giống nhau không?",
+     "answer": "Không. break thoát vòng lặp; continue chỉ bỏ phần còn lại của một lượt."
+    },
+    {
+     "prompt": "Nếu dãy lenh không có phần tử nào, ví dụ cuối có bị lặp mãi không?",
+     "answer": "Không. next trả mặc định dong_cua ngay, rồi break kết thúc vòng lặp."
+    },
+    {
+     "prompt": "total=0; duyệt [1,2,3,4], bỏ lượt khi n==2, dừng khi n==4, còn lại cộng n. Tổng cuối là gì? Trong while, đặt cập nhật n sau continue có rủi ro gì?",
+     "answer": "Tổng là 4 từ 1 và 3. Continue có thể bỏ luôn cập nhật biến kiểm soát while, làm điều kiện không đổi và lặp mãi. Break chỉ kết thúc vòng gần nhất; lệnh sau vòng vẫn có thể chạy."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Hệ thống cung cấp quantities là dãy số đọc theo thứ tự. Số 0 báo hết phiên; số âm là lần nhập hỏng cần bỏ. Gán tổng các số dương trước số 0 đầu tiên vào total.",
+    "io": [
+     {
+      "label": "quantities =",
+      "value": "[2, -1, 4, 0, 8]"
+     },
+     {
+      "label": "total =",
+      "value": "6"
+     }
+    ]
+   },
+   "starterCode": "# Hệ thống cung cấp quantities là dãy số đọc theo thứ tự.\n# Hệ thống cung cấp quantities; gán kết quả vào total.\n",
+   "solutionCode": "total = 0\nfor value in quantities:\n    if value == 0:\n        break\n    if value < 0:\n        continue\n    total += value\n",
+   "tests": [
+    {
+     "name": "Dừng giữa dãy",
+     "input": [
+      2,
+      -1,
+      4,
+      0,
+      8
+     ],
+     "expected": 6
+    },
+    {
+     "name": "Dừng ngay",
+     "input": [
+      0,
+      5
+     ],
+     "expected": 0
+    },
+    {
+     "name": "Không có sentinel",
+     "input": [
+      -2,
+      3,
+      1
+     ],
+     "expected": 4
+    },
+    {
+     "name": "Dãy rỗng",
+     "input": [],
+     "expected": 0
+    },
+    {
+     "name": "Số 0 đứng cuối dãy",
+     "input": [
+      7,
+      0
+     ],
+     "expected": 7
+    }
+   ],
+   "contract": {
+    "mode": "script",
+    "inputVariable": "quantities",
+    "resultVariable": "total"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Số 0 kết thúc cả vòng lặp, còn số âm chỉ bỏ một lượt."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Xét break và continue trước bước cộng vào total."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

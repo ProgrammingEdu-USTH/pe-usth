@@ -1,0 +1,339 @@
+{
+ "lesson_code": "PD32",
+ "sort_order": 73,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD32 · Dự án nhỏ: báo cáo đơn hàng có thể đối chiếu",
+ "subtitle": "Nâng cao · M3 · 13 phút",
+ "estimated_minutes": 13,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PD32 · Dự án nhỏ: báo cáo đơn hàng có thể đối chiếu",
+  "subtitle": "Nâng cao · M3 · 13 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PD32",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas · Reproducible transformation pipeline"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Các bảng kết quả ở bài trước còn rời; bản báo cáo thì phải đối chiếu được. Bạn nhận một CSV đơn hàng và một danh mục cửa hàng. Báo cáo cần doanh thu tháng theo khu vực, đồng thời cho biết có đơn nào chưa khớp danh mục. Ba đoạn dưới minh họa ba bước; mỗi đoạn tự tạo đủ dữ liệu để chạy riêng."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nfrom io import StringIO\nraw = 'ma_don,quay,ngay,tong_tien\\nO1, q1 ,2026-01-01,10\\nO2,B,2026-01-02,20\\nO2,B,2026-01-02,20\\nO3,C,2026-02-01,30\\n'\ndf = pd.read_csv(StringIO(raw), dtype={'ma_don': 'string', 'quay': 'string'})\ndf['quay'] = df['quay'].str.strip().str.upper()\ndf['ngay'] = pd.to_datetime(df['ngay'], format='%Y-%m-%d')\nclean = df.drop_duplicates()\nassert clean['ma_don'].is_unique\nprint(len(df), len(clean), clean['tong_tien'].sum())",
+      "expected": "4 3 60",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "File có bốn hàng nhưng một dòng O2 bị lặp toàn bộ, nên còn ba đơn với tổng 60. Ở dự án thật, chỉ bỏ dòng theo khóa đơn sau khi xác nhận mỗi đơn là một hàng; nếu đơn có nhiều sản phẩm, cần giữ các dòng sản phẩm hợp lệ."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndon = pd.DataFrame({'ma_don': ['O1', 'O2', 'O3'], 'quay': ['Q1', 'Q2', 'QH'], 'tong_tien': [10, 20, 30]})\ndanh_muc_quay = pd.DataFrame({'quay': ['Q1', 'Q2'], 'khu_vuc': ['Phía Nam', 'Trung tâm']})\njoined = don.merge(danh_muc_quay, on='quay', how='left', validate='many_to_one', indicator=True)\nassert len(joined) == len(don)\nassert joined['tong_tien'].sum() == don['tong_tien'].sum()\nprint(joined.loc[joined['_merge'] == 'left_only', 'ma_don'].tolist())\nprint(joined['tong_tien'].sum())",
+      "expected": "['O3']\n60",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "O3 vẫn được giữ dù cửa hàng C chưa có khu vực. Hai kiểm tra xác nhận phép nối không nhân dòng hoặc thay đổi tổng tiền. Bạn nên gửi danh sách mã chưa khớp để bổ sung danh mục, thay vì âm thầm bỏ các đơn đó."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'ngay': pd.to_datetime(['2026-01-01', '2026-01-02', '2026-02-01']), 'khu_vuc': ['Phía Nam', 'Trung tâm', None], 'tong_tien': [10, 20, 30]})\ndf['khu_vuc'] = df['khu_vuc'].fillna('Unknown')\ndf['thang'] = df['ngay'].dt.to_period('M').astype(str)\nreport = df.groupby(['thang', 'khu_vuc'], as_index=False)['tong_tien'].sum().sort_values(['thang', 'khu_vuc'])\nassert report['tong_tien'].sum() == df['tong_tien'].sum()\nprint(report.to_csv(index=False, lineterminator='\\n').strip())",
+      "expected": "thang,khu_vuc,tong_tien\n2026-01,Phía Nam,10\n2026-01,Trung tâm,20\n2026-02,Unknown,30",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Báo cáo giữ nhóm Unknown để tổng vẫn đối chiếu được. Cột thang, khu_vuc, tong_tien ở dạng dài sẵn sàng cho biểu đồ cột hoặc đường ở phần visualization. Khi giao báo cáo, ghi kèm năm mục sau:"
+     },
+     {
+      "type": "table",
+      "headers": [
+       "#",
+       "Ghi kèm khi giao báo cáo"
+      ],
+      "rows": [
+       [
+        "1",
+        "đơn vị tiền"
+       ],
+       [
+        "2",
+        "khoảng ngày"
+       ],
+       [
+        "3",
+        "định nghĩa doanh thu"
+       ],
+       [
+        "4",
+        "cách bỏ trùng"
+       ],
+       [
+        "5",
+        "số đơn chưa khớp"
+       ]
+      ]
+     },
+     {
+      "type": "paragraph",
+      "text": "Nhận xét nên bám vào dữ liệu, không tự suy ra nguyên nhân. Quán đã có báo cáo bằng số; chặng sau là làm cho người khác đọc được nó."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "PD31 · EDA: từ câu hỏi đến bảng kết quả"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Đơn của quầy chưa có khu vực nên xử lý thế nào để tổng không mất?",
+     "options": [
+      {
+       "text": "Bỏ đơn bằng inner merge",
+       "detail": "Có thể làm mất doanh thu của đơn hợp lệ."
+      },
+      {
+       "text": "Giữ đơn và ghi khu vực Unknown để xem lại",
+       "detail": "Đúng: báo cáo còn đối chiếu được doanh thu.",
+       "correct": true
+      },
+      {
+       "text": "Đổi tong_tien của đơn thành 0",
+       "detail": "Chưa có vùng không có nghĩa chưa có doanh thu."
+      }
+     ],
+     "explanation": "Thiếu danh mục và thiếu doanh thu là hai vấn đề khác nhau."
+    },
+    {
+     "question": "Vì sao dự án kiểm tra tổng tiền trước và sau merge?\n\nimport pandas as pd\nfrom io import StringIO\nraw = 'ma_don,quay,ngay,tong_tien\\nO1, q1 ,2026-01-01,10\\nO2,B,2026-01-02,20\\nO2,B,2026-01-02,20\\nO3,C,2026-02-01,30\\n'\ndf = pd.read_csv(StringIO(raw), dtype={'ma_don': 'string', 'quay': 'string'})\ndf['quay'] = df['quay'].str.strip().str.upper()\ndf['ngay'] = pd.to_datetime(df['ngay'], format='%Y-%m-%d')\nclean = df.drop_duplicates()\nassert clean['ma_don'].is_unique\nprint(len(df), len(clean), clean['tong_tien'].sum())",
+     "options": [
+      {
+       "text": "Để ép mọi hàng thành cùng một tong_tien.",
+       "detail": "Ép tong_tien giống nhau làm thay dữ liệu thay vì đối chiếu."
+      },
+      {
+       "text": "Vì merge luôn tăng tổng và cần chấp nhận mức tăng đó.",
+       "detail": "Tăng tổng sau merge có thể là lỗi nhân dòng cần phát hiện."
+      },
+      {
+       "text": "Để phát hiện việc nhân dòng hoặc làm mất đơn khi nối.",
+       "detail": "Để phát hiện việc nhân dòng hoặc làm mất đơn khi nối.",
+       "correct": true
+      }
+     ],
+     "explanation": "Để phát hiện việc nhân dòng hoặc làm mất đơn khi nối."
+    },
+    {
+     "question": "Tại sao giữ nhóm Unknown trong báo cáo mẫu?\n\nimport pandas as pd\ndon = pd.DataFrame({'ma_don': ['O1', 'O2', 'O3'], 'quay': ['Q1', 'Q2', 'QH'], 'tong_tien': [10, 20, 30]})\ndanh_muc_quay = pd.DataFrame({'quay': ['Q1', 'Q2'], 'khu_vuc': ['Phía Nam', 'Trung tâm']})\njoined = don.merge(danh_muc_quay, on='quay', how='left', validate='many_to_one', indicator=True)\nassert len(joined) == len(don)\nassert joined['tong_tien'].sum() == don['tong_tien'].sum()\nprint(joined.loc[joined['_merge'] == 'left_only', 'ma_don'].tolist())\nprint(joined['tong_tien'].sum())",
+     "options": [
+      {
+       "text": "Để các đơn chưa khớp khu vực vẫn được thể hiện và tổng báo cáo còn khớp tổng đơn.",
+       "detail": "Để các đơn chưa khớp khu vực vẫn được thể hiện và tổng báo cáo còn khớp tổng đơn.",
+       "correct": true
+      },
+      {
+       "text": "Để tự coi các đơn chưa khớp là đã biết khu vực.",
+       "detail": "Unknown ghi rõ chưa xác định, không giả vờ đã biết khu vực."
+      },
+      {
+       "text": "Để bỏ các đơn chưa khớp ra khỏi tổng đối chiếu.",
+       "detail": "Loại các đơn đó sẽ làm mất đóng góp của chúng khỏi báo cáo."
+      }
+     ],
+     "explanation": "Để các đơn chưa khớp khu vực vẫn được thể hiện và tổng báo cáo còn khớp tổng đơn."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Vì sao dự án kiểm tra tổng tiền trước và sau merge?",
+     "answer": "Để phát hiện việc nhân dòng hoặc làm mất đơn khi nối."
+    },
+    {
+     "prompt": "Tại sao giữ nhóm Unknown trong báo cáo mẫu?",
+     "answer": "Để các đơn chưa khớp khu vực vẫn được thể hiện và tổng báo cáo còn khớp tổng đơn."
+    },
+    {
+     "prompt": "Tự làm báo cáo: ngày=[2026-01-01,2026-01-02,2026-02-01], tong_tien=[5,7,8]. Tính tổng tháng và kiểm tra tổng báo cáo bằng tổng gốc.",
+     "answer": "Tháng 1=12, tháng 2=8; tổng 20.",
+     "answerCode": "import pandas as pd\ndf = pd.DataFrame({'ngay': pd.to_datetime(['2026-01-01', '2026-01-02', '2026-02-01']), 'tong_tien': [5, 7, 8]})\nreport = df.set_index('ngay')['tong_tien'].resample('MS').sum()\nassert report.sum() == df['tong_tien'].sum()\nprint(report.tolist())\nprint(report.sum())",
+     "answerExpected": "[12, 8]\n20"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.don có ma_don, quay, ngay ISO, tong_tien; các dòng có thể trùng toàn bộ. data.danh_muc_quay có quay, khu_vuc và mã duy nhất. Chuẩn hóa mã quay của cả don và danh_muc_quay bằng strip/upper, bỏ dòng giống hệt, nối trái với validate many_to_one, khu vực vắng là Unknown, tổng hợp theo YYYY-MM và khu_vuc. Trả {report:list bản ghi thang,khu_vuc,tong_tien đã sắp; total:tổng tong_tien của đơn sau bỏ trùng}. Dữ liệu không có hai phiên bản xung đột của cùng ma_don.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'don': [{'ma_don': '1', 'quay': ' q1 ', 'ngay': '2026-03-01', 'tong_tien': 5}, {'ma_don': '1', 'quay': ' q1 ', 'ngay': '2026-03-01', 'tong_tien': 5}, {'ma_don': '2', 'quay': 'QH', 'ngay': '2026-03-02', 'tong_tien': 8}], 'danh_muc_quay': [{'quay': ' q1 ', 'khu_vuc': 'Phía Nam'}]}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'report': [{'thang': '2026-03', 'khu_vuc': 'Phía Nam', 'tong_tien': 5}, {'thang': '2026-03', 'khu_vuc': 'Unknown', 'tong_tien': 8}], 'total': 13.0}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     don = pd.DataFrame(data['don']).copy()\n     don['quay'] = don['quay'].str.strip().str.upper()\n     don = don.drop_duplicates()\n     danh_muc_quay = pd.DataFrame(data['danh_muc_quay']).copy()\n     danh_muc_quay['quay'] = danh_muc_quay['quay'].str.strip().str.upper()\n     joined = don.merge(danh_muc_quay, on='quay', how='left', validate='many_to_one')\n     joined['khu_vuc'] = joined['khu_vuc'].fillna('Unknown')\n     joined['thang'] = pd.to_datetime(joined['ngay']).dt.to_period('M').astype(str)\n     report = joined.groupby(['thang','khu_vuc'], as_index=False)['tong_tien'].sum().sort_values(['thang','khu_vuc'])\n     return {'report':report.to_dict('records'), 'total':float(don['tong_tien'].sum())}\n",
+   "tests": [
+    {
+     "name": "trùng và chưa khớp",
+     "input": {
+      "don": [
+       {
+        "ma_don": "1",
+        "quay": " q1 ",
+        "ngay": "2026-03-01",
+        "tong_tien": 5
+       },
+       {
+        "ma_don": "1",
+        "quay": " q1 ",
+        "ngay": "2026-03-01",
+        "tong_tien": 5
+       },
+       {
+        "ma_don": "2",
+        "quay": "QH",
+        "ngay": "2026-03-02",
+        "tong_tien": 8
+       }
+      ],
+      "danh_muc_quay": [
+       {
+        "quay": " q1 ",
+        "khu_vuc": "Phía Nam"
+       }
+      ]
+     },
+     "expected": {
+      "report": [
+       {
+        "thang": "2026-03",
+        "khu_vuc": "Phía Nam",
+        "tong_tien": 5
+       },
+       {
+        "thang": "2026-03",
+        "khu_vuc": "Unknown",
+        "tong_tien": 8
+       }
+      ],
+      "total": 13.0
+     }
+    },
+    {
+     "name": "hai tháng",
+     "input": {
+      "don": [
+       {
+        "ma_don": "3",
+        "quay": "Q2",
+        "ngay": "2026-01-02",
+        "tong_tien": 2
+       },
+       {
+        "ma_don": "4",
+        "quay": "Q2",
+        "ngay": "2026-02-02",
+        "tong_tien": 7
+       }
+      ],
+      "danh_muc_quay": [
+       {
+        "quay": "q2 ",
+        "khu_vuc": "Trung tâm"
+       }
+      ]
+     },
+     "expected": {
+      "report": [
+       {
+        "thang": "2026-01",
+        "khu_vuc": "Trung tâm",
+        "tong_tien": 2
+       },
+       {
+        "thang": "2026-02",
+        "khu_vuc": "Trung tâm",
+        "tong_tien": 7
+       }
+      ],
+      "total": 9.0
+     }
+    },
+    {
+     "name": "đơn 0 vẫn còn",
+     "input": {
+      "don": [
+       {
+        "ma_don": "5",
+        "quay": "QX",
+        "ngay": "2026-04-01",
+        "tong_tien": 0
+       }
+      ],
+      "danh_muc_quay": [
+       {
+        "quay": "Q1",
+        "khu_vuc": "Phía Nam"
+       }
+      ]
+     },
+     "expected": {
+      "report": [
+       {
+        "thang": "2026-04",
+        "khu_vuc": "Unknown",
+        "tong_tien": 0
+       }
+      ],
+      "total": 0.0
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Một quầy có nhiều đơn nhưng danh mục chỉ được có một hàng cho mỗi quầy."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Báo cáo tổng tháng vẫn giữ đơn chưa khớp và đối chiếu được tổng."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

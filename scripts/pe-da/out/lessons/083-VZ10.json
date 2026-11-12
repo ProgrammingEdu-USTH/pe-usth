@@ -1,0 +1,267 @@
+{
+ "lesson_code": "VZ10",
+ "sort_order": 83,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ10 · Màu sắc và khả năng đọc cho nhiều người",
+ "subtitle": "Trung cấp · M4 · 18 phút",
+ "estimated_minutes": 18,
+ "xp_reward": 11,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "VZ10 · Màu sắc và khả năng đọc cho nhiều người",
+  "subtitle": "Trung cấp · M4 · 18 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#VZ10",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 329; Màu sắc và khả năng đọc cho nhiều người"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Nhãn và chú thích đã đủ rồi, nhưng người xem báo cáo không nhìn màu giống nhau. Hai chuỗi cà phê và trà sẽ khó phân biệt nếu chỉ khác một màu nhạt. Bạn có thể kết hợp màu, marker và kiểu nét để người có cách nhìn màu khác nhau vẫn đọc được hình. Nhãn trực tiếp và bảng số đi kèm cũng giúp biểu đồ không phụ thuộc hoàn toàn vào màu."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.plot([1, 2, 3], [8, 10, 7], color=\"#0072B2\", marker=\"o\", linestyle=\"-\", label=\"Coffee\")\nax.plot([1, 2, 3], [5, 6, 6], color=\"#D55E00\", marker=\"s\", linestyle=\"--\", label=\"Tea\")\nax.set(xlabel=\"Day\", ylabel=\"Cups\", title=\"Use more than color to distinguish groups\")\nax.legend()\nprint([line.get_marker() for line in ax.lines])\nplt.show()",
+      "expected": "['o', 's']",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ10-1.png",
+      "alt": "Biểu đồ đường, tiêu đề \"Use more than color to distinguish groups\", trục ngang \"Day\", trục dọc \"Cups\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Với số đo tăng từ thấp lên cao, một thang tuần tự như viridis giúp thể hiện thứ tự. Với sai lệch quanh 0, thang phân kỳ giúp thấy phía âm và dương. Màu dành cho nhóm thì không cần ngụ ý một nhóm lớn hơn nhóm khác. Hạn chế dùng nhiều màu chỉ để trang trí."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nim = ax.imshow([[1, 2], [3, 4]], cmap=\"viridis\", vmin=0, vmax=4)\nax.set(xticks=[0, 1], xticklabels=[\"Mon\", \"Tue\"], yticks=[0, 1], yticklabels=[\"A\", \"B\"], title=\"A sequential numeric scale\")\nfig.colorbar(im, ax=ax, label=\"Orders\")\nprint(im.get_clim())\nplt.show()",
+      "expected": "(0.0, 4.0)",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ10-2.png",
+      "alt": "Bản đồ nhiệt, tiêu đề \"A sequential numeric scale\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Khi gửi hình, thêm mô tả bằng chữ nêu xu hướng và con số quan trọng; một caption chỉ nói “biểu đồ” không đủ. Kiểm tra cỡ chữ ở kích thước thật, độ tương phản và bản in đen trắng. setp cho phép sửa đồng thời các đường đã vẽ thay vì tạo lại dữ liệu. plot trả về một `list` các Line2D, mỗi phần tử là một đường đã vẽ. `plt.setp(lines, linewidth=2.5)` thay thuộc tính các đường trong `list` đó, không thay các con số gốc. color chọn màu cố định; trong scatter, c còn có thể nhận dãy số để ánh xạ qua cmap. alpha=0 là trong suốt, alpha=1 là đục hoàn toàn."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nlines = ax.plot([1, 2, 3], [8, 10, 7], marker=\"o\", label=\"Coffee\")\nplt.setp(lines, color=\"#0072B2\", linewidth=2.5)\nax.set(xlabel=\"Day\", ylabel=\"Cups\", title=\"Coffee: 8 to 10, then down to 7\")\nax.tick_params(labelsize=11)\nprint(\"Coffee: day 1 = 8; day 2 = 10; day 3 = 7 cups.\")\nplt.show()",
+      "expected": "Coffee: day 1 = 8; day 2 = 10; day 3 = 7 cups.",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ10-3.png",
+      "alt": "Biểu đồ đường, tiêu đề \"Coffee: 8 to 10, then down to 7\", trục ngang \"Day\", trục dọc \"Cups\"."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "VZ09 · Nhãn, đơn vị, đường mốc và chú thích"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Hai đường đã có màu khác nhau. Vì sao còn dùng marker khác nhau?",
+     "options": [
+      {
+       "text": "Để tự thay đổi dữ liệu",
+       "detail": "Marker chỉ đổi cách biểu diễn."
+      },
+      {
+       "text": "Để tăng số quan sát",
+       "detail": "Marker không tạo dữ liệu mới."
+      },
+      {
+       "text": "Để vẫn phân biệt khi khó nhìn màu hoặc in đen trắng",
+       "detail": "Đúng: thêm một dấu hiệu không phụ thuộc màu.",
+       "correct": true
+      }
+     ],
+     "explanation": "Khả năng đọc hình không nên phụ thuộc một kênh màu duy nhất."
+    },
+    {
+     "question": "Vì sao vẫn cần marker khi đã dùng hai màu?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.plot([1, 2, 3], [8, 10, 7], color=\"#0072B2\", marker=\"o\", linestyle=\"-\", label=\"Coffee\")\nax.plot([1, 2, 3], [5, 6, 6], color=\"#D55E00\", marker=\"s\", linestyle=\"--\", label=\"Tea\")\nax.set(xlabel=\"Day\", ylabel=\"Cups\", title=\"Use more than color to distinguish groups\")\nax.legend()\nprint([line.get_marker() for line in ax.lines])\nplt.show()",
+     "options": [
+      {
+       "text": "Để phân biệt chuỗi khi in đen trắng hoặc khi người đọc khó nhận ra chênh lệch màu.",
+       "detail": "Để phân biệt chuỗi khi in đen trắng hoặc khi người đọc khó nhận ra chênh lệch màu.",
+       "correct": true
+      },
+      {
+       "text": "Để tự tăng số quan sát của chuỗi.",
+       "detail": "Marker không tạo thêm dữ liệu hay quan sát."
+      },
+      {
+       "text": "Để làm thay đổi giá trị gốc trong bảng.",
+       "detail": "Cách vẽ không làm thay giá trị nguồn."
+      }
+     ],
+     "explanation": "Để phân biệt chuỗi khi in đen trắng hoặc khi người đọc khó nhận ra chênh lệch màu."
+    },
+    {
+     "question": "Giá trị từ 0 đến 100 nên dùng thang tuần tự hay phân kỳ quanh 0?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nim = ax.imshow([[1, 2], [3, 4]], cmap=\"viridis\", vmin=0, vmax=4)\nax.set(xticks=[0, 1], xticklabels=[\"Mon\", \"Tue\"], yticks=[0, 1], yticklabels=[\"A\", \"B\"], title=\"A sequential numeric scale\")\nfig.colorbar(im, ax=ax, label=\"Orders\")\nprint(im.get_clim())\nplt.show()",
+     "options": [
+      {
+       "text": "Chọn màu ngẫu nhiên cho từng số, không cần thứ tự.",
+       "detail": "Màu ngẫu nhiên không giúp đọc thứ tự tăng của các mức."
+      },
+      {
+       "text": "Dùng tuần tự nếu muốn thể hiện mức tăng. Phân kỳ phù hợp khi có mốc giữa mang ý nghĩa như sai lệch 0.",
+       "detail": "Dùng tuần tự nếu muốn thể hiện mức tăng. Phân kỳ phù hợp khi có mốc giữa mang ý nghĩa như sai lệch 0.",
+       "correct": true
+      },
+      {
+       "text": "Luôn dùng phân kỳ vì số 0 xuất hiện trong miền.",
+       "detail": "Có số 0 trong miền không tự làm thang phân kỳ trở nên phù hợp."
+      }
+     ],
+     "explanation": "Dùng tuần tự nếu muốn thể hiện mức tăng. Phân kỳ phù hợp khi có mốc giữa mang ý nghĩa như sai lệch 0."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Vì sao vẫn cần marker khi đã dùng hai màu?",
+     "answer": "Để phân biệt chuỗi khi in đen trắng hoặc khi người đọc khó nhận ra chênh lệch màu."
+    },
+    {
+     "prompt": "Giá trị từ 0 đến 100 nên dùng thang tuần tự hay phân kỳ quanh 0?",
+     "answer": "Dùng tuần tự nếu muốn thể hiện mức tăng. Phân kỳ phù hợp khi có mốc giữa mang ý nghĩa như sai lệch 0."
+    },
+    {
+     "prompt": "Viết mô tả chữ cho chuỗi [8,10,7].",
+     "answer": "Ví dụ: “Số cốc tăng từ 8 lên 10 trong ngày 2 rồi giảm còn 7 ở ngày 3; đây là dữ liệu minh họa ba ngày.”"
+    },
+    {
+     "prompt": "lines = ax.plot(x,y) trả một số hay một list đối tượng? Sửa toàn bộ đường thành nét đứt, marker chấm, rộng 2, alpha 0.5 và màu đen bằng setp.",
+     "answer": "Nó trả list các Line2D. Viết plt.setp(lines, linestyle=\"--\", marker=\".\", linewidth=2, alpha=0.5, color=\"black\"). Marker chỉ dấu tại điểm, linestyle chỉ cách nối; alpha=0.5 làm đường bán trong suốt. c là tên rút gọn của color trong plot; với scatter, c có thể là dữ liệu số dùng cùng cmap."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.values là dãy số. Vẽ một đường rồi dùng plt.setp để marker=\"s\",linestyle=\"--\",linewidth=2,alpha=0.5,color=\"black\". Trả marker, linestyle và width đọc từ Line2D. Các getter lần lượt là get_marker(),get_linestyle(),get_linewidth(). Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve. Trả thêm values bằng list(line.get_ydata()), alpha bằng line.get_alpha() và color bằng line.get_color().",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'values': [3, 7, 5]}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'marker': 's', 'linestyle': '--', 'width': 2.0, 'values': [3, 7, 5], 'alpha': 0.5, 'color': 'black'}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     fig, ax = plt.subplots()\n     lines = ax.plot(data['values'])\n     plt.setp(lines,marker='s',linestyle='--',linewidth=2,alpha=0.5,color='black')\n     line = lines[0]\n     result = {'marker':line.get_marker(),'linestyle':line.get_linestyle(),'width':float(line.get_linewidth()),'values':list(line.get_ydata()),'alpha':line.get_alpha(),'color':line.get_color()}\n     plt.close(fig)\n     return result\n",
+   "tests": [
+    {
+     "name": "đường mới",
+     "input": {
+      "values": [
+       3,
+       7,
+       5
+      ]
+     },
+     "expected": {
+      "marker": "s",
+      "linestyle": "--",
+      "width": 2.0,
+      "values": [
+       3,
+       7,
+       5
+      ],
+      "alpha": 0.5,
+      "color": "black"
+     }
+    },
+    {
+     "name": "một điểm",
+     "input": {
+      "values": [
+       0
+      ]
+     },
+     "expected": {
+      "marker": "s",
+      "linestyle": "--",
+      "width": 2.0,
+      "values": [
+       0
+      ],
+      "alpha": 0.5,
+      "color": "black"
+     }
+    },
+    {
+     "name": "giảm theo ngày",
+     "input": {
+      "values": [
+       9,
+       4
+      ]
+     },
+     "expected": {
+      "marker": "s",
+      "linestyle": "--",
+      "width": 2.0,
+      "values": [
+       9,
+       4
+      ],
+      "alpha": 0.5,
+      "color": "black"
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Một nửa độ đậm màu tương ứng mức trong suốt 0.5, không thay đổi dữ liệu."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Phân biệt chuỗi bằng marker và kiểu nét, không chỉ màu."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

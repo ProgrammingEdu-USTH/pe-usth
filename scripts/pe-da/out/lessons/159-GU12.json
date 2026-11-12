@@ -1,0 +1,583 @@
+{
+ "lesson_code": "GU12",
+ "sort_order": 159,
+ "module": "M8 · Tkinter: từ form nhỏ đến màn hình nhận đơn",
+ "title": "GU12 · PW9: màn hình nhận đơn tại quầy bằng Tkinter",
+ "subtitle": "Nâng cao · M8 · 12 phút",
+ "estimated_minutes": 12,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "GU12 · PW9: màn hình nhận đơn tại quầy bằng Tkinter",
+  "subtitle": "Nâng cao · M8 · 12 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#GU12",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 327; Python · tkinter"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bài thực hành cuối chuyển màn hình của quán sang cửa sổ Tkinter và giữ các chức năng từ PW8. File projects/quay_app.py đi kèm có ba tab Món, Nguyên liệu và Định lượng. Mã món và mã nguyên liệu là khóa; mỗi cặp món–nguyên liệu chỉ có một lượng."
+     },
+     {
+      "type": "code",
+      "code": "from decimal import Decimal, ROUND_FLOOR\nluong=['14.29','16.00']\nnormalized=[float(Decimal(x).quantize(Decimal('0.1'),rounding=ROUND_FLOOR)) for x in luong]\nprint(normalized)",
+      "expected": "[14.2, 16.0]",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "luong",
+        "prompt": "Sau khi chạy xong, `luong` bằng mấy?",
+        "answer": "['14.29', '16.00']"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "Decimal",
+           "<lớp Decimal>"
+          ],
+          [
+           "ROUND_FLOOR",
+           "'ROUND_FLOOR'"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "luong",
+           "['14.29', '16.00']"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "x",
+           "'14.29'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "x",
+           "'16.00'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "Decimal",
+           "<lớp Decimal>"
+          ],
+          [
+           "ROUND_FLOOR",
+           "'ROUND_FLOOR'"
+          ],
+          [
+           "luong",
+           "['14.29', '16.00']"
+          ],
+          [
+           "normalized",
+           "[14.2, 16.0]"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "out": "[14.2, 16.0]"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Ví dụ hạ lượng nguyên liệu xuống một chữ số thập phân theo yêu cầu PW3, không làm tròn tới số gần nhất. Ứng dụng mẫu dùng thang 0–20 gam cho mỗi cốc và số cốc nguyên dương; đây là quy ước minh họa ghi rõ trong form, vì slide không quy định toàn bộ thang đo."
+     },
+     {
+      "type": "code",
+      "code": "luong={'ca-phe-hat':14.0,'sua-tuoi':18.0}\nso_coc={'ca-phe-hat':2,'sua-tuoi':3,'duong':1}\nweighted=sum(gam*so_coc[ten] for ten,gam in luong.items())\ndenominator=sum(so_coc[ten] for ten in luong)\nprint(weighted/denominator)",
+      "expected": "16.4",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "gam",
+        "line": 3,
+        "prompt": "Ngay sau khi dòng 3 chạy, `gam` bằng mấy?",
+        "answer": "14.0"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "luong",
+           "{'ca-phe-hat': 14.0, 'sua-tuoi': 18.0}"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "so_coc",
+           "{'ca-phe-hat': 2, 'sua-tuoi': 3, 'duong': 1}"
+          ]
+         ]
+        },
+        {
+         "line": 3
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           ".0",
+           "dict_itemiterator: <dict_itemiterator object>"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "set": [
+          [
+           "gam",
+           "14.0"
+          ],
+          [
+           "ten",
+           "'ca-phe-hat'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "28.0"
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           ".0",
+           "dict_itemiterator: <dict_itemiterator object>"
+          ],
+          [
+           "gam",
+           "14.0"
+          ],
+          [
+           "ten",
+           "'ca-phe-hat'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "set": [
+          [
+           "gam",
+           "18.0"
+          ],
+          [
+           "ten",
+           "'sua-tuoi'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "54.0"
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           ".0",
+           "dict_itemiterator: <dict_itemiterator object>"
+          ],
+          [
+           "gam",
+           "18.0"
+          ],
+          [
+           "ten",
+           "'sua-tuoi'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 4
+        },
+        {
+         "line": 4,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           ".0",
+           "dict_keyiterator: <dict_keyiterator object>"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "set": [
+          [
+           "ten",
+           "'ca-phe-hat'"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "2"
+        },
+        {
+         "line": 4,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           ".0",
+           "dict_keyiterator: <dict_keyiterator object>"
+          ],
+          [
+           "ten",
+           "'ca-phe-hat'"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "set": [
+          [
+           "ten",
+           "'sua-tuoi'"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "3"
+        },
+        {
+         "line": 4,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           ".0",
+           "dict_keyiterator: <dict_keyiterator object>"
+          ],
+          [
+           "ten",
+           "'sua-tuoi'"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "fn": "<genexpr>",
+         "depth": 1
+        },
+        {
+         "line": 4,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 5,
+         "out": "16.4"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Lượng trung bình mẫu là trung bình có trọng số trên các nguyên liệu đã khai định lượng. Đường chưa khai nên không nằm trong mẫu số; không coi lượng thiếu bằng 0. Món chưa khai nguyên liệu nào được hiển thị dấu gạch thay vì số 0. Danh sách có thể sắp giảm dần."
+     },
+     {
+      "type": "code",
+      "code": "import gzip,pickle\nsnapshot={'version':1,'items':[{'id':'latte','name':'Latte','group':'Ca phe'}],'ingredients':[],'recipe':[]}\nblob=gzip.compress(pickle.dumps(snapshot))\nloaded=pickle.loads(gzip.decompress(blob))\nprint(loaded['items'][0]['id'])\nprint(loaded==snapshot)",
+      "expected": "latte\nTrue",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Khi lưu, giao diện tạo một bản chụp dữ liệu nhất quán rồi giao cho worker. Worker ghi pickle nén `gzip` vào file tạm, thay thế file đích khi ghi xong và gửi kết quả qua queue. Giao diện dùng after để đọc kết quả. Chỉ nạp pickle từ nguồn mà ứng dụng và người dùng tin cậy, vì quá trình nạp có thể thực thi code."
+     },
+     {
+      "type": "paragraph",
+      "text": "Chạy bằng `python projects/quay_app.py --data duong-dan/quan.pkl.gz`. Hai tình huống của file dữ liệu ở bảng dưới. Bài kiểm tra tự động đi kèm xác nhận model, lượng trung bình, save/load và callback cơ bản. Quy trình giao diện thật, độ dễ dùng và bố cục còn cần kiểm tra thủ công theo rubric. Quán giờ có một màn hình cho người không viết code; hai chặng cuối ôn lại các chi tiết đã đi nhanh."
+     },
+     {
+      "type": "table",
+      "headers": [
+       "Tình huống",
+       "Ứng dụng làm gì"
+      ],
+      "rows": [
+       [
+        "file chưa tồn tại",
+        "bắt đầu rỗng"
+       ],
+       [
+        "dữ liệu hỏng",
+        "báo lỗi, và không tự ghi đè file đó"
+       ]
+      ]
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "GU11 · Event loop và tác vụ nền, CT10 · Tạo thread bằng target, start và join, CT13 · Queue và lưu pickle có nén ở nền"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Ứng dụng GUI dùng thang 0–20; điểm 20 có nên bị loại chỉ vì PW cũ dùng 0–10 không?",
+     "options": [
+      {
+       "text": "Không; kiểm theo hợp đồng của ứng dụng hiện tại",
+       "detail": "GU12 quy định thang 0–20; cần đọc đúng dữ liệu và điều kiện của bài.",
+       "correct": true
+      },
+      {
+       "text": "Không; vậy chấp nhận mọi số",
+       "detail": "Vẫn cần giới hạn 0–20, số hữu hạn và dữ liệu đúng kiểu."
+      },
+      {
+       "text": "Có; mọi bài Python dùng một thang điểm",
+       "detail": "Thang điểm là quy tắc nghiệp vụ của từng ứng dụng."
+      }
+     ],
+     "explanation": "GU12 quy định thang 0–20; cần đọc đúng dữ liệu và điều kiện của bài."
+    },
+    {
+     "question": "GUI hiện tại dùng điểm 0..20. Điểm 20 hợp lệ không?",
+     "options": [
+      {
+       "text": "Không vì PW cũ dùng thang 0..10",
+       "detail": "Chưa đúng. Quy tắc nghiệp vụ phải theo bài hiện tại; không trộn hai thang điểm."
+      },
+      {
+       "text": "Có theo hợp đồng GU12",
+       "detail": "Quy tắc nghiệp vụ phải theo bài hiện tại; không trộn hai thang điểm.",
+       "correct": true
+      },
+      {
+       "text": "Chỉ hợp lệ nếu tên môn là Python",
+       "detail": "Chưa đúng. Quy tắc nghiệp vụ phải theo bài hiện tại; không trộn hai thang điểm."
+      }
+     ],
+     "explanation": "Quy tắc nghiệp vụ phải theo bài hiện tại; không trộn hai thang điểm."
+    },
+    {
+     "question": "Một sinh viên chưa có điểm nào. Label GPA nên hiển thị gì theo bài?",
+     "options": [
+      {
+       "text": "20 để khuyến khích",
+       "detail": "Chưa đúng. Thiếu điểm không phải đã được chấm 0; cần tách trạng thái thiếu khỏi giá trị hợp lệ."
+      },
+      {
+       "text": "0 bắt buộc",
+       "detail": "Chưa đúng. Thiếu điểm không phải đã được chấm 0; cần tách trạng thái thiếu khỏi giá trị hợp lệ."
+      },
+      {
+       "text": "Chưa có GPA",
+       "detail": "Thiếu điểm không phải đã được chấm 0; cần tách trạng thái thiếu khỏi giá trị hợp lệ.",
+       "correct": true
+      }
+     ],
+     "explanation": "Thiếu điểm không phải đã được chấm 0; cần tách trạng thái thiếu khỏi giá trị hợp lệ."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Cà phê hạt 14 g đi với 2 cốc, sữa tươi 18 g đi với 3 cốc. Lượng trung bình có trọng số là bao nhiêu?",
+     "answer": "16.4. Nguyên liệu chưa khai định lượng không góp vào mẫu số."
+    },
+    {
+     "prompt": "Vì sao worker nhận snapshot thay vì đọc trực tiếp model đang được UI sửa?",
+     "answer": "Để file lưu là một trạng thái nhất quán, không trộn dữ liệu trước và sau thay đổi."
+    },
+    {
+     "prompt": "Viết phép tính trung bình có trọng số cho lượng 10, 20 và số cốc 1, 3.",
+     "answer": "Kết quả bằng 17.5.",
+     "answerCode": "luong=[10,20]\nso_coc=[1,3]\nprint(sum(g*c for g,c in zip(luong,so_coc))/sum(so_coc))",
+     "answerExpected": "17.5"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận dict có luong (tên nguyên liệu → số gam mỗi cốc, CHỈ gồm nguyên liệu đã khai định lượng) và so_coc (tên nguyên liệu → số cốc; có thể có thêm nguyên liệu chưa khai). Trả lượng trung bình có trọng số theo số cốc, chỉ tính trên các nguyên liệu có trong luong, làm tròn 2 chữ số. Nếu luong rỗng — món chưa khai nguyên liệu nào — trả None, không phải 0.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'luong': {'ca-phe-hat': 14.0, 'sua-tuoi': 18.0}, 'so_coc': {'ca-phe-hat': 2, 'sua-tuoi': 3, 'duong': 1}}"
+     },
+     {
+      "label": "trả về",
+      "value": "16.4"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "def solve(data):\n    luong = data[\"luong\"]\n    so_coc = data[\"so_coc\"]\n    if not luong:\n        return None\n    tu = sum(gam * so_coc[ten] for ten, gam in luong.items())\n    mau = sum(so_coc[ten] for ten in luong)\n    return round(tu / mau, 2)\n",
+   "tests": [
+    {
+     "name": "Đường chưa khai — không vào mẫu số",
+     "input": {
+      "luong": {
+       "ca-phe-hat": 14.0,
+       "sua-tuoi": 18.0
+      },
+      "so_coc": {
+       "ca-phe-hat": 2,
+       "sua-tuoi": 3,
+       "duong": 1
+      }
+     },
+     "expected": 16.4
+    },
+    {
+     "name": "Trọng số lệch nhau",
+     "input": {
+      "luong": {
+       "a": 10,
+       "b": 20
+      },
+      "so_coc": {
+       "a": 1,
+       "b": 3
+      }
+     },
+     "expected": 17.5
+    },
+    {
+     "name": "Món chưa khai nguyên liệu nào",
+     "input": {
+      "luong": {},
+      "so_coc": {
+       "duong": 2
+      }
+     },
+     "expected": null
+    },
+    {
+     "name": "Một nguyên liệu đã khai, một chưa",
+     "input": {
+      "luong": {
+       "sua-tuoi": 12.5
+      },
+      "so_coc": {
+       "sua-tuoi": 4,
+       "da": 2
+      }
+     },
+     "expected": 12.5
+    },
+    {
+     "name": "Trung bình lẻ vô hạn — không làm tròn thì sai",
+     "input": {
+      "luong": {
+       "ca-phe-hat": 10.0,
+       "sua-tuoi": 15.0
+      },
+      "so_coc": {
+       "ca-phe-hat": 1,
+       "sua-tuoi": 2
+      }
+     },
+     "expected": 13.33
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Mẫu số là tổng số cốc của các nguyên liệu CÓ trong luong — duyệt luong, đừng cộng hết so_coc.values()."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Kiểm luong rỗng TRƯỚC khi chia: chia cho 0 là ZeroDivisionError, còn 0 thì nói sai rằng món có lượng 0 gam."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 2,
+  "bo": 1,
+  "loi": []
+ }
+}

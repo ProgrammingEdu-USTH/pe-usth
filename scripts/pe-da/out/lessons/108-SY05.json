@@ -1,0 +1,628 @@
+{
+ "lesson_code": "SY05",
+ "sort_order": 108,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY05 · Class và object: mỗi món có dữ liệu riêng",
+ "subtitle": "Trung cấp · M5 · 16 phút",
+ "estimated_minutes": 16,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY05 · Class và object: mỗi món có dữ liệu riêng",
+  "subtitle": "Trung cấp · M5 · 16 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY05",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 101-103, 108-113; Python — Classes"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Code có lịch sử rồi, giờ đến cấu trúc. Một món trong thực đơn của quán có mã, tên và nhóm. Theo cách viết thủ tục, bạn có thể dùng `dict` giữ hồ sơ món và các hàm riêng để sửa, liệt kê. Cách hướng đối tượng gom dữ liệu này với hành vi liên quan vào Item; mã gọi làm việc qua thuộc tính và các hàm của từng món, gọi là method. Cả hai cách vẫn dùng hàm, nhưng khác nơi giữ dữ liệu và tổ chức trách nhiệm:"
+     },
+     {
+      "type": "code",
+      "code": "class Item:\n    def __init__(self, code, name, group):\n        self.code = code\n        self.name = name\n        self.group = group\n    def label(self):\n        return self.code + \": \" + self.name\nitem = Item(\"latte\", \"Latte\", \"Ca phe\")\nprint(item.label())",
+      "expected": "latte: Latte",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "self",
+        "line": 2,
+        "prompt": "Ngay sau khi dòng 2 chạy, `self` bằng mấy?",
+        "answer": "Item()"
+       },
+       "rows": [
+        {
+         "line": 1
+        },
+        {
+         "line": 1,
+         "fn": "Item",
+         "depth": 1,
+         "enter": true
+        },
+        {
+         "line": 1,
+         "fn": "Item",
+         "depth": 1
+        },
+        {
+         "line": 2,
+         "fn": "Item",
+         "depth": 1,
+         "set": [
+          [
+           "__init__",
+           "<hàm __init__>"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "fn": "Item",
+         "depth": 1,
+         "set": [
+          [
+           "label",
+           "<hàm label>"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "fn": "Item",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 8
+        },
+        {
+         "line": 2,
+         "fn": "__init__",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "code",
+           "'latte'"
+          ],
+          [
+           "group",
+           "'Ca phe'"
+          ],
+          [
+           "name",
+           "'Latte'"
+          ],
+          [
+           "self",
+           "Item()"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "__init__",
+         "depth": 1,
+         "set": [
+          [
+           "self",
+           "Item(code='latte')"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "fn": "__init__",
+         "depth": 1,
+         "set": [
+          [
+           "self",
+           "Item(code='latte', name='Latte')"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "__init__",
+         "depth": 1,
+         "set": [
+          [
+           "self",
+           "Item(code='latte', name='Latte', group='Ca phe')"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "__init__",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 9
+        },
+        {
+         "line": 6,
+         "fn": "label",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "self",
+           "Item(code='latte', name='Latte', group='Ca phe')"
+          ]
+         ]
+        },
+        {
+         "line": 7,
+         "fn": "label",
+         "depth": 1
+        },
+        {
+         "line": 7,
+         "fn": "label",
+         "depth": 1,
+         "ret": "'latte: Latte'",
+         "out": "latte: Latte"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`Item` là class mô tả cách tạo hồ sơ món; item là một đối tượng cụ thể được tạo từ class, gọi là instance. Khi viết `Item(...)`, Python tạo đối tượng và gọi `__init__` để khởi tạo dữ liệu cho nó. Constructor là thao tác dựng đối tượng; nói chính xác, `__init__` là bước khởi tạo chứ không tự cấp phát đối tượng. `self` nhận instance đang được gọi method, nên self.name đọc tên món đó."
+     },
+     {
+      "type": "code",
+      "code": "class Item:\n    def __init__(self, name):\n        self.name = name\nfirst = Item(\"Latte\")\nsecond = Item(\"Mocha\")\nfirst.name = \"Latte da\"\nprint(first.name, second.name)",
+      "expected": "Latte da Mocha",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "self",
+        "line": 2,
+        "prompt": "Ngay sau khi dòng 2 chạy, `self` bằng mấy?",
+        "answer": "Item()"
+       },
+       "rows": [
+        {
+         "line": 1
+        },
+        {
+         "line": 1,
+         "fn": "Item",
+         "depth": 1,
+         "enter": true
+        },
+        {
+         "line": 1,
+         "fn": "Item",
+         "depth": 1
+        },
+        {
+         "line": 2,
+         "fn": "Item",
+         "depth": 1,
+         "set": [
+          [
+           "__init__",
+           "<hàm __init__>"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "Item",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 4
+        },
+        {
+         "line": 2,
+         "fn": "__init__",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "name",
+           "'Latte'"
+          ],
+          [
+           "self",
+           "Item()"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "__init__",
+         "depth": 1,
+         "set": [
+          [
+           "self",
+           "Item(name='Latte')"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "__init__",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 5
+        },
+        {
+         "line": 2,
+         "fn": "__init__",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "name",
+           "'Mocha'"
+          ],
+          [
+           "self",
+           "Item()"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "__init__",
+         "depth": 1,
+         "set": [
+          [
+           "self",
+           "Item(name='Mocha')"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "__init__",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 6,
+         "set": [
+          [
+           "first",
+           "Item(name='Latte da')"
+          ]
+         ]
+        },
+        {
+         "line": 7,
+         "out": "Latte da Mocha"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Bạn có thể tạo nhiều instance từ một class. Mỗi instance trong ví dụ giữ thuộc tính name riêng. Method là hàm gắn với class; tham số và return vẫn có ý nghĩa như ở hàm đã học."
+     },
+     {
+      "type": "code",
+      "code": "class Item:\n    def __init__(self, name):\n        self.name = name\nfirst = Item(\"Latte\")\nalias = first\nalias.name = \"Latte da\"\nprint(first.name)\nprint(alias is first)",
+      "expected": "Latte da\nTrue",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "self",
+        "line": 2,
+        "prompt": "Ngay sau khi dòng 2 chạy, `self` bằng mấy?",
+        "answer": "Item()"
+       },
+       "rows": [
+        {
+         "line": 1
+        },
+        {
+         "line": 1,
+         "fn": "Item",
+         "depth": 1,
+         "enter": true
+        },
+        {
+         "line": 1,
+         "fn": "Item",
+         "depth": 1
+        },
+        {
+         "line": 2,
+         "fn": "Item",
+         "depth": 1,
+         "set": [
+          [
+           "__init__",
+           "<hàm __init__>"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "Item",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 4
+        },
+        {
+         "line": 2,
+         "fn": "__init__",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "name",
+           "'Latte'"
+          ],
+          [
+           "self",
+           "Item()"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "__init__",
+         "depth": 1,
+         "set": [
+          [
+           "self",
+           "Item(name='Latte')"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "__init__",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 5,
+         "set": [
+          [
+           "alias",
+           "Item(name='Latte')"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "set": [
+          [
+           "alias",
+           "Item(name='Latte da')"
+          ],
+          [
+           "first",
+           "Item(name='Latte da')"
+          ]
+         ]
+        },
+        {
+         "line": 7,
+         "out": "Latte da"
+        },
+        {
+         "line": 8,
+         "out": "True"
+        },
+        {
+         "line": 8,
+         "ret": "None"
+        }
+       ]
+      }
+     },
+     {
+      "type": "paragraph",
+      "text": "Gán alias = first không tạo một món thứ hai. Hai tên cùng tham chiếu một object. Các câu ôn trong slide dùng bối cảnh Java: biến thuộc kiểu cơ bản (primitive) như `int` giữ giá trị, còn biến tham chiếu (reference) giữ tham chiếu đến object. Gán một biến reference cho biến khác có thể làm hai biến cùng trỏ tới một object. Ở Python, mọi giá trị đều là object và phép gán gắn tên với object. Cần phân biệt gán lại tên với sửa một object dùng chung."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "PY18 · Ngoại lệ và dữ liệu không hợp lệ"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "a = Student(\"An\"); b = a; b.name = \"Mai\". a.name là gì?",
+     "options": [
+      {
+       "text": "An",
+       "detail": "Gán b=a không tạo bản sao Student."
+      },
+      {
+       "text": "Mai",
+       "detail": "a và b cùng trỏ một instance; sửa thuộc tính qua b cũng thấy khi đọc qua a.",
+       "correct": true
+      },
+      {
+       "text": "None",
+       "detail": "Tên name đã được khởi tạo và được gán lại; không tự mất giá trị."
+      }
+     ],
+     "explanation": "a và b cùng trỏ một instance; sửa thuộc tính qua b cũng thấy khi đọc qua a."
+    },
+    {
+     "question": "Student là class, còn Student(\"S1\",\"An\",...) tạo ra gì?",
+     "options": [
+      {
+       "text": "Một instance Student",
+       "detail": "Class mô tả cấu trúc và hành vi; lời gọi class tạo instance theo cách khởi tạo của nó.",
+       "correct": true
+      },
+      {
+       "text": "Một module tên Student",
+       "detail": "Chưa đúng. Class mô tả cấu trúc và hành vi; lời gọi class tạo instance theo cách khởi tạo của nó."
+      },
+      {
+       "text": "Bản sao của toàn bộ class",
+       "detail": "Chưa đúng. Class mô tả cấu trúc và hành vi; lời gọi class tạo instance theo cách khởi tạo của nó."
+      }
+     ],
+     "explanation": "Class mô tả cấu trúc và hành vi; lời gọi class tạo instance theo cách khởi tạo của nó."
+    },
+    {
+     "question": "Trong label(self, prefix), self đại diện cho gì khi gọi student.label(\"SV: \")?",
+     "options": [
+      {
+       "text": "Chuỗi \"SV: \"",
+       "detail": "Chưa đúng. self là tham số nhận instance; prefix nhận đối số chuỗi được truyền vào."
+      },
+      {
+       "text": "Tên file hiện tại",
+       "detail": "Chưa đúng. self là tham số nhận instance; prefix nhận đối số chuỗi được truyền vào."
+      },
+      {
+       "text": "Instance student đang nhận lời gọi",
+       "detail": "self là tham số nhận instance; prefix nhận đối số chuỗi được truyền vào.",
+       "correct": true
+      }
+     ],
+     "explanation": "self là tham số nhận instance; prefix nhận đối số chuỗi được truyền vào."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Item và item khác nhau gì?",
+     "answer": "Item là class; item là một instance được tạo từ class."
+    },
+    {
+     "prompt": "Vì sao sửa alias.name làm first.name đổi?",
+     "answer": "Hai tên trỏ cùng object, không có bản sao được tạo bởi phép gán."
+    },
+    {
+     "prompt": "Viết Ingredient(code, name, unit) và method label() trả mã: tên.",
+     "answer": "Khởi tạo self.code, self.name, self.unit trong __init__; label trả f\"{self.code}: {self.name}\". Tạo hai Ingredient, sửa tên một nguyên liệu và xác nhận nguyên liệu kia không đổi."
+    },
+    {
+     "prompt": "Sau a=Item(\"Latte\"), b=a, b.name=\"Mocha\", có mấy object Item? So với câu Java về primitive/reference khác gì?",
+     "answer": "Một object Item được hai tên tham chiếu; a.name cũng là Mocha. Trong mô hình Java, gán primitive sao giá trị, gán reference sao tham chiếu. Python mọi giá trị là object; gán tên không tự sao chép object."
+    },
+    {
+     "prompt": "Trong def label(self, prefix): return prefix+self.name, self là gì, prefix là gì, kết quả đi đâu?",
+     "answer": "self là instance hiện tại khi gọi obj.label(\"Mon: \"); prefix là tham số nhận đối số \"Mon: \". return gửi chuỗi về nơi gọi, không tự in. __init__ khởi tạo object; name là thuộc tính có thể đọc/gán."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Viết class Course(cid, name) có method label() trả \"mã: tên\". Trong solve(data), tạo một Course từ mỗi dictionary đầu vào rồi trả list các label theo thứ tự. Không gọi input trong __init__.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "[{'id': 'ST', 'name': 'Statistics'}, {'id': 'DB', 'name': 'Database'}]"
+     },
+     {
+      "label": "trả về",
+      "value": "['ST: Statistics', 'DB: Database']"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "class Course:\n    def __init__(self, cid, name):\n        self.cid, self.name = cid, name\n    def label(self):\n        return self.cid + ': ' + self.name\ndef solve(data):\n    return [Course(row['id'], row['name']).label() for row in data]\n",
+   "tests": [
+    {
+     "name": "hai môn",
+     "input": [
+      {
+       "id": "ST",
+       "name": "Statistics"
+      },
+      {
+       "id": "DB",
+       "name": "Database"
+      }
+     ],
+     "expected": [
+      "ST: Statistics",
+      "DB: Database"
+     ]
+    },
+    {
+     "name": "trùng tên khác mã",
+     "input": [
+      {
+       "id": "A",
+       "name": "Lab"
+      },
+      {
+       "id": "B",
+       "name": "Lab"
+      }
+     ],
+     "expected": [
+      "A: Lab",
+      "B: Lab"
+     ]
+    },
+    {
+     "name": "rỗng",
+     "input": [],
+     "expected": []
+    },
+    {
+     "name": "tên môn rỗng vẫn phải có dấu hai chấm",
+     "input": [
+      {
+       "id": "X",
+       "name": ""
+      }
+     ],
+     "expected": [
+      "X: "
+     ]
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 3,
+  "bo": 0,
+  "loi": []
+ }
+}

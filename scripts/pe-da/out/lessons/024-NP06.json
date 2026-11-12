@@ -1,0 +1,264 @@
+{
+ "lesson_code": "NP06",
+ "sort_order": 24,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP06 · Array hai chiều",
+ "subtitle": "Cơ bản · M2 · 10 phút",
+ "estimated_minutes": 10,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "NP06 · Array hai chiều",
+  "subtitle": "Cơ bản · M2 · 10 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#NP06",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "Advanced-Python-Tai-Lieu-Mon-Hoc.pdf tr. 109-111; NumPy · Hướng dẫn người mới"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Quán có quầy thứ hai rồi, nên một dãy số không còn đủ. Quầy Q1 bán 12, 15 và 9 cốc trong ba ngày. Quầy Q2 bán 10, 8 và 14 cốc trong cùng ba ngày đó. Bạn có thể đặt mỗi quầy trên một hàng để so sánh:"
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\n\nso_coc = np.array([[12, 15, 9],\n                   [10,  8, 14]])\nprint(so_coc)",
+      "expected": "[[12 15  9]\n [10  8 14]]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Đây là array hai chiều, có thể hình dung như một bảng. Mỗi danh sách con tạo thành một hàng. Hàng đầu thuộc quầy Q1, hàng thứ hai thuộc quầy Q2; ba cột lần lượt là ba ngày."
+     },
+     {
+      "type": "paragraph",
+      "text": "Với các số nhỏ hơn, cách xếp vẫn như vậy:"
+     },
+     {
+      "type": "code",
+      "code": "a = np.array([[1, 2, 3], [4, 5, 6]])\nprint(a)",
+      "expected": "[[1 2 3]\n [4 5 6]]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`[1, 2, 3]` là hàng đầu và `[4, 5, 6]` là hàng thứ hai. Bảng có 2 hàng, mỗi hàng 3 cột. Các hàng cần có cùng số phần tử khi tạo bảng số hai chiều đơn giản này."
+     },
+     {
+      "type": "paragraph",
+      "text": "Một bảng số cốc theo món cũng dùng cách xếp đó, nhưng ý nghĩa của hàng và cột thay đổi:"
+     },
+     {
+      "type": "code",
+      "code": "so_coc_mon = np.array([[6, 8], [7, 9], [5, 6]])\nprint(so_coc_mon)",
+      "expected": "[[6 8]\n [7 9]\n [5 6]]",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "Nếu mỗi hàng là một món và mỗi cột là một quầy, bảng này lưu số cốc của 3 món tại 2 quầy. Món đầu bán 6 cốc ở Q1 và 8 cốc ở Q2. Trước khi tính, bạn cần biết rõ hàng và cột đại diện cho điều gì; NumPy không tự lưu các nhãn đó trong array số này."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "NP01 · Array là gì?"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "np.array([[2,4],[6,8],[1,3]]) biểu diễn gì nếu mỗi hàng là một máy?",
+     "options": [
+      {
+       "text": "Một dãy sáu máy",
+       "detail": "Array này được xếp thành hai chiều, không phải một dãy sáu phần tử."
+      },
+      {
+       "text": "Ba máy, mỗi máy hai số đo",
+       "detail": "Đúng. Có ba danh sách con, mỗi danh sách có hai số.",
+       "correct": true
+      },
+      {
+       "text": "Hai máy, mỗi máy ba số đo",
+       "detail": "Đó là diễn giải ngược hàng và cột."
+      }
+     ],
+     "explanation": "Đúng. Có ba danh sách con, mỗi danh sách có hai số."
+    },
+    {
+     "question": "Mỗi list con là số liệu của một cửa hàng. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\nsales = np.array([[3, 5], [7, 9]])\nprint(sales)",
+     "options": [
+      {
+       "text": "[[3, 5], [7, 9]]",
+       "detail": "Các list con có cùng độ dài tạo bảng hai chiều.",
+       "correct": true
+      },
+      {
+       "text": "[[3, 7], [5, 9]]",
+       "detail": "Tạo array không tự chuyển hàng thành cột."
+      },
+      {
+       "text": "[3, 5, 7, 9]",
+       "detail": "Hai list con giữ thành hai hàng, chưa bị làm phẳng."
+      }
+     ],
+     "explanation": "Các list con có cùng độ dài tạo bảng hai chiều."
+    },
+    {
+     "question": "Mỗi hàng giữ điểm của một học viên. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\nmarks = np.array([[6, 8], [7, 9], [5, 6]])\nprint(marks)",
+     "options": [
+      {
+       "text": "[[6, 7, 5], [8, 9, 6]]",
+       "detail": "Đó là cách đổi trục, không phải dữ liệu vừa tạo."
+      },
+      {
+       "text": "[14, 16, 11]",
+       "detail": "Chưa có phép tính tổng từng hàng."
+      },
+      {
+       "text": "[[6, 8], [7, 9], [5, 6]]",
+       "detail": "Tạo bảng giữ nguyên ba hàng và hai giá trị trong mỗi hàng.",
+       "correct": true
+      }
+     ],
+     "explanation": "Tạo bảng giữ nguyên ba hàng và hai giá trị trong mỗi hàng."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Bảng `[[1, 2, 3], [4, 5, 6]]` có bao nhiêu hàng và cột?",
+     "answer": "Có 2 hàng và 3 cột."
+    },
+    {
+     "prompt": "Viết lại bảng trên sau khi thêm hàng `[7, 8, 9]`.",
+     "answer": "Đặt thêm danh sách `[7, 8, 9]` vào danh sách ngoài:",
+     "answerCode": "import numpy as np\n\na = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])\nprint(a)",
+     "answerExpected": "[[1 2 3]\n [4 5 6]\n [7 8 9]]"
+    },
+    {
+     "prompt": "Tạo một bảng số cốc cho 2 món, mỗi món có số cốc ở 2 quầy.",
+     "answer": "Ví dụ, mỗi hàng là một món:",
+     "answerCode": "import numpy as np\n\nso_coc_mon = np.array([[6, 8], [7, 9]])\nprint(so_coc_mon)",
+     "answerExpected": "[[6 8]\n [7 9]]"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận list các hàng số liệu có cùng số cột. Trả array hai chiều giữ nguyên thứ tự hàng và cột. Mỗi hàng là một trạm đo.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "[[2, 4, 6], [1, 3, 5]]"
+     },
+     {
+      "label": "trả về",
+      "value": "[[2, 4, 6], [1, 3, 5]]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    return np.array(data)\n",
+   "tests": [
+    {
+     "name": "Hai trạm ba mốc",
+     "input": [
+      [
+       2,
+       4,
+       6
+      ],
+      [
+       1,
+       3,
+       5
+      ]
+     ],
+     "expected": [
+      [
+       2,
+       4,
+       6
+      ],
+      [
+       1,
+       3,
+       5
+      ]
+     ]
+    },
+    {
+     "name": "Một trạm",
+     "input": [
+      [
+       7,
+       8
+      ]
+     ],
+     "expected": [
+      [
+       7,
+       8
+      ]
+     ]
+    },
+    {
+     "name": "Hai trạm một mốc",
+     "input": [
+      [
+       0
+      ],
+      [
+       9
+      ]
+     ],
+     "expected": [
+      [
+       0
+      ],
+      [
+       9
+      ]
+     ]
+    }
+   ],
+   "contract": {
+    "mode": "function",
+    "returnType": "numpy.ndarray"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Danh sách con cần được giữ thành từng hàng của bảng."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Đưa list các hàng vào np.array; không nối các hàng thành một dãy phẳng."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

@@ -1,0 +1,421 @@
+{
+ "lesson_code": "SY09",
+ "sort_order": 112,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY09 · Abstraction, interface và composition",
+ "subtitle": "Trung cấp · M5 · 17 phút",
+ "estimated_minutes": 17,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY09 · Abstraction, interface và composition",
+  "subtitle": "Trung cấp · M5 · 17 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY09",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 103-104, 106; Python — abc"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Một tác vụ xuất dữ liệu chỉ cần biết object có thể export. Nó không cần biết object ghi ra CSV hay JSON. Bạn có thể diễn đạt yêu cầu đó bằng abstract base class:"
+     },
+     {
+      "type": "code",
+      "code": "from abc import ABC, abstractmethod\nclass Exporter(ABC):\n    @abstractmethod\n    def export(self, rows): pass\ntry:\n    Exporter()\nexcept TypeError:\n    print(\"Can cai dat export\")",
+      "expected": "Can cai dat export",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Exporter còn method trừu tượng `export` chưa có cách xử lý cụ thể, nên chưa thể tạo instance. Cách giữ lại thao tác cần dùng và giấu chi tiết xử lý được gọi là trừu tượng hóa (abstraction). Python không có từ khóa interface như Java; ABC là một cách nêu các method lớp con cần cung cấp, nhưng bạn không bắt buộc dùng ABC cho mọi giao diện."
+     },
+     {
+      "type": "code",
+      "code": "from abc import ABC, abstractmethod\nclass Exporter(ABC):\n    @abstractmethod\n    def export(self, rows): pass\nclass TextExporter(Exporter):\n    def export(self, rows): return \",\".join(rows)\nprint(TextExporter().export([\"A\", \"B\"]))",
+      "expected": "A,B",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "TextExporter là một Exporter, tức quan hệ is-a. ReportService ở ví dụ tiếp theo sử dụng một exporter để làm việc, tức quan hệ has-a. Nó giữ exporter trong một thuộc tính thay vì kế thừa Exporter."
+     },
+     {
+      "type": "code",
+      "code": "class TextExporter:\n    def export(self, rows): return \",\".join(rows)\nclass ReportService:\n    def __init__(self, exporter): self.exporter = exporter\n    def build(self, rows): return self.exporter.export(rows)\nprint(ReportService(TextExporter()).build([\"A\", \"B\"]))",
+      "expected": "A,B",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "self",
+        "line": 4,
+        "prompt": "Ngay sau khi dòng 4 chạy, `self` bằng mấy?",
+        "answer": "ReportService()"
+       },
+       "rows": [
+        {
+         "line": 1
+        },
+        {
+         "line": 1,
+         "fn": "TextExporter",
+         "depth": 1,
+         "enter": true
+        },
+        {
+         "line": 1,
+         "fn": "TextExporter",
+         "depth": 1
+        },
+        {
+         "line": 2,
+         "fn": "TextExporter",
+         "depth": 1,
+         "set": [
+          [
+           "export",
+           "<hàm export>"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "TextExporter",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 3
+        },
+        {
+         "line": 3,
+         "fn": "ReportService",
+         "depth": 1,
+         "enter": true
+        },
+        {
+         "line": 3,
+         "fn": "ReportService",
+         "depth": 1
+        },
+        {
+         "line": 4,
+         "fn": "ReportService",
+         "depth": 1,
+         "set": [
+          [
+           "__init__",
+           "<hàm __init__>"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "ReportService",
+         "depth": 1,
+         "set": [
+          [
+           "build",
+           "<hàm build>"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "ReportService",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 6
+        },
+        {
+         "line": 4,
+         "fn": "__init__",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "exporter",
+           "TextExporter()"
+          ],
+          [
+           "self",
+           "ReportService()"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "fn": "__init__",
+         "depth": 1,
+         "set": [
+          [
+           "self",
+           "ReportService(exporter=TextExporter())"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "fn": "__init__",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 5,
+         "fn": "build",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "rows",
+           "['A', 'B']"
+          ],
+          [
+           "self",
+           "ReportService(exporter=TextExporter())"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "fn": "build",
+         "depth": 1
+        },
+        {
+         "line": 2,
+         "fn": "export",
+         "depth": 2,
+         "enter": true,
+         "set": [
+          [
+           "rows",
+           "['A', 'B']"
+          ],
+          [
+           "self",
+           "TextExporter()"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "export",
+         "depth": 2
+        },
+        {
+         "line": 2,
+         "fn": "export",
+         "depth": 2,
+         "ret": "'A,B'"
+        },
+        {
+         "line": 5,
+         "fn": "build",
+         "depth": 1,
+         "ret": "'A,B'",
+         "out": "A,B"
+        },
+        {
+         "line": 6,
+         "ret": "None"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Ở ví dụ cuối, ReportService chỉ cần object có method export phù hợp, thường gọi là duck typing. Trong câu hỏi Java của slide, static type là kiểu khai báo của biến; dynamic type là lớp thực của object lúc chạy. Biến kiểu cha có thể tham chiếu object lớp con. Python không bắt buộc khai báo kiểu cho tên; type annotation mô tả kỳ vọng cho công cụ kiểm tra, không tự ép kiểu lúc chạy."
+     },
+     {
+      "type": "paragraph",
+      "text": "Python cho phép `class C(A, B)` kế thừa nhiều class. Java chỉ cho một superclass trực tiếp, nhưng một class có thể implement nhiều interface. Interface mô tả các thao tác mà bên dùng được quyền trông chờ; abstract class có thể gom cả hợp đồng và hành vi dùng chung. Phần ôn này giúp đọc câu hỏi Java trong slide; bạn không cần viết lại bài Python bằng Java."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "SY08 · Đa kế thừa: method được tìm ở đâu?"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "ReportService giữ self.exporter để gọi export. Đây là quan hệ nào?",
+     "options": [
+      {
+       "text": "has-a: service sử dụng một exporter",
+       "detail": "Service chứa object thực hiện công việc, không cần kế thừa Exporter.",
+       "correct": true
+      },
+      {
+       "text": "is-a: service bắt buộc là exporter",
+       "detail": "Có một thuộc tính exporter không tạo quan hệ kế thừa."
+      },
+      {
+       "text": "Không thể làm vì Python cần interface keyword",
+       "detail": "Python có thể làm qua object có method phù hợp hoặc ABC."
+      }
+     ],
+     "explanation": "Service chứa object thực hiện công việc, không cần kế thừa Exporter."
+    },
+    {
+     "question": "Exporter còn abstract method export chưa triển khai có tạo instance trực tiếp được không?",
+     "options": [
+      {
+       "text": "Có; method tự trả dữ liệu mặc định",
+       "detail": "Chưa đúng. Abstract method mô tả thao tác subclass còn phải cung cấp; class chưa hoàn tất không tạo instance như class cụ thể."
+      },
+      {
+       "text": "Có; tên Exporter tự động bỏ abstract",
+       "detail": "Chưa đúng. Abstract method mô tả thao tác subclass còn phải cung cấp; class chưa hoàn tất không tạo instance như class cụ thể."
+      },
+      {
+       "text": "Không; ABC ngăn tạo instance khi còn abstract method",
+       "detail": "Abstract method mô tả thao tác subclass còn phải cung cấp; class chưa hoàn tất không tạo instance như class cụ thể.",
+       "correct": true
+      }
+     ],
+     "explanation": "Abstract method mô tả thao tác subclass còn phải cung cấp; class chưa hoàn tất không tạo instance như class cụ thể."
+    },
+    {
+     "question": "ReportService giữ một exporter trong thuộc tính. Đây là quan hệ nào?",
+     "options": [
+      {
+       "text": "is-a bắt buộc",
+       "detail": "Chưa đúng. Service sử dụng một thành phần exporter thay vì kế thừa mọi chi tiết xuất dữ liệu."
+      },
+      {
+       "text": "has-a",
+       "detail": "Service sử dụng một thành phần exporter thay vì kế thừa mọi chi tiết xuất dữ liệu.",
+       "correct": true
+      },
+      {
+       "text": "Hai class phải có cùng MRO",
+       "detail": "Chưa đúng. Service sử dụng một thành phần exporter thay vì kế thừa mọi chi tiết xuất dữ liệu."
+      }
+     ],
+     "explanation": "Service sử dụng một thành phần exporter thay vì kế thừa mọi chi tiết xuất dữ liệu."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Vì sao Exporter() lỗi ở ví dụ đầu?",
+     "answer": "export vẫn là abstractmethod chưa có triển khai cụ thể."
+    },
+    {
+     "prompt": "ReportService là Exporter hay có Exporter?",
+     "answer": "Có exporter để sử dụng, tức has-a/composition; không nhất thiết là một Exporter."
+    },
+    {
+     "prompt": "Tạo JsonExporter cho list mã rồi dùng cùng ReportService.",
+     "answer": "JsonExporter.export dùng json.dumps(rows); service gọi cùng .export(rows). Nếu kế thừa ABC, phải cài đầy đủ abstractmethod trước khi tạo instance. Thử hai exporter mà không sửa build."
+    },
+    {
+     "prompt": "Tách chương trình thành hàm tính giá khác tách thành Item, Ingredient, RecipeLine ở đâu? Vì sao không cho RecipeLine tự gọi input trong __init__?",
+     "answer": "Cách hàm truyền dữ liệu qua từng tác vụ; cách object gắn dữ liệu với hành vi liên quan. Item giữ hồ sơ món, Ingredient giữ nguyên liệu, RecipeLine giữ định lượng của cặp món–nguyên liệu. Không buộc constructor đọc bàn phím để còn dựng object từ file, test hoặc GUI."
+    },
+    {
+     "prompt": "Nêu is-a và has-a trong hai ví dụ Exporter/ReportService. Java có kế thừa nhiều class như Python không? Interface giúp bên dùng biết gì?",
+     "answer": "TextExporter is-a Exporter; ReportService has-a exporter. Python hỗ trợ nhiều base class, Java chỉ một superclass trực tiếp nhưng implement nhiều interface. Interface nêu các thao tác cần có; ABC có thể thêm hành vi dùng chung và chặn instance khi còn abstractmethod."
+    },
+    {
+     "prompt": "Trong Java, biến khai báo Report nhưng giữ SalesReport có static/dynamic type nào? Python annotation có tự chặn mọi object sai kiểu không?",
+     "answer": "Static type là Report, dynamic type là SalesReport. Python không bắt buộc khai báo kiểu cho tên; annotation chủ yếu hỗ trợ công cụ và không tự kiểm mọi đầu vào lúc chạy."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Tạo JoinExporter(separator) có export(rows) nối các chuỗi và ReportService(exporter) có build(rows). solve(data) nhận {\"separator\": chuỗi, \"rows\": list chuỗi}, trả nội dung qua service. Dùng composition, không kế thừa JoinExporter trong service.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'separator': ';', 'rows': ['A', 'B']}"
+     },
+     {
+      "label": "trả về",
+      "value": "'A;B'"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "class JoinExporter:\n    def __init__(self, separator): self.separator = separator\n    def export(self, rows): return self.separator.join(rows)\nclass ReportService:\n    def __init__(self, exporter): self.exporter = exporter\n    def build(self, rows): return self.exporter.export(rows)\ndef solve(data): return ReportService(JoinExporter(data['separator'])).build(data['rows'])\n",
+   "tests": [
+    {
+     "name": "phân cách chấm phẩy",
+     "input": {
+      "separator": ";",
+      "rows": [
+       "A",
+       "B"
+      ]
+     },
+     "expected": "A;B"
+    },
+    {
+     "name": "một hàng",
+     "input": {
+      "separator": "|",
+      "rows": [
+       "only"
+      ]
+     },
+     "expected": "only"
+    },
+    {
+     "name": "không có hàng",
+     "input": {
+      "separator": ",",
+      "rows": []
+     },
+     "expected": ""
+    },
+    {
+     "name": "phân cách rỗng vẫn phải nối",
+     "input": {
+      "separator": "",
+      "rows": [
+       "A",
+       "B"
+      ]
+     },
+     "expected": "AB"
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 1,
+  "bo": 2,
+  "loi": []
+ }
+}

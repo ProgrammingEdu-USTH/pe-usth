@@ -1,0 +1,1608 @@
+"""Kiểm VĂN PHONG phần giảng của pe-da — thi hành scripts/pe-da/VAN-PHONG.md.
+
+    py -I scripts/pe-da/check_vanphong.py              # kiểm, in bảng theo luật
+    py -I scripts/pe-da/check_vanphong.py --strict      # cảnh báo cũng tính là lỗi
+    py -I scripts/pe-da/check_vanphong.py --luat L3,L10 # chỉ chạy vài luật
+    py -I scripts/pe-da/check_vanphong.py --chi-tiet 0  # in HẾT, không cắt bớt
+
+Khác `check.py`: file đó kiểm CẤU TRÚC bản dựng (khối lạ, hình thiếu, ca chấm
+lệch nguồn), file này kiểm CHỮ trong `source/course.json` — cái mà người học đọc
+và cái mà phản hồi "người chưa từng tiếp xúc Python thấy khó hiểu" nói về.
+
+Vì sao đọc NGUỒN chứ không đọc bản dựng: văn phong là thứ người soạn sửa, và họ
+sửa ở `source/course.json`. Bắt lỗi ở `out/` là bắt lỗi ở một bản chép — người
+soạn phải tự lần ngược về chỗ sửa. Bản dựng không thêm hay bỏ chữ nào của phần
+giảng (`khoi_doc` chỉ đổi hình dạng khối), nên hai nơi nói cùng một chuyện về
+chữ.
+
+HAI TIỀN XỬ LÝ BẮT BUỘC (§10). Thiếu một trong hai là MỌI phép đếm sai:
+  1. nội dung trong `` ` `` thay bằng một token trơ TRƯỚC khi đếm — nếu không,
+     `df.groupby("month")["revenue"].sum()` được tính là bốn thuật ngữ tiếng Anh
+     và năm tiếng, trong khi người đọc thấy nó là MỘT khối mã;
+  2. `.replace('\\r', '')` — cây mã là CRLF và `.` của regex không khớp `\\r`,
+     nên câu cuối mỗi dòng bị tính lẫn sang dòng sau. Bẫy này đã ghi trong
+     AGENTS.md và đã cắn hai lần (`label-version`, bóc chú thích cuối dòng).
+
+ĐƠN VỊ ĐẾM LÀ TIẾNG (âm tiết), KHÔNG phải "từ" (§10). Tiếng Việt viết rời theo
+tiếng nên tách theo khoảng trắng là đúng; cài tách từ (underthesea/VnCoreNLP)
+thêm ~3% nhiễu vào mọi ngưỡng mà không đổi được kết luận nào.
+
+Và ĐỌC §9 trước khi tin bộ này: nó KHÔNG đếm được "ý" (nên L2 chỉ là xấp xỉ),
+KHÔNG dò được giọng trung tính (L6 là danh sách hữu hạn nên sẽ bỏ sót), và L10
+chỉ kiểm CÓ MẶT chú giải, không kiểm chú giải đúng hay đủ.
+
+MỐC ĐO ngày 29/10/2026 trên 172 bài / 738 đoạn / 2 182 câu / 544 màn (số đoạn và
+số màn khớp đúng "danh-từ-hoá đầu đoạn 1/738" của §6 và "544 màn đọc" của
+AGENTS.md — đó là phép kiểm rẻ nhất cho hai tiền xử lý và cho bản chép
+`chia_man`):
+
+    L1 25 lỗi / 94 cb · L2 7/19 · L3 48/0 · L4 6/0 · L5 2/0 · L6 11/0 ·
+    L7 0/19 · L8 43/30 · L9 0/0 · L10 65/0 · L11 16/0 · L12 4/43 ·
+    L13 0/247 · TB 0/0 · §4-A 0/266
+
+L14/L15 đo muộn hơn, trên `source/course.json` sha256 `a6d7b460aa4082f3`:
+
+    L14 69 lỗi (28 miền-ngoài + 41 dữ-liệu-trơ) / 42 cb · L15 0/106
+
+⚠️ Con số của L14/L15 là ẢNH CHỤP, và nó ĐÃ trôi trong lúc đo: module 1 được viết
+lại theo câu chuyện quán cà phê ở một nhánh việc khác NGAY TRONG buổi đo, nên L14
+đi 74/48 → 72/45 → 69/42 và dấu hiệu A của L15 đi 9 → 16 bài. Đo lại bằng
+`--luat L14,L15` sau mỗi đợt viết lại, đừng tin lại con số này.
+
+Phân bố theo module nói rõ việc còn lại nằm ở đâu, và nó cũng là bằng chứng hai
+luật này đo đúng thứ chúng nói: **PY (18 bài, module vừa viết lại) có 0 lỗi L14,
+0 cảnh báo L14 và 0 cảnh báo L15** — cả ba đều không phải vì luật bỏ qua nó mà vì
+18 bài đó nay có bối cảnh quán cà phê và có câu nối. Còn lại:
+
+    L14 lỗi  PD 24 · SY 16 · NP 9 · VZ 8 · RD 6 · GU 3 · EX 3
+    L14 cb   GU 9 · NP 8 · SY 8 · CT 6 · PD 5 · VZ 4 · RC 1 · EX 1
+    L15 cb   PD 29 · VZ 25 · NP 18 · SY 18 · GU 8 · RD 4 · EX 2 · CT 1 · RC 1
+
+BA CHỖ LỆCH SO VỚI §11, và cả ba là lệch THẬT, không phải chỗ để chỉnh ngưỡng
+cho khớp:
+
+1. **L1/L3 phụ thuộc vào PHÉP CHẺ CÂU, mà §11 không định nghĩa phép chẻ nào.**
+   Đếm được: chẻ ở `.!?…` cho 2 182 câu, L1 = 38 câu > 30 tiếng, L3 = 48; thêm
+   `;` và `:` vào phép chẻ cho 2 750 câu (gần đúng con số 2 791 mà §6 dùng cho
+   hedge), L1 còn 8, L3 KHÔNG CÒN CHẠY ĐƯỢC vì `;` là thứ chính L3 phải đếm
+   BÊN TRONG một câu. §2 lại nói 3 059 câu, tức đặc tả mang ÍT NHẤT BA phép đo
+   của ba phép chẻ khác nhau. Bộ này chọn `.!?…` vì đó là phép chẻ duy nhất để
+   cả L1 và L3 cùng chạy được, và nói ra con số của phương án kia thay vì im.
+2. **L8/L9/L10 tỉ lệ với ĐỘ LỚN CỦA TERMBANK**, nên con số tuyệt đối của §11
+   không so trực tiếp được. §1 đo "23/40 từ thông dụng nhất không bao giờ được
+   định nghĩa"; bộ này, giới hạn lại đúng 40 thuật ngữ thông dụng nhất, cho
+   **27/31** — cùng một hiện tượng, cùng một cỡ. Mở ra cả 110 mục thì L10 = 65.
+   Cùng lý đó, L8 ở đây có trung vị 32 / p90 90 / max 166 (RC01) so với 15/46/96
+   của §1: xấp xỉ gấp đôi, đúng tỉ lệ số thuật ngữ được khai.
+3. **L9 KHÔNG tái lập được "max 13".** Đếm trên 544 màn: trung vị 0, max 3, 0 ca
+   vi phạm. Không phải vì luật không chạy — ablate (dồn 6 thuật ngữ chưa gặp vào
+   màn đầu PY01) làm nó đỏ ngay. Nguyên nhân là "max 13" của §1 đếm TỪ TIẾNG ANH
+   trong văn xuôi, còn L9 ở §4 đếm MỤC TERMBANK; 110 mục trải trên 544 màn thì
+   không màn nào gánh quá 3. Hai phép đếm khác nhau, và chỉ phép đếm theo
+   termbank là thứ người soạn sửa được.
+
+Và hai chỗ đặc tả tự mâu thuẫn, ghi lại để lần sau không ai đi chỉnh script cho
+khớp một con số không đứng được:
+
+  · L12 — §6 nói "câu có ≥2 hedge 6/2791" còn §11 nói "10 câu"; không thể có 10
+    câu ≥3 hedge mà chỉ 6 câu ≥2 hedge, vì tập sau chứa tập trước. Bộ này đếm
+    447 hedge (so với 703 của §6, danh sách hedge hẹp hơn), 47 câu ≥2 và 4 câu
+    ≥3. Ngưỡng lỗi đặt ở 3 theo §6 ("cấm là CHỒNG", không cấm `có thể`).
+  · L6 — ra ĐÚNG 11 như §11, nhưng phân rã là `thực hiện` 3 + `một cách` 8, và
+    CẢ 7 ca `một cách` (đo lại 07/11) là DƯƠNG TÍNH GIẢ: "một cách truy cập",
+    "một cách gom", "một cách nêu" là danh ngữ ("một cách để…"), không phải
+    trạng ngữ "một cách + tính từ" mà §6 cấm. Phân biệt hai nghĩa đó cần biết
+    từ loại của từ đứng sau — NHƯNG kể TÊN đúng khuôn thì không cần, xem Con
+    số 11 khớp đặc tả có lẽ vì đặc tả cũng đo bằng đúng phép dò này.
+
+L14 VÀ L15 — bối cảnh và sự nối bài (thêm 29/10/2026)
+=====================================================
+Chúng trả lời một phản hồi của chủ dự án, không phải một mục nào của VAN-PHONG.md:
+*"không có sự liên kết giữa các bài với nhau, như 1 hành trình để thực hiện hóa 1
+cốc cà phê hay mở 1 quán cà phê."* Danh sách miền nằm ở `boi-canh.json`, không
+nhúng vào đây — cùng lý lẽ với `thuatngu.json` (§4): nhiều luật đọc chung một
+nguồn thì không lệch nhau được, và người sửa NỘI DUNG sửa được danh sách mà không
+mở script.
+
+**L14 là luật DUY NHẤT đọc vào trong backtick, và đó là cố ý.** Tiền xử lý số 1
+của §10 (backtick → token trơ) tồn tại để phép đếm thuật ngữ và độ dài câu không
+tính `df.groupby("month")` thành bốn thuật ngữ. Nhưng miền ví dụ sống ĐÚNG trong
+chỗ đó: `cups_sold`, `sales.csv`, `marks.txt`. Bỏ backtick ra trước khi đo miền là
+đo mù đúng nửa bằng chứng. Tiền xử lý số 2 (`\\r`) vẫn áp như mọi luật khác. Và
+L14 đọc bản HỌC VIÊN thấy — `displayCode`/`displayExpected` khi có, chứ không phải
+`code` — đúng cái bẫy AGENTS.md ghi ("lấy nhầm là dạy sai").
+
+Biên từ khoá coi GẠCH DƯỚI là biên (`(?<![^\\W_])`), nên `cups` khớp trong
+`total_cups` mà `cup` không khớp trong `cupboard`. Một danh sách dùng được cho cả
+văn xuôi lẫn định danh snake_case.
+
+**Ba con số của bản audit KHÔNG tái lập được, và cả ba lệch theo cùng một kiểu:**
+đếm một từ có nghĩa thứ hai.
+  · "thư viện/sách 39 bài" → đo lại: **0 bài**. Cả 35 lần `sách` là `danh sách`
+    (list) và `chính sách`; cả 25 lần `thư viện` là THƯ VIỆN MÃ (`numpy`, `venv`,
+    `.so`). Vì vậy `sách` và `thư viện` KHÔNG được làm từ khoá, và `boi-canh.json`
+    có trường `loaiTru` để ghi lại đúng những cụm này.
+  · "vé 6 bài" → chữ `vé` xuất hiện **0 lần** trong `source/course.json`. Con số 6
+    đến từ một gói nội dung khác.
+  · "file 23 bài" → `file` không phải MIỀN VÍ DỤ: bài dạy mở file buộc phải nói về
+    file, và quán cà phê lưu đơn hàng vào file thì vẫn là quán cà phê. Nó ở trong
+    `boi-canh.json` với vai trò `trungTinh` để không ai đếm nó thành miền lần nữa.
+Hai con số tái lập được gần đúng: cà phê **32** (audit: 32) và bán hàng **38**
+(audit: 39), đo ở ngưỡng ≥3 lần từ khoá.
+
+**Ngưỡng 2 lần từ khoá** cho "bài DÙNG miền này". Đo cả ba ngưỡng trên corpus
+(lỗi miền-ngoài + lỗi dữ-liệu-trơ / cảnh báo không-có-bối-cảnh):
+
+    ngưỡng 1 → 35 + 51 = 86 lỗi / 32 cb
+    ngưỡng 2 → 30 + 42 = 72 lỗi / 45 cb     ← đang dùng
+    ngưỡng 3 → 24 + 36 = 60 lỗi / 56 cb
+
+Chọn 2 vì hai đầu đều mất thứ cụ thể, và đây là danh sách những bài đổi phe:
+  · lên ngưỡng 3 là MẤT GU03 và GU07 (`sinh viên` + `môn học` — form nhập điểm,
+    miền ngoài rõ ràng), NP13/NP14 (`lượng mưa`×2 — bảng dữ liệu mưa), VZ28
+    (`nhiệt độ` + `temperature`), PY16 (`hoá đơn` + `đơn giá` không gắn quán nào);
+  · xuống ngưỡng 1 là THÊM SY01, PD24, PD25 (`đơn hàng`/`doanh thu` đúng MỘT lần
+    trong một bài nói chuyện khác) — một lần nhắc qua không phải bối cảnh của bài.
+Riêng phép NEO vào miền chính chỉ cần **1** lần (ngưỡng 2 làm số lỗi 42 → 47,
+ngưỡng 3 → 50), và lệch hai ngưỡng này là có chủ đích: một L14 báo oan đẩy người
+soạn đi XOÁ một ví dụ đang đúng, nên phía "bài đã có bối cảnh" phải rộng tay hơn
+phía "bài dùng miền lạ".
+
+**Dương tính giả ở miền CHÍNH tệ hơn ở miền ngoài** — nó làm một bài chưa neo
+trông như đã neo, và luật im lặng. Đã bắt được một ca: `nhất quán` (= consistent,
+10 lần trong corpus) là TOÀN BỘ dấu hiệu "quán" của PY09. Nó nằm trong `loaiTru`
+của miền chính, cùng chỗ với `book` của PD13 (`with pd.ExcelFile(…) as book:` —
+bằng chứng duy nhất của miền sách trong cả corpus, và nó không phải quyển sách
+nào).
+
+**L15 KHÔNG ĐÁNG TIN BẰNG MỌI LUẬT KHÁC TRONG BỘ NÀY, và con số nói rõ vì sao.**
+Dấu hiệu A — đoạn mở bài có một cụm chỉ sự nối tiếp (`bài trước`, `vừa làm`,
+`, giờ`, `… rồi.`, `tiếp tục`…) — đạt **16/171 bài**, và PHẦN LỚN là module 1 vừa
+viết lại (lúc bắt đầu đợt này con số là 9). Riêng A thì luật cảnh báo 155/171
+bài, tức 91% khoá học; một luật cảnh báo 91% thì không ai đọc nữa, đúng điều §12
+nói về CI đỏ thường trực.
+Dấu hiệu B — đoạn mở bài nhắc lại một thuật ngữ termbank mà bài LIỀN TRƯỚC cũng
+dùng — đạt 47/171. Hợp A ∪ B còn **112 cảnh báo** (59 bài đạt).
+**B KHÔNG đo được "sự nối", và đó là giới hạn thật của luật này**: hai bài pandas
+liền nhau dùng chung chữ `DataFrame` là chuyện tự nhiên, không phải một câu nối.
+Nên L15 có nhiều ÂM TÍNH GIẢ (bài đạt nhờ B mà thật ra không nối gì) chứ không
+nhiều dương tính giả, và nó chỉ đo được TRƯỜNG HỢP XẤU NHẤT: bài không chia gì
+với bài trước, cả cụm chữ lẫn khái niệm. Nó ở mức CẢNH BÁO, mãi mãi. Đừng nâng
+lên lỗi, và đừng siết danh sách cụm nối cho ra số đẹp — số thật là 9/171, và nó
+nói rằng việc phải làm nằm ở NỘI DUNG, không ở ngưỡng.
+Hai dấu hiệu đã thử và BỎ, ghi lại để không ai cài lại rồi tưởng mình thêm được
+một phép dò:
+  · định danh trong backtick ở đoạn mở bài mà bài trước cũng dùng — **0** ca trên
+    cả 171 bài, vì đoạn mở bài gần như không bao giờ có backtick;
+  · danh sách cụm nối RỘNG (`cùng`, `vẫn`, `đã`, `sau khi`) — nó hạ cảnh báo
+    xuống 72, nhưng `cùng` một mình khớp 39 bài và nó không nói gì về sự nối
+    ("cùng một bảng", "cùng kiểu"). Con số 72 đó là số đẹp mua bằng dương tính
+    giả.
+
+**ABLATE — số ca bắt được** (bản sao corpus ở scratchpad, chạy bằng `--nguon`;
+mỗi lần đo kèm một bản ĐỐI CHỨNG chép từ cùng thời điểm đọc, vì corpus đang bị
+sửa song song):
+  · 6 bài sạch nhận thêm một đoạn miền sách → **+6 lỗi** L14 (6/6);
+  · 5 bài sạch nhận một bảng `sales`/`revenue` không nhắc quán → **+5 lỗi** (5/5);
+  · gỡ MỌI dấu hiệu quán cà phê khỏi 5 bài đang neo (PD02, VZ01–VZ04) →
+    **+5 lỗi** (5/5). Lần đầu chỉ ra +2, vì bản gỡ bỏ sót `đồ uống` — phép ablate
+    tự bắt được chỗ danh sách từ khoá rộng hơn bản gỡ;
+  · thêm miền sinh viên vào 3 bài ĐƯỢC MIỄN TRỪ (CT03, CT04, EX05) → **0 thay
+    đổi**, đúng như miễn trừ hứa;
+  · cắt cụm nối khỏi 5 bài đang đạt L15 → **+3 cảnh báo** (NP11, PD29, GU11), còn
+    PD18 và EX02 VẪN ĐẠT nhờ dấu hiệu B. Đó không phải lỗi của phép ablate: nó là
+    âm tính giả đã nói ở trên, đo được bằng con số 3/5.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import statistics
+import sys
+from collections import Counter
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+SOURCE = HERE / 'source' / 'course.json'
+# Gói bài tập + trắc nghiệm của người soạn. Luật TL đọc nó cho §8: số đo của
+# NGÂN HÀNG NGUỒN khác số đo của bản phát ra, vì phép trộn vị trí nằm ở build.
+PRACTICE = HERE / 'source' / 'practice.json'
+# Sổ mốc TỪNG LUẬT. LOOP.md bậc 4 đòi "không luật nào được TĂNG", nhưng trước
+# bản này con số chỉ sống trong §11 của VAN-PHONG.md — tức VĂN XUÔI, đo hồi
+# 29/10 trên 172 bài, và không gì đối chiếu nó. Một luật ratchet không có mốc
+# máy đọc được thì không phải ratchet: nó là một câu dặn. Cùng lý lẽ đã dựng
+# `scripts/nguong-mot-chieu.json` cho 18 ngưỡng một chiều.
+MOC = HERE / 'van-phong-moc.json'
+TERMBANK = HERE / 'thuatngu.json'
+BOI_CANH = HERE / 'boi-canh.json'
+
+LOI: list[tuple[str, str]] = []
+CANH_BAO: list[tuple[str, str]] = []
+
+# Mô tả ngắn từng luật, dùng cho bảng tổng kết. Khớp §11 của VAN-PHONG.md.
+TEN_LUAT = {
+    'L1': 'câu > 25 tiếng (cảnh báo) / > 30 tiếng (lỗi)',
+    'L2': 'đoạn > 90 tiếng hoặc > 6 câu (cảnh báo) / 110 tiếng hoặc 8 câu (lỗi)',
+    'L3': 'câu ≥ 3 dấu , hoặc ; VÀ ≥ 20 tiếng → phải thành bullet/bảng',
+    'L4': 'không mở câu bằng danh-từ-hoá (Việc/Sự/Quá trình/Khả năng…)',
+    'L5': 'cấm khuôn sao phỏng `được/bị + V + bởi`',
+    'L6': 'từ cấm hành chính',
+    'L7': 'chỉ xưng "bạn"',
+    'L8': 'mật độ thuật ngữ ≤ 40/1000 tiếng (lỗi > 60)',
+    'L9': '≤ 3 thuật ngữ MỚI mỗi màn đọc (lỗi > 5)',
+    'L10': 'thuật ngữ lần đầu toàn khoá phải có chú giải',
+    'L11': 'một thuật ngữ một cách gọi',
+    'L12': '≤ 1 hedge mỗi câu (lỗi từ 3)',
+    'L13': 'ưu tiên từ thuần Việt theo nhóm B của termbank',
+    'L14': 'bối cảnh bài phải thuộc danh sách đã chốt (boi-canh.json)',
+    'L15': 'đoạn mở bài phải nối với bài trước (CẢNH BÁO, xem docstring)',
+    'TB': 'bất biến của chính termbank',
+    'TL': 'số đo trong VAN-PHONG.md phải khớp số đo thật (§1 · §2 · §8 · §12)',
+    '§4-A': 'định danh trong code phải nằm trong backtick',
+}
+
+# ── Tiền xử lý ────────────────────────────────────────────────────────────
+# Token trơ thay cho nội dung backtick. Phải là MỘT tiếng, không mang chữ cái
+# (để không khớp thuật ngữ nào) và không mang dấu kết câu (để không chẻ câu).
+TRO = '◆'
+BACKTICK = re.compile(r'`[^`]*`')
+# `;` KHÔNG phải dấu kết câu ở đây: chính L3 đếm nó bên TRONG một câu, nên coi
+# nó là dấu kết câu thì L3 không bao giờ bắt được ca nào.
+HET_CAU = re.compile(r'(?<=[.!?…])\s+')
+CHI_DAU = re.compile(r'^[\W_]+$', re.UNICODE)
+
+
+def chuan(text: str) -> str:
+    """Hai tiền xử lý bắt buộc của §10, theo đúng thứ tự."""
+    return BACKTICK.sub(TRO, text.replace('\r', ''))
+
+
+def cau_cua(doan: str) -> list[str]:
+    """Chẻ đoạn thành câu. Số thập phân (`0.5`) không bị chẻ vì sau dấu chấm
+    không có khoảng trắng — đó cũng là lý do không dùng `.split('.')`."""
+    return [c.strip() for c in HET_CAU.split(doan) if c.strip()]
+
+
+def tieng(s: str) -> list[str]:
+    """Đếm theo TIẾNG: tách khoảng trắng, bỏ token chỉ có dấu câu."""
+    return [t for t in s.split() if not CHI_DAU.match(t)]
+
+
+# ── Termbank ──────────────────────────────────────────────────────────────
+class Muc:
+    """Một mục termbank, kèm sẵn regex đã biên dịch.
+
+    Khoá là (thuatNgu, nguCanh) — KHÔNG phải một trường. `phamVi` là thứ làm
+    khoá hai trường CHẠY ĐƯỢC: không có nó script không biết "stack" ở PD20 là
+    nghĩa pandas hay nghĩa call stack, và hai nghĩa đó bị trộn thành một.
+    """
+
+    __slots__ = ('tn', 'nhom', 'nguc', 'tv', 'chu_giai', 'pham_vi', 'bai_dau',
+                 're_tn', 're_tv')
+
+    def __init__(self, d: dict) -> None:
+        self.tn = d['thuatNgu']
+        self.nhom = d['nhom']
+        self.nguc = d['nguCanh']
+        self.tv = d.get('tiengViet')
+        self.chu_giai = d.get('chuGiai')
+        self.pham_vi = tuple(d.get('phamVi') or ())
+        self.bai_dau = d.get('baiDauTien')
+        # Viết hoa toàn bộ (GIL, CPU, API) thì phân biệt hoa-thường: khớp lỏng
+        # sẽ bắt cả những tiếng Việt không dấu tình cờ trùng. Còn lại khớp lỏng
+        # vì thuật ngữ đứng đầu câu bị viết hoa ("Stack giữ khung lời gọi hàm").
+        # `isupper()` chỉ True với TOÀN HOA (GIL, CPU, API), nên `Thread`, `Figure`,
+        # `DataFrame`, `True`… rơi vào nhánh IGNORECASE và khớp cả bản viết thường.
+        # Đo được: `Thread` khớp đúng chính tả **3** lần, khớp lỏng **40** — 37 chỗ
+        # kia là chữ `thread` CHỮ THƯỜNG, tức KHÁI NIỆM nhóm B, và §4-A đi bảo bọc
+        # backtick cho chúng (nặng nhất: PY17 bị bắt ngay trong khuôn chú giải
+        # `luồng (thread)`). Thêm `Axes` bắt `"axes fraction"` (một giá trị chuỗi
+        # của matplotlib) và `Popen` bắt `os.popen` (một hàm KHÁC). Cả 39 chỗ lỏng
+        # bắt thêm đều là báo oan.
+        # Lý do có IGNORECASE vẫn đúng, nhưng chỉ cho mục CHỮ THƯỜNG bị viết hoa
+        # đầu câu ("Stack giữ khung lời gọi hàm"). Một định danh Python viết hoa thì
+        # chính tả của nó LÀ chữ hoa theo định nghĩa — không câu nào viết thường nó.
+        co = 0 if any(c.isupper() for c in self.tn) else re.IGNORECASE
+        # Biên từ của THUẬT NGỮ phải loại cả dấu nối (các luật tiếng Việt ở dưới
+        # thì KHÔNG — chúng là cụm từ, không nằm trong từ ghép gạch nối). `-`
+        # không thuộc `\w`, nên biên cũ khớp chữ "string" TRONG "f-string" — mà
+        # `f-string` là tên một cơ chế của Python, không phải chữ "string" nói về
+        # kiểu chuỗi. Đo được: SY24 bị L11 báo "gọi cùng một thứ bằng hai tên —
+        # string và chuỗi" cho một đoạn KHÔNG dùng chữ "string" lần nào. Cùng lớp
+        # lỗi với "thread-safe", "single-thread". Cổng báo oan sẽ bị tắt.
+        self.re_tn = re.compile(r'(?<![\w-])' + re.escape(self.tn) + r'(?![\w-])', co)
+        self.re_tv = (re.compile(r'(?<![\w-])' + re.escape(self.tv) + r'(?![\w-])',
+                                 re.IGNORECASE) if self.tv else None)
+
+    @property
+    def khoa(self) -> tuple[str, str]:
+        return (self.tn, self.nguc)
+
+    def trong_bai(self, ma: str) -> bool:
+        return not self.pham_vi or any(ma.startswith(p) for p in self.pham_vi)
+
+
+def nap_termbank() -> list[Muc]:
+    if not TERMBANK.is_file():
+        print(f'LỖI: không có {TERMBANK} — L8/L9/L10/L11/L13 không chạy được.',
+              file=sys.stderr)
+        sys.exit(1)
+    data = json.loads(TERMBANK.read_text(encoding='utf-8'))
+    return [Muc(d) for d in data['thuatNgu']]
+
+
+def kiem_termbank(bank: list[Muc], bai: list[dict]) -> None:
+    """Bất biến của chính termbank, và phép đối chiếu `baiDauTien` với corpus.
+
+    Vì sao phải đối chiếu lại mỗi lần chạy: `baiDauTien` là một con số thứ hai
+    phải khớp với cây mã. AGENTS.md đã ghi đúng họ bẫy này — dòng đếm ca test
+    ghi 204 trong khi cây mã có 134, và "một con số cũ trong bảng không phải
+    chú thích lỗi thời vô hại". Người soạn chèn một đoạn mới vào giữa khoá là
+    `baiDauTien` lệch ngay, và khi đó L10 đi kiểm chú giải Ở SAI BÀI — nó báo
+    xanh cho một thuật ngữ thật ra chưa bao giờ được chú giải.
+    """
+    thay = Counter()
+    for m in bank:
+        thay[m.khoa] += 1
+        if m.nhom not in ('A', 'B', 'C'):
+            loi('TB', f'{m.tn}/{m.nguc}: nhóm lạ {m.nhom!r} — chỉ có A/B/C (§4)')
+        if m.nhom == 'B' and not m.tv:
+            loi('TB', f'{m.tn}/{m.nguc}: nhóm B mà không có `tiengViet` — '
+                      'L13 không có gì để đề nghị thay')
+        if m.nhom != 'B' and m.tv:
+            loi('TB', f'{m.tn}/{m.nguc}: nhóm {m.nhom} mà có `tiengViet` — '
+                      'nhóm A giữ nguyên, nhóm C ĐỪNG dịch cố (§4)')
+        if m.nhom in ('B', 'C') and not (m.chu_giai or '').strip():
+            loi('TB', f'{m.tn}/{m.nguc}: nhóm {m.nhom} mà không có `chuGiai` — '
+                      'L10 đòi một chú giải mà termbank không gợi được câu nào')
+    for khoa, n in thay.items():
+        if n > 1:
+            loi('TB', f'{khoa[0]}/{khoa[1]}: {n} mục cùng khoá (thuật ngữ, ngữ cảnh)')
+
+    # NHÓM A đọc RAW, hai nhóm kia đọc bản đã bỏ backtick — và đó không phải
+    # tiện tay. `baiDauTien` của nhóm B/C phải là lần đầu ĐỨNG TRẦN, vì đó mới
+    # là chỗ L10/L11/L13 cần (một thuật ngữ nằm trong backtick thì không ai đi
+    # đòi chú giải cho nó). Nhưng chỗ ĐÚNG của nhóm A LÀ trong backtick, nên
+    # tính lần-đầu chỉ trên phần trần làm bất biến này ĐÒI đúng cái §4-A CẤM —
+    # và nó thành bất khả đúng vào lúc §4-A được thoả hoàn toàn. Đo được: vừa
+    # bọc backtick cho 54 hằng `True`/`False`/`None` là TB đỏ 3 lỗi "KHÔNG xuất
+    # hiện ở đâu trong corpus". Đổi sang tính cả trong backtick thì chỉ 3 mục
+    # phải sửa giá trị (print PY03→PY01, float PY05→PY04, Thread CT11→CT10) và
+    # ba hằng vừa bọc GIỮ NGUYÊN giá trị cũ — dấu hiệu ngữ nghĩa này mới đúng.
+    thuc = {}
+    for l in bai:
+        tho = raw_doan(l)
+        for m in bank:
+            if m.khoa in thuc or not m.trong_bai(l['id']):
+                continue
+            nguon = tho if m.nhom == 'A' else doan_cua(l)
+            if any(m.re_tn.search(d) for d in nguon):
+                thuc[m.khoa] = l['id']
+    for m in bank:
+        that = thuc.get(m.khoa)
+        if that is None:
+            loi('TB', f'{m.tn}/{m.nguc}: khai `baiDauTien`={m.bai_dau} nhưng '
+                      f'KHÔNG xuất hiện ở đâu trong corpus'
+                      + ('' if m.nhom == 'A' else ' (ngoài backtick)'))
+        elif that != m.bai_dau:
+            loi('TB', f'{m.tn}/{m.nguc}: `baiDauTien`={m.bai_dau} nhưng corpus '
+                      f'dùng lần đầu ở {that}')
+
+
+# ── Đọc corpus ────────────────────────────────────────────────────────────
+def doan_cua(l: dict) -> list[str]:
+    """Các đoạn văn của phần giảng, ĐÃ qua hai tiền xử lý.
+
+    `code`/`terminal` là mã và `figure` là nhãn ảnh — đo văn phong trên mã là đo
+    sai thứ, nên chúng ở ngoài.
+
+    NHƯNG Ô BẢNG THÌ PHẢI VÀO, và đây là lỗi của bản đầu. Docstring cũ xếp
+    `table` cùng nhóm với `figure` là "nhãn giao diện". Điều đó đúng khi bảng còn
+    hiếm và chỉ chứa nhãn — nhưng **§2 của VAN-PHONG.md kê "phải thành
+    bullet/bảng" làm CÁCH SỬA cho L3**, nên bảng nay là ĐÍCH ĐẾN của văn xuôi bị
+    tách ra. Hai điều đó cộng lại làm ratchet TỰ GAME ĐƯỢC: cách rẻ nhất để hạ
+    bất kỳ luật nào là chuyển chữ vào một ô bảng, không sửa gì cả.
+    Đã gieo để kiểm, trên một bản SAO qua `--nguon`: một câu **5 dấu phẩy, > 20
+    tiếng**, kèm `DataFrame` **đứng trần**, đặt vào một ô bảng — L3 giữ 32, §4-A
+    giữ 23, L13 giữ 217. Mù hoàn toàn.
+    Và nó không phải lo xa: lát L3 ngày 08/11 chuyển bốn câu liệt kê vào bảng,
+    và L13 tụt 220 → 217 — ba lần xuất hiện BIẾN KHỎI TẦM NHÌN chứ không phải
+    ba chỗ được sửa.
+
+    Mỗi Ô là một mục riêng (không nối thành câu): một ô bảng ĐÚNG RA là một mẩu
+    ngắn, nên nối chúng lại sẽ dựng ra những "câu" mà không ai viết và L1/L3 sẽ
+    bắt oan.
+    """
+    ra = []
+    for k in (l.get('reading') or []):
+        loai = k.get('type')
+        if loai == 'paragraph' and (k.get('text') or '').strip():
+            ra.append(chuan(k['text']))
+        elif loai == 'table':
+            for o in list(k.get('headers') or []) + [
+                    x for hang in (k.get('rows') or []) for x in hang]:
+                if str(o).strip():
+                    ra.append(chuan(str(o)))
+    return ra
+
+
+def raw_doan(l: dict) -> list[str]:
+    """Cùng các đoạn ấy nhưng CHƯA bỏ backtick.
+
+    Thuật ngữ nhóm A phải được tìm trên bản này: chỗ ĐÚNG của một định danh
+    code LÀ trong backtick (§4-A), nên tìm nó trên bản đã bỏ backtick là đòi
+    đúng cái §4-A cấm, và tín hiệu đó mù dần khi §4-A được thoả. HAI luật cần
+    nó — bất biến TB và dấu hiệu B của L15 — nên nó là MỘT hàm; hai bản chép
+    sẽ trôi khỏi nhau, và L15 mắc đúng lỗi này vì nó không có bản nào.
+
+    PHẢI GỒM Ô BẢNG, và đây là lỗi của bản đầu. 08/11/2026 một câu liệt kê của
+    SY12 được tách thành bảng, `curses` theo ô bảng mà đi — hàm này chỉ đọc
+    `paragraph` nên nó THÔI THẤY `curses` ở SY12, và TB đỏ với "`baiDauTien`=SY12
+    nhưng corpus dùng lần đầu ở SY14". Cái sai KHÔNG nằm ở termbank: SY12 vẫn
+    nói về `curses`, chỉ là nói trong một ô bảng.
+    Đây là cùng một khe với `doan_cua()`, thứ ĐÃ quét `headers`/`rows` — tức hai
+    phép quét bất đồng về việc chữ nào tồn tại, và luật nào đứng giữa hai phép
+    ấy thì sai theo một chiều không ai đoán trước được.
+    """
+    ra = []
+    for k in (l.get('reading') or []):
+        if k.get('type') == 'paragraph' and (k.get('text') or '').strip():
+            ra.append(k['text'])
+        elif k.get('type') == 'table':
+            ra.extend(str(x) for x in (k.get('headers') or []) if str(x).strip())
+            for hang in (k.get('rows') or []):
+                ra.extend(str(x) for x in hang if str(x).strip())
+    return ra
+
+
+def van_ban_hoc_vien(l: dict) -> str:
+    """TOÀN BỘ chữ người học thấy trong phần giảng — kể cả code và đầu ra.
+
+    Chỉ L14 dùng hàm này, và nó cố ý KHÔNG gọi `chuan()`: miền ví dụ sống đúng
+    trong chỗ mà tiền xử lý số 1 của §10 xoá đi (`cups_sold`, `sales.csv`,
+    `marks.txt`). Mọi luật khác vẫn đọc `doan_cua()`, nơi backtick đã thành
+    token trơ.
+
+    `displayCode`/`displayExpected` thắng `code`/`expected` khi có: đó là bản
+    người học đọc, và AGENTS.md đã ghi "lấy nhầm là dạy sai" cho đúng cặp này.
+    """
+    ra: list[str] = []
+    for k in (l.get('reading') or []):
+        loai = k.get('type')
+        if loai == 'paragraph':
+            ra.append(k.get('text') or '')
+        elif loai == 'code':
+            ra.append(k.get('displayCode') or k.get('code') or '')
+            ra.append(k.get('displayExpected') or k.get('expected') or '')
+        elif loai == 'table':
+            ra.extend(str(x) for x in (k.get('headers') or []))
+            for hang in (k.get('rows') or []):
+                ra.extend(str(x) for x in (hang or []))
+        else:
+            # `figure` chỉ là tên file ảnh; `terminal` là lệnh shell. Cả hai
+            # vẫn đưa vào: tên file `doanh-thu-2024.png` cũng là một miền.
+            ra.append(str(k.get('code') or k.get('caption') or k.get('figure') or ''))
+    return '\n'.join(ra).replace('\r', '')
+
+
+def van_ban_luyen_tap(l: dict) -> str:
+    """Chữ người học thấy ở MÀN LUYỆN TẬP — câu hỏi, đáp án mẫu và mã của nó.
+
+    Tách khỏi `van_ban_hoc_vien()` có chủ đích: hàm kia là "phần giảng", và
+    mọi luật văn phong khác đo trên đó. Chỉ MỘT nhánh của L14 đọc hàm này —
+    nhánh "dùng miền ngoài" — vì đó là lớp lỗi AGENTS.md đã ghi tên ("màn đọc
+    ở quán cà phê nhưng ĐỀ BÀI TẬP ở miền cũ"), và nó đã xảy ra ba lần ở
+    `exercises` rồi một lần nữa ở `drills`. KHÔNG áp nhánh "chưa neo" ở đây:
+    một câu luyện tập hai dòng không thể bị đòi kể lại cả bối cảnh.
+    """
+    ra: list[str] = []
+    for d in (l.get('drills') or []) + (l.get('reviewExercises') or []):
+        ra += [d.get('prompt') or '', d.get('answer') or '',
+               d.get('answerCode') or '', str(d.get('answerExpected') or '')]
+    return '\n'.join(ra).replace('\r', '')
+
+
+def chia_man(reading: list[dict]) -> list[list[dict]]:
+    """Bản CHÉP của `chia_man()` trong build.py — cố ý chép, không import.
+
+    Cùng lý lẽ với `_noi_nhu_build()` trong check.py: import thì một lỗi trong
+    `chia_man` xuất hiện ở cả hai phía phép so, và L9 không chứng minh được gì
+    về số màn mà người học thật sự thấy. Hai bản phải khớp từng dòng.
+    """
+    man: list[list[dict]] = []
+    hien_tai: list[dict] = []
+    da_co_code = False
+    for khoi in reading:
+        if khoi['type'] == 'paragraph' and da_co_code and len(hien_tai) >= 2:
+            man.append(hien_tai)
+            hien_tai = []
+            da_co_code = False
+        hien_tai.append(khoi)
+        if khoi['type'] == 'code':
+            da_co_code = True
+    if hien_tai:
+        if len(hien_tai) == 1 and man:
+            man[-1].extend(hien_tai)
+        else:
+            man.append(hien_tai)
+    return man
+
+
+# ── L1, L2, L3: độ dài và câu nhồi mệnh đề ────────────────────────────────
+def kiem_do_dai(bai: list[dict]) -> None:
+    """L1 + L2 + L3.
+
+    L1/L2 là HÀNG RÀO CHỐNG TỤT, không phải việc phải làm: §2 đo được trung vị
+    13 từ, p90 22, và chỉ 1,2% câu dài hơn 30 từ. Đừng mở một đợt "chẻ câu cho
+    ngắn" dựa vào L1 — nó sẽ sửa đúng thứ không hỏng.
+
+    L3 mới là luật có răng: cái sai ở 20 câu dài nhất là dấu `;` nhồi mệnh đề
+    (15/20), tức MỘT BẢNG ĐỊNH NGHĨA BỊ NÉN THÀNH MỘT CÂU. Cách sửa là đổi sang
+    bullet hoặc bảng, không phải cắt câu làm hai.
+    """
+    for l in bai:
+        ma = l['id']
+        for i, d in enumerate(doan_cua(l)):
+            cs = cau_cua(d)
+            n_tieng = len(tieng(d))
+            if n_tieng > 110 or len(cs) > 8:
+                loi('L2', f'{ma} đoạn {i}: {n_tieng} tiếng / {len(cs)} câu')
+            elif n_tieng > 90 or len(cs) > 6:
+                canh_bao('L2', f'{ma} đoạn {i}: {n_tieng} tiếng / {len(cs)} câu')
+            for c in cs:
+                n = len(tieng(c))
+                dau = c.count(',') + c.count(';')
+                # L3 trước L1: cùng một câu thì "chẻ thành bảng" là lời khuyên
+                # đúng, còn "viết ngắn lại" là lời khuyên sai.
+                if dau >= 3 and n >= 20:
+                    loi('L3', f'{ma}: {n} tiếng, {dau} dấu , hoặc ; — '
+                              f'phải thành bullet/bảng · {goi(c)}')
+                elif n > 30:
+                    loi('L1', f'{ma}: câu {n} tiếng · {goi(c)}')
+                elif n > 25:
+                    canh_bao('L1', f'{ma}: câu {n} tiếng · {goi(c)}')
+
+
+def goi(c: str, n: int = 90) -> str:
+    """Trích gọn một câu cho thông điệp lỗi."""
+    c = ' '.join(c.split())
+    return c if len(c) <= n else c[:n - 1] + '…'
+
+
+# ── L4, L5, L6, L7, L12: khuôn chữ ────────────────────────────────────────
+# L4 PHẢI neo vào ĐẦU CÂU. §6 đã đo: dò bằng `\bviệc\s+\w` ra 76 kết quả với
+# ~95% dương tính giả (`làm việc`, `công việc`, `việc này`, `khỏi việc`).
+DANH_TU_HOA = re.compile(
+    r'^(Việc|Sự|Quá trình|Khả năng|Tính)\s+([^\W\d_]+)', re.UNICODE)
+# Những từ theo sau làm cho cả cụm là một DANH NGỮ bình thường, không phải
+# danh-từ-hoá một động từ: "Việc này…", "Sự kiện chuột…", "Khả năng đọc…".
+SAU_KHONG_PHAI_DONG_TU = {
+    'này', 'đó', 'ấy', 'kiện', 'thật', 'việc', 'kia', 'nào', 'gì',
+    # `trung` (trong "trung bình"): "Tính trung bình từ hai điểm đã có:" là động từ
+    # RA LỆNH, không phải danh-từ-hoá. Đo trên 807 đoạn: `Tính` mở câu đúng MỘT lần
+    # và đó chính là câu này — khuôn `Tính` hiện 0 tín hiệu / 1 nhiễu. Giữ `Tính`
+    # (nó CÓ nghĩa danh-từ-hoá: "Tính chính xác của phép đo…") và loại đúng chỗ nó
+    # là động từ, bằng CƠ CHẾ ĐÃ CÓ chứ không thêm khái niệm mới.
+    'trung',
+}
+
+# L5: ĐỪNG viết bộ dò câu bị động tiếng Việt. §6: giới ngôn ngữ học chưa thống
+# nhất tiếng Việt có bị động hay không, và corpus có 230 `được+V` + 45 `bị+V`
+# gần hết vô tội. Chỉ khuôn sao phỏng có `bởi` là sai chắc chắn.
+BOI = re.compile(r'(?<![\w])(được|bị)\s+(\S+\s+){0,3}bởi(?![\w])', re.IGNORECASE)
+
+# L6: danh sách HỮU HẠN nên SẼ BỎ SÓT (§9.2). Nó là hàng rào chống tụt, không
+# phải phép đo giọng.
+TU_CAM = [
+    (re.compile(r'(?<![\w])tiến hành(?![\w])', re.I), 'tiến hành'),
+    (re.compile(r'(?<![\w])đối với(?![\w])', re.I), 'đối với'),
+    (re.compile(r'(?<![\w])nhằm(?![\w])', re.I), 'nhằm'),
+    (re.compile(r'(?<![\w])thông qua việc(?![\w])', re.I), 'thông qua việc'),
+    (re.compile(r'(?<![\w])vui lòng(?![\w])', re.I), 'vui lòng'),
+    (re.compile(r'(?<![\w])thực hiện(?![\w])', re.I), 'thực hiện'),
+    # DANH SÁCH ĐÓNG, không phải `một cách\s+<từ nào cũng được>`. Đo trên 807 đoạn:
+    # khuôn cũ khớp 7 lần và CẢ 7 ĐỀU BÁO OAN — chúng là danh từ "cách" (= phương
+    # thức): "một cách truy cập", "một cách gom", "một cách nêu", "một cách nén",
+    # "một cách archive", "một cách thấy", "một cách đóng gói". Thứ §6 nhắm tới là
+    # TRẠNG NGỮ ("một cách hiệu quả" = "hiệu quả"). Docstring đầu file từng kết luận
+    # là phải TÁCH TỪ mới phân biệt được, và §10 nói đừng cài — nhưng kể TÊN đúng
+    # khuôn thì không cần từ loại nào. Danh sách CHỈ ĐƯỢC DÀI THÊM: dài thêm là
+    # siết, ngắn đi là nới. Hôm nay nó khớp 0 chỗ, và 0 là số ĐÚNG.
+    (re.compile(r'(?<![\w])một cách\s+('
+                r'hiệu quả|nhanh chóng|dễ dàng|chính xác|rõ ràng|tự động|an toàn|'
+                r'đơn giản|trực tiếp|hoàn toàn|đáng kể|linh hoạt|thủ công|tường minh|'
+                r'tối ưu|triệt để|độc lập|song song|tuần tự|ngầm định'
+                r')(?![\w])', re.I | re.U), 'một cách + tính từ'),
+]
+
+# L7: chỉ "bạn". `người dùng` CHỈ cảnh báo — nó có nghĩa thứ hai hợp lệ (người
+# dùng của chương trình mà học viên viết), và đó là nghĩa đúng ở gần hết corpus.
+XUNG_HO = [
+    (re.compile(r'(?<![\w])chúng ta(?![\w])', re.I), 'chúng ta', True),
+    (re.compile(r'(?<![\w])quý vị(?![\w])', re.I), 'quý vị', True),
+    (re.compile(r'(?<![\w])các em(?![\w])', re.I), 'các em', True),
+    (re.compile(r'(?<![\w])ta(?![\w])', re.I), 'ta', True),
+    (re.compile(r'(?<![\w])người dùng(?![\w])', re.I), 'người dùng', False),
+]
+
+# L12: KHÔNG cấm `có thể` — nhiều chỗ nó đúng và cần. Cấm là CHỒNG.
+# `khoảng` KHÔNG đứng trần trong danh sách này: nó là HOMOGRAPH. Đo trên corpus:
+# 61 lần dùng và ~59 là DANH TỪ (khoảng trắng · khoảng cách · khoảng thời gian ·
+# khoảng tin cậy · khoảng tứ phân vị · các khoảng · trong khoảng); chỉ ~2 là nghĩa
+# "xấp xỉ". Nên nó chỉ tính là hedge khi đứng trước một SỐ, và chính nó gây 3
+# trong 4 lỗi L12 trước bản này.
+HEDGE = [re.compile(r'(?<![\w])' + p + r'(?![\w])', re.I) for p in [
+    r'có thể', r'có lẽ', r'thường', r'thường xuyên', r'đôi khi', r'có khi',
+    r'nhiều khi', r'thỉnh thoảng', r'khoảng(?=\s+(?:\d+|một|hai|ba|bốn|năm|sáu|bảy|tám|chín|mười|vài|dăm)(?![\w-]))', r'hầu như', r'gần như',
+    r'phần lớn', r'nói chung', r'thông thường', r'dường như', r'có vẻ',
+    r'tương đối', r'khá', r'chưa hẳn', r'không hẳn', r'chưa chắc',
+    r'không nhất thiết', r'ít nhiều', r'tuỳ', r'tùy',
+]]
+
+
+def dem_hedge(c: str) -> int:
+    """Đếm hedge theo SPAN, bỏ span bị CHỨA trong span khác.
+
+    `sum(len(rx.findall(c)) for rx in HEDGE)` cộng từng khuôn độc lập, mà
+    `thường` khớp BÊN TRONG `thông thường` và `thường xuyên` — nên một cụm bị
+    đếm thành HAI. Đo được: PD17 bị báo "3 hedge chồng" cho một câu chỉ có 2
+    (`thông thường` + `có thể`), tức cổng tự đẩy câu đó từ bậc cảnh báo lên bậc
+    lỗi. Giữ span DÀI NHẤT là cách duy nhất không cần biết khuôn nào chứa khuôn
+    nào.
+    """
+    span = sorted({(m.start(), m.end()) for rx in HEDGE for m in rx.finditer(c)})
+    return sum(1 for s in span
+               if not any(t != s and t[0] <= s[0] and s[1] <= t[1] for t in span))
+
+
+def kiem_khuon_chu(bai: list[dict]) -> None:
+    """L4, L5, L6, L7, L12 — đều chạy trên CÂU đã qua tiền xử lý."""
+    for l in bai:
+        ma = l['id']
+        for d in doan_cua(l):
+            for c in cau_cua(d):
+                m = DANH_TU_HOA.match(c)
+                if m and m.group(2).lower() not in SAU_KHONG_PHAI_DONG_TU:
+                    loi('L4', f'{ma}: mở câu bằng "{m.group(0)}" · {goi(c)}')
+                if BOI.search(c):
+                    loi('L5', f'{ma}: khuôn `được/bị + V + bởi` · {goi(c)}')
+                for rx, ten in TU_CAM:
+                    if rx.search(c):
+                        loi('L6', f'{ma}: từ cấm "{ten}" · {goi(c)}')
+                for rx, ten, nang in XUNG_HO:
+                    if rx.search(c):
+                        (loi if nang else canh_bao)(
+                            'L7', f'{ma}: xưng hô "{ten}" — chỉ dùng "bạn" · {goi(c)}')
+                n_hedge = dem_hedge(c)
+                # ≥3 là LỖI vì đó là con số §6 đã đo (10 câu, nặng nhất 4); 2 là
+                # cảnh báo. Ngưỡng ở 2 mà tính lỗi thì luật đi cấm cả những câu
+                # mà §6 nói rõ là vô tội.
+                if n_hedge >= 3:
+                    loi('L12', f'{ma}: {n_hedge} hedge chồng trong một câu · {goi(c)}')
+                elif n_hedge == 2:
+                    canh_bao('L12', f'{ma}: 2 hedge trong một câu · {goi(c)}')
+
+
+# ── L8, L9, L10, L11, L13, §4-A: thuật ngữ ────────────────────────────────
+def thuat_ngu_trong(d: str, bank: list[Muc], ma: str) -> list[tuple[Muc, int]]:
+    """(mục termbank, số lần xuất hiện) trong một đoạn ĐÃ bỏ backtick.
+
+    Chỉ những mục có nghĩa áp dụng cho bài này — đó là chỗ khoá hai trường được
+    dùng thật, không chỉ được khai.
+    """
+    ra = []
+    for m in bank:
+        if not m.trong_bai(ma):
+            continue
+        n = len(m.re_tn.findall(d))
+        if n:
+            ra.append((m, n))
+    return ra
+
+
+def so_lan_thuat_ngu(d: str, bank: list[Muc], ma: str) -> int:
+    """Số LẦN NGƯỜI ĐỌC GẶP một thuật ngữ trong đoạn — đếm theo VỊ TRÍ, không
+    phải tổng số lần khớp của từng mục termbank.
+
+    Vì sao không dùng `sum(n for _, n in thuat_ngu_trong(...))`: termbank có
+    BẢY cặp mục trùng chính tả, và `Thread` (nhóm A, `lop-threading`) với
+    `thread` (nhóm B, `da-luong`) là cặp DUY NHẤT không có `phamVi` — tức cả hai
+    áp cho mọi bài. Khớp nhóm A là IGNORECASE (`"Thread".isupper()` là False),
+    nên cả hai mục khớp CÙNG một chữ và phép cộng đếm nó HAI lần. Dấu hiệu lộ
+    ra khi in từng từ: RC01 `Thread×7, thread×7`, toàn khoá `Thread ×40` và
+    `thread ×40` — hai con số BẰNG NHAU là chữ ký của đếm trùng, không phải của
+    hai cách dùng khác nhau.
+
+    Một chữ "thread" là MỘT lần người đọc gặp một thuật ngữ, bất kể termbank có
+    mấy mục trùng chính tả. Giữ span DÀI NHẤT, cùng kỹ thuật `dem_hedge()`.
+    """
+    span = sorted({(m.start(), m.end())
+                   for mc in bank if mc.trong_bai(ma)
+                   for m in mc.re_tn.finditer(d)})
+    return sum(1 for s in span
+               if not any(t != s and t[0] <= s[0] and s[1] <= t[1] for t in span))
+
+
+def kiem_thuat_ngu(bai: list[dict], bank: list[Muc]) -> None:
+    """L8 (mật độ) + L9 (thuật ngữ mới mỗi màn) + L10 (chú giải lần đầu)
+    + L11 (một cách gọi) + L13 (ưu tiên thuần Việt) + §4-A (backtick).
+
+    Bốn luật L3/L8/L9/L10 CÙNG nói một chuyện và là phần đáng làm trước mọi thứ
+    khác (§1): hai phép đo độc lập đều dừng ở "một màn đọc mang quá nhiều khái
+    niệm mới", chứ không ở độ dài câu.
+    """
+    da_gap: dict[tuple[str, str], str] = {}
+
+    for l in bai:
+        ma = l['id']
+        doan = doan_cua(l)
+
+        # L8 — mật độ tính trên CẢ BÀI: một đoạn ngắn toàn thuật ngữ nằm cạnh
+        # một đoạn dài không có gì vẫn là một bài người học đọc liền mạch.
+        tong_tieng = sum(len(tieng(d)) for d in doan)
+        tong_tn = sum(so_lan_thuat_ngu(d, bank, ma) for d in doan)
+        if tong_tieng >= 50:
+            mat_do = tong_tn * 1000 / tong_tieng
+            if mat_do > 60:
+                loi('L8', f'{ma}: {mat_do:.0f} thuật ngữ/1000 tiếng '
+                          f'({tong_tn} lần / {tong_tieng} tiếng)')
+            elif mat_do > 40:
+                canh_bao('L8', f'{ma}: {mat_do:.0f} thuật ngữ/1000 tiếng '
+                               f'({tong_tn} lần / {tong_tieng} tiếng)')
+
+        # L9 + L10 + §4-A — duyệt theo MÀN, đúng thứ tự người học đọc.
+        for i, man in enumerate(chia_man(l.get('reading') or [])):
+            moi: list[Muc] = []
+            # Ô BẢNG cũng là chữ người học đọc — xem `doan_cua()`. Vòng này là
+            # chỗ THỨ HAI lặp khối trực tiếp thay vì gọi `doan_cua`, nên sửa
+            # một mình `doan_cua` là bịt nửa khe: ablate đo được L3 thấy ô bảng
+            # (32 → 33) trong khi §4-A vẫn giữ 23 với cùng một ô gieo.
+            for k in man:
+                if k.get('type') == 'table':
+                    chu = [str(x) for x in (k.get('headers') or [])] + [
+                        str(x) for hang in (k.get('rows') or []) for x in hang]
+                elif k.get('type') == 'paragraph' and (k.get('text') or '').strip():
+                    chu = [k['text']]
+                else:
+                    continue
+                d = chuan(' '.join(c for c in chu if c.strip()))
+                for m, _ in thuat_ngu_trong(d, bank, ma):
+                    if m.nhom == 'A':
+                        # §4 hàng A: định danh trong code phải LUÔN trong
+                        # backtick. Sau tiền xử lý, một định danh còn sót lại
+                        # nghĩa là nó đang đứng trần trong văn xuôi.
+                        canh_bao('§4-A', f'{ma} màn {i}: `{m.tn}` đứng trần ngoài '
+                                         f'backtick · {goi(d)}')
+                        continue
+                    if m.khoa in da_gap:
+                        continue
+                    da_gap[m.khoa] = ma
+                    moi.append(m)
+                    if not co_chu_giai(d, m):
+                        loi('L10', f'{ma}: "{m.tn}" ({m.nguc}) dùng lần ĐẦU toàn '
+                                   'khoá mà không có chú giải tại chỗ · '
+                                   f'{goi(cau_chua(d, m))}')
+            if len(moi) > 5:
+                loi('L9', f'{ma} màn {i}: {len(moi)} thuật ngữ mới '
+                          f'({", ".join(m.tn for m in moi)}) — chẻ màn ra')
+            elif len(moi) > 3:
+                canh_bao('L9', f'{ma} màn {i}: {len(moi)} thuật ngữ mới '
+                               f'({", ".join(m.tn for m in moi)})')
+
+        # L11 + L13 — nhóm B: tiếng Việt là cách gọi chính.
+        for d in doan:
+            for m, n in thuat_ngu_trong(d, bank, ma):
+                if m.nhom != 'B' or m.re_tv is None:
+                    continue
+                co_tv = bool(m.re_tv.search(d))
+                if ma == m.bai_dau:
+                    # BÀI CHÚ GIẢI được miễn cả L11 lẫn L13, và miễn là BẮT
+                    # BUỘC, không phải nới tay: chính khuôn chú giải của §10
+                    # ("Bộ đệm (buffer) gom dữ liệu…") đặt hai tên cạnh nhau,
+                    # nên không miễn thì L11 báo oan ĐÚNG những bài làm đúng —
+                    # 8/24 ca của bản đầu là như vậy, trong đó có cả ba ví dụ ✅
+                    # mà §1 nêu (NP02, SY17, NP13).
+                    continue
+                if co_tv:
+                    # Hai cách gọi cùng một thứ, trong CÙNG MỘT ĐOẠN, ở một bài
+                    # KHÔNG phải bài chú giải. Người đọc không có cách nào biết
+                    # "thread" và "luồng" là một.
+                    loi('L11', f'{ma}: gọi cùng một thứ bằng hai tên — '
+                               f'"{m.tn}" và "{m.tv}" trong một đoạn · {goi(d)}')
+                else:
+                    canh_bao('L13', f'{ma}: dùng "{m.tn}" — nhóm B, '
+                                    f'đã chốt gọi là "{m.tv}" (chú giải ở {m.bai_dau})')
+
+
+# L10: ĐÚNG ba khuôn của §10, không thêm. Khuôn "X là <mô tả>" cố ý KHÔNG được
+# nhận, và đó là lựa chọn của đặc tả chứ không phải chỗ bỏ sót: §1 dẫn CT01
+# "File descriptor là số nhận diện tài nguyên I/O đang mở" làm ví dụ ❌. Lý do
+# đứng được: "X là Y" khớp với mọi câu kể về X, nên nhận nó là mở cửa cho mọi
+# câu có chữ "là" — luật hết răng mà vẫn trông như hàng rào.
+GOI_LA = re.compile(r'gọi là', re.IGNORECASE)
+
+
+def cau_chua(d: str, m: Muc) -> str:
+    for c in cau_cua(d):
+        if m.re_tn.search(c):
+            return c
+    return d
+
+
+def co_chu_giai(d: str, m: Muc) -> bool:
+    """Lần xuất hiện đầu có khớp một trong ba khuôn chú giải không (§10)."""
+    c = cau_chua(d, m)
+    # Khuôn 1 — `Thuật ngữ tiếng Việt (tiếng Anh)`: "Bộ đệm (buffer) gom…"
+    if re.search(r'\(\s*' + re.escape(m.tn) + r'\s*[,)]', c, re.IGNORECASE):
+        return True
+    # Khuôn 2 — `tiếng Anh (thuật ngữ tiếng Việt)`: "một index (chỉ số) đại diện…"
+    if re.search(re.escape(m.tn) + r'\s*\([^)]*[^\W\d_][^)]*\)', c, re.IGNORECASE):
+        return True
+    # Khuôn 3 — `… gọi là X`: "…được gọi là mask."
+    if GOI_LA.search(c):
+        return True
+    return False
+
+
+# ── L14: bối cảnh ví dụ ───────────────────────────────────────────────────
+# Biên từ khoá, và GẠCH DƯỚI tính là biên. `(?<![^\W_])` = "không có chữ cái
+# hay chữ số liền trước"; `_` được coi như khoảng trắng. Nhờ vậy MỘT danh sách
+# dùng được cho cả văn xuôi lẫn định danh snake_case: `cups` khớp trong
+# `total_cups`, mà `cup` không khớp trong `cupboard`.
+BIEN_T = r'(?<![^\W_])'
+BIEN_P = r'(?![^\W_])'
+
+# Ngưỡng — đo cả ba trên corpus ngày 29/10/2026, danh sách bài đổi phe nằm ở
+# docstring đầu file: ngưỡng 1 → 88 lỗi/35 cb · 2 → 74/48 · 3 → 61/60.
+# Chọn 2. Ngưỡng 1 bắt cả một lần nhắc qua (`đơn hàng` đúng một lần ở SY01);
+# ngưỡng 3 mất GU03/GU07 (form nhập điểm sinh viên) và NP13/NP14 (lượng mưa).
+NGUONG_MIEN = 2
+# Phép NEO chỉ cần MỘT dấu hiệu (đặt 2 làm số lỗi 42 → 47, đặt 3 → 50), và lệch
+# hai ngưỡng này là có chủ đích: một L14 báo oan đẩy người soạn đi XOÁ một ví dụ
+# đang đúng, nên phía "bài đã có bối cảnh" phải rộng tay hơn phía "bài dùng miền
+# lạ".
+NGUONG_NEO = 1
+# MÀN LUYỆN TẬP có ngưỡng RIÊNG, và nó bằng 1 — không phải một lần nới tay.
+# Một đoạn giảng dài thì một lần nhắc qua miền lạ là bình thường (vì thế
+# `NGUONG_MIEN` = 2); một câu luyện tập chỉ dài một hai dòng, nên MỘT từ khoá
+# miền lạ ở đó LÀ miền của câu ấy. Đo trên corpus 08/11/2026, ngưỡng 1 bắt
+# đúng 4 bài và CẢ BỐN là tàn dư thật của đợt đổi miền — 0 báo oan:
+# NP01 1 lần (`nhiệt độ`) · NP09 3 (`bảng điểm` + `marks`×2) · NP17 4
+# (`tín chỉ` + `marks`×3) · SY09 4 (`sinh viên` + `tín chỉ` + `student`×2).
+# Nâng lên 2 thì mất ĐÚNG MỘT bài, NP01 — con số này tôi đã ghi sai thành
+# "mất ba trong bốn" vì phép đo đầu không đọc `answerCode`, và ablate bác nó.
+NGUONG_MIEN_LUYEN = 1
+VAI_TRO = ('chinh', 'kemChinh', 'ngoai', 'trungTinh')
+
+
+class Mien:
+    """Một miền ví dụ của `boi-canh.json`, kèm regex đã biên dịch."""
+
+    __slots__ = ('id', 'ten', 'vai', 're_tu', 're_loai', 'ghi_chu')
+
+    def __init__(self, d: dict) -> None:
+        self.id = d['id']
+        self.ten = d.get('ten') or d['id']
+        self.vai = d.get('vaiTro')
+        self.ghi_chu = d.get('ghiChu') or ''
+        self.re_tu = [(w, re.compile(BIEN_T + re.escape(w) + BIEN_P, re.IGNORECASE))
+                      for w in (d.get('tuKhoa') or [])]
+        self.re_loai = [re.compile(BIEN_T + re.escape(w) + BIEN_P, re.IGNORECASE)
+                        for w in (d.get('loaiTru') or [])]
+
+    def dem(self, s: str) -> tuple[int, list[str]]:
+        """(số lần khớp, từ khoá đã khớp) sau khi XOÁ các cụm `loaiTru`.
+
+        Xoá trước rồi mới đếm — đúng cách §10 làm với backtick, và đúng chỗ
+        bản audit đếm sai: cả 35 lần `sách` của corpus là `danh sách`.
+        """
+        for rx in self.re_loai:
+            s = rx.sub(' ', s)
+        n, thay = 0, []
+        for w, rx in self.re_tu:
+            k = len(rx.findall(s))
+            if k:
+                n += k
+                thay.append(f'{w}×{k}' if k > 1 else w)
+        return n, thay
+
+
+def nap_boi_canh() -> tuple[list[Mien], dict[str, str]]:
+    if not BOI_CANH.is_file():
+        print(f'LỖI: không có {BOI_CANH} — L14 không chạy được.', file=sys.stderr)
+        sys.exit(1)
+    data = json.loads(BOI_CANH.read_text(encoding='utf-8'))
+    mien = [Mien(d) for d in data['mien']]
+    tru: dict[str, str] = {}
+    for muc in (data.get('mienTru') or []):
+        ly_do = (muc.get('lyDo') or '').strip()
+        for ma in (muc.get('bai') or []):
+            if ma in tru:
+                loi('L14', f'boi-canh.json: {ma} được miễn trừ ở HAI mục — '
+                           'gộp lại, không thì sửa một mục mà tưởng đã sửa cả hai')
+            # LÝ DO phải nằm trong FILE DỮ LIỆU, không trong code: một miễn trừ
+            # không kèm lý do là một miễn trừ không ai dám bỏ đi sau này.
+            if not ly_do:
+                loi('L14', f'boi-canh.json: {ma} được miễn trừ mà mục không có '
+                           '`lyDo` — ghi lý do vào file dữ liệu, đừng vào code')
+            tru[ma] = ly_do
+    chinh = [m for m in mien if m.vai == 'chinh']
+    if data.get('mienChinh') not in {m.id for m in chinh}:
+        loi('L14', f'boi-canh.json: `mienChinh`={data.get("mienChinh")!r} không '
+                   'trỏ tới một miền có `vaiTro` là "chinh"')
+    return mien, tru
+
+
+def can_mien_tru(l: dict, mien: list[Mien]) -> bool:
+    """Bài này còn CẦN miễn trừ không — tức nếu bỏ miễn trừ thì L14 có nói gì?
+
+    Trả `True` khi L14 sẽ báo một trong ba thứ (dùng miền ngoài · dữ liệu trơ
+    không neo · chưa neo), `False` khi bài tự qua.
+
+    Tách thành hàm RIÊNG chứ không chép điều kiện vào nhánh miễn trừ: hai bản
+    chép của cùng một phép phán xử sẽ trôi khỏi nhau, và trôi theo đúng chiều
+    nguy hiểm (một mục miễn trừ được coi là "còn cần" mãi mãi). Cùng lý lẽ
+    `raw_doan()` đã phải gom hai người dùng về một hàm.
+    """
+    chinh = [m for m in mien if m.vai == 'chinh']
+    kem = [m for m in mien if m.vai == 'kemChinh']
+    s = van_ban_hoc_vien(l)
+    dem = {m.id: m.dem(s) for m in mien if m.vai != 'trungTinh'}
+    neo = sum(dem[m.id][0] for m in chinh)
+    if any(dem[m.id][0] >= NGUONG_MIEN for m in mien if m.vai == 'ngoai'):
+        return True
+    if any(dem[m.id][0] >= NGUONG_MIEN for m in kem) and neo < NGUONG_NEO:
+        return True
+    return neo < NGUONG_NEO
+
+
+def kiem_boi_canh(bai: list[dict], mien: list[Mien], tru: dict[str, str]) -> None:
+    """L14 + bất biến của chính `boi-canh.json`.
+
+    Vì sao bất biến báo chung dưới nhãn L14 chứ không thành một hàng riêng: một
+    file dữ liệu sai nghĩa là L14 KHÔNG CHẠY ĐƯỢC, nên nó phải nổi lên ở đúng
+    chỗ người đọc đang tìm L14 — cùng lý lẽ `kiem_termbank` dùng cho TB.
+    """
+    co = {m.id for m in mien}
+    for m in mien:
+        if m.vai not in VAI_TRO:
+            loi('L14', f'boi-canh.json: {m.id} có `vaiTro` lạ {m.vai!r} — '
+                       f'chỉ có {"/".join(VAI_TRO)}')
+        if m.vai != 'trungTinh' and not m.re_tu:
+            loi('L14', f'boi-canh.json: {m.id} không có `tuKhoa` nào — '
+                       'L14 không có gì để nhận diện miền này')
+        if not m.ghi_chu.strip():
+            loi('L14', f'boi-canh.json: {m.id} không có `ghiChu` — mỗi miền phải '
+                       'nói được vì sao nó ở trong danh sách')
+    if len(co) != len(mien):
+        loi('L14', 'boi-canh.json: có hai miền cùng `id`')
+    ma_bai = {l['id'] for l in bai}
+    for ma in tru:
+        # Cùng họ bẫy `baiDauTien` của termbank: một mã bài không còn tồn tại
+        # làm miễn trừ thành câu nói về không ai, mà không gì đỏ.
+        if ma not in ma_bai:
+            loi('L14', f'boi-canh.json: miễn trừ {ma} nhưng corpus không có bài '
+                       'nào mang mã đó')
+
+    chinh = [m for m in mien if m.vai == 'chinh']
+    for l in bai:
+        ma = l['id']
+        if ma in tru:
+            # CHIỀU THỨ HAI của miễn trừ: một mục KHÔNG CÒN CẦN cũng là LỖI.
+            #
+            # Thiếu chiều này thì danh sách chỉ dài ra rồi thành chỗ giấu rác —
+            # cùng bài học `DAP_AN_MAU_KHONG_CHAY`, `GIU_DU_CHET` và
+            # `CO_CACH_BAO_KHAC`, cả ba đều kiểm hai chiều. Đo ngày 08/11/2026:
+            # `mienTru` có 14 mục và **13 KHÔNG CÒN CẦN** — các bài ấy đã được
+            # neo ở những đợt đổi miền (`quán`, `quầy`, `cups`) nhưng không ai
+            # gỡ mục miễn trừ của chúng.
+            #
+            # Tác hại là CỤ THỂ, không phải vệ sinh: một mục chết CHE được một
+            # lỗi thật về sau. Ngày ai đó viết lại CT03 và làm mất câu neo, L14
+            # vẫn im vì CT03 đang được miễn trừ.
+            if not can_mien_tru(l, mien):
+                loi('L14', f'boi-canh.json: miễn trừ {ma} KHÔNG CÒN CẦN — bài '
+                           'này nay tự qua L14 (đã neo vào hành trình). Gỡ nó '
+                           'khỏi `mienTru`; để lại là che một lỗi thật về sau.')
+            continue
+        s = van_ban_hoc_vien(l)
+        dem = {m.id: m.dem(s) for m in mien if m.vai != 'trungTinh'}
+        neo = sum(dem[m.id][0] for m in chinh)
+        xau = [m for m in mien if m.vai == 'ngoai'
+               and dem[m.id][0] >= NGUONG_MIEN]
+        kem = [m for m in mien if m.vai == 'kemChinh'
+               and dem[m.id][0] >= NGUONG_MIEN]
+        for m in xau:
+            loi('L14', f'{ma}: dùng miền "{m.ten}" — ngoài hành trình '
+                       f'({", ".join(dem[m.id][1])})')
+        if kem and neo < NGUONG_NEO:
+            loi('L14', f'{ma}: dữ liệu {", ".join(m.ten for m in kem)} '
+                       'nhưng không một chữ nào nói đây là quán nào '
+                       f'({", ".join(w for m in kem for w in dem[m.id][1])})')
+        # MÀN LUYỆN TẬP: chỉ nhánh "miền ngoài", ngưỡng riêng. Màn đọc có thể
+        # đã neo đúng vào quán mà câu luyện tập ngay sau đó còn ở miền cũ —
+        # đúng lớp lỗi đã gặp bốn lần, và `van_ban_hoc_vien()` mù với nó.
+        s_lt = van_ban_luyen_tap(l)
+        for m in mien:
+            if m.vai != 'ngoai':
+                continue
+            n_lt, thay_lt = m.dem(s_lt)
+            if n_lt >= NGUONG_MIEN_LUYEN:
+                loi('L14', f'{ma}: màn LUYỆN TẬP dùng miền "{m.ten}" — ngoài '
+                           f'hành trình ({", ".join(thay_lt)}). Màn đọc có thể '
+                           'đã neo đúng; chỗ lệch là câu luyện tập.')
+        if neo < NGUONG_NEO and not xau and not kem:
+            # Không gộp vào lỗi: bài KHÔNG CÓ bối cảnh nào là một khiếm khuyết
+            # khác với bài dùng bối cảnh SAI, và nó sửa bằng cách thêm chữ chứ
+            # không bằng cách đổi chữ.
+            canh_bao('L14', f'{ma}: không có bối cảnh nào — ví dụ không gắn vào '
+                            'hành trình quán cà phê')
+
+
+# ── L15: câu nối với bài trước ────────────────────────────────────────────
+# Danh sách HẸP, và nó hẹp vì phép đo: chỉ 5/171 bài đạt bằng riêng danh sách
+# này. Đừng nới nó ra để con số đẹp hơn — `cùng` một mình khớp 39 bài và nó
+# không nói gì về sự nối ("cùng một bảng", "cùng kiểu"), tức nới là tự tạo
+# dương tính giả rồi tưởng corpus đã đạt.
+CUM_NOI = [re.compile(p, re.IGNORECASE) for p in [
+    r'bài trước', r'bài trên', r'(?:ở|từ|trong|sau) bài', r'phần trước',
+    r'đoạn trước', r'bước trước', r'nối tiếp', r'tiếp tục',
+    r'vừa (?:làm|tạo|viết|xong|dựng|có|đọc|tính|thấy|gặp|nén|lưu|đặt|gom)',
+    r'(?:đã|vừa) (?:có|tạo|viết|dựng|làm|lưu) ở',
+    r'bảng (?:này|vừa)', r'(?:hàm|file|lớp|class) (?:này|vừa)',
+    # Hai khuôn dưới đến từ chính bản viết lại module 1 theo câu chuyện quán
+    # cà phê: "Môi trường đã riêng, giờ chọn chỗ để tính." (PY03) và "Ô code
+    # giữ được số liệu rồi." (PY04). Thêm chúng vì nếu không thì L15 cảnh báo
+    # ĐÚNG những bài vừa được viết để chữa lỗi nó đang đo — một luật báo oan
+    # người làm đúng thì bị tắt, không được sửa.
+    r',\s*giờ(?![^\W_])', r'rồi\s*[.,]',
+    # `xong` một mình ĐÃ THỬ VÀ BỎ: 4 bài khớp, nhưng 3 trong 4 là "chạy xong
+    # thì…" bên trong một câu nói về chương trình, không phải nối với bài
+    # trước. L15 đã thừa âm tính giả, đừng thêm dương tính giả vào.
+]]
+
+
+# ── TL: bảng §2 của chính đặc tả ──────────────────────────────────────────
+SPEC = HERE / 'VAN-PHONG.md'
+
+# Mỗi mục: (nhãn trong thông điệp, regex NEO vào đúng hàng của bảng §2, hàm đo).
+# Regex phải khớp ĐÚNG MỘT LẦN — "nhiều chỗ khớp" là LỖI, không phải lấy chỗ đầu
+# tiên; cùng luật mà `check-nguong.mjs` đã phải đặt sau khi một regex mơ hồ báo
+# oan một ngưỡng đang đúng.
+BANG_S2 = [
+    ('tổng số câu phần giảng', r'Đo thật trên \*\*([\d  ]+)\*\* câu phần giảng'),
+    ('trung vị số tiếng/câu', r'\| Trung vị \| \*\*(\d+) tiếng\*\* \|'),
+    ('p90 số tiếng/câu', r'\| p90 \| (\d+) tiếng \|'),
+    ('câu dài nhất', r'\| Dài nhất cả bộ \| (\d+) tiếng \|'),
+    ('số câu > 30 tiếng', r'\| Câu > 30 tiếng \| \*\*(\d+) câu\*\*'),
+    ('số câu L3 bắt', r'\| Câu L3 bắt \| \*\*(\d+) câu\*\* \|'),
+]
+# Tỉ lệ đi riêng vì nó là SỐ THẬP PHÂN kiểu Việt (dấu phẩy). Nó suy ra được từ
+# hai con số trên, nhưng một con số suy ra được vẫn trôi được — nó đã trôi
+# (1,2% khi số thật là 1,3%), nên nó cũng phải có người canh.
+TI_LE_S2 = r'\| Câu > 30 tiếng \| \*\*\d+ câu\*\* \((\d+,\d)%\) \|'
+
+
+def kiem_tai_lieu(bai: list[dict], bank: list[Muc]) -> None:
+    """TL — bảng §2 của VAN-PHONG.md phải khớp số đo thật.
+
+    VÌ SAO LUẬT NÀY PHẢI TỒN TẠI, và nó là một lỗi đã xảy ra HAI LẦN trong chính
+    tệp đặc tả này, không phải một mối lo xa:
+      · §11 từng trích AGENTS.md là "mốc trần lint trong CI là 245" trong khi trần
+        thật là 115 — đã hạ qua bốn đợt dọn `any`, và dòng đính chính ngay tại đó
+        ghi là nó sai "suốt nhiều tháng";
+      · §2 ghi "Corpus hiện chỉ 14 câu và vài đoạn vi phạm" trong khi đo được
+        **32** câu > 30 tiếng.
+    `check-moc-nen.mjs` chỉ đọc AGENTS.md nên nó MÙ với tệp này — một con số sống
+    trong đặc tả mà không cổng nào đối chiếu sẽ trôi, đúng như đã trôi.
+
+    VÀ BẢNG §2 CÒN SAI VÌ MỘT LÝ DO NẶNG HƠN "cũ": nó được đo bằng MỘT PHÉP CHẺ
+    CÂU KHÁC. Chính §2 khai phép chẻ chuẩn là `.!?…` và chỉ ở đó, rồi nói ra rằng
+    bản đầu của đặc tả mang ba con số câu từ ba phép chẻ (2 182 · 2 750 · 3 059) —
+    mà 3 059 chính là con số §2 đang dùng. Nên bảng ấy không đến từ định nghĩa của
+    chính nó. Đo lại bằng `cau_cua` + `tieng` (hàm mà MỌI luật đếm câu dùng) ra
+    **2 549** câu.
+
+    GIỚI HẠN PHẢI NÓI RA: luật này canh SÁU con số của bảng §2, không canh mọi con
+    số trong tệp. §3 (các chỉ số độ khó đọc), §7 và các bảng văn liệu là trích dẫn
+    NGOÀI repo — không hàm nào ở đây đo lại được chúng, nên chúng vẫn trôi được.
+    """
+    if not SPEC.is_file():
+        loi('TL', 'không tìm thấy VAN-PHONG.md — không đối chiếu được bảng §2')
+        return
+    van = SPEC.read_text(encoding='utf-8')
+
+    do = []
+    l3 = 0
+    for l in bai:
+        for d in doan_cua(l):
+            for s in cau_cua(d):
+                n = len(tieng(s))
+                if not n:
+                    continue
+                do.append(n)
+                if sum(s.count(x) for x in ',;') >= 3 and n >= 20:
+                    l3 += 1
+    if not do:
+        loi('TL', 'không đo được câu nào — corpus rỗng?')
+        return
+    sap = sorted(do)
+    that = {
+        'tổng số câu phần giảng': len(do),
+        'trung vị số tiếng/câu': int(statistics.median(do)),
+        'p90 số tiếng/câu': sap[int(len(do) * 0.9)],
+        'câu dài nhất': max(do),
+        'số câu > 30 tiếng': sum(1 for n in do if n > 30),
+        'số câu L3 bắt': l3,
+    }
+    for nhan, pat in BANG_S2:
+        ms = re.findall(pat, van)
+        if not ms:
+            loi('TL', f'bảng §2 KHÔNG CÒN DÒNG nào khai "{nhan}" — đổi chữ hàng '
+                      f'đó thì phải sửa BANG_S2, im lặng xanh ở đây là cách con '
+                      f'số 3 059 sống sót')
+            continue
+        if len(ms) > 1:
+            loi('TL', f'"{nhan}": regex khớp {len(ms)} chỗ trong VAN-PHONG.md, '
+                      f'đòi ĐÚNG MỘT — neo thêm chữ xung quanh')
+            continue
+        ghi = int(str(ms[0]).replace(' ', '').replace(' ', ''))
+        if ghi != that[nhan]:
+            loi('TL', f'{nhan}: §2 ghi {ghi}, đo được {that[nhan]}. Sửa bảng §2 '
+                      f'của VAN-PHONG.md (số đo là thẩm quyền, không phải văn xuôi)')
+
+    ms = re.findall(TI_LE_S2, van)
+    if len(ms) != 1:
+        loi('TL', f'bảng §2: regex tỉ lệ "câu > 30 tiếng" khớp {len(ms)} chỗ, '
+                  f'đòi ĐÚNG MỘT')
+    else:
+        thuc = f'{100 * that["số câu > 30 tiếng"] / len(do):.1f}'.replace('.', ',')
+        if ms[0] != thuc:
+            loi('TL', f'tỉ lệ câu > 30 tiếng: §2 ghi {ms[0]}%, đo được {thuc}%')
+
+    # ĐỘ LỚN TERMBANK. §1 dùng con số này để nói "mọi con số xấp xỉ gấp đôi" so
+    # với phép đo bằng 40 từ thông dụng nhất, nên nó không phải trang trí: lệch
+    # nó là lệch cả lời biện minh. Đã trôi: ghi 110 khi thật là 112.
+    ms = re.findall(r'`thuatngu\.json` khai \*\*(\d+) mục\*\*', van)
+    if len(ms) != 1:
+        loi('TL', f'§1: regex "thuatngu.json khai N mục" khớp {len(ms)} chỗ, đòi ĐÚNG MỘT')
+    elif int(ms[0]) != len(bank):
+        loi('TL', f'độ lớn termbank: đặc tả ghi {ms[0]} mục, `thuatngu.json` có '
+                  f'{len(bank)}')
+
+    # TRẦN LINT BACKEND là một BẢN SAO của `ci.yml`, và §12 tự ghi rằng trích dẫn
+    # ở đó "từng ghi 245 suốt nhiều tháng". Nay nó được so với CHÍNH nguồn —
+    # cùng tệp mà `scripts/nguong-mot-chieu.json` đọc trần ấy từ.
+    ci = HERE.parent.parent / '.github' / 'workflows' / 'ci.yml'
+    if not ci.is_file():
+        loi('TL', 'không tìm thấy .github/workflows/ci.yml — không đối chiếu được '
+                  'trần lint mà §12 trích')
+    else:
+        nguon = re.findall(r'const TRAN = (\d+);', ci.read_text(encoding='utf-8'))
+        trich = re.findall(r'mốc trần trong CI là \*\*(\d+)\*\*', van)
+        if len(nguon) != 1 or len(trich) != 1:
+            loi('TL', f'trần lint: ci.yml khớp {len(nguon)} chỗ, đặc tả khớp '
+                      f'{len(trich)} chỗ — mỗi bên đòi ĐÚNG MỘT')
+        elif nguon[0] != trich[0]:
+            loi('TL', f'trần lint backend: §12 trích {trich[0]}, `ci.yml` đặt '
+                      f'{nguon[0]}. Sửa trích dẫn, đừng sửa trần.')
+
+    kiem_bang_s8(van)
+
+
+# Ngân hàng trắc nghiệm: NGUỒN (chưa trộn) và BẢN PHÁT RA (đã trộn) là HAI phép
+# đo khác nhau, và bản trước của §8 gộp chúng thành một — nó ghi "ngân hàng hiện
+# tại … 50,3% đáp án ở vị trí 1" mà không nói đó là nguồn, nên người đọc kết luận
+# đề ĐANG PHÁT RA vẫn mang đúng cái bệnh mà M2 đã chữa ở khâu build.
+#
+# Bốn con số của NGUỒN được so CHÍNH XÁC. Bản PHÁT RA thì so TÍNH CHẤT ("không vị
+# trí nào vượt 40%") chứ không so ba con số: ba con số ấy đổi theo mỗi lần gói
+# nguồn đổi, mà tính chất thì không — và tính chất mới là thứ M2 hứa.
+TRAN_VI_TRI_PHAT_RA = 40.0
+
+
+def kiem_bang_s8(van: str) -> None:
+    """TL, phần §8 — số đo ngân hàng trắc nghiệm."""
+    if not PRACTICE.is_file():
+        loi('TL', 'không có source/practice.json — không đối chiếu được §8')
+        return
+    goi = json.loads(PRACTICE.read_text(encoding='utf-8'))
+    cau = []
+    for x in goi['lessons']:
+        for m in (x.get('mcq') or []):
+            cau.append(m)
+            cau.extend(m.get('variants') or [])
+    if not cau:
+        loi('TL', '§8: gói nguồn không có câu trắc nghiệm nào')
+        return
+    ba = sum(1 for c in cau if len(c.get('options') or []) == 3)
+    vt = Counter()
+    for c in cau:
+        ids = [o['id'] for o in (c.get('options') or [])]
+        if c.get('correctOption') in ids:
+            vt[ids.index(c['correctOption'])] += 1
+    tong_vt = sum(vt.values()) or 1
+    trung_tieu_de = sum(n for n in Counter(
+        c.get('title', '') for c in cau).values() if n > 1)
+    trung_cau_dan = sum(n for n in Counter(
+        c.get('prompt', '') for c in cau).values() if n > 1)
+
+    for nhan, pat, that in (
+        ('§8 tổng câu nguồn', r'chưa qua trộn\): \*\*([\d  ]+) câu\*\*', len(cau)),
+        ('§8 số câu có 3 phương án', r'tất cả\s*\n?\s*đúng \*\*([\d  ]+)\*\* câu có 3 phương án', ba),
+        ('§8 số câu trùng tiêu đề', r'\*\*([\d  ]+)\*\* câu trùng tiêu đề', trung_tieu_de),
+        ('§8 số câu trùng câu dẫn', r'\*\*([\d  ]+)\*\* câu trùng câu dẫn', trung_cau_dan),
+    ):
+        ms = re.findall(pat, van)
+        if len(ms) != 1:
+            loi('TL', f'{nhan}: regex khớp {len(ms)} chỗ, đòi ĐÚNG MỘT — đổi chữ '
+                      f'§8 thì phải sửa `kiem_bang_s8`')
+        elif int(str(ms[0]).replace(' ', '').replace(' ', '')) != that:
+            loi('TL', f'{nhan}: §8 ghi {ms[0]}, đo được {that}')
+
+    ms = re.findall(r'\*\*(\d+,\d)%\*\* đáp án ở vị trí 1', van)
+    thuc = f'{100 * vt[0] / tong_vt:.1f}'.replace('.', ',')
+    if len(ms) != 1:
+        loi('TL', f'§8 tỉ lệ vị trí 1 của NGUỒN: regex khớp {len(ms)} chỗ, đòi ĐÚNG MỘT')
+    elif ms[0] != thuc:
+        loi('TL', f'§8 tỉ lệ đáp án ở vị trí 1 (NGUỒN): ghi {ms[0]}%, đo được {thuc}%')
+
+    # BẢN PHÁT RA: kiểm TÍNH CHẤT, và kiểm cả việc §8 còn KHAI tính chất ấy.
+    ms = re.findall(r'không vị trí nào\s*\n?vượt (\d+)%', van)
+    if len(ms) != 1:
+        loi('TL', f'§8: không tìm thấy lời khai "không vị trí nào vượt N%" về bản '
+                  f'PHÁT RA (khớp {len(ms)} chỗ) — bỏ nó đi là bỏ chỗ duy nhất nói '
+                  f'ra rằng phép trộn nằm ở khâu build')
+    elif float(ms[0]) != TRAN_VI_TRI_PHAT_RA:
+        loi('TL', f'§8 khai trần {ms[0]}% cho bản phát ra, mã đặt '
+                  f'{TRAN_VI_TRI_PHAT_RA:g}%')
+    pv = Counter()
+    for l in json.loads((HERE / 'out' / 'lessons.json').read_text(encoding='utf-8')
+                        )['lessons'] if (HERE / 'out' / 'lessons.json').is_file() else []:
+        for m in ((l['content_json'].get('step_2') or {}).get('mcq') or []):
+            o = m.get('options') or []
+            i = next((j for j, x in enumerate(o) if x.get('correct') is True), None)
+            if i is not None:
+                pv[i] += 1
+    n = sum(pv.values())
+    if n:
+        cao = max(100 * pv[i] / n for i in pv)
+        if cao > TRAN_VI_TRI_PHAT_RA:
+            loi('TL', f'bản PHÁT RA: một vị trí giữ {cao:.1f}% đáp án, vượt trần '
+                      f'{TRAN_VI_TRI_PHAT_RA:g}% — phép trộn ở khâu build đã hỏng')
+
+
+def kiem_noi_bai(bai: list[dict], bank: list[Muc]) -> None:
+    """L15 — CẢNH BÁO, và đọc giới hạn của nó ở docstring đầu file trước khi tin.
+
+    Hai dấu hiệu, bài đạt khi có MỘT:
+      A. đoạn mở bài có một cụm chỉ sự nối tiếp (`CUM_NOI`);
+      B. đoạn mở bài nhắc lại một thuật ngữ termbank mà bài LIỀN TRƯỚC cũng dùng.
+
+    B là dấu hiệu YẾU và nó được nhận vào có ý thức: nó không phân biệt được một
+    câu nối với chuyện hai bài pandas liền nhau đương nhiên dùng chung chữ
+    `DataFrame`. Chỉ có A nói được "tác giả đã viết một câu nối", và riêng A thì
+    cảnh báo 162/171 bài — một luật cảnh báo 95% khoá học thì không ai đọc nữa
+    (§12 nói đúng chuyện đó về CI đỏ thường trực). Nên L15 đo TRƯỜNG HỢP XẤU
+    NHẤT: bài không chia gì với bài trước, cả cụm chữ lẫn khái niệm.
+
+    Bài ĐẦU khoá được miễn, và chỉ bài đầu khoá: bài đầu mỗi module vẫn phải nối,
+    vì "một hành trình" nghĩa là ranh giới module không được là chỗ bỏ người học
+    xuống.
+    """
+    for i in range(1, len(bai)):
+        l, truoc = bai[i], bai[i - 1]
+        doan = doan_cua(l)
+        if not doan:
+            continue
+        dau = doan[0]
+        if any(rx.search(dau) for rx in CUM_NOI):
+            continue
+        # NHÓM A đọc RAW, hai nhóm kia đọc bản đã bỏ backtick — cùng phép chia
+        # và cùng lý lẽ với bất biến TB ở trên, và L15 là luật THỨ HAI trong
+        # file này mắc nó. Chỗ ĐÚNG của một định danh code LÀ trong backtick
+        # (§4-A), nên tìm dấu hiệu B chỉ trên phần TRẦN làm L15 mù dần ĐÚNG
+        # theo mức §4-A được thoả — một tín hiệu xuống cấp đơn điệu khi dự án
+        # tốt lên, tức một khiếm khuyết, không phải một phép siết. Đo được: vừa
+        # bọc backtick cho `plt.subplots()` ở VZ02 và `plt.show()` ở VZ01 là
+        # L15 đi 0 → 1 cảnh báo *"VZ02 không nối gì với VZ01"*, trong khi khái
+        # niệm mang sang (`plt`) vẫn nằm đó, chỉ là nằm trong backtick.
+        # Nhóm B/C KHÔNG đổi: §4-A không đòi backtick cho chúng nên đứng trần
+        # là trạng thái bình thường, không có sự xuống cấp nào để chữa.
+        tho_dau = raw_doan(l)
+        tho_truoc = ' '.join(raw_doan(truoc))
+        # Termbank lọc theo phạm vi của TỪNG bài: một thuật ngữ chỉ tính là
+        # "mang sang" khi nghĩa đó áp cho cả hai bài.
+        truoc_van = ' '.join(doan_cua(truoc))
+        # Khớp theo CẢ HAI tên, không chỉ tên tiếng Anh. Bản đầu chỉ dùng
+        # `re_tn`, nên nó đi NGƯỢC L13: L13 đòi dùng tiếng Việt cho nhóm B, mà
+        # làm đúng điều đó thì L15 thôi thấy khái niệm được mang sang. Đo được:
+        # sửa CT09/CT10 từ "thread" sang "luồng" (đúng termbank) làm L15 đi
+        # 0 → 1 cảnh báo, trong khi CT09 nói về luồng suốt cả bài. Một khái niệm
+        # mang sang là mang sang bất kể nó được gọi bằng tên nào trong hai tên
+        # đã chốt.
+        def mang_sang(m) -> bool:
+            res = [m.re_tn] + ([m.re_tv] if m.re_tv is not None else [])
+            a = tho_dau[0] if m.nhom == 'A' and tho_dau else dau
+            b = tho_truoc if m.nhom == 'A' else truoc_van
+            return (any(r.search(a) for r in res)
+                    and any(r.search(b) for r in res)
+                    and m.trong_bai(l['id']) and m.trong_bai(truoc['id']))
+        if any(mang_sang(m) for m in bank):
+            continue
+        canh_bao('L15', f'{l["id"]}: đoạn mở bài không nối gì với {truoc["id"]} — '
+                        f'không cụm nối, không khái niệm mang sang · {goi(dau)}')
+
+
+# ── Khung chạy ────────────────────────────────────────────────────────────
+def loi(luat: str, msg: str) -> None:
+    LOI.append((luat, msg))
+
+
+def canh_bao(luat: str, msg: str) -> None:
+    CANH_BAO.append((luat, msg))
+
+
+def doi_chieu_moc(dem_lo: Counter, dem_cb: Counter, thu_tu: list[str],
+                  so_bai: int, ghi_so: bool) -> int:
+    """So số trượt TỪNG LUẬT với sổ, và thi hành "không luật nào được TĂNG".
+
+    BA CHIỀU, và chiều thứ ba là chiều hay bị quên:
+      · luật TĂNG            → LỖI (văn phong xấu đi);
+      · luật GIẢM            → chỉ in `GHI SỔ`, KHÔNG đỏ. Bắt đỏ khi người ta
+        vừa làm tốt lên là dạy người ta thôi sửa văn phong — cùng lý lẽ đã ghi
+        cho `check-nguong.mjs`;
+      · luật có trong MÃ mà sổ chưa khai → LỖI, và sổ khai một luật MÃ không
+        còn → cũng LỖI. Thiếu chiều này thì thêm một luật mới là nó không bao
+        giờ được canh (L14 đã sống như vậy: có trong mã, không có dòng nào
+        trong §11 của VAN-PHONG.md).
+    """
+    # KHỞI TẠO khác THIẾU MỤC, và gộp hai thứ làm cờ tự từ chối chính nó: lần
+    # chạy đầu không có sổ thì MỌI luật đều "chưa khai" ⇒ `loi_ra` đầy ⇒ nhánh
+    # `--ghi-so` thấy lỗi và không ghi gì. Đã vấp đúng vậy khi tạo sổ lần đầu.
+    khoi_tao = not MOC.is_file()
+    if khoi_tao:
+        if not ghi_so:
+            print(f'LỖI: chưa có {MOC.name}. Chạy kèm --ghi-so để tạo lần đầu.',
+                  file=sys.stderr)
+            return 1
+        so = {'_doc': 'Mốc TỪNG LUẬT của check_vanphong.py. LOOP.md bậc 4: '
+                      '"không luật nào được TĂNG". Siết thì chạy --ghi-so; '
+                      'nới thì sửa CHỮ, đừng sửa sổ.',
+              'luat': {}}
+    else:
+        so = json.loads(MOC.read_text(encoding='utf-8'))
+
+    cu = so.get('luat') or {}
+    nay = {t: {'loi': dem_lo[t], 'cb': dem_cb[t]} for t in thu_tu}
+
+    loi_ra: list[str] = []
+    so_sach: list[str] = []
+    siet: list[str] = []
+    for t in thu_tu:
+        if t not in cu:
+            if khoi_tao:
+                continue
+            so_sach.append(f'{t}: luật có trong mã mà SỔ CHƯA KHAI — thêm một '
+                           f'luật thì phải ghi mốc cho nó, không thì nó không '
+                           f'bao giờ được canh (đo được: {nay[t]["loi"]} lỗi · '
+                           f'{nay[t]["cb"]} cb)')
+            continue
+        # MỘT LỖI THÀNH MỘT CẢNH BÁO LÀ TỐT LÊN, mà phép so TỪNG BẬC không nói
+        # được điều đó. Đo được: sửa L11 làm EX05, EX08, SY09 rời bậc LỖI của L8
+        # sang bậc cảnh báo ⇒ `lỗi` 35 → 32 nhưng `cảnh báo` 31 → 33, và bản đầu
+        # của hàm này ĐỎ vì cột cảnh báo tăng — tức nó phạt đúng lúc văn phong
+        # vừa tốt lên, cùng lớp lỗi với hai cổng khác đã sửa trong vòng đó.
+        # Luật nay là HAI điều kiện, và nó KHÔNG lỏng hơn bản cũ ở chiều nguy
+        # hiểm: cảnh báo chỉ được tăng khi `lỗi` giảm ÍT NHẤT bằng mức đó, vì
+        # TỔNG cũng không được tăng. Nên không đổi được 1 lỗi thành 10 cảnh báo.
+        tong_truoc = int(cu[t].get('loi', 0)) + int(cu[t].get('cb', 0))
+        tong_gio = nay[t]['loi'] + nay[t]['cb']
+        if nay[t]['loi'] > int(cu[t].get('loi', 0)):
+            loi_ra.append(f'{t}: lỗi TĂNG ' + str(cu[t].get('loi', 0)) + ' → '
+                          + str(nay[t]['loi']) + '. Văn phong xấu đi; sửa chữ, '
+                          'đừng nới sổ.')
+        elif tong_gio > tong_truoc:
+            loi_ra.append(f'{t}: TỔNG (lỗi + cảnh báo) TĂNG ' + str(tong_truoc)
+                          + ' → ' + str(tong_gio) + '. Một lỗi đổi thành một cảnh '
+                          'báo thì được, nhưng tổng không được phình ra.')
+        for khoa, ten in (('loi', 'lỗi'), ('cb', 'cảnh báo')):
+            truoc, gio = int(cu[t].get(khoa, 0)), nay[t][khoa]
+            if gio < truoc:
+                siet.append(f'{t} {ten} {truoc} → {gio}')
+    for t in cu:
+        if t not in nay:
+            so_sach.append(f'{t}: SỔ KHAI một luật mã không còn — mục lỗi thời, '
+                           f'bỏ nó đi, không thì sổ thành chỗ giấu rác.')
+
+    # ── Bảng §11 của VAN-PHONG.md ────────────────────────────────────────
+    # Nó LIỆT KÊ số lỗi/cảnh báo của TỪNG luật, tức là một bản CHÉP của đúng
+    # những con số `nay` đang giữ. Phải đối chiếu Ở ĐÂY chứ không trong luật TL:
+    # chỉ đến bước này mọi luật mới chạy xong, nên chỉ ở đây mới có con số cuối.
+    #
+    # Nó đã trôi, và trôi gần hết bảng: 10 trong 17 hàng sai cùng lúc, dòng tổng
+    # ghi 227 lỗi · 718 cảnh báo khi số thật là 93 · 467 — lệch 2,4 lần. Sống
+    # được vì bản cũ viết mỗi hàng một kiểu ("43 câu", "3", "0 (29/10 là 65)"),
+    # nên không regex nào đọc nổi; một bảng không đọc được là một bảng không ai
+    # canh. Format nay đồng nhất `N lỗi · N cb`.
+    #
+    # Mục này vào `so_sach`, KHÔNG vào `loi_ra`: một bản sửa nội dung làm L8 đi
+    # 26 → 25 thì bảng §11 phải cập nhật, và chặn `--ghi-so` ở đó là dựng lại
+    # đúng thế bế tắc đã phải sửa khi thêm luật TL.
+    if SPEC.is_file():
+        van11 = SPEC.read_text(encoding='utf-8')
+        for t in thu_tu:
+            ten = re.escape(t)
+            ms = re.findall(r'\|\s*\*{0,2}' + ten + r'\*{0,2}\s*\|[^|\n]*\|[^|\n]*\|'
+                            r'\s*\*{0,2}(\d+) lỗi · (\d+) cb\*{0,2}\s*\|', van11)
+            if len(ms) != 1:
+                so_sach.append(f'bảng §11: hàng "{t}" khớp {len(ms)} chỗ, đòi ĐÚNG '
+                               f'MỘT và đúng format `N lỗi · N cb` — một hàng không '
+                               f'đọc được là một hàng không ai canh')
+                continue
+            gl, gc = int(ms[0][0]), int(ms[0][1])
+            if (gl, gc) != (nay[t]['loi'], nay[t]['cb']):
+                so_sach.append(f'bảng §11 hàng "{t}": ghi {gl} lỗi · {gc} cb, đo '
+                               f'được {nay[t]["loi"]} lỗi · {nay[t]["cb"]} cb')
+        tong_l = sum(v['loi'] for v in nay.values())
+        tong_c = sum(v['cb'] for v in nay.values())
+        for nhan, pat, that in (
+            ('§11 dòng tổng',
+             r'Tổng trên corpus thật: (\d+) lỗi · (\d+) cảnh báo', (tong_l, tong_c)),
+        ):
+            ms = re.findall(pat, van11)
+            if len(ms) != 1:
+                so_sach.append(f'{nhan}: regex khớp {len(ms)} chỗ, đòi ĐÚNG MỘT')
+            elif (int(ms[0][0]), int(ms[0][1])) != that:
+                so_sach.append(f'{nhan}: ghi {ms[0][0]} lỗi · {ms[0][1]} cảnh báo, '
+                               f'đo được {that[0]} lỗi · {that[1]} cảnh báo')
+        ms = re.findall(r'hôm nay cho \*\*(\d+) lỗi\*\*', van11)
+        if len(ms) != 1:
+            so_sach.append(f'§12 "hôm nay cho N lỗi": regex khớp {len(ms)} chỗ')
+        elif int(ms[0]) != tong_l:
+            so_sach.append(f'§12 "hôm nay cho N lỗi": ghi {ms[0]}, đo được {tong_l}')
+
+    # HAI LOẠI MỤC, và chỉ MỘT loại được chặn `--ghi-so`.
+    #
+    # `loi_ra` là HỒI QUY: một luật TĂNG, tức văn phong xấu đi. Ghi sổ lúc đó là
+    # đúng nghĩa "nới phép kiểm cho xanh", nên nó phải bị chặn.
+    #
+    # `so_sach` là SỔ SÁCH của chính cái sổ: một luật mới chưa khai, hay một mục
+    # khai một luật mã không còn. Ghi sổ CHÍNH LÀ cách sửa chúng, nên chặn ở đây
+    # là một thế bế tắc — và đó là thế đã xảy ra: thêm luật TL thì `--doi-chieu`
+    # đỏ với "SỔ CHƯA KHAI", rồi `--ghi-so` từ chối kèm câu "đang có luật TĂNG"
+    # trong khi KHÔNG luật nào tăng. Thông điệp vừa chặn vừa nói sai, nên không
+    # có đường nào thêm được một luật mới.
+    #
+    # Cả hai loại VẪN là LỖI ở lần chạy thường: để một luật mới không được canh
+    # thì nó im lặng mãi, đúng lỗi mà chính nó ra đời để bắt.
+    for m in loi_ra + so_sach:
+        print(f'LỖI: {m}', file=sys.stderr)
+    if siet:
+        print(f'\nGHI SỔ — {len(siet)} mục đã SIẾT, chạy kèm --ghi-so để ghi lại:')
+        for m in siet:
+            print(f'   {m}')
+
+    if ghi_so:
+        if loi_ra:
+            print(f'\n--ghi-so TỪ CHỐI: {len(loi_ra)} luật TĂNG. Sửa chữ trước.',
+                  file=sys.stderr)
+            return 1
+        if not siet and not so_sach and cu and so.get('soBai') == so_bai:
+            print('\nSổ đã đúng — không ghi gì.')
+            return 0
+        so['luat'] = nay
+        so['soBai'] = so_bai
+        MOC.write_text(json.dumps(so, ensure_ascii=False, indent=2) + '\n',
+                       encoding='utf-8')
+        print(f'\nĐã ghi {MOC.name}: {len(nay)} luật · {so_bai} bài.')
+        return 0
+
+    # ĐẾM CẢ HAI loại. `so_sach` không chặn `--ghi-so` (ghi CHÍNH LÀ cách sửa
+    # nó), nhưng ở lần chạy thường nó PHẢI đỏ — nếu không thì một luật mới nằm
+    # ngoài sổ sẽ in một dòng LỖI rồi exit 0, tức CI xanh và luật đó không bao
+    # giờ được canh. Đo được đúng vậy ở bản đầu của phép tách này: gỡ mục TL
+    # khỏi sổ → in "SỔ CHƯA KHAI" mà `exit=0`.
+    tong_loi = len(loi_ra) + len(so_sach)
+    print(f'\nĐối chiếu sổ: {len(nay)} luật · {so_bai} bài · {tong_loi} lỗi')
+    return 1 if tong_loi else 0
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--strict', action='store_true',
+                    help='cảnh báo cũng tính là lỗi')
+    ap.add_argument('--luat', default='',
+                    help='chỉ chạy/in vài luật, ví dụ L3,L10')
+    ap.add_argument('--chi-tiet', type=int, default=5,
+                    help='số dòng chi tiết mỗi luật (0 = in hết)')
+    # CHỈ dùng cho phép ablate: trỏ vào một BẢN SAO corpus đã cố tình làm sai,
+    # để chứng minh từng luật bắt được lỗi (AGENTS.md "Quy ước khi sửa": gỡ bản
+    # sửa ra thì test phải trượt). Đừng dùng nó để kiểm một nguồn khác trong
+    # thật — `source/course.json` là nguồn duy nhất build.py đọc.
+    ap.add_argument('--nguon', default=str(SOURCE),
+                    help='bản sao corpus để ablate (mặc định: source/course.json)')
+    ap.add_argument('--doi-chieu', action='store_true',
+                    help='so TỪNG LUẬT với van-phong-moc.json; ĐỎ khi một luật '
+                         'TĂNG. Đây là chế độ CI chạy — nó KHÔNG đỏ vì 139 lỗi '
+                         'đang tồn, chỉ đỏ khi văn phong xấu ĐI.')
+    ap.add_argument('--ghi-so', action='store_true',
+                    help='ghi lại sổ sau khi đã SIẾT. Từ chối chạy khi đang có '
+                         'luật tăng — nếu không nó là cái nút TẮT cổng.')
+    args = ap.parse_args()
+
+    src = Path(args.nguon)
+    if not src.is_file():
+        print(f'LỖI: không có {src}', file=sys.stderr)
+        return 1
+    nguon = json.loads(src.read_text(encoding='utf-8'))
+    bai = nguon['lessons']          # ĐÚNG thứ tự chương — L9/L10 phụ thuộc vào nó
+    bank = nap_termbank()
+    mien, tru = nap_boi_canh()
+
+    kiem_termbank(bank, bai)
+    kiem_do_dai(bai)
+    kiem_khuon_chu(bai)
+    kiem_thuat_ngu(bai, bank)
+    kiem_boi_canh(bai, mien, tru)
+    kiem_noi_bai(bai, bank)
+    kiem_tai_lieu(bai, bank)
+
+    chon = {t.strip().upper() for t in args.luat.split(',') if t.strip()}
+    def loc(xs: list[tuple[str, str]]) -> list[tuple[str, str]]:
+        return [x for x in xs if not chon or x[0].upper() in chon]
+
+    lo, cb = loc(LOI), loc(CANH_BAO)
+
+    dem_lo, dem_cb = Counter(l for l, _ in lo), Counter(l for l, _ in cb)
+    thu_tu = [f'L{i}' for i in range(1, 16)] + ['TB', 'TL', '§4-A']
+    # In CẢ luật đang 0. Một luật không bắt được ca nào là THÔNG TIN, không phải
+    # chuyện im lặng được: nó có thể là corpus đã đạt, mà cũng có thể là luật
+    # không thể trượt — "một luật không thể trượt trông như hàng rào mà không
+    # phải" (check.py, kiem_trac_nghiem). Ẩn nó đi là bỏ mất phép phân biệt đó.
+    print('luật  lỗi  cảnh báo  nội dung')
+    for t in thu_tu:
+        if chon and t.upper() not in chon:
+            continue
+        print(f'{t:5s} {dem_lo[t]:4d} {dem_cb[t]:9d}  {TEN_LUAT.get(t, "")}')
+
+    for ten, xs, nhan, ra in (('cảnh báo', cb, 'cảnh báo', sys.stdout),
+                              ('lỗi', lo, 'LỖI', sys.stderr)):
+        theo = {}
+        for luat, msg in xs:
+            theo.setdefault(luat, []).append(msg)
+        for t in thu_tu:
+            ms = theo.get(t) or []
+            if not ms:
+                continue
+            print(f'\n── {nhan} {t} · {len(ms)} ──', file=ra)
+            hien = ms if args.chi_tiet <= 0 else ms[:args.chi_tiet]
+            for msg in hien:
+                print(f'{nhan}: {t} {msg}', file=ra)
+            if len(ms) > len(hien):
+                print(f'  … còn {len(ms) - len(hien)} nữa '
+                      '(--chi-tiet 0 để xem hết)', file=ra)
+
+    hong = len(lo) + (len(cb) if args.strict else 0)
+    print(f'\n{len(bai)} bài · {len(bank)} thuật ngữ · {len(lo)} lỗi · '
+          f'{len(cb)} cảnh báo'
+          f'{" (strict: cảnh báo tính là lỗi)" if args.strict else ""}')
+
+    # Chế độ CI. Mã thoát ở đây nói về RATCHET, không về 139 lỗi đang tồn: cắm
+    # bản tuyệt đối vào CI là đỏ vĩnh viễn vì một việc chỉ người soạn giáo
+    # trình làm được, mà đỏ vĩnh viễn thì dạy người ta quen với màu đỏ (bài học
+    # đã ghi cho `DAP_AN_MAU_KHONG_CHAY` và `check-da-nap`).
+    if args.doi_chieu or args.ghi_so:
+        if chon:
+            print('LỖI: --doi-chieu không đi với --luat — lọc luật thì phép so '
+                  'chỉ thấy một phần sổ và mọi luật bị lọc trông như đã biến '
+                  'mất.', file=sys.stderr)
+            return 1
+        return doi_chieu_moc(dem_lo, dem_cb, thu_tu, len(bai), args.ghi_so)
+
+    return 1 if hong else 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -1,0 +1,249 @@
+{
+ "lesson_code": "CT10",
+ "sort_order": 141,
+ "module": "M6 · Hệ điều hành, tiến trình và đa luồng",
+ "title": "CT10 · Tạo thread bằng target, start và join",
+ "subtitle": "Nâng cao · M6 · 14 phút",
+ "estimated_minutes": 14,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "CT10 · Tạo thread bằng target, start và join",
+  "subtitle": "Nâng cao · M6 · 14 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#CT10",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 295; Python — subprocess; Python — threading"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Giao một việc cho người ở quầy sau rồi quay lại chờ họ xong, khác với tự tay làm nó. Bạn muốn tính một kết quả ở luồng nền rồi dùng kết quả sau khi nó hoàn thành. Truyền hàm vào target, gọi start để tạo luồng thực thi và join để chờ:"
+     },
+     {
+      "type": "code",
+      "code": "from threading import Thread\nresult = []\ndef double(value): result.append(value * 2)\nt = Thread(target=double, args=(4,))\nt.start(); t.join()\nprint(result)",
+      "expected": "[8]"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`target=double` truyền hàm, không gọi double ngay. `args=(4,)` là `tuple` một đối số. Nếu viết target=double(4), hàm sẽ chạy lúc dựng đối tượng và giá trị trả về bị truyền thay cho hàm."
+     },
+     {
+      "type": "code",
+      "code": "from threading import Thread, current_thread\nseen = []\ndef work(): seen.append(current_thread().name)\nt = Thread(target=work, name=\"background\")\nt.run()\nprint(seen == [current_thread().name])",
+      "expected": "True"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Gọi trực tiếp run chỉ là gọi một method trên luồng hiện tại, không tạo luồng mới. start mới sắp xếp chạy run trên luồng mới. Mỗi đối tượng `Thread` chỉ được start một lần."
+     },
+     {
+      "type": "code",
+      "code": "from threading import Thread\nfrom time import sleep\nresult = []\ndef work():\n    sleep(0.01)\n    result.append(\"done\")\nt = Thread(target=work)\nt.start(); t.join()\nprint(t.is_alive(), result)",
+      "expected": "False ['done']"
+     },
+     {
+      "type": "paragraph",
+      "text": "sleep chặn thread đang gọi nó; không làm mọi thread ngủ. join ở đây bảo đảm khi in, worker đã xong. Nếu gọi join từ callback GUI, UI vẫn có thể bị chặn; bài event loop sẽ nhận kết quả qua queue thay vì chờ dài trong callback."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "CT09 · Thread dùng chung gì, giữ riêng gì?"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Thread(target=work()) khác target=work ở đâu?",
+     "options": [
+      {
+       "text": "work() chạy ngay khi xây đối số",
+       "detail": "target cần callable để thread gọi sau; target=work() truyền kết quả của lời gọi.",
+       "correct": true
+      },
+      {
+       "text": "work() luôn chạy nhanh hơn trong thread",
+       "detail": "Ở đây chưa có thread nào được start khi biểu thức đối số chạy."
+      },
+      {
+       "text": "Không khác nhau",
+       "detail": "Dấu ngoặc tạo lời gọi ngay, thay đổi thời điểm và giá trị target."
+      }
+     ],
+     "explanation": "target cần callable để thread gọi sau; target=work() truyền kết quả của lời gọi."
+    },
+    {
+     "question": "Trong Thread(target=work), work được truyền theo dạng nào?",
+     "options": [
+      {
+       "text": "Tên file work.py bắt buộc",
+       "detail": "Chưa đúng. Truyền hàm không kèm ngoặc để chưa thực thi ngay trên thread hiện tại."
+      },
+      {
+       "text": "Callable để thread gọi sau",
+       "detail": "Truyền hàm không kèm ngoặc để chưa thực thi ngay trên thread hiện tại.",
+       "correct": true
+      },
+      {
+       "text": "Kết quả của work() đã chạy trước",
+       "detail": "Chưa đúng. Truyền hàm không kèm ngoặc để chưa thực thi ngay trên thread hiện tại."
+      }
+     ],
+     "explanation": "Truyền hàm không kèm ngoặc để chưa thực thi ngay trên thread hiện tại."
+    },
+    {
+     "question": "args=(4,) khác args=(4) ở điểm gì?",
+     "options": [
+      {
+       "text": "Dấu phẩy khiến số 4 thành chuỗi",
+       "detail": "Chưa đúng. Dấu phẩy tạo tuple một phần tử để truyền đúng danh sách đối số."
+      },
+      {
+       "text": "(4) cũng là tuple một phần tử",
+       "detail": "Chưa đúng. Dấu phẩy tạo tuple một phần tử để truyền đúng danh sách đối số."
+      },
+      {
+       "text": "(4,) là tuple một phần tử",
+       "detail": "Dấu phẩy tạo tuple một phần tử để truyền đúng danh sách đối số.",
+       "correct": true
+      }
+     ],
+     "explanation": "Dấu phẩy tạo tuple một phần tử để truyền đúng danh sách đối số."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "target=work và target=work() khác nhau thế nào?",
+     "answer": "Một cách truyền hàm để chạy sau; cách kia gọi ngay và truyền kết quả."
+    },
+    {
+     "prompt": "Gọi run trực tiếp có tạo thread mới không?",
+     "answer": "Không."
+    },
+    {
+     "prompt": "Sau join không có timeout đã trả về, worker còn đang chạy không?",
+     "answer": "Không; join như vậy chờ worker kết thúc. join(timeout=...) có thể trả về khi worker vẫn còn sống."
+    },
+    {
+     "prompt": "Viết tuple một đối số 10 cho Thread(target=work,...). Khi worker sleep, thread chính có buộc ngủ cùng không?",
+     "answer": "Dùng args=(10,) với dấu phẩy. time.sleep chặn thread gọi nó, không bắt mọi thread cùng ngủ; start khởi chạy, join chờ khi cần."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "solve(data) nhận {\"values\": list số, \"factor\": số}. Tạo Thread(target=worker, args=(values,factor,result)); worker nhân từng số với factor rồi ghi vào result. Main start, join, trả result. Dùng một worker để thứ tự không phụ thuộc lịch chạy.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'values': [1, 4], 'factor': 3}"
+     },
+     {
+      "label": "trả về",
+      "value": "[3, 12]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import threading\ndef worker(values, factor, result):\n    for number in values: result.append(number * factor)\ndef solve(data):\n    result = []\n    thread = threading.Thread(target=worker, args=(data['values'], data['factor'], result))\n    thread.start()\n    thread.join()\n    return result\n",
+   "tests": [
+    {
+     "name": "nhân ba",
+     "input": {
+      "values": [
+       1,
+       4
+      ],
+      "factor": 3
+     },
+     "expected": [
+      3,
+      12
+     ]
+    },
+    {
+     "name": "factor âm",
+     "input": {
+      "values": [
+       2,
+       -1
+      ],
+      "factor": -2
+     },
+     "expected": [
+      -4,
+      2
+     ]
+    },
+    {
+     "name": "rỗng",
+     "input": {
+      "values": [],
+      "factor": 5
+     },
+     "expected": []
+    },
+    {
+     "name": "factor 0 cho dãy toàn 0",
+     "input": {
+      "values": [
+       0,
+       3
+      ],
+      "factor": 0
+     },
+     "expected": [
+      0,
+      0
+     ]
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "env": "Bài tập dưới đây chấm được ngay trong trình duyệt. Nhưng code trong phần bài đọc thì không: bản Pyodide này không bật thread thật. Muốn chạy lại các đoạn đó thì mở Python trên máy."
+  }
+ },
+ "_mode": "local",
+ "_blocked": [
+  {
+   "block": 0,
+   "reason": "bản Pyodide này không bật thread thật"
+  },
+  {
+   "block": 1,
+   "reason": "bản Pyodide này không bật thread thật"
+  },
+  {
+   "block": 2,
+   "reason": "bản Pyodide này không bật thread thật"
+  }
+ ],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

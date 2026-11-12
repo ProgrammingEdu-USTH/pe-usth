@@ -17,6 +17,7 @@ import styles from './SiteHeader.module.css';
  * đã làm hai màn thành trang mồ côi: `/practice` và `/practice/challenge` dựng
  * xong, kiểm kỹ, mà không trang nào dẫn tới (xem lý lẽ đầy đủ ở đầu
  * `lib/site-nav.ts`). Danh sách mục nằm ở file đó để `node --test` kiểm được.
+ * 04/11/2026: `/practice` không còn trong cây mã nên mục "Ôn tập" đã gỡ.
  *
  * Giao diện sáng/tối dùng cùng hợp đồng với script chống nháy ở layout gốc:
  * khóa localStorage `theme` và cặp class `dark`/`light` trên <body>.
@@ -34,8 +35,10 @@ function toggleTheme() {
 
 export default function SiteHeader({ wide = false }: { wide?: boolean }) {
   const pathname = usePathname() ?? '/';
-  // Cùng cờ với `catalog.TOOLS`: ẩn thẻ công cụ mà vẫn để lối đi trên thanh
-  // trên thì thanh dẫn tới một trang trang chủ bảo là không có.
+  // `NEXT_PUBLIC_IDE_ENABLED=off` ẩn mục "Bàn thí nghiệm". Cờ này từng phải ẩn
+  // CÙNG thẻ công cụ của trang chủ cũ (`catalog.TOOLS`), nếu không thì thanh
+  // trên dẫn tới một trang mà trang chủ bảo là không có. Thẻ đó đã xoá cùng
+  // `CatalogTile` ở 4d5f86d, nên đây nay là chỗ DUY NHẤT đọc cờ.
   const items = navItems(process.env.NEXT_PUBLIC_IDE_ENABLED !== 'off');
 
   const bar = (

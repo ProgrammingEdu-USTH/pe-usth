@@ -87,10 +87,10 @@ MODULE_OF = {code: (i, name, level) for i, (name, level, codes) in enumerate(MOD
 XP = {'Cơ bản': 10, 'Trung cấp': 15, 'Nâng cao': 20}
 HINT_TITLES = ('Nguyên lý', 'Cấu trúc', 'Lời giải từng phần')
 
-# Thư viện trình duyệt tải được (tự lưu trữ trong frontend/public/pyodide/v0.27.7/).
+# Thư viện trình duyệt tải được (tự lưu trữ trong frontend/public/pyodide/v314.0.7/).
 # Khoá = tên gói khai trong bài; giá trị = tên module khi `import`.
 # openpyxl KHÔNG có trong pyodide-lock.json của 0.27.7 nên không được khai.
-PACKAGES = {'numpy': 'numpy', 'pandas': 'pandas', 'matplotlib': 'matplotlib', 'sqlite3': 'sqlite3'}
+PACKAGES = {'numpy': 'numpy', 'pandas': 'pandas', 'matplotlib': 'matplotlib', 'sqlite3': None}
 IMPORT_TO_PACKAGE = {mod: pkg for pkg, mod in PACKAGES.items()}
 
 MIN_TESTS = 5
@@ -195,7 +195,7 @@ def brief_block(code, spec, briefs, module_no, level):
     for key in ('goal', 'task', 'predict', 'reflect'):
         check(brief.get(key), code, f'màn mở đầu thiếu {key}')
     return {
-        'eyebrow': [f'M{module_no}', 'TỔNG HỢP' if spec.get('gate') else f'BÀI TẬP {level.upper()}', code],
+        'eyebrow': [f'M{module_no}', 'BOSS' if spec.get('gate') else f'BÀI TẬP {level.upper()}', code],
         'title': spec['title'],
         'goal': brief['goal'],
         'task': brief['task'],
@@ -240,31 +240,9 @@ def scaffold_block(code, spec):
     check(len(labels) == len(set(labels)), code, 'khối trong ngân hàng lắp ghép bị trùng nhãn')
     check(all('\n' not in b for b in labels), code, 'nhãn khối lắp ghép không được xuống dòng')
     random.Random(code).shuffle(bank)
-    # `hints` (ô này làm gì — nhãn của nhóm thẻ) và `whys` (vì sao đáp án đúng —
-    # câu phản hồi khi ô đúng) là TUỲ CHỌN, mỗi phần tử ứng với một slot, None =
-    # bỏ trống. Màn điền code (frontend lib/studio-lesson.ts: bankGroups,
-    # fillFeedback) đọc `slots[].hint/why`; thiếu thì nhóm không nhãn và câu đúng
-    # không lý do. Chỉ chép khi bài khai THẬT — không sinh chữ thay người viết.
-    # LUẬT VIẾT `hints`: nhãn nằm trên kho TRƯỚC khi người học chọn gì, nên nó
-    # phải nói LOẠI thứ cần điền hoặc VIỆC nó làm, KHÔNG nói ra chính đáp án —
-    # lộ ở đây là phát sẵn bảng đáp án. Lưới: frontend/e2e/unit/trap-leak.test.mjs.
-    extra = {}
-    for key, field in (('hints', 'hint'), ('whys', 'why')):
-        vals = spec.get(key)
-        if vals is None:
-            continue
-        check(len(vals) == len(slots), code, f'{key} có {len(vals)} mục nhưng khung có {len(slots)} slot')
-        extra[field] = vals
-    out_slots = []
-    for i, a in enumerate(slots, start=1):
-        slot = {'n': i, 'placeholder': f'[Slot {i}]', 'answer': a}
-        for field, vals in extra.items():
-            if vals[i - 1]:
-                slot[field] = vals[i - 1]
-        out_slots.append(slot)
     return {
         'template': template,
-        'slots': out_slots,
+        'slots': [{'n': i, 'placeholder': f'[Slot {i}]', 'answer': a} for i, a in enumerate(slots, start=1)],
         'bank': bank,
     }
 
@@ -437,7 +415,7 @@ def build_lesson(spec, briefs, support, sort_order, warnings=None, strict_figure
     title = f"{code} · {spec['title']}"
     subtitle = f"{level} · M{module_no} · {spec['minutes']} phút"
     if gate:
-        subtitle += f" · Tổng hợp {spec.get('exam') or module_name}"
+        subtitle += f" · Boss {spec.get('exam') or module_name}"
 
     prereq = spec.get('prereq')
     if prereq:
@@ -508,7 +486,7 @@ def build_lesson(spec, briefs, support, sort_order, warnings=None, strict_figure
     unknown = declared - set(PACKAGES)
     check(not unknown, code, f'packages {sorted(unknown)} không có; chỉ dùng được {sorted(PACKAGES)}')
     excel = uses_excel(spec['solution'])
-    check(not excel, code, f'lời giải dùng {excel}: Excel cần openpyxl, mà Pyodide 0.27.7 không có gói này — '
+    check(not excel, code, f'lời giải dùng {excel}: Excel cần openpyxl, mà Pyodide 314.0.7 không có gói này — '
                            'trình duyệt sẽ lỗi')
     packages = sorted(declared | detect_packages(spec['solution'], spec['starter'],
                                                  *[t['call'] + '\n' + t['expect'] for t in tests]))
@@ -517,11 +495,7 @@ def build_lesson(spec, briefs, support, sort_order, warnings=None, strict_figure
         task_body += '\n\nThực hành: ' + spec['practice']
     step4 = {
         'task': {
-            # Tiêu đề bài cửa KHÔNG được nhắc lại lời hứa "nộp lần đầu": luật thật
-            # là lời giải mở khi bài HOÀN THÀNH (xem lessons.service.ts
-            # `gated && !completed` và frontend/src/lib/gate-notice.ts). Câu cũ
-            # hứa ngược lại, và nó hiện ngay TRÊN lời nhắc đã sửa.
-            'title': 'Bài tổng hợp chặng — tự viết rồi nộp' if gate else 'Thử thách độc lập',
+            'title': 'Boss — tự viết, nộp lần đầu trước khi xem lời giải' if gate else 'Thử thách độc lập',
             'body': task_body,
             'io': [{'label': label, 'value': value} for label, value in spec['io']],
         },
@@ -545,16 +519,6 @@ def build_lesson(spec, briefs, support, sort_order, warnings=None, strict_figure
     if packages:
         step4['packages'] = packages
 
-    # Mini-game có động cơ riêng (vd. "Sổ quỹ chung" của T05): build_advanced.py nối
-    # nó vào CUỐI play.games — cuối chứ không chen giữa, vì id game mang số thứ tự
-    # (`fill-1`, `debug-3`…) và bản nháp của người đang học lưu theo id đó.
-    mini_game = spec.get('mini_game')
-    if mini_game:
-        need = {'type', 'title', 'code', 'loiGiai', 'ham', 'soDu', 'nguoi'}
-        check(need <= set(mini_game), code, f'mini_game thiếu {sorted(need - set(mini_game))}')
-        check(mini_game['type'] == 'soQuy', code, f"mini_game type {mini_game['type']!r} chưa có động cơ")
-        check(len(mini_game['nguoi']) == 2, code, 'mini_game soQuy cần đúng 2 người (màn vẽ hai nhân vật)')
-
     # `slides` = trang slide gốc của giảng viên ("SL 15-16"), để sổ tay in được dòng
     # nguồn dưới khối lý thuyết. Đi cùng `source` vì nó nói về xuất xứ, không phải nội dung.
     slides = spec.get('slides')
@@ -574,8 +538,6 @@ def build_lesson(spec, briefs, support, sort_order, warnings=None, strict_figure
         'step_3': step3,
         'step_4': step4,
     }
-    if mini_game:
-        content['mini_games'] = [dict(mini_game)]
     xp = XP[level] * (2 if gate else 1)
     row = {
         'lesson_code': code,
@@ -692,7 +654,7 @@ def run_checks(qa_rows: list[dict], jobs: int, timeout: float, verbose: bool) ->
     python = interpreter()
     if python == sys.executable and not os.environ.get('PE_V4_PYTHON'):
         print(f'! Chấm thử bằng {sys.version.split()[0]} (không thấy scripts/pe-v4/.venv): phiên bản numpy/pandas '
-              'có thể khác Pyodide 0.27.7. Tạo venv: uv venv scripts/pe-v4/.venv --python 3.12 && uv pip install '
+              'có thể khác Pyodide 314.0.7. Tạo venv: uv venv scripts/pe-v4/.venv --python 3.12 && uv pip install '
               '--python scripts/pe-v4/.venv/Scripts/python.exe numpy==2.0.2 pandas==2.2.3 matplotlib==3.8.4')
     started = time.monotonic()
     problems = []

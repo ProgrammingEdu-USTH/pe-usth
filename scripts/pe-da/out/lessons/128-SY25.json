@@ -1,0 +1,588 @@
+{
+ "lesson_code": "SY25",
+ "sort_order": 128,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY25 · PW1: quản lý món, nguyên liệu và định lượng bằng collection",
+ "subtitle": "Trung cấp · M5 · 12 phút",
+ "estimated_minutes": 12,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY25 · PW1: quản lý món, nguyên liệu và định lượng bằng collection",
+  "subtitle": "Trung cấp · M5 · 12 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY25",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 97-98; Python — Data structures"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Mọi thứ của chặng này nay gộp vào một bài thực hành nối tiếp nhau. Quán có nhiều món và nhiều nguyên liệu. Mỗi định lượng phải gắn cả mã món lẫn mã nguyên liệu; một danh sách số gam rời sẽ khó biết nó thuộc về món nào. Bắt đầu bằng cấu trúc dễ tra cứu:"
+     },
+     {
+      "type": "code",
+      "code": "items = {\"latte\": {\"name\": \"Latte\", \"group\": \"Ca phe\"}}\ningredients = {\"ca-phe-hat\": {\"name\": \"Ca phe hat\", \"unit\": \"g\"}}\nrecipe = {(\"latte\", \"ca-phe-hat\"): 8.0}\nprint(items[\"latte\"][\"group\"])\nprint(recipe[(\"latte\", \"ca-phe-hat\")])",
+      "expected": "Ca phe\n8.0",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Dictionary giúp tra theo mã; `tuple` (item_id, ingredient_id) làm khóa của một định lượng. Ở PW1, bạn chỉ dùng collection và hàm để tổ chức dữ liệu, chưa cần class cho món hay nguyên liệu. Mỗi món vẫn cần nhóm món, dù trường này không tham gia công thức lượng trung bình."
+     },
+     {
+      "type": "code",
+      "code": "def ingredient_lines(items, recipe, ingredient_id):\n    return [(iid, items[iid][\"name\"], amount) for (iid, ing), amount in recipe.items() if ing == ingredient_id]\nitems = {\"latte\": {\"name\": \"Latte\", \"group\": \"Ca phe\"}, \"mocha\": {\"name\": \"Mocha\", \"group\": \"Ca phe\"}}\nrecipe = {(\"latte\", \"ca-phe-hat\"): 8, (\"mocha\", \"ca-phe-hat\"): 0, (\"latte\", \"sua-tuoi\"): 7}\nprint(ingredient_lines(items, recipe, \"ca-phe-hat\"))",
+      "expected": "[('latte', 'Latte', 8), ('mocha', 'Mocha', 0)]",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "ing",
+        "line": 2,
+        "prompt": "Ngay sau khi dòng 2 chạy, `ing` bằng mấy?",
+        "answer": "'ca-phe-hat'"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "ingredient_lines",
+           "<hàm ingredient_lines>"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "items",
+           "{'latte': {'name': 'Latte', 'group': 'Ca phe'}, 'mocha': {'name': 'Moch…"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "set": [
+          [
+           "recipe",
+           "{('latte', 'ca-phe-hat'): 8, ('mocha', 'ca-phe-hat'): 0, ('latte', 'sua…"
+          ]
+         ]
+        },
+        {
+         "line": 5
+        },
+        {
+         "line": 1,
+         "fn": "ingredient_lines",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "ingredient_id",
+           "'ca-phe-hat'"
+          ],
+          [
+           "items",
+           "{'latte': {'name': 'Latte', 'group': 'Ca phe'}, 'mocha': {'name': 'Moch…"
+          ],
+          [
+           "recipe",
+           "{('latte', 'ca-phe-hat'): 8, ('mocha', 'ca-phe-hat'): 0, ('latte', 'sua…"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "ingredient_lines",
+         "depth": 1,
+         "set": [
+          [
+           "amount",
+           "8"
+          ],
+          [
+           "iid",
+           "'latte'"
+          ],
+          [
+           "ing",
+           "'ca-phe-hat'"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "ingredient_lines",
+         "depth": 1,
+         "set": [
+          [
+           "amount",
+           "0"
+          ],
+          [
+           "iid",
+           "'mocha'"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "ingredient_lines",
+         "depth": 1,
+         "set": [
+          [
+           "amount",
+           "7"
+          ],
+          [
+           "iid",
+           "'latte'"
+          ],
+          [
+           "ing",
+           "'sua-tuoi'"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "ingredient_lines",
+         "depth": 1
+        },
+        {
+         "line": 2,
+         "fn": "ingredient_lines",
+         "depth": 1,
+         "ret": "[('latte', 'Latte', 8), ('mocha', 'Mocha', 0)]",
+         "out": "[('latte', 'Latte', 8), ('mocha', 'Mocha', 0)]"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Lượng 0 là dữ liệu hợp lệ, khác với chưa khai định lượng. Khi liệt kê một nguyên liệu, chọn đúng các cặp khóa của nguyên liệu đó. Trong màn hình nhập, kiểm mã món và mã nguyên liệu tồn tại trước khi nhận lượng."
+     },
+     {
+      "type": "code",
+      "code": "def read_item(ask):\n    iid = ask(\"Ma mon: \").strip()\n    name = ask(\"Ten mon: \").strip()\n    group = ask(\"Nhom mon: \").strip()\n    if not iid or not name: raise ValueError(\"empty field\")\n    if group not in (\"Ca phe\", \"Tra\", \"Da xay\", \"Banh\"): raise ValueError(\"group\")\n    return iid, {\"name\": name, \"group\": group}\nanswers = iter([\"latte\", \"Latte\", \"Ca phe\"])\niid, info = read_item(lambda prompt: next(answers))\nprint(iid, info[\"name\"], info[\"group\"])",
+      "expected": "latte Latte Ca phe",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "prompt",
+        "line": 9,
+        "prompt": "Ngay sau khi dòng 9 chạy, `prompt` bằng mấy?",
+        "answer": "'Ma mon: '"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "read_item",
+           "<hàm read_item>"
+          ]
+         ]
+        },
+        {
+         "line": 8,
+         "set": [
+          [
+           "answers",
+           "list_iterator: <list_iterator object>"
+          ]
+         ]
+        },
+        {
+         "line": 9
+        },
+        {
+         "line": 1,
+         "fn": "read_item",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "ask",
+           "<hàm <lambda>>"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "fn": "read_item",
+         "depth": 1
+        },
+        {
+         "line": 9,
+         "fn": "<lambda>",
+         "depth": 2,
+         "enter": true,
+         "set": [
+          [
+           "prompt",
+           "'Ma mon: '"
+          ]
+         ]
+        },
+        {
+         "line": 9,
+         "fn": "<lambda>",
+         "depth": 2
+        },
+        {
+         "line": 9,
+         "fn": "<lambda>",
+         "depth": 2,
+         "ret": "'latte'"
+        },
+        {
+         "line": 3,
+         "fn": "read_item",
+         "depth": 1
+        },
+        {
+         "line": 9,
+         "fn": "<lambda>",
+         "depth": 2,
+         "enter": true,
+         "set": [
+          [
+           "prompt",
+           "'Ten mon: '"
+          ]
+         ]
+        },
+        {
+         "line": 9,
+         "fn": "<lambda>",
+         "depth": 2
+        },
+        {
+         "line": 9,
+         "fn": "<lambda>",
+         "depth": 2,
+         "ret": "'Latte'"
+        },
+        {
+         "line": 4,
+         "fn": "read_item",
+         "depth": 1
+        },
+        {
+         "line": 9,
+         "fn": "<lambda>",
+         "depth": 2,
+         "enter": true,
+         "set": [
+          [
+           "prompt",
+           "'Nhom mon: '"
+          ]
+         ]
+        },
+        {
+         "line": 9,
+         "fn": "<lambda>",
+         "depth": 2
+        },
+        {
+         "line": 9,
+         "fn": "<lambda>",
+         "depth": 2,
+         "ret": "'Ca phe'"
+        },
+        {
+         "line": 5,
+         "fn": "read_item",
+         "depth": 1
+        },
+        {
+         "line": 6,
+         "fn": "read_item",
+         "depth": 1
+        },
+        {
+         "line": 7,
+         "fn": "read_item",
+         "depth": 1
+        },
+        {
+         "line": 7,
+         "fn": "read_item",
+         "depth": 1,
+         "ret": "('latte', {'name': 'Latte', 'group': 'Ca phe'})"
+        },
+        {
+         "line": 10,
+         "out": "latte Latte Ca phe"
+        },
+        {
+         "line": 10,
+         "ret": "None"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Truyền ask làm ví dụ tự chạy được với dữ liệu cố định; khi mở CLI dùng read_item(input). Bài hoàn chỉnh cần bốn hàm nhập, theo thứ tự này:"
+     },
+     {
+      "type": "table",
+      "headers": [
+       "#",
+       "Hàm cần có"
+      ],
+      "rows": [
+       [
+        "1",
+        "nhập số món, rồi nhập từng món"
+       ],
+       [
+        "2",
+        "nhập số nguyên liệu và id/name từng nguyên liệu"
+       ],
+       [
+        "3",
+        "chọn nguyên liệu rồi nhập lượng cho từng món"
+       ],
+       [
+        "4",
+        "liệt kê món, nguyên liệu và định lượng"
+       ]
+      ]
+     },
+     {
+      "type": "paragraph",
+      "text": "Giữ một state chung để danh sách và định lượng không bị lệch."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "SY01 · Đọc ngày tháng và tính khoảng thời gian, SY04 · Git: từ thư mục bài làm đến fork của bạn, PY18 · Ngoại lệ và dữ liệu không hợp lệ"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Điểm chưa được nhập nên lưu như 0 để tiện tính không?",
+     "options": [
+      {
+       "text": "Xóa sinh viên đó",
+       "detail": "Thiếu điểm không làm hồ sơ sinh viên mất hiệu lực."
+      },
+      {
+       "text": "Không; chưa có điểm khác điểm 0",
+       "detail": "0 là điểm đã biết; thiếu điểm là trạng thái khác cần giữ riêng.",
+       "correct": true
+      },
+      {
+       "text": "Có; cả hai đều không đạt",
+       "detail": "Một điểm đã chấm 0 vẫn phải hiển thị và có thể tham gia phép tính."
+      }
+     ],
+     "explanation": "0 là điểm đã biết; thiếu điểm là trạng thái khác cần giữ riêng."
+    },
+    {
+     "question": "Điểm một sinh viên trong một môn nên gắn với khóa nào?",
+     "options": [
+      {
+       "text": "Chỉ tên sinh viên không duy nhất",
+       "detail": "Chưa đúng. Hai mã xác định quan hệ giữa hồ sơ sinh viên và môn học."
+      },
+      {
+       "text": "Số thứ tự dòng in ra terminal",
+       "detail": "Chưa đúng. Hai mã xác định quan hệ giữa hồ sơ sinh viên và môn học."
+      },
+      {
+       "text": "(student_id, course_id)",
+       "detail": "Hai mã xác định quan hệ giữa hồ sơ sinh viên và môn học.",
+       "correct": true
+      }
+     ],
+     "explanation": "Hai mã xác định quan hệ giữa hồ sơ sinh viên và môn học."
+    },
+    {
+     "question": "Điểm 0 khác chưa có điểm ở chỗ nào?",
+     "options": [
+      {
+       "text": "0 là một giá trị đã được chấm",
+       "detail": "Dữ liệu thiếu và một điểm hợp lệ bằng 0 cần được giữ riêng.",
+       "correct": true
+      },
+      {
+       "text": "Hai trạng thái luôn giống nhau",
+       "detail": "Chưa đúng. Dữ liệu thiếu và một điểm hợp lệ bằng 0 cần được giữ riêng."
+      },
+      {
+       "text": "0 luôn phải xóa khỏi registry",
+       "detail": "Chưa đúng. Dữ liệu thiếu và một điểm hợp lệ bằng 0 cần được giữ riêng."
+      }
+     ],
+     "explanation": "Dữ liệu thiếu và một điểm hợp lệ bằng 0 cần được giữ riêng."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Khóa định lượng vì sao có hai thành phần?",
+     "answer": "Một món có thể dùng nhiều nguyên liệu; (item_id, ingredient_id) xác định lượng thuộc đúng cặp."
+    },
+    {
+     "prompt": "Nếu lượng bằng 0 có được bỏ như chưa khai không?",
+     "answer": "Không. Kiểm sự tồn tại của key; 0 là lượng hợp lệ."
+    },
+    {
+     "prompt": "Hoàn thiện PW1 không dùng class domain và tự kiểm đủ yêu cầu.",
+     "answer": "Nộp 1.mon.dinhluong.py có read_count (int không âm), read_items(count) với id/name/nhóm không trùng, read_ingredients(count) id/name không trùng, read_amounts(ingredient_id) kiểm lượng hữu hạn 0..50; list_items/list_ingredients/list_ingredient_lines. CLI đọc count, các hồ sơ, rồi menu lặp chọn nguyên liệu/nhập/xem/thoát. Dùng input cho tương tác thật, có thể truyền ask để test. Thử 2 món trùng tên khác mã, 2 nguyên liệu, lượng 0, mã lạ, count sai và nhóm món không hợp lệ. Nộp kết quả listing đúng từng nguyên liệu và commit lên fork; không chỉ in dữ liệu mẫu."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận dict có items (dict mã→dict có name) và recipe (list [mã món, mã nguyên liệu, định lượng]) và ingredient_id. Trả list [mã món, tên món, định lượng] của những món DÙNG nguyên liệu đó, xếp theo mã món tăng dần.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'ingredient_id': 'ca-phe-hat', 'items': {'latte': {'name': 'Latte'}, 'mocha': {'name': 'Mocha'}}, 'recipe': [['mocha', 'ca-phe-hat', 9.0], ['latte', 'ca-phe-hat', 8.0]]}"
+     },
+     {
+      "label": "trả về",
+      "value": "[['latte', 'Latte', 8.0], ['mocha', 'Mocha', 9.0]]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "def solve(data):\n    ra = []\n    for ma_mon, ma_ng, luong in data[\"recipe\"]:\n        if ma_ng == data[\"ingredient_id\"]:\n            ra.append([ma_mon, data[\"items\"][ma_mon][\"name\"], luong])\n    return sorted(ra, key=lambda x: x[0])\n",
+   "tests": [
+    {
+     "name": "Hai món dùng cà phê hạt",
+     "input": {
+      "ingredient_id": "ca-phe-hat",
+      "items": {
+       "latte": {
+        "name": "Latte"
+       },
+       "mocha": {
+        "name": "Mocha"
+       }
+      },
+      "recipe": [
+       [
+        "mocha",
+        "ca-phe-hat",
+        9.0
+       ],
+       [
+        "latte",
+        "ca-phe-hat",
+        8.0
+       ]
+      ]
+     },
+     "expected": [
+      [
+       "latte",
+       "Latte",
+       8.0
+      ],
+      [
+       "mocha",
+       "Mocha",
+       9.0
+      ]
+     ]
+    },
+    {
+     "name": "Nguyên liệu không món nào dùng",
+     "input": {
+      "ingredient_id": "tra",
+      "items": {
+       "latte": {
+        "name": "Latte"
+       }
+      },
+      "recipe": [
+       [
+        "latte",
+        "ca-phe-hat",
+        8.0
+       ]
+      ]
+     },
+     "expected": []
+    },
+    {
+     "name": "Một món duy nhất",
+     "input": {
+      "ingredient_id": "sua",
+      "items": {
+       "latte": {
+        "name": "Latte"
+       }
+      },
+      "recipe": [
+       [
+        "latte",
+        "sua",
+        150.0
+       ],
+       [
+        "latte",
+        "ca-phe-hat",
+        8.0
+       ]
+      ]
+     },
+     "expected": [
+      [
+       "latte",
+       "Latte",
+       150.0
+      ]
+     ]
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Lọc trước theo mã nguyên liệu, rồi mới tra tên món."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "sorted(..., key=lambda x: x[0]) xếp theo mã món."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 2,
+  "bo": 1,
+  "loi": []
+ }
+}

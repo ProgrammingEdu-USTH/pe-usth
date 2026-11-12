@@ -1,0 +1,345 @@
+{
+ "lesson_code": "EX05",
+ "sort_order": 164,
+ "module": "M9 · Ôn tập và thực hành các chi tiết trong slide",
+ "title": "EX05 · GIL, reference counting và chọn đúng kiểu đồng thời",
+ "subtitle": "Nâng cao · M9 · 15 phút",
+ "estimated_minutes": 15,
+ "xp_reward": 9,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "EX05 · GIL, reference counting và chọn đúng kiểu đồng thời",
+  "subtitle": "Nâng cao · M9 · 15 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#EX05",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 255-286; Thread state and GIL; Python gc; PEP 703"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Ở bài trước bạn đọc cây tiến trình của máy. Trong ví dụ dưới, values và alias cùng trỏ tới một `list`. Vì vậy, thêm phần tử qua alias cũng làm bạn thấy phần tử mới khi đọc values. CPython dùng cơ chế đếm tham chiếu, gọi là reference counting, để theo dõi các tham chiếu tới object. Bộ thu gom rác còn xử lý những nhóm object tham chiếu vòng nhau. Số tham chiếu bạn thấy khi debug có thể gồm cả tham chiếu tạm do công cụ quan sát tạo ra, nên không nên coi đó là số biến bạn đã tự viết."
+     },
+     {
+      "type": "code",
+      "code": "values = [6, 8]\nalias = values\nalias.append(10)\nprint(alias is values)\nprint(values)",
+      "expected": "True\n[6, 8, 10]",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "alias",
+        "line": 2,
+        "prompt": "Ngay sau khi dòng 2 chạy, `alias` bằng mấy?",
+        "answer": "[6, 8]"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "values",
+           "[6, 8]"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "alias",
+           "[6, 8]"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "alias",
+           "[6, 8, 10]"
+          ],
+          [
+           "values",
+           "[6, 8, 10]"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "out": "True"
+        },
+        {
+         "line": 5,
+         "out": "[6, 8, 10]"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Hai object trỏ vòng nhau có thể không còn đường truy cập từ chương trình nhưng vẫn tham chiếu lẫn nhau. Ví dụ tạo một chu kỳ riêng, giữ weakref để quan sát rồi chạy gc.collect. Không cần nhớ tổng số object collector thu hồi vì môi trường có thể có object khác; chỉ kiểm object của ví dụ đã biến mất."
+     },
+     {
+      "type": "code",
+      "code": "import gc, weakref\nclass Node:\n    pass\ndef make_cycle():\n    a, b = Node(), Node()\n    a.peer, b.peer = b, a\n    return weakref.ref(a)\nreference = make_cycle()\ngc.collect()\nprint(reference() is None)",
+      "expected": "True",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "a",
+        "line": 5,
+        "prompt": "Ngay sau khi dòng 5 chạy, `a` bằng mấy?",
+        "answer": "Node()"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "gc",
+           "<thư viện gc>"
+          ],
+          [
+           "weakref",
+           "<thư viện weakref>"
+          ]
+         ]
+        },
+        {
+         "line": 2
+        },
+        {
+         "line": 2,
+         "fn": "Node",
+         "depth": 1,
+         "enter": true
+        },
+        {
+         "line": 2,
+         "fn": "Node",
+         "depth": 1
+        },
+        {
+         "line": 3,
+         "fn": "Node",
+         "depth": 1
+        },
+        {
+         "line": 3,
+         "fn": "Node",
+         "depth": 1,
+         "ret": "None"
+        },
+        {
+         "line": 4,
+         "set": [
+          [
+           "make_cycle",
+           "<hàm make_cycle>"
+          ]
+         ]
+        },
+        {
+         "line": 8
+        },
+        {
+         "line": 4,
+         "fn": "make_cycle",
+         "depth": 1,
+         "enter": true
+        },
+        {
+         "line": 5,
+         "fn": "make_cycle",
+         "depth": 1,
+         "set": [
+          [
+           "a",
+           "Node()"
+          ],
+          [
+           "b",
+           "Node()"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "fn": "make_cycle",
+         "depth": 1,
+         "set": [
+          [
+           "a",
+           "Node(peer=Node(peer=<tự tham chiếu>))"
+          ],
+          [
+           "b",
+           "Node(peer=Node(peer=<tự tham chiếu>))"
+          ]
+         ]
+        },
+        {
+         "line": 7,
+         "fn": "make_cycle",
+         "depth": 1
+        },
+        {
+         "line": 7,
+         "fn": "make_cycle",
+         "depth": 1,
+         "ret": "ReferenceType: <weakref; to 'Node'>"
+        },
+        {
+         "line": 9,
+         "set": [
+          [
+           "reference",
+           "ReferenceType: <weakref; dead>"
+          ]
+         ]
+        },
+        {
+         "line": 10,
+         "out": "True"
+        },
+        {
+         "line": 10,
+         "ret": "None"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "GIL (Global Interpreter Lock) là khóa của interpreter. Trong CPython build có GIL, chỉ một luồng thực thi Python bytecode tại một thời điểm. Khóa này giúp bảo vệ trạng thái nội bộ; nó không làm mọi quy tắc cập nhật dữ liệu ứng dụng trở thành nguyên tử. Khi một luồng chờ I/O, luồng khác có thể tiếp tục. Với tính toán Python thuần nặng CPU, nhiều process thường là cách dùng nhiều lõi trong mô hình này. Một số code native, tức code biên dịch như C/C++, có thể nhả GIL; không phải mọi thao tác NumPy đều làm vậy. Bỏ GIL còn đòi hỏi thay cách đồng bộ và quản lý tham chiếu, xét hiệu năng đơn luồng và khả năng tương thích với thư viện mở rộng C. CPython cũng có bản free-threaded với mô hình khác, nên khi so sánh cần ghi rõ trình thông dịch và loại bản dựng đang dùng."
+     },
+     {
+      "type": "code",
+      "code": "from concurrent.futures import ThreadPoolExecutor\ndef read_simulated_record(value):\n    return value * 2\nwith ThreadPoolExecutor(max_workers=2) as pool:\n    result = list(pool.map(read_simulated_record, [3, 4]))\nprint(result)",
+      "expected": "[6, 8]"
+     },
+     {
+      "type": "paragraph",
+      "text": "Ví dụ cuối chỉ kiểm cách lấy kết quả theo thứ tự đầu vào; hàm không làm I/O thật và không đo tăng tốc. Nếu cần chứng minh hiệu năng, chọn workload có đại lượng đo, chạy lặp và ghi cấu hình máy. Apache Prefork/Worker và Chromium trong slide còn cho thấy process dùng cho tổ chức tài nguyên và cô lập, trong khi thread bên trong process thuận tiện chia sẻ dữ liệu. Chọn cách chạy nền nào cho quán là quyết định dựa trên chỗ này."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "CT09 · Thread dùng chung gì, giữ riêng gì?, CT12 · Race condition, Lock và tránh deadlock"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Trong CPython có GIL, có cần Lock cho một cập nhật gồm nhiều bước trên dữ liệu chung không?",
+     "options": [
+      {
+       "text": "Chỉ cần Lock nếu có nhiều process",
+       "detail": "Các thread cũng có thể cùng sửa một object."
+      },
+      {
+       "text": "Có, khi các bước cần được bảo vệ như một đơn vị",
+       "detail": "GIL bảo vệ trạng thái interpreter, không bảo đảm toàn bộ thuật toán của bạn là nguyên tử.",
+       "correct": true
+      },
+      {
+       "text": "Không, GIL thay cho mọi Lock",
+       "detail": "GIL không diễn tả ranh giới thao tác nghiệp vụ cần bảo vệ."
+      }
+     ],
+     "explanation": "GIL bảo vệ trạng thái interpreter, không bảo đảm toàn bộ thuật toán của bạn là nguyên tử."
+    },
+    {
+     "question": "a và alias cùng trỏ một list. Thêm phần tử qua alias có thấy khi đọc a không?",
+     "options": [
+      {
+       "text": "Có",
+       "detail": "Phép gán tên giữ tham chiếu cùng object, không tạo bản sao cấu trúc.",
+       "correct": true
+      },
+      {
+       "text": "Chỉ thấy nếu gọi gc.collect",
+       "detail": "Chưa đúng. Phép gán tên giữ tham chiếu cùng object, không tạo bản sao cấu trúc."
+      },
+      {
+       "text": "Không; alias luôn là bản sao",
+       "detail": "Chưa đúng. Phép gán tên giữ tham chiếu cùng object, không tạo bản sao cấu trúc."
+      }
+     ],
+     "explanation": "Phép gán tên giữ tham chiếu cùng object, không tạo bản sao cấu trúc."
+    },
+    {
+     "question": "Hai Node tham chiếu vòng nhưng không còn truy cập từ ngoài có thể cần cơ chế nào?",
+     "options": [
+      {
+       "text": "Tạo thêm một alias mạnh",
+       "detail": "Chưa đúng. Reference counting và phát hiện chu kỳ không phải cùng một thao tác."
+      },
+      {
+       "text": "Chỉ đổi tên biến thành None ở bên trong Node",
+       "detail": "Chưa đúng. Reference counting và phát hiện chu kỳ không phải cùng một thao tác."
+      },
+      {
+       "text": "Bộ thu gom chu kỳ",
+       "detail": "Reference counting và phát hiện chu kỳ không phải cùng một thao tác.",
+       "correct": true
+      }
+     ],
+     "explanation": "Reference counting và phát hiện chu kỳ không phải cùng một thao tác."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Reference counting có giống garbage collector chu kỳ không? Vì sao hai Node có thể cần collector dù không còn biến bên ngoài?",
+     "answer": "Không. Hai Node giữ tham chiếu lẫn nhau nên chỉ đếm tham chiếu chưa đủ tìm chu kỳ không còn được truy cập. Collector xem cấu trúc liên kết để thu hồi nhóm không còn truy cập được."
+    },
+    {
+     "prompt": "Trong build có GIL, chọn gì cho chờ I/O và Python thuần nặng CPU? Vì sao vẫn cần Lock cho số dư tài khoản?",
+     "answer": "Thread thường phù hợp chờ I/O; process có thể dùng nhiều core cho Python thuần. GIL không bảo vệ trọn quy tắc đọc–tính–ghi số dư; dùng khóa hoặc thiết kế trao đổi dữ liệu phù hợp. Native code nhả GIL có thể có hành vi hiệu năng khác."
+    },
+    {
+     "prompt": "Bỏ GIL có chỉ là xóa một khóa không? Nếu cần cô lập renderer hoặc worker lỗi, thread có cho ranh giới bộ nhớ giống process không?",
+     "answer": "Không. Phải xử lý đồng bộ trạng thái, tham chiếu và tính tương thích C extension, cùng đánh đổi hiệu năng. Thread chung không gian bộ nhớ; process tạo ranh giới địa chỉ riêng và có thể tăng cô lập, nhưng vẫn cần IPC và quản lý tài nguyên. Các sơ đồ Apache/Chromium trong slide minh họa lựa chọn này, không cam kết mọi phiên bản hiện tại giống hệt."
+    },
+    {
+     "prompt": "GIL là gì? Vì sao không thể kết luận mọi chương trình Python hoặc mọi phép NumPy đều chỉ chạy trên một core?",
+     "answer": "GIL là Global Interpreter Lock. Trong CPython build có GIL, mỗi thời điểm chỉ một luồng thực thi Python bytecode. Một luồng chờ I/O có thể nhường cho luồng khác; một số native code nhả GIL và có thể chạy song song, nhưng phải kiểm từng thao tác thay vì mặc định mọi phép NumPy đều làm vậy. Nhiều process có interpreter riêng; free-threaded build có mô hình khác. Vì thế cần nói rõ interpreter, build và loại tác vụ."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Chạy thử",
+    "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 1 đoạn trong bài không chạy được ở đây (concurrent.futures chạy trên thread/process thật) nên không nằm trong ô này."
+   },
+   "starterCode": "# ── Đoạn 1 ──\nvalues = [6, 8]\nalias = values\nalias.append(10)\nprint(alias is values)\nprint(values)\n\n# ── Đoạn 2 ──\nimport gc, weakref\nclass Node:\n    pass\ndef make_cycle():\n    a, b = Node(), Node()\n    a.peer, b.peer = b, a\n    return weakref.ref(a)\nreference = make_cycle()\ngc.collect()\nprint(reference() is None)\n",
+   "env": "1 đoạn phải chạy bằng Python trên máy: concurrent.futures chạy trên thread/process thật."
+  }
+ },
+ "_mode": "mixed",
+ "_blocked": [
+  {
+   "block": 2,
+   "reason": "concurrent.futures chạy trên thread/process thật"
+  }
+ ],
+ "_so_mcq": 3,
+ "_bai_tap": "khong co",
+ "_vet": {
+  "can": 2,
+  "co": 2,
+  "bo": 0,
+  "loi": []
+ }
+}

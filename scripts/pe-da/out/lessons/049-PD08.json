@@ -1,0 +1,239 @@
+{
+ "lesson_code": "PD08",
+ "sort_order": 49,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD08 · Ô thiếu: phát hiện trước khi điền",
+ "subtitle": "Cơ bản · M3 · 11 phút",
+ "estimated_minutes": 11,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PD08 · Ô thiếu: phát hiện trước khi điền",
+  "subtitle": "Cơ bản · M3 · 11 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PD08",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas · Missing values"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Kiểu của từng cột đã rõ ở bài trước, còn ô trống thì phải xem trước khi điền. Sổ của quán ghi doanh thu buổi sáng là 20, bỏ trống buổi trưa rồi ghi 22 cho buổi chiều. Ô trống nghĩa là chưa ai ghi, nên chưa thể coi đó là 0 đồng."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndoanh_thu = pd.Series([20.0, None, 22.0])\nprint(doanh_thu.isna().tolist())\nprint(doanh_thu.isna().sum())\nprint(doanh_thu.mean())",
+      "expected": "[False, True, False]\n1\n21.0",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`isna` nhận biết giá trị thiếu. Trung bình mặc định bỏ các ô thiếu, nên 21 được tính từ hai buổi có số thật. Dùng == `None` hoặc == NaN không phải cách tổng quát để tìm các ô này."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'ma_don': ['DH-01', 'DH-02', 'DH-03'], 'tong_tien': [10.0, None, 30.0]})\nknown = df.dropna(subset=['tong_tien'])\nprint(known['ma_don'].tolist())\nprint(df['tong_tien'].fillna(0).tolist())",
+      "expected": "['DH-01', 'DH-03']\n[10.0, 0.0, 30.0]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "dropna ở đây bỏ hàng thiếu `tong_tien`; fillna trả cột đã được điền. Hai cách trả lời hai câu hỏi khác nhau. Điền 0 chỉ hợp lý nếu quán có quy ước rằng ô trống nghĩa là không phát sinh tiền."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nunknown = pd.Series([None, None], dtype='Float64')\nprint(unknown.sum())\nprint(pd.isna(unknown.sum(min_count=1)))",
+      "expected": "0.0\nTrue",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "Tổng một cột chỉ có ô thiếu mặc định có thể bằng 0. `min_count=1` yêu cầu ít nhất một giá trị thật mới tính tổng; nếu không, kết quả vẫn thiếu. Điều kiện này giúp phân biệt “không có doanh thu” với “chưa có dữ liệu”."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PD07 · Kiểu dữ liệu và số nguyên có ô trống"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Trung bình mặc định của [4, thiếu, 8] bằng bao nhiêu?",
+     "options": [
+      {
+       "text": "0",
+       "detail": "Thiếu không có nghĩa tất cả các số đều bằng 0."
+      },
+      {
+       "text": "4",
+       "detail": "Đây là (4+0+8)/3, đã tự điền 0."
+      },
+      {
+       "text": "6",
+       "detail": "Đúng: (4+8)/2, bỏ ô thiếu.",
+       "correct": true
+      }
+     ],
+     "explanation": "Cần giữ riêng việc chưa có số đo với một số đo bằng 0."
+    },
+    {
+     "question": "Trung bình của [20, thiếu, 22] mặc định là bao nhiêu?\n\nimport pandas as pd\ntemperature = pd.Series([20.0, None, 22.0])\nprint(temperature.isna().tolist())\nprint(temperature.isna().sum())\nprint(temperature.mean())",
+     "options": [
+      {
+       "text": "21, vì phép tính bỏ giá trị thiếu.",
+       "detail": "21, vì phép tính bỏ giá trị thiếu.",
+       "correct": true
+      },
+      {
+       "text": "22, vì chỉ giữ phần tử cuối.",
+       "detail": "Phép mean không chỉ lấy phần tử cuối."
+      },
+      {
+       "text": "14, vì ô thiếu được coi là 0.",
+       "detail": "Chia tổng cho cả ba vị trí sẽ coi thiếu như 0."
+      }
+     ],
+     "explanation": "21, vì phép tính bỏ giá trị thiếu."
+    },
+    {
+     "question": "Vì sao không nên luôn fillna(0)?\n\nimport pandas as pd\ndf = pd.DataFrame({'order': ['A', 'B', 'C'], 'amount': [10.0, None, 30.0]})\nknown = df.dropna(subset=['amount'])\nprint(known['order'].tolist())\nprint(df['amount'].fillna(0).tolist())",
+     "options": [
+      {
+       "text": "Vì fillna(0) tự khôi phục đúng mọi số bị mất.",
+       "detail": "fillna không có cách biết giá trị thực đã mất là bao nhiêu."
+      },
+      {
+       "text": "Vì thiếu dữ liệu không nhất thiết có nghĩa là giá trị bằng 0.",
+       "detail": "Vì thiếu dữ liệu không nhất thiết có nghĩa là giá trị bằng 0.",
+       "correct": true
+      },
+      {
+       "text": "Vì pandas không cho phép số 0.",
+       "detail": "Số 0 hợp lệ; vấn đề là nó có đúng ý nghĩa của ô thiếu hay không."
+      }
+     ],
+     "explanation": "Vì thiếu dữ liệu không nhất thiết có nghĩa là giá trị bằng 0."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Trung bình của [20, thiếu, 22] mặc định là bao nhiêu?",
+     "answer": "21, vì phép tính bỏ giá trị thiếu."
+    },
+    {
+     "prompt": "Vì sao không nên luôn fillna(0)?",
+     "answer": "Vì thiếu dữ liệu không nhất thiết có nghĩa là giá trị bằng 0."
+    },
+    {
+     "prompt": "Giữ các hàng có don_gia trong [10, thiếu, 30] rồi in giá còn lại.",
+     "answer": "Còn [10.0, 30.0].",
+     "answerCode": "import pandas as pd\ndf = pd.DataFrame({'don_gia': [10.0, None, 30.0]})\nprint(df.dropna(subset=['don_gia'])['don_gia'].tolist())",
+     "answerExpected": "[10.0, 30.0]"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.values chứa số hoặc None. Tạo Series kiểu Float64. Trả known là các số không thiếu, missing là số ô thiếu, mean là trung bình hoặc None nếu chưa có số nào.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'values': [6, None, 12]}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'known': [6.0, 12.0], 'missing': 1, 'mean': 9.0}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     s = pd.Series(data['values'], dtype='Float64')\n     value = s.mean()\n     return {'known': s.dropna().astype(float).tolist(), 'missing': int(s.isna().sum()), 'mean': None if pd.isna(value) else float(value)}\n",
+   "tests": [
+    {
+     "name": "một ô thiếu",
+     "input": {
+      "values": [
+       6,
+       null,
+       12
+      ]
+     },
+     "expected": {
+      "known": [
+       6.0,
+       12.0
+      ],
+      "missing": 1,
+      "mean": 9.0
+     }
+    },
+    {
+     "name": "toàn thiếu",
+     "input": {
+      "values": [
+       null,
+       null
+      ]
+     },
+     "expected": {
+      "known": [],
+      "missing": 2,
+      "mean": null
+     }
+    },
+    {
+     "name": "0 là số đã biết",
+     "input": {
+      "values": [
+       0,
+       10,
+       null
+      ]
+     },
+     "expected": {
+      "known": [
+       0.0,
+       10.0
+      ],
+      "missing": 1,
+      "mean": 5.0
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Nếu tất cả giá trị đều thiếu thì tổng phải là thiếu, không phải 0. Tham số cần số lượng tối thiểu giá trị đã biết."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Tính từ dữ liệu đã biết mà không biến thiếu thành 0."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

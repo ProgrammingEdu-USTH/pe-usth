@@ -1,0 +1,212 @@
+{
+ "lesson_code": "PY17",
+ "sort_order": 17,
+ "module": "M1 · Python nền tảng",
+ "title": "PY17 · Scope, tham chiếu hàm và callback",
+ "subtitle": "Cơ bản · M1 · 13 phút",
+ "estimated_minutes": 13,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PY17 · Scope, tham chiếu hàm và callback",
+  "subtitle": "Cơ bản · M1 · 13 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PY17",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 58-61, 295, 312; Python — Tutorial"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Hàm bạn vừa viết được gọi bằng tên, và bạn tự quyết lúc gọi. Màn hình gọi món của quán thì khác: bạn giao hàm cho thư viện, và nó gọi hộ lúc khách bấm nút. Một callback (hàm bạn giao cho thư viện gọi hộ) chạy đúng lúc đó. Để thấy vì sao phải truyền tên hàm thay vì gọi ngay, trước hết thử lưu hàm trong một biến:"
+     },
+     {
+      "type": "code",
+      "code": "def greet():\n    return \"Hello\"\n\ncallback = greet\nprint(callback())",
+      "expected": "Hello",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`greet` là chính object hàm, còn `greet()` là lời gọi và nó cho ra kết quả. Trong Tkinter (thư viện giao diện đồ hoạ đi kèm Python) bạn viết `command=greet`, trong `threading` bạn viết `target=worker`. Nếu viết `command=greet()` thì hàm chạy ngay lúc dựng nút, giá trị trả về bị dùng thay cho callback, và nút đó bấm về sau không ra gì."
+     },
+     {
+      "type": "code",
+      "code": "value = 10\ndef calculate():\n    value = 20\n    return value\n\nprint(calculate(), value)",
+      "expected": "20 10",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Giả sử `value` là giá tạm tính đang hiện trên màn hình, và `calculate` là một hàm tính thử. Biến `value` trong `calculate` có phạm vi cục bộ (local scope): nó chỉ thuộc lần gọi hàm đó và che tên `value` bên ngoài. Vì vậy gán `value = 20` trong hàm không đổi `value` ở cấp module, và một phép tính thử không làm hỏng con số của sổ chính."
+     },
+     {
+      "type": "paragraph",
+      "text": "Mỗi lần gọi có các biến cục bộ riêng. Một khối `if` hay `for` không tự tạo một phạm vi hàm mới."
+     },
+     {
+      "type": "code",
+      "code": "count = 0\ndef increment():\n    global count\n    count += 1\n\nincrement()\nprint(count)",
+      "expected": "1",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`global` cần khi bạn muốn gán lại một tên cấp module từ trong hàm — ví dụ bộ đếm số cốc đã pha trong ca. Chỉ đọc tên bên ngoài thì không cần `global`. Khi màn hình gọi món lớn dần, hãy ưu tiên truyền dữ liệu vào và trả kết quả ra. Giữ trạng thái trong một object cũng là một cách. Cả hai cách đều tránh một rừng biến dùng chung mà không ai biết ai đang sửa."
+     },
+     {
+      "type": "paragraph",
+      "text": "Cùng cách phân biệt này còn dùng lại ở các bài sau. Khi truyền đối số cho một luồng (thread), `args=(10,)` là `tuple` một phần tử và dấu phẩy là bắt buộc. Bạn sẽ gặp lại \"truyền hàm\" và \"gọi hàm\" ở cả bài tiến trình, bài luồng và bài GUI (giao diện đồ hoạ) của quán."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PY11 · Tuple, bytes và lựa chọn collection, PY16 · Hàm, giá trị trả về và docstring"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "callback = greet khác callback = greet() ở điểm nào?",
+     "options": [
+      {
+       "text": "Cách đầu giữ hàm, cách sau gọi hàm ngay",
+       "detail": "Đúng. Dấu ngoặc thực hiện lời gọi.",
+       "correct": true
+      },
+      {
+       "text": "Hai cách đều chờ tới khi bấm nút",
+       "detail": "greet() chạy ngay khi dòng gán được thực thi."
+      },
+      {
+       "text": "Cách đầu gọi hai lần",
+       "detail": "Gán tham chiếu hàm không gọi hàm lần nào."
+      }
+     ],
+     "explanation": "Đúng. Dấu ngoặc thực hiện lời gọi."
+    },
+    {
+     "question": "Gán hàm cho một tên khác rồi gọi sau. Kết quả ở lệnh print cuối có giá trị nào?\n\ndef greet():\n    return \"Hello\"\ncallback = greet\nprint(callback())",
+     "options": [
+      {
+       "text": "'greet'",
+       "detail": "Lời gọi thực thi thân hàm, không trả tên hàm."
+      },
+      {
+       "text": "None",
+       "detail": "callback vẫn là callable và có return."
+      },
+      {
+       "text": "'Hello'",
+       "detail": "callback và greet cùng tham chiếu tới một hàm.",
+       "correct": true
+      }
+     ],
+     "explanation": "callback và greet cùng tham chiếu tới một hàm."
+    },
+    {
+     "question": "Biến bên trong hàm có cùng tên biến bên ngoài. Kết quả ở lệnh print cuối có giá trị nào?\n\nvalue = 10\ndef calculate():\n    value = 20\n    return value\ninside = calculate()\nprint([inside, value])",
+     "options": [
+      {
+       "text": "[10, 10]",
+       "detail": "Hàm tạo biến local giá trị 20."
+      },
+      {
+       "text": "[20, 10]",
+       "detail": "inside nhận kết quả local, value bên ngoài vẫn 10.",
+       "correct": true
+      },
+      {
+       "text": "[20, 20]",
+       "detail": "Gán value trong hàm không đổi biến module ở đây."
+      }
+     ],
+     "explanation": "inside nhận kết quả local, value bên ngoài vẫn 10."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "callback = greet có gọi greet ngay không?",
+     "answer": "Không; callback nhận tham chiếu tới hàm."
+    },
+    {
+     "prompt": "Vì sao calculate() trả 20 nhưng value bên ngoài vẫn là 10?",
+     "answer": "value bên trong là biến cục bộ, khác với tên cùng chữ ở cấp module."
+    },
+    {
+     "prompt": "Trên nút In hoá đơn, command=save và command=save() khác nhau thế nào?",
+     "answer": "command=save truyền hàm để gọi sau; command=save() gọi ngay khi dựng nút rồi truyền kết quả của lời gọi."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận một số. Bên trong, định nghĩa hàm add_one trả data + 1, gán chính hàm đó cho callback rồi trả kết quả callback(). Đây là lần thử quy tắc truyền hàm trước khi dùng nút bấm.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "6"
+     },
+     {
+      "label": "trả về",
+      "value": "7"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "def solve(data):\n    def add_one():\n        return data + 1\n    callback = add_one\n    return callback()\n",
+   "tests": [
+    {
+     "name": "Số dương",
+     "input": 6,
+     "expected": 7
+    },
+    {
+     "name": "Số không",
+     "input": 0,
+     "expected": 1
+    },
+    {
+     "name": "Số âm",
+     "input": -2,
+     "expected": -1
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "add_one là hàm; add_one() là kết quả sau khi gọi."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Gán hàm cho callback trước, rồi mới gọi callback() ở dòng trả kết quả."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

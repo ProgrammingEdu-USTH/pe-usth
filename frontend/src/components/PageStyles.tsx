@@ -30,53 +30,33 @@ import { withAssetVersion } from '@/lib/assetVersion';
 
 /**
  * Thứ tự nạp toàn cục. Ràng buộc thật sự cần giữ:
- *   · theme/auth/style/dashboard/pages/dark-mode  TRƯỚC  edu-theme
+ *   · style/dashboard/pages/dark-mode  TRƯỚC  edu-theme
  *   · edu-theme  TRƯỚC  mọi file edu-* còn lại (chúng đè lên token của nó)
  *   · course_db_design, lesson_db_design  TRƯỚC  edu-db
  * Những file không liệt kê ở đây rơi vào hạng mặc định (giữa nhóm gốc và nhóm
  * edu-*), đủ an toàn vì chúng đều là CSS riêng của một trang.
  */
 const RANK: Record<string, number> = {
-  // @font-face của Be Vietnam Pro + JetBrains Mono. Hạng 9 — TRƯỚC mọi file
-  // khác: @font-face vốn không phụ thuộc thứ tự, nhưng đặt đầu thì yêu cầu
-  // .woff2 nổ sớm nhất có thể, bớt một nhịp đổi phông.
-  'edu-fonts.css': 9,
-  'theme.css': 10,
-  'auth.css': 11,
   'style.css': 12,
   'dashboard.css': 13,
   'pages.css': 14,
-  'ChangePassword.css': 15,
-  'skeleton.css': 16,
   'dark-mode.css': 17,
-  'roadmap.css': 18,
-  'login.css': 19,
-  'register.css': 20,
-  'questionaire.css': 21,
-  // Hạng 22 từng là 'lesson.css' (và 44 là 'edu-lesson.css'). Hai file đó chỉ
-  // được nạp bởi /lesson/java, /lesson/htmlcss và /interface — ba trang đã xoá
-  // 15/10/2026 — nên file cũng đã xoá khỏi public/static/css. Để lại tên trong
-  // bảng thì hạng vẫn được ghim ở layout gốc cho một file không còn tồn tại.
+  'lesson.css': 22,
   'lesson_db_design.css': 23,
-  // Hạng 24 từng là 'chatbot.css'. Ba trang /courses/db_design* là chỗ cuối cùng
-  // nạp nó; bỏ dòng nạp ở đó (15/10/2026) thì không trang nào còn nạp, nên file
-  // CSS cũng xoá — cùng lý lẽ với 'lesson.css' ở trên: giữ tên trong bảng là ghim
-  // một hạng cho file không còn tồn tại.
-  'course_detail.css': 25,
+  'chatbot.css': 24,
   'course_db_design.css': 26,
   // các file pages/*.inline.css → 30 (mặc định)
   'edu-theme.css': 40,
   'edu-dashboard.css': 41,
   'edu-course-detail.css': 42,
   'edu-db.css': 43,
-  'edu-auth.css': 45,
-  'edu-forms.css': 46,
+  'edu-lesson.css': 44,
   'edu-card.css': 47,
-  'edu-landing.css': 48,
-  // hộp thoại bài ôn tập — sau edu-dashboard.css vì dùng lại token/nút của nó
-  'edu-review-quiz.css': 49,
   // token riêng của Python Studio — sau edu-theme, trước lớp co giãn
   'studio-tokens.css': 50,
+  // giao diện thứ hai "Đài thiên văn" — CHỈ ghi đè token, sau studio-tokens
+  // (cùng độ ưu tiên thì file sau thắng) và trước lớp co giãn
+  'theme-thien-van.css': 55,
   // lớp co giãn điện thoại/tablet — PHẢI cuối cùng, xem RESPONSIVE_CSS bên dưới
   'edu-responsive.css': 60,
 };
@@ -92,25 +72,42 @@ const DEFAULT_RANK = 30;
 const RESPONSIVE_CSS = '/static/css/edu-responsive.css';
 
 /**
- * Khai báo @font-face, cũng tự thêm vào MỌI trang và cùng một lý lẽ: sót một
- * trang là trang đó vẽ bằng phông dự phòng của hệ điều hành trong khi `--edu-font`
- * vẫn nói 'Be Vietnam Pro'. Không gộp vào edu-theme.css để bản thân phông có
- * một tệp riêng cache được độc lập (phông gần như không bao giờ đổi, còn
- * edu-theme.css thì đổi theo mỗi đợt sửa giao diện).
- */
-const FONTS_CSS = '/static/css/edu-fonts.css';
-
-/**
- * Bảng token --ds-* của bản thiết kế v2, cũng toàn cục kể từ 15/10/2026.
+ * BẢNG TOKEN dùng chung, cũng tự thêm vào MỌI trang — và lý do là một lỗi THẬT
+ * đã lên production ngày 04/11/2026.
  *
- * Vì sao không chỉ nạp ở những trang đã chuyển: `SiteHeader` dùng --ds-* và nó
- * có mặt ở trang chủ, trang khoá, /ide và /practice. Một trang quên nạp là
- * header ở đó vẽ bằng biến không tồn tại — `color: var(--ds-ink)` không có giá
- * trị thì thuộc tính bị bỏ, chữ rơi về màu thừa hưởng, nền mất hẳn. Đó là loại
- * lỗi chỉ hiện ra ở đúng một trang nên rất dễ lọt. File chỉ khai biến (không
- * một quy tắc nào áp lên phần tử) nên nạp ở trang chưa chuyển là vô hại.
+ * `studio-tokens.css` CHỈ KHAI BIẾN (`--ds-*` và bí danh `--st-*`), không một
+ * quy tắc nào áp lên phần tử, nên nạp ở trang chưa chuyển cũng không đổi gì ở
+ * đó. Nhưng nó từng phải khai TAY trong `hrefs`, và chỉ **3/13** chỗ gọi
+ * PageStyles có khai.
+ *
+ * Hệ quả đã xảy ra: vòng trước tôi đổi nút "Bắt đầu học" của trang khoá học
+ * sang `background: var(--ds-action)` trong `edu-course-detail.css`. Trang đó
+ * KHÔNG khai bảng token ⇒ biến rỗng ⇒ trình duyệt BỎ cả khai báo ⇒ nút chính
+ * thành TRẮNG TRÊN TRẮNG, không phân biệt được với nút phụ. Không exception,
+ * không cảnh báo lint, và cổng `DA_SANG_LOFI` vẫn XANH vì nó chỉ kiểm TÊN
+ * token chứ không kiểm token có GIẢI RA được trên trang nạp file ấy không.
+ * Nhìn ảnh chụp production mới thấy.
+ *
+ * Cùng lý lẽ đã đưa `edu-responsive.css` về đây: bỏ sót một trang là trang đó
+ * vỡ, mà 13 chỗ gọi thì rất dễ sót. Gom về một chỗ để không thể quên.
  */
 const TOKENS_CSS = '/static/css/studio-tokens.css';
+
+/**
+ * Token của giao diện "Đài thiên văn", cũng tự thêm vào MỌI trang vì cùng lý do
+ * với bảng token ở trên (bỏ sót một trang là trang đó chọn theme mà không đổi).
+ *
+ * File này CHỈ KHAI BIẾN và mọi khối đều bắt đầu bằng
+ * `html[data-theme="thien-van"]:has([data-tv-surface])` — tức nó không áp gì
+ * lên trang nào trừ khi người dùng đã chọn theme VÀ trang có bề mặt đã thiết
+ * kế (`data-tv-surface`). Người dùng lofi trả đúng một request nhỏ, không đổi
+ * pixel nào. Không đặt token trong `edu-theme.css`: `ds-contrast.test.mjs` đọc
+ * file ấy bằng neo chuỗi (đếm ĐÚNG hai khai báo mỗi token, luật "ấm" R ≥ B).
+ *
+ * Đường dẫn phải được viết ĐẦY ĐỦ ở đây: `check-tai-nguyen-chet.mjs` chỉ coi
+ * một tệp public là sống khi `src/` nhắc đúng đường dẫn đó.
+ */
+const THEME_CSS = '/static/css/theme-thien-van.css';
 
 /** Tên nhóm precedence — React xếp <head> theo thứ tự nhóm được đăng ký. */
 export function cssPrecedence(href: string): string {
@@ -127,10 +124,9 @@ export const ALL_PRECEDENCES: string[] = Array.from(
   .map((r) => `pe${String(r).padStart(3, '0')}`);
 
 export default function PageStyles({ hrefs }: { hrefs: string[] }) {
-  // Lọc trùng phòng khi một trang đã tự liệt kê các file toàn cục (trang bài
-  // học vẫn liệt kê studio-tokens.css trong tổ hợp của nó — thứ tự ở đó là
-  // phần của hợp đồng, nên giữ chỗ cũ chứ không để Set đẩy lên đầu).
-  const all = [...new Set([FONTS_CSS, ...hrefs, TOKENS_CSS, RESPONSIVE_CSS])];
+  // Lọc trùng phòng khi một trang đã tự liệt kê file co giãn.
+  const co = (f: string, ds: string[]) => (ds.includes(f) ? ds : [...ds, f]);
+  const all = co(RESPONSIVE_CSS, co(THEME_CSS, co(TOKENS_CSS, hrefs)));
   return (
     <>
       {all.map((href) => (

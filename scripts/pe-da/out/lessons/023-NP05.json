@@ -1,0 +1,232 @@
+{
+ "lesson_code": "NP05",
+ "sort_order": 23,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP05 · Tạo dãy bằng arange",
+ "subtitle": "Cơ bản · M2 · 10 phút",
+ "estimated_minutes": 10,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "NP05 · Tạo dãy bằng arange",
+  "subtitle": "Cơ bản · M2 · 10 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#NP05",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "Advanced-Python-Tai-Lieu-Mon-Hoc.pdf tr. 109-111; NumPy · arange"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bài trước nhân cả dãy số cốc với đơn giá; lần này bạn cần tự tạo ra dãy. Một báo cáo tuần cần các số thứ tự từ 1 đến 7. Thay vì nhập từng số, bạn có thể tạo dãy bằng `np.arange`:"
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\n\ndays = np.arange(1, 8)\nprint(days)",
+      "expected": "[1 2 3 4 5 6 7]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`np.arange(start, stop)` bắt đầu tại `start` và dừng trước `stop`. Vì muốn có cả ngày 7, bạn đặt điểm dừng là 8. Số 8 không nằm trong kết quả."
+     },
+     {
+      "type": "paragraph",
+      "text": "Với một dãy ngắn hơn, bạn có thể đếm trực tiếp:"
+     },
+     {
+      "type": "code",
+      "code": "print(np.arange(1, 5))",
+      "expected": "[1 2 3 4]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Dãy có 1, 2, 3 và 4. Nếu không đưa thêm tham số, bước nhảy là 1, nghĩa là mỗi số sau lớn hơn số trước 1 đơn vị."
+     },
+     {
+      "type": "paragraph",
+      "text": "Để tạo các số cách nhau 2 đơn vị, thêm bước nhảy ở vị trí thứ ba:"
+     },
+     {
+      "type": "code",
+      "code": "print(np.arange(0, 7, 2))",
+      "expected": "[0 2 4 6]",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "Lệnh bắt đầu ở 0, lần lượt lấy 0, 2, 4, 6 và dừng trước 7. Trong bài này, bạn chỉ cần dùng số nguyên để dễ kiểm tra điểm bắt đầu, điểm dừng và bước nhảy. Dãy này có thể dùng làm số thứ tự hoặc các mốc trên trục ngang của biểu đồ."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "NP01 · Array là gì?, NP02 · Lấy một phần tử"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "np.arange(2, 9, 2) tạo dãy nào?",
+     "options": [
+      {
+       "text": "[2,4,6,8]",
+       "detail": "Đúng. Bắt đầu 2, nhảy 2 và dừng trước 9.",
+       "correct": true
+      },
+      {
+       "text": "[2,4,6,8,9]",
+       "detail": "9 là điểm dừng, không được lấy."
+      },
+      {
+       "text": "[2,3,4,5,6,7,8]",
+       "detail": "Dãy này dùng bước 1, không phải bước 2."
+      }
+     ],
+     "explanation": "Đúng. Bắt đầu 2, nhảy 2 và dừng trước 9."
+    },
+    {
+     "question": "Tạo số thứ tự từ 2 đến trước 6. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\nprint(np.arange(2, 6))",
+     "options": [
+      {
+       "text": "[1, 2, 3, 4, 5]",
+       "detail": "Điểm bắt đầu được truyền là 2."
+      },
+      {
+       "text": "[2, 3, 4, 5, 6]",
+       "detail": "arange không lấy điểm dừng 6."
+      },
+      {
+       "text": "[2, 3, 4, 5]",
+       "detail": "Dãy bắt đầu ở 2 và không chứa 6.",
+       "correct": true
+      }
+     ],
+     "explanation": "Dãy bắt đầu ở 2 và không chứa 6."
+    },
+    {
+     "question": "Chọn các mốc giờ chẵn. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\nprint(np.arange(0, 8, 2))",
+     "options": [
+      {
+       "text": "[0, 2, 4, 6, 8]",
+       "detail": "8 là điểm dừng nên bị loại."
+      },
+      {
+       "text": "[0, 2, 4, 6]",
+       "detail": "Bắt đầu 0, thêm 2 mỗi lần, dừng trước 8.",
+       "correct": true
+      },
+      {
+       "text": "[0, 1, 2, 3, 4, 5, 6, 7]",
+       "detail": "Bước nhảy được ghi là 2."
+      }
+     ],
+     "explanation": "Bắt đầu 0, thêm 2 mỗi lần, dừng trước 8."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "`np.arange(1, 4)` có lấy số 4 không? Viết các số trong kết quả.",
+     "answer": "Không. Dãy là `[1, 2, 3]`, dừng trước 4."
+    },
+    {
+     "prompt": "Để tạo dãy từ 1 đến 6, điền `np.arange(1, ___)`.",
+     "answer": "Điền `7`, vì điểm dừng không được lấy."
+    },
+    {
+     "prompt": "Dùng `arange` tạo các số 2, 4, 6 và 8.",
+     "answer": "Bắt đầu tại 2, dừng trước 9 và nhảy 2 đơn vị:",
+     "answerCode": "import numpy as np\n\nprint(np.arange(2, 9, 2))",
+     "answerExpected": "[2 4 6 8]"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận số nguyên n không âm. Trả array các số ghế chẵn từ 2 đến 2*n. Với n=0, trả dãy rỗng.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "3"
+     },
+     {
+      "label": "trả về",
+      "value": "[2, 4, 6]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    return np.arange(2, 2 * data + 1, 2)\n",
+   "tests": [
+    {
+     "name": "Ba ghế",
+     "input": 3,
+     "expected": [
+      2,
+      4,
+      6
+     ]
+    },
+    {
+     "name": "Một ghế",
+     "input": 1,
+     "expected": [
+      2
+     ]
+    },
+    {
+     "name": "Không có ghế",
+     "input": 0,
+     "expected": []
+    },
+    {
+     "name": "Năm ghế, số cuối phải đúng 2*n",
+     "input": 5,
+     "expected": [
+      2,
+      4,
+      6,
+      8,
+      10
+     ]
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Số ghế cuối cần lấy là 2*n, nhưng arange không lấy stop."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Bắt đầu ở 2, bước nhảy 2 và chọn stop vừa qua 2*n."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

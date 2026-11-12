@@ -27,43 +27,47 @@ const NHAP = {
 const DA_PHAT_HANH = { ...NHAP, id: 'python', isPublished: true };
 
 /**
- * Một hàm Prisma giả. `Promise<unknown>` cho giá trị TRẢ VỀ là đủ: mỗi ca tự
- * `mockResolvedValue()` hình dạng nó cần. Chỉ phần ĐỐI SỐ cần kiểu thật, vì
- * chính `mock.calls` là bằng chứng của bộ test này ("truy vấn gửi xuống DB có
- * mệnh đề isPublished không").
- *
- * Thay cho `let prisma: any` cũ: `any` ở đây làm mọi phép đọc `mock.calls` mất
- * kiểu, nên gõ sai tên bảng hay tên hàm vẫn biên dịch và ca test vẫn ĐẠT trong
- * khi không kiểm gì. Cùng khuôn đã dùng ở `lessons/lesson-content.spec.ts`.
+ * Điều kiện WHERE mà spec đọc lại từ `mock.calls`. Chỉ khai phần CÓ ĐỌC — mục
+ * đích là để `whereDaGui()?.AND` có kiểu thật, không phải mô tả lại Prisma.
  */
-type AsyncMock<A extends unknown[] = unknown[]> = jest.Mock<
-  Promise<unknown>,
-  A
->;
+type DieuKien = { AND?: unknown[] } & Record<string, unknown>;
+type TruyVan = { where?: DieuKien } & Record<string, unknown>;
 
-const asyncMock = <A extends unknown[] = unknown[]>(): AsyncMock<A> =>
-  jest.fn<Promise<unknown>, A>();
+/**
+ * Mock Prisma cho spec này. CHỈ khai bảng/hàm mà `CoursesService` thật sự gọi —
+ * khai thừa là mô tả lại Prisma, mà bản mô tả đó sẽ trôi.
+ *
+ * VÌ SAO KHÔNG `let prisma: any`, và đây không phải chuyện con số lint: `any` ở
+ * spec làm TEST NÓI DỐI. Với `any`, gõ `solution_code` thay cho `solutionCode`
+ * vẫn biên dịch, `toBeUndefined()` vẫn ĐẠT, và lỗ lộ lời giải vẫn còn nguyên.
+ * Công thức này đã dọn `quizzes` + `lessons` từ 553 → 263 lỗi (AGENTS.md).
+ *
+ * Kiểu THẬT chỉ cần ở phần ĐỐI SỐ: spec đọc lại `mock.calls` để chứng minh
+ * "điều kiện publish do SERVICE gửi xuống DB". Giá trị trả về để `unknown` là
+ * đủ, vì mỗi ca tự `mockResolvedValue()`.
+ */
+type HamMock = jest.Mock<Promise<unknown>, [TruyVan?]>;
 
-/** Đối số của `findMany`/`findUnique`… mà bộ test này đọc lại. */
-type TruyVan = { where?: Record<string, unknown> };
+/** `jest.fn()` trần trả `Mock<any, any>`, gán vào field đã khai kiểu lại thành
+ *  `no-unsafe-assignment`. Bọc một lần ở đây thay vì ép kiểu từng chỗ. */
+const mock = (): HamMock => jest.fn<Promise<unknown>, [TruyVan?]>();
 
-/** Chỉ những bảng/hàm mà CoursesService thật sự gọi. */
 type PrismaMock = {
-  user: { findUnique: AsyncMock<[TruyVan]> };
-  course: { findMany: AsyncMock<[TruyVan?]>; findUnique: AsyncMock<[TruyVan]> };
+  user: { findUnique: HamMock };
+  course: { findMany: HamMock; findUnique: HamMock };
   enrollment: {
-    findMany: AsyncMock<[TruyVan]>;
-    findUnique: AsyncMock<[TruyVan]>;
-    createMany: AsyncMock<[unknown]>;
-    updateMany: AsyncMock<[unknown]>;
-    deleteMany: AsyncMock<[unknown]>;
+    findMany: HamMock;
+    findUnique: HamMock;
+    createMany: HamMock;
+    updateMany: HamMock;
+    deleteMany: HamMock;
   };
-  lesson: { findMany: AsyncMock<[TruyVan?]>; findFirst: AsyncMock<[TruyVan]> };
-  lessonProgress: {
-    findMany: AsyncMock<[TruyVan]>;
-    count: AsyncMock<[TruyVan]>;
-  };
-  $transaction: jest.Mock<Promise<unknown>, [(tx: PrismaMock) => unknown]>;
+  lesson: { findMany: HamMock; findFirst: HamMock };
+  lessonProgress: { findMany: HamMock; count: HamMock };
+  $transaction: jest.Mock<
+    Promise<unknown>,
+    [(p: PrismaMock) => Promise<unknown>]
+  >;
 };
 
 describe('CoursesService — cổng is_published', () => {
@@ -72,35 +76,28 @@ describe('CoursesService — cổng is_published', () => {
 
   beforeEach(async () => {
     prisma = {
-      user: {
-        findUnique: asyncMock<[TruyVan]>().mockResolvedValue({ role: 'user' }),
-      },
+      user: { findUnique: mock().mockResolvedValue({ role: 'user' }) },
       course: {
-        findMany: asyncMock<[TruyVan?]>().mockResolvedValue([]),
-        findUnique: asyncMock<[TruyVan]>(),
+        findMany: mock().mockResolvedValue([]),
+        findUnique: mock(),
       },
       enrollment: {
-        findMany: asyncMock<[TruyVan]>().mockResolvedValue([]),
-        findUnique: asyncMock<[TruyVan]>().mockResolvedValue(null),
-        createMany: asyncMock<[unknown]>().mockResolvedValue({ count: 1 }),
-        updateMany: asyncMock<[unknown]>().mockResolvedValue({ count: 1 }),
-        deleteMany: asyncMock<[unknown]>().mockResolvedValue({ count: 1 }),
+        findMany: mock().mockResolvedValue([]),
+        findUnique: mock().mockResolvedValue(null),
+        createMany: mock().mockResolvedValue({ count: 1 }),
+        updateMany: mock().mockResolvedValue({ count: 1 }),
+        deleteMany: mock().mockResolvedValue({ count: 1 }),
       },
       lesson: {
-        findMany: asyncMock<[TruyVan?]>().mockResolvedValue([]),
-        findFirst: asyncMock<[TruyVan]>().mockResolvedValue(null),
+        findMany: mock().mockResolvedValue([]),
+        findFirst: mock().mockResolvedValue(null),
       },
       lessonProgress: {
-        findMany: asyncMock<[TruyVan]>().mockResolvedValue([]),
-        count: asyncMock<[TruyVan]>().mockResolvedValue(0),
+        findMany: mock().mockResolvedValue([]),
+        count: mock().mockResolvedValue(0),
       },
-      // `$transaction` nhận callback rồi trao chính mock này làm `tx`, giống
-      // cách service dùng nó.
-      // Không dùng `async` ở đây: callback đồng bộ nên `async` mà không có
-      // `await` là lỗi `require-await`. Bọc bằng `Promise.resolve` giữ đúng
-      // kiểu trả về mà service chờ.
-      $transaction: jest.fn<Promise<unknown>, [(tx: PrismaMock) => unknown]>(
-        (cb) => Promise.resolve(cb(prisma)),
+      $transaction: jest.fn((cb: (p: PrismaMock) => Promise<unknown>) =>
+        cb(prisma),
       ),
     };
 
@@ -113,29 +110,19 @@ describe('CoursesService — cổng is_published', () => {
   const lamAdmin = () =>
     prisma.user.findUnique.mockResolvedValue({ role: 'admin' });
 
-  /**
-   * Điều kiện WHERE mà listCourses()/getCoursesEnrolled() thực sự gửi xuống DB.
-   * Có thể `undefined` — đó chính là điều một số ca muốn khẳng định (quản trị
-   * viên thì KHÔNG lọc gì).
-   */
-  const whereDaGui = (call = 0): Record<string, unknown> | undefined =>
-    prisma.course.findMany.mock.calls[call]?.[0]?.where;
-
-  /**
-   * Mệnh đề `AND` của truy vấn, đã khẳng định là có.
-   *
-   * Vì sao tách ra thay vì `whereDaGui()!.AND`: ca test ở đây kiểm "truy vấn
-   * BẮT BUỘC mang isPublished". Nếu service ngừng gửi `where` thì
-   * `whereDaGui()` thành `undefined` và một dấu `!` sẽ ném TypeError với thông
-   * báo vô nghĩa, trong khi bản chất là service vừa bỏ mất cái cổng. Hàm này
-   * làm điều đó trượt với câu nói rõ nguyên nhân.
-   */
-  const andDaGui = (call = 0): unknown[] => {
-    const where = whereDaGui(call);
-    expect(where).toBeDefined();
-    const and = (where ?? {}).AND;
-    expect(Array.isArray(and)).toBe(true);
-    return and as unknown[];
+  /** Điều kiện WHERE mà listCourses()/getCoursesEnrolled() thực sự gửi xuống DB. */
+  // HAI chuyện khác hẳn nhau, và gộp chúng là mất một ca:
+  //  - CHƯA GỌI findMany lần nào  → ca hỏng, nên NÉM kèm tên hàm. Trả
+  //    `undefined` ở đây thì một ca đọc `.AND` chỉ báo "undefined không chứa
+  //    {isPublished:true}", không nói được là service chưa chạm tới DB.
+  //  - CÓ GỌI nhưng KHÔNG kèm `where` → một khẳng định HỢP LỆ: đó đúng là
+  //    cách quản trị viên được phục vụ ("không lọc gì"), và ca đó đọc kết quả
+  //    bằng `toBeUndefined()`. Ném ở đây là bắt ca đúng phải trượt.
+  const whereDaGui = (call = 0): DieuKien | undefined => {
+    const calls = prisma.course.findMany.mock.calls;
+    if (!calls[call])
+      throw new Error(`course.findMany chưa được gọi lần thứ ${call}`);
+    return calls[call][0]?.where;
   };
 
   // ---------- 1. Danh sách khám phá ----------
@@ -145,16 +132,17 @@ describe('CoursesService — cổng is_published', () => {
 
       const res = await service.listCourses(1);
 
-      expect(andDaGui()).toContainEqual({ isPublished: true });
+      expect(whereDaGui()?.AND).toContainEqual({ isPublished: true });
       expect(res.courses.map((c) => c.id)).toEqual(['python']);
     });
 
     it('học viên thường + filter/search: điều kiện publish không bị filter ghi đè', async () => {
       await service.listCourses(1, 'python', 'advanced', 'python');
 
-      expect(andDaGui()).toContainEqual({ isPublished: true });
+      expect(whereDaGui()?.AND).toContainEqual({ isPublished: true });
       // Các mệnh đề search/level/language vẫn còn nguyên bên cạnh.
-      expect(andDaGui().length).toBe(4);
+      const and = whereDaGui()?.AND;
+      expect(and).toHaveLength(4);
     });
 
     it('quản trị viên: KHÔNG lọc publish, thấy cả khoá nháp', async () => {
@@ -232,7 +220,7 @@ describe('CoursesService — cổng is_published', () => {
 
       expect(res.enrolled.map((e) => e.id)).toEqual(['python_advanced']);
       // Truy vấn chỉ ràng buộc theo userId — không có mệnh đề publish nào.
-      const where = prisma.enrollment.findMany.mock.calls[0][0].where;
+      const where = prisma.enrollment.findMany.mock.calls[0]?.[0]?.where;
       expect(where).toEqual({ userId: 1 });
     });
 
@@ -246,9 +234,12 @@ describe('CoursesService — cổng is_published', () => {
         OR: [{ isPublished: true }, { enrollments: { some: { userId: 1 } } }],
       });
       expect(res.enrolled.map((e) => e.id)).toEqual(['python_advanced']);
-      const nangCao = res.courses.find((c) => c.id === 'python_advanced');
-      expect(nangCao).toBeDefined();
-      expect(nangCao?.enrolled).toBe(true);
+      // Tìm RỒI khẳng định có: `find()` trả `undefined` khi không thấy, và
+      // đọc thẳng `.enrolled` của nó là ném TypeError thay vì báo "không có
+      // khoá đó trong danh mục" — tức ca test mất chính câu nó định nói.
+      const khoaNhap = res.courses.find((c) => c.id === 'python_advanced');
+      expect(khoaNhap).toBeDefined();
+      expect(khoaNhap?.enrolled).toBe(true);
     });
 
     it('getCoursesEnrolled của quản trị viên: không lọc gì', async () => {
@@ -286,7 +277,7 @@ describe('CoursesService — cổng is_published', () => {
 
       const res = await service.getSkills(1);
 
-      const nangCao = res.skills.find((x) => x.courseId === 'python_advanced');
+      const nangCao = res.skills.find((s) => s.courseId === 'python_advanced');
       expect(nangCao).toBeDefined();
       expect(nangCao?.progress).toBe(100);
     });

@@ -1,6 +1,3 @@
-import { readFileSync } from 'fs';
-import { join } from 'path';
-
 import { validateStudioLesson } from './studio-lesson.schema';
 
 const base = {
@@ -58,43 +55,6 @@ describe('validateStudioLesson — khối play (studio-lesson/v2)', () => {
     expect(errors).toContain('"boss-fight" không phải loại game hợp lệ');
     expect(errors).toContain('trùng "a"');
     expect(errors).toContain('phải có step_4.tests');
-  });
-
-  // Bài T05 THẬT (đúng gói update-lesson-content.ts nạp vào DB), không fixture
-  // tay — bẫy số 1 của AGENTS.md. Thiếu 'soQuy' trong PLAY_GAME_TYPES thì ca này
-  // đỏ, và đó cũng là lý do update-lesson-content.ts sẽ từ chối nạp T05.
-  const t05 = JSON.parse(
-    readFileSync(
-      join(__dirname, '../../scripts/pe-v4/out-advanced/lessons/012-T05.json'),
-      'utf8',
-    ),
-  ) as { content_json: Record<string, unknown> & { play: { games: Game[] } } };
-  type Game = Record<string, unknown> & { type: string };
-  const soQuy = (): Game => {
-    const g = t05.content_json.play.games.find((x) => x.type === 'soQuy');
-    if (!g)
-      throw new Error('012-T05.json không còn game soQuy — dựng lại pe-v4?');
-    return g;
-  };
-
-  it('chấp nhận bài T05 thật có mini-game soQuy', () => {
-    expect(soQuy().type).toBe('soQuy');
-    expect(validateStudioLesson(t05.content_json)).toEqual([]);
-  });
-
-  it('soQuy thiếu người hoặc sai tên hàm thì báo lỗi', () => {
-    const lesson = (g: Game) => ({
-      ...t05.content_json,
-      play: { ...t05.content_json.play, games: [g] },
-    });
-    const motNguoi = { ...soQuy(), nguoi: [{ ten: 'A', soTien: 50 }] };
-    expect(validateStudioLesson(lesson(motNguoi)).join()).toContain(
-      'đúng 2 người',
-    );
-    const hamSai = { ...soQuy(), ham: 'nap tien' };
-    expect(validateStudioLesson(lesson(hamSai)).join()).toContain(
-      'tên hàm Python',
-    );
   });
 
   it('match phải có rightOrder khớp số cặp', () => {
@@ -194,5 +154,188 @@ describe('validateStudioLesson — lý thuyết + hình (step_1.theory / step_1.
     expect(
       validateStudioLesson({ ...base, step_1: { figure: 'P01' } }).join(),
     ).toContain('step_1.figure: phải là object');
+  });
+});
+
+describe('validateStudioLesson — ô ví dụ đầu vào/đầu ra (step_4.task.io)', () => {
+  // Khối này rỗng ở cả 130 bài có ca chấm cho tới 1/11/2026 — renderer
+  // `<dl className={c.io}>` dựng sẵn từ lâu mà không bài nào phát ra `task.io`.
+  // Nay build.py sinh nó từ ca chấm ĐẦU TIÊN, và đây là cửa duy nhất vào DB,
+  // nên hình dạng phải được canh ở đây: renderer dùng `row.label` làm React
+  // key, nên nhãn thiếu hay nhãn trùng là một hàng mất lặng lẽ, không exception.
+  const voiIo = (io_: unknown) => ({
+    title: 'PD01 · Chọn theo nhãn',
+    step_1: { read: [[{ type: 'paragraph', text: 'x' }]] },
+    step_4: {
+      starterCode: 'def solve(data):\n    pass\n',
+      task: { title: 'Tự viết', body: 'Trả về dict.', io: io_ },
+      tests: [{ name: 'ca 1', input: { a: 1 }, expected: { b: 2 } }],
+    },
+  });
+
+  it('nhận ô ví dụ đủ hai hàng', () => {
+    expect(
+      validateStudioLesson(
+        voiIo([
+          { label: 'data =', value: "{'a': 1}" },
+          { label: 'trả về', value: "{'b': 2}" },
+        ]),
+      ),
+    ).toEqual([]);
+  });
+
+  it('TỪ CHỐI hàng thiếu nhãn — nhãn là React key của renderer', () => {
+    const errors = validateStudioLesson(
+      voiIo([{ value: "{'a': 1}" }, { label: 'trả về', value: "{'b': 2}" }]),
+    );
+    expect(errors.join(' ')).toContain('step_4.task.io[0].label');
+  });
+
+  it('TỪ CHỐI hai hàng cùng nhãn — hàng sau sẽ biến mất', () => {
+    const errors = validateStudioLesson(
+      voiIo([
+        { label: 'data =', value: "{'a': 1}" },
+        { label: 'data =', value: "{'b': 2}" },
+      ]),
+    );
+    expect(errors.join(' ')).toContain('trùng hàng trước');
+  });
+
+  it('TỪ CHỐI hàng thiếu giá trị ví dụ', () => {
+    const errors = validateStudioLesson(
+      voiIo([{ label: 'data =' }, { label: 'trả về', value: "{'b': 2}" }]),
+    );
+    expect(errors.join(' ')).toContain('step_4.task.io[0].value');
+  });
+
+  it('TỪ CHỐI khoá `io` rỗng — có khoá mà không có hàng nào', () => {
+    // Build chỉ phát `io` khi dựng được, nên một mảng rỗng tới được đây nghĩa
+    // là ai đó dựng `task` bằng tay (đường nhập PDF/MD) và để lại khoá trống.
+    expect(validateStudioLesson(voiIo([])).join(' ')).toContain(
+      'không có hàng nào',
+    );
+  });
+
+  it('bài KHÔNG có `io` vẫn hợp lệ — 14 bài không chấm được không có ô ví dụ', () => {
+    const bai = voiIo([]) as { step_4: { task: Record<string, unknown> } };
+    delete bai.step_4.task.io;
+    expect(validateStudioLesson(bai)).toEqual([]);
+  });
+});
+
+describe('validateStudioLesson — hai hợp đồng ca chấm', () => {
+  // Bộ xác thực này là CỬA DUY NHẤT đưa nội dung vào DB
+  // (scripts/update-lesson-content.ts gọi nó). Bản đầu chỉ biết hợp đồng
+  // BIỂU THỨC của pe-v4, nên khi 124 bài pe-da có bài tập được chấm theo hợp
+  // đồng DỮ LIỆU thì `--offline` từ chối sạch với "thiếu biểu thức gọi hàm":
+  // một bộ chấm chạy đúng trong trình duyệt mà không có đường nào vào DB.
+  const baiDoc = (tests: unknown[]) => ({
+    title: 'PY04 · Đổi chuỗi thành số',
+    // `step_1.read` là dấu nhận biết BÀI ĐỌC — xem chú thích trong schema.
+    step_1: { read: [[{ type: 'paragraph', text: 'x' }]] },
+    step_4: { starterCode: 'def solve(data):\n    pass\n', tests },
+  });
+
+  it('nhận ca dạng DỮ LIỆU (input/expected)', () => {
+    expect(
+      validateStudioLesson(
+        baiDoc([{ name: 'ba số', input: [3, 1, 2], expected: [1, 2, 3] }]),
+      ),
+    ).toEqual([]);
+  });
+
+  it('`expected: null` là đáp án HỢP LỆ, không phải thiếu dữ liệu', () => {
+    // 5 bài (PY16, NP17, VZ30, SY03, SY13) có ca "đầu vào rỗng -> null": đáp án
+    // đúng cho "chưa có số đo" thật là không có kết quả. Kiểm bằng giá trị
+    // thay vì bằng khoá-có-mặt là đánh trượt đúng những ca đó.
+    expect(
+      validateStudioLesson(
+        baiDoc([{ name: 'rỗng', input: [], expected: null }]),
+      ),
+    ).toEqual([]);
+  });
+
+  it('vẫn nhận ca dạng BIỂU THỨC của pe-v4', () => {
+    expect(validateStudioLesson(base)).toEqual([]);
+  });
+
+  it('TỪ CHỐI ca trộn hai hợp đồng', () => {
+    // Trộn thì `step_4.contract` chỉ đúng cho một nửa số ca, mà nửa kia không
+    // báo gì — bộ chấm phân nhánh theo từng ca nên nó cứ chạy và cứ trả kết quả.
+    const errors = validateStudioLesson(
+      baiDoc([
+        {
+          name: 'lạ',
+          call: 'solve([1])',
+          expect: '1',
+          input: [1],
+          expected: 1,
+        },
+      ]),
+    );
+    expect(errors.join(' | ')).toContain('trộn hai hợp đồng');
+  });
+
+  it('TỪ CHỐI ca dữ liệu thiếu tên', () => {
+    // Tên rỗng thì bảng kết quả dưới editor hiện một dòng trống: học viên thấy
+    // "TRƯỢT" mà không biết ca nào.
+    const errors = validateStudioLesson(baiDoc([{ input: [1], expected: 1 }]));
+    expect(errors.join(' | ')).toContain('ca chấm phải có tên');
+  });
+
+  it('TỪ CHỐI ca dữ liệu thiếu expected', () => {
+    const errors = validateStudioLesson(baiDoc([{ name: 'x', input: [1] }]));
+    expect(errors.join(' | ')).toContain('thiếu kết quả mong đợi');
+  });
+
+  // ── Ký tự Postgres jsonb KHÔNG lưu được ──────────────────────────────────
+  //
+  // SỰ CỐ 30/10/2026: nạp 172 bài, 122 câu UPDATE chạy xong, câu thứ 123 ném
+  // 22P05 "unsupported Unicode escape sequence" và transaction rollback — tức
+  // KHÔNG bài nào được ghi, vì transaction là một khối. Thủ phạm là một KHOÁ
+  // JSON của SY20 chứa U+0000, và lỗi in ra là một đối tượng Prisma không nói
+  // tên bài. Phép kiểm nằm ở cửa này vì đây là CỬA DUY NHẤT vào DB: cả đường
+  // cập nhật lẫn đường tạo mới đều đi qua nó.
+  const NUL = String.fromCharCode(0);
+
+  it('TỪ CHỐI U+0000 trong GIÁ TRỊ', () => {
+    const errors = validateStudioLesson(
+      baiDoc([{ name: 'x', input: [1], expected: `a${NUL}b` }]),
+    );
+    expect(errors.join(' | ')).toContain('U+0000');
+  });
+
+  it('TỪ CHỐI U+0000 trong KHOÁ của object', () => {
+    // Bản quét đầu của tôi chỉ duyệt GIÁ TRỊ chuỗi và báo "0 chỗ" trên đúng
+    // cái file đang làm hỏng lần nạp — khoá của dict cũng là chuỗi trong JSON
+    // và Postgres cũng từ chối ở đó. Đây đúng là hình dạng của SY20.
+    const errors = validateStudioLesson(
+      baiDoc([
+        { name: 'x', input: { [`students.csv${NUL}.exe`]: 1 }, expected: 1 },
+      ]),
+    );
+    expect(errors.join(' | ')).toContain('U+0000');
+  });
+
+  it('TỪ CHỐI surrogate lẻ', () => {
+    const errors = validateStudioLesson(
+      baiDoc([
+        { name: 'x', input: [1], expected: String.fromCharCode(0xd800) },
+      ]),
+    );
+    expect(errors.join(' | ')).toContain('surrogate lẻ');
+  });
+
+  it('CHO QUA cặp surrogate hợp lệ — đừng chặn nhầm emoji', () => {
+    const errors = validateStudioLesson(
+      baiDoc([
+        {
+          name: 'x',
+          input: [1],
+          expected: `ok ${String.fromCharCode(0xd83d, 0xde00)}`,
+        },
+      ]),
+    );
+    expect(errors.join(' | ')).not.toContain('surrogate');
   });
 });

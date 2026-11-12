@@ -1,0 +1,239 @@
+{
+ "lesson_code": "NP17",
+ "sort_order": 35,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP17 · Dữ liệu thiếu: NaN",
+ "subtitle": "Trung cấp · M2 · 11 phút",
+ "estimated_minutes": 11,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "NP17 · Dữ liệu thiếu: NaN",
+  "subtitle": "Trung cấp · M2 · 11 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#NP17",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "Advanced-Python-Tai-Lieu-Mon-Hoc.pdf tr. 118-120; NumPy · Trung bình khi có dữ liệu thiếu"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bảng vừa tính trung bình ở bài trước giả định mọi ô đều có số. Máy đo nhiệt độ sữa ở quán ghi được 28°C, mất dữ liệu một ngày, rồi 32°C. Ngày mất dữ liệu không phải là ngày có nhiệt độ sữa 0°C. Bạn có thể biểu diễn giá trị chưa biết bằng `np.nan`:"
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\n\ntemps = np.array([28., np.nan, 32.])\nprint(np.nanmean(temps))",
+      "expected": "30.0",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`NaN` được dùng làm dấu hiệu dữ liệu thiếu trong các array số thực ở đây. `np.nanmean` bỏ qua NaN (not a number — ô không có số) khi tính trung bình, nên kết quả là (28 + 32) / 2 = 30. Nếu tự điền 0, bạn sẽ thêm một số đo không có thật vào phép tính."
+     },
+     {
+      "type": "paragraph",
+      "text": "Để tìm vị trí dữ liệu thiếu, dùng `np.isnan`:"
+     },
+     {
+      "type": "code",
+      "code": "a = np.array([6.0, np.nan, 10.0])\nprint(np.isnan(a))",
+      "expected": "[False  True False]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Mask có `True` ở vị trí thứ hai vì đó là ô NaN. Không kiểm bằng `a == np.nan`: so sánh bằng với NaN không hoạt động như so sánh các số thông thường."
+     },
+     {
+      "type": "paragraph",
+      "text": "Tính trung bình từ hai số đo đã có:"
+     },
+     {
+      "type": "code",
+      "code": "a = np.array([6.0, np.nan, 10.0])\nprint(np.nanmean(a))",
+      "expected": "8.0",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Có hai số đo thực là 6 và 10, nên trung bình bằng 8. Nếu mọi phần tử đều là NaN, `nanmean` trả NaN và phát cảnh báo; khi đó cần báo chưa có dữ liệu, không ghi một số trung bình giả."
+     },
+     {
+      "type": "paragraph",
+      "text": "Với số đo có trọng số, khi bỏ một ô thiếu, bạn phải bỏ cả trọng số của ô đó bằng cùng một mask. `np.isnan(a)` đánh dấu ô thiếu; thêm `~` ở trước để đảo `True`/`False`, nên `~np.isnan(a)` đánh dấu các ô không thiếu. Ngoài ra, bỏ NaN không đồng nghĩa bỏ mọi giá trị vô hạn; đó là hai điều kiện kiểm tra khác nhau."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "NP03 · Kiểu dữ liệu của array, NP14 · Lọc dữ liệu bằng mask, NP16 · Thống kê và giá trung bình có trọng số"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "a=[6,NaN,10]. Tính nanmean dùng mẫu số nào?",
+     "options": [
+      {
+       "text": "0",
+       "detail": "NaN không làm hai giá trị còn lại biến mất."
+      },
+      {
+       "text": "2",
+       "detail": "Đúng. Chỉ có hai giá trị đã biết.",
+       "correct": true
+      },
+      {
+       "text": "3",
+       "detail": "Đếm cả ô thiếu sẽ làm trung bình thấp đi như thể ô đó có đóng góp số."
+      }
+     ],
+     "explanation": "Đúng. Chỉ có hai giá trị đã biết."
+    },
+    {
+     "question": "Một điểm chưa được nhập. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\na = np.array([6., np.nan, 10.])\nprint(np.isnan(a))",
+     "options": [
+      {
+       "text": "[6, 10]",
+       "detail": "isnan tạo mask, chưa lọc điểm."
+      },
+      {
+       "text": "[True, False, True]",
+       "detail": "Đó là mask không thiếu, cần đảo isnan."
+      },
+      {
+       "text": "[False, True, False]",
+       "detail": "isnan chỉ True ở vị trí chứa NaN.",
+       "correct": true
+      }
+     ],
+     "explanation": "isnan chỉ True ở vị trí chứa NaN."
+    },
+    {
+     "question": "Hai điểm đã biết là 6 và 10. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\na = np.array([6., np.nan, 10.])\nprint(np.nanmean(a))",
+     "options": [
+      {
+       "text": "8.0",
+       "detail": "Tổng 16 chia hai giá trị đã biết bằng 8.",
+       "correct": true
+      },
+      {
+       "text": "None",
+       "detail": "nanmean bỏ qua ô thiếu khi còn điểm hợp lệ."
+      },
+      {
+       "text": "5.333333333333333",
+       "detail": "Không tính ô thiếu như 0 rồi chia ba."
+      }
+     ],
+     "explanation": "Tổng 16 chia hai giá trị đã biết bằng 8."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Trong dãy `[6, NaN, 10]`, có bao nhiêu điểm đã biết?",
+     "answer": "Có 2 điểm đã biết là 6 và 10."
+    },
+    {
+     "prompt": "Điền tên hàm để tính trung bình và bỏ qua NaN: `np.___(a)`.",
+     "answer": "Điền `nanmean` để bỏ NaN khi tính trung bình."
+    },
+    {
+     "prompt": "Khi tính trung bình có trọng số mà một ô thiếu số đo, cần bỏ những phần tử nào trước khi dùng `np.average`?",
+     "answer": "Bỏ số đo thiếu và trọng số tương ứng bằng cùng mask. Dấu `~` đảo True/False để giữ vị trí không thiếu:",
+     "answerCode": "import numpy as np\n\nvalues = np.array([7., np.nan, 9.])\nweights = np.array([2, 3, 1])\nvalid = ~np.isnan(values)\nprint(np.average(values[valid], weights=weights[valid]))",
+     "answerExpected": "7.666666666666667"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận list số đo; JSON dùng None để chỉ ô chưa biết. Tạo array dtype=float, bỏ NaN khi tính trung bình. Nếu không có số đo nào đã biết, trả None thay vì coi trung bình bằng 0.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "[24, None, 30]"
+     },
+     {
+      "label": "trả về",
+      "value": "27.0"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    values = np.array(data, dtype=float)\n    known = values[~np.isnan(values)]\n    if len(known) == 0:\n        return None\n    return known.mean()\n",
+   "tests": [
+    {
+     "name": "Có một ô thiếu",
+     "input": [
+      24,
+      null,
+      30
+     ],
+     "expected": 27.0
+    },
+    {
+     "name": "Không có ô thiếu",
+     "input": [
+      0,
+      10
+     ],
+     "expected": 5.0
+    },
+    {
+     "name": "Toàn ô thiếu",
+     "input": [
+      null,
+      null
+     ],
+     "expected": null
+    },
+    {
+     "name": "Một ô thiếu và một ô đã biết",
+     "input": [
+      null,
+      4
+     ],
+     "expected": 4.0
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tạo array dtype=float để các ô None thành dấu thiếu NaN trong bài này."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Giữ những ô ~np.isnan(values); nếu không còn ô nào thì trả None trước khi tính mean."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

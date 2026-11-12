@@ -1,0 +1,249 @@
+{
+ "lesson_code": "PD09",
+ "sort_order": 50,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD09 · Làm sạch chữ trong một cột",
+ "subtitle": "Cơ bản · M3 · 11 phút",
+ "estimated_minutes": 11,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PD09 · Làm sạch chữ trong một cột",
+  "subtitle": "Cơ bản · M3 · 11 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PD09",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas · Text data"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Ô trống đã đếm được rồi, nhưng chữ trong sổ quán còn lệch kiểu hoa và dính dấu cách. Tên món được nhập là \" Latte \", \"LATTE\" và \"Mocha\". Nếu đếm ngay, cùng một món Latte có thể bị tách thành hai tên."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nmon = pd.Series([' Latte ', 'LATTE', 'Mocha'], dtype='string')\nclean = mon.str.strip().str.lower()\nprint(clean.tolist())\nprint(clean.nunique())",
+      "expected": "['latte', 'latte', 'mocha']\n2",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`.str` áp dụng thao tác chuỗi lên từng giá trị. strip bỏ khoảng trắng ở hai đầu; lower chuyển về chữ thường. Bạn vẫn cần thống nhất cách viết theo nghiệp vụ, vì đổi chữ thường không tự sửa lỗi đánh máy."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nnames = pd.Series(['Coffee XL', None, 'Tea'], dtype='string')\nprint(names.str.contains('Coffee', regex=False, na=False).tolist())\nprint(names.str.replace(' XL', '', regex=False).fillna('unknown').tolist())",
+      "expected": "[True, False, False]\n['Coffee', 'unknown', 'Tea']",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`na=False` coi ô thiếu là không khớp khi lọc chữ. `regex=False` yêu cầu tìm đúng đoạn chữ, tránh để các ký tự như dấu chấm bị hiểu là biểu thức chính quy."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ncodes = pd.Series(['HN-001', 'DN-020'], dtype='string')\nprint(codes.str.split('-').str[0].tolist())\nprint(codes.str.extract(r'-(\\d+)', expand=False).tolist())",
+      "expected": "['HN', 'DN']\n['001', '020']",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "split tách mã ở dấu gạch ngang rồi lấy phần đầu. extract dùng nhóm trong ngoặc của regex để lấy dãy chữ số sau dấu gạch. Ở đây kết quả vẫn là chữ, nên mã 001 không mất số 0."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PD08 · Ô thiếu: phát hiện trước khi điền"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "\" A B \".strip().lower() cho gì?",
+     "options": [
+      {
+       "text": "\"ab\"",
+       "detail": "strip không xóa khoảng trắng nằm giữa hai từ."
+      },
+      {
+       "text": "\" A B \"",
+       "detail": "strip và lower đều tạo kết quả mới đã thay đổi."
+      },
+      {
+       "text": "\"a b\"",
+       "detail": "Đúng: bỏ khoảng trắng hai đầu, giữ khoảng trắng ở giữa.",
+       "correct": true
+      }
+     ],
+     "explanation": "Mỗi bước làm một việc; chuẩn hóa không tự sửa mọi lỗi dữ liệu."
+    },
+    {
+     "question": "strip có xóa dấu cách giữa hai từ không?\n\nimport pandas as pd\nmon = pd.Series([' Latte ', 'LATTE', 'Mocha'], dtype='string')\nclean = mon.str.strip().str.lower()\nprint(clean.tolist())\nprint(clean.nunique())",
+     "options": [
+      {
+       "text": "Không; strip chỉ bỏ ký tự ở đầu và cuối chuỗi theo quy tắc được chọn.",
+       "detail": "Không; strip chỉ bỏ ký tự ở đầu và cuối chuỗi theo quy tắc được chọn.",
+       "correct": true
+      },
+      {
+       "text": "Có; strip nối các từ và tự đổi thành chữ thường.",
+       "detail": "strip không đồng thời thực hiện lower."
+      },
+      {
+       "text": "Có; strip bỏ mọi dấu cách trong cả chuỗi.",
+       "detail": "Dấu cách nằm giữa hai từ không ở biên chuỗi."
+      }
+     ],
+     "explanation": "Không; strip chỉ bỏ ký tự ở đầu và cuối chuỗi theo quy tắc được chọn."
+    },
+    {
+     "question": "Tại sao contains thường thêm na=False khi dùng làm mask?\n\nimport pandas as pd\nnames = pd.Series(['Coffee XL', None, 'Tea'], dtype='string')\nprint(names.str.contains('Coffee', regex=False, na=False).tolist())\nprint(names.str.replace(' XL', '', regex=False).fillna('unknown').tolist())",
+     "options": [
+      {
+       "text": "Để biến mọi ô thiếu thành kết quả khớp.",
+       "detail": "na=False làm ô thiếu không khớp, không biến nó thành True."
+      },
+      {
+       "text": "Để ô thiếu được xem là không khớp thay vì để mask có giá trị thiếu.",
+       "detail": "Để ô thiếu được xem là không khớp thay vì để mask có giá trị thiếu.",
+       "correct": true
+      },
+      {
+       "text": "Để bắt contains đọc cả cột thành số.",
+       "detail": "contains là phép tìm chuỗi, không phải phép đổi kiểu số."
+      }
+     ],
+     "explanation": "Để ô thiếu được xem là không khớp thay vì để mask có giá trị thiếu."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "strip có xóa dấu cách giữa hai từ không?",
+     "answer": "Không; strip chỉ bỏ ký tự ở đầu và cuối chuỗi theo quy tắc được chọn."
+    },
+    {
+     "prompt": "Tại sao contains thường thêm na=False khi dùng làm mask?",
+     "answer": "Để ô thiếu được xem là không khớp thay vì để mask có giá trị thiếu."
+    },
+    {
+     "prompt": "Chuẩn hóa [\" Tea \", \"TEA\"] bằng strip và lower.",
+     "answer": "Hai phần tử đều thành tea.",
+     "answerCode": "import pandas as pd\ns = pd.Series([' Tea ', 'TEA'], dtype='string')\nprint(s.str.strip().str.lower().tolist())",
+     "answerExpected": "['tea', 'tea']"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.names có chuỗi hoặc None; data.query là đoạn chữ thường cần tìm theo nghĩa đen. Chuẩn hóa strip/lower, thay ô thiếu bằng \"unknown\". Trả clean và matched là các tên đã chuẩn hóa chứa query; giữ thứ tự.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'names': [' Latte ', 'LATTE', 'Mocha'], 'query': 'latte'}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'clean': ['latte', 'latte', 'mocha'], 'matched': ['latte', 'latte']}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     clean = pd.Series(data['names'], dtype='string').str.strip().str.lower().fillna('unknown')\n     mask = clean.str.contains(data['query'], regex=False, na=False)\n     return {'clean': clean.tolist(), 'matched': clean.loc[mask].tolist()}\n",
+   "tests": [
+    {
+     "name": "chuẩn hóa tên mới",
+     "input": {
+      "names": [
+       " Latte ",
+       "LATTE",
+       "Mocha"
+      ],
+      "query": "latte"
+     },
+     "expected": {
+      "clean": [
+       "latte",
+       "latte",
+       "mocha"
+      ],
+      "matched": [
+       "latte",
+       "latte"
+      ]
+     }
+    },
+    {
+     "name": "dấu chấm là chữ",
+     "input": {
+      "names": [
+       "Ca.Phe",
+       "CaxPhe",
+       null
+      ],
+      "query": "ca.phe"
+     },
+     "expected": {
+      "clean": [
+       "ca.phe",
+       "caxphe",
+       "unknown"
+      ],
+      "matched": [
+       "ca.phe"
+      ]
+     }
+    },
+    {
+     "name": "giữ khoảng giữa",
+     "input": {
+      "names": [
+       " Ca Phe Sua "
+      ],
+      "query": " "
+     },
+     "expected": {
+      "clean": [
+       "ca phe sua"
+      ],
+      "matched": [
+       "ca phe sua"
+      ]
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Chuỗi ca.phe phải được tìm nguyên văn; dấu chấm không được coi là ký hiệu đặc biệt."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Chuẩn hóa chữ và tìm một đoạn chữ theo nghĩa đen."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

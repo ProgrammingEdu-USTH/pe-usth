@@ -1,0 +1,234 @@
+{
+ "lesson_code": "NP01",
+ "sort_order": 19,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP01 · Array là gì?",
+ "subtitle": "Cơ bản · M2 · 10 phút",
+ "estimated_minutes": 10,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "NP01 · Array là gì?",
+  "subtitle": "Cơ bản · M2 · 10 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#NP01",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "Advanced-Python-Tai-Lieu-Mon-Hoc.pdf tr. 109-111; NumPy · Hướng dẫn người mới"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Sổ tay của quán đã ghi được một tuần, giờ bạn cần tính trên cả cột số cốc một lượt. Thứ Hai, một quán cà phê bán 12 cốc; thứ Ba bán 15 cốc; thứ Tư bán 9 cốc. Bạn có thể đặt ba số này vào một mảng (array) của NumPy để lưu và xử lý cùng nhau:"
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\n\ncups = np.array([12, 15, 9])\nprint(cups)",
+      "expected": "[12 15  9]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Array là một cấu trúc chứa nhiều giá trị. Array `cups` ở đây là một dãy số, còn gọi là array một chiều. Ba giá trị giữ nguyên thứ tự bạn đã nhập: 12, 15, rồi 9."
+     },
+     {
+      "type": "paragraph",
+      "text": "`import numpy as np` nạp thư viện NumPy và đặt tên ngắn là `np`. Sau đó, `np.array(...)` tạo một array từ danh sách nằm trong dấu ngoặc vuông. `cups` là tên biến bạn đặt cho array đó; `print(cups)` hiển thị các giá trị."
+     },
+     {
+      "type": "paragraph",
+      "text": "Thử đổi dữ liệu sang điểm của ba bài kiểm tra:"
+     },
+     {
+      "type": "code",
+      "code": "a = np.array([6, 8, 10])\nprint(a)",
+      "expected": "[ 6  8 10]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Trong dòng `a = np.array([6, 8, 10])`, `a` là tên biến, còn `[6, 8, 10]` là danh sách được dùng để tạo array. Kết quả in ra vẫn chứa ba số đó. NumPy thường không in dấu phẩy giữa các số, nên `[6 8 10]` là cách hiển thị bình thường."
+     },
+     {
+      "type": "paragraph",
+      "text": "Bạn cũng có thể dùng một tên gợi rõ dữ liệu đang lưu, chẳng hạn `prices` cho giá bán:"
+     },
+     {
+      "type": "code",
+      "code": "prices = np.array([10, 20])\nprint(prices)",
+      "expected": "[10 20]",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "Khi lưu nhiều số theo thứ tự trong một array, bạn có thể lấy riêng một số hoặc tính trên cả dãy. Các bài tiếp theo sẽ lần lượt làm hai việc này."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PY10 · List: lấy, thêm và xóa phần tử, PY16 · Hàm, giá trị trả về và docstring"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "a = np.array([4, 2, 9]). Khi in a, thứ tự nào được giữ?",
+     "options": [
+      {
+       "text": "[4 2 9]",
+       "detail": "Đúng. np.array giữ thứ tự dữ liệu nhập.",
+       "correct": true
+      },
+      {
+       "text": "[9 2 4]",
+       "detail": "array không tự đảo thứ tự."
+      },
+      {
+       "text": "[2 4 9]",
+       "detail": "array không tự sắp tăng."
+      }
+     ],
+     "explanation": "Đúng. np.array giữ thứ tự dữ liệu nhập."
+    },
+    {
+     "question": "Ba ca lần lượt bán 8, 11 và 6 cốc. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\ncups = np.array([8, 11, 6])\nprint(cups)",
+     "options": [
+      {
+       "text": "[6, 8, 11]",
+       "detail": "Tạo array không tự sắp xếp dữ liệu."
+      },
+      {
+       "text": "25",
+       "detail": "np.array lưu các số; nó chưa cộng chúng."
+      },
+      {
+       "text": "[8, 11, 6]",
+       "detail": "Array giữ đúng thứ tự các số đã nhập.",
+       "correct": true
+      }
+     ],
+     "explanation": "Array giữ đúng thứ tự các số đã nhập."
+    },
+    {
+     "question": "Một dãy điểm có hai bài cùng điểm. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\nmarks = np.array([7, 7, 9])\nprint(marks)",
+     "options": [
+      {
+       "text": "[7, 9]",
+       "detail": "Array không tự loại các số lặp."
+      },
+      {
+       "text": "[7, 7, 9]",
+       "detail": "Mỗi vị trí đầu vào trở thành một vị trí trong array, kể cả số lặp.",
+       "correct": true
+      },
+      {
+       "text": "[9, 7, 7]",
+       "detail": "Tạo array không đảo thứ tự."
+      }
+     ],
+     "explanation": "Mỗi vị trí đầu vào trở thành một vị trí trong array, kể cả số lặp."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Với `a = np.array([6, 8, 10])`, array `a` chứa những giá trị nào?",
+     "answer": "6, 8 và 10."
+    },
+    {
+     "prompt": "Điền lệnh để tạo array: `a = ___([2, 4])`.",
+     "answer": "Điền `np.array`."
+    },
+    {
+     "prompt": "Tạo một array chứa ba số cốc 28, 30 và 29.",
+     "answer": "Bạn có thể đặt tên biến là `cups`:",
+     "answerCode": "import numpy as np\n\ncups = np.array([28, 30, 29])\nprint(cups)",
+     "answerExpected": "[28 30 29]"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận list số sách trả theo ngày. Trả một NumPy array chứa đúng các số theo thứ tự đó. Chưa cần cộng, sắp xếp hoặc đổi kiểu.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "[4, 2, 9]"
+     },
+     {
+      "label": "trả về",
+      "value": "[4, 2, 9]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    return np.array(data)\n",
+   "tests": [
+    {
+     "name": "Ba ngày",
+     "input": [
+      4,
+      2,
+      9
+     ],
+     "expected": [
+      4,
+      2,
+      9
+     ]
+    },
+    {
+     "name": "Có ngày không trả",
+     "input": [
+      0,
+      3
+     ],
+     "expected": [
+      0,
+      3
+     ]
+    },
+    {
+     "name": "Chưa có bản ghi",
+     "input": [],
+     "expected": []
+    }
+   ],
+   "contract": {
+    "mode": "function",
+    "returnType": "numpy.ndarray"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "np.array nhận nguyên list đầu vào, không cần nhập lại từng số."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Trả array vừa tạo; np.array không tự sắp xếp list."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

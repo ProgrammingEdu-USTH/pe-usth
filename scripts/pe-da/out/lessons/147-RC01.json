@@ -1,0 +1,427 @@
+{
+ "lesson_code": "RC01",
+ "sort_order": 147,
+ "module": "M7 · Multiprocessing và shell thực hành",
+ "title": "RC01 · Đọc sơ đồ Apache và Chromium: tiến trình ở ngoài, luồng ở trong",
+ "subtitle": "Trung cấp · M7 · 11 phút",
+ "estimated_minutes": 11,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "RC01 · Đọc sơ đồ Apache và Chromium: tiến trình ở ngoài, luồng ở trong",
+  "subtitle": "Trung cấp · M7 · 11 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#RC01",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 274-276"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Hai cách chia việc ở các bài trước đã đủ để bạn đọc sơ đồ của phần mềm thật. Trong hình Apache Prefork ở trang 274, một tiến trình cha (parent) quản lý nhiều tiến trình con (child). Mỗi ô con nối với HTTP request. Bạn có thể đếm số tiến trình con mà không cần triển khai một web server:"
+     },
+     {
+      "type": "code",
+      "code": "prefork = {\"parent\": \"master\", \"children\": [\"P1\", \"P2\", \"P3\"]}\nprint(len(prefork[\"children\"]))\nprint(prefork[\"parent\"])",
+      "expected": "3\nmaster",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Dictionary chỉ là bản chép đơn giản của sơ đồ. Nó không tạo tiến trình thật. Ở mô hình Prefork trong tài liệu, request được giao cho tiến trình con; mỗi tiến trình con có không gian địa chỉ riêng. Phải dùng cơ chế trao đổi dữ liệu nếu muốn chia sẻ kết quả."
+     },
+     {
+      "type": "code",
+      "code": "worker_model = {\"P1\": [\"T1\", \"T2\"], \"P2\": [\"T3\", \"T4\"]}\nprint(len(worker_model))\nprint(sum(len(threads) for threads in worker_model.values()))",
+      "expected": "2\n4",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "threads",
+        "line": 3,
+        "prompt": "Ngay sau khi dòng 3 chạy, `threads` bằng mấy?",
+        "answer": "['T1', 'T2']"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "worker_model",
+           "{'P1': ['T1', 'T2'], 'P2': ['T3', 'T4']}"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "out": "2"
+        },
+        {
+         "line": 3
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "set": [
+          [
+           "threads",
+           "['T1', 'T2']"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "2"
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "threads",
+           "['T1', 'T2']"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "set": [
+          [
+           "threads",
+           "['T3', 'T4']"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "2"
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "enter": true,
+         "set": [
+          [
+           "threads",
+           "['T3', 'T4']"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1
+        },
+        {
+         "line": 3,
+         "fn": "<genexpr>",
+         "depth": 1,
+         "ret": "None",
+         "out": "4"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Hình Apache Worker ở trang 275 có thêm các ô luồng bên trong mỗi tiến trình con. Trong mô hình trên có hai tiến trình con, mỗi cái có hai luồng. Hai luồng trong P1 dùng chung heap của P1; một luồng ở P2 không tự truy cập heap đó. Đây là cách kết hợp chia sẻ bên trong một tiến trình với ranh giới bộ nhớ giữa các tiến trình."
+     },
+     {
+      "type": "code",
+      "code": "links = [(\"browser-main\", \"browser-io\", \"inside-process\"),\n         (\"browser\", \"renderer\", \"IPC\")]\nprint([kind for a, b, kind in links if a == \"browser\"])",
+      "expected": "['IPC']",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "a",
+        "line": 3,
+        "prompt": "Ngay sau khi dòng 3 chạy, `a` bằng mấy?",
+        "answer": "'browser-main'"
+       },
+       "rows": [
+        {
+         "line": 1
+        },
+        {
+         "line": 2
+        },
+        {
+         "line": 1,
+         "set": [
+          [
+           "links",
+           "[('browser-main', 'browser-io', 'inside-process'), ('browser', 'rendere…"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "a",
+           "'browser-main'"
+          ],
+          [
+           "b",
+           "'browser-io'"
+          ],
+          [
+           "kind",
+           "'inside-process'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "a",
+           "'browser'"
+          ],
+          [
+           "b",
+           "'renderer'"
+          ],
+          [
+           "kind",
+           "'IPC'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "links",
+           "[('browser-main', 'browser-io', 'inside-process'), ('browser', 'rendere…"
+          ]
+         ],
+         "out": "['IPC']"
+        },
+        {
+         "line": 3,
+         "ret": "None"
+        }
+       ]
+      }
+     },
+     {
+      "type": "paragraph",
+      "text": "Hình Chromium ở trang 276 đặt luồng chính và luồng I/O trong tiến trình browser; tiến trình renderer có luồng riêng. Các đường từ browser sang renderer ghi IPC (inter-process communication). Tách tiến trình có thể tăng cô lập, còn trao đổi giữa chúng cần giao thức và có chi phí. Ba ví dụ chỉ giúp đọc sơ đồ lịch sử của slide; chúng không khẳng định kiến trúc của mọi phiên bản Apache hoặc Chromium đang được dùng. Quán của bạn chia việc theo đúng hai tầng đó."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "CT09 · Thread dùng chung gì, giữ riêng gì?"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Trong mô hình Apache Worker của slide, các thread cùng một child process có thể chia sẻ heap không?",
+     "options": [
+      {
+       "text": "Không; thread luôn có heap riêng",
+       "detail": "Stack riêng không đồng nghĩa heap riêng."
+      },
+      {
+       "text": "Có; vậy mọi child process cũng chung heap",
+       "detail": "Mỗi child process vẫn là một không gian địa chỉ riêng."
+      },
+      {
+       "text": "Có",
+       "detail": "Chúng thuộc cùng process nên cùng không gian địa chỉ theo mô hình thread thông thường.",
+       "correct": true
+      }
+     ],
+     "explanation": "Chúng thuộc cùng process nên cùng không gian địa chỉ theo mô hình thread thông thường."
+    },
+    {
+     "question": "Trong sơ đồ Prefork của slide, các child process có mặc định chung heap không?",
+     "options": [
+      {
+       "text": "Chỉ chung heap nếu tên giống nhau",
+       "detail": "Chưa đúng. Quan hệ cha–con không xóa ranh giới không gian địa chỉ giữa các process."
+      },
+      {
+       "text": "Không; cần cơ chế trao đổi/chia sẻ rõ",
+       "detail": "Quan hệ cha–con không xóa ranh giới không gian địa chỉ giữa các process.",
+       "correct": true
+      },
+      {
+       "text": "Có; process có cùng cha thì cùng heap",
+       "detail": "Chưa đúng. Quan hệ cha–con không xóa ranh giới không gian địa chỉ giữa các process."
+      }
+     ],
+     "explanation": "Quan hệ cha–con không xóa ranh giới không gian địa chỉ giữa các process."
+    },
+    {
+     "question": "Trong sơ đồ Worker, hai thread của cùng P1 có thể dùng chung gì?",
+     "options": [
+      {
+       "text": "Heap của P1",
+       "detail": "Chia sẻ được xét trong ranh giới process, còn ngữ cảnh/stack của thread vẫn riêng.",
+       "correct": true
+      },
+      {
+       "text": "Mọi heap của mọi process renderer",
+       "detail": "Chưa đúng. Chia sẻ được xét trong ranh giới process, còn ngữ cảnh/stack của thread vẫn riêng."
+      },
+      {
+       "text": "Stack riêng của nhau trở thành cùng một stack",
+       "detail": "Chưa đúng. Chia sẻ được xét trong ranh giới process, còn ngữ cảnh/stack của thread vẫn riêng."
+      }
+     ],
+     "explanation": "Chia sẻ được xét trong ranh giới process, còn ngữ cảnh/stack của thread vẫn riêng."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Trong hình Prefork, request được xử lý ở một child process hay một thread được vẽ bên trong child?",
+     "answer": "Ở child process; hình Prefork không có tầng thread được vẽ như hình Worker."
+    },
+    {
+     "prompt": "Mô hình Worker có ba child, mỗi child bốn thread. Có bao nhiêu thread xử lý được vẽ?",
+     "answer": "12 thread. Các thread trong cùng child dùng chung tài nguyên của child; không có một heap chung cho cả ba child."
+    },
+    {
+     "prompt": "Hai thread trong browser và một renderer process khác nhau thế nào về chia sẻ bộ nhớ và IPC?",
+     "answer": "Hai thread cùng browser dùng chung không gian nhớ của process. Renderer là process khác nên cần IPC để trao đổi với browser; tách process tạo ranh giới địa chỉ riêng."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận dict mô tả mô hình Worker: khoá là tên child process, giá trị là list tên các thread vẽ bên trong process đó. Trả dict {\"processes\": số child process, \"threads\": tổng số thread} — đúng phép đếm ở màn đọc. Các process có thể có số thread khác nhau.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'P1': ['T1', 'T2'], 'P2': ['T3', 'T4']}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'processes': 2, 'threads': 4}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "def solve(data):\n    return {\n        \"processes\": len(data),\n        \"threads\": sum(len(threads) for threads in data.values()),\n    }\n",
+   "tests": [
+    {
+     "name": "Hai process, mỗi process hai thread",
+     "input": {
+      "P1": [
+       "T1",
+       "T2"
+      ],
+      "P2": [
+       "T3",
+       "T4"
+      ]
+     },
+     "expected": {
+      "processes": 2,
+      "threads": 4
+     }
+    },
+    {
+     "name": "Số thread mỗi process khác nhau",
+     "input": {
+      "P1": [
+       "T1",
+       "T2",
+       "T3",
+       "T4"
+      ],
+      "P2": [
+       "T5"
+      ],
+      "P3": [
+       "T6",
+       "T7"
+      ]
+     },
+     "expected": {
+      "processes": 3,
+      "threads": 7
+     }
+    },
+    {
+     "name": "Một process chưa có thread nào",
+     "input": {
+      "P1": [],
+      "P2": [
+       "T1"
+      ]
+     },
+     "expected": {
+      "processes": 2,
+      "threads": 1
+     }
+    },
+    {
+     "name": "Một process, ba thread",
+     "input": {
+      "C1": [
+       "T1",
+       "T2",
+       "T3"
+      ]
+     },
+     "expected": {
+      "processes": 1,
+      "threads": 3
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "len(data) đếm số khoá của dictionary — tức số child process."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thread nằm trong các list là GIÁ TRỊ: duyệt data.values() và cộng len() của từng list."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 2,
+  "bo": 1,
+  "loi": []
+ }
+}

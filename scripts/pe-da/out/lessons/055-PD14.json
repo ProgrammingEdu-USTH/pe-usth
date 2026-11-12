@@ -1,0 +1,256 @@
+{
+ "lesson_code": "PD14",
+ "sort_order": 55,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD14 · Groupby: tổng hợp theo nhóm",
+ "subtitle": "Trung cấp · M3 · 11 phút",
+ "estimated_minutes": 11,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PD14 · Groupby: tổng hợp theo nhóm",
+  "subtitle": "Trung cấp · M3 · 11 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PD14",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas · Groupby aggregation"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bảng đơn hàng đã đọc đúng rồi, giờ quán cần số tổng theo từng nhóm. Bảng hiện có một hàng cho mỗi giao dịch. Để báo cáo doanh thu cửa hàng, bạn cần gộp các giao dịch có cùng mã cửa hàng rồi cộng amount."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'amount': [10, 20, 40]})\nresult = df.groupby('store')['amount'].sum()\nprint(result.to_dict())",
+      "expected": "{'A': 30, 'B': 40}",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`groupby` chia hàng thành nhóm, rồi `sum` tính riêng trong từng nhóm. Kết quả có một giá trị cho mỗi cửa hàng. Nếu cần nhiều thống kê, agg đặt tên rõ cho các cột báo cáo."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'amount': [10, 20, 40]})\nreport = df.groupby('store', as_index=False).agg(revenue=('amount', 'sum'), orders=('amount', 'size'))\nprint(report.to_dict('records'))",
+      "expected": "[{'store': 'A', 'revenue': 30, 'orders': 2}, {'store': 'B', 'revenue': 40, 'orders': 1}]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`as_index=False` giữ store thành cột thông thường. size đếm số hàng của nhóm; count chỉ đếm ô không thiếu trong cột được chọn. Nếu khóa nhóm bị thiếu, mặc định nhóm đó bị bỏ; `dropna=False` giữ nó để bạn kiểm tra."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', None], 'amount': [10.0, None, 20.0]})\ngrouped = df.groupby('store', dropna=False)['amount']\nprint(grouped.size().tolist())\nprint(grouped.count().tolist())\nprint(grouped.sum().sum())",
+      "expected": "[2, 1]\n[1, 1]\n30.0",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "Có thể nhóm theo nhiều cột bằng danh sách, chẳng hạn `groupby([\"store\", \"month\"])`. Trước khi so sánh tổng báo cáo với tổng gốc, hãy quyết định cách xử lý khóa nhóm thiếu để tránh làm thất thoát số liệu."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "PD13 · JSON và Excel: chọn đúng bảng cần đọc"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "g=[Q1,Q1,Q2], so_coc=[2,5,4]. Tổng của Q1 là gì?",
+     "options": [
+      {
+       "text": "3",
+       "detail": "3 là tổng số hàng của bảng."
+      },
+      {
+       "text": "7",
+       "detail": "Đúng: cộng hai hàng có cùng nhãn Q1.",
+       "correct": true
+      },
+      {
+       "text": "11",
+       "detail": "11 là tổng mọi nhóm, không phải riêng Q1."
+      }
+     ],
+     "explanation": "groupby chia theo khóa rồi mới tính trên từng nhóm."
+    },
+    {
+     "question": "Bảng kết quả sau `groupby(...).agg(...)` có luôn cùng số hàng với bảng đầu vào không?\n\nimport pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'amount': [10, 20, 40]})\nresult = df.groupby('store')['amount'].sum()\nprint(result.to_dict())",
+     "options": [
+      {
+       "text": "Không nhất thiết; tổng hợp thường trả một hàng cho mỗi nhóm.",
+       "detail": "Không nhất thiết; tổng hợp thường trả một hàng cho mỗi nhóm.",
+       "correct": true
+      },
+      {
+       "text": "Luôn giữ đúng từng hàng như transform.",
+       "detail": "transform mới phù hợp với kết quả giữ từng hàng như vậy."
+      },
+      {
+       "text": "Luôn có số hàng bằng số cột gốc.",
+       "detail": "Số cột gốc không quyết định số nhóm."
+      }
+     ],
+     "explanation": "Không nhất thiết; tổng hợp thường trả một hàng cho mỗi nhóm."
+    },
+    {
+     "question": "Trong nhóm hai hàng có một amount thiếu, size và count lần lượt là gì?\n\nimport pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'amount': [10, 20, 40]})\nreport = df.groupby('store', as_index=False).agg(revenue=('amount', 'sum'), orders=('amount', 'size'))\nprint(report.to_dict('records'))",
+     "options": [
+      {
+       "text": "Cả hai bằng 2 dù amount thiếu.",
+       "detail": "count không tính amount bị thiếu."
+      },
+      {
+       "text": "size=1, count=2.",
+       "detail": "Bạn đã đổi chỗ size và count."
+      },
+      {
+       "text": "size là 2; count của amount là 1.",
+       "detail": "size là 2; count của amount là 1.",
+       "correct": true
+      }
+     ],
+     "explanation": "size là 2; count của amount là 1."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "agg và bảng đầu vào có cùng số hàng không?",
+     "answer": "Không nhất thiết; tổng hợp thường trả một hàng cho mỗi nhóm."
+    },
+    {
+     "prompt": "Trong nhóm hai hàng có một amount thiếu, size và count lần lượt là gì?",
+     "answer": "size là 2; count của amount là 1."
+    },
+    {
+     "prompt": "Tính tổng so_coc theo quay cho quay=[Q1,Q1,Q2], so_coc=[2,3,4].",
+     "answer": "Q1=5 và Q2=4.",
+     "answerCode": "import pandas as pd\ndf = pd.DataFrame({'quay': ['Q1', 'Q1', 'Q2'], 'so_coc': [2, 3, 4]})\nprint(df.groupby('quay')['so_coc'].sum().to_dict())",
+     "answerExpected": "{'Q1': 5, 'Q2': 4}"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.rows có quay và so_coc. Quy ước quay thiếu được ghi là \"Unknown\". Trả dictionary quay→tổng so_coc, gồm cả nhóm Unknown; so_coc đều là số.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'rows': [{'quay': 'Q1', 'so_coc': 3}, {'quay': 'Q2', 'so_coc': 7}, {'quay': 'Q1', 'so_coc': 4}]}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'Q1': 7, 'Q2': 7}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     df = pd.DataFrame(data['rows'], columns=['quay','so_coc'])\n     df['quay'] = df['quay'].fillna('Unknown')\n     return df.groupby('quay')['so_coc'].sum().to_dict()\n",
+   "tests": [
+    {
+     "name": "hai quầy",
+     "input": {
+      "rows": [
+       {
+        "quay": "Q1",
+        "so_coc": 3
+       },
+       {
+        "quay": "Q2",
+        "so_coc": 7
+       },
+       {
+        "quay": "Q1",
+        "so_coc": 4
+       }
+      ]
+     },
+     "expected": {
+      "Q1": 7,
+      "Q2": 7
+     }
+    },
+    {
+     "name": "khóa thiếu",
+     "input": {
+      "rows": [
+       {
+        "quay": null,
+        "so_coc": 2
+       },
+       {
+        "quay": "Q1",
+        "so_coc": 5
+       }
+      ]
+     },
+     "expected": {
+      "Q1": 5,
+      "Unknown": 2
+     }
+    },
+    {
+     "name": "bảng rỗng",
+     "input": {
+      "rows": []
+     },
+     "expected": {}
+    },
+    {
+     "name": "mọi hàng đều thiếu mã quầy",
+     "input": {
+      "rows": [
+       {
+        "quay": null,
+        "so_coc": 2
+       },
+       {
+        "quay": null,
+        "so_coc": 3
+       }
+      ]
+     },
+     "expected": {
+      "Unknown": 5
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cần giữ cả nhóm có mã quầy bị thiếu."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Tổng hợp về một hàng cho mỗi nhóm và giữ khóa thiếu có chủ ý."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

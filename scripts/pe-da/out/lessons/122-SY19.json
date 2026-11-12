@@ -1,0 +1,272 @@
+{
+ "lesson_code": "SY19",
+ "sort_order": 122,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY19 · Nén dữ liệu với zlib, gzip, bz2 và lzma",
+ "subtitle": "Trung cấp · M5 · 13 phút",
+ "estimated_minutes": 13,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY19 · Nén dữ liệu với zlib, gzip, bz2 và lzma",
+  "subtitle": "Trung cấp · M5 · 13 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY19",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 173-178; Python — Data compression"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Cây thư mục của dự án quán đã rõ ở bài trước, giờ đến chỗ các file phình to. Một log lặp cùng mẫu hàng nghìn lần có thể được nén để giảm chỗ lưu. Điều đầu tiên cần kiểm là giải nén thu lại đúng `bytes` ban đầu:"
+     },
+     {
+      "type": "code",
+      "code": "import zlib, gzip\ndata = b\"paid\\n\" * 100\nprint(zlib.decompress(zlib.compress(data)) == data)\nprint(gzip.decompress(gzip.compress(data)) == data)",
+      "expected": "True\nTrue",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Các hàm compress/decompress làm việc với `bytes`. Với văn bản, dùng encode để chuyển thành `bytes` trước khi nén và decode để chuyển lại thành chuỗi sau khi giải nén. Một file .gz thường lưu một luồng nén; nếu cần giữ nhiều file cùng tên của chúng, dùng định dạng đóng gói (archive) như ZIP hoặc tar."
+     },
+     {
+      "type": "code",
+      "code": "import bz2, lzma\ndata = \"cà phê\".encode(\"utf8\")\nprint(bz2.decompress(bz2.compress(data)).decode(\"utf8\"))\nprint(lzma.decompress(lzma.compress(data)).decode(\"utf8\"))",
+      "expected": "cà phê\ncà phê",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "data",
+        "prompt": "Sau khi chạy xong, `data` bằng mấy?",
+        "answer": "b'c\\xc3\\xa0 ph\\xc3\\xaa'"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "bz2",
+           "<thư viện bz2>"
+          ],
+          [
+           "lzma",
+           "<thư viện lzma>"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "data",
+           "b'c\\xc3\\xa0 ph\\xc3\\xaa'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "out": "cà phê"
+        },
+        {
+         "line": 4,
+         "out": "cà phê"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "bz2 thường gắn đuôi .bz2; lzma với định dạng mặc định ở đây là .xz; `gzip` là .gz. Mỗi cách nén đánh đổi tốc độ, bộ nhớ và kích thước. Không có một cách nén (codec) luôn tốt nhất cho mọi bảng dữ liệu."
+     },
+     {
+      "type": "code",
+      "code": "import gzip\ntiny = b\"A\"\npacked = gzip.compress(tiny)\nprint(len(packed) > len(tiny))\ntry: gzip.decompress(b\"not a gzip stream\")\nexcept OSError: print(\"Du lieu nen khong hop le\")",
+      "expected": "True\nDu lieu nen khong hop le",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "Input rất ngắn có thể lớn hơn sau nén vì header và overhead. Nén cũng không phải encryption: người có file và đúng codec có thể giải nén. Chỉ thêm password vào một hệ archive có hỗ trợ không biến mọi thuật toán nén thành cơ chế bảo mật."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "SY18 · Đường dẫn, cây thư mục và symlink"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "zlib.compress(\"hello\") dùng chuỗi str trực tiếp có đúng không?",
+     "options": [
+      {
+       "text": "Không; văn bản không thể nén",
+       "detail": "Văn bản có thể encode rồi nén như dữ liệu byte khác."
+      },
+      {
+       "text": "Không; cần encode thành bytes",
+       "detail": "API nén byte cần dữ liệu byte; sau giải nén mới decode thành văn bản.",
+       "correct": true
+      },
+      {
+       "text": "Có; mọi API tự encode UTF-8",
+       "detail": "zlib không tự quyết định encoding cho str."
+      }
+     ],
+     "explanation": "API nén byte cần dữ liệu byte; sau giải nén mới decode thành văn bản."
+    },
+    {
+     "question": "zlib.compress nhận loại dữ liệu nào trong ví dụ?",
+     "options": [
+      {
+       "text": "bytes",
+       "detail": "Với văn bản, encode thành bytes rồi mới nén.",
+       "correct": true
+      },
+      {
+       "text": "Một đường dẫn luôn tự được mở",
+       "detail": "Chưa đúng. Với văn bản, encode thành bytes rồi mới nén."
+      },
+      {
+       "text": "str được nén trực tiếp không cần encode",
+       "detail": "Chưa đúng. Với văn bản, encode thành bytes rồi mới nén."
+      }
+     ],
+     "explanation": "Với văn bản, encode thành bytes rồi mới nén."
+    },
+    {
+     "question": "Sau decompress, để lấy lại văn bản UTF-8 cần làm gì?",
+     "options": [
+      {
+       "text": "Đổi tên biến thành text",
+       "detail": "Chưa đúng. Giải nén trả bytes; decode chuyển bytes về str."
+      },
+      {
+       "text": "Gọi randint",
+       "detail": "Chưa đúng. Giải nén trả bytes; decode chuyển bytes về str."
+      },
+      {
+       "text": "decode cùng encoding",
+       "detail": "Giải nén trả bytes; decode chuyển bytes về str.",
+       "correct": true
+      }
+     ],
+     "explanation": "Giải nén trả bytes; decode chuyển bytes về str."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Nén text trực tiếp bằng gzip.compress được không?",
+     "answer": "Cần bytes: gzip.compress(text.encode(\"utf8\")); giải nén rồi decode cùng encoding."
+    },
+    {
+     "prompt": "Tại sao file ngắn nén xong lớn hơn?",
+     "answer": "Header và thông tin điều khiển có thể lớn hơn phần tiết kiệm; kiểm round-trip trước khi kết luận lỗi."
+    },
+    {
+     "prompt": "Viết compress_bytes(data, method) và decompress_bytes cho bốn codec.",
+     "answer": "Map tên zlib/gzip/bz2/lzma sang module, tên lạ raise ValueError; gọi .compress/.decompress. Thử b\"\", bytes có ký tự 0, text UTF-8, input lặp dài và bytes hỏng. Không yêu cầu output luôn nhỏ hơn."
+    },
+    {
+     "prompt": "Ghép gzip/bz2/lzma với .gz/.bz2/.xz; zlib.compress nhận gì? Vì sao không gọi nén là mã hóa?",
+     "answer": "gzip→.gz, bz2→.bz2, lzma mặc định ở đây→.xz; zlib.compress và ba codec đều nén bytes. Text cần encode. Nén thay biểu diễn để tiết kiệm nhưng không bảo mật; dữ liệu nhỏ có thể lớn lên do header. Archive giữ nhiều tên file; encryption cần cơ chế khóa riêng."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "solve(data) nhận {\"codec\": \"zlib\" | \"gzip\" | \"bz2\" | \"lzma\", \"text\": chuỗi}. Chọn module tương ứng, encode UTF-8, compress rồi decompress; trả {\"restored\": văn bản khôi phục, \"same\": so sánh byte trước/sau}. Không chấm theo kích thước hay thời gian nén.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'codec': 'zlib', 'text': 'cà phê'}"
+     },
+     {
+      "label": "trả về",
+      "value": "{'restored': 'cà phê', 'same': True}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import zlib, gzip, bz2, lzma\ndef solve(data):\n    codec = {'zlib':zlib, 'gzip':gzip, 'bz2':bz2, 'lzma':lzma}[data['codec']]\n    raw = data['text'].encode('utf-8')\n    restored = codec.decompress(codec.compress(raw))\n    return {'restored':restored.decode('utf-8'), 'same':restored == raw}\n",
+   "tests": [
+    {
+     "name": "zlib unicode",
+     "input": {
+      "codec": "zlib",
+      "text": "cà phê"
+     },
+     "expected": {
+      "restored": "cà phê",
+      "same": true
+     }
+    },
+    {
+     "name": "gzip rỗng",
+     "input": {
+      "codec": "gzip",
+      "text": ""
+     },
+     "expected": {
+      "restored": "",
+      "same": true
+     }
+    },
+    {
+     "name": "bz2 lặp",
+     "input": {
+      "codec": "bz2",
+      "text": "ABCABC"
+     },
+     "expected": {
+      "restored": "ABCABC",
+      "same": true
+     }
+    },
+    {
+     "name": "lzma",
+     "input": {
+      "codec": "lzma",
+      "text": "line1\nline2"
+     },
+     "expected": {
+      "restored": "line1\nline2",
+      "same": true
+     }
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 1,
+  "bo": 2,
+  "loi": []
+ }
+}

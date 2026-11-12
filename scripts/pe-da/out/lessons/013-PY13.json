@@ -1,0 +1,242 @@
+{
+ "lesson_code": "PY13",
+ "sort_order": 13,
+ "module": "M1 · Python nền tảng",
+ "title": "PY13 · Set và so sánh hai nhóm",
+ "subtitle": "Cơ bản · M1 · 13 phút",
+ "estimated_minutes": 13,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PY13 · Set và so sánh hai nhóm",
+  "subtitle": "Cơ bản · M1 · 13 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PY13",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 65, 330; Python — Tutorial"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bảng giá ở bài trước tra được theo tên món. Nhưng có câu hỏi chỉ cần biết một món thuộc nhóm nào, không cần giá. Bạn có nhóm món trên bảng giá và nhóm món đã bán hôm nay, và muốn biết món nào chưa bán được cốc nào:"
+     },
+     {
+      "type": "code",
+      "code": "menu = {\"espresso\", \"latte\", \"tra_da\"}\nda_ban = {\"latte\", \"tra_da\"}\nprint(sorted(menu - da_ban))\nprint(len(menu))",
+      "expected": "['espresso']\n3",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`set` chỉ giữ các phần tử khác nhau và không có chỉ số vị trí, nên nó trả lời \"có hay không\" rất gọn. Phép hiệu `menu - da_ban` giữ món thuộc bảng giá nhưng không thuộc nhóm đã bán. Ví dụ gọi `sorted` lúc in để thứ tự ổn định giữa các lần chạy, vì bản thân `set` không giữ thứ tự nào."
+     },
+     {
+      "type": "code",
+      "code": "sang = {\"espresso\", \"latte\"}\nchieu = {\"latte\", \"tra_da\"}\nprint(sorted(sang | chieu))\nprint(sorted(sang & chieu))\nprint(sorted(sang - chieu))",
+      "expected": "['espresso', 'latte', 'tra_da']\n['latte']\n['espresso']",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Hai ca trong ngày bán được hai nhóm món, và ba phép dưới đây trả lời ba câu hỏi khác nhau về chúng. `|` là hợp: cả ngày bán được những món nào. `&` là giao: món nào bán được ở cả hai ca. `-` là hiệu: món chỉ ca sáng bán được."
+     },
+     {
+      "type": "paragraph",
+      "text": "Các phương thức tương ứng là `union`, `intersection` và `difference`. Thứ tự hai vế quan trọng với phép hiệu: `chieu - sang` cho món chỉ ca chiều bán được, khác hẳn `sang - chieu`."
+     },
+     {
+      "type": "code",
+      "code": "da_ban = {\"espresso\", \"latte\"}\nmenu = {\"espresso\", \"latte\", \"tra_da\"}\nprint(da_ban.issubset(menu), menu.issuperset(da_ban))\nprint(da_ban.isdisjoint({\"banh_mi\"}))\nprint(len(set([\"latte\", \"latte\", \"espresso\"])))",
+      "expected": "True True\nTrue\n2",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Bốn phép kiểm quan hệ nói về hai nhóm chứ không về một món. `da_ban.issubset(menu)` hay `da_ban <= menu` hỏi mọi món đã bán có nằm trong bảng giá không — nếu `False` thì ai đó đã bán một món ngoài bảng. `menu.issuperset(da_ban)` hay `menu >= da_ban` hỏi điều ngược lại. `isdisjoint` hỏi hai nhóm có món chung nào không. Còn `x in da_ban` hỏi về đúng một thành viên."
+     },
+     {
+      "type": "paragraph",
+      "text": "Tạo `set` từ một dãy cũng loại các tên trùng, nên ba lần bán latte chỉ còn một tên. Nhưng nó không giữ thứ tự bản ghi, và không giữ số lần mỗi tên xuất hiện — muốn đếm số cốc mỗi món thì `set` không làm được."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PY12 · Dictionary và tra cứu theo khóa"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Đã đăng ký {A,B,C}, đã nộp {B,C}. Phép nào tìm người chưa nộp?",
+     "options": [
+      {
+       "text": "registered - submitted",
+       "detail": "Đúng. Giữ người thuộc đăng ký nhưng không thuộc đã nộp.",
+       "correct": true
+      },
+      {
+       "text": "registered & submitted",
+       "detail": "Giao tìm những người có ở cả hai nhóm, tức đã nộp hợp lệ."
+      },
+      {
+       "text": "submitted - registered",
+       "detail": "Phép này tìm người đã nộp nhưng không có trong đăng ký."
+      }
+     ],
+     "explanation": "Đúng. Giữ người thuộc đăng ký nhưng không thuộc đã nộp."
+    },
+    {
+     "question": "Tìm người đăng ký chưa nộp. Kết quả ở lệnh print cuối có giá trị nào?\n\nregistered = {\"An\", \"Binh\", \"Chi\"}\nsubmitted = {\"Binh\", \"Chi\"}\nprint(sorted(registered - submitted))",
+     "options": [
+      {
+       "text": "['An', 'Binh', 'Chi']",
+       "detail": "Hiệu loại các phần tử đã có trong submitted."
+      },
+      {
+       "text": "['Binh', 'Chi']",
+       "detail": "Đây là nhóm đã nộp, không phải phần còn thiếu."
+      },
+      {
+       "text": "['An']",
+       "detail": "Hiệu giữ người thuộc registered mà không thuộc submitted.",
+       "correct": true
+      }
+     ],
+     "explanation": "Hiệu giữ người thuộc registered mà không thuộc submitted."
+    },
+    {
+     "question": "Giữ các mã có trong cả hai tập. Kết quả ở lệnh print cuối có giá trị nào?\n\na = {1, 2}\nb = {2, 3}\nprint(sorted(a & b))",
+     "options": [
+      {
+       "text": "[1, 2, 3]",
+       "detail": "Đây là hợp, không phải giao."
+      },
+      {
+       "text": "[2]",
+       "detail": "Chỉ 2 xuất hiện trong cả a lẫn b.",
+       "correct": true
+      },
+      {
+       "text": "[1]",
+       "detail": "Đây là hiệu a-b."
+      }
+     ],
+     "explanation": "Chỉ 2 xuất hiện trong cả a lẫn b."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Giao của {\"espresso\",\"latte\"} và {\"latte\",\"tra_da\"} là gì?",
+     "answer": "{\"latte\"}."
+    },
+    {
+     "prompt": "Muốn biết mọi món đã bán đều có trong bảng giá, dùng quan hệ nào?",
+     "answer": "da_ban.issubset(menu), hoặc da_ban <= menu."
+    },
+    {
+     "prompt": "Từ [\"latte\", \"latte\", \"espresso\"], đếm số món khác nhau.",
+     "answer": "len(set([\"latte\", \"latte\", \"espresso\"])) cho 2. Set không giữ số lần mỗi món xuất hiện; việc đó cần Counter."
+    },
+    {
+     "prompt": "Với a={\"espresso\",\"latte\"}, b={\"espresso\",\"latte\",\"tra_da\"}, kiểm a <= b, b >= a, a.isdisjoint({\"banh_mi\"}) và \"latte\" in a. Viết tương đương hợp/giao/hiệu bằng method.",
+     "answer": "Cả bốn phép kiểm đều True. a | b tương đương a.union(b); a & b tương đương a.intersection(b); a - b tương đương a.difference(b). Set giữ phần tử duy nhất và không có thứ tự xếp hạng."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Hệ thống cung cấp codes là list mã phiếu, có thể bị lặp. Tạo unique_codes là list mã khác nhau đã xếp tăng theo tên.",
+    "io": [
+     {
+      "label": "codes =",
+      "value": "['B', 'A', 'B']"
+     },
+     {
+      "label": "unique_codes =",
+      "value": "['A', 'B']"
+     }
+    ]
+   },
+   "starterCode": "# Hệ thống cung cấp codes là list mã phiếu, có thể bị lặp.\n# Hệ thống cung cấp codes; gán kết quả vào unique_codes.\n",
+   "solutionCode": "unique_codes = sorted(set(codes))\n",
+   "tests": [
+    {
+     "name": "Phiếu bị lặp",
+     "input": [
+      "B",
+      "A",
+      "B"
+     ],
+     "expected": [
+      "A",
+      "B"
+     ]
+    },
+    {
+     "name": "Một mã xuất hiện nhiều lần",
+     "input": [
+      "X",
+      "X",
+      "X"
+     ],
+     "expected": [
+      "X"
+     ]
+    },
+    {
+     "name": "Chưa có phiếu",
+     "input": [],
+     "expected": []
+    },
+    {
+     "name": "Mã số xếp theo chữ, không theo số",
+     "input": [
+      "P2",
+      "P10"
+     ],
+     "expected": [
+      "P10",
+      "P2"
+     ]
+    }
+   ],
+   "contract": {
+    "mode": "script",
+    "inputVariable": "codes",
+    "resultVariable": "unique_codes"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cần bỏ mã lặp trước khi tạo thứ tự hiển thị."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "set giữ mã khác nhau; sorted trả list có thứ tự để gán vào unique_codes."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

@@ -1,0 +1,301 @@
+{
+ "lesson_code": "CT05",
+ "sort_order": 136,
+ "module": "M6 · Hệ điều hành, tiến trình và đa luồng",
+ "title": "CT05 · SRTF, deadline và các mức ưu tiên",
+ "subtitle": "Nâng cao · M6 · 13 phút",
+ "estimated_minutes": 13,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "CT05 · SRTF, deadline và các mức ưu tiên",
+  "subtitle": "Nâng cao · M6 · 13 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#CT05",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 234-235; Python — subprocess; Python — threading"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bài trước giả định mọi việc của quán đã sẵn sàng cùng lúc. A bắt đầu chạy với 6 đơn vị CPU. Sau 1 đơn vị, B đến và chỉ cần 2 đơn vị. SRTF xem thời gian còn lại: A còn 5, nên B có thể được chạy trước."
+     },
+     {
+      "type": "code",
+      "code": "remaining = {\"A\": 5, \"B\": 2}\nprint(min(remaining, key=remaining.get))",
+      "expected": "B",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "SRTF là dạng preemptive của ý tưởng chọn việc ngắn: việc mới ngắn hơn thời gian còn lại có thể làm việc đang chạy bị thu CPU. SJF non-preemptive sẽ không tự ngắt A như vậy."
+     },
+     {
+      "type": "code",
+      "code": "jobs = [{\"name\":\"A\", \"burst\":1, \"deadline\":10}, {\"name\":\"B\", \"burst\":4, \"deadline\":5}]\nprint(min(jobs, key=lambda x:x[\"deadline\"])[\"name\"])\nprint(min(jobs, key=lambda x:x[\"burst\"])[\"name\"])",
+      "expected": "B\nA",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Earliest Deadline First chọn deadline sớm nhất, nên B được chọn dù nó dài hơn. Deadline là hạn cần hoàn thành; burst là lượng CPU cần. Chọn đúng chính sách không tự đảm bảo mọi deadline đều khả thi khi tổng việc quá lớn."
+     },
+     {
+      "type": "code",
+      "code": "queues = {\"high\": [\"A\"], \"low\": [\"B\"]}\nunfinished = queues[\"high\"].pop(0)\nqueues[\"low\"].append(unfinished)\nprint(queues[\"high\"], queues[\"low\"])",
+      "expected": "[] ['B', 'A']",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "queues",
+        "prompt": "Sau khi chạy xong, `queues` bằng mấy?",
+        "answer": "{'high': [], 'low': ['B', 'A']}"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "queues",
+           "{'high': ['A'], 'low': ['B']}"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "queues",
+           "{'high': [], 'low': ['B']}"
+          ],
+          [
+           "unfinished",
+           "'A'"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "queues",
+           "{'high': [], 'low': ['B', 'A']}"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "out": "[] ['B', 'A']"
+        },
+        {
+         "line": 4,
+         "ret": "None"
+        }
+       ]
+      }
+     },
+     {
+      "type": "paragraph",
+      "text": "Mô phỏng cuối cho thấy một việc chuyển từ hàng ưu tiên cao xuống thấp. Multilevel Queue phân nhóm vào các hàng thường cố định, mỗi hàng có chính sách riêng. Multilevel Feedback Queue cho phép chuyển hàng dựa trên hành vi hoặc thời gian đã dùng. Cách ưu tiên và preempt giữa các hàng phải được cấu hình, không suy ra chỉ từ tên thuật toán. Khi một việc của quán phải xong trước giờ mở cửa, mức ưu tiên là chỗ bạn khai nó."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "CT04 · FCFS và SJF: thứ tự đến khác độ dài việc"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "SRTF: A còn 5 ms; B vừa đến cần 2 ms. Điều gì xảy ra nếu bỏ qua overhead?",
+     "options": [
+      {
+       "text": "B chỉ được chạy nếu deadline gần hơn",
+       "detail": "Deadline là tiêu chí của EDF, không phải SRTF."
+      },
+      {
+       "text": "B có thể lấy CPU vì thời gian còn lại ngắn hơn",
+       "detail": "SRTF so thời gian còn lại và có thể ngắt job hiện tại.",
+       "correct": true
+      },
+      {
+       "text": "A luôn chạy tới hết vì đến trước",
+       "detail": "Đó là tính không ngắt, trái với SRTF."
+      }
+     ],
+     "explanation": "SRTF so thời gian còn lại và có thể ngắt job hiện tại."
+    },
+    {
+     "question": "A còn 5 đơn vị CPU, B mới đến cần 2. SRTF có thể chọn gì?",
+     "options": [
+      {
+       "text": "Tiếp tục A vì chỉ so burst ban đầu, không xét phần còn lại",
+       "detail": "Chưa đúng. SRTF so phần thời gian còn lại và cho phép preemption khi xuất hiện việc ngắn hơn."
+      },
+      {
+       "text": "Luôn đợi A xong vì SRTF non-preemptive",
+       "detail": "Chưa đúng. SRTF so phần thời gian còn lại và cho phép preemption khi xuất hiện việc ngắn hơn."
+      },
+      {
+       "text": "Thu CPU của A để B chạy",
+       "detail": "SRTF so phần thời gian còn lại và cho phép preemption khi xuất hiện việc ngắn hơn.",
+       "correct": true
+      }
+     ],
+     "explanation": "SRTF so phần thời gian còn lại và cho phép preemption khi xuất hiện việc ngắn hơn."
+    },
+    {
+     "question": "EDF chọn theo đại lượng nào?",
+     "options": [
+      {
+       "text": "Deadline sớm nhất",
+       "detail": "Deadline là hạn hoàn thành, khác lượng CPU mà job cần.",
+       "correct": true
+      },
+      {
+       "text": "Thứ tự chữ cái tên job",
+       "detail": "Chưa đúng. Deadline là hạn hoàn thành, khác lượng CPU mà job cần."
+      },
+      {
+       "text": "Burst ngắn nhất trong mọi trường hợp",
+       "detail": "Chưa đúng. Deadline là hạn hoàn thành, khác lượng CPU mà job cần."
+      }
+     ],
+     "explanation": "Deadline là hạn hoàn thành, khác lượng CPU mà job cần."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "A còn 5, B mới tới cần 2: SRTF ưu tiên ai?",
+     "answer": "B, nếu không có ràng buộc khác trong mô hình."
+    },
+    {
+     "prompt": "Deadline sớm nhất có luôn là CPU burst ngắn nhất không?",
+     "answer": "Không. Ví dụ B có deadline sớm hơn nhưng burst dài hơn A."
+    },
+    {
+     "prompt": "Điểm phân biệt Queue và Feedback Queue là gì?",
+     "answer": "Feedback cho phép công việc chuyển giữa các hàng theo quy tắc; phân lớp ở Multilevel Queue thường cố định."
+    },
+    {
+     "prompt": "Hàng foreground dùng Round Robin, hàng background dùng FCFS: có được dùng hai chính sách khác nhau không?",
+     "answer": "Có. Multilevel Queue có nhiều subqueue, mỗi hàng có chính sách riêng; việc ưu tiên hoặc preempt giữa hàng cần được cấu hình."
+    },
+    {
+     "prompt": "A bị chuyển từ hàng cao xuống thấp vì dùng hết quantum. Cơ chế này thuộc Queue cố định hay Feedback Queue?",
+     "answer": "Feedback Queue, vì công việc được đổi hàng. Phân lớp cố định không tự chuyển như vậy; quy tắc ưu tiên/preempt của cả hai còn tùy cấu hình."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận dict có jobs (list dict có name, burst, deadline) và policy là \"sjf\" hoặc \"edf\". Trả TÊN việc được chọn: sjf chọn burst nhỏ nhất, edf chọn deadline sớm nhất. Hoà thì lấy việc đứng trước.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'policy': 'edf', 'jobs': [{'name': 'A', 'burst': 1, 'deadline': 10}, {'name': 'B', 'burst': 4, 'deadline': 5}]}"
+     },
+     {
+      "label": "trả về",
+      "value": "'B'"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "def solve(data):\n    khoa = \"burst\" if data[\"policy\"] == \"sjf\" else \"deadline\"\n    return min(data[\"jobs\"], key=lambda j: j[khoa])[\"name\"]\n",
+   "tests": [
+    {
+     "name": "EDF chọn deadline sớm",
+     "input": {
+      "policy": "edf",
+      "jobs": [
+       {
+        "name": "A",
+        "burst": 1,
+        "deadline": 10
+       },
+       {
+        "name": "B",
+        "burst": 4,
+        "deadline": 5
+       }
+      ]
+     },
+     "expected": "B"
+    },
+    {
+     "name": "SJF chọn việc ngắn",
+     "input": {
+      "policy": "sjf",
+      "jobs": [
+       {
+        "name": "A",
+        "burst": 1,
+        "deadline": 10
+       },
+       {
+        "name": "B",
+        "burst": 4,
+        "deadline": 5
+       }
+      ]
+     },
+     "expected": "A"
+    },
+    {
+     "name": "Hoà burst thì lấy việc đứng trước",
+     "input": {
+      "policy": "sjf",
+      "jobs": [
+       {
+        "name": "X",
+        "burst": 2,
+        "deadline": 9
+       },
+       {
+        "name": "Y",
+        "burst": 2,
+        "deadline": 3
+       }
+      ]
+     },
+     "expected": "X"
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "min(..., key=...) trả về chính phần tử, không phải chỉ số."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Hai chính sách chỉ khác nhau ở KHOÁ đem so."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 1,
+  "bo": 2,
+  "loi": []
+ }
+}

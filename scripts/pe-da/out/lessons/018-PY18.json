@@ -1,0 +1,236 @@
+{
+ "lesson_code": "PY18",
+ "sort_order": 18,
+ "module": "M1 · Python nền tảng",
+ "title": "PY18 · Ngoại lệ và dữ liệu không hợp lệ",
+ "subtitle": "Cơ bản · M1 · 15 phút",
+ "estimated_minutes": 15,
+ "xp_reward": 9,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PY18 · Ngoại lệ và dữ liệu không hợp lệ",
+  "subtitle": "Cơ bản · M1 · 15 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PY18",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 45, 131, 169, 330; Python — Tutorial"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Mọi hàm bạn vừa viết đều giả định số liệu đúng. Sổ của quán do người ghi tay, nên sớm muộn sẽ có một ô bỏ trống. Cột số cốc tuần này có hai ô ghi đúng và một ô trống. Đổi hết sang số mà không lường trước thì chương trình dừng ngay ở ô trống đó:"
+     },
+     {
+      "type": "code",
+      "code": "for raw in [\"6\", \"\", \"8\"]:\n    try:\n        print(float(raw))\n    except ValueError:\n        print(\"missing\")",
+      "expected": "6.0\nmissing\n8.0",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`try` chứa thao tác có thể gây lỗi, còn `except ValueError` xử lý riêng lỗi đổi kiểu này. Nhờ vậy ô trống thành chữ `missing` và hai ô còn lại vẫn được tính. Đừng bắt mọi ngoại lệ rồi bỏ qua. Một lỗi lập trình như gõ sai tên biến cũng sẽ bị che, và bạn mất cả buổi đi tìm."
+     },
+     {
+      "type": "code",
+      "code": "def doc_so_coc(raw):\n    coc = float(raw)\n    if not 0 <= coc <= 50:\n        raise ValueError(\"Ngoai 0..50\")\n    return coc\n\ntry:\n    doc_so_coc(\"99\")\nexcept ValueError as error:\n    print(str(error))",
+      "expected": "Ngoai 0..50",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`raise` là cách bạn chủ động báo rằng số liệu vi phạm quy tắc của quán. Một đơn 99 cốc gần như chắc chắn là gõ nhầm, nên để nó đi vào sổ còn tệ hơn là dừng lại."
+     },
+     {
+      "type": "paragraph",
+      "text": "Khi dọn sổ bạn còn gặp ba lỗi khác. `TypeError` là thao tác không phù hợp với kiểu. `IndexError` là chỉ số không tồn tại. `KeyError` là thiếu khóa trong một `dict`. Traceback cho biết chuỗi lời gọi và vị trí phát sinh; hãy đọc dòng lỗi cuối rồi tìm lại dòng code liên quan."
+     },
+     {
+      "type": "code",
+      "code": "try:\n    number = int(\"8\")\nexcept ValueError:\n    print(\"invalid\")\nelse:\n    print(number)\nfinally:\n    print(\"finished\")",
+      "expected": "8\nfinished",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`else` chạy khi phần `try` không gây ngoại lệ. `finally` chạy khi rời cấu trúc, dù có lỗi hay không, nên nó là chỗ thu dọn tài nguyên. Với file, khối `with` thường quản lý việc đóng file rõ hơn."
+     },
+     {
+      "type": "paragraph",
+      "text": "Bắt được lỗi vẫn chưa phải là quyết định. Bạn còn phải chọn một chính sách cho ô trống trong sổ. Bỏ ô đó là một cách. Ghi nhãn là thiếu là cách thứ hai. Trả lại cho người ghi sổ nhập lại là cách thứ ba. Ba cách cho ba con số doanh thu khác nhau, và chỉ bạn biết cách nào đúng với quán của mình."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PY09 · Điều kiện, so sánh và khối lệnh, PY12 · Dictionary và tra cứu theo khóa, PY16 · Hàm, giá trị trả về và docstring"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "float(\"\") gây ValueError. Bạn nên làm gì nếu chính sách là giữ chỗ dữ liệu hỏng?",
+     "options": [
+      {
+       "text": "except: pass để bỏ mọi lỗi",
+       "detail": "Cách này có thể che lỗi lập trình và làm mất dữ liệu mà không ghi nhận."
+      },
+      {
+       "text": "Bắt ValueError và thêm None",
+       "detail": "Đúng. Giữ vị trí để không làm lệch các hàng.",
+       "correct": true
+      },
+      {
+       "text": "Thay bằng 0 bất kể ý nghĩa",
+       "detail": "0 là một số đo; không tự thay ô hỏng bằng 0 nếu chưa có quy ước."
+      }
+     ],
+     "explanation": "Đúng. Giữ vị trí để không làm lệch các hàng."
+    },
+    {
+     "question": "Một ô nhập không phải số. Kết quả ở lệnh print cuối có giá trị nào?\n\ntry:\n    result = float(\"tea\")\nexcept ValueError:\n    result = \"invalid\"\nprint(result)",
+     "options": [
+      {
+       "text": "'invalid'",
+       "detail": "float không đọc được tea nên nhánh ValueError được chạy.",
+       "correct": true
+      },
+      {
+       "text": "0",
+       "detail": "Không có quy tắc tự đổi chữ thành 0."
+      },
+      {
+       "text": "'tea'",
+       "detail": "Code đi qua nhánh except đã viết."
+      }
+     ],
+     "explanation": "float không đọc được tea nên nhánh ValueError được chạy."
+    },
+    {
+     "question": "Điểm vượt thang 0–10. Kết quả ở lệnh print cuối có giá trị nào?\n\ndef read_mark(raw):\n    mark = float(raw)\n    if not 0 <= mark <= 10:\n        raise ValueError(\"outside\")\n    return mark\ntry:\n    result = read_mark(\"12\")\nexcept ValueError:\n    result = \"rejected\"\nprint(result)",
+     "options": [
+      {
+       "text": "12.0",
+       "detail": "Hàm từ chối điểm ngoài thang trước return."
+      },
+      {
+       "text": "'TypeError'",
+       "detail": "Đổi 12 từ chuỗi thành số được; lỗi do raise ValueError của quy tắc."
+      },
+      {
+       "text": "'rejected'",
+       "detail": "12 đọc được thành số nhưng bị quy tắc điểm từ chối.",
+       "correct": true
+      }
+     ],
+     "explanation": "12 đọc được thành số nhưng bị quy tắc điểm từ chối."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Một ô trống chuyển bằng float thường gây lỗi gì?",
+     "answer": "ValueError."
+    },
+    {
+     "prompt": "Muốn báo số cốc ngoài khoảng 0–50, dùng từ khóa nào?",
+     "answer": "raise, chẳng hạn raise ValueError(\"Ngoai 0..50\")."
+    },
+    {
+     "prompt": "Có nên dùng except: pass để bỏ hết lỗi khi đọc sổ không?",
+     "answer": "Không. Nó có thể che lỗi sai tên, sai logic hoặc lỗi đọc file. Hãy bắt ngoại lệ cụ thể, ghi nhận dòng lỗi và nêu rõ cách xử lý."
+    },
+    {
+     "prompt": "Giữ nguyên độ dài khi đổi [\"12\",\"\",\"9\"] thành float, đánh dấu ô hỏng bằng None: viết phần try/except và nêu kết quả.",
+     "answer": "Khởi tạo values=[]; lặp raw, try: values.append(float(raw)); except ValueError: values.append(None). Kết quả [12.0,None,9.0]. Bắt ValueError riêng, không bỏ dòng âm thầm và không giữ chuỗi rỗng trong cột đã quy ước là số hoặc None."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận list chuỗi số. Trả list cùng độ dài, đổi từng chuỗi hợp lệ bằng float và thay chuỗi không chuyển được bằng None. Đầu vào không chứa chuỗi NaN hoặc vô cực.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "['1', '', '3.5']"
+     },
+     {
+      "label": "trả về",
+      "value": "[1.0, None, 3.5]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "def solve(data):\n    values = []\n    for raw in data:\n        try:\n            values.append(float(raw))\n        except ValueError:\n            values.append(None)\n    return values\n",
+   "tests": [
+    {
+     "name": "Có một ô hỏng",
+     "input": [
+      "1",
+      "",
+      "3.5"
+     ],
+     "expected": [
+      1.0,
+      null,
+      3.5
+     ]
+    },
+    {
+     "name": "Tất cả hợp lệ",
+     "input": [
+      "-2",
+      "0"
+     ],
+     "expected": [
+      -2.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Toàn chuỗi lỗi",
+     "input": [
+      "bad",
+      "?"
+     ],
+     "expected": [
+      null,
+      null
+     ]
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Giữ một vị trí đầu ra cho mỗi chuỗi đầu vào, kể cả chuỗi lỗi."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử float trong try; chỉ bắt ValueError rồi thêm None cho đúng vị trí đó."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
+ }
+}

@@ -13,6 +13,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { CoursesModule } from './courses/courses.module';
 import { LessonsModule } from './lessons/lessons.module';
+import { LearningEventsModule } from './learning-events/learning-events.module';
 import { AchievementsModule } from './achievements/achievements.module';
 import { QuizzesModule } from './quizzes/quizzes.module';
 import { StatsModule } from './stats/stats.module';
@@ -22,7 +23,6 @@ import { ForumModule } from './forum/forum.module';
 import { RoadmapModule } from './roadmap/roadmap.module';
 import { CourseAdminModule } from './course-admin/course-admin.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
-import { PythonRunnerModule } from './python-runner/python-runner.module';
 
 @Module({
   imports: [
@@ -37,6 +37,7 @@ import { PythonRunnerModule } from './python-runner/python-runner.module';
     AuthModule,
     CoursesModule,
     LessonsModule,
+    LearningEventsModule,
     AchievementsModule,
     QuizzesModule,
     StatsModule,
@@ -46,7 +47,6 @@ import { PythonRunnerModule } from './python-runner/python-runner.module';
     RoadmapModule,
     CourseAdminModule,
     ChatbotModule,
-    PythonRunnerModule,
   ],
   controllers: [HealthController],
 })

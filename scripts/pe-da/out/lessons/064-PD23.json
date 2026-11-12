@@ -1,0 +1,225 @@
+{
+ "lesson_code": "PD23",
+ "sort_order": 64,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD23 · Múi giờ: cùng thời điểm, khác giờ hiển thị",
+ "subtitle": "Trung cấp · M3 · 11 phút",
+ "estimated_minutes": 11,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "PD23 · Múi giờ: cùng thời điểm, khác giờ hiển thị",
+  "subtitle": "Trung cấp · M3 · 11 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#PD23",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas · Time zones"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Mốc thời gian ở bài trước chưa nói nó thuộc giờ nào. Hệ thống của quán ghi đơn lúc 00:00 UTC. Người quản lý ở Việt Nam cần xem giờ địa phương để phân đơn vào đúng ngày kinh doanh."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nutc = pd.to_datetime(['2026-01-01 00:00:00'], utc=True)\nlocal = utc.tz_convert('Asia/Ho_Chi_Minh')\nprint(local.strftime('%Y-%m-%d %H:%M %z').tolist())",
+      "expected": "['2026-01-01 07:00 +0700']",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "tz_convert đổi múi giờ hiển thị của một thời điểm đã biết múi giờ. Nó không đổi sự kiện thực tế. Ngược lại, một giờ đồng hồ chưa có múi giờ cần được gắn ý nghĩa bằng tz_localize."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nwall_time = pd.DatetimeIndex(['2026-01-01 07:00'])\nlocal = wall_time.tz_localize('Asia/Ho_Chi_Minh')\nprint(local.tz_convert('UTC').strftime('%Y-%m-%d %H:%M %z').tolist())",
+      "expected": "['2026-01-01 00:00 +0000']",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "07:00 của Việt Nam tương ứng 00:00 UTC. Không gắn UTC cho một giờ địa phương chỉ vì muốn các cột cùng kiểu; cách đó đổi ý nghĩa dữ liệu. Nên lưu thời điểm chuẩn UTC và chuyển sang giờ địa phương trước khi gom ngày kinh doanh."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ntimes = pd.to_datetime(pd.Series(['2026-01-01T23:00:00Z', '2026-01-02T02:00:00Z']), utc=True)\nprint(times.dt.strftime('%Y-%m-%d').tolist())\nprint(times.dt.tz_convert('Asia/Ho_Chi_Minh').dt.strftime('%Y-%m-%d').tolist())",
+      "expected": "['2026-01-01', '2026-01-02']\n['2026-01-02', '2026-01-02']",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "Hai đơn ở hai ngày UTC lại cùng ngày tại Việt Nam. Một số múi giờ có đổi giờ mùa hè, nên có giờ bị lặp hoặc không tồn tại; tz_localize có tham số ambiguous và nonexistent để buộc bạn xử lý theo quy tắc dữ liệu thay vì đoán."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "PD22 · Gom theo ngày, tháng và điền mốc thiếu"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "2026-05-01 23:30 UTC ở Việt Nam thuộc ngày nào?",
+     "options": [
+      {
+       "text": "2026-05-02",
+       "detail": "Đúng: UTC+7 là 06:30 ngày tiếp theo.",
+       "correct": true
+      },
+      {
+       "text": "2026-05-01",
+       "detail": "Đó vẫn là ngày UTC, chưa chuyển múi giờ."
+      },
+      {
+       "text": "2026-04-30",
+       "detail": "Việt Nam đi trước UTC, không lùi một ngày."
+      }
+     ],
+     "explanation": "Cùng sự kiện có thể thuộc hai ngày lịch khác nhau tùy múi giờ."
+    },
+    {
+     "question": "tz_localize và tz_convert khác nhau thế nào?\n\nimport pandas as pd\nutc = pd.to_datetime(['2026-01-01 00:00:00'], utc=True)\nlocal = utc.tz_convert('Asia/Ho_Chi_Minh')\nprint(local.strftime('%Y-%m-%d %H:%M %z').tolist())",
+     "options": [
+      {
+       "text": "Cả hai chỉ đổi chữ viết của tên múi giờ.",
+       "detail": "Hai thao tác có tác dụng đến ý nghĩa thời điểm, không chỉ đổi tên chữ."
+      },
+      {
+       "text": "tz_convert gắn múi giờ vào giờ naive, tz_localize chuyển mọi thời điểm đã aware.",
+       "detail": "Vai trò của localize và convert đã bị đảo."
+      },
+      {
+       "text": "tz_localize gắn múi giờ cho giờ chưa có múi giờ; tz_convert chuyển cách hiển thị một thời điểm đã có múi giờ.",
+       "detail": "tz_localize gắn múi giờ cho giờ chưa có múi giờ; tz_convert chuyển cách hiển thị một thời điểm đã có múi giờ.",
+       "correct": true
+      }
+     ],
+     "explanation": "tz_localize gắn múi giờ cho giờ chưa có múi giờ; tz_convert chuyển cách hiển thị một thời điểm đã có múi giờ."
+    },
+    {
+     "question": "23:00 UTC ngày 1/1 ở Việt Nam thuộc ngày nào?\n\nimport pandas as pd\nwall_time = pd.DatetimeIndex(['2026-01-01 07:00'])\nlocal = wall_time.tz_localize('Asia/Ho_Chi_Minh')\nprint(local.tz_convert('UTC').strftime('%Y-%m-%d %H:%M %z').tolist())",
+     "options": [
+      {
+       "text": "Vẫn là ngày 1/1 lúc 23:00.",
+       "detail": "Mốc 23:00 cộng chênh lệch có thể sang ngày kế tiếp."
+      },
+      {
+       "text": "Ngày 2/1 lúc 06:00.",
+       "detail": "Ngày 2/1 lúc 06:00.",
+       "correct": true
+      },
+      {
+       "text": "Ngày 1/1 lúc 16:00.",
+       "detail": "Phương án này trừ chênh lệch thay vì cộng."
+      }
+     ],
+     "explanation": "Ngày 2/1 lúc 06:00."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "tz_localize và tz_convert khác nhau thế nào?",
+     "answer": "tz_localize gắn múi giờ cho giờ chưa có múi giờ; tz_convert chuyển cách hiển thị một thời điểm đã có múi giờ."
+    },
+    {
+     "prompt": "23:00 UTC ngày 1/1 ở Việt Nam thuộc ngày nào?",
+     "answer": "Ngày 2/1 lúc 06:00."
+    },
+    {
+     "prompt": "Chuyển 2026-03-01 00:00 UTC sang giờ Việt Nam và in giờ:phút.",
+     "answer": "07:00.",
+     "answerCode": "import pandas as pd\nt = pd.Timestamp('2026-03-01 00:00', tz='UTC')\nprint(t.tz_convert('Asia/Ho_Chi_Minh').strftime('%H:%M'))",
+     "answerExpected": "07:00"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.utc là list chuỗi thời điểm UTC có Z. Đọc với utc=True rồi chuyển Asia/Ho_Chi_Minh. Trả list chuỗi YYYY-MM-DD HH:MM theo giờ Việt Nam, giữ thứ tự sự kiện.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'utc': ['2026-05-01T23:30:00Z']}"
+     },
+     {
+      "label": "trả về",
+      "value": "['2026-05-02 06:30']"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     utc = pd.to_datetime(data['utc'], utc=True)\n     local = utc.tz_convert('Asia/Ho_Chi_Minh')\n     return local.strftime('%Y-%m-%d %H:%M').tolist()\n",
+   "tests": [
+    {
+     "name": "đổi ngày",
+     "input": {
+      "utc": [
+       "2026-05-01T23:30:00Z"
+      ]
+     },
+     "expected": [
+      "2026-05-02 06:30"
+     ]
+    },
+    {
+     "name": "đầu năm",
+     "input": {
+      "utc": [
+       "2025-12-31T18:00:00Z"
+      ]
+     },
+     "expected": [
+      "2026-01-01 01:00"
+     ]
+    },
+    {
+     "name": "hai sự kiện",
+     "input": {
+      "utc": [
+       "2026-03-10T00:00:00Z",
+       "2026-03-10T08:15:00Z"
+      ]
+     },
+     "expected": [
+      "2026-03-10 07:00",
+      "2026-03-10 15:15"
+     ]
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "wall_time chưa có múi giờ. Cần gắn giờ địa phương vào nó, chưa phải đổi từ một múi giờ đã có."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Chuyển cùng thời điểm UTC sang ngày địa phương trước khi báo cáo."
+    }
+   ],
+   "packages": [
+    "pandas",
+    "tzdata"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

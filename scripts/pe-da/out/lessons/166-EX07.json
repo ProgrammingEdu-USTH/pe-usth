@@ -1,0 +1,349 @@
+{
+ "lesson_code": "EX07",
+ "sort_order": 166,
+ "module": "M9 · Ôn tập và thực hành các chi tiết trong slide",
+ "title": "EX07 · Bytecode, số nguyên lớn và lỗi thụt lề",
+ "subtitle": "Trung cấp · M9 · 11 phút",
+ "estimated_minutes": 11,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "EX07 · Bytecode, số nguyên lớn và lỗi thụt lề",
+  "subtitle": "Trung cấp · M9 · 11 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#EX07",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 4, 28, 38, 53-54; Python lexical analysis; Built-in compile"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bạn đã chạy rất nhiều code của quán ở các bài trước mà chưa xem Python làm gì với nó. “Python được thông dịch” không có nghĩa CPython bỏ qua bước biên dịch. `compile` tạo một code object từ mã nguồn; `exec` có thể thực thi code object đó. Đây là cách quan sát hai bước bằng một phép tính nhỏ, không cần học chi tiết từng opcode."
+     },
+     {
+      "type": "code",
+      "code": "from types import CodeType\nprogram = compile(\"cups = 12 + 9\", \"example.py\", \"exec\")\nnamespace = {}\nexec(program, namespace)\nprint(isinstance(program, CodeType))\nprint(namespace[\"cups\"])",
+      "expected": "True\n21",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "namespace",
+        "line": 3,
+        "prompt": "Ngay sau khi dòng 3 chạy, `namespace` bằng mấy?",
+        "answer": "{}"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "CodeType",
+           "<lớp code>"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "program",
+           "code: <code object <module>, file \"example.py\", line 1>"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "namespace",
+           "{}"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "set": [
+          [
+           "namespace",
+           "{'__builtins__': {'__name__': 'builtins', '__doc__': \"Built-in function…"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "out": "True"
+        },
+        {
+         "line": 6,
+         "out": "21"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Một script lưu vào file .py có thể chạy bằng python example.py. Trên UNIX, shebang như #!/usr/bin/env python3 cho biết interpreter khi file được cấp quyền chạy; trên Windows đừng mặc định quy tắc thực thi giống UNIX. Số nguyên Python có thể vượt giới hạn int 64 bit, nhưng vẫn cần bộ nhớ và thời gian để tính."
+     },
+     {
+      "type": "code",
+      "code": "number = 2 ** 100\nprint(number > 2 ** 63)\nprint(number.bit_length())\nprint(type(\"A\").__name__)",
+      "expected": "True\n101\nstr",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Thụt lề sai là lỗi cú pháp, không phải cách Python tự đoán nhóm câu lệnh. compile dưới đây phân biệt thiếu thụt lề sau if với việc dùng tab và space không nhất quán. Không cần chạy hai đoạn lỗi để tạo file hoặc sửa trình soạn thảo; chỉ biên dịch chuỗi rồi đọc tên lỗi."
+     },
+     {
+      "type": "code",
+      "code": "sources = [\"if True:\\nprint(1)\", \"if True:\\n\\tprint(1)\\n        print(2)\"]\nfor source in sources:\n    try:\n        compile(source, \"example.py\", \"exec\")\n    except (IndentationError, TabError) as error:\n        print(type(error).__name__)",
+      "expected": "IndentationError\nTabError",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "source",
+        "prompt": "Sau khi chạy xong, `source` bằng mấy?",
+        "answer": "'if True:\\n\\tprint(1)\\n print(2)'"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "sources",
+           "['if True:\\nprint(1)', 'if True:\\n\\tprint(1)\\n print(2)']"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "source",
+           "'if True:\\nprint(1)'"
+          ]
+         ]
+        },
+        {
+         "line": 3
+        },
+        {
+         "line": 4
+        },
+        {
+         "line": 4,
+         "exc": "IndentationError: expected an indented block after 'if' statement on li…"
+        },
+        {
+         "line": 5,
+         "set": [
+          [
+           "error",
+           "IndentationError()"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "out": "IndentationError"
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "source",
+           "'if True:\\n\\tprint(1)\\n print(2)'"
+          ]
+         ]
+        },
+        {
+         "line": 3
+        },
+        {
+         "line": 4
+        },
+        {
+         "line": 4,
+         "exc": "TabError: inconsistent use of tabs and spaces in indentation (example.p…"
+        },
+        {
+         "line": 5,
+         "set": [
+          [
+           "error",
+           "TabError()"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "out": "TabError"
+        },
+        {
+         "line": 2
+        },
+        {
+         "line": 2,
+         "ret": "None"
+        }
+       ]
+      }
+     },
+     {
+      "type": "paragraph",
+      "text": "Biết hai bước này giúp bạn đọc đúng tên lỗi khi sổ của quán không chạy."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "PY18 · Ngoại lệ và dữ liệu không hợp lệ"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "compile(\"x = 3\", \"example.py\", \"exec\") đã tạo biến x trong namespace của bạn chưa?",
+     "options": [
+      {
+       "text": "Chưa; nó trả code object",
+       "detail": "Cần thực thi code object mới chạy phép gán.",
+       "correct": true
+      },
+      {
+       "text": "Rồi; compile và exec là một lời gọi",
+       "detail": "compile tạo đối tượng code; exec thực thi nó."
+      },
+      {
+       "text": "Không thể compile một phép gán",
+       "detail": "Chế độ exec hỗ trợ các câu lệnh như phép gán."
+      }
+     ],
+     "explanation": "Cần thực thi code object mới chạy phép gán."
+    },
+    {
+     "question": "compile ở chế độ exec trả đối tượng gì?",
+     "options": [
+      {
+       "text": "Chuỗi stdout",
+       "detail": "Chưa đúng. Compile tạo code object; exec là bước thực thi và tạo thay đổi namespace."
+      },
+      {
+       "text": "Code object",
+       "detail": "Compile tạo code object; exec là bước thực thi và tạo thay đổi namespace.",
+       "correct": true
+      },
+      {
+       "text": "Luôn một dict chứa biến đã chạy",
+       "detail": "Chưa đúng. Compile tạo code object; exec là bước thực thi và tạo thay đổi namespace."
+      }
+     ],
+     "explanation": "Compile tạo code object; exec là bước thực thi và tạo thay đổi namespace."
+    },
+    {
+     "question": "Sau compile(\"x=3\",...,\"exec\") mà chưa exec, biến x đã được gán trong namespace đích chưa?",
+     "options": [
+      {
+       "text": "Chỉ gán nếu x là số nguyên",
+       "detail": "Chưa đúng. Biên dịch không đồng nghĩa thực thi câu lệnh của chương trình."
+      },
+      {
+       "text": "Rồi; compile luôn chạy phép gán",
+       "detail": "Chưa đúng. Biên dịch không đồng nghĩa thực thi câu lệnh của chương trình."
+      },
+      {
+       "text": "Chưa",
+       "detail": "Biên dịch không đồng nghĩa thực thi câu lệnh của chương trình.",
+       "correct": true
+      }
+     ],
+     "explanation": "Biên dịch không đồng nghĩa thực thi câu lệnh của chương trình."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Trong ví dụ compile/exec, bước nào tạo code object và bước nào làm xuất hiện cups?",
+     "answer": "compile tạo code object; exec thực thi và gán cups trong namespace. Không nói CPython hoàn toàn không biên dịch."
+    },
+    {
+     "prompt": "2**100 vượt số nguyên 64 bit có buộc tự đổi sang float không? Ký tự \"A\" có kiểu char riêng không?",
+     "answer": "Không. Python int hỗ trợ số lớn theo tài nguyên, không tự đổi sang float chỉ vì vượt 64 bit. \"A\" có kiểu str."
+    },
+    {
+     "prompt": "IndentationError và TabError ở ví dụ nói về gì? Shebang có sửa được chúng không?",
+     "answer": "Một lỗi là thiếu/sai thụt lề; lỗi kia là dùng tab/space không nhất quán. Shebang chỉ gợi interpreter khi hệ hỗ trợ, không sửa cú pháp trong file."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Viết solve(data) nhận mã nguồn dạng chuỗi. Chỉ compile mã ở chế độ exec, không thực thi. Nếu hợp lệ trả \"valid\"; nếu TabError trả \"TabError\"; nếu IndentationError khác trả \"IndentationError\"; SyntaxError khác trả \"SyntaxError\". Bắt TabError trước IndentationError vì nó là lớp con.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "'if True:\\n    print(1)\\n'"
+     },
+     {
+      "label": "trả về",
+      "value": "'valid'"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "def solve(data):\n    try:\n        compile(data,'submission.py','exec')\n    except TabError:\n        return 'TabError'\n    except IndentationError:\n        return 'IndentationError'\n    except SyntaxError:\n        return 'SyntaxError'\n    return 'valid'\n",
+   "tests": [
+    {
+     "name": "hợp lệ",
+     "input": "if True:\n    print(1)\n",
+     "expected": "valid"
+    },
+    {
+     "name": "thiếu thụt lề",
+     "input": "if True:\nprint(1)\n",
+     "expected": "IndentationError"
+    },
+    {
+     "name": "trộn thụt lề",
+     "input": "if True:\n\tprint(1)\n        print(2)\n",
+     "expected": "TabError"
+    },
+    {
+     "name": "cú pháp khác",
+     "input": "value = (",
+     "expected": "SyntaxError"
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 2,
+  "bo": 1,
+  "loi": []
+ }
+}

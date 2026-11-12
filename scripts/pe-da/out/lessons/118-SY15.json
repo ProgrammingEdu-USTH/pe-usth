@@ -1,0 +1,364 @@
+{
+ "lesson_code": "SY15",
+ "sort_order": 118,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY15 · Mở file: đọc, ghi đè, nối và tạo mới",
+ "subtitle": "Trung cấp · M5 · 16 phút",
+ "estimated_minutes": 16,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "SY15 · Mở file: đọc, ghi đè, nối và tạo mới",
+  "subtitle": "Trung cấp · M5 · 16 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#SY15",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 153, 155-160, 166-167, 328; Python — open"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Màn hình ở bài trước mất hết số liệu khi bạn tắt chương trình. Bạn muốn giữ tổng bán hàng sau khi tắt Python. Biến trong RAM không tự tồn tại qua lần chạy; một file giúp lưu dữ liệu. Các ví dụ chỉ ghi vào thư mục tạm của bài:"
+     },
+     {
+      "type": "code",
+      "code": "import tempfile\nfrom pathlib import Path\nwith tempfile.TemporaryDirectory() as folder:\n    path = Path(folder) / \"report.txt\"\n    with open(path, \"w\", encoding=\"utf8\") as f: f.write(\"12\\n\")\n    with open(path, \"r\", encoding=\"utf8\") as f: print(f.read().strip())\n    print(f.closed)",
+      "expected": "12\nTrue",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "f",
+        "line": 5,
+        "prompt": "Ngay sau khi dòng 5 chạy, `f` bằng mấy?",
+        "answer": "TextIOWrapper(mode='w')"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "tempfile",
+           "<thư viện tempfile>"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "Path",
+           "<lớp Path>"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "folder",
+           "'C:\\\\Users\\\\sonkh\\\\AppData\\\\Local\\\\Temp\\\\tmpyh2jnqry'"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "set": [
+          [
+           "path",
+           "WindowsPath: WindowsPath('C:/Users/sonkh/AppData/Local/Temp/tmpyh2jnqry…"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "set": [
+          [
+           "f",
+           "TextIOWrapper(mode='w')"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "set": [
+          [
+           "f",
+           "TextIOWrapper(mode='r')"
+          ]
+         ],
+         "out": "12"
+        },
+        {
+         "line": 7,
+         "out": "True"
+        },
+        {
+         "line": 3
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`open` trả file object. `w` tạo file hoặc xóa nội dung cũ ngay lúc mở; `r` đọc và báo lỗi nếu không có file. `with` đóng handle (thẻ hệ điều hành trả về để bạn chỉ lại file đã mở) khi rời block. File vẫn có thể tồn tại sau close; thư mục tạm của ví dụ được dọn khi rời block ngoài."
+     },
+     {
+      "type": "code",
+      "code": "import tempfile\nfrom pathlib import Path\nwith tempfile.TemporaryDirectory() as folder:\n    path = Path(folder) / \"log.txt\"\n    with open(path, \"w\", encoding=\"utf8\") as f: f.write(\"A\\n\")\n    with open(path, \"a\", encoding=\"utf8\") as f: f.write(\"B\\n\")\n    print(path.read_text(encoding=\"utf8\").splitlines())",
+      "expected": "['A', 'B']",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "mid",
+        "var": "f",
+        "line": 5,
+        "prompt": "Ngay sau khi dòng 5 chạy, `f` bằng mấy?",
+        "answer": "TextIOWrapper(mode='w')"
+       },
+       "rows": [
+        {
+         "line": 1
+        },
+        {
+         "line": 2
+        },
+        {
+         "line": 3,
+         "set": [
+          [
+           "folder",
+           "'C:\\\\Users\\\\sonkh\\\\AppData\\\\Local\\\\Temp\\\\tmpz377huqr'"
+          ]
+         ]
+        },
+        {
+         "line": 4,
+         "set": [
+          [
+           "path",
+           "WindowsPath: WindowsPath('C:/Users/sonkh/AppData/Local/Temp/tmpz377huqr…"
+          ]
+         ]
+        },
+        {
+         "line": 5,
+         "set": [
+          [
+           "f",
+           "TextIOWrapper(mode='w')"
+          ]
+         ]
+        },
+        {
+         "line": 6,
+         "set": [
+          [
+           "f",
+           "TextIOWrapper(mode='a')"
+          ]
+         ]
+        },
+        {
+         "line": 7,
+         "out": "['A', 'B']"
+        },
+        {
+         "line": 3
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`a` nối ở cuối, phù hợp nhật ký. Mở log bằng w để thêm một dòng sẽ làm mất phần cũ. `t` là text mặc định; `b` là binary dùng `bytes`. Dấu + cho phép cả đọc và ghi, nhưng không bỏ qua quy tắc ghi đè của w hoặc nối cuối của a."
+     },
+     {
+      "type": "code",
+      "code": "import tempfile\nfrom pathlib import Path\nwith tempfile.TemporaryDirectory() as folder:\n    path = Path(folder) / \"new.txt\"\n    with open(path, \"x\", encoding=\"utf8\") as f: f.write(\"first\")\n    try:\n        with open(path, \"x\", encoding=\"utf8\"): pass\n    except FileExistsError:\n        print(\"Da ton tai\")",
+      "expected": "Da ton tai",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`x` chỉ tạo mới và từ chối ghi đè file đã có. Trong mô hình UNIX, nhiều tài nguyên được thao tác qua file descriptor (số nhận diện một tài nguyên I/O đang mở). Điều đó không có nghĩa mọi tài nguyên đều là một file văn bản trên đĩa."
+     },
+     {
+      "type": "paragraph",
+      "text": "Trong RAM, biến thường mất khi tiến trình (process) kết thúc. File đã ghi và đóng có thể được đọc ở lần chạy sau; lưu bền không có nghĩa file không thể bị xóa hoặc hỏng. Vòng đời thông thường là open → đọc hoặc ghi → close. Sau close, `f.closed` là `True` và gọi read/write trên handle đó gây ValueError."
+     },
+     {
+      "type": "paragraph",
+      "text": "Cụ thể, `r+` đọc/ghi file đã có và không xóa nội dung lúc mở. `w+` cho đọc/ghi nhưng cắt nội dung cũ hoặc tạo file mới. `a+` cũng cho đọc/ghi, còn mỗi lần ghi vẫn nối cuối; muốn đọc từ đầu cần seek về đầu. Thêm `+` không làm ba chế độ này giống nhau."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "PY18 · Ngoại lệ và dữ liệu không hợp lệ"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "File chứa A. Mở bằng w và ghi B thì còn gì?",
+     "options": [
+      {
+       "text": "B",
+       "detail": "w xóa nội dung cũ khi mở file thành công.",
+       "correct": true
+      },
+      {
+       "text": "A",
+       "detail": "Lệnh ghi B đã thay dữ liệu sau khi file bị làm rỗng."
+      },
+      {
+       "text": "AB",
+       "detail": "Đó là hành vi thêm ở cuối của a."
+      }
+     ],
+     "explanation": "w xóa nội dung cũ khi mở file thành công."
+    },
+    {
+     "question": "Muốn thêm một dòng log và giữ các dòng trước, chọn mode nào?",
+     "options": [
+      {
+       "text": "r",
+       "detail": "Chưa đúng. a thêm ở cuối; w làm rỗng nội dung cũ khi mở thành công."
+      },
+      {
+       "text": "a",
+       "detail": "a thêm ở cuối; w làm rỗng nội dung cũ khi mở thành công.",
+       "correct": true
+      },
+      {
+       "text": "w",
+       "detail": "Chưa đúng. a thêm ở cuối; w làm rỗng nội dung cũ khi mở thành công."
+      }
+     ],
+     "explanation": "a thêm ở cuối; w làm rỗng nội dung cũ khi mở thành công."
+    },
+    {
+     "question": "Muốn tạo file mới nhưng báo lỗi nếu tên đã tồn tại, chọn mode nào?",
+     "options": [
+      {
+       "text": "r",
+       "detail": "Chưa đúng. x dùng để tạo độc quyền; nó không âm thầm ghi đè file đã có."
+      },
+      {
+       "text": "a",
+       "detail": "Chưa đúng. x dùng để tạo độc quyền; nó không âm thầm ghi đè file đã có."
+      },
+      {
+       "text": "x",
+       "detail": "x dùng để tạo độc quyền; nó không âm thầm ghi đè file đã có.",
+       "correct": true
+      }
+     ],
+     "explanation": "x dùng để tạo độc quyền; nó không âm thầm ghi đè file đã có."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Muốn thêm cuối log chọn mode nào?",
+     "answer": "a, hoặc at cho text; không dùng w nếu cần giữ nội dung cũ."
+    },
+    {
+     "prompt": "Mode x khác w thế nào?",
+     "answer": "x lỗi khi file đã tồn tại; w cắt nội dung cũ."
+    },
+    {
+     "prompt": "Viết append_line(path, text) và kiểm sau hai lần gọi.",
+     "answer": "Dùng with open(path,\"a\",encoding=\"utf8\") as f: f.write(text + \"\\n\"). Gọi với A rồi B trong thư mục thử; đọc lại được hai dòng, handle đã đóng; thử đường dẫn không ghi được và báo đúng lỗi."
+    },
+    {
+     "prompt": "Cần đọc file cũ, thay toàn nội dung, tạo chỉ khi chưa có, hoặc nối log: chọn r/w/x/a thế nào? r+, w+, a+ khác ở đâu?",
+     "answer": "r đọc file đã có; w tạo/cắt file; x tạo độc quyền, tồn tại thì lỗi; a ghi nối cuối và có thể tạo mới. Dấu + thêm khả năng đọc/ghi: r+ không cắt nhưng cần file có; w+ cắt/tạo; a+ ghi vẫn nối cuối. t dùng str, b dùng bytes."
+    },
+    {
+     "prompt": "open trả gì? f.close() và with liên hệ thế nào; dùng f sau close có được không? RAM/file khác gì qua lần chạy?",
+     "answer": "open trả file object. close kết thúc handle; f.closed thành True; read/write sau đó gây ValueError. with đóng cả khi bên trong có ngoại lệ. Biến RAM không tự giữ sau process; file đã ghi có thể đọc lại ở lần sau, trừ khi bị xóa/hỏng."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "solve(data) nhận list dòng không chứa newline. Trong TemporaryDirectory, tạo notes.txt bằng w ghi HEADER và newline, mở lại bằng a thêm từng dòng cùng newline; đọc lại bằng r và trả list dòng không có ký tự xuống dòng. Hãy thực hiện I/O file thật.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "['tea', 'coffee']"
+     },
+     {
+      "label": "trả về",
+      "value": "['HEADER', 'tea', 'coffee']"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import tempfile\nfrom pathlib import Path\ndef solve(data):\n    with tempfile.TemporaryDirectory() as folder:\n        path = Path(folder) / 'notes.txt'\n        with path.open('w', encoding='utf-8') as f: f.write('HEADER\\n')\n        with path.open('a', encoding='utf-8') as f:\n            for line in data: f.write(line + '\\n')\n        with path.open('r', encoding='utf-8') as f: return f.read().splitlines()\n",
+   "tests": [
+    {
+     "name": "hai dòng",
+     "input": [
+      "tea",
+      "coffee"
+     ],
+     "expected": [
+      "HEADER",
+      "tea",
+      "coffee"
+     ]
+    },
+    {
+     "name": "unicode",
+     "input": [
+      "cà phê"
+     ],
+     "expected": [
+      "HEADER",
+      "cà phê"
+     ]
+    },
+    {
+     "name": "chưa có ghi chú",
+     "input": [],
+     "expected": [
+      "HEADER"
+     ]
+    }
+   ],
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 2,
+  "bo": 1,
+  "loi": []
+ }
+}

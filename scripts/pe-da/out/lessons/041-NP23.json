@@ -1,0 +1,279 @@
+{
+ "lesson_code": "NP23",
+ "sort_order": 41,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP23 · Bài tổng hợp: bảng số cốc của quán",
+ "subtitle": "Trung cấp · M2 · 11 phút",
+ "estimated_minutes": 11,
+ "xp_reward": 8,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "NP23 · Bài tổng hợp: bảng số cốc của quán",
+  "subtitle": "Trung cấp · M2 · 11 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#NP23",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "Advanced-Python-Tai-Lieu-Mon-Hoc.pdf tr. 109-114, 118-120; NumPy · Quickstart; NumPy · sum và axis"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bài trước cố định bộ sinh để chạy lại được, và đây là bài gộp mọi phép tính trên bảng. Bạn có bảng số cốc của ba món, mỗi món bán ở hai quầy. Để báo tổng số cốc của từng món, trước hết xác định hàng là món và cột là quầy:"
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\n\nso_coc = np.array([[6, 8], [7, 9], [5, 6]])\nprint(so_coc.sum(axis=1))",
+      "expected": "[14 16 11]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Ba tổng 14, 16 và 11 lần lượt thuộc ba món. Bản tổng hợp nền tảng dùng dữ liệu đầy đủ và các thao tác đã học đến NP15. Bạn có thể làm phần đó trước khi học các bài phân tích dữ liệu phía sau."
+     },
+     {
+      "type": "paragraph",
+      "text": "Để có cả tổng từng món và tổng từng quầy:"
+     },
+     {
+      "type": "code",
+      "code": "so_coc = np.array([[6., 8.], [7., 9.], [5., 6.]])\nprint(so_coc.sum(axis=1))\nprint(so_coc.sum(axis=0))",
+      "expected": "[14. 16. 11.]\n[18. 23.]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`so_coc` có `shape` `(3, 2)`. `axis=1` cho ba tổng hàng, còn `axis=0` cho hai tổng cột. Bạn có thể đối chiếu hàng đầu: 6 + 8 = 14, và cột đầu: 6 + 7 + 5 = 18."
+     },
+     {
+      "type": "paragraph",
+      "text": "Nếu cần gắn nhãn, hãy nêu rõ ngưỡng. Chẳng hạn, bạn có thể tính `tong = so_coc.sum(axis=1)` rồi dùng `np.where(tong >= 10, \"dat\", \"chua dat\")` khi quán quy định món bán từ 10 cốc là đạt."
+     },
+     {
+      "type": "paragraph",
+      "text": "Bản DA thêm một ô chưa được ghi. Bạn cần biết NP16 và NP17 để đọc phép tính trung bình này:"
+     },
+     {
+      "type": "code",
+      "code": "so_coc = np.array([[6., 8.], [np.nan, 9.], [5., 6.]])\nprint(np.isnan(so_coc).sum())\nprint(np.nanmean(so_coc, axis=0))",
+      "expected": "1\n[5.5        7.66666667]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Bảng có một ô thiếu. Trung bình của quầy Q1 là (6 + 5) / 2 = 5.5; quầy Q2 là (8 + 9 + 6) / 3, xấp xỉ 7.67. Số ô dùng để tính ở hai cột khác nhau, nên cần nói rõ khi báo cáo."
+     },
+     {
+      "type": "paragraph",
+      "text": "Hãy giữ ý nghĩa dữ liệu đi cùng kết quả: mỗi số thuộc món nào hoặc quầy nào, và phép tính đã xử lý ô thiếu ra sao. NP19 giúp bạn tránh sửa dữ liệu gốc khi thử cách xử lý khác; NP20 giúp kiểm các kết quả số thực. Bài này không yêu cầu pandas (thư viện bảng dữ liệu có nhãn hàng và nhãn cột) hay Matplotlib (thư viện vẽ hình). Quán đã có bảng số; chặng sau cho bảng đó cột có tên."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "NP12 · Tổng từng hàng và bài ghép, NP15 · Gắn nhãn và giới hạn điểm"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Bảng có 3 hàng nhóm và 2 cột khoản chi. Muốn biết chi của từng nhóm, chọn gì?",
+     "options": [
+      {
+       "text": "sum()",
+       "detail": "Đó là một tổng chung, mất riêng từng nhóm."
+      },
+      {
+       "text": "sum(axis=1)",
+       "detail": "Đúng. Gộp hai khoản chi trong từng hàng.",
+       "correct": true
+      },
+      {
+       "text": "sum(axis=0)",
+       "detail": "Đó là tổng từng loại khoản chi của cả ba nhóm."
+      }
+     ],
+     "explanation": "Đúng. Gộp hai khoản chi trong từng hàng."
+    },
+    {
+     "question": "Mỗi hàng là một học viên, hai cột là hai bài. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\nmarks = np.array([[4, 7], [8, 6], [5, 9]])\nprint(marks.sum(axis=1))",
+     "options": [
+      {
+       "text": "[17, 22]",
+       "detail": "Đó là tổng cho từng bài kiểm tra."
+      },
+      {
+       "text": "39",
+       "detail": "Đó là tổng toàn bộ bảng."
+      },
+      {
+       "text": "[11, 14, 14]",
+       "detail": "axis=1 gộp các cột của từng học viên.",
+       "correct": true
+      }
+     ],
+     "explanation": "axis=1 gộp các cột của từng học viên."
+    },
+    {
+     "question": "Báo cáo cần tổng điểm của ba học viên ở mỗi bài. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\nmarks = np.array([[4, 7], [8, 6], [5, 9]])\nprint(marks.sum(axis=0))",
+     "options": [
+      {
+       "text": "[17, 22]",
+       "detail": "axis=0 gộp các học viên và giữ hai cột bài kiểm tra.",
+       "correct": true
+      },
+      {
+       "text": "[3, 2]",
+       "detail": "Đó là shape của bảng."
+      },
+      {
+       "text": "[11, 14, 14]",
+       "detail": "Đó là tổng từng học viên."
+      }
+     ],
+     "explanation": "axis=0 gộp các học viên và giữ hai cột bài kiểm tra."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Bảng có 3 hàng món và 2 cột quầy. Tổng số cốc từng món có bao nhiêu phần tử?",
+     "answer": "Có 3 số, mỗi số là tổng số cốc của một món."
+    },
+    {
+     "prompt": "Điền `axis` để tính tổng số cốc mỗi quầy: `so_coc.sum(axis=___)`.",
+     "answer": "Điền `0`: `so_coc.sum(axis=0)`."
+    },
+    {
+     "prompt": "Tự tạo bảng số cốc 3 món, 2 quầy; in shape, tổng hàng và tổng cột. Nếu đã học phần DA, thêm một ô NaN rồi báo số ô thiếu và trung bình mỗi cột.",
+     "answer": "Một cách làm bản nền tảng và bản DA trên cùng dữ liệu mới:",
+     "answerCode": "import numpy as np\n\nso_coc = np.array([[4., 7.], [8., 6.], [5., 9.]])\nprint(so_coc.shape)\nprint(so_coc.sum(axis=1))\nprint(so_coc.sum(axis=0))\n\nthieu = np.array([[4., 7.], [np.nan, 6.], [5., 9.]])\nprint(np.isnan(thieu).sum())\nprint(np.nanmean(thieu, axis=0))",
+     "answerExpected": "(3, 2)\n[11. 14. 14.]\n[17. 22.]\n1\n[4.5        7.33333333]"
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận bảng khoản chi; mỗi hàng là một nhóm, các cột là khoản chi không thiếu. Trả totals là tổng từng nhóm và labels bằng \"within\" nếu tổng không quá 10, còn lại \"over\".",
+    "io": [
+     {
+      "label": "data =",
+      "value": "[[4, 7], [3, 2]]"
+     },
+     {
+      "label": "trả về",
+      "value": "{'totals': [11, 5], 'labels': ['over', 'within']}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    totals = np.array(data).sum(axis=1)\n    labels = np.where(totals <= 10, \"within\", \"over\")\n    return {\"totals\": totals, \"labels\": labels}\n",
+   "tests": [
+    {
+     "name": "Có nhóm vượt mức",
+     "input": [
+      [
+       4,
+       7
+      ],
+      [
+       3,
+       2
+      ]
+     ],
+     "expected": {
+      "totals": [
+       11,
+       5
+      ],
+      "labels": [
+       "over",
+       "within"
+      ]
+     }
+    },
+    {
+     "name": "Đúng mức",
+     "input": [
+      [
+       10,
+       0
+      ]
+     ],
+     "expected": {
+      "totals": [
+       10
+      ],
+      "labels": [
+       "within"
+      ]
+     }
+    },
+    {
+     "name": "Ba nhóm",
+     "input": [
+      [
+       0,
+       0
+      ],
+      [
+       5,
+       5
+      ],
+      [
+       8,
+       7
+      ]
+     ],
+     "expected": {
+      "totals": [
+       0,
+       10,
+       15
+      ],
+      "labels": [
+       "within",
+       "within",
+       "over"
+      ]
+     }
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Trước hết cần một tổng cho mỗi nhóm, tức mỗi hàng."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Dùng sum(axis=1), sau đó where theo điều kiện tổng <=10 để tạo đủ một nhãn mỗi nhóm."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
+ }
+}

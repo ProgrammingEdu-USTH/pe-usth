@@ -1,0 +1,322 @@
+{
+ "lesson_code": "CT03",
+ "sort_order": 134,
+ "module": "M6 · Hệ điều hành, tiến trình và đa luồng",
+ "title": "CT03 · Scheduler, PCB và các hàng đợi",
+ "subtitle": "Nâng cao · M6 · 21 phút",
+ "estimated_minutes": 21,
+ "xp_reward": 13,
+ "content_json": {
+  "schema": "studio-lesson/v2",
+  "title": "CT03 · Scheduler, PCB và các hàng đợi",
+  "subtitle": "Nâng cao · M6 · 21 phút",
+  "source": {
+   "kind": "python-da",
+   "filename": "course.json#CT03",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 222-233; Python — subprocess; Python — threading"
+  },
+  "step_1": {
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Hai quầy của quán chạy cùng lúc trên một máy, và bài trước chỉ nói cách tạo ra chúng. Một process đang chờ đọc file, trong khi process khác có việc tính toán. Bộ điều phối (scheduler) quyết định ai dùng CPU, với mục tiêu sử dụng CPU và khả năng đáp ứng phù hợp. Tác vụ CPU-bound dành nhiều thời gian tính; I/O-bound dành nhiều thời gian chờ dữ liệu."
+     },
+     {
+      "type": "code",
+      "code": "queues = {\"job\": [\"A\", \"B\", \"C\"], \"ready\": [\"A\", \"B\"], \"disk\": [\"C\"]}\ncurrent = queues[\"ready\"].pop(0)\nprint(current, queues[\"disk\"])",
+      "expected": "A ['C']",
+      "tryIt": true,
+      "trace": {
+       "predict": {
+        "kind": "final",
+        "var": "current",
+        "prompt": "Sau khi chạy xong, `current` bằng mấy?",
+        "answer": "'A'"
+       },
+       "rows": [
+        {
+         "line": 1,
+         "set": [
+          [
+           "queues",
+           "{'job': ['A', 'B', 'C'], 'ready': ['A', 'B'], 'disk': ['C']}"
+          ]
+         ]
+        },
+        {
+         "line": 2,
+         "set": [
+          [
+           "current",
+           "'A'"
+          ],
+          [
+           "queues",
+           "{'job': ['A', 'B', 'C'], 'ready': ['B'], 'disk': ['C']}"
+          ]
+         ]
+        },
+        {
+         "line": 3,
+         "out": "A ['C']"
+        }
+       ]
+      }
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Đây là mô phỏng hàng đợi (queue). Theo mô hình trong slide, hệ thống có ba hàng đợi:"
+     },
+     {
+      "type": "table",
+      "headers": [
+       "Hàng đợi",
+       "Chứa gì"
+      ],
+      "rows": [
+       [
+        "job queue",
+        "các công việc đi vào hệ thống — theo mô hình slide, có thể còn nằm trên đĩa"
+       ],
+       [
+        "ready queue",
+        "tiến trình đã ở bộ nhớ và sẵn sàng dùng CPU"
+       ],
+       [
+        "device queue",
+        "tiến trình chờ một thiết bị I/O"
+       ]
+      ]
+     },
+     {
+      "type": "paragraph",
+      "text": "Các mục trong hàng đợi liên hệ với PCB (Process Control Block). Khi process chuyển từ running sang waiting để chờ ổ đĩa, PCB của nó được liên kết vào hàng đợi thiết bị; I/O xong thì nó quay về ready queue."
+     },
+     {
+      "type": "code",
+      "code": "pcb = {\"pid\": 12, \"state\": \"ready\", \"pc\": 40, \"registers\": [0, 1], \"priority\": 2, \"open_fds\": [0, 1, 2]}\npcb[\"state\"] = \"running\"\nprint(pcb[\"pid\"], pcb[\"pc\"], pcb[\"state\"])",
+      "expected": "12 40 running",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "PCB giữ thông tin như PID, trạng thái, PC/thanh ghi, file descriptors, thông tin điều phối và kế toán. Context switch lưu ngữ cảnh cũ rồi nạp ngữ cảnh mới. Trong thời gian chuyển, CPU chưa làm phần việc hữu ích của hai process, nên việc chuyển có overhead."
+     },
+     {
+      "type": "code",
+      "code": "useful, switches, switch_cost = 10, 4, 0.1\nprint(round(useful / (useful + switches * switch_cost), 3))",
+      "expected": "0.962",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Phép tính giả định 10 đơn vị chạy hữu ích và bốn lần chuyển tốn 0.1 đơn vị, cho tỷ lệ khoảng 96.2%. Đây là mô hình tính chi phí, không phải phép đo máy. Time slice quá nhỏ có thể tăng số lần chuyển."
+     },
+     {
+      "type": "paragraph",
+      "text": "Short-term scheduler chọn process chạy tiếp; long-term scheduler kiểm soát công việc được đưa vào tập xử lý. Khi nhiều việc tính nặng cùng đến, quyết định nhận thêm việc ảnh hưởng lượng bộ nhớ và mức tranh CPU. Multitasking giữ nhiều việc có thể tiến triển; scheduler cân bằng sử dụng CPU với độ đáp ứng, chẳng hạn không để giao diện chờ quá lâu. Preemptive (thu CPU lại giữa chừng) không chờ tác vụ tự nhường; non-preemptive/cooperative thường chờ tác vụ nhường, chặn hoặc kết thúc. Priority và ràng buộc giúp quyết định chọn ai và cấp CPU trong bao lâu."
+     },
+     {
+      "type": "paragraph",
+      "text": "Vậy khi quán chạy một việc ở nền, nó không giữ CPU liên tục từ đầu đến cuối."
+     }
+    ]
+   ],
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "CT02 · Tạo process: Windows, fork và exec"
+   }
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Một tác vụ đang đợi mạng có nên chiếm CPU chỉ để chờ không?",
+     "options": [
+      {
+       "text": "Không; có thể waiting để CPU chạy tác vụ khác",
+       "detail": "I/O-bound có nhiều giai đoạn chờ, scheduler tận dụng thời gian này.",
+       "correct": true
+      },
+      {
+       "text": "Có; CPU cần chờ riêng tác vụ đó",
+       "detail": "Tiến trình waiting thường không cần thực thi chỉ để I/O hoàn tất."
+      },
+      {
+       "text": "Không; phải kết thúc tiến trình ngay",
+       "detail": "Đợi I/O không có nghĩa chương trình đã kết thúc."
+      }
+     ],
+     "explanation": "I/O-bound có nhiều giai đoạn chờ, scheduler tận dụng thời gian này."
+    },
+    {
+     "question": "Process đang chờ ổ đĩa nằm ở queue nào trong mô hình slide?",
+     "options": [
+      {
+       "text": "job queue chỉ chứa kết quả đã in",
+       "detail": "Chưa đúng. Queue thiết bị theo dõi process chờ sự kiện I/O; ready queue dành cho process sẵn sàng dùng CPU."
+      },
+      {
+       "text": "ready queue vì đã chạy trước đó",
+       "detail": "Chưa đúng. Queue thiết bị theo dõi process chờ sự kiện I/O; ready queue dành cho process sẵn sàng dùng CPU."
+      },
+      {
+       "text": "device queue",
+       "detail": "Queue thiết bị theo dõi process chờ sự kiện I/O; ready queue dành cho process sẵn sàng dùng CPU.",
+       "correct": true
+      }
+     ],
+     "explanation": "Queue thiết bị theo dõi process chờ sự kiện I/O; ready queue dành cho process sẵn sàng dùng CPU."
+    },
+    {
+     "question": "Short-term scheduler chủ yếu chọn gì?",
+     "options": [
+      {
+       "text": "Những job được phép vào hệ thống từ đầu",
+       "detail": "Chưa đúng. Long-term điều tiết nhận việc; short-term quyết định lượt CPU tiếp theo."
+      },
+      {
+       "text": "Process sẵn sàng sẽ chạy CPU tiếp theo",
+       "detail": "Long-term điều tiết nhận việc; short-term quyết định lượt CPU tiếp theo.",
+       "correct": true
+      },
+      {
+       "text": "Tên file để cài Python",
+       "detail": "Chưa đúng. Long-term điều tiết nhận việc; short-term quyết định lượt CPU tiếp theo."
+      }
+     ],
+     "explanation": "Long-term điều tiết nhận việc; short-term quyết định lượt CPU tiếp theo."
+    }
+   ],
+   "practice": [
+    {
+     "prompt": "Một process chờ ổ đĩa có nên được coi là đang dùng CPU để tính không?",
+     "answer": "Không. Nó đang chờ I/O, có thể ở device queue."
+    },
+    {
+     "prompt": "PCB cần giữ PC/thanh ghi để làm gì?",
+     "answer": "Để lưu và khôi phục ngữ cảnh khi tiếp tục thực thi sau context switch."
+    },
+    {
+     "prompt": "Time slice giảm một nửa có chắc làm chương trình nhanh hơn không?",
+     "answer": "Không. Có thể cải thiện đáp ứng nhưng tăng overhead do chuyển ngữ cảnh; cần xét workload và chi phí thực tế."
+    },
+    {
+     "prompt": "Một worker liên tục nhân ma trận Python và một worker phần lớn chờ ổ đĩa thuộc loại nào?",
+     "answer": "Worker tính là CPU-bound; worker chờ đọc là I/O-bound. Scheduler có thể cấp CPU cho việc khác trong lúc chờ I/O."
+    },
+    {
+     "prompt": "Vì sao hệ nhiều việc tính nặng còn cần xét khả năng đáp ứng của cửa sổ?",
+     "answer": "CPU utilization cao chưa bảo đảm phản hồi nhanh. Multitasking/scheduling cần phân thời gian để việc tương tác được tiến triển; thêm quá nhiều việc có thể tăng tranh chấp."
+    },
+    {
+     "prompt": "Một hệ có thể thu CPU giữa chừng; hệ khác chờ công việc nhường CPU. Đây là hai loại scheduling nào?",
+     "answer": "Loại đầu preemptive. Loại sau non-preemptive/cooperative trong mô hình bài, chờ nhường, chặn hoặc kết thúc."
+    },
+    {
+     "prompt": "Chọn job mới được nhận vào tập xử lý khác chọn process chạy trong lượt tới ở đâu?",
+     "answer": "Long-term scheduler điều chỉnh công việc được nhận; short-term scheduler chọn process sẵn sàng chạy kế tiếp."
+    },
+    {
+     "prompt": "PCB cần PID/state, PC/registers, open_fds và scheduling/accounting info để làm gì?",
+     "answer": "Nhận diện và theo dõi trạng thái process, phục hồi CPU context, quản lý tài nguyên đang mở, và quyết định/ghi nhận việc cấp CPU."
+    },
+    {
+     "prompt": "Nếu priority của A cao nhưng A đang chờ ổ đĩa, có nên cấp CPU cho A? Quantum liên quan quyết định nào?",
+     "answer": "Không nếu A chưa ready. Priority/ràng buộc chọn trong các process phù hợp; quantum giới hạn thời gian của lượt chạy."
+    },
+    {
+     "prompt": "Chuyển PCB qua các queue khi process được nhận, chờ disk và hoàn tất I/O như thế nào?",
+     "answer": "Job được nhận và đủ điều kiện đi vào ready; khi running chờ disk thì vào device queue; I/O xong lại ready. Queue theo dõi PCB, không biến waiting thành running ngay."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận dict có useful, switches, switch_cost. Trả tỉ lệ thời gian chạy hữu ích useful/(useful + switches*switch_cost), làm tròn 3 chữ số. Trả None nếu useful bằng 0.",
+    "io": [
+     {
+      "label": "data =",
+      "value": "{'useful': 10, 'switches': 4, 'switch_cost': 0.1}"
+     },
+     {
+      "label": "trả về",
+      "value": "0.962"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "def solve(data):\n    useful = data[\"useful\"]\n    if useful == 0:\n        return None\n    tong = useful + data[\"switches\"] * data[\"switch_cost\"]\n    return round(useful / tong, 3)\n",
+   "tests": [
+    {
+     "name": "Bốn lần chuyển",
+     "input": {
+      "useful": 10,
+      "switches": 4,
+      "switch_cost": 0.1
+     },
+     "expected": 0.962
+    },
+    {
+     "name": "Không lần chuyển nào",
+     "input": {
+      "useful": 8,
+      "switches": 0,
+      "switch_cost": 0.1
+     },
+     "expected": 1.0
+    },
+    {
+     "name": "Chuyển nhiều, tốn hơn",
+     "input": {
+      "useful": 5,
+      "switches": 10,
+      "switch_cost": 0.5
+     },
+     "expected": 0.5
+    },
+    {
+     "name": "Chưa chạy gì",
+     "input": {
+      "useful": 0,
+      "switches": 3,
+      "switch_cost": 0.1
+     },
+     "expected": null
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Mẫu số là useful cộng tổng chi phí chuyển ngữ cảnh."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "round(x, 3) làm tròn 3 chữ số sau dấu phẩy."
+    }
+   ]
+  }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 1,
+  "bo": 2,
+  "loi": []
+ }
+}

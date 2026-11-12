@@ -205,6 +205,38 @@ sau); lượt nào cũng giảm đúng 1 truy vấn ở ca hoàn thành lần đ
 Ca làm lại bài không ghi nhật ký XP nên chỉ được lợi từ phần song song. Phần còn lại của route
 (10 vòng trong transaction ở ca lần đầu) không thuộc BE3.
 
+## Sau BE4: `GET /api/quiz/today`
+
+Đo ngày 12/11/2026 trên nhánh `test`, cùng branch Neon `ep-late-hill`. **Trước** là `e8eb0a9`
+(ngay trước BE4), **sau** là `test` có cả hai phần của BE4 (chỉ đọc `step_2` + cache). Cách đo
+giống mục "Sau BE3": hai bản chạy cùng lúc ở hai cổng, gọi **xen kẽ từng lượt**, mỗi ca 30 lượt,
+cùng một khách. Ca 30 bài và 172 bài đều là bài **hoàn thành trong hôm nay**, vì `quiz/today`
+chỉ đếm bài trong ngày. Không lượt nào gặp 5xx. Hai bản trả **cùng một kết quả** ở cả hai ca:
+30 bài ra 90 câu, 172 bài ra 516 câu, cùng danh sách bài, cùng tên khoá, cùng số câu mỗi bài.
+
+| Ca đo | Số truy vấn trước → sau | Byte đọc từ DB trước → sau (lượt đầu / các lượt sau) | p50 trước → sau (ms) | p95 trước → sau (ms) |
+|---|---|---|---|---|
+| hôm nay xong 30 bài | 3 → **2** | 198 374 → **75 484 / 0** | 395 → **182** | 846 → **272** |
+| hôm nay xong 172 bài | 3 → **2** | 1 383 532 → **533 011 / 0** | 1 166 → **296** | 1 986 → **648** |
+
+- **Byte** là `octet_length` của phần JSON được đọc: trước là cả `content_json`, sau là
+  `content_json->'step_2'`. "Lượt sau" là khi mọi bài đã nằm trong cache: Postgres trả
+  `hit = true` cho cả 172 bài và không gửi `step_2` nào. Mỗi hàng chỉ còn id, tiêu đề, tên
+  khoá và `updated_at`.
+- **Số truy vấn** do máy đếm. Một lượt ở mỗi ca bản trước ra 4, đó là khoản "+1 khi cache
+  user hết hạn" đã ghi ở bảng mốc. Truy vấn bớt đi là `SELECT courses.title` của quan hệ lồng,
+  nay đã nằm trong JOIN của chính câu đọc bài.
+- **Lượt đầu tiên** (cache của bản sau còn lạnh): 30 bài 1 175 → 356 ms; 172 bài 1 986 → 808 ms.
+  Ở ca 172 bài, cache đang giữ 30 bài từ ca trước nên 142 bài phải đọc `step_2`. Bỏ lượt đầu
+  thì p95 của bản sau là 262 ms (30 bài) và 430 ms (172 bài).
+- Trong lượt mẫu ở ca 172 bài, riêng câu `SELECT lessons` của bản trước mất 818 ms, câu của
+  bản sau mất 260 ms.
+
+**Chưa đo `GET /api/courses/:id/quiz/status`.** Route này và `getCourseQuizStatus` nằm trong 5
+commit ôn tập/hậu kiểm của `origin/main` mà `test` chưa có, nên trên `test` không gọi được.
+Route đó gom câu bằng cùng `collectQuestions()`. Khi `test` gộp với main, chỉ cần đổi lời gọi
+`lesson.findMany` của nó sang `layStep2(ids, courseId)` rồi đo lại theo mục dưới.
+
 ## Đo lại sau mỗi task
 
 1. Trỏ `.env` vào branch Neon đo (đã có sẵn dữ liệu ở trên, chỉ thiếu người dùng đo).

@@ -9,7 +9,7 @@ import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { Prisma } from 'src/generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { QuizzesService } from './quizzes.service';
+import { QuizzesService, STEP2_CACHE_MAX } from './quizzes.service';
 
 /** `jsonb -> 'step_2'`: khoá con của một object, còn lại là NULL. */
 function step2Of(contentJson: unknown): unknown {
@@ -168,6 +168,8 @@ describe('QuizzesService', () => {
         title: r.title ?? null,
         module: r.module ?? null,
         courseTitle: r.course?.title ?? null,
+        ver: 'v1',
+        hit: false,
         step2: step2Of(r.contentJson),
       })),
     );
@@ -759,6 +761,111 @@ describe('QuizzesService', () => {
   });
 
   // ---------- BE4 ----------
+  describe('BE4: cache step_2 theo (id bài, updated_at), vẫn một vòng', () => {
+    const q = (n: string) => ({
+      question: n,
+      options: ['a', 'b'],
+      correct: 0,
+      explanation: 'vì a',
+    });
+    /** Một hàng đúng như SQL của `layStep2()` trả về. */
+    const row = (id: number, ver: string, hit: boolean, step2: unknown) => ({
+      id,
+      courseId: 'python',
+      title: `Bài ${id}`,
+      module: null,
+      courseTitle: 'Python',
+      ver,
+      hit,
+      step2,
+    });
+    const BA_CAU = { mcq: [q('A'), q('B'), q('C')] };
+    const hocHomNay = (...ids: number[]) =>
+      prisma.lessonProgress.findMany.mockResolvedValue(
+        ids.map((lessonId) => ({ lessonId, completedAt: new Date() })),
+      );
+
+    it('lần sau gửi kèm (id, ver) đã có; DB trả hit thì dùng step_2 trong cache', async () => {
+      hocHomNay(1, 2);
+      prisma.$queryRaw.mockResolvedValueOnce([
+        row(1, 'v1', false, BA_CAU),
+        row(2, 'v1', false, BA_CAU),
+      ]);
+      const lan1 = await service.getTodayLessons(1);
+
+      // Lần 1 cache rỗng: không gửi bài nào.
+      expect(sqlCall(0).values).toContainEqual([]);
+
+      // Lần 2 DB nói "khớp ver" và KHÔNG gửi lại step_2.
+      prisma.$queryRaw.mockResolvedValueOnce([
+        row(1, 'v1', true, null),
+        row(2, 'v1', true, null),
+      ]);
+      const lan2 = await service.getTodayLessons(1);
+
+      expect(sqlCall(1).values).toContainEqual([1, 2]);
+      expect(sqlCall(1).values).toContainEqual(['v1', 'v1']);
+      expect(lan2.questions_available).toBe(6);
+      expect(lan2.questions_available).toBe(lan1.questions_available);
+      expect(lan2.lessons.map((l) => l.question_count)).toEqual(
+        lan1.lessons.map((l) => l.question_count),
+      );
+      expect(prisma.$queryRaw).toHaveBeenCalledTimes(2);
+    });
+
+    it('bài đã sửa (ver đổi) -> dùng step_2 MỚI và nhớ ver mới', async () => {
+      hocHomNay(1);
+      prisma.$queryRaw.mockResolvedValueOnce([row(1, 'v1', false, BA_CAU)]);
+      await service.getTodayLessons(1);
+
+      prisma.$queryRaw.mockResolvedValueOnce([
+        row(1, 'v2', false, { mcq: [q('Mới')] }),
+      ]);
+      const sau = await service.getTodayLessons(1);
+      expect(sau.questions_available).toBe(1);
+
+      prisma.$queryRaw.mockResolvedValueOnce([row(1, 'v2', true, null)]);
+      const lanBa = await service.getTodayLessons(1);
+      expect(sqlCall(2).values).toContainEqual(['v2']);
+      expect(lanBa.questions_available).toBe(1);
+    });
+
+    it('bài không có step_2 cũng được nhớ, và hit sau đó vẫn ra 0 câu', async () => {
+      hocHomNay(1, 2);
+      prisma.$queryRaw.mockResolvedValueOnce([
+        row(1, 'v1', false, BA_CAU),
+        row(2, 'v1', false, null),
+      ]);
+      await service.getTodayLessons(1);
+
+      prisma.$queryRaw.mockResolvedValueOnce([
+        row(1, 'v1', true, null),
+        row(2, 'v1', true, null),
+      ]);
+      const res = await service.getTodayLessons(1);
+      expect(sqlCall(1).values).toContainEqual([1, 2]);
+      expect(res.questions_available).toBe(3);
+    });
+
+    it(`vượt ${STEP2_CACHE_MAX} bài thì bỏ bài vào cache sớm nhất`, async () => {
+      const ids = Array.from({ length: STEP2_CACHE_MAX + 1 }, (_, i) => i + 1);
+      hocHomNay(...ids);
+      prisma.$queryRaw.mockResolvedValueOnce(
+        ids.map((id) => row(id, 'v1', false, null)),
+      );
+      await service.getTodayLessons(1);
+
+      prisma.$queryRaw.mockResolvedValueOnce([]);
+      await service.getTodayLessons(1);
+      const daGui = sqlCall(1).values.find(
+        (v): v is number[] => Array.isArray(v) && v.length === STEP2_CACHE_MAX,
+      );
+      expect(daGui).toBeDefined();
+      expect(daGui).not.toContain(1);
+      expect(daGui).toContain(STEP2_CACHE_MAX + 1);
+    });
+  });
+
   describe('BE4: ôn tập chỉ đọc step_2, không kéo cả content_json', () => {
     const q = (n: string) => ({
       question: n,

@@ -30,6 +30,13 @@ const SAMPLE_MIN = 5;
 const SAMPLE_MAX = 10;
 const HISTORY_LIMIT = 50;
 
+/**
+ * Trần số bài giữ trong cache `step_2`. Cả hệ thống hiện chỉ vài trăm bài nên
+ * trần này gần như không bao giờ chạm; nó chỉ chặn bộ nhớ tăng vô hạn nếu kho
+ * bài phình ra. Vượt trần thì bỏ bài vào cache sớm nhất, như `CachedUserService`.
+ */
+export const STEP2_CACHE_MAX = 5_000;
+
 interface QuizQuestion {
   question: string;
   options: string[];
@@ -64,6 +71,15 @@ type BaiOnTap = {
 
 @Injectable()
 export class QuizzesService {
+  /**
+   * `step_2` đã đọc, theo id bài. `ver` là `updated_at::text` của bài lúc đọc —
+   * chuỗi do Postgres in, giữ đủ micro giây (xem `layStep2()`).
+   */
+  private readonly step2Cache = new Map<
+    number,
+    { ver: string; step2: unknown }
+  >();
+
   constructor(private readonly prisma: PrismaService) {}
 
   // ---------- Task 122-125 ----------
@@ -581,6 +597,23 @@ export class QuizzesService {
    *
    * JOIN `courses` ngay trong câu này: `getTodayLessons()` cần tên khoá, và
    * quan hệ lồng của Prisma là một vòng tuần tự riêng tới Neon.
+   *
+   * CACHE theo (id bài, `updated_at`) mà vẫn đúng MỘT vòng: gửi kèm những bài
+   * đã có trong cache cùng `ver` của chúng, để chính Postgres so và chỉ trả
+   * `step_2` cho bài chưa có hoặc đã sửa. Kiểm `updated_at` bằng một truy vấn
+   * riêng thì mỗi request lại thêm một vòng tới Neon, đúng thứ BE3 vừa bớt.
+   *
+   * So bằng `updated_at::text` chứ không bằng `Date`: cột là `timestamptz(6)`
+   * (micro giây) còn `Date` của JS chỉ giữ mili giây, nên gửi lại một `Date`
+   * thì không bài nào khớp và cache không bao giờ trúng.
+   *
+   * Cột `hit` phải tách riêng: `step2` NULL vừa có thể là "đã có trong cache"
+   * vừa có thể là "bài này không có step_2".
+   *
+   * Chỗ CHƯA chặn được: bài sửa bằng đường KHÔNG chạm `updated_at` (SQL tay, bản
+   * Django cũ) sẽ dùng `step_2` cũ tới khi máy chủ khởi động lại. Các đường sửa
+   * qua Prisma (`CourseAdminService`, `scripts/update-lesson-content.ts`) đều tự
+   * đặt `@updatedAt`.
    */
   private async layStep2(
     ids: number[],
@@ -588,21 +621,55 @@ export class QuizzesService {
   ): Promise<BaiOnTap[]> {
     if (ids.length === 0) return [];
 
+    // Chụp lại TRƯỚC khi chờ DB: request khác có thể đẩy mục ra khỏi cache
+    // trong lúc chờ, mà Postgres đã trả `hit = true` cho đúng `ver` gửi đi.
+    const known = new Map<number, { ver: string; step2: unknown }>();
+    for (const id of ids) {
+      const c = this.step2Cache.get(id);
+      if (c) known.set(id, c);
+    }
+    const cachedIds = [...known.keys()];
+    const cachedVers = [...known.values()].map((c) => c.ver);
+
     const rows = await this.prisma.$queryRaw<
-      Array<Omit<BaiOnTap, 'contentJson'> & { step2: unknown }>
+      Array<
+        Omit<BaiOnTap, 'contentJson'> & {
+          ver: string;
+          hit: boolean;
+          step2: unknown;
+        }
+      >
     >(Prisma.sql`
       SELECT l.id, l.course_id AS "courseId", l.title, l.module,
-             co.title AS "courseTitle", l.content_json->'step_2' AS step2
+             co.title AS "courseTitle", l.updated_at::text AS ver,
+             (c.ver IS NOT DISTINCT FROM l.updated_at::text) AS hit,
+             CASE WHEN c.ver IS DISTINCT FROM l.updated_at::text
+                  THEN l.content_json->'step_2' END AS step2
       FROM lessons l
       JOIN courses co ON co.id = l.course_id
+      LEFT JOIN unnest(${cachedIds}::int[], ${cachedVers}::text[]) AS c(id, ver)
+        ON c.id = l.id
       WHERE l.id = ANY(${ids}::int[])
       ${courseId === undefined ? Prisma.empty : Prisma.sql`AND l.course_id = ${courseId}`}
     `);
 
-    return rows.map(({ step2, ...r }) => ({
-      ...r,
-      contentJson: { step_2: step2 },
-    }));
+    return rows.map(({ ver, hit, step2, ...r }) => {
+      const cached = hit ? known.get(r.id) : undefined;
+      if (!cached) this.ghiStep2(r.id, { ver, step2 });
+      return { ...r, contentJson: { step_2: cached ? cached.step2 : step2 } };
+    });
+  }
+
+  private ghiStep2(id: number, entry: { ver: string; step2: unknown }) {
+    this.step2Cache.delete(id);
+    if (this.step2Cache.size >= STEP2_CACHE_MAX) {
+      // Map giữ thứ tự chèn: phần tử đầu là bài vào cache sớm nhất.
+      for (const oldest of this.step2Cache.keys()) {
+        this.step2Cache.delete(oldest);
+        break;
+      }
+    }
+    this.step2Cache.set(id, entry);
   }
 
   /**

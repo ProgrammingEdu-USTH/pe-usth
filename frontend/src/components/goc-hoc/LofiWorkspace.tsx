@@ -14,6 +14,15 @@ import {
 import { isRunnerDown } from '@/lib/runner-error';
 import { PyodideRunner } from '@/components/python-studio/runner/pyodide-runner';
 import {
+  fetchDailyPracticeSession,
+  visibleCorrectIndex,
+  visibleExplanation,
+  type DailyPracticeItem,
+  type DailyQuizItem,
+  type DailyCodeItem,
+  type DailyPracticeSession,
+} from '@/lib/daily-practice';
+import {
   COURSE_ID,
   ENROLLED_PATH,
   TOTAL_LESSONS,
@@ -176,33 +185,40 @@ export default function LofiWorkspace({
   const [xp, setXp] = useState<number>(0);
 
   // Trạng thái Bài học: Quyển sách mở 2 trang (48 bài thật từ giáo trình)
+  const [spreadIdx, setSpreadIdx] = useState(0);
   const [lessonIdx, setLessonIdx] = useState<number>(() => {
     const safe = Number.isInteger(initialLessonIdx) && initialLessonIdx >= 0 && initialLessonIdx < CATALOG_LESSONS.length
       ? initialLessonIdx
       : 0;
     return safe;
   });
-
-  useEffect(() => {
-    setActiveScreen(initialScreen);
-  }, [initialScreen]);
-
-  useEffect(() => {
-    if (
-      Number.isInteger(initialLessonIdx) &&
-      initialLessonIdx >= 0 &&
-      initialLessonIdx < CATALOG_LESSONS.length
-    ) {
-      setLessonIdx(initialLessonIdx);
-      setSpreadIdx(0);
-    }
-  }, [initialLessonIdx]);
-  const [spreadIdx, setSpreadIdx] = useState(0);
   const [flipDir, setFlipDir] = useState<'next' | 'prev'>('next');
   const [lessonContent, setLessonContent] = useState<StudioLesson | null>(null);
   const [lessonLoading, setLessonLoading] = useState<boolean>(false);
   const [lessonError, setLessonError] = useState<string | null>(null);
   const [lessonReloadKey, setLessonReloadKey] = useState<number>(0);
+
+  const prevInitialScreenRef = useRef(initialScreen);
+  useEffect(() => {
+    if (prevInitialScreenRef.current !== initialScreen) {
+      prevInitialScreenRef.current = initialScreen;
+      setActiveScreen(initialScreen);
+    }
+  }, [initialScreen]);
+
+  const prevInitialLessonIdxRef = useRef(initialLessonIdx);
+  useEffect(() => {
+    if (
+      Number.isInteger(initialLessonIdx) &&
+      initialLessonIdx >= 0 &&
+      initialLessonIdx < CATALOG_LESSONS.length &&
+      prevInitialLessonIdxRef.current !== initialLessonIdx
+    ) {
+      prevInitialLessonIdxRef.current = initialLessonIdx;
+      setLessonIdx(initialLessonIdx);
+      setSpreadIdx(0);
+    }
+  }, [initialLessonIdx]);
 
   // Trạng thái tương tác trên các trang sách của từng bài
   const [pickedPredict, setPickedPredict] = useState<Record<string, number>>({});
@@ -725,113 +741,109 @@ export default function LofiWorkspace({
   );
 
   /* ==========================================================================
-     BƯỚC 3B: BỔ SUNG THỰC HÀNH GÕ CODE VÀO SỔ TAY ÔN TẬP (GIAI ĐOẠN 3)
+     BƯỚC 3B: ÔN TẬP HẰNG NGÀY THEO FIGMA (LẦN LƯỢT TRẮC NGHIỆM VÀ BÀI CODE)
+     DÙNG DỮ LIỆU GIẢ TỪ practice-daily.json VÀ CỜ CẤU HÌNH TOGGLE
      ========================================================================== */
-  const [practiceMode, setPracticeMode] = useState<'quiz' | 'code'>('quiz');
-  const [codeExercise, setCodeExercise] = useState<{
-    lessonNo: number;
-    lessonCode: string;
-    lessonTitle: string;
-    task: { title?: string; body?: string; io?: { label: string; value: string }[] };
-    starterCode: string;
-    tests: { name: string; call: string; expect: string }[];
-    hints: { title: string; body: string }[];
-  } | null>(null);
-  const [codeReviewLoading, setCodeReviewLoading] = useState(false);
-  const [codeReviewError, setCodeReviewError] = useState<string | null>(null);
-  const [codeReviewCode, setCodeReviewCode] = useState('');
-  const [codeReviewRunning, setCodeReviewRunning] = useState(false);
-  const [codeReviewOutput, setCodeReviewOutput] = useState('');
-  const [codeReviewTestResults, setCodeReviewTestResults] = useState<
-    { name: string; passed: boolean; detail: string }[] | null
-  >(null);
-  const [codeReviewSolved, setCodeReviewSolved] = useState(false);
-  const [codeReviewHintOpen, setCodeReviewHintOpen] = useState(false);
+  const [dailySession, setDailySession] = useState<DailyPracticeSession | null>(null);
+  const [dailyLoading, setDailyLoading] = useState(false);
+  const [dailyError, setDailyError] = useState<string | null>(null);
+  const [dailyItemIdx, setDailyItemIdx] = useState(0);
+  const [dailyFinished, setDailyFinished] = useState(false);
 
-  // Tải bài tập code từ backend API (yêu cầu backend chạy mới có bài)
-  const handleLoadCodeExercise = useCallback(async () => {
-    setCodeReviewLoading(true);
-    setCodeReviewError(null);
-    setCodeReviewTestResults(null);
-    setCodeReviewSolved(false);
+  // Trạng thái trắc nghiệm
+  const [quizPicks, setQuizPicks] = useState<Record<string, number>>({});
+  const [quizResolved, setQuizResolved] = useState<Record<string, boolean>>({});
+  const [quizRethinking, setQuizRethinking] = useState<Record<string, boolean>>({});
+  const [quizLockedOption, setQuizLockedOption] = useState<Record<string, number>>({});
+  const [quizFirstTryCorrect, setQuizFirstTryCorrect] = useState<Record<string, boolean>>({});
+
+  // Trạng thái bài code
+  const [codeAnswers, setCodeAnswers] = useState<Record<string, string>>({});
+  const [codeOutputs, setCodeOutputs] = useState<Record<string, string>>({});
+  const [codeTestResults, setCodeTestResults] = useState<
+    Record<string, { name: string; passed: boolean; detail: string }[]>
+  >({});
+  const [codeSolved, setCodeSolved] = useState<Record<string, boolean>>({});
+  const [codeHintsOpen, setCodeHintsOpen] = useState<Record<string, boolean>>({});
+  const [codeRunning, setCodeRunning] = useState(false);
+
+  const handleLoadDailySession = useCallback(async () => {
+    setDailyLoading(true);
+    setDailyError(null);
+    setDailyFinished(false);
+    setDailyItemIdx(0);
+    setQuizPicks({});
+    setQuizResolved({});
+    setQuizRethinking({});
+    setQuizLockedOption({});
+    setQuizFirstTryCorrect({});
+    setCodeTestResults({});
+    setCodeSolved({});
 
     try {
-      if (doneLessons.length === 0) {
-        setCodeReviewError('Bạn cần học xong ít nhất 1 bài trên hệ thống trước khi mở bài thực hành gõ code.');
-        setCodeExercise(null);
-        return;
+      const session = await fetchDailyPracticeSession();
+      setDailySession(session);
+      const initialCodes: Record<string, string> = {};
+      const initialOutputs: Record<string, string> = {};
+      for (const item of session.items) {
+        if (item.type === 'code') {
+          initialCodes[item.id] = item.starterCode;
+          initialOutputs[item.id] = '$ python3 solution.py\n💡 Nhập mã của bạn và bấm "Chạy thử" (giới hạn 5s)!';
+        }
       }
+      setCodeAnswers(initialCodes);
+      setCodeOutputs(initialOutputs);
+    } catch {
+      setDailyError('Không thể nạp dữ liệu ôn tập hằng ngày.');
+    } finally {
+      setDailyLoading(false);
+    }
+  }, []);
 
-      const targetLessonNo = doneLessons[Math.floor(Math.random() * doneLessons.length)];
-      const apiRes = await apiFetch(
-        `/api/courses/${encodeURIComponent(COURSE_ID)}/lessons/${targetLessonNo}/content`,
-      );
+  const dailyLoadedRef = useRef(false);
+  useEffect(() => {
+    if (activeScreen === 'practice' && !dailyLoadedRef.current) {
+      dailyLoadedRef.current = true;
+      void handleLoadDailySession();
+    }
+  }, [activeScreen, handleLoadDailySession]);
 
-      if (!apiRes.ok) {
-        setCodeReviewError('Không thể kết nối máy chủ để lấy bài thực hành code. Vui lòng kiểm tra backend và bấm Thử lại.');
-        setCodeExercise(null);
-        return;
-      }
+  const handleSelectQuizOption = useCallback(
+    (item: DailyQuizItem, optIdx: number) => {
+      const isResolved = quizResolved[item.id] ?? false;
+      const isRethinking = quizRethinking[item.id] ?? false;
+      const lockedOpt = quizLockedOption[item.id];
 
-      const payload = (await apiRes.json()) as {
-        lesson?: {
-          lessonCode?: string;
-          title?: string;
-          contentJson?: StudioLesson;
-        };
-      };
+      if (isResolved) return;
+      if (isRethinking && lockedOpt === optIdx) return;
 
-      const s4 = payload?.lesson?.contentJson?.step_4;
-      if (s4 && (s4.starterCode || s4.task?.body)) {
-        const ex = {
-          lessonNo: targetLessonNo,
-          lessonCode: payload.lesson?.lessonCode || `P0${targetLessonNo}`,
-          lessonTitle: payload.lesson?.title || `Bài ${targetLessonNo}`,
-          task: s4.task || { title: 'Thử thách lập trình', body: 'Viết code giải quyết yêu cầu bài toán.' },
-          starterCode: s4.starterCode || '# Viết code của bạn tại đây\n',
-          tests: s4.tests || [],
-          hints: s4.hints || [],
-        };
-        setCodeExercise(ex);
-        setCodeReviewCode(ex.starterCode);
-        setCodeReviewOutput(
-          '$ python3 solution.py\n💡 Đã tải bài tập thực hành từ máy chủ.\nBấm nút "Chạy thử" hoặc "Nộp để kiểm"!',
-        );
+      setQuizPicks((prev) => ({ ...prev, [item.id]: optIdx }));
 
-        if (s4.packages?.length) {
-          pyRunnerRef.current?.prewarm(s4.packages);
+      if (!isRethinking) {
+        if (optIdx === item.correctIndex) {
+          setQuizResolved((prev) => ({ ...prev, [item.id]: true }));
+          setQuizFirstTryCorrect((prev) => ({ ...prev, [item.id]: true }));
+          setXp((prev) => prev + 15);
+        } else {
+          setQuizRethinking((prev) => ({ ...prev, [item.id]: true }));
+          setQuizLockedOption((prev) => ({ ...prev, [item.id]: optIdx }));
+          setQuizFirstTryCorrect((prev) => ({ ...prev, [item.id]: false }));
         }
       } else {
-        setCodeReviewError(`Bài ${targetLessonNo} chưa có thử thách thực hành code.`);
-        setCodeExercise(null);
+        setQuizResolved((prev) => ({ ...prev, [item.id]: true }));
+        setQuizRethinking((prev) => ({ ...prev, [item.id]: false }));
+        if (optIdx === item.correctIndex) {
+          setXp((prev) => prev + 10);
+        }
       }
-    } catch {
-      setCodeReviewError('Không thể kết nối máy chủ để lấy bài thực hành code. Vui lòng kiểm tra backend và bấm Thử lại.');
-      setCodeExercise(null);
-    } finally {
-      setCodeReviewLoading(false);
-    }
-  }, [doneLessons]);
+    },
+    [quizResolved, quizRethinking, quizLockedOption],
+  );
 
-  // Tự động tải bài code khi chuyển sang tab thực hành gõ code
-  useEffect(() => {
-    if (
-      activeScreen === 'practice' &&
-      practiceMode === 'code' &&
-      !codeExercise &&
-      !codeReviewLoading &&
-      !codeReviewError
-    ) {
-      void handleLoadCodeExercise();
-    }
-  }, [activeScreen, practiceMode, codeExercise, codeReviewLoading, codeReviewError, handleLoadCodeExercise]);
-
-  // Chạy thử hoặc Nộp bài để kiểm tra bài tập code
-  const handleRunCodeExercise = useCallback(
-    async (isSubmit: boolean) => {
-      if (codeReviewRunning || !codeExercise) return;
-      setCodeReviewRunning(true);
-      setCodeReviewTestResults(null);
+  const handleRunDailyCode = useCallback(
+    async (item: DailyCodeItem, withTests = true) => {
+      if (codeRunning) return;
+      setCodeRunning(true);
       const t0 = performance.now();
 
       try {
@@ -841,16 +853,22 @@ export default function LofiWorkspace({
           pyRunnerRef.current = runner;
         }
 
+        const userCode = codeAnswers[item.id] ?? item.starterCode;
         const pyRes = await runner.run(
           {
-            code: codeReviewCode,
-            tests: isSubmit ? codeExercise.tests : [],
+            code: userCode,
+            tests: withTests
+              ? item.tests.map((t) => ({ name: t.name, call: t.call, expect: t.expected }))
+              : [],
             forbid: [],
             files: [],
             packages: [],
           },
           (statusText) => {
-            setCodeReviewOutput(`$ python3 solution.py\n⏳ ${statusText}`);
+            setCodeOutputs((prev) => ({
+              ...prev,
+              [item.id]: `$ python3 solution.py\n⏳ ${statusText}`,
+            }));
           },
         );
 
@@ -866,30 +884,28 @@ export default function LofiWorkspace({
             outLines.push('(Chương trình đã chạy xong, không có đầu ra in lên màn hình)');
           }
           const durSec = ((pyRes.duration || performance.now() - t0) / 1000).toFixed(2);
-          outLines.push(
-            `\n${pyRes.error ? '✗ Dừng do lỗi' : '✓ Đã chạy xong'} (${durSec}s).`,
-          );
-          setCodeReviewOutput(outLines.join('\n'));
+          outLines.push(`\n${pyRes.error ? '✗ Dừng do lỗi' : '✓ Đã chạy xong'} (${durSec}s).`);
+          setCodeOutputs((prev) => ({ ...prev, [item.id]: outLines.join('\n') }));
 
-          if (isSubmit && pyRes.tests) {
-            setCodeReviewTestResults(pyRes.tests);
+          if (withTests && pyRes.tests) {
+            setCodeTestResults((prev) => ({ ...prev, [item.id]: pyRes.tests }));
             const allPassed = pyRes.tests.length > 0 && pyRes.tests.every((t) => t.passed);
-            if (allPassed) {
-              setCodeReviewSolved(true);
+            if (allPassed && !codeSolved[item.id]) {
+              setCodeSolved((prev) => ({ ...prev, [item.id]: true }));
               setXp((prev) => prev + 25);
-              setCompleteBanner(`🎉 Đã vượt qua toàn bộ ca kiểm thử bài ôn tập (+25 XP)!`);
             }
           }
         }
       } catch (err) {
-        setCodeReviewOutput(
-          `$ python3 solution.py\n⚠️ Lỗi thực thi: ${err instanceof Error ? err.message : 'Không xác định'}`,
-        );
+        setCodeOutputs((prev) => ({
+          ...prev,
+          [item.id]: `$ python3 solution.py\n⚠️ Lỗi thực thi: ${err instanceof Error ? err.message : 'Không xác định'}`,
+        }));
       } finally {
-        setCodeReviewRunning(false);
+        setCodeRunning(false);
       }
     },
-    [codeExercise, codeReviewCode, codeReviewRunning],
+    [codeAnswers, codeRunning, codeSolved],
   );
 
   /* ==========================================================================
@@ -907,7 +923,7 @@ export default function LofiWorkspace({
         window.history.pushState(null, '', url);
       }
     },
-    [],
+    [setSpreadIdx],
   );
 
   const handlePrevSpread = () => {
@@ -944,6 +960,21 @@ export default function LofiWorkspace({
   const explainItems = useMemo(() => step1?.explain ?? [], [step1]);
   const mcqList = useMemo(() => step2?.mcq ?? [], [step2]);
   const codeLineCount = Math.max(12, ideCustomCode.split('\n').length);
+
+  // Dữ liệu tính toán cho luồng Ôn tập hằng ngày
+  const dailyItems = dailySession?.items ?? [];
+  const currentDailyItem: DailyPracticeItem | undefined = dailyItems[dailyItemIdx];
+  const quizItems = dailyItems.filter((i): i is DailyQuizItem => i.type === 'quiz');
+  const codeItems = dailyItems.filter((i): i is DailyCodeItem => i.type === 'code');
+  const quizzesFirstTryCount = quizItems.filter((i) => quizFirstTryCorrect[i.id]).length;
+  const quizzesSecondTryCount = quizItems.filter(
+    (i) => quizResolved[i.id] && !quizFirstTryCorrect[i.id] && quizPicks[i.id] === i.correctIndex,
+  ).length;
+  const codesCompletedCount = codeItems.filter((i) => codeSolved[i.id]).length;
+  const totalDailyXpEarned =
+    quizzesFirstTryCount * 15 + quizzesSecondTryCount * 10 + codesCompletedCount * 25;
+  const answeredDailyCount =
+    quizItems.filter((i) => quizResolved[i.id]).length + codesCompletedCount;
 
   const stageContent = (
     <>
@@ -1685,185 +1716,401 @@ export default function LofiWorkspace({
 
         {activeScreen === 'practice' && (
           /* ------------------------------------------------------------------
-             TRANG 3: ÔN TẬP — SỔ TAY GIẤY NHỚ & THỰC HÀNH GÕ CODE (2 TRANG SÁCH MỞ)
+             TRANG 3: ÔN TẬP HẰNG NGÀY THEO FIGMA (XEN KẼ TRẮC NGHIỆM VÀ BÀI CODE)
              ------------------------------------------------------------------ */
           <div ref={shellRef} className={styles.bookStageWrap}>
-            {/* Bộ chuyển đổi chế độ ôn tập: Trắc nghiệm / Thực hành gõ code */}
+            {/* Thanh tiến trình Stepper các câu trong lượt ôn hằng ngày */}
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}>
               <div
                 style={{
                   display: 'inline-flex',
-                  background: 'rgba(255, 255, 255, 0.78)',
+                  alignItems: 'center',
+                  background: 'rgba(255, 255, 255, 0.85)',
                   backdropFilter: 'blur(8px)',
-                  padding: '4px',
-                  borderRadius: '12px',
+                  padding: '5px 8px',
+                  borderRadius: '14px',
                   border: '1px solid rgba(180, 150, 120, 0.35)',
-                  boxShadow: '0 2px 8px rgba(60, 40, 20, 0.06)',
+                  boxShadow: '0 2px 10px rgba(60, 40, 20, 0.06)',
                   gap: '6px',
+                  flexWrap: 'wrap',
                 }}
               >
+                {dailyItems.map((item, idx) => {
+                  const isCurrent = !dailyFinished && dailyItemIdx === idx;
+                  const isQuiz = item.type === 'quiz';
+                  let statusBadge = `[${idx + 1}]`;
+                  let badgeColor = '#78716c';
+
+                  if (isQuiz) {
+                    const isDone = quizResolved[item.id];
+                    const isFirstTry = quizFirstTryCorrect[item.id];
+                    const pick = quizPicks[item.id];
+                    const isRight = isDone && pick === item.correctIndex;
+                    if (isDone) {
+                      statusBadge = isRight ? (isFirstTry ? '✓' : '✓ (lần 2)') : '✗';
+                      badgeColor = isRight ? '#15803d' : '#b91c1c';
+                    } else if (quizRethinking[item.id]) {
+                      statusBadge = '↺';
+                      badgeColor = '#b45309';
+                    }
+                  } else {
+                    const isSolved = codeSolved[item.id];
+                    if (isSolved) {
+                      statusBadge = '✓';
+                      badgeColor = '#15803d';
+                    }
+                  }
+
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        setDailyFinished(false);
+                        setDailyItemIdx(idx);
+                      }}
+                      style={{
+                        padding: '6px 14px',
+                        borderRadius: '9px',
+                        fontSize: '12.5px',
+                        fontWeight: 700,
+                        fontFamily: 'inherit',
+                        cursor: 'pointer',
+                        border: isCurrent ? '1px solid #78350f' : '1px solid transparent',
+                        transition: 'all 0.15s ease',
+                        background: isCurrent ? '#78350f' : 'rgba(255, 255, 255, 0.6)',
+                        color: isCurrent ? '#ffffff' : '#44403c',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                      }}
+                    >
+                      <span aria-hidden="true">{isQuiz ? '📝' : '💻'}</span>
+                      <span>
+                        Câu {idx + 1}: {isQuiz ? 'Trắc nghiệm' : 'Viết mã'}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: '11px',
+                          color: isCurrent ? '#fef08a' : badgeColor,
+                          fontWeight: 800,
+                        }}
+                      >
+                        {statusBadge}
+                      </span>
+                    </button>
+                  );
+                })}
+
                 <button
                   type="button"
-                  onClick={() => setPracticeMode('quiz')}
+                  onClick={() => setDailyFinished(true)}
                   style={{
-                    padding: '7px 18px',
-                    borderRadius: '8px',
-                    fontSize: '13px',
+                    padding: '6px 14px',
+                    borderRadius: '9px',
+                    fontSize: '12.5px',
                     fontWeight: 700,
                     fontFamily: 'inherit',
                     cursor: 'pointer',
-                    border: 'none',
-                    transition: 'all 0.15s ease',
-                    background: practiceMode === 'quiz' ? '#78350f' : 'transparent',
-                    color: practiceMode === 'quiz' ? '#ffffff' : '#78716c',
+                    border: dailyFinished ? '1px solid #78350f' : '1px solid transparent',
+                    background: dailyFinished ? '#78350f' : 'rgba(245, 245, 244, 0.8)',
+                    color: dailyFinished ? '#ffffff' : '#78716c',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
                   }}
                 >
-                  <span aria-hidden="true">📝</span> Ôn trắc nghiệm
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPracticeMode('code')}
-                  style={{
-                    padding: '7px 18px',
-                    borderRadius: '8px',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    fontFamily: 'inherit',
-                    cursor: 'pointer',
-                    border: 'none',
-                    transition: 'all 0.15s ease',
-                    background: practiceMode === 'code' ? '#78350f' : 'transparent',
-                    color: practiceMode === 'code' ? '#ffffff' : '#78716c',
-                  }}
-                >
-                  <span aria-hidden="true">💻</span> Thực hành gõ code
+                  <span aria-hidden="true">🏆</span> Tổng kết lượt ôn
                 </button>
               </div>
             </div>
 
-            {practiceMode === 'quiz' ? (
-              <>
-                <div className={styles.openBookCover}>
-                  <div
-                    key={`practice-note-${noteIdx}`}
-                    className={`${styles.openBookSpread} ${styles.flipNextAnim}`}
-                  >
-                    {/* ================= TRANG BÊN TRÁI: XẤP GIẤY NHỚ CÂU HỎI ================= */}
-                    <section className={`${styles.bookPage} ${styles.bookPageLeft}`}>
-                      <div className={styles.pageHeaderLine}>
-                        <span>SỔ TAY GIẤY NHỚ · ÔN BÀI CŨ</span>
-                        <span>
-                          TỜ {noteIdx + 1} / {stickyNotes.length}
-                        </span>
-                      </div>
+            {dailyLoading ? (
+              <div style={{ padding: '60px 0', textAlign: 'center' }}>
+                <p style={{ fontWeight: 700, color: '#78716c', fontSize: 16 }}>
+                  ⏳ Đang nạp phiên ôn tập hằng ngày...
+                </p>
+              </div>
+            ) : dailyError ? (
+              <div
+                style={{
+                  maxWidth: 520,
+                  margin: '40px auto',
+                  padding: '24px',
+                  background: '#fffdfa',
+                  borderRadius: 12,
+                  border: '1px solid #fecaca',
+                  textAlign: 'center',
+                }}
+              >
+                <h3 style={{ margin: '0 0 10px 0', color: '#b91c1c', fontSize: 16 }}>
+                  Thông báo ôn tập hằng ngày
+                </h3>
+                <p style={{ margin: '0 0 16px 0', fontSize: 14, color: '#44403c' }}>
+                  {dailyError}
+                </p>
+                <button
+                  type="button"
+                  className={styles.freshDeckBtn}
+                  onClick={() => void handleLoadDailySession()}
+                >
+                  ↻ Thử nạp lại
+                </button>
+              </div>
+            ) : dailyFinished ? (
+              /* ================= MÀN HÌNH TỔNG KẾT LƯỢT ÔN TẬP HẰNG NGÀY ================= */
+              <div className={styles.openBookCover}>
+                <div className={`${styles.openBookSpread} ${styles.flipNextAnim}`}>
+                  {/* Trang trái: Bảng thống kê kết quả */}
+                  <section className={`${styles.bookPage} ${styles.bookPageLeft}`}>
+                    <div className={styles.pageHeaderLine}>
+                      <span>SỔ TAY ÔN TẬP · TỔNG KẾT HẰNG NGÀY</span>
+                      <span>KẾT QUẢ LƯỢT ÔN</span>
+                    </div>
 
-                      <div className={styles.pageBodyFlow}>
-                        {reviewLoading ? (
-                          <div style={{ padding: '36px 0', textAlign: 'center' }}>
-                            <p style={{ fontWeight: 700, color: '#78716c', fontSize: 15 }}>
-                              ⏳ Đang rút xấp giấy nhớ từ máy chủ...
-                            </p>
-                          </div>
-                        ) : reviewError ? (
-                          <div style={{ padding: '12px 0' }}>
-                            <p className={styles.pageSectionLabel}>THÔNG BÁO ÔN TẬP</p>
-                            <h2 className={styles.pageMainTitle}>Chưa có xấp giấy nhớ</h2>
+                    <div className={styles.pageBodyFlow}>
+                      <p className={styles.pageSectionLabel}>HOÀN THÀNH LƯỢT ÔN</p>
+                      <h2 className={styles.pageMainTitle}>Tổng kết phiên học</h2>
+                      <p className={styles.pageLeadParagraph}>
+                        Bạn đã đi qua toàn bộ các câu hỏi trắc nghiệm và bài tập viết mã của phiên
+                        hôm nay. Dưới đây là kết quả chi tiết:
+                      </p>
+
+                      <div className={styles.studyLogSheet} style={{ marginTop: 14 }}>
+                        <div className={styles.studyLogTitle}>
+                          <span>📊 KẾT QUẢ ĐẠT ĐƯỢC</span>
+                          <span>+{totalDailyXpEarned} XP</span>
+                        </div>
+                        <ul className={styles.studyLogList}>
+                          <li className={styles.studyLogItem}>
+                            <span>Trắc nghiệm đúng ngay lần đầu</span>
+                            <strong>
+                              {quizzesFirstTryCount} / {quizItems.length} câu (+
+                              {quizzesFirstTryCount * 15} XP)
+                            </strong>
+                          </li>
+                          <li className={styles.studyLogItem}>
+                            <span>Trắc nghiệm đúng sau lần nghĩ lại</span>
+                            <strong>
+                              {quizzesSecondTryCount} / {quizItems.length} câu (+
+                              {quizzesSecondTryCount * 10} XP)
+                            </strong>
+                          </li>
+                          <li className={styles.studyLogItem}>
+                            <span>Bài tập viết mã vượt qua toàn bộ ca kiểm thử</span>
+                            <strong>
+                              {codesCompletedCount} / {codeItems.length} bài (+
+                              {codesCompletedCount * 25} XP)
+                            </strong>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className={styles.pageFooterRow}>
+                      <span>1</span>
+                      <span>Ôn tập hằng ngày</span>
+                    </div>
+                  </section>
+
+                  {/* Trang phải: Chi tiết từng câu và nút hành động */}
+                  <section className={`${styles.bookPage} ${styles.bookPageRight}`}>
+                    <div className={styles.pageHeaderLine}>
+                      <span>DANH SÁCH BÀI LÀM</span>
+                      <span>{answeredDailyCount} / {dailyItems.length} CÂU ĐÃ LÀM</span>
+                    </div>
+
+                    <div className={styles.pageBodyFlow}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        {dailyItems.map((item, idx) => {
+                          const isQuiz = item.type === 'quiz';
+                          let isPass = false;
+                          let textSummary = '';
+                          if (isQuiz) {
+                            const isDone = quizResolved[item.id];
+                            const isRight = isDone && quizPicks[item.id] === item.correctIndex;
+                            isPass = Boolean(isRight);
+                            textSummary = isRight
+                              ? quizFirstTryCorrect[item.id]
+                                ? 'Đúng ngay lần đầu'
+                                : 'Đúng sau lần nghĩ lại'
+                              : isDone
+                                ? 'Chưa chính xác'
+                                : 'Chưa trả lời';
+                          } else {
+                            isPass = Boolean(codeSolved[item.id]);
+                            textSummary = isPass
+                              ? 'Đã vượt qua toàn bộ ca kiểm thử'
+                              : 'Chưa đạt toàn bộ ca kiểm thử';
+                          }
+
+                          return (
                             <div
+                              key={item.id}
                               style={{
-                                marginTop: 14,
-                                padding: '14px 16px',
-                                background: 'rgba(245, 158, 11, 0.1)',
-                                borderRadius: 10,
-                                border: '1px solid rgba(245, 158, 11, 0.3)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '10px 14px',
+                                background: '#ffffff',
+                                borderRadius: 8,
+                                border: '1px solid rgba(180, 150, 120, 0.25)',
                               }}
                             >
-                              <p style={{ margin: 0, fontSize: 13.5, color: '#92400e', lineHeight: 1.5 }}>
-                                📌 {reviewError}
-                              </p>
-                            </div>
-                            <div style={{ marginTop: 18, display: 'flex', gap: 10 }}>
-                              <button
-                                type="button"
-                                className={styles.freshDeckBtn}
-                                onClick={() => void handleDrawFreshNotes()}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <span aria-hidden="true">{isQuiz ? '📝' : '💻'}</span>
+                                <span style={{ fontSize: 13, fontWeight: 700, color: '#292524' }}>
+                                  Câu {idx + 1}: {item.type === 'code' ? item.title : item.lesson_title}
+                                </span>
+                              </div>
+                              <span
+                                style={{
+                                  fontSize: 12,
+                                  fontWeight: 700,
+                                  color: isPass ? '#15803d' : '#b45309',
+                                }}
                               >
-                                ↻ Thử lại
-                              </button>
-                              <button
-                                type="button"
-                                className={styles.freshDeckBtn}
-                                style={{ background: '#f5f5f4', color: '#44403c' }}
-                                onClick={() => switchScreen('lesson')}
-                              >
-                                📖 Mở Sách Bài học
-                              </button>
+                                {isPass ? '✓' : '•'} {textSummary}
+                              </span>
                             </div>
-                          </div>
-                        ) : stickyNotes.length > 0 ? (
-                          <>
-                            <div className={styles.miniNoteTabs}>
-                              {stickyNotes.map((note, idx) => {
-                                const picked = notePicks[idx];
-                                const isDone = picked !== undefined;
-                                const isRight = isDone && picked === note.ans;
-                                return (
-                                  <button
-                                    key={note.id}
-                                    type="button"
-                                    className={`${styles.miniNoteTab} ${
-                                      noteIdx === idx ? styles.miniNoteTabActive : ''
-                                    }`}
-                                    style={{ backgroundColor: note.bg }}
-                                    onClick={() => setNoteIdx(idx)}
-                                  >
-                                    <span>📌 {note.tabLabel}</span>
-                                    {isDone && (
-                                      <span style={{ color: isRight ? '#15803d' : '#b91c1c' }}>
-                                        {isRight ? '✓' : '✗'}
-                                      </span>
-                                    )}
-                                  </button>
-                                );
-                              })}
-                            </div>
+                          );
+                        })}
+                      </div>
 
+                      <div
+                        style={{
+                          marginTop: 20,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 10,
+                        }}
+                      >
+                        <button
+                          type="button"
+                          className={styles.freshDeckBtn}
+                          onClick={() => void handleLoadDailySession()}
+                          style={{ width: '100%', justifyContent: 'center' }}
+                        >
+                          ↻ Làm lại lượt ôn từ đầu
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.freshDeckBtn}
+                          onClick={() => {
+                            setDailyFinished(false);
+                            setDailyItemIdx(0);
+                          }}
+                          style={{
+                            width: '100%',
+                            justifyContent: 'center',
+                            background: '#f5f5f4',
+                            color: '#44403c',
+                          }}
+                        >
+                          👁️ Xem lại các câu vừa làm
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.freshDeckBtn}
+                          onClick={() => switchScreen('lesson')}
+                          style={{
+                            width: '100%',
+                            justifyContent: 'center',
+                            background: '#fef3c7',
+                            color: '#92400e',
+                          }}
+                        >
+                          🛋️ Về Bàn học
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className={styles.pageFooterRow}>
+                      <span>Sổ tay ghi chép</span>
+                      <span>2</span>
+                    </div>
+                  </section>
+                </div>
+              </div>
+            ) : currentDailyItem?.type === 'quiz' ? (
+              /* ================= CÂU HỎI TRẮC NGHIỆM ================= */
+              (() => {
+                const quizItem = currentDailyItem;
+                const isResolved = quizResolved[quizItem.id] ?? false;
+                const isRethinking = quizRethinking[quizItem.id] ?? false;
+                const lockedOpt = quizLockedOption[quizItem.id];
+                const picked = quizPicks[quizItem.id];
+                const isFirstTry = quizFirstTryCorrect[quizItem.id] ?? false;
+                const visCorrectIdx = visibleCorrectIndex(quizItem, isResolved);
+                const visExplanation = visibleExplanation(quizItem, isResolved);
+
+                return (
+                  <>
+                    <div className={styles.openBookCover}>
+                      <div
+                        key={`daily-quiz-${quizItem.id}`}
+                        className={`${styles.openBookSpread} ${styles.flipNextAnim}`}
+                      >
+                        {/* Trang bên trái: Đề bài trắc nghiệm và phương án */}
+                        <section className={`${styles.bookPage} ${styles.bookPageLeft}`}>
+                          <div className={styles.pageHeaderLine}>
+                            <span>SỔ TAY GIẤY NHỚ · ÔN TẬP HẰNG NGÀY</span>
+                            <span>
+                              CÂU {dailyItemIdx + 1} / {dailyItems.length} · TRẮC NGHIỆM
+                            </span>
+                          </div>
+
+                          <div className={styles.pageBodyFlow}>
                             <div
                               className={styles.stickyQuestionNote}
-                              style={{ backgroundColor: currentNote.bg }}
+                              style={{ backgroundColor: STICKY_COLORS[dailyItemIdx % STICKY_COLORS.length] }}
                             >
                               <div className={styles.washiTape} />
                               <div className={styles.stickyNoteMeta}>
-                                <span>📝 GIẤY NHỚ CÂU HỎI</span>
-                                <span>{currentNote.lessonTag}</span>
+                                <span>📝 CÂU HỎI TRẮC NGHIỆM</span>
+                                <span>{quizItem.lesson_title}</span>
                               </div>
 
-                              <div className={styles.stickyQuestionText}>{currentNote.question}</div>
+                              <div className={styles.stickyQuestionText}>
+                                {quizItem.question}
+                              </div>
 
                               <div className={styles.stickyOptList}>
-                                {currentNote.options.map((opt, oIdx) => {
-                                  const isPicked = currentNotePick === oIdx;
-                                  const isCorrectAnswer = oIdx === currentNote.ans;
+                                {quizItem.options.map((opt, oIdx) => {
+                                  const isThisPicked = picked === oIdx;
+                                  const isCorrectAns = visCorrectIdx !== null && oIdx === visCorrectIdx;
+                                  const isOptionLocked = isRethinking && lockedOpt === oIdx;
+
                                   let optStateClass = '';
-                                  if (currentNotePick !== undefined) {
-                                    if (isCorrectAnswer) {
+                                  if (isResolved) {
+                                    if (isCorrectAns) {
                                       optStateClass = styles.stickyOptCorrect;
-                                    } else if (isPicked) {
+                                    } else if (isThisPicked) {
                                       optStateClass = styles.stickyOptWrong;
                                     }
                                   }
+
                                   return (
                                     <button
                                       key={oIdx}
                                       type="button"
+                                      disabled={isResolved || isOptionLocked}
                                       className={`${styles.stickyOptBtn} ${optStateClass}`}
-                                      onClick={() => void handlePickStickyOption(noteIdx, oIdx)}
+                                      onClick={() => handleSelectQuizOption(quizItem, oIdx)}
+                                      style={{
+                                        opacity: isOptionLocked ? 0.45 : 1,
+                                        cursor: isResolved || isOptionLocked ? 'default' : 'pointer',
+                                      }}
                                     >
                                       <span>{opt}</span>
-                                      {currentNotePick !== undefined && isCorrectAnswer && (
-                                        <span>✓ Đúng</span>
-                                      )}
-                                      {currentNotePick !== undefined && isPicked && !isCorrectAnswer && (
+                                      {isResolved && isCorrectAns && <span>✓ Đúng</span>}
+                                      {isResolved && isThisPicked && !isCorrectAns && (
                                         <span>✗ Chưa đúng</span>
+                                      )}
+                                      {isOptionLocked && (
+                                        <span style={{ fontSize: 11, color: '#b45309' }}>
+                                          (Đã thử - sai)
+                                        </span>
                                       )}
                                     </button>
                                   );
@@ -1871,577 +2118,661 @@ export default function LofiWorkspace({
                               </div>
                             </div>
 
-                            <div className={styles.stickyBottomActions}>
-                              <span
-                                style={{
-                                  fontSize: 12.5,
-                                  fontWeight: 600,
-                                  color: '#5a4d41',
-                                }}
-                              >
-                                Đã làm: <strong>{answeredNotesCount}</strong> / {stickyNotes.length} tờ ·
-                                Đúng: <strong style={{ color: '#15803d' }}>{correctNotesCount}</strong> tờ
-                              </span>
-                              <button
-                                type="button"
-                                className={styles.freshDeckBtn}
-                                onClick={() => void handleDrawFreshNotes()}
-                              >
-                                Rút xấp giấy nhớ mới ↻
-                              </button>
-                            </div>
-                          </>
-                        ) : null}
-                      </div>
-
-                      <div className={styles.pageFooterRow}>
-                        <span>1</span>
-                        <span>Xấp 5 tờ trích từ các bài đã học</span>
-                      </div>
-                    </section>
-
-                    {/* ================= TRANG BÊN PHẢI: GIẤY NHỚ LỜI GIẢI & NHẬT KÝ ================= */}
-                    <section className={`${styles.bookPage} ${styles.bookPageRight}`}>
-                      <div className={styles.pageHeaderLine}>
-                        <span>GHI CHÚ LỜI GIẢI &amp; NHẬT KÝ</span>
-                        <span>
-                          ĐÚNG {correctNotesCount} / {stickyNotes.length} TỜ
-                        </span>
-                      </div>
-
-                      <div className={styles.pageBodyFlow}>
-                        <div
-                          className={`${styles.stickyExplainNote} ${
-                            currentNotePick !== undefined ? styles.stickyExplainNoteSolved : ''
-                          }`}
-                        >
-                          <div className={styles.paperclipBadge}>📎 Ghim lời giải</div>
-
-                          {!currentNote ? (
-                            <div style={{ padding: '14px 4px' }}>
-                              <div
-                                style={{
-                                  fontSize: 14,
-                                  fontWeight: 800,
-                                  color: '#6b5310',
-                                  marginBottom: 8,
-                                }}
-                              >
-                                📝 Hướng dẫn ôn tập
-                              </div>
-                              <p
-                                style={{
-                                  fontSize: 13.5,
-                                  lineHeight: 1.6,
-                                  color: '#5a4d41',
-                                  margin: 0,
-                                }}
-                              >
-                                Rút xấp giấy nhớ bên trang trái để bắt đầu ôn lại các câu hỏi từ những bài bạn đã học xong trên hệ thống.
-                              </p>
-                            </div>
-                          ) : currentNotePick === undefined ? (
-                            <div style={{ padding: '14px 4px' }}>
-                              <div
-                                style={{
-                                  fontSize: 14,
-                                  fontWeight: 800,
-                                  color: '#6b5310',
-                                  marginBottom: 8,
-                                }}
-                              >
-                                ✍️ Tờ lời giải đang chờ bạn chọn đáp án
-                              </div>
-                              <p
-                                style={{
-                                  fontSize: 13.5,
-                                  lineHeight: 1.6,
-                                  color: '#5a4d41',
-                                  margin: 0,
-                                }}
-                              >
-                                Chạm vào một phương án trả lời trên tờ giấy nhớ bên trang trái. Ngay sau
-                                khi chọn, lời giải chi tiết và mẹo nhớ nhanh của{' '}
-                                <strong>{currentNote.tabLabel}</strong> sẽ hiện ra tại đây!
-                              </p>
-                            </div>
-                          ) : (
-                            <div>
-                              <div
-                                style={{
-                                  fontSize: 13.5,
-                                  fontWeight: 800,
-                                  color: currentNotePick === currentNote.ans ? '#15803d' : '#b45309',
-                                  marginBottom: 8,
-                                }}
-                              >
-                                {currentNotePick === currentNote.ans
-                                  ? '🎉 Chính xác! Bạn nhớ bài rất chắc (+20 điểm thưởng)'
-                                  : '💡 Chưa chính xác — Cùng xem lại ghi chú bên dưới:'}
-                              </div>
-                              <p
-                                style={{
-                                  fontSize: 13.5,
-                                  lineHeight: 1.6,
-                                  color: '#2c221a',
-                                  margin: 0,
-                                }}
-                              >
-                                {currentNote.explain}
-                              </p>
-                              <div className={styles.stickyTipBox}>{currentNote.tip}</div>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className={styles.studyLogSheet}>
-                          <div className={styles.studyLogTitle}>
-                            <span>📒 NHẬT KÝ ÔN BÀI CỦA TÔI</span>
-                            <span>
-                              Kho giấy nhớ: {doneLessons.length} / {TOTAL_LESSONS} bài đã xong (
-                              {Math.max(doneLessons.length * 3, 15)} câu)
-                            </span>
-                          </div>
-                          <ul className={styles.studyLogList}>
-                            <li className={styles.studyLogItem}>
-                              <span>Lượt đang làm hiện tại</span>
-                              <strong>
-                                Đúng {correctNotesCount} trên {stickyNotes.length} tờ
-                              </strong>
-                            </li>
-                            {reviewHistory.map((item, idx) => {
-                              const [timeLabel, scoreLabel] = item.split(' · ');
-                              return (
-                                <li key={idx} className={styles.studyLogItem}>
-                                  <span>{timeLabel}</span>
-                                  <strong>{scoreLabel}</strong>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </div>
-                      </div>
-
-                      <div className={styles.pageFooterRow}>
-                        <span>Sổ tay ghi chép</span>
-                        <span>2</span>
-                      </div>
-                    </section>
-                  </div>
-                </div>
-
-                {stickyNotes.length > 0 && (
-                  <div className={styles.bookBottomNav}>
-                    <button
-                      type="button"
-                      className={styles.bookNavPrevBtn}
-                      onClick={() =>
-                        setNoteIdx((i) => (i - 1 + stickyNotes.length) % stickyNotes.length)
-                      }
-                    >
-                      &lt; Tờ trước
-                    </button>
-
-                    <div className={styles.bookNavDotsWrap}>
-                      {stickyNotes.map((note, idx) => (
-                        <button
-                          key={note.id}
-                          type="button"
-                          aria-label={note.tabLabel}
-                          onClick={() => setNoteIdx(idx)}
-                          className={`${styles.bookNavDot} ${
-                            noteIdx === idx ? styles.bookNavDotActive : ''
-                          }`}
-                        />
-                      ))}
-                      <span>
-                        {noteIdx + 1} / {stickyNotes.length}
-                      </span>
-                    </div>
-
-                    <button
-                      type="button"
-                      className={styles.bookNavNextBtn}
-                      onClick={() => setNoteIdx((i) => (i + 1) % stickyNotes.length)}
-                    >
-                      Tờ tiếp theo &gt;
-                    </button>
-                  </div>
-                )}
-              </>
-            ) : (
-              /* ================= CHẾ ĐỘ THỰC HÀNH GÕ CODE PYTHON ================= */
-              <div className={styles.openBookCover}>
-                <div className={`${styles.openBookSpread} ${styles.flipNextAnim}`}>
-                  {/* ===== TRANG BÊN TRÁI: ĐỀ BÀI THỰC HÀNH CODE ===== */}
-                  <section className={`${styles.bookPage} ${styles.bookPageLeft}`}>
-                    <div className={styles.pageHeaderLine}>
-                      <span>SỔ TAY THỰC HÀNH · GÕ CODE PYTHON</span>
-                      <span>
-                        {codeExercise ? `${codeExercise.lessonCode} · BÀI ${codeExercise.lessonNo}` : 'THỰC HÀNH'}
-                      </span>
-                    </div>
-
-                    <div className={styles.pageBodyFlow}>
-                      {codeReviewLoading ? (
-                        <div style={{ padding: '36px 0', textAlign: 'center' }}>
-                          <p style={{ fontWeight: 700, color: '#78716c', fontSize: 15 }}>
-                            ⏳ Đang rút bài thực hành code từ máy chủ...
-                          </p>
-                        </div>
-                      ) : codeReviewError ? (
-                        <div style={{ padding: '12px 0' }}>
-                          <p className={styles.pageSectionLabel}>THÔNG BÁO ÔN TẬP</p>
-                          <h2 className={styles.pageMainTitle}>Chưa có bài thực hành</h2>
-                          <div
-                            style={{
-                              marginTop: 14,
-                              padding: '14px 16px',
-                              background: 'rgba(245, 158, 11, 0.1)',
-                              borderRadius: 10,
-                              border: '1px solid rgba(245, 158, 11, 0.3)',
-                            }}
-                          >
-                            <p style={{ margin: 0, fontSize: 13.5, color: '#92400e', lineHeight: 1.5 }}>
-                              📌 {codeReviewError}
-                            </p>
-                          </div>
-                          <div style={{ marginTop: 18, display: 'flex', gap: 10 }}>
-                            <button
-                              type="button"
-                              className={styles.freshDeckBtn}
-                              onClick={() => void handleLoadCodeExercise()}
-                            >
-                              ↻ Thử lại
-                            </button>
-                            <button
-                              type="button"
-                              className={styles.freshDeckBtn}
-                              style={{ background: '#f5f5f4', color: '#44403c' }}
-                              onClick={() => switchScreen('lesson')}
-                            >
-                              📖 Mở Sách Bài học
-                            </button>
-                          </div>
-                        </div>
-                      ) : codeExercise ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                          <div
-                            style={{
-                              background: '#fffdfa',
-                              padding: '16px 18px',
-                              borderRadius: 10,
-                              border: '1px solid rgba(180, 150, 120, 0.3)',
-                              boxShadow: '0 2px 6px rgba(60, 40, 20, 0.06)',
-                            }}
-                          >
-                            <div
-                              style={{
-                                fontSize: 11,
-                                fontWeight: 700,
-                                letterSpacing: '0.05em',
-                                color: '#a16207',
-                                marginBottom: 6,
-                                textTransform: 'uppercase',
-                              }}
-                            >
-                              {codeExercise.lessonTitle}
-                            </div>
-                            <h3 style={{ margin: '0 0 10px 0', fontSize: 16, fontWeight: 800, color: '#292524' }}>
-                              {codeExercise.task.title || 'Thử thách lập trình'}
-                            </h3>
-                            <p
-                              style={{
-                                margin: 0,
-                                fontSize: 13.5,
-                                lineHeight: 1.65,
-                                color: '#44403c',
-                                whiteSpace: 'pre-wrap',
-                              }}
-                            >
-                              {codeExercise.task.body}
-                            </p>
-                          </div>
-
-                          {codeExercise.task.io && codeExercise.task.io.length > 0 && (
-                            <div
-                              style={{
-                                background: '#f8fafc',
-                                padding: '12px 14px',
-                                borderRadius: 8,
-                                border: '1px solid #e2e8f0',
-                              }}
-                            >
-                              <div style={{ fontSize: 11.5, fontWeight: 700, color: '#475569', marginBottom: 6 }}>
-                                VÍ DỤ ĐẦU VÀO / ĐẦU RA:
-                              </div>
-                              {codeExercise.task.io.map((item, idx) => (
+                            <div style={{ marginTop: 12 }}>
+                              {isRethinking ? (
                                 <div
-                                  key={idx}
                                   style={{
-                                    fontSize: 12.5,
-                                    fontFamily: 'monospace',
-                                    color: '#1e293b',
-                                    marginBottom: 4,
+                                    padding: '10px 14px',
+                                    borderRadius: 8,
+                                    background: 'rgba(245, 158, 11, 0.12)',
+                                    border: '1px solid rgba(245, 158, 11, 0.35)',
+                                    fontSize: 13,
+                                    color: '#92400e',
+                                    lineHeight: 1.5,
                                   }}
                                 >
-                                  <strong>{item.label}:</strong> {item.value}
+                                  💡 <strong>Chưa chính xác ở lần đầu:</strong> Đáp án đang được giữ
+                                  kín. Bạn được nghĩ lại và chọn một phương án khác một lần nữa!
                                 </div>
-                              ))}
+                              ) : isResolved ? (
+                                <div
+                                  style={{
+                                    padding: '10px 14px',
+                                    borderRadius: 8,
+                                    background:
+                                      picked === quizItem.correctIndex
+                                        ? 'rgba(34, 197, 94, 0.12)'
+                                        : 'rgba(239, 68, 68, 0.1)',
+                                    border: `1px solid ${
+                                      picked === quizItem.correctIndex
+                                        ? 'rgba(34, 197, 94, 0.35)'
+                                        : 'rgba(239, 68, 68, 0.3)'
+                                    }`,
+                                    fontSize: 13,
+                                    color:
+                                      picked === quizItem.correctIndex ? '#15803d' : '#991b1b',
+                                    lineHeight: 1.5,
+                                  }}
+                                >
+                                  ✓ Đã chốt câu trả lời. Xem chi tiết giải thích và ghi chú ở trang
+                                  bên phải.
+                                </div>
+                              ) : (
+                                <p style={{ fontSize: 13, color: '#78716c', margin: 0 }}>
+                                  Chọn một phương án bạn cho là chính xác nhất.
+                                </p>
+                              )}
                             </div>
-                          )}
+                          </div>
 
-                          {codeExercise.hints && codeExercise.hints.length > 0 && (
+                          <div className={styles.pageFooterRow}>
+                            <span>1</span>
+                            <span>Trắc nghiệm hằng ngày</span>
+                          </div>
+                        </section>
+
+                        {/* Trang bên phải: Ghi chú lời giải & Mẹo ghi nhớ */}
+                        <section className={`${styles.bookPage} ${styles.bookPageRight}`}>
+                          <div className={styles.pageHeaderLine}>
+                            <span>GHI CHÚ LỜI GIẢI &amp; PHÂN TÍCH</span>
+                            <span>
+                              {isResolved
+                                ? 'ĐÃ CHỐT'
+                                : isRethinking
+                                  ? 'LƯỢT NGHĨ LẠI'
+                                  : 'CHỜ TRẢ LỜI'}
+                            </span>
+                          </div>
+
+                          <div className={styles.pageBodyFlow}>
                             <div
-                              style={{
-                                background: '#fefce8',
-                                border: '1px solid #fef08a',
-                                borderRadius: 8,
-                                padding: '10px 14px',
-                              }}
+                              className={`${styles.stickyExplainNote} ${
+                                isResolved ? styles.stickyExplainNoteSolved : ''
+                              }`}
                             >
-                              <button
-                                type="button"
-                                onClick={() => setCodeReviewHintOpen((prev) => !prev)}
-                                style={{
-                                  background: 'none',
-                                  border: 'none',
-                                  padding: 0,
-                                  fontFamily: 'inherit',
-                                  fontWeight: 700,
-                                  fontSize: 12.5,
-                                  color: '#854d0e',
-                                  cursor: 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 6,
-                                }}
-                              >
-                                <span aria-hidden="true">💡</span> {codeReviewHintOpen ? 'Đóng gợi ý' : 'Mở gợi ý này'}
-                              </button>
-                              {codeReviewHintOpen && (
-                                <div style={{ marginTop: 8, fontSize: 12.5, lineHeight: 1.55, color: '#713f12' }}>
-                                  {codeExercise.hints.map((h, hIdx) => (
-                                    <div key={hIdx} style={{ marginBottom: 6 }}>
-                                      {h.title ? <strong>{h.title}: </strong> : null}
-                                      <span>{h.body}</span>
-                                    </div>
-                                  ))}
+                              <div className={styles.paperclipBadge}>📎 Ghim lời giải</div>
+
+                              {!isResolved ? (
+                                <div style={{ padding: '14px 4px' }}>
+                                  <div
+                                    style={{
+                                      fontSize: 14,
+                                      fontWeight: 800,
+                                      color: '#6b5310',
+                                      marginBottom: 8,
+                                    }}
+                                  >
+                                    ✍️ Tờ lời giải đang chờ bạn chọn đáp án
+                                  </div>
+                                  <p
+                                    style={{
+                                      fontSize: 13.5,
+                                      lineHeight: 1.6,
+                                      color: '#5a4d41',
+                                      margin: 0,
+                                    }}
+                                  >
+                                    Chọn một phương án trả lời ở tờ giấy nhớ bên trang trái. Ngay sau
+                                    khi hoàn thành câu hỏi, lời giải chi tiết và phân tích của bài sẽ
+                                    hiển thị tại đây!
+                                  </p>
+                                </div>
+                              ) : (
+                                <div>
+                                  <div
+                                    style={{
+                                      fontSize: 13.5,
+                                      fontWeight: 800,
+                                      color:
+                                        picked === quizItem.correctIndex ? '#15803d' : '#b45309',
+                                      marginBottom: 8,
+                                    }}
+                                  >
+                                    {picked === quizItem.correctIndex
+                                      ? isFirstTry
+                                        ? '🎉 Chính xác ngay lần đầu! (+15 XP)'
+                                        : '✓ Chính xác sau lần nghĩ lại! (+10 XP)'
+                                      : '💡 Chưa chính xác — Cùng xem lại giải thích chi tiết:'}
+                                  </div>
+                                  <p
+                                    style={{
+                                      fontSize: 13.5,
+                                      lineHeight: 1.6,
+                                      color: '#2c221a',
+                                      margin: 0,
+                                    }}
+                                  >
+                                    {visExplanation}
+                                  </p>
                                 </div>
                               )}
                             </div>
-                          )}
 
-                          <div
-                            style={{
-                              marginTop: 6,
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                            }}
-                          >
-                            <span style={{ fontSize: 12, color: '#78716c' }}>
-                              Đã xong: {doneLessons.length} / {TOTAL_LESSONS} bài
-                            </span>
-                            <button
-                              type="button"
-                              className={styles.freshDeckBtn}
-                              onClick={() => void handleLoadCodeExercise()}
-                            >
-                              Rút bài code khác ↻
-                            </button>
-                          </div>
-                        </div>
-                      ) : null}
-                    </div>
-
-                    <div className={styles.pageFooterRow}>
-                      <span>1</span>
-                      <span>Thử thách độc lập từ các bài đã xong</span>
-                    </div>
-                  </section>
-
-                  {/* ===== TRANG BÊN PHẢI: TRÌNH SOẠN THẢO VÀ KẾT QUẢ CHẠY ===== */}
-                  <section className={`${styles.bookPage} ${styles.bookPageRight}`}>
-                    <div className={styles.pageHeaderLine}>
-                      <span>BÀN GÕ MÃ VÀ KẾT QUẢ CHẠY</span>
-                      <span>{codeReviewSolved ? '✓ ĐÃ ĐẠT (+25 XP)' : 'CHƯA NỘP'}</span>
-                    </div>
-
-                    <div className={styles.pageBodyFlow}>
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: 10,
-                          height: '100%',
-                        }}
-                      >
-                        <div
-                          style={{
-                            background: '#090d15',
-                            borderRadius: 10,
-                            border: '1px solid #222b3d',
-                            overflow: 'hidden',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                            display: 'flex',
-                            flexDirection: 'column',
-                          }}
-                        >
-                          {/* Thanh công cụ IDE */}
-                          <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              padding: '8px 14px',
-                              background: '#111726',
-                              borderBottom: '1px solid #222b3d',
-                            }}
-                          >
-                            <span
-                              style={{
-                                fontSize: 12,
-                                fontFamily: 'monospace',
-                                fontWeight: 700,
-                                color: '#93c5fd',
-                              }}
-                            >
-                              solution.py
-                            </span>
-                            <div style={{ display: 'flex', gap: 8 }}>
-                              <button
-                                type="button"
-                                onClick={() => void handleRunCodeExercise(false)}
-                                disabled={codeReviewRunning}
-                                style={{
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: 5,
-                                  padding: '5px 12px',
-                                  borderRadius: 6,
-                                  border: '1px solid #334155',
-                                  background: '#1e293b',
-                                  color: '#f8fafc',
-                                  fontSize: 12,
-                                  fontWeight: 700,
-                                  cursor: codeReviewRunning ? 'not-allowed' : 'pointer',
-                                }}
-                              >
-                                <span aria-hidden="true">▶</span> {codeReviewRunning ? 'Đang chạy...' : 'Chạy thử'}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => void handleRunCodeExercise(true)}
-                                disabled={codeReviewRunning}
-                                style={{
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: 5,
-                                  padding: '5px 14px',
-                                  borderRadius: 6,
-                                  border: 'none',
-                                  background: '#16a34a',
-                                  color: '#ffffff',
-                                  fontSize: 12,
-                                  fontWeight: 700,
-                                  cursor: codeReviewRunning ? 'not-allowed' : 'pointer',
-                                }}
-                              >
-                                <span aria-hidden="true">✓</span> {codeReviewRunning ? 'Đang kiểm...' : 'Nộp để kiểm'}
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Khung gõ mã Python */}
-                          <textarea
-                            value={codeReviewCode}
-                            onChange={(e) => setCodeReviewCode(e.target.value)}
-                            spellCheck={false}
-                            className={styles.ideTextarea}
-                            style={{
-                              height: '190px',
-                              background: '#090d15',
-                              color: '#e2e8f0',
-                              border: 'none',
-                              fontSize: '13px',
-                            }}
-                          />
-
-                          {/* Cửa sổ dòng lệnh Terminal */}
-                          <div
-                            style={{
-                              borderTop: '1px solid #222b3d',
-                              background: '#050811',
-                            }}
-                          >
+                            {/* Điều hướng chuyển câu sau khi làm xong */}
                             <div
                               style={{
-                                padding: '5px 14px',
-                                background: '#0d131f',
-                                fontSize: 10.5,
-                                fontWeight: 700,
-                                color: '#8b9bb4',
-                                letterSpacing: '0.06em',
+                                marginTop: 24,
+                                padding: '14px 16px',
+                                background: '#fdfbf7',
+                                borderRadius: 10,
+                                border: '1px solid rgba(180, 150, 120, 0.25)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
                               }}
                             >
-                              TERMINAL · OUTPUT
-                            </div>
-                            <div className={styles.terminalBox} style={{ height: '115px' }}>
-                              <pre className={styles.terminalPre}>{codeReviewOutput}</pre>
+                              <span style={{ fontSize: 13, color: '#57534e', fontWeight: 600 }}>
+                                Tiến độ: {answeredDailyCount} / {dailyItems.length} câu
+                              </span>
+                              {dailyItemIdx < dailyItems.length - 1 ? (
+                                <button
+                                  type="button"
+                                  className={styles.freshDeckBtn}
+                                  onClick={() => setDailyItemIdx((i) => i + 1)}
+                                >
+                                  Tiếp tục sang câu tiếp theo ➔
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className={styles.freshDeckBtn}
+                                  style={{ background: '#78350f', color: '#ffffff' }}
+                                  onClick={() => setDailyFinished(true)}
+                                >
+                                  Xem tổng kết lượt ôn 🏆
+                                </button>
+                              )}
                             </div>
                           </div>
-                        </div>
 
-                        {/* Danh sách các ca kiểm thử */}
-                        {codeReviewTestResults && codeReviewTestResults.length > 0 && (
-                          <div
-                            style={{
-                              background: '#ffffff',
-                              borderRadius: 8,
-                              border: '1px solid #e2e8f0',
-                              padding: '10px 14px',
-                              boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
-                            }}
-                          >
-                            <div style={{ fontSize: 11.5, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
-                              KẾT QUẢ CÁC CA KIỂM THỬ:
+                          <div className={styles.pageFooterRow}>
+                            <span>Sổ tay ghi chép</span>
+                            <span>2</span>
+                          </div>
+                        </section>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()
+            ) : currentDailyItem?.type === 'code' ? (
+              /* ================= BÀI TẬP VIẾT MÃ PYTHON ================= */
+              (() => {
+                const codeItem = currentDailyItem;
+                const isSolved = Boolean(codeSolved[codeItem.id]);
+                const testResults = codeTestResults[codeItem.id] ?? [];
+                const hintsOpen = Boolean(codeHintsOpen[codeItem.id]);
+
+                return (
+                  <>
+                    <div className={styles.openBookCover}>
+                      <div
+                        key={`daily-code-${codeItem.id}`}
+                        className={`${styles.openBookSpread} ${styles.flipNextAnim}`}
+                      >
+                        {/* Trang bên trái: Đề bài, ví dụ kiểm thử và gợi ý */}
+                        <section className={`${styles.bookPage} ${styles.bookPageLeft}`}>
+                          <div className={styles.pageHeaderLine}>
+                            <span>SỔ TAY THỰC HÀNH · BÀI CODE HẰNG NGÀY</span>
+                            <span>
+                              CÂU {dailyItemIdx + 1} / {dailyItems.length} · BÀI TẬP CODE
+                            </span>
+                          </div>
+
+                          <div className={styles.pageBodyFlow}>
+                            <div
+                              style={{
+                                background: '#fffdfa',
+                                padding: '16px 18px',
+                                borderRadius: 10,
+                                border: '1px solid rgba(180, 150, 120, 0.3)',
+                                boxShadow: '0 2px 6px rgba(60, 40, 20, 0.06)',
+                              }}
+                            >
+                              <div
+                                style={{
+                                  fontSize: 11,
+                                  fontWeight: 700,
+                                  letterSpacing: '0.05em',
+                                  color: '#a16207',
+                                  marginBottom: 6,
+                                  textTransform: 'uppercase',
+                                }}
+                              >
+                                {codeItem.lesson_title}
+                              </div>
+                              <h3
+                                style={{
+                                  margin: '0 0 10px 0',
+                                  fontSize: 16,
+                                  fontWeight: 800,
+                                  color: '#292524',
+                                }}
+                              >
+                                {codeItem.title}
+                              </h3>
+                              <p
+                                style={{
+                                  margin: 0,
+                                  fontSize: 13.5,
+                                  lineHeight: 1.65,
+                                  color: '#44403c',
+                                  whiteSpace: 'pre-wrap',
+                                }}
+                              >
+                                {codeItem.description}
+                              </p>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                              {codeReviewTestResults.map((t, idx) => (
+
+                            {/* Ví dụ kiểm thử mẫu */}
+                            {codeItem.tests && codeItem.tests.length > 0 && (
+                              <div
+                                style={{
+                                  marginTop: 12,
+                                  background: '#f8fafc',
+                                  padding: '12px 14px',
+                                  borderRadius: 8,
+                                  border: '1px solid #e2e8f0',
+                                }}
+                              >
                                 <div
-                                  key={idx}
+                                  style={{
+                                    fontSize: 11.5,
+                                    fontWeight: 700,
+                                    color: '#475569',
+                                    marginBottom: 6,
+                                  }}
+                                >
+                                  CÁC CA KIỂM THỬ MẪU (TEST CASES):
+                                </div>
+                                {codeItem.tests.slice(0, 3).map((t, tIdx) => (
+                                  <div
+                                    key={tIdx}
+                                    style={{
+                                      fontSize: 12.5,
+                                      fontFamily: 'monospace',
+                                      color: '#1e293b',
+                                      marginBottom: 4,
+                                    }}
+                                  >
+                                    <strong>{t.name}:</strong> <code>{t.call}</code> ➔{' '}
+                                    <code>{JSON.stringify(t.expected)}</code>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Khung gợi ý có thể đóng / mở */}
+                            {codeItem.hints && codeItem.hints.length > 0 && (
+                              <div
+                                style={{
+                                  marginTop: 12,
+                                  background: '#fefce8',
+                                  border: '1px solid #fef08a',
+                                  borderRadius: 8,
+                                  padding: '10px 14px',
+                                }}
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setCodeHintsOpen((prev) => ({
+                                      ...prev,
+                                      [codeItem.id]: !hintsOpen,
+                                    }))
+                                  }
+                                  style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    padding: 0,
+                                    fontFamily: 'inherit',
+                                    fontWeight: 700,
+                                    fontSize: 12.5,
+                                    color: '#854d0e',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 6,
+                                  }}
+                                >
+                                  <span aria-hidden="true">💡</span>{' '}
+                                  {hintsOpen ? 'Đóng gợi ý' : 'Mở gợi ý giải bài'}
+                                </button>
+                                {hintsOpen && (
+                                  <div
+                                    style={{
+                                      marginTop: 8,
+                                      fontSize: 12.5,
+                                      lineHeight: 1.55,
+                                      color: '#713f12',
+                                    }}
+                                  >
+                                    {codeItem.hints.map((h, hIdx) => (
+                                      <div key={hIdx} style={{ marginBottom: 4 }}>
+                                        {h.title ? <strong>{h.title}: </strong> : null}
+                                        <span>{h.body}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            <div style={{ marginTop: 12 }}>
+                              {isSolved ? (
+                                <div
+                                  style={{
+                                    padding: '10px 14px',
+                                    borderRadius: 8,
+                                    background: 'rgba(34, 197, 94, 0.12)',
+                                    border: '1px solid rgba(34, 197, 94, 0.35)',
+                                    fontSize: 13,
+                                    color: '#15803d',
+                                    lineHeight: 1.5,
+                                  }}
+                                >
+                                  ✓ Đã vượt qua toàn bộ ca kiểm thử (+25 XP)!
+                                </div>
+                              ) : (
+                                <p style={{ fontSize: 13, color: '#78716c', margin: 0 }}>
+                                  Nhập giải pháp của bạn ở trang bên phải và bấm &quot;Nộp để kiểm&quot;.
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className={styles.pageFooterRow}>
+                            <span>1</span>
+                            <span>Viết mã hằng ngày</span>
+                          </div>
+                        </section>
+
+                        {/* Trang bên phải: Trình soạn thảo mã và Chạy Pyodide */}
+                        <section className={`${styles.bookPage} ${styles.bookPageRight}`}>
+                          <div className={styles.pageHeaderLine}>
+                            <span>BÀN GÕ MÃ VÀ KẾT QUẢ CHẠY (PYODIDE)</span>
+                            <span>{isSolved ? '✓ ĐÃ ĐẠT (+25 XP)' : 'CHƯA NỘP'}</span>
+                          </div>
+
+                          <div className={styles.pageBodyFlow}>
+                            <div
+                              style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 10,
+                              }}
+                            >
+                              <div
+                                style={{
+                                  background: '#090d15',
+                                  borderRadius: 10,
+                                  border: '1px solid #222b3d',
+                                  overflow: 'hidden',
+                                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                }}
+                              >
+                                {/* Thanh công cụ IDE */}
+                                <div
                                   style={{
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'space-between',
-                                    padding: '5px 10px',
-                                    borderRadius: 6,
-                                    fontSize: 12,
-                                    background: t.passed ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                                    color: t.passed ? '#15803d' : '#b91c1c',
+                                    padding: '8px 14px',
+                                    background: '#111726',
+                                    borderBottom: '1px solid #222b3d',
                                   }}
                                 >
-                                  <span>
-                                    <span aria-hidden="true">{t.passed ? '✓' : '✗'}</span> {t.name}
+                                  <span
+                                    style={{
+                                      fontSize: 12,
+                                      fontFamily: 'monospace',
+                                      fontWeight: 700,
+                                      color: '#93c5fd',
+                                    }}
+                                  >
+                                    solution.py
                                   </span>
-                                  <span style={{ fontWeight: 700 }}>
-                                    {t.passed ? 'ĐẠT' : 'CHƯA ĐẠT'}
-                                  </span>
+                                  <div style={{ display: 'flex', gap: 8 }}>
+                                    <button
+                                      type="button"
+                                      onClick={() => void handleRunDailyCode(codeItem, false)}
+                                      disabled={codeRunning}
+                                      style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: 5,
+                                        padding: '5px 12px',
+                                        borderRadius: 6,
+                                        border: '1px solid #334155',
+                                        background: '#1e293b',
+                                        color: '#f8fafc',
+                                        fontSize: 12,
+                                        fontWeight: 700,
+                                        cursor: codeRunning ? 'not-allowed' : 'pointer',
+                                      }}
+                                    >
+                                      <span aria-hidden="true">▶</span>{' '}
+                                      {codeRunning ? 'Đang chạy...' : 'Chạy thử'}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => void handleRunDailyCode(codeItem, true)}
+                                      disabled={codeRunning}
+                                      style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: 5,
+                                        padding: '5px 14px',
+                                        borderRadius: 6,
+                                        border: 'none',
+                                        background: '#16a34a',
+                                        color: '#ffffff',
+                                        fontSize: 12,
+                                        fontWeight: 700,
+                                        cursor: codeRunning ? 'not-allowed' : 'pointer',
+                                      }}
+                                    >
+                                      <span aria-hidden="true">✓</span>{' '}
+                                      {codeRunning ? 'Đang kiểm...' : 'Nộp để kiểm'}
+                                    </button>
+                                  </div>
                                 </div>
-                              ))}
+
+                                {/* Textarea soạn thảo mã */}
+                                <textarea
+                                  value={codeAnswers[codeItem.id] ?? codeItem.starterCode}
+                                  onChange={(e) =>
+                                    setCodeAnswers((prev) => ({
+                                      ...prev,
+                                      [codeItem.id]: e.target.value,
+                                    }))
+                                  }
+                                  onKeyDown={(e) => {
+                                    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                                      e.preventDefault();
+                                      void handleRunDailyCode(codeItem, true);
+                                    }
+                                  }}
+                                  spellCheck={false}
+                                  className={styles.ideTextarea}
+                                  style={{
+                                    height: '180px',
+                                    background: '#090d15',
+                                    color: '#e2e8f0',
+                                    border: 'none',
+                                    fontSize: '13px',
+                                  }}
+                                />
+
+                                {/* Cửa sổ Terminal kết quả chạy */}
+                                <div
+                                  style={{
+                                    borderTop: '1px solid #222b3d',
+                                    background: '#050811',
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      padding: '5px 14px',
+                                      background: '#0d131f',
+                                      fontSize: 10.5,
+                                      fontWeight: 700,
+                                      color: '#8b9bb4',
+                                      letterSpacing: '0.06em',
+                                    }}
+                                  >
+                                    TERMINAL · OUTPUT (GIỚI HẠN 5 GIÂY)
+                                  </div>
+                                  <div className={styles.terminalBox} style={{ height: '110px' }}>
+                                    <pre className={styles.terminalPre}>
+                                      {codeOutputs[codeItem.id] ??
+                                        '$ python3 solution.py\n💡 Nhập mã và bấm "Chạy thử" hoặc "Nộp để kiểm".'}
+                                    </pre>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Bảng kết quả từng ca kiểm thử */}
+                              {testResults.length > 0 && (
+                                <div
+                                  style={{
+                                    background: '#ffffff',
+                                    borderRadius: 8,
+                                    border: '1px solid #e2e8f0',
+                                    padding: '10px 14px',
+                                    boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      fontSize: 11.5,
+                                      fontWeight: 700,
+                                      color: '#334155',
+                                      marginBottom: 6,
+                                    }}
+                                  >
+                                    KẾT QUẢ CÁC CA KIỂM THỬ:
+                                  </div>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                                    {testResults.map((t, idx) => (
+                                      <div
+                                        key={idx}
+                                        style={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'space-between',
+                                          padding: '5px 10px',
+                                          borderRadius: 6,
+                                          fontSize: 12,
+                                          background: t.passed
+                                            ? 'rgba(34, 197, 94, 0.1)'
+                                            : 'rgba(239, 68, 68, 0.1)',
+                                          color: t.passed ? '#15803d' : '#b91c1c',
+                                        }}
+                                      >
+                                        <span>
+                                          <span aria-hidden="true">{t.passed ? '✓' : '✗'}</span>{' '}
+                                          {t.name}
+                                        </span>
+                                        <span style={{ fontWeight: 700 }}>
+                                          {t.passed ? 'ĐẠT' : 'CHƯA ĐẠT'}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Nút chuyển câu tiếp theo */}
+                              <div
+                                style={{
+                                  marginTop: 10,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                }}
+                              >
+                                <span style={{ fontSize: 13, color: '#57534e', fontWeight: 600 }}>
+                                  Tiến độ: {answeredDailyCount} / {dailyItems.length} câu
+                                </span>
+                                {dailyItemIdx < dailyItems.length - 1 ? (
+                                  <button
+                                    type="button"
+                                    className={styles.freshDeckBtn}
+                                    onClick={() => setDailyItemIdx((i) => i + 1)}
+                                  >
+                                    Tiếp tục sang câu tiếp theo ➔
+                                  </button>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    className={styles.freshDeckBtn}
+                                    style={{ background: '#78350f', color: '#ffffff' }}
+                                    onClick={() => setDailyFinished(true)}
+                                  >
+                                    Xem tổng kết lượt ôn 🏆
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        )}
+
+                          <div className={styles.pageFooterRow}>
+                            <span>Sổ tay thực hành</span>
+                            <span>2</span>
+                          </div>
+                        </section>
                       </div>
                     </div>
+                  </>
+                );
+              })()
+            ) : null}
 
-                    <div className={styles.pageFooterRow}>
-                      <span>Sổ tay thực hành</span>
-                      <span>2</span>
-                    </div>
-                  </section>
+            {/* Thanh điều hướng chân trang */}
+            {!dailyFinished && dailyItems.length > 0 && (
+              <div className={styles.bookBottomNav}>
+                <button
+                  type="button"
+                  className={styles.bookNavPrevBtn}
+                  disabled={dailyItemIdx === 0}
+                  onClick={() => setDailyItemIdx((i) => Math.max(0, i - 1))}
+                >
+                  &lt; Câu trước
+                </button>
+
+                <div className={styles.bookNavDotsWrap}>
+                  {dailyItems.map((item, idx) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      aria-label={`Câu ${idx + 1}`}
+                      onClick={() => setDailyItemIdx(idx)}
+                      className={`${styles.bookNavDot} ${
+                        dailyItemIdx === idx ? styles.bookNavDotActive : ''
+                      }`}
+                    />
+                  ))}
+                  <span>
+                    Câu {dailyItemIdx + 1} / {dailyItems.length}
+                  </span>
                 </div>
+
+                <button
+                  type="button"
+                  className={styles.bookNavNextBtn}
+                  onClick={() => {
+                    if (dailyItemIdx < dailyItems.length - 1) {
+                      setDailyItemIdx((i) => i + 1);
+                    } else {
+                      setDailyFinished(true);
+                    }
+                  }}
+                >
+                  {dailyItemIdx < dailyItems.length - 1 ? 'Câu tiếp theo >' : 'Tổng kết >'}
+                </button>
               </div>
             )}
           </div>

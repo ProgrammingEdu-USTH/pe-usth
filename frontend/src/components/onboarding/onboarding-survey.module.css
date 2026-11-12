@@ -1,0 +1,315 @@
+.onboardingPageWrap {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 16px;
+  box-sizing: border-box;
+  background-image: linear-gradient(rgba(248, 240, 252, 0.35), rgba(225, 215, 240, 0.5)), url(/goc-hoc/room-blur.webp);
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  font-family: var(--f-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+}
+
+.topBar {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+}
+
+.skipBtn {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(214, 226, 244, 0.8);
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 14px rgba(30, 50, 90, 0.08);
+  transition: all 0.15s ease;
+  font-family: inherit;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.skipBtn:hover {
+  background: #ffffff;
+  color: #1e293b;
+}
+
+.surveyCard {
+  width: min(560px, 100%);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 28px;
+  padding: 32px 28px;
+  box-shadow: 0 24px 60px rgba(35, 20, 50, 0.22), 0 4px 16px rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  color: #1c2540;
+}
+
+.headerMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.badgeTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #fdf5ea;
+  border: 1px solid #f9d8a6;
+  color: #b45309;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.stepIndicator {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.progressBarWrap {
+  margin-bottom: 20px;
+}
+
+.topicLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #8b5cf6;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.questionText {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+
+.codeBox {
+  background: #090d15;
+  border-radius: 10px;
+  padding: 12px 14px;
+  border: 1px solid #1e293b;
+  margin-bottom: 18px;
+  overflow-x: auto;
+}
+
+.codePre {
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  color: #f1f5f9;
+  line-height: 1.6;
+}
+
+.optionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.optionBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.optionBtn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.optionBtnSelected {
+  background: #f0fdf4 !important;
+  border-color: #22c55e !important;
+  color: #15803d !important;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.15);
+}
+
+.optionLetter {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 800;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.optionLetterSelected {
+  background: #22c55e;
+  color: #ffffff;
+}
+
+.footerActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* Màn hình kết quả phân loại */
+.resultCard {
+  text-align: center;
+  padding: 10px 4px;
+}
+
+.resultIcon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.resultTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px;
+}
+
+.resultSubtitle {
+  font-size: 13.5px;
+  color: #64748b;
+  margin: 0 0 20px;
+}
+
+.resultRecBox {
+  background: linear-gradient(135deg, rgba(254, 243, 199, 0.6), rgba(253, 230, 138, 0.4));
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 22px;
+  text-align: left;
+}
+
+.recLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #92400e;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.recCourseTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: #78350f;
+  margin: 0 0 4px;
+}
+
+.recDesc {
+  font-size: 12.5px;
+  color: #854d0e;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.resultActionRow {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* Nút Câu trước với màu đỏ sanguine rõ nét */
+.prevBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(207, 35, 56, 0.35);
+  background: var(--ds-sanguine-tint, #FFF1F3);
+  color: var(--ds-sanguine, #CF2338);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.prevBtn:hover:not(:disabled) {
+  background: #ffe4e6;
+  border-color: #cf2338;
+}
+
+.prevBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+  background: #f8fafc;
+  color: #94a3b8;
+}
+
+/* Nút Làm lại bài test với màu đỏ sanguine nổi bật */
+.retakeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(207, 35, 56, 0.4);
+  background: var(--ds-sanguine-tint, #FFF1F3);
+  color: var(--ds-sanguine, #CF2338);
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  box-shadow: 0 2px 8px rgba(207, 35, 56, 0.08);
+}
+
+.retakeBtn:hover {
+  background: #ffe4e6;
+  border-color: #cf2338;
+  box-shadow: 0 4px 12px rgba(207, 35, 56, 0.15);
+}
+

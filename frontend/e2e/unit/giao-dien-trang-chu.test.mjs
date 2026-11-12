@@ -7,9 +7,8 @@
  * token của theme không chạm tới nó. `scene-thien-van.css` là lớp khoác riêng.
  *
  * Bốn điều cổng này canh, mỗi điều từng là một cách im lặng hỏng:
- *   1. ĐƯỜNG TỚI — tệp CSS được import và bề mặt khai `data-tv-surface`. Thiếu
- *      một trong hai là theme "đã dựng" mà trang chủ y nguyên (lỗi thống trị
- *      của repo này, lần thứ mười ba).
+ *   1. ĐƯỜNG TỚI — tệp CSS được import SAU scene.css. Thiếu là theme "đã dựng"
+ *      mà trang chủ y nguyên (lỗi thống trị của repo này, lần thứ mười ba).
  *   2. CẤU TRÚC — mọi selector mở bằng tiền tố theme; không animation, không
  *      `:hover`, không `cursor` (tệp này chỉ khai MÀU, nên ba cổng quét src/ không
  *      có gì để canh ở đây — nếu có thì phải là cổng KHÁC, không lách).
@@ -31,7 +30,7 @@ import { boChuThich, moiRule } from './_css-rule.mjs';
 const GOC = new URL('../../', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
 const doc = (p) => readFileSync(`${GOC}${p}`, 'utf8');
 
-const TIEN_TO = 'html[data-theme="thien-van"]:has([data-tv-surface])';
+const TIEN_TO = 'html[data-theme="thien-van"]';
 
 // Sàn tương phản chữ HUD trên kính hợp thành lên tường tối. Chỉ được NÂNG
 // (mục `san-chu-hud-trang-chu` trong scripts/nguong-mot-chieu.json).
@@ -80,12 +79,12 @@ function mauCua(v) {
 const hopThanh = (fg, bg) => fg.rgb.map((c, i) => c * fg.a + bg[i] * (1 - fg.a));
 
 // ═════════════════════════════════════════════════════════════════════════
-test('đường tới: StudyRoom import lớp khoác và host khai data-tv-surface; panel không còn nói "giữ nguyên"', () => {
+test('đường tới: StudyRoom import lớp khoác SAU scene.css; panel không còn công tắc giao diện', () => {
   assert.match(STUDY, /import '\.\/scene-thien-van\.css';/, 'StudyRoom.tsx không import scene-thien-van.css: theme đã dựng mà trang chủ y nguyên');
   // phải đứng SAU scene.css: cùng đặc hiệu không đủ, và thứ tự nạp là thứ phân xử khi bằng nhau
   assert.ok(STUDY.indexOf("import './scene-thien-van.css'") > STUDY.indexOf("import './scene.css'"), 'lớp khoác phải nạp SAU scene.css');
-  assert.match(STUDY, /<div ref=\{hostRef\}[^>]*data-tv-surface=""/, 'host của cảnh không khai data-tv-surface: `:has([data-tv-surface])` không bao giờ khớp ở trang chủ');
-  assert.ok(!/Trang chủ này giữ nguyên/.test(SHELL), 'panel trang chủ còn nói "giữ nguyên" trong khi trang chủ đã nhận theme: tài liệu nói ngược sản phẩm');
+  assert.ok(!STUDY.includes('data-tv-surface'), 'StudyRoom còn data-tv-surface: cổng giới hạn theme đã bỏ');
+  assert.ok(!/id="tTv"|Giao diện bài học/.test(SHELL), 'panel trang chủ còn công tắc giao diện: chỉ còn một giao diện');
 });
 
 test('cấu trúc: mọi selector mở bằng tiền tố theme, không animation, không :hover, không cursor', () => {

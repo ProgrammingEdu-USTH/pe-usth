@@ -98,12 +98,7 @@ export default function LessonChrome({
         ? styles.primaryBtnErr
         : styles.primaryBtn;
   return (
-    // data-tv-surface: bề mặt NÀY đã được thiết kế cho giao diện "Đài thiên văn".
-    // `theme-thien-van.css` chỉ ghi đè token khi trang có ít nhất một phần tử
-    // mang thuộc tính này (`html[data-theme]:has([data-tv-surface])`), nên trang
-    // chưa thiết kế không đổi màu nửa vời. Gắn ở gốc khung (không ở `.main`)
-    // vì overlay/toast dựng ở `document.body` cần token từ phần tử <html>.
-    <div className={styles.chrome} data-tv-surface="">
+    <div className={styles.chrome}>
       <header className={styles.topBar}>
         <div className={styles.topBarInner}>
           <button

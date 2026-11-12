@@ -215,8 +215,8 @@ export const BAN_DO = [
   },
   {
     id: 'chon-giao-dien',
-    ten: 'Chọn giao diện — lofi chill / Đài thiên văn, và sáng/tối, ngay trong bài học',
-    thucHien: 'frontend/src/lib/giao-dien.ts:datGiaoDien',
+    ten: 'Chọn chế độ sáng/tối ngay trong bài học (giao diện Đài thiên văn là duy nhất)',
+    thucHien: 'frontend/src/lib/giao-dien.ts:datCheDoToi',
     mount: 'frontend/src/components/lesson-chrome/LessonChrome.tsx',
     manHinh: 'thanh trên của mọi màn (từ 861px)',
     duLieu: 'ThemePicker',

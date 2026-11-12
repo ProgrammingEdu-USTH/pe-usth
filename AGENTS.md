@@ -7187,6 +7187,21 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   theo token, không cần theme Monaco. **Chưa làm:** trang `/card` (db_design di sản), `/courses/db_design*`, java/htmlcss/
   `/interface` — mỗi trang phải xem bằng mắt rồi mới khai `data-tv-surface`, nếu không là đổi nửa vời.
 
+- **NHÁNH `chiem-tinh`: LOFI ĐÃ BỎ, "ĐÀI THIÊN VĂN" LÀ GIAO DIỆN DUY NHẤT (vòng C1, 12/11/2026).** Chủ dự án: "nhánh
+  chiêm tinh thì bỏ theme lofi chill đi rồi thay hoàn toàn". `<html data-theme="thien-van">` là thuộc tính TĨNH ở
+  `layout.tsx` (hằng `GIAO_DIEN_MAC_DINH`), script trước-paint chỉ còn lo sáng/tối, mọi selector của
+  `theme-thien-van.css` / `scene-thien-van.css` mở bằng `html[data-theme="thien-van"]` — KHÔNG còn
+  `:has([data-tv-surface])`, nên theme áp MỌI trang. Gỡ: nút chọn giao diện (ThemePicker chỉ còn nhóm sáng/tối), công tắc
+  `#tTv` ở panel trang chủ, nút ở trang khoá học, nhánh `vs-dark`/`light` của Monaco, và mọi marker `data-tv-surface`.
+  **Bảng token lofi (`:root` của `edu-theme.css`, `studio-tokens.css`) VẪN CÒN làm nền** cho token mà theme chưa ghi đè.
+  Gộp chúng vào một bảng rồi xoá tệp theme cần viết lại `ds-contrast.test.mjs` cùng lúc (nó canh bảng lofi bằng neo
+  chuỗi): đó là nợ đã khai, không phải bỏ sót. **Trang di sản** (java, htmlcss, db_design, `/interface`) nay nhận token
+  chiêm tinh với bố cục cũ — chưa ai xem từng trang.
+  **BẪY CỦA CHÍNH VÒNG NÀY:** sửa `theme-thien-van.css` (nằm trong `public/`) mà quên bump `ASSET_VERSION` thì trình duyệt
+  giữ bản `immutable` cũ — tôi thấy trang khoá học vẫn xanh xám lofi dù mã đã đúng, bump `-12d` rồi mới ra giấy kem. Ba ca
+  của `giao-dien.test.mjs` viết lại (script không còn chạm `data-theme`; thuộc tính tĩnh; đường tới) và một ca MỚI quét
+  `src/` đòi KHÔNG còn marker nào — một marker sót là một chỗ đọc ra "theme chưa áp" trong khi nó đã áp.
+
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 
 Hai đường, chọn sai là xoá tiến độ của người đang học:

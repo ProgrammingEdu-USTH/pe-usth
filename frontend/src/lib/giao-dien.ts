@@ -1,49 +1,40 @@
-// GIAO DIỆN (theme) — trục chọn "lofi chill" / "Đài thiên văn", độc lập với sáng/tối.
+// GIAO DIỆN — "Đài thiên văn" là giao diện DUY NHẤT của nhánh `chiem-tinh`.
 //
-// VÌ SAO CÓ MỘT FILE RIÊNG, KHÔNG IMPORT GÌ.
-// Ba nơi phải đồng ý về cùng một danh sách id: script đặt giao diện TRƯỚC khi
-// vẽ (`layout.tsx`), nút chọn (`ThemePicker`), và selector trong
-// `public/static/css/theme-thien-van.css`. Ba bản chép là ba thứ trôi lệch nhau
-// mà không exception nào ném — gõ sai một chữ trong CSS thì theme im lặng không
-// bao giờ bật. File này là NGUỒN DUY NHẤT; `giao-dien.test.mjs` đọc cả ba nơi và
-// bắt chúng khớp, và chạy script trong `node:vm` để chứng minh whitelist có răng.
+// Chủ dự án (12/11/2026): "nhánh chiêm tinh thì bỏ theme lofi chill đi rồi thay
+// hoàn toàn bằng theme chiêm tinh". Trước đó có một TRỤC chọn (`lofi` / `thien-van`)
+// với script trước-paint, whitelist và nút chọn; nay chỉ còn một giao diện, nên:
+//   · `<html data-theme="thien-van">` là thuộc tính TĨNH ở `layout.tsx` (không còn
+//     đọc localStorage, không còn nháy lofi trước khi script chạy, không còn chuỗi
+//     lạ nào có thể thành thuộc tính);
+//   · mọi selector trong `theme-thien-van.css` / `scene-thien-van.css` mở bằng
+//     `html[data-theme="thien-van"]` — KHÔNG còn `:has([data-tv-surface])`: theme áp
+//     cho MỌI trang, kể cả trang di sản. Trang nào chưa thiết kế sẽ thấy token mới
+//     với bố cục cũ; đó là nợ đã khai, không phải một lựa chọn;
+//   · còn lại một trục: sáng/tối (`body.dark` / `body.light`, khoá `theme`).
+//
+// Bảng token lofi (`:root` của `edu-theme.css`, `studio-tokens.css`) VẪN ở đó làm
+// nền cho các token mà theme không ghi đè. Gộp chúng vào một bảng và xoá tệp theme
+// là vòng dọn sau (nợ khai ở AGENTS.md), vì `ds-contrast.test.mjs` canh bảng lofi
+// bằng neo chuỗi và phải viết lại cùng lúc.
 //
 // KHÔNG import gì: test nạp thẳng file `.ts` này bằng `node --test`, nơi alias
 // `@/` không tồn tại.
-//
-// MÔ HÌNH: `data-theme="<id>"` trên <html>. VẮNG thuộc tính = lofi (mặc định),
-// nên người dùng cũ và mọi trang di sản không đổi một pixel. Sáng/tối vẫn là
-// `body.dark` / `body.light` như trước, cho nên có BỐN tổ hợp.
 
 /** Mọi giao diện hợp lệ. Phần tử đầu là mặc định. */
-export const GIAO_DIEN = ['lofi', 'thien-van'] as const;
+export const GIAO_DIEN = ['thien-van'] as const;
 export type GiaoDien = (typeof GIAO_DIEN)[number];
 
-export const GIAO_DIEN_MAC_DINH: GiaoDien = 'lofi';
+export const GIAO_DIEN_MAC_DINH: GiaoDien = 'thien-van';
 
-/** Khoá localStorage của giao diện. Khoá sáng/tối vẫn là `theme` (cũ, nhiều chỗ đọc). */
-export const KHOA_GIAO_DIEN = 'pe-giao-dien';
+/** Khoá localStorage của chế độ sáng/tối (cũ, nhiều chỗ đọc). */
 export const KHOA_CHE_DO = 'theme';
 
 /** Thuộc tính trên <html>. */
 export const THUOC_TINH = 'data-theme';
 
-export const NHAN_GIAO_DIEN: Record<GiaoDien, string> = {
-  lofi: 'Lofi chill',
-  'thien-van': 'Đài thiên văn',
-};
-
-/** Giá trị từ localStorage/DOM là CHUỖI BẤT KỲ — chỉ id trong danh sách mới được tin. */
-export function laGiaoDien(v: unknown): v is GiaoDien {
-  return typeof v === 'string' && (GIAO_DIEN as readonly string[]).includes(v);
-}
-
 /**
- * Script chạy ĐẦU <body>, trước khi vẽ: đặt `dark`/`light` (hành vi cũ, giữ
- * nguyên) và `data-theme` nếu localStorage giữ một giao diện KHÁC mặc định mà
- * nằm trong WHITELIST. Chuỗi lạ — kể cả do ai đó gõ tay vào localStorage —
- * không bao giờ thành thuộc tính. Giao diện mặc định không được ghi ra: vắng
- * thuộc tính là lofi.
+ * Script chạy ĐẦU <body>, trước khi vẽ: đặt `dark`/`light` theo localStorage.
+ * Giao diện KHÔNG đi qua đây nữa — nó là thuộc tính tĩnh của <html>.
  *
  * Phải nằm trong <body> vì cần `document.body` (xem chú thích ở layout.tsx).
  */
@@ -52,30 +43,7 @@ export const SCRIPT_TRUOC_PAINT =
   `var d=localStorage.getItem(${JSON.stringify(KHOA_CHE_DO)})==='dark';` +
   "document.body.classList.toggle('dark',d);" +
   "document.body.classList.toggle('light',!d);" +
-  `var t=localStorage.getItem(${JSON.stringify(KHOA_GIAO_DIEN)});` +
-  `var w=${JSON.stringify(GIAO_DIEN.filter((g) => g !== GIAO_DIEN_MAC_DINH))};` +
-  `if(w.indexOf(t)>-1)document.documentElement.setAttribute(${JSON.stringify(THUOC_TINH)},t);` +
   '}catch(e){}})();';
-
-/** Giao diện đang áp lên <html>. Ngoài trình duyệt (SSR) trả về mặc định. */
-export function docGiaoDien(): GiaoDien {
-  if (typeof document === 'undefined') return GIAO_DIEN_MAC_DINH;
-  const v = document.documentElement.getAttribute(THUOC_TINH);
-  return laGiaoDien(v) ? v : GIAO_DIEN_MAC_DINH;
-}
-
-/** Đổi giao diện: áp lên <html> NGAY và nhớ lại. localStorage có thể ném (chế độ riêng tư). */
-export function datGiaoDien(g: GiaoDien): void {
-  if (typeof document === 'undefined') return;
-  if (g === GIAO_DIEN_MAC_DINH) document.documentElement.removeAttribute(THUOC_TINH);
-  else document.documentElement.setAttribute(THUOC_TINH, g);
-  try {
-    if (g === GIAO_DIEN_MAC_DINH) localStorage.removeItem(KHOA_GIAO_DIEN);
-    else localStorage.setItem(KHOA_GIAO_DIEN, g);
-  } catch {
-    /* không nhớ được cũng không sao: lần tải sau về mặc định */
-  }
-}
 
 /** Sáng/tối hiện tại. */
 export function docCheDoToi(): boolean {
@@ -90,19 +58,18 @@ export function datCheDoToi(toi: boolean): void {
   try {
     localStorage.setItem(KHOA_CHE_DO, toi ? 'dark' : 'light');
   } catch {
-    /* như trên */
+    /* không nhớ được cũng không sao: lần tải sau về sáng */
   }
 }
 
 /**
- * Đăng ký theo dõi thay đổi giao diện / sáng-tối (cho `useSyncExternalStore`).
- * Dùng MutationObserver thay vì tự phát sự kiện: `SiteHeader` đổi sáng/tối bằng
- * cách chạm thẳng vào `body.classList`, nên chỉ quan sát DOM mới thấy mọi nguồn.
+ * Đăng ký theo dõi thay đổi sáng/tối (cho `useSyncExternalStore`). Dùng
+ * MutationObserver thay vì tự phát sự kiện: `SiteHeader` đổi sáng/tối bằng cách
+ * chạm thẳng vào `body.classList`, nên chỉ quan sát DOM mới thấy mọi nguồn.
  */
 export function dangKyGiaoDien(goi: () => void): () => void {
   if (typeof MutationObserver === 'undefined') return () => {};
   const ob = new MutationObserver(goi);
-  ob.observe(document.documentElement, { attributes: true, attributeFilter: [THUOC_TINH] });
   ob.observe(document.body, { attributes: true, attributeFilter: ['class'] });
   return () => ob.disconnect();
 }

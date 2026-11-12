@@ -10,9 +10,9 @@
  *      một bên là hai mặt phẳng cạnh nhau lệch màu, và không gì báo.
  *   2. TƯƠNG PHẢN — chữ, từ khoá, chuỗi, số, chú thích, số dòng trên nền và trên
  *      dòng đang đứng. Cú pháp tô màu là chỗ dễ tụt dưới AA nhất.
- *   3. ĐƯỜNG TỚI — IdeClient chọn theme theo giao diện và gọi `beforeMount`;
- *      thiếu `beforeMount` thì `theme` trỏ vào một tên Monaco chưa biết và rơi
- *      im lặng về `vs`. Ba bề mặt (/ide, 404, trang lỗi) khai `data-tv-surface`.
+ *   3. ĐƯỜNG TỚI — IdeClient chọn theme chiêm tinh theo sáng/tối và gọi
+ *      `beforeMount`; thiếu `beforeMount` thì `theme` trỏ vào một tên Monaco chưa
+ *      biết và rơi im lặng về `vs`. Không còn nhánh lofi (`vs-dark` / `light`).
  *
  * Giới hạn: đọc mã TĨNH. Màu Monaco thật hiện ra là chuyện của trình duyệt (đã
  * xem bằng Chrome ở cả hai chế độ), không phải của cổng này.
@@ -39,7 +39,7 @@ const doc = (p) => readFileSync(`${GOC}${p}`, 'utf8');
 // (mục `san-chu-monaco-thien-van` trong scripts/nguong-mot-chieu.json).
 const SAN_CHU_MONACO = 5.4;
 
-const NGAY = 'html[data-theme="thien-van"]:has([data-tv-surface])';
+const NGAY = 'html[data-theme="thien-van"]';
 const DEM = `${NGAY} body.dark`;
 
 const tuyen = (c) => {
@@ -100,12 +100,12 @@ test('theme Monaco: dungTheme sinh đủ khoá, và dinhNghiaThemeThienVan đăn
   assert.equal(dungTheme(MAU_DEM, true).base, 'vs-dark');
 });
 
-test('đường tới: IdeClient chọn theme theo giao diện và gọi beforeMount; ba bề mặt khai data-tv-surface', () => {
+test('đường tới: IdeClient chọn theme chiêm tinh theo sáng/tối và gọi beforeMount, không còn nhánh lofi', () => {
   const ide = doc('src/app/ide/IdeClient.tsx');
   assert.match(ide, /beforeMount=\{dinhNghiaThemeThienVan\}/, 'thiếu beforeMount: theme Monaco chưa được định nghĩa, rơi im lặng về `vs`');
-  assert.match(ide, /thienVan \? \(dark \? MONACO_THIEN_VAN_DEM : MONACO_THIEN_VAN_NGAY\)/, 'prop theme không chọn theme chiêm tinh theo giao diện');
-  assert.match(ide, /dangKyGiaoDien/, 'IdeClient không lắng nghe giao diện: đổi theme giữa chừng không đổi ô mã');
-  assert.match(ide, /<div className=\{styles\.page\} data-tv-surface=""/, '/ide không khai data-tv-surface');
-  assert.match(doc('src/app/not-found.tsx'), /<main className=\{styles\.wrap\} data-tv-surface=""/, 'trang 404 không khai data-tv-surface');
-  assert.match(doc('src/app/error.tsx'), /<main className=\{styles\.wrap\} data-tv-surface=""/, 'trang lỗi không khai data-tv-surface');
+  assert.match(ide, /theme=\{dark \? MONACO_THIEN_VAN_DEM : MONACO_THIEN_VAN_NGAY\}/, 'prop theme không chọn theme chiêm tinh theo sáng/tối');
+  assert.ok(!/'vs-dark'|'light'/.test(boChuThich(ide).replace(/\/\/.*$/gm, '')), 'IdeClient còn nhánh theme lofi (vs-dark / light)');
+  for (const tep of ['src/app/ide/IdeClient.tsx', 'src/app/not-found.tsx', 'src/app/error.tsx']) {
+    assert.ok(!doc(tep).includes('data-tv-surface'), `${tep} còn data-tv-surface: cổng giới hạn theme đã bỏ`);
+  }
 });

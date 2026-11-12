@@ -32,7 +32,6 @@ import { useEffect, useState } from 'react';
 
 import PageStyles from '@/components/PageStyles';
 import SiteHeader from '@/components/SiteHeader';
-import ThemePicker from '@/components/ThemePicker';
 import { apiFetch, asList, findEnrollment } from '@/lib/api';
 import { findCourse, LEVEL_LABEL } from '@/lib/catalog';
 import {
@@ -370,29 +369,17 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
           mà `.page` dưới đây phủ kín khung nhìn nên nền body không còn lộ. */}
       <PageStyles hrefs={['/static/css/edu-theme.css']} />
 
-      {/* data-tv-surface: trang khoá học nhận giao diện "Đài thiên văn" ở mức
-          TOKEN (giấy, mực, tint, đường kẻ) — xem `theme-thien-van.css`. */}
-      <div className={styles.page} data-tv-surface="">
+      <div className={styles.page}>
         <div className={styles.shell}>
           <SiteHeader />
 
           <div className={styles.content}>
-            {/* Hàng này chỉ để làm mốc `position: relative` cho nút chọn giao
-                diện. Nút nằm NGOÀI dòng chảy (xem `.themeSlot`), nên hàng cao
-                đúng bằng liên kết như trước — người dùng lofi không thấy gì
-                dịch. Header đã chật ở 320–390px (tên ~195px + nút sáng/tối 48px)
-                nên nút không thêm vào đó. */}
-            <div className={styles.topRow}>
-              {/* <a> thường: về trang chủ bằng tải lại trang, xem SiteHeader. */}
-              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-              <a className={styles.back} href="/">
-                <Icon name="chevronLeft" />
-                <span>Tất cả khoá học</span>
-              </a>
-              <div className={styles.themeSlot}>
-                <ThemePicker cheDo={false} />
-              </div>
-            </div>
+            {/* <a> thường: về trang chủ bằng tải lại trang, xem SiteHeader. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+            <a className={styles.back} href="/">
+              <Icon name="chevronLeft" />
+              <span>Tất cả khoá học</span>
+            </a>
 
             <div className={styles.grid}>
               {/* ── Cột trái ── */}

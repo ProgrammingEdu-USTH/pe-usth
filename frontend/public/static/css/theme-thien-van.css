@@ -12,13 +12,14 @@
    bỏ qua — cả hai đều sai. Tệp này có cổng riêng: `giao-dien.test.mjs`.
 
    CẤU TRÚC — ba khối, và thứ tự không tuỳ ý:
-   · khối NGÀY  `html[…]:has([data-tv-surface])`          — nguyên tố, chỉ giá trị trần
-   · khối ĐÊM   `html[…]:has([data-tv-surface]) body.dark` — nguyên tố, chỉ giá trị trần
+   · khối NGÀY  `html[…]`          — nguyên tố, chỉ giá trị trần
+   · khối ĐÊM   `html[…] body.dark` — nguyên tố, chỉ giá trị trần
    · khối color-scheme
-   Mọi selector mở đầu bằng `html[data-theme="thien-van"]` nên người dùng lofi
-   và mọi trang di sản KHÔNG đổi một pixel. `:has([data-tv-surface])` giới hạn
-   vào những bề mặt ĐÃ thiết kế (hiện là khung bài học): chọn theme không làm
-   java / htmlcss / db_design / /interface đổi màu nửa vời.
+   Mọi selector mở đầu bằng `html[data-theme="thien-van"]`. Từ 12/11/2026 (nhánh
+   `chiem-tinh`) thuộc tính đó là TĨNH ở <html> và theme áp cho MỌI trang: lofi
+   đã bỏ, không còn cổng `:has([data-tv-surface])` giới hạn vào bề mặt đã thiết
+   kế. Trang di sản (java / htmlcss / db_design / /interface) thấy token mới với
+   bố cục cũ — nợ đã khai, xem AGENTS.md.
 
    Vì sao không ghi đè `--st-*`: chúng được khai lại trên `body` dưới dạng
    `var(--ds-*)` (studio-tokens.css), nên đổi `--ds-*` là chúng tự đi theo. Một
@@ -32,7 +33,7 @@
    tính trên <html>, nên một giá trị đặt ở `body.dark` không bao giờ tới nó.
    Đồng `#8A6D1E` trên nền sheet 3,95:1 và trên nền đêm 3,82:1 (WCAG 1.4.11 đòi 3:1). */
 
-html[data-theme="thien-van"]:has([data-tv-surface]) {
+html[data-theme="thien-van"] {
   /* ── nền trang và thẻ ── */
   --ds-page: #EFE6D4;
   --ds-card: #FBF5E3;
@@ -95,7 +96,7 @@ html[data-theme="thien-van"]:has([data-tv-surface]) {
   --tv-star-display: none;
 }
 
-html[data-theme="thien-van"]:has([data-tv-surface]) body.dark {
+html[data-theme="thien-van"] body.dark {
   --ds-page: #0B1220;
   --ds-card: #2A2416;
   --ds-desk: #3A3220;
@@ -146,6 +147,6 @@ html[data-theme="thien-van"]:has([data-tv-surface]) body.dark {
 
 /* Ban đêm của giao diện này là TỐI thật: thanh cuộn, ô nhập gốc, nền canvas mặc
    định của trình duyệt phải theo. Lofi không khai color-scheme (đo 12/11/2026). */
-html[data-theme="thien-van"]:has([data-tv-surface]):has(> body.dark) {
+html[data-theme="thien-van"]:has(> body.dark) {
   color-scheme: dark;
 }

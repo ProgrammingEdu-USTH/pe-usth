@@ -262,11 +262,7 @@ export default function StudyRoom(props: StudyRoomProps) {
           <div className="gh-cho-toi" />
         </div>
       )}
-      {/* data-tv-surface: trang chủ nhận giao diện "Đài thiên văn" ở mức HUD
-          (xem scene-thien-van.css). Gắn ở đây — phần tử React sở hữu, có trong
-          HTML máy chủ — chứ không phải trong cảnh: engine ghi đè
-          `host.innerHTML` nhưng không đụng thuộc tính của chính host. */}
-      <div ref={hostRef} data-tv-surface="" />
+      <div ref={hostRef} />
     </>
   );
 }

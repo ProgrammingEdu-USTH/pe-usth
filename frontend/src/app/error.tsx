@@ -105,7 +105,7 @@ export default function TrangLoi({ reset }: { error: Error; reset: () => void })
   return (
     <>
       <PageStyles hrefs={['/static/css/edu-theme.css']} />
-      <main className={styles.wrap} data-tv-surface="">
+      <main className={styles.wrap}>
         <h1 className={styles.tieuDe}>Trang này vừa gặp lỗi</h1>
         <p className={styles.than}>
           Một phần giao diện không dựng được. Tiến độ đã hoàn thành của bạn nằm

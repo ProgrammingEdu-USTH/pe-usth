@@ -136,9 +136,6 @@ export const SHELL_HTML = /* html */ `
     <button class="tg" id="tWin" aria-pressed="false">Mở cửa sổ<span class="sw"></span></button>
     <button class="tg" id="tRain" aria-pressed="false">Mưa ngoài cửa sổ<span class="sw"></span></button>
     <button class="tg" id="tRm" aria-pressed="false">Giảm chuyển động<span class="sw"></span></button>
-    <h4>Giao diện bài học</h4>
-    <button class="tg" id="tTv" aria-pressed="false">Đài thiên văn<span class="sw"></span></button>
-    <p>Áp cho trang chủ này, trang khoá học và màn bài học.</p>
     <button class="tg" id="tIntro">Xem lại màn mở đầu<svg class="i"><use href="#i-play"/></svg></button>
     <p>Bản thử nghiệm của khung cảnh. Bầu trời đổi theo giờ, còn căn phòng chỉ đổi màu ánh sáng trên một ảnh hoàng hôn; bản sau sẽ có ảnh riêng cho từng buổi. Giáo trình và tiến độ là dữ liệu thật — chỗ nào chưa nối được thì để trống, không điền số mẫu.</p>
   </div>

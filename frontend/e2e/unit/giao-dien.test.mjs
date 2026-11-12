@@ -1,23 +1,23 @@
 /**
- * GIAO DIỆN THỨ HAI — "Đài thiên văn" (`data-theme="thien-van"`).
+ * GIAO DIỆN "ĐÀI THIÊN VĂN" — giao diện DUY NHẤT của nhánh `chiem-tinh`.
  *
- * Thêm một giao diện là thêm MỘT TRỤC chọn, và nó hỏng theo năm cách im lặng.
- * Mỗi mục dưới đây canh một cách, kèm phép ablate đã chứng minh nó có răng:
+ * Từ 12/11/2026 lofi đã bỏ: `data-theme="thien-van"` là thuộc tính TĨNH ở <html>
+ * và theme áp cho MỌI trang. Mỗi mục dưới đây canh một cách hỏng im lặng, kèm phép
+ * ablate đã chứng minh nó có răng:
  *
- *  1. SCRIPT TRƯỚC-PAINT chạy trên giá trị localStorage BẤT KỲ. Nó phải chỉ nhận
- *     id trong whitelist — không thì một chuỗi lạ thành thuộc tính trên <html>.
- *     Chạy trong `node:vm`, không so chuỗi regex: so chuỗi không chứng minh được
- *     hành vi (ablate "nhận chuỗi bất kỳ" chỉ lộ ra khi CHẠY).
- *  2. BA NƠI PHẢI KHỚP id: `lib/giao-dien.ts` ⇔ script ⇔ selector trong CSS. Gõ
- *     sai một chữ trong CSS thì theme không bao giờ bật mà không gì báo.
- *  3. CẤU TRÚC TỆP TOKEN: mọi selector bắt đầu `html[data-theme="thien-van"]`
- *     (nếu không, nó đè lên người dùng lofi và trang di sản); khối ngày/đêm chỉ
- *     khai biến; ngày KHÔNG chứa `var()` hay `--st-*` (bí danh trên `body` che
- *     mất nó: code chết); đêm KHÔNG chứa `--edu-scrollbar-thumb` (tính trên
- *     <html>, đặt ở `body.dark` thì không bao giờ tới).
- *  4. ĐÊM KHÔNG RÒ: token nào khối ngày đặt mà `body.dark` của lofi cũng khai
- *     (đặc hiệu cao hơn `html[…]`) thì khối đêm phải khai lại — quên là ban đêm
- *     lofi tràn vào đúng token đó.
+ *  1. SCRIPT TRƯỚC-PAINT chỉ còn lo sáng/tối. Nó KHÔNG được chạm `data-theme`
+ *     (giao diện không đi qua localStorage nữa: một chuỗi lạ do ai đó gõ vào đó
+ *     không được thành thuộc tính). Chạy trong `node:vm`, không so chuỗi regex.
+ *  2. THUỘC TÍNH TĨNH: `layout.tsx` khai `data-theme={GIAO_DIEN_MAC_DINH}`, CSS chỉ
+ *     nhắc đúng id đó, và không còn `data-tv-surface` / `:has([data-tv-surface])`
+ *     nào (cổng cũ giới hạn theme vào bề mặt đã thiết kế; còn sót một cái là còn
+ *     một chỗ đọc ra "theme chưa áp" trong khi nó đã áp).
+ *  3. CẤU TRÚC TỆP TOKEN: mọi selector bắt đầu `html[data-theme="thien-van"]`;
+ *     khối ngày/đêm chỉ khai biến; ngày KHÔNG chứa `var()` hay `--st-*` (bí danh
+ *     trên `body` che mất nó: code chết); đêm KHÔNG chứa `--edu-scrollbar-thumb`
+ *     (tính trên <html>, đặt ở `body.dark` thì không bao giờ tới).
+ *  4. ĐÊM KHÔNG RÒ: token nào khối ngày đặt mà `body.dark` của bảng nền (lofi, còn
+ *     lại làm nền cho token chưa ghi đè) cũng khai thì khối đêm phải khai lại.
  *  5. TƯƠNG PHẢN, cả hai chế độ, TÍNH từ chính tệp CSS (không giữ bảng giá trị
  *     thứ hai). Các sàn nằm trong `scripts/nguong-mot-chieu.json`: chỉ được NÂNG.
  *
@@ -25,7 +25,7 @@
  * "bề mặt nào đó đổi màu" — phần đó là ảnh chụp trình duyệt của từng vòng.
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 import vm from 'node:vm';
 
@@ -33,11 +33,8 @@ import {
   GIAO_DIEN,
   GIAO_DIEN_MAC_DINH,
   KHOA_CHE_DO,
-  KHOA_GIAO_DIEN,
-  NHAN_GIAO_DIEN,
   SCRIPT_TRUOC_PAINT,
   THUOC_TINH,
-  laGiaoDien,
 } from '../../src/lib/giao-dien.ts';
 
 const GOC = new URL('../../', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
@@ -45,7 +42,7 @@ const doc = (p) => readFileSync(`${GOC}${p}`, 'utf8');
 const boChuThich = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
 
 const TV = 'thien-van';
-const NGAY = `html[data-theme="${TV}"]:has([data-tv-surface])`;
+const NGAY = `html[data-theme="${TV}"]`;
 const DEM = `${NGAY} body.dark`;
 const SCHEME = `${NGAY}:has(> body.dark)`;
 
@@ -134,7 +131,18 @@ const mau = (ten, che) => {
 };
 
 // ═════════════════════════════════════════════════════════════════════════
-test('script trước-paint: chỉ nhận id trong whitelist, kể cả khi localStorage bị bơm chuỗi lạ', () => {
+/** Mọi tệp mã (.ts/.tsx/.js/.css) trong src. */
+function moiTepSrc(thuMuc = 'src') {
+  const ra = [];
+  for (const m of readdirSync(`${GOC}${thuMuc}`, { withFileTypes: true })) {
+    const p = `${thuMuc}/${m.name}`;
+    if (m.isDirectory()) ra.push(...moiTepSrc(p));
+    else if (/\.(tsx?|jsx?|css)$/.test(m.name)) ra.push(p);
+  }
+  return ra;
+}
+
+test('script trước-paint: chỉ đặt sáng/tối, KHÔNG chạm data-theme dù localStorage bị bơm chuỗi lạ', () => {
   const chay = (luu, { ne = false } = {}) => {
     const thuocTinh = [];
     const lop = {};
@@ -154,16 +162,15 @@ test('script trước-paint: chỉ nhận id trong whitelist, kể cả khi loca
     return { thuocTinh, lop };
   };
 
-  // đúng: giao diện hợp lệ khác mặc định → đặt thuộc tính
-  assert.deepEqual(chay({ [KHOA_GIAO_DIEN]: TV }).thuocTinh, [[THUOC_TINH, TV]]);
-
-  // sai: mọi giá trị khác KHÔNG được thành thuộc tính
-  const LA = [GIAO_DIEN_MAC_DINH, '', 'THIEN-VAN', 'thien-van ', '"><script>alert(1)</script>', '__proto__', 'constructor', 'thien-van,lofi', undefined, null];
+  // mọi giá trị trong mọi khoá đều KHÔNG được thành thuộc tính trên <html>
+  const LA = [TV, 'lofi', '', 'THIEN-VAN', '"><script>alert(1)</script>', '__proto__', 'constructor', undefined, null];
   for (const v of LA) {
-    assert.deepEqual(chay(v === undefined ? {} : { [KHOA_GIAO_DIEN]: v }).thuocTinh, [], `giá trị ${JSON.stringify(v)} lọt qua whitelist`);
+    for (const khoa of ['pe-giao-dien', KHOA_CHE_DO]) {
+      assert.deepEqual(chay(v === undefined ? {} : { [khoa]: v }).thuocTinh, [], `giá trị ${JSON.stringify(v)} ở khoá ${khoa} chạm vào <html>`);
+    }
   }
 
-  // hành vi cũ của script không được mất: sáng/tối
+  // hành vi sáng/tối không được mất
   assert.deepEqual(chay({ [KHOA_CHE_DO]: 'dark' }).lop, { dark: true, light: false });
   assert.deepEqual(chay({}).lop, { dark: false, light: true });
 
@@ -171,37 +178,33 @@ test('script trước-paint: chỉ nhận id trong whitelist, kể cả khi loca
   assert.doesNotThrow(() => chay({}, { ne: true }));
 });
 
-test('ba nơi khớp id: lib/giao-dien.ts ⇔ script ⇔ selector CSS ⇔ nút chọn', () => {
-  assert.ok(GIAO_DIEN.includes(TV), 'danh sách giao diện phải có "thien-van"');
-  assert.equal(GIAO_DIEN[0], GIAO_DIEN_MAC_DINH, 'phần tử đầu là mặc định (vắng thuộc tính = lofi)');
-  assert.ok(laGiaoDien(TV) && !laGiaoDien('x') && !laGiaoDien(undefined));
-  for (const g of GIAO_DIEN) assert.ok(NHAN_GIAO_DIEN[g], `giao diện ${g} thiếu nhãn`);
+test('thuộc tính tĩnh: layout khai data-theme bằng hằng, CSS chỉ nhắc id đó, không còn cổng data-tv-surface', () => {
+  assert.deepEqual([...GIAO_DIEN], [TV], 'nhánh này chỉ có MỘT giao diện: thêm giao diện thứ hai là quay lại bài toán trục chọn, phải làm có chủ đích');
+  assert.equal(GIAO_DIEN_MAC_DINH, TV);
+  assert.equal(THUOC_TINH, 'data-theme');
 
-  // mọi giá trị `data-theme="…"` trong CSS là một id có thật
-  const trongCss = [...THEME.matchAll(/data-theme="([^"]*)"/g)].map((m) => m[1]);
-  assert.ok(trongCss.length >= 3, 'CSS phải nhắc data-theme ở ít nhất ba selector');
-  for (const v of trongCss) assert.ok(laGiaoDien(v) && v !== GIAO_DIEN_MAC_DINH, `CSS nhắc data-theme="${v}" mà danh sách không có`);
-
-  // mọi giao diện KHÁC mặc định có selector riêng trong CSS (không thì chọn mà không đổi gì)
-  for (const g of GIAO_DIEN.filter((x) => x !== GIAO_DIEN_MAC_DINH)) {
-    assert.ok(THEME.includes(`html[data-theme="${g}"]`), `giao diện ${g} không có selector nào trong theme-thien-van.css`);
-  }
-
-  // layout dùng chuỗi script từ nguồn chung, không còn bản chép riêng
   const layout = boChuThich(doc('src/app/layout.tsx'));
+  assert.match(layout, /<html[^>]*data-theme=\{GIAO_DIEN_MAC_DINH\}/, 'layout.tsx không khai data-theme tĩnh ở <html>: theme không bao giờ bật');
   assert.match(layout, /SCRIPT_TRUOC_PAINT/, 'layout.tsx phải nhúng SCRIPT_TRUOC_PAINT');
   assert.ok(!layout.includes("getItem('theme')"), 'layout.tsx vẫn giữ bản chép script sáng/tối');
 
-  // nút chọn liệt kê giao diện từ nguồn chung
-  const nut = boChuThich(doc('src/components/ThemePicker.tsx'));
-  assert.match(nut, /GIAO_DIEN\.map/, 'ThemePicker phải dựng nhóm radio từ GIAO_DIEN');
-  assert.match(nut, /NHAN_GIAO_DIEN\[/, 'ThemePicker phải lấy nhãn từ NHAN_GIAO_DIEN');
+  // mọi giá trị `data-theme="…"` trong CSS là đúng id thật
+  const trongCss = [...THEME.matchAll(/data-theme="([^"]*)"/g)].map((m) => m[1]);
+  assert.ok(trongCss.length >= 3, 'CSS phải nhắc data-theme ở ít nhất ba selector');
+  for (const v of trongCss) assert.equal(v, TV, `CSS nhắc data-theme="${v}" mà danh sách không có`);
+
+  // cổng cũ đã bỏ: không còn marker nào, không còn selector nào đọc marker
+  const sot = [];
+  for (const tep of moiTepSrc()) {
+    if (boChuThich(doc(tep)).includes('data-tv-surface')) sot.push(tep);
+  }
+  assert.deepEqual(sot, [], `còn data-tv-surface trong mã (cổng giới hạn theme đã bỏ): ${sot.join(', ')}`);
+  assert.ok(!THEME.includes('data-tv-surface'), 'theme-thien-van.css còn nhắc data-tv-surface');
 });
 
-test('đường tới: nút chọn mount ở khung bài học, bề mặt khai data-tv-surface, tệp token được nạp', () => {
+test('đường tới: nút chế độ mount ở khung bài học, tệp token nạp ở mọi trang, không còn nút chọn giao diện', () => {
   const chrome = boChuThich(doc('src/components/lesson-chrome/LessonChrome.tsx'));
-  assert.match(chrome, /<ThemePicker\s*\/>/, 'LessonChrome không dựng <ThemePicker />');
-  assert.match(chrome, /data-tv-surface/, 'khung bài học thiếu data-tv-surface: theme không áp lên đâu cả');
+  assert.match(chrome, /<ThemePicker\s*\/>/, 'LessonChrome không dựng <ThemePicker />: trong bài học không còn chỗ đổi sáng/tối');
 
   // VĂN BẢN THÔ, không bóc chú thích: một dòng `// … pages/*.inline.css …` trong
   // PageStyles mở một khối `/*` giả và bộ bóc nuốt mất cả bảng RANK (đã đo).
@@ -218,18 +221,12 @@ test('đường tới: nút chọn mount ở khung bài học, bề mặt khai d
   assert.ok(hang('theme-thien-van.css') < hang('edu-responsive.css'), 'lớp co giãn phải vẫn cuối cùng');
   assert.match(ps, /co\(THEME_CSS,/, 'PageStyles không tự thêm tệp theme vào mọi trang');
 
-  // đường tới thứ hai: trang khoá học (nhận theme + có nút) và panel cài đặt của trang chủ
-  const khoa = boChuThich(doc('src/app/(standalone)/courses/[courseId]/CourseDetail.tsx'));
-  assert.match(khoa, /<ThemePicker\s+cheDo=\{false\}\s*\/>/, 'CourseDetail không dựng <ThemePicker cheDo={false} />');
-  assert.match(khoa, /data-tv-surface/, 'trang khoá học thiếu data-tv-surface: chọn theme mà không đổi gì');
-  const shell = doc('src/components/goc-hoc/shell.js');
-  const engine = doc('src/components/goc-hoc/engine.js');
-  assert.match(shell, /id="tTv"/, 'panel cài đặt của trang chủ thiếu công tắc giao diện (#tTv)');
-  assert.match(engine, /import \{[^}]*datGiaoDien[^}]*\} from '@\/lib\/giao-dien'/, 'engine.js không lấy datGiaoDien từ lib/giao-dien');
-  // id viết tay trong engine.js phải là id THẬT — gõ sai thì công tắc im lặng ghi một giá trị bị whitelist loại
-  const idEngine = [...engine.matchAll(/datGiaoDien\([^)]*?'([a-z-]+)'[^)]*?'([a-z-]+)'/g)].flatMap((m) => [m[1], m[2]]);
-  assert.ok(idEngine.length >= 2, 'không đọc được hai id trong lời gọi datGiaoDien của engine.js');
-  for (const id of idEngine) assert.ok(laGiaoDien(id), `engine.js dùng id giao diện "${id}" không có trong danh sách`);
+  // nút chọn: chỉ còn nhóm sáng/tối; mọi dấu vết của trục giao diện đã gỡ
+  const nut = boChuThich(doc('src/components/ThemePicker.tsx'));
+  assert.ok(!/datGiaoDien|NHAN_GIAO_DIEN|GIAO_DIEN\.map/.test(nut), 'ThemePicker còn nhóm chọn giao diện — chỉ còn một giao diện');
+  assert.match(nut, /datCheDoToi/, 'ThemePicker không còn đổi được sáng/tối');
+  assert.ok(!/ThemePicker/.test(boChuThich(doc('src/app/(standalone)/courses/[courseId]/CourseDetail.tsx'))), 'trang khoá học còn nút chọn: nút trăng/mặt trời của SiteHeader đã đủ');
+  assert.ok(!/id="tTv"/.test(doc('src/components/goc-hoc/shell.js')), 'panel trang chủ còn công tắc giao diện (#tTv)');
 });
 
 test('cấu trúc tệp token: mọi selector mở bằng html[data-theme], ngày không var()/--st-*, đêm không thanh cuộn', () => {

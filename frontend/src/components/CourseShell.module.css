@@ -71,23 +71,6 @@
 /* .page của style.css đặt padding 24px; ở đây khung đã tự canh lề. */
 .content { padding: 0 24px 72px; }
 
-/* Mốc cho nút chọn giao diện. Là một khối `div` thường bọc liên kết `.back`, nên
-   bố cục bên trong y hệt khi liên kết đứng trực tiếp trong `.content` (hộp dòng
-   của nó nằm trong khối này thay vì trong khối vô danh). `.themeSlot` tuyệt đối
-   nên KHÔNG thêm chiều cao nào — đã đo trước/sau trên trang thật. Nút 44px canh
-   giữa theo chiều dọc của hàng liên kết, sát mép phải. */
-.topRow { position: relative; }
-.themeSlot {
-  position: absolute;
-  right: 0;
-  /* Tâm nút trùng tâm CHỮ của liên kết: hàng này cao 34px nhưng `.back` có
-     margin -8px trên và 12px dưới, nên tâm hộp của hàng nằm thấp hơn tâm chữ
-     ~10px (đo: 50% đặt nút chạm mép thẻ bên dưới). Nút 44px nhô 13px lên trên,
-     đè lên đường kẻ chân header như một con dấu — và cách thẻ ~7px. */
-  top: -13px;
-  z-index: 2;
-}
-
 .back {
   display: inline-flex;
   align-items: center;

@@ -1,10 +1,9 @@
 /* Dùng chung cho Mcq/TrueFalse/FillBlank — khối code tối tái dùng token
-   --st-code- và --st-syn- đã tạo ở studio-tokens.css (không riêng Python).
-   Màu và cỡ chữ lấy từ BẢNG TOKEN v2 (--ds-* trong studio-tokens.css). */
+   --st-code- và --st-syn- đã tạo ở studio-tokens.css (không riêng Python). */
 
 .codeCard {
   background: var(--st-code-bg);
-  border-radius: var(--ds-r-md);
+  border-radius: 12px;
   overflow: hidden;
   margin-bottom: 16px;
 }
@@ -15,7 +14,7 @@
   padding: 10px 14px;
   border-bottom: 1px solid var(--st-code-gutter);
   font-family: 'JetBrains Mono', monospace;
-  font-size: var(--ds-fs-label);
+  font-size: 12px;
   color: var(--st-syn-plain);
 }
 .dots {
@@ -26,19 +25,15 @@
 .dots i {
   width: 10px;
   height: 10px;
-  border-radius: var(--ds-r-round);
-  /* Trang trí thuần. Trước đây ba chấm lấy màu đỏ/vàng/xanh của hệ phản hồi
-     — bảng v2 chỉ cho mỗi họ nhấn MỘT vai, nên ba chấm cạnh một khối code
-     vừa trùng màu "chưa đúng"/"đúng" vừa gây nhầm. Nay dùng thang của chính
-     khung code. */
-  background: var(--ds-code-num);
+  border-radius: 50%;
+  background: var(--st-err-text);
   font-style: normal;
 }
 .dots i:nth-child(2) {
-  background: var(--ds-code-meta);
+  background: var(--st-warn-line);
 }
 .dots i:nth-child(3) {
-  background: var(--ds-code-fg);
+  background: var(--st-ok-line);
 }
 .filename {
   font-weight: 600;
@@ -54,8 +49,11 @@
   content: '';
   width: 6px;
   height: 6px;
-  border-radius: var(--ds-r-round);
-  background: var(--ds-mark-violet);
+  border-radius: 50%;
+  /* Chấm trang trí trên nền code NÂU: --ds-mark-ochre là màu nhấn bảng v2
+     dành cho nền tối (8,62:1 trên --ds-code-bg) — chấm xanh cũ là thứ lạnh
+     duy nhất còn lại trong khung code. Không đụng --st-code-* / --st-syn-*. */
+  background: var(--ds-mark-ochre);
 }
 
 .codeBody {
@@ -64,21 +62,18 @@
      thì cuộn ngang thay vì tràn ra ngoài thẻ. */
   overflow-x: auto;
   font-family: 'JetBrains Mono', monospace;
-  font-size: var(--ds-fs-code);
+  font-size: 13px;
   line-height: 1.9;
 }
 .codeLine {
   display: flex;
   gap: 12px;
 }
-/* Số dòng từng tô bằng --st-code-gutter (rgba trắng 0,28) — trộn lên nền
-   code ra ≈2,3:1, trượt AA. Nay dùng --ds-code-num (6,04:1); bề ngang nới
-   từ 18 lên 26px vì chữ code đã lên 16px, số hai chữ số không còn vừa. */
 .lineNum {
-  width: 26px;
+  width: 18px;
   flex-shrink: 0;
   text-align: right;
-  color: var(--ds-code-num);
+  color: var(--st-code-gutter);
   user-select: none;
 }
 .codeText {
@@ -100,10 +95,10 @@
 
 .consoleBlock {
   background: var(--st-code-bg);
-  border-radius: var(--ds-r-md);
+  border-radius: 12px;
   padding: 14px 16px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: var(--ds-fs-code);
+  font-size: 12px;
   color: var(--st-syn-string);
   margin-bottom: 16px;
 }
@@ -115,30 +110,37 @@
   gap: 10px;
 }
 .optionCard {
+  /* SÀN ĐÍCH BẤM 44px. Đo trên production 08/11/2026 ở 390×844 (bài SY05,
+   * `offsetHeight` trên màn ĐÃ LẮNG — `getBoundingClientRect` bị hoạt ảnh vào
+   * màn của `.stepEnter` làm co): thẻ phương án trắc nghiệm cao **53px**.
+   * ĐÃ ĐO 53px nên khai sàn là no-op về hình — nhưng nó biến một số đo thành
+   * một BẢO ĐẢM: bề cao thẻ này do nội dung phương án quyết, và một phương án
+   * ngắn một dòng sẽ tụt xuống dưới sàn mà không ai thấy.
+   * `dich-bam-vo-bai-hoc.test.mjs` canh nó. */
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  /* Phương án là thứ bấm được: viền phải nhận ra được (WCAG 1.4.11 >= 3:1).
-     `line` chỉ 1,36:1 trên thẻ trắng — đổi sang `sketch` (4,21:1) và dày
-     2px theo bản thiết kế. */
-  border: 2px solid var(--ds-sketch);
-  border-radius: var(--ds-r-md);
+  border: 1.5px solid var(--edu-sidebar-border);
+  border-radius: 12px;
   padding: 14px 16px;
-  background: var(--ds-card);
+  background: var(--edu-panel-bg-solid);
   cursor: pointer;
   text-align: left;
   font: inherit;
-  /* `font: inherit` reset cả cỡ chữ về cỡ thừa hưởng; khai lại rõ ràng để
-     phương án luôn ở cỡ nút/lựa chọn 17px của bản thiết kế. */
-  font-size: var(--ds-fs-ui);
-  color: var(--ds-ink);
+  color: var(--edu-t1);
   transition: border-color 0.15s, background 0.15s, transform 0.12s ease, box-shadow 0.15s ease;
 }
-.optionCard:hover:not(:disabled) {
-  border-color: var(--st-slot-border);
-  transform: translateY(-1px);
-  box-shadow: var(--st-shadow-sm);
+/* Guard con trỏ thật: trên màn cảm ứng `:hover` DÍNH LẠI sau cú chạm nên
+   phần tử kẹt ở trạng thái "đang trỏ vào" — đo 10/11/2026. Lý lẽ và số đo
+   đầy đủ ở `.start` trong `components/code-visualizer/CodeVisualizer.module.css`. */
+@media (hover: hover) and (pointer: fine) {
+  .optionCard:hover:not(:disabled) {
+    border-color: var(--st-slot-border);
+    transform: translateY(-1px);
+    box-shadow: var(--st-shadow-sm);
+  }
 }
 .optionCard:active:not(:disabled) {
   transform: translateY(0) scale(0.995);
@@ -146,16 +148,8 @@
 .optionCard:disabled {
   cursor: default;
 }
-/* Sau khi bấm "Kiểm tra", các phương án KHÔNG liên quan phải lùi về sau mà
-   vẫn đọc được. Trước đây Mcq/Multi/TrueFalse làm việc đó bằng
-   `style={{ opacity: .55 }}` nội tuyến: chữ `ink` mờ 55% trên thẻ trắng còn
-   ≈4,0:1 — trượt AA, đúng lỗi bản thiết kế bắt ở màn Review. Nay giữ nguyên
-   màu chữ, chỉ hạ VIỀN về `line` và bỏ đậm. */
-.optionDim {
-  composes: optionCard;
-  border-color: var(--ds-line);
-  font-weight: 400;
-}
+/* LỰA CHỌN ⇒ họ violet. Nền tint ĐỤC thay cho 10% alpha: chữ --edu-t1 trên
+   nó 13,90:1 ngày / 12,29:1 đêm; viền violet 6,66:1 trên thẻ (cũ 5,14:1). */
 .optionSelected {
   composes: optionCard;
   border-color: var(--ds-violet);
@@ -164,20 +158,20 @@
 .optionMain code {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
-  font-size: var(--ds-fs-code);
+  font-size: 13px;
 }
 .optionSub {
   display: block;
-  font-size: var(--ds-fs-label);
-  color: var(--ds-soft);
+  font-size: 12px;
+  color: var(--edu-t3);
   margin-top: 2px;
   font-weight: 400;
 }
 .optionRadio {
   width: 20px;
   height: 20px;
-  border-radius: var(--ds-r-round);
-  border: 2px solid var(--ds-sketch);
+  border-radius: 50%;
+  border: 2px solid var(--edu-sidebar-border);
   flex-shrink: 0;
 }
 .optionRadioSelected {
@@ -190,19 +184,19 @@
   width: 22px;
   height: 22px;
   border-radius: 6px;
-  border: 2px solid var(--ds-sketch);
+  border: 2px solid var(--edu-sidebar-border);
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   color: transparent;
-  font-size: var(--ds-fs-ui);
+  font-size: 14px;
 }
 .checkboxSelected {
   composes: checkbox;
   border-color: var(--ds-violet);
   background: var(--ds-violet);
-  color: var(--ds-on-action);
+  color: var(--edu-panel-bg-solid);
 }
 
 /* ── True / False ────────────────────────────────────────────── */
@@ -218,11 +212,11 @@
   gap: 10px;
   padding: 18px;
   border-radius: 14px;
-  border: 2px solid var(--ds-sketch);
-  background: var(--ds-card);
-  color: var(--ds-ink);
-  font-size: var(--ds-fs-ui);
-  font-weight: 700;
+  border: 1.5px solid var(--edu-sidebar-border);
+  background: var(--edu-panel-bg-solid);
+  color: var(--edu-t1);
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
   font-family: inherit;
 }
@@ -232,25 +226,16 @@
   background: var(--ds-violet-tint);
   color: var(--ds-violet-deep);
 }
-/* Nút Đúng/Sai không liên quan sau khi chấm. Cùng lý do với .optionDim:
-   TrueFalse.tsx trước đây làm mờ cả nút bằng `opacity: .55`. */
-.toggleDim {
-  composes: toggleBtn;
-  border-color: var(--ds-line);
-  font-weight: 400;
-}
 .toggleIcon {
   width: 26px;
   height: 26px;
-  border-radius: var(--ds-r-round);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  /* Chữ trắng trên `sketch` chỉ 4,32:1 — sát dưới ngưỡng 4,5:1 cho chữ
-     thường. `soft` cho 8,77:1 và vẫn là "chưa chọn". */
-  background: var(--ds-soft);
-  color: var(--ds-on-action);
+  background: var(--edu-sidebar-border);
+  color: var(--edu-panel-bg-solid);
 }
 .toggleIconSelected {
   composes: toggleIcon;
@@ -261,15 +246,9 @@
 .blank {
   display: inline-block;
   min-width: 48px;
-  /* Ô trống nằm TRONG khung code (nền tối), nên viền phải lấy bản -on-dark:
-     --st-slot-border là tím bản ngày, chỉ 2,10:1 trên nền code; --ds-mark-violet
-     cho 7,69:1. (--st-slot-border vẫn đúng chỗ khác: nó dùng cho viền khi rê
-     chuột trên thẻ SÁNG.) */
-  border: 2px dashed var(--ds-mark-violet);
+  border: 1.5px dashed var(--st-slot-border);
   border-radius: 6px;
-  /* `rgba(255,255,255,.06)` cũ là giá trị màu rời duy nhất còn lại ở đây —
-     nay lấy đường kẻ của chính khung code. */
-  background: var(--ds-code-line);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--st-syn-plain);
   font: inherit;
   font-weight: 700;
@@ -279,7 +258,8 @@
 .blank:focus {
   outline: none;
   border-style: solid;
-  border-color: var(--ds-mark-violet);
+  /* Ô trống nằm TRONG khung code nâu ⇒ màu nhấn cho nền tối, 8,62:1. */
+  border-color: var(--ds-mark-ochre);
 }
 .suggestions {
   display: flex;
@@ -287,32 +267,34 @@
   gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 16px;
-  font-size: var(--ds-fs-body);
-  color: var(--ds-soft);
+  font-size: 13px;
+  color: var(--edu-t2);
 }
 .chip {
-  border: 2px solid var(--ds-sketch);
-  background: var(--ds-card);
-  border-radius: var(--ds-r-sm);
+  /* SÀN ĐÍCH BẤM 44px. Đo trên production 08/11/2026 (390×844, màn ĐÃ
+   * LẮNG, bằng `offsetHeight` vì `getBoundingClientRect` bị hoạt ảnh vào
+   * màn của `.stepEnter` làm co): nút "Xem lời giải mẫu" — đích bấm THẤP NHẤT đo được của màn bài học cao **24px**.
+   * Bề rộng đã ≥ 44 nên chỉ thiếu trục dọc — `min-height` chữa đúng chỗ đó
+   * mà không chạm bố cục ngang. Luật 44px là luật của chính repo
+   * (`not-found.module.css`: "Repo đã phải sửa một đích 13×6px một lần"), và
+   * trước 08/11 KHÔNG rule nào trong hai module này khai `min-*` — mọi kích
+   * thước đến từ `padding` + nội dung, tức không gì bảo đảm sàn.
+   * `dich-bam-vo-bai-hoc.test.mjs` canh nó. */
+  min-height: 44px;
+  border: 1px solid var(--edu-sidebar-border);
+  background: var(--edu-panel-bg-solid);
+  border-radius: 8px;
   padding: 4px 10px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: var(--ds-fs-code);
+  font-size: 12px;
   cursor: pointer;
-  color: var(--ds-ink);
+  color: var(--edu-t1);
 }
-/* Chip đang tắt (mũi tên lên/xuống ở đầu và cuối danh sách). Trước đây
-   OrderSteps.tsx làm mờ bằng `opacity: .35` — 2,0:1, không nhận ra là nút.
-   Hạ cấp màu thay vì hạ độ đục. */
-.chipOff {
-  composes: chip;
-  border-color: var(--ds-line);
-  background: var(--ds-desk);
-  color: var(--ds-soft);
-  cursor: default;
-}
-.chip:hover {
-  border-color: var(--st-slot-border);
-  background: var(--ds-violet-tint);
+@media (hover: hover) and (pointer: fine) {
+  .chip:hover {
+    border-color: var(--st-slot-border);
+    background: var(--ds-violet-tint);
+  }
 }
 
 /* ── Trạng thái sau khi bấm "Kiểm tra" ───────────────────────── */
@@ -333,22 +315,22 @@
   composes: optionRadio;
   border-color: var(--st-ok-text);
   background: var(--st-ok-text);
-  color: var(--ds-on-action);
+  color: var(--edu-panel-bg-solid);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--ds-fs-label);
+  font-size: 13px;
   font-weight: 700;
 }
 .markWrong {
   composes: optionRadio;
   border-color: var(--st-err-text);
   background: var(--st-err-text);
-  color: var(--ds-on-action);
+  color: var(--edu-panel-bg-solid);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--ds-fs-label);
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -361,46 +343,58 @@
   flex-wrap: wrap;
 }
 .runBtn {
+  /* SÀN ĐÍCH BẤM 44px. Đo trên production 08/11/2026 (390×844, màn ĐÃ
+   * LẮNG, bằng `offsetHeight` vì `getBoundingClientRect` bị hoạt ảnh vào
+   * màn của `.stepEnter` làm co): nút "▶ Chạy thử" của ô bài tập được chấm cao **37px**.
+   * Bề rộng đã ≥ 44 nên chỉ thiếu trục dọc — `min-height` chữa đúng chỗ đó
+   * mà không chạm bố cục ngang. Luật 44px là luật của chính repo
+   * (`not-found.module.css`: "Repo đã phải sửa một đích 13×6px một lần"), và
+   * trước 08/11 KHÔNG rule nào trong hai module này khai `min-*` — mọi kích
+   * thước đến từ `padding` + nội dung, tức không gì bảo đảm sàn.
+   * `dich-bam-vo-bai-hoc.test.mjs` canh nó. */
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   border: 0;
-  border-radius: var(--ds-r-pill);
+  border-radius: 999px;
   padding: 10px 20px;
+  /* Hành động chính của ô soạn mã ⇒ cặp nút chính của bảng lofi. Gradient
+     brand cũ có đầu cuối chỉ 3,19:1 với chữ trắng; cặp này 5,57:1 ngày /
+     7,98:1 đêm và không còn dốc màu. */
   background: var(--ds-action);
   color: var(--ds-on-action);
   font: inherit;
-  font-size: var(--ds-fs-ui);
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
   transition: transform 0.12s ease, box-shadow 0.15s ease;
 }
-.runBtn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px var(--ds-violet-tint);
+@media (hover: hover) and (pointer: fine) {
+  .runBtn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    /* Bóng ấm duy nhất của bảng v2 thay cho quầng xanh. */
+    box-shadow: var(--ds-shadow-open);
+  }
 }
 .runBtn:active:not(:disabled) {
   transform: translateY(1px);
 }
-/* Nút đang chạy: hạ cấp màu, không hạ độ đục (xem .primaryBtn:disabled ở
-   LessonChrome.module.css cho cùng lý do). */
 .runBtn:disabled {
-  background: var(--ds-desk);
-  color: var(--ds-soft);
-  box-shadow: inset 0 0 0 2px var(--ds-sketch);
+  opacity: 0.55;
   cursor: progress;
 }
 .runHint {
-  font-size: var(--ds-fs-label);
-  color: var(--ds-soft);
+  font-size: 12px;
+  color: var(--edu-t3);
 }
 
 .consolePanel {
   background: var(--st-code-bg);
-  border-radius: var(--ds-r-md);
+  border-radius: 12px;
   overflow: hidden;
   font-family: 'JetBrains Mono', monospace;
-  font-size: var(--ds-fs-code);
+  font-size: 12px;
 }
 .consoleHead {
   display: flex;
@@ -409,7 +403,7 @@
   padding: 8px 14px;
   border-bottom: 1px solid var(--st-code-gutter);
   color: var(--st-syn-comment);
-  font-size: var(--ds-fs-label);
+  font-size: 11px;
   letter-spacing: 0.04em;
 }
 .consoleBody {
@@ -427,16 +421,13 @@
   overflow-wrap: anywhere;
   animation: consoleIn 0.22s ease both;
 }
-/* Nền ở đây là khung code (--ds-code-bg), nên KHÔNG dùng được bản màu dành
-   cho nền sáng: --ds-ochre chỉ 1,8:1 và --ds-sanguine chỉ 1,7:1 trên nền đó.
-   Dùng bản -on-dark của cùng hai họ: 8,62:1 và 7,30:1. */
 .consoleRowOk {
   composes: consoleRow;
-  color: var(--ds-mark-ochre);
+  color: var(--st-ok-line);
 }
 .consoleRowErr {
   composes: consoleRow;
-  color: var(--ds-mark-sanguine);
+  color: var(--st-err-text);
 }
 .consoleRowMuted {
   composes: consoleRow;
@@ -483,6 +474,14 @@
   .caret {
     animation: none;
   }
+  /* Băng phản hồi sau khi chấm: `feedbackIn` trượt lên 12px trong 0,3 s. Đó là
+     CHUYỂN ĐỘNG do tương tác (WCAG 2.3.3), và nó hiện ở MỌI lần nộp bài được
+     chấm — 143 bài. Bằng chứng mạnh nhất nằm ngay trên: `consoleIn` chỉ trượt
+     **4px** mà khối này ĐÃ tắt nó, nên một cú trượt 12px không tắt là lệch với
+     chính quyết định của file. Cổng: `giam-chuyen-dong.test.mjs`. */
+  .feedbackBanner {
+    animation: none;
+  }
 }
 
 /* Chữ chỉ dành cho trình đọc màn hình (gợi ý bàn phím, nhãn kết quả chấm).
@@ -519,16 +518,92 @@
   overflow: visible;
   clip: auto;
   white-space: normal;
-  font-size: var(--ds-fs-label);
+  font-size: 12px;
   line-height: 1.5;
-  color: var(--ds-soft);
+  color: var(--edu-t3);
 }
 
 /* Vòng focus của ô soạn mã. Bản trước đặt outline:none NỘI TUYẾN trong
    SandboxEditor.tsx: focus vào ô là con trỏ biến mất hoàn toàn khỏi màn
    (WCAG 2.4.7). Dùng cùng kiểu vòng với LessonChrome.module.css; offset ÂM vì
    .codeCard có overflow:hidden — vòng vẽ ra ngoài sẽ bị cắt mất. */
+/* Vòng vẽ TRONG khung code nâu (offset âm) nên KHÔNG dùng violet như mọi
+   vòng focus khác — violet ngày trên nền code tối chỉ 2,56:1. Màu nhấn
+   cho nền tối --ds-mark-ochre đạt 8,62:1 (bản cũ 5,38:1). */
 textarea.codeBody:focus-visible {
-  outline: 3px solid var(--ds-mark-violet);
+  outline: 3px solid var(--ds-mark-ochre);
   outline-offset: -3px;
+}
+
+/* ── "Kết quả này của bản code trước" (SandboxEditor, prop `stale`) ────────
+   Vì sao có: bài PY01 hỏi thẳng "nếu không bấm chạy lại, output đang nhìn
+   thuộc bản code nào?" và trước bản này không chỗ nào trên màn hình trả lời
+   được. Người học sửa một dòng, không chạy lại, rồi đọc tiếp console bên dưới
+   như thể nó là kết quả của bản vừa sửa. Luật so mã: lib/run-freshness.ts.
+
+   Băng chữ dùng BỘ MÀU CẢNH BÁO có sẵn (st-warn-*) chứ không phải màu lỗi:
+   kết quả cũ không phải một lỗi, nó chỉ hết hạn. */
+.staleNotice {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  margin: 0 0 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--st-warn-line);
+  border-radius: 10px;
+  background: var(--st-warn-bg);
+  color: var(--st-warn-text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Làm mờ vùng kết quả. CỐ Ý không xuống thấp hơn 0,62: đây là lớp nhắc lại
+   bằng thị giác, không phải chỗ chở thông tin (băng chữ ở trên mới là), nên
+   không được mờ tới mức console thành không đọc nổi — người học vẫn phải đối
+   chiếu được output cũ với bản code mới, đó chính là việc họ đang làm.
+
+   `filter: saturate()` đi kèm vì thứ nói dối to nhất ở đây là MÀU: chip "✓ Đạt"
+   xanh của lượt trước nằm ngay dưới một bản code chưa ai chạy. Giảm độ bão hoà
+   lấy đi đúng tín hiệu đó mà vẫn giữ nguyên chữ. */
+.staleResult {
+  opacity: 0.62;
+  filter: saturate(0.45);
+  transition: opacity 0.15s ease, filter 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .staleResult {
+    transition: none;
+  }
+}
+
+/* SÀN 16px CHO Ô GÕ TRÊN ĐIỆN THOẠI — và đây là một bản sửa lỗi, không phải
+ * chuyện cỡ chữ.
+ *
+ * Safari trên iOS TỰ PHÓNG viewport khi một form control có `font-size < 16px`
+ * nhận focus, và nó KHÔNG tự phóng lại ra. Đo trên production 08/11/2026
+ * (Chrome, 390×844): ô này ở **13px**, và viewport là
+ * `width=device-width, initial-scale=1.0` — KHÔNG có `maximum-scale`, KHÔNG có
+ * `user-scalable=no`, nên không gì chặn phép phóng ấy. Hệ quả: học viên gõ code
+ * trong một trang đã phóng, phải kéo ngang, và hai thanh vỏ bài học vừa được
+ * ghim lại ra ngoài màn.
+ *
+ * KHÔNG chữa bằng `maximum-scale=1` / `user-scalable=no`: đó là vi phạm WCAG
+ * 1.4.4 (người học phải phóng được chữ). 16px là cách duy nhất còn lại.
+ *
+ * GIÁ ĐÃ ĐO, không đoán: ô rộng 317px ở khổ 390; ở 16px mono vừa ~36 ký tự mỗi
+ * dòng, ở 13px ~44. Trên 688 dòng khung bài tập của khoá: 22,7% vượt 36 ký tự
+ * so với 14,8% vượt 44 — tức thêm ~54 dòng bị NGẮT DÒNG MỀM (textarea đang
+ * soft-wrap: `scrollWidth == clientWidth`), không phải bị cắt mất. Đổi lấy việc
+ * trang không bị phóng là đáng.
+ *
+ * CHỈ ở khổ điện thoại: trên desktop không có lỗi này, nên 13px ở đó giữ nguyên
+ * để cột mã còn rộng. Mốc 1023.98px lấy theo `edu-responsive.css` §6, cùng ranh
+ * giới "điện thoại/máy tính" mà repo đã chốt.
+ *
+ * GIỚI HẠN: tôi không có iOS để xem phép phóng xảy ra. Đây là bản sửa theo ĐIỀU
+ * KIỆN (hành vi đã tài liệu hoá + hai số đo trên), không phải theo quan sát.
+ * `o-go-16px.test.mjs` canh sàn này cho MỌI ô gõ đã khai. */
+@media (max-width: 1023.98px) {
+  textarea.codeBody { font-size: 16px; }
 }

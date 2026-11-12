@@ -1,0 +1,366 @@
+/*
+ * Chạy mã của /ide bằng Pyodide NGAY TRONG TRÌNH DUYỆT, thay cho đường
+ * POST /api/python/run → container Docker ở backend.
+ *
+ * VÌ SAO: sản phẩm đang có HAI đường chạy mã ngược nhau — trang bài học chạy
+ * Pyodide ở client, /ide gửi lên máy chủ — và hai đường còn chạy hai Python
+ * khác nhau (ảnh sandbox là python:3.12-slim, bài học là 3.14.2). Cố vấn dự án
+ * cũng đã chốt: đừng chạy mã học viên ở backend. Thêm nữa, máy chạy hiện tại
+ * phục vụ ĐÚNG HAI lượt song song; ở client thì bằng số máy học viên.
+ *
+ * ĐÂY LÀ MODULE WORKER. Pyodide 314 bỏ hẳn hỗ trợ classic worker và không còn
+ * phát hành `pyodide.js`, nên runtime nạp bằng `await import(... '.mjs')` và
+ * phía React phải tạo bằng `new Worker(url, { type: 'module' })`.
+ *
+ * KHÔNG tự cắt được vòng lặp vô hạn: `runPythonAsync` chặn luôn vòng lặp sự
+ * kiện của worker nên worker không nghe được thông điệp nào trong lúc chạy.
+ * Phía React đếm giờ rồi `terminate()` từ bên ngoài — giống hệt cách
+ * studio-lesson.worker.js đang làm. Đừng bỏ worker để chạy ở main thread:
+ * `window.prompt` có vẻ giải quyết được stdin, nhưng README của replit/jsrepl
+ * ghi lại đúng cái giá của nó — mất Web Worker, tức mất luôn cách duy nhất cắt
+ * được vòng lặp vô hạn.
+ */
+
+const PYODIDE_DIR = '/pyodide/v314.0.7/';
+
+// Bỏ hẳn `Worker` khỏi worker này TRƯỚC khi chạy mã học viên.
+//
+// Code Python gọi được JS qua `pyodide.ffi`, nên một đoạn mã dán từ link lạ có
+// thể làm `js.Worker.new('/static/js/pe-bridge.js')`. Worker CON đó nhận policy
+// từ response của CHÍNH file đó — tức CSP chung của trang, trong đó
+// `connect-src` có `API_ORIGIN` — nên nó lại gọi được API kèm cookie phiên.
+//
+// `worker-src 'none'` trong CSP riêng của file worker (frontend/next.config.ts)
+// KHÔNG đủ: đo trong Chrome 155 thì nó chỉ chặn `blob:`, còn worker con từ URL
+// cùng origin vẫn tạo được — Chrome xét worker con lồng trong worker theo
+// `script-src`, mà `script-src` buộc phải có `'self'` để `import()` được
+// pyodide.mjs. Nên chặn bằng JS là cách duy nhất khép được đường này.
+//
+// Không có đường lấy lại: worker không có DOM nên không tạo được realm mới.
+delete self.Worker;
+
+
+/** Runtime được GIỮ LẠI giữa các lần chạy: nạp lại ~13 MB mỗi lần bấm Chạy là vô lý. */
+let runtime = null;
+
+/** Gói tự lưu trữ trong PYODIDE_DIR. `sqlite3` KHÔNG có ở đây: từ bản 314 nó là
+ *  stdlib, và khai nó làm `loadPackage` ném "No known package" rồi giết cả lần chạy. */
+const PACKAGES = { numpy: 'numpy', pandas: 'pandas', matplotlib: 'matplotlib', tzdata: 'zoneinfo' };
+
+/** Module đem đi LÀM NÓNG khi khác tên module dùng để dò.
+ *
+ *  `import matplotlib` gần như miễn phí; chỗ tốn là `matplotlib.pyplot` (dựng
+ *  cache font, chọn backend). Làm nóng sai tên thì vẫn còn nguyên 5,62 s trong
+ *  hạn 15 giây của người học. */
+const LAM_NONG = { matplotlib: 'matplotlib.pyplot' };
+
+async function getRuntime() {
+  if (runtime) return runtime;
+  // import() động chứ không tĩnh ở đầu file: runtime chỉ nạp khi thật sự cần.
+  const { loadPyodide } = await import(PYODIDE_DIR + 'pyodide.mjs');
+  const box = { out: '', err: '' };
+  const them = (khoa) => (dong) => {
+    // Trần 60 000 ký tự mỗi luồng: đủ cho mọi bài, và chặn một vòng lặp print
+    // làm phình thông điệp postMessage tới mức treo tab.
+    if (box[khoa].length < 60000) box[khoa] += dong.slice(0, 60000 - box[khoa].length) + '\n';
+    else box.cat = true;
+    guiDanDan();
+  };
+  const py = await loadPyodide({ indexURL: PYODIDE_DIR, stdout: them('out'), stderr: them('err') });
+  // matplotlib trong worker KHÔNG có DOM: backend mặc định của Pyodide là
+  // matplotlib_pyodide, nó `from js import document` và nổ ngay lúc import.
+  // Agg vẽ ra bộ nhớ, `plt.show()` thành không-làm-gì kèm một cảnh báo.
+  py.runPython('import os; os.environ["MPLBACKEND"] = "Agg"');
+  runtime = { py, box };
+  return runtime;
+}
+
+/** Gói bài cần: dò `import` trong chính mã sắp chạy. */
+function packagesFor(code) {
+  const can = new Set();
+  for (const [goi, mod] of Object.entries(PACKAGES)) {
+    // Bắt cả `import numpy`, `import numpy as np`, `from numpy import ...`,
+    // và `zoneinfo` (ẩn sau pandas tz_convert) — dò thô là đủ, nhầm thừa chỉ
+    // tốn một lần tải, nhầm thiếu thì mã nổ.
+    const re = new RegExp(`(^|\\n)\\s*(import|from)\\s+${mod}\\b`);
+    if (re.test(code) || (mod === 'zoneinfo' && /tz_convert|tz_localize|ZoneInfo\(/.test(code))) {
+      can.add(goi);
+    }
+  }
+  return [...can];
+}
+
+const warmed = new Set();
+
+/*
+ * Gửi dần đầu ra về main thread TRONG LÚC chạy.
+ *
+ * VÌ SAO: vòng lặp vô hạn và nút Dừng đều kết thúc bằng `terminate()` từ bên
+ * ngoài — worker đang bị chặn nên không gửi được thông điệp 'result' nào. Hệ quả
+ * đo được: chạy `while True: print("x")` rồi chờ hết 15 giây thì ô kết quả hiện
+ * "(Không có đầu ra)", dù chương trình đã in hàng nghìn dòng. Đúng cái mà mục
+ * chọn "In vô hạn (cắt đầu ra)" trong trang tự hứa, và đường Docker cũ thì làm
+ * được vì máy chủ giữ stdout hộ.
+ *
+ * Gửi được dù worker đang bị chặn: `postMessage` chỉ xếp thông điệp vào hàng
+ * đợi, mà main thread KHÔNG bị chặn nên vẫn nhận. Có throttle vì một vòng lặp
+ * print sinh hàng chục nghìn lượt gọi mỗi giây.
+ */
+const NHIP_GUI_MS = 200;
+let lanGuiCuoi = 0;
+let hopDangChay = null;
+
+function guiDanDan(bucPhai = false) {
+  if (!hopDangChay) return;
+  const gio = Date.now();
+  if (!bucPhai && gio - lanGuiCuoi < NHIP_GUI_MS) return;
+  lanGuiCuoi = gio;
+  self.postMessage({
+    type: 'partial',
+    stdout: hopDangChay.out,
+    stderr: hopDangChay.err,
+    outputTruncated: Boolean(hopDangChay.cat),
+  });
+}
+
+/*
+ * Lớp bọc Python cho mỗi lần Chạy. CỐ Ý viết bằng Python chứ không xử ở JS: chỉ
+ * trong Python mới lọc được frame của traceback theo `co_filename`, và cũng chỉ
+ * ở đây mới thay được `input()`.
+ */
+const BOC_PYTHON = [
+  'import builtins, sys, traceback',
+  '',
+  '_ide = {"eof": 0}',
+  '',
+  'def _ide_input(prompt=""):',
+  // Pyodide không có stdin: mặc định `input()` ném "OSError: [Errno 29] I/O
+  // error" — đúng về kỹ thuật nhưng người mới học không đọc được, và nó còn
+  // khác hẳn câu mà ô chạy tự do của trang bài học đưa ra cho CÙNG một đoạn mã.
+  // Ném EOFError giống CPython khi `python main.py < input.txt` cạn dòng, rồi
+  // nói thêm bằng lời ở cuối.
+  '    sys.stdout.write(str(prompt))',
+  '    _ide["eof"] += 1',
+  '    raise EOFError("EOF when reading a line")',
+  '',
+  'builtins.input = _ide_input',
+  '',
+  'try:',
+  '    exec(compile(__ide_src, "main.py", "exec"), {"__name__": "__main__"})',
+  'except SystemExit as e:',
+  // CPython: `sys.exit("lời nhắn")` IN lời nhắn ra stderr rồi thoát 1. Bắt
+  // SystemExit mà quên in thì người học gọi sys.exit("thiếu dữ liệu") sẽ
+  // thấy một ô console trống và không hiểu vì sao chương trình dừng.
+  '    if e.code is None:',
+  '        sys.__ide_exit = 0',
+  '    elif isinstance(e.code, int):',
+  '        sys.__ide_exit = e.code',
+  '    else:',
+  '        print(e.code, file=sys.stderr)',
+  '        sys.__ide_exit = 1',
+  'except BaseException as e:',
+  // Bỏ các frame KHÔNG thuộc chương trình người học: ruột Pyodide
+  // (`_pyodide/_base.py` → `eval_code_async` → `run_async`) và chính lớp bọc
+  // này (`<exec>`, trong đó có `_ide_input` ở trên). Không lọc thì mỗi lỗi lòi
+  // ra 10 dòng vô nghĩa TRƯỚC dòng của người học — đường Docker cũ chạy
+  // `python main.py` nên traceback vốn đã sạch, để nguyên thì chính lần chuyển
+  // sang client làm thông báo lỗi tệ hơn trước.
+  //
+  // Lọc theo danh sách LOẠI TRỪ, không phải chỉ giữ main.py: lỗi nằm trong
+  // thư viện thật (`json/decoder.py`…) thì frame đó vẫn cần hiện, y như CPython.
+  //
+  // Vẫn in ra STDERR: `ide-runner.ts:263` nhận diện MemoryError/OverflowError
+  // bằng regex trên stderr để thay worker, đổi chỗ in là phá luôn việc đó.
+  '    def _bo(f):',
+  '        return f.filename == "<exec>" or "/_pyodide/" in f.filename',
+  '    def _don(te):',
+  '        te.stack = traceback.StackSummary.from_list(',
+  '            [f for f in te.stack if not _bo(f)])',
+  // `raise X from Y` và lỗi lồng trong except: mỗi tầng có stack riêng, không
+  // dọn thì vẫn lòi ruột Pyodide ở tầng dưới.
+  '        for con in (te.__cause__, te.__context__):',
+  '            if con is not None:',
+  '                _don(con)',
+  '    te = traceback.TracebackException.from_exception(e)',
+  '    _don(te)',
+  '    sys.stderr.write("".join(te.format()))',
+  '    sys.__ide_exit = 1',
+  'else:',
+  '    sys.__ide_exit = 0',
+  '',
+  'if _ide["eof"]:',
+  // Cùng một câu với ô chạy tự do (xem `_notes()` trong studio-harness.py): hai
+  // nơi nói khác nhau về cùng một giới hạn thì người học tưởng là hai lỗi khác.
+  '    print("[nhập liệu] Ô này không nhập được từ bàn phím, nên input() báo "',
+  '          "EOFError. Gán sẵn giá trị để thử: ten = \\"Hoa\\" thay cho "',
+  '          "ten = input(\\"Tên: \\").", file=sys.stderr)',
+].join('\n');
+
+async function run(code) {
+  const { py, box } = await getRuntime();
+  box.out = '';
+  box.err = '';
+  box.cat = false;
+  // Mở đường gửi dần. Chỉ mở trong lúc CHẠY: lúc nạp gói hay lúc ghi vết thì
+  // đầu ra chưa thuộc về lần chạy nào của người học.
+  hopDangChay = box;
+  lanGuiCuoi = 0;
+
+  // Tải gói TRƯỚC khi bấm giờ: `import pandas` lần đầu tốn vài giây, tính vào
+  // thời gian chạy thì người học tưởng mã của mình chậm.
+  const can = packagesFor(code).filter((p) => !warmed.has(p));
+  if (can.length) {
+    await py.loadPackage(can, { messageCallback: () => {} });
+    // IMPORT SẴN, không chỉ loadPackage. `loadPackage` chỉ bung wheel vào MEMFS;
+    // chính câu `import matplotlib.pyplot` mới là chỗ tốn — đo trên /ide ngày
+    // 25/10/2026: lần chạy đầu của một bài biểu đồ mất **5,62 s**, và vì nó nằm
+    // trong mã người học nên 5,62 s đó ăn vào đúng hạn 15 giây của họ. Một bài
+    // vẽ nhiều hình có thể bị cắt vì thư viện, không vì mã của mình.
+    //
+    // Nuốt lỗi: gói nào import không được thì để chính mã người học ném, ở đó
+    // traceback mới chỉ đúng dòng của họ.
+    try {
+      py.runPython(
+        'import importlib\n'
+        + 'for _m in ' + JSON.stringify(can.map((p) => LAM_NONG[p] ?? PACKAGES[p])) + ':\n'
+        + '    try:\n'
+        + '        importlib.import_module(_m)\n'
+        + '    except BaseException:\n'
+        + '        pass\n',
+      );
+    } catch {
+      // Không làm gì: đây chỉ là bước làm nóng.
+    }
+    can.forEach((p) => warmed.add(p));
+  }
+
+  const t0 = performance.now();
+  let exitCode = 0;
+  try {
+    // Tên file 'main.py' là hằng số CHUNG của dự án: pe_tracer.py lọc sự kiện
+    // theo `co_filename == "main.py"`, studio-harness.py compile mã học viên
+    // với đúng tên đó, và bộ đo độ hiệu quả cũng lọc theo nó. Đừng đổi lẻ.
+    py.globals.set('__ide_src', code);
+    await py.runPythonAsync(BOC_PYTHON);
+    exitCode = py.runPython('import sys; getattr(sys, "__ide_exit", 0)');
+  } catch (error) {
+    // Traceback của mã người học đã ra stderr qua stdout/stderr hook; ở đây chỉ
+    // còn việc nói rằng chương trình kết thúc bằng lỗi. Mã thoát 1 là quy ước
+    // của CPython khi một ngoại lệ không được bắt thoát ra tới đỉnh.
+    exitCode = 1;
+    const text = String(error && error.message ? error.message : error);
+    if (!box.err.includes(text.slice(0, 40))) box.err += text + '\n';
+  } finally {
+    py.globals.delete('__ide_src');
+    hopDangChay = null;
+  }
+
+  return {
+    stdout: box.out,
+    stderr: box.err,
+    exitCode,
+    // Hết giờ KHÔNG bao giờ được báo từ đây: worker đang bị chặn thì không gửi
+    // được gì cả. Phía React đặt cờ này khi chính nó terminate() worker.
+    timedOut: false,
+    outputTruncated: Boolean(box.cat),
+    durationMs: Math.round(performance.now() - t0),
+    queuedMs: 0,
+  };
+}
+
+/**
+ * "Xem từng bước": chạy CHÍNH `pe_tracer.py` của backend, nhưng trong worker.
+ *
+ * Tracer được sinh ra cùng một lượt với bản nhúng cho backend
+ * (`node scripts/build-tracer-source.mjs` ghi cả `tracer-source.ts` lẫn
+ * `/static/py/pe_tracer.min.py`), nên hai đường cho ra CÙNG một vết. Đừng chép
+ * tay bản thứ hai: hai bản lệch nhau thì cùng một đoạn mã cho hai kết quả khác
+ * nhau tuỳ đường nào chạy, và không ai thấy cho tới khi so bằng mắt.
+ *
+ * Đo trước khi làm: tracer chạy trong Pyodide chậm hơn CPython native 2,1–3,3×,
+ * ca xấu nhất 86 ms — trong khi thứ nó thay thế là 200–600 ms khởi động
+ * container. Vết sinh ra giống hệt từng byte.
+ *
+ * HAI CHỖ PHẢI VÁ, và cả hai đều vì ở đây không có tiến trình con:
+ *  · `_pe_write(fd, doc)` ghi JSON ra file descriptor, kẹp giữa hai mốc, để
+ *    backend tách khỏi stdout của subprocess. Trong worker thì không có
+ *    subprocess nào — giữ thẳng `doc` lại, vừa đúng hơn vừa khỏi đẩy 2 MB JSON
+ *    qua đường stdout.
+ *  · `_finish_and_exit` gọi `os._exit(0)` để mã người học không chen được vào
+ *    giữa "đã in vết" và "đã thoát". Trong worker, `os._exit` giết luôn runtime
+ *    đang được giữ lại — đổi thành ném một ngoại lệ riêng, bắt ngay bên dưới.
+ */
+let tracerSrc = null;
+
+async function trace(code) {
+  const { py, box } = await getRuntime();
+  box.out = '';
+  box.err = '';
+  if (tracerSrc === null) {
+    // no-cache: vẫn dùng bản trong cache nhưng hỏi lại server (ETag), để vết
+    // luôn khớp với tracer vừa được sinh lại.
+    const r = await fetch('/static/py/pe_tracer.min.py', { cache: 'no-cache' });
+    if (!r.ok) throw new Error(`không tải được bộ ghi vết (${r.status})`);
+    tracerSrc = await r.text();
+  }
+  await py.runPythonAsync(tracerSrc);
+  py.globals.set('__ide_src', code);
+  const t0 = performance.now();
+  const raw = await py.runPythonAsync(
+    'import base64, json, os, zlib\n'
+    + 'class _IdeExit(BaseException):\n'
+    + '    pass\n'
+    + '_ide_doc = {}\n'
+    + 'def _ide_write(fd, doc):\n'
+    + '    _ide_doc["d"] = doc\n'
+    + 'def _ide_exit(code=0):\n'
+    + '    raise _IdeExit()\n'
+    + '_ide_saved_write, _ide_saved_exit = _pe_write, os._exit\n'
+    + 'globals()["_pe_write"], os._exit = _ide_write, _ide_exit\n'
+    + 'try:\n'
+    + '    _pe_run(base64.b64encode(zlib.compress(__ide_src.encode("utf-8"))).decode("ascii"))\n'
+    + 'except (_IdeExit, SystemExit):\n'
+    + '    pass\n'
+    + 'finally:\n'
+    + '    globals()["_pe_write"], os._exit = _ide_saved_write, _ide_saved_exit\n'
+    + 'json.dumps(_ide_doc.get("d") or {}, ensure_ascii=False)\n',
+  );
+  py.globals.delete('__ide_src');
+  const doc = JSON.parse(raw);
+  return {
+    trace: doc,
+    run: {
+      // Tracer luôn in được vết rồi mới dừng, kể cả khi chạm trần — nên "thoát
+      // 0" ở đây nói về LƯỢT GHI VẾT, không phải về chương trình của người học.
+      // Lý do dừng thật nằm trong `doc.stopReason`.
+      exitCode: 0,
+      timedOut: doc.stopReason === 'time-limit',
+      outputTruncated: Boolean(doc.stdoutTruncated || doc.stderrTruncated),
+      durationMs: Math.round(performance.now() - t0),
+      queuedMs: 0,
+    },
+  };
+}
+
+self.onmessage = async ({ data }) => {
+  if (data && data.type === 'warmup') {
+    try {
+      await getRuntime();
+      self.postMessage({ type: 'ready' });
+    } catch (error) {
+      self.postMessage({ type: 'fatal', message: String(error && error.message ? error.message : error) });
+    }
+    return;
+  }
+  if (!data || (data.type !== 'run' && data.type !== 'trace')) return;
+  try {
+    const result = data.type === 'trace'
+      ? await trace(String(data.code ?? ''))
+      : await run(String(data.code ?? ''));
+    self.postMessage({ type: 'result', result });
+  } catch (error) {
+    // Lỗi của HẠ TẦNG (không nạp được runtime, không tải được gói) — khác hẳn
+    // lỗi trong chương trình của người học, vốn nằm trong result.stderr.
+    self.postMessage({ type: 'fatal', message: String(error && error.message ? error.message : error) });
+  }
+};

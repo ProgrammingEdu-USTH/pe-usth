@@ -32,12 +32,59 @@
 }
 [hidden]{display:none!important}
 html,body{height:100%}
-body{background:var(--ground);color:var(--ink);font-family:var(--f-body);font-size:14px;overflow:hidden;-webkit-font-smoothing:antialiased}
+body{background:var(--ground);color:var(--ink);font-family:var(--f-body);font-size:14px;overflow:hidden;-webkit-font-smoothing:antialiased;
+  /* margin:0 — trang chủ không nạp CSS nào đặt lại lề mặc định 8px của body,
+     nên tài liệu cao 100% + 8px. Bình thường overflow:hidden của body lan ra
+     khung nhìn và che đi, NHƯNG edu-responsive.css (nạp ở MỌI trang) đặt
+     `html, body { overflow-x: hidden }` ở ≤ 1023px ⇒ <html> thành vùng cuộn,
+     overflow của body thôi lan ⇒ trang chủ CUỘN được 8px và hiện thanh cuộn
+     ở máy tính 821–1023px. Thanh cuộn đó còn làm #app hẹp 16px, nên engine
+     (đọc app.clientWidth) chọn bố cục ĐIỆN THOẠI trong khi CSS (đọc khung nhìn)
+     chọn bố cục máy tính — đo ở 821px: #app 806px, lệch 500px so với khung giữ
+     chỗ. Bỏ 8px thì không còn gì để cuộn. */
+  margin:0}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
 :focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:10px}
 svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 #app{position:fixed;inset:0;overflow:hidden;background:var(--ground)}
+
+/* ── KHUNG GIỮ CHỖ dựng ở MÁY CHỦ (StudyRoom.tsx) ─────────────────────────
+   HTML máy chủ từng là MỘT div rỗng: trang không vẽ gì tới khi JS hydrate,
+   lấy số (laySo, tới 3 s nếu có phiên) và initStudyRoom dựng xong cảnh — và
+   ảnh phòng chỉ được YÊU CẦU lúc đó. Đo trên production (390×844, CPU 4×):
+   FCP = LCP = 3 372 ms (trung vị 3 lượt); vết: "load delay" 4 546 ms, tải ảnh
+   chỉ 48 ms. Khung này đưa đúng KHUNG HÌNH ĐẦU của màn mở đầu ra HTML máy chủ:
+   ảnh phòng dưới lớp tối rgba(9,7,18,.9) — chính là #dark khi --r = -700px
+   (runIntro). Nên lúc cảnh thật phủ lên, tối thay tối, không có cú nháy.
+   Vị trí ảnh CHÉP NGUYÊN phép tính của layout() trong engine.js, viết lại
+   bằng max()/min()/clamp() trên vw/dvh. RW = bề rộng phòng sau khi co
+   (= IW·s, IW 2752, IH 1536). Đổi layout() thì đổi ở đây — có ca test canh. */
+.gh-cho{position:fixed;inset:0;overflow:hidden;background:var(--ground);pointer-events:none}
+.gh-cho-toi{position:absolute;inset:0;background:rgba(9,7,18,.9)}
+/* Máy tính: s = H/IH, hoặc 0,86W/IW nếu phòng hẹp hơn 86% bề ngang.
+   ox = min(0, max(căn trái vùng nội dung, căn giữa vùng nội dung)) — max() gộp
+   hai nhánh if của layout(): khi nội dung VỪA vùng trống thì căn giữa lớn hơn,
+   khi KHÔNG vừa thì căn trái lớn hơn (hiệu hai vế = (trống − nội dung)/2).
+   0,17987 = 495/2752 · 0,51653 = (495+2348)/2/2752 · 0,55814 = 1536/2752. */
+/* VỀ CON SỐ LCP, nói cho đúng: ảnh của cảnh thật (cùng URL, cùng khung, lệch
+   ≤ 0,2px) vẫn được LCP ghi thành mục MỚI lúc cảnh dựng xong — Chrome tính
+   "size" của nó 165 868 so với 165 841 của khung này, và đã thử nới khung thêm
+   1px rồi 8px mà size của khung KHÔNG đổi (bị cắt theo cách mình không điều
+   khiển được). Nên chỉ số LCP vẫn trỏ vào lúc cảnh dựng xong, trong khi người
+   dùng đã thấy đúng khung hình ấy từ lúc FCP. Đừng thêm mẹo nới khung nữa. */
+.gh-cho-phong{position:absolute;max-width:none;height:auto;
+  --rw:max(179.1667dvh,86vw);
+  width:var(--rw);
+  left:min(0px,max(calc(6px - .17987*var(--rw)),calc((100vw - clamp(320px,23vw,380px) - 16px)/2 - .51653*var(--rw))));
+  top:min(0px,calc(.8*(100dvh - .55814*var(--rw))))}
+/* Điện thoại (≤ 820px, đúng ngưỡng L.mobile): s = max(0,69·H/IH, W/IW).
+   123,625 = 0,69·2752/1536 · 0,48328 = 1330/2752 · 0,41788 = 1150/2752. */
+@media (max-width: 820px){
+  .gh-cho-phong{--rw:max(123.625dvh,100vw);
+    left:clamp(calc(100vw - var(--rw)),calc(50vw - .48328*var(--rw)),0px);
+    top:min(0px,calc(33dvh - .41788*var(--rw)))}
+}
 #cam{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
 #room{position:absolute;left:0;top:0;width:2752px;height:1536px;transform-origin:0 0}
 #room > *{position:absolute;left:0;top:0}
@@ -97,7 +144,17 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 #sun{position:absolute;width:420px;height:420px;margin:-210px 0 0 -210px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,236,190,.9),rgba(255,214,150,.35) 40%,transparent);opacity:0;mix-blend-mode:screen}
 #rainSvg{width:2752px;height:1536px;pointer-events:none;opacity:0;transition:opacity .9s}
 .rain #rainSvg{opacity:1}
-.drops{animation:fall .62s linear infinite}
+/* Mưa CHỈ chạy khi đang mưa. Đây là hoạt ảnh DUY NHẤT của cảnh không lên được
+   compositor (transform trên phần tử SVG — trace ghi compositeFailed 1024, đã đo
+   bằng cách khởi động lại mọi hoạt ảnh trong một vết), nên lúc chạy nó vẽ lại
+   #rainSvg trên luồng chính mỗi khung — kể cả khi #rainSvg đang opacity 0.
+   `paused` chứ không `animation:none`: none đưa giọt về vị trí đầu, tức giọt
+   NHẢY trong 0,9s mờ dần lúc tạnh. */
+.drops{animation:fall .62s linear infinite;animation-play-state:paused}
+.rain .drops{animation-play-state:running}
+/* Lớp đang trong suốt thì không chạy hoạt ảnh — engine.js applyTOD() gắn hai lớp
+   này theo giờ trong ngày. */
+.khongSao .star,.khongDenPho .city{animation-play-state:paused}
 @keyframes fall{from{transform:translateY(-960px)}to{transform:translateY(0)}}
 #win{left:1036px!important;top:158px!important;width:806px;height:930px;perspective:2600px;perspective-origin:50% 45%;pointer-events:none}
 .sash{position:absolute;top:0;width:403px;height:930px;transition:transform 1.9s cubic-bezier(.3,.08,.2,1)}
@@ -248,8 +305,34 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .xpbar{width:150px;height:6px;border-radius:6px;background:rgba(255,255,255,.12);overflow:hidden}
 .xpbar i{display:block;height:100%;width:78%;border-radius:6px;background:linear-gradient(90deg,var(--sky),var(--lilac))}
 
-#side{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:var(--side);display:flex;flex-direction:column;gap:12px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
-#side::-webkit-scrollbar{display:none}
+#side{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:var(--side);display:flex;flex-direction:column;gap:12px;overflow-y:auto;overflow-x:hidden}
+/* ── THANH CUỘN: mỏng và chìm, nhưng PHẢI THẤY ĐƯỢC ─────────────────────
+   Ba vùng này cuộn được mà KHÔNG có dấu hiệu nào: `scrollbar-width:none`
+   cộng `#side::-webkit-scrollbar{display:none}`. Người thử báo đúng chuyện
+   đó ("scroll mà ko thấy scroll bar đâu"), và số đo trên production ở
+   1366×768 — độ phân giải laptop phổ biến nhất — cho thấy nó không phải
+   chuyện hiếm:
+     · `#side` tràn 28px dọc;
+     · `.shelfrow` có 11 hàng, 5 hàng TRÀN NGANG: 101 · 350 · 809 · 709 ·
+       603 px. Tới 809px của một kệ không có gì báo là cuộn được.
+   `.menu` KHÔNG nằm trong đây và đó là cố ý: nó đã có mặt nạ mờ mép phải
+   kèm chú thích nói rõ lý do. Hai cách báo chồng lên nhau là thừa.
+
+   MÀU CHỌN BẰNG PHÉP ĐO, không bằng mắt. Thanh cuộn là THÀNH PHẦN GIAO
+   DIỆN nên WCAG 1.4.11 đòi 3:1, và nó nằm trên HAI nền khác nhau: panel
+   tối #0d0b13 và ván gỗ #5a3a26 của kệ. Đo tương phản của kem #ffecdc
+   theo alpha, hợp thành trên từng nền:
+       alpha  trên panel  trên gỗ
+       0,26        2,09      1,99   ← `--line-hi` hiện có: TRƯỢT cả hai
+       0,38        3,24      2,68   ← trượt trên gỗ
+       0,44        3,93      3,07   ← thấp nhất vượt 3:1 trên CẢ HAI
+   Nên dùng .44, không dùng lại `--line-hi`: token đó là đường kẻ chia,
+   vai khác, và ở vai này nó mờ hơn ngưỡng. */
+#side,.tabs,.shelfrow{scrollbar-width:thin;scrollbar-color:rgba(255,236,220,.44) transparent}
+#side::-webkit-scrollbar,.tabs::-webkit-scrollbar,.shelfrow::-webkit-scrollbar{width:8px;height:8px}
+#side::-webkit-scrollbar-track,.tabs::-webkit-scrollbar-track,.shelfrow::-webkit-scrollbar-track{background:transparent}
+#side::-webkit-scrollbar-thumb,.tabs::-webkit-scrollbar-thumb,.shelfrow::-webkit-scrollbar-thumb{background:rgba(255,236,220,.44);border-radius:999px;border:2px solid transparent;background-clip:padding-box}
+#side::-webkit-scrollbar-thumb:hover,.tabs::-webkit-scrollbar-thumb:hover,.shelfrow::-webkit-scrollbar-thumb:hover{background:rgba(255,236,220,.62);background-clip:padding-box}
 .pills{display:flex;gap:6px;align-items:center}
 .pill{display:flex;align-items:center;gap:7px;height:38px;padding:0 13px;border-radius:999px;font-weight:600;font-size:13.5px;font-variant-numeric:tabular-nums;flex:none}
 .pill svg{width:16px;height:16px}
@@ -285,6 +368,7 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .c-pen{background:rgba(139,227,168,.14);color:var(--ok)}
 .c-tro{background:rgba(255,157,184,.16);color:var(--sakura)}
 .c-ph{background:rgba(201,179,255,.16);color:var(--lilac)}
+.c-fo{background:rgba(169,140,245,.20);color:#d7c7ff}
 
 .today{padding:14px 16px}
 .today h3{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--f-display);font-weight:600;font-size:16px;margin:0 0 6px}
@@ -342,15 +426,12 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 #page.live{pointer-events:auto}
 .top{display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));opacity:0}
 .back{display:flex;align-items:center;gap:8px;height:40px;padding:0 16px 0 12px;border-radius:999px;font-weight:600;font-size:13.5px}
-.tabs{display:flex;gap:4px;padding:4px;border-radius:999px;margin:0 auto;overflow-x:auto;scrollbar-width:none;max-width:100%}
+.tabs{display:flex;gap:4px;padding:4px;border-radius:999px;margin:0 auto;overflow-x:auto;max-width:100%}
 .tab{height:32px;padding:0 13px;border-radius:999px;font-size:13px;color:var(--faint);white-space:nowrap}
 .tab[aria-current="page"]{background:var(--ink);color:#2a1a26;font-weight:600}
 .tab:not([aria-current="page"]):hover{color:var(--ink);background:rgba(255,255,255,.08)}
 .top .pill{background:var(--glass);border:1px solid var(--line)}
-.stagearea{position:relative;flex:1;min-height:0;overflow:hidden;scrollbar-width:none;-ms-overflow-style:none;padding:8px max(16px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
-.stagearea.scroll{overflow-y:auto;overflow-x:hidden}
-.stagearea::-webkit-scrollbar{display:none;width:0;height:0}
-.chill-stage-mount{width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.stagearea{position:relative;flex:1;min-height:0;overflow:auto;padding:8px max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 .pg{max-width:1080px;margin:0 auto}
 .pghead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:8px 4px 18px;flex-wrap:wrap}
 .pghead h1{font-family:var(--f-display);font-weight:700;font-size:34px;line-height:1;margin:0}
@@ -362,7 +443,7 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .course .meta p{margin:4px 0 0;color:var(--faint);font-size:12.5px;line-height:1.45}
 .course .meta .bar{height:5px;border-radius:5px;background:rgba(255,255,255,.12);margin-top:8px;overflow:hidden}
 .course .meta .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--amber),var(--sakura))}
-.shelfrow{position:relative;display:flex;align-items:flex-end;gap:5px;padding:0 14px 16px;min-height:196px;overflow-x:auto;scrollbar-width:none}
+.shelfrow{position:relative;display:flex;align-items:flex-end;gap:5px;padding:0 14px 16px;min-height:196px;overflow-x:auto}
 .shelfrow::after{content:"";position:absolute;left:0;right:0;bottom:0;height:14px;border-radius:4px;background:linear-gradient(180deg,var(--wood-hi),var(--wood));box-shadow:0 12px 20px rgba(0,0,0,.45)}
 .bk{position:relative;flex:none;width:var(--w,40px);height:var(--h,150px);border-radius:4px 4px 2px 2px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:10px 0 8px;color:#fff8f0;transform-origin:0 0;
   box-shadow:inset 3px 0 0 rgba(255,255,255,.14),inset -4px 0 0 rgba(0,0,0,.22),0 6px 10px rgba(0,0,0,.3)}
@@ -379,16 +460,25 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 
 /* roadmap */
 .paperwrap{display:flex;justify-content:center}
-.paper{position:relative;width:min(1000px,100%);max-height:calc(100vh - 175px);aspect-ratio:1000/600;background:var(--paper);border-radius:6px;transform-origin:0 0;color:var(--paper-ink);
+.paper{position:relative;width:min(1000px,100%);aspect-ratio:1000/600;background:var(--paper);border-radius:6px;transform-origin:0 0;color:var(--paper-ink);
   background-image:radial-gradient(circle at 20% 30%,rgba(160,120,70,.10),transparent 40%),radial-gradient(circle at 80% 70%,rgba(160,120,70,.12),transparent 45%),repeating-linear-gradient(0deg,transparent 0 3px,rgba(120,90,50,.035) 3px 4px);
   box-shadow:0 30px 60px rgba(0,0,0,.45),inset 0 0 40px rgba(150,110,60,.25)}
 .paper svg{position:absolute;inset:0;width:100%;height:100%}
 .paper .path{fill:none;stroke:#5a4030;stroke-width:3.5;stroke-dasharray:10 9;stroke-linecap:round}
 .paper .string{fill:none;stroke:#c8323d;stroke-width:2.6}
-.paper .node text{font-family:var(--f-hand);font-size:21px;fill:var(--paper-ink)}
+/* 17px chứ không 21px: nhãn nay tối đa 15 ký tự/dòng và hai nhãn cùng tầng
+   cách nhau 162 đơn vị — xem chú thích ROAD trong scene-data.js. */
+.paper .node text{font-family:var(--f-hand);font-size:17px;fill:var(--paper-ink)}
 .paper .node .num{font-family:var(--f-display);font-weight:700;font-size:16px;fill:#fff}
-.note{position:absolute;right:3%;bottom:6%;width:min(280px,34%);background:#ffe9a8;color:#3e2c12;padding:16px 16px 14px;font-family:var(--f-hand);font-size:19px;line-height:1.3;rotate:2deg;box-shadow:0 10px 22px rgba(0,0,0,.25)}
-.note b{display:block;font-size:24px}
+/* Chữ tờ ghi chú CO THEO TỜ GIẤY (cqw của .paper), chặn trên ở đúng cỡ cũ.
+   Nhãn trên bảng nằm trong SVG nên co theo giấy; tờ ghi chú là HTML cỡ chữ
+   cố định, nên giấy hẹp lại thì nó xuống dòng nhiều hơn, CAO lên và trùm
+   nhãn tầng dưới — đo ở 1280×720: đỉnh tờ ghi chú lên tới y = 267 (viewBox),
+   che nhãn M8 và M10. 2,28cqw = 19px khi giấy rộng 835px (1440×900), nên
+   từ cỡ đó trở lên trông y như cũ; điện thoại có cỡ riêng ở khối @media. */
+.paper{container-type:inline-size}
+.note{position:absolute;right:3%;bottom:6%;width:min(280px,34%);background:#ffe9a8;color:#3e2c12;padding:min(16px,1.92cqw) min(16px,1.92cqw) min(14px,1.68cqw);font-family:var(--f-hand);font-size:min(19px,2.28cqw);line-height:1.3;rotate:2deg;box-shadow:0 10px 22px rgba(0,0,0,.25)}
+.note b{display:block;font-size:min(24px,2.88cqw)}
 .note .btn{font-family:var(--f-body);margin-top:10px;background:#3e2c12;color:#ffe9a8}
 
 /* lesson */
@@ -408,6 +498,9 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .opt.no{border-color:#ff8b8b;color:#ffb1b1}
 #fb{margin:10px 0 0;font-size:13px;color:#c9d3ec;min-height:1.4em}
 .dots{display:flex;gap:6px;margin-top:20px;align-items:center;font-size:12px;color:var(--code-dim)}
+/* Nhãn "M1 · 18 bài" KHÔNG xuống dòng: trong hàng flex nó bị bóp về min-content
+   (25px) và gãy làm ba dòng "M1 · / 18 / bài" — đo ở 390px. */
+.dots span{white-space:nowrap}
 .dots i{width:22px;height:5px;border-radius:5px;background:#2a3249}
 .dots i.d{background:var(--ok)}.dots i.c{background:var(--amber)}
 .edx{background:#0e1220;border-left:1px solid #222a40;display:flex;flex-direction:column;min-width:0}
@@ -461,47 +554,46 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .summary{display:flex;gap:10px;flex-wrap:wrap}
 .summary .pill{background:var(--glass);border:1px solid var(--line)}
 
-/* phone: profile + leaderboard */
+/* phone: profile + leaderboard (dark-purple lofi coloring, exact original layout) */
 .phonewrap{display:flex;justify-content:center}
 .phone{width:min(360px,100%);height:min(680px,calc(100vh - 140px));border-radius:42px;padding:12px;background:#1a1b26;box-shadow:inset 0 0 0 2px #3a3d52,0 40px 70px rgba(0,0,0,.55);transform-origin:50% 50%}
-.phone .scr{height:100%;border-radius:32px;overflow:hidden;background:linear-gradient(170deg,#f3f8ff,#e2eefc);color:#1c2540;display:flex;flex-direction:column}
+.phone .scr{height:100%;border-radius:32px;overflow:hidden;background:linear-gradient(170deg,#221936,#140e22);color:#fff5ea;display:flex;flex-direction:column}
 .phone .hd{padding:24px 18px 10px}
-.seg{display:flex;background:#d6e2f4;border-radius:999px;padding:3px}
-.seg button{flex:1;text-align:center;font-size:13px;padding:7px;border-radius:999px;color:#4a5a80}
-.seg button[aria-selected="true"]{background:#fff;color:#1c2540;font-weight:600;box-shadow:0 2px 6px rgba(30,50,90,.12)}
-.pv{flex:1;min-height:0;overflow:auto;scrollbar-width:none;-ms-overflow-style:none;display:flex;flex-direction:column}
-.pv::-webkit-scrollbar{display:none;width:0;height:0}
+.seg{display:flex;background:#120d1e;border-radius:999px;padding:3px}
+.seg button{flex:1;text-align:center;font-size:13px;padding:7px;border-radius:999px;color:#b4a5d4}
+.seg button[aria-selected="true"]{background:#2d2046;color:#fff5ea;font-weight:600;box-shadow:0 2px 6px rgba(8,4,18,.35)}
+.pv{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column}
 .prof{padding:6px 18px 18px;display:flex;flex-direction:column;gap:12px}
 .prof .who{display:flex;gap:12px;align-items:center}
 .prof .who .a{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(150deg,#ffcf9a,#ff9db8);color:#3a1d2a;font-family:var(--f-display);font-weight:700;font-size:22px}
 .prof .who b{display:block;font-family:var(--f-display);font-size:20px;line-height:1.1}
-.prof .who small{color:#5b6890;font-size:12.5px}
-.xpb{height:8px;border-radius:8px;background:#d6e2f4;overflow:hidden}.xpb i{display:block;height:100%;width:78%;background:linear-gradient(90deg,#6fb8ee,#a48bf0)}
-.xpl{display:flex;justify-content:space-between;font-size:12px;color:#5b6890;margin-top:4px;font-variant-numeric:tabular-nums}
+.prof .who small{color:#b4a5d4;font-size:12.5px}
+.xpb{height:8px;border-radius:8px;background:#120d1e;overflow:hidden}.xpb i{display:block;height:100%;width:78%;background:linear-gradient(90deg,#a48bf0,#ffc97a)}
+.xpl{display:flex;justify-content:space-between;font-size:12px;color:#b4a5d4;margin-top:4px;font-variant-numeric:tabular-nums}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.stats div{background:#fff;border-radius:14px;padding:10px 12px}
+.stats div{background:#261b3c;border-radius:14px;padding:10px 12px}
 .stats b{display:block;font-family:var(--f-display);font-size:22px;line-height:1.05;font-variant-numeric:tabular-nums}
-.stats small{color:#5b6890;font-size:12px}
-.act{background:#fff;border-radius:14px;padding:12px}
-.act h5{margin:0 0 8px;font-size:12.5px;color:#5b6890;font-weight:600}
+.stats small{color:#b4a5d4;font-size:12px}
+.act{background:#261b3c;border-radius:14px;padding:12px}
+.act h5{margin:0 0 8px;font-size:12.5px;color:#b4a5d4;font-weight:600}
 .bars{display:flex;align-items:flex-end;gap:8px;height:70px}
-.bars span{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;color:#7a86a8;height:100%;justify-content:flex-end}
-.bars i{display:block;width:100%;border-radius:5px 5px 2px 2px;background:#a6c8ef}
+.bars span{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;color:#9e8fc0;height:100%;justify-content:flex-end}
+.bars i{display:block;width:100%;border-radius:5px 5px 2px 2px;background:#a48bf0}
 .bars span.t i{background:#ffb15c}
-.rb{display:flex;gap:8px}.rb span{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11px;color:#5b6890;text-align:center}
+.rb{display:flex;gap:8px}.rb span{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11px;color:#b4a5d4;text-align:center}
 .rb i{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-family:var(--f-mono);font-size:12px;color:#3a2010;background:radial-gradient(circle at 35% 30%,#fff3c9,var(--mc) 60%,#6b4413)}
 .rb .g{--mc:#f3be52}.rb .s{--mc:#c7cbd6}.rb .b{--mc:#cf8a52}
 .lb{list-style:none;margin:0;padding:4px 14px;display:flex;flex-direction:column;gap:6px;flex:1;overflow:auto}
-.lb li{display:grid;grid-template-columns:28px 32px 1fr auto;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;background:rgba(255,255,255,.75);font-size:13.5px;font-variant-numeric:tabular-nums}
-.lb .rk{font-family:var(--f-display);font-weight:700;color:#7a86a8;text-align:center}
-.lb li:nth-child(1) .rk{color:#d89a1e}.lb li:nth-child(2) .rk{color:#8a96b0}.lb li:nth-child(3) .rk{color:#c0773e}
+.lb li{display:grid;grid-template-columns:28px 32px 1fr auto;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;background:rgba(38,27,60,.78);font-size:13.5px;font-variant-numeric:tabular-nums}
+.lb .rk{font-family:var(--f-display);font-weight:700;color:#9e8fc0;text-align:center}
+.lb li:nth-child(1) .rk{color:#ffc97a}.lb li:nth-child(2) .rk{color:#d0c4e8}.lb li:nth-child(3) .rk{color:#e09866}
 .lb .av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:12.5px;color:#fff}
-.lb .xp2{font-weight:600;color:#4a5a80;font-size:12.5px}
-.me{margin:6px 14px 6px;display:grid;grid-template-columns:28px 32px 1fr auto;align-items:center;gap:10px;padding:10px;border-radius:16px;background:#1c2540;color:#fff;font-size:13.5px;font-variant-numeric:tabular-nums}
+.lb .xp2{font-weight:600;color:#c9b3ff;font-size:12.5px}
+.me{margin:6px 14px 6px;display:grid;grid-template-columns:28px 32px 1fr auto;align-items:center;gap:10px;padding:10px;border-radius:16px;background:#342552;color:#fff5ea;font-size:13.5px;font-variant-numeric:tabular-nums}
 .me .rk{font-family:var(--f-display);font-weight:700;text-align:center;color:var(--amber)}
 .me .av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:linear-gradient(150deg,#ffcf9a,#ff9db8);color:#3a1d2a}
 .me .up{color:var(--ok);font-size:12px;font-weight:600}
-.sample{font-size:11px;color:#7a86a8;text-align:center;padding:2px 0 10px}
+.sample{font-size:11px;color:#9e8fc0;text-align:center;padding:2px 0 10px}
 
 #flash{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(60% 60% at 50% 50%,rgba(210,230,255,.95),rgba(150,190,255,.35) 50%,transparent 80%)}
 
@@ -545,16 +637,81 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
   #side{top:auto;left:0;right:0;bottom:0;width:auto;max-height:52%;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));border-radius:24px 24px 0 0;background:rgba(22,15,32,.86);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--line)}
   #side .pills .pill.xpp,#side .pills .sp{display:none}
   .pill.st.mob{display:flex}
-  .menu{flex-direction:row;overflow-x:auto;scrollbar-width:none;gap:8px}
+  /* #side là flex cột có max-height:52%, mà .hero mang overflow:hidden ⇒ cỡ
+     tối thiểu tự động của nó về 0 và flex-shrink:1 BÓP nó: đo ở 390×844 thì
+     231 → 126px, nút ▶ (lời mời chính của cả trang trên điện thoại) bị cắt
+     35px và thanh tiến độ mất hẳn. Không co ba khối đầu; #side đã có
+     overflow-y:auto nên phần thừa thành cuộn chứ không thành cắt. */
+  #side>.pills,#side>.hero,#side>.menu{flex-shrink:0}
+  /* Người thử `will` 07/11: "size nhỏ phát là mất nút, có thể cho làm 2 hàng
+     xuống". Đo trên production: hàng nút TRÀN 425px ở 360×640 và 395px ở
+     390×844, nên chỉ **2/5** mục nằm trong mép. Ba mục kia KHÔNG mất hẳn — cả
+     ba nằm trong `.menu` cuộn ngang được — nhưng dấu hiệu duy nhất là 28px mờ
+     ở mép phải của một dải cao 48px, và một đường đi mà người dùng phải ĐOÁN
+     thì trên thực tế nó không tồn tại (đúng câu đã ghi cho nút "Quay lại", và
+     `will` là người thứ hai đọc ra nó như "mất nút").
+     Nay XUỐNG HÀNG — cùng cách `.dots` ngay dưới đã chọn cho chấm bài, nên đây
+     là nếp sẵn có của chính khối này, không phải một cách mới.
+     ĐO SAU KHI SỬA, trên production: **5/5 trong mép ở MỌI khổ**, tràn ngang
+     **0**, chip vẫn **48px**, chữ không bị cắt ở khổ nào. Số hàng: 3 ở 360–390,
+     **2 từ 480 lên**.
+     VÌ SAO KHÔNG ÉP ĐÚNG 2 HÀNG như `will` đề xuất — đã đo cả ba cách, cách nào
+     cũng phải trả một thứ:
+      · bỏ icon ⇒ 2 hàng, nhưng chip tụt **48 → 37px**, dưới cỡ ngón tay, và
+        repo vừa phải sửa một đích bấm 13×6px;
+      · siết `gap`/`padding` ⇒ hàng đầu ra **361px** trên 358px khả dụng, tức
+        THIẾU 3px. Ép được bằng cách hạ `gap` của `.menu` xuống 6px, nhưng khi
+        đó bố cục đứng cách mép đúng **1px** và một lần đổi nhãn là vỡ về 3 hàng;
+      · `flex:1 1 auto` cho các ô giãn đều ⇒ hai ô lọt ra ngoài **1px** vì làm
+        tròn sub-pixel.
+     Ba hàng chip 48px là cái giá rẻ nhất trong bốn. `#side` phải cuộn thêm
+     111px (61 → 172 ở 390×844), và nó đã có thanh cuộn thấy được từ `87a32db`.
+     KHÔNG còn `overflow-x`, `scrollbar-width:none` và mặt nạ mờ: khi đã xuống
+     hàng thì không còn gì ở bên phải, nên mặt nạ sẽ NÓI DỐI. Đó cũng là lý do
+     `.menu` rời khỏi `CO_CACH_BAO_KHAC` của `goc-hoc-thanh-cuon.test.mjs` —
+     luật hai chiều ở đó tự bắt, không cần ai nhớ. */
+  .menu{flex-direction:row;flex-wrap:wrap;gap:8px}
   .mi{flex:none;width:auto;padding:8px 12px}.mi small,.mi .chev{display:none}
+  /* Icon GIỮ ở điện thoại: nó là thứ duy nhất phân biệt năm mục bằng màu
+     (c-map/c-book/c-pen/c-tro/c-ph), và bỏ nó chính là biến thể "2 hàng" đã
+     bị loại ở trên vì chip tụt xuống 37px. */
   .mi .ic{width:30px;height:30px}
   .today .q{display:none}.today h3{margin:0}
   .music,#hint{display:none}
-  .course{grid-template-columns:1fr;gap:8px}
-  .lesson{grid-template-columns:1fr}
-  .spread{grid-template-columns:1fr;aspect-ratio:auto}.leafp.l{display:none}.leafp.r{border-radius:14px;min-height:520px}.flip{width:100%}
+  /* Bụi bay: 7px × tỉ lệ phòng trên điện thoại ≈ 2,7px trên màn (đã đo) — không
+     ai thấy, nhưng 16 hoạt ảnh của nó vẫn giữ luồng chính dựng khung. */
+  .mote{display:none}
+  .course{grid-template-columns:minmax(0,1fr);gap:8px}
+  /* minmax(0,1fr), KHÔNG `1fr` trần: `1fr` là minmax(auto,1fr) nên cột không co
+     dưới min-content — dòng mã dài nhất ở .edx kéo cột ra 576,8px trong thẻ
+     358px (đo ở 390×844), và overflow:hidden của .lesson CẮT mất tiêu đề, đoạn
+     văn, mục lục (6 phần tử, 102–203px). Bản máy tính đã dùng minmax(0,…) từ
+     đầu; khối điện thoại ghi đè làm mất nó. .edx .code có overflow-x:auto nên
+     dòng mã dài thành CUỘN trong khung thay vì nong cả thẻ. */
+  .lesson{grid-template-columns:minmax(0,1fr)}
+  /* Điện thoại: chấm bài XUỐNG HÀNG ở cỡ thật thay vì co lại — học phần 32 bài
+     (M3) co trong ~300px thì mỗi chấm còn ~1px. */
+  .dots{flex-wrap:wrap}.dots i{flex:none}
+  .spread{grid-template-columns:minmax(0,1fr);aspect-ratio:auto}.leafp.l{display:none}.leafp.r{border-radius:14px;min-height:520px}.flip{width:100%}
   .plank{grid-template-columns:repeat(4,minmax(0,1fr))}
-  .paper{aspect-ratio:auto;height:560px}
+  /* BẢNG DỌC (engine: .paper.doc, viewBox 600×1000 — xem ROAD_DOC). Bảng ghim
+     thôi giữ tỉ lệ ngang 1500/1080 mà NỞ theo tờ giấy: trước đây giấy cao
+     564px thò hẳn ra khỏi bảng cao 258px. Giấy và tờ ghi chú nằm trong luồng
+     (không tuyệt đối), tờ ghi chú xuống DƯỚI hình thay vì đè lên nó. Padding %
+     tính theo BỀ RỘNG bảng, khớp viền khung ảnh (ảnh giãn 100% 100%). */
+  /* Trần 480px: bảng dọc trải hết 820px (iPad dọc) thì nhãn phình tới 31,6px
+     — đo được. Ở 480 giấy ~400px ⇒ nhãn ~19px, cùng nhịp với điện thoại.
+     Padding tính theo BỀ RỘNG CỦA CHÍNH BẢNG — padding % lấy bề rộng của KHỐI
+     CHA, mà bảng đã bị chặn 480px; 32px là đệm hai bên của .stagearea. */
+  .board{--bw:min(100vw - 32px,480px);aspect-ratio:auto;width:var(--bw);box-sizing:border-box;
+    padding:calc(.13*var(--bw)) calc(.07*var(--bw)) calc(.12*var(--bw))}
+  .board .paper{position:relative;left:auto;top:auto;width:100%}
+  .paper{aspect-ratio:auto;height:auto}
+  .paper svg{position:relative;display:block;height:auto}
+  .paper.doc .node text{font-size:28px}
+  .paper.doc .node .num{font-size:22px}
+  /* Giấy chỉ ~309px nên cqw sẽ cho chữ ~7px — cỡ cố định cho điện thoại. */
+  .note{position:relative;right:auto;bottom:auto;width:auto;margin:0 14px 16px;rotate:0deg;font-size:16px;padding:12px 14px}.note b{font-size:20px}
   .tabs{display:none}
 }
 
@@ -564,6 +721,13 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
    lại — trạng thái TRỐNG là trạng thái thường gặp nhất (khách chưa có phiên),
    nên nó phải được thiết kế chứ không để kệ trơ ra. */
 .pill.dn svg{stroke:var(--ok)}
+/* Link góp ý dưới thẻ "Khoá đang học": lặng (chữ nhỏ, gạch chân) vì nó là lối
+   phụ, nhưng phải THẤY được — đợt thử nghiệm sống nhờ những câu góp ý này.
+   [hidden] phải thắng display:inline-flex, nếu không link rỗng vẫn hiện. */
+.today .fb{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:12.5px;color:var(--faint);text-decoration:underline;text-underline-offset:3px}
+.today .fb:hover{color:var(--amber)}
+.today .fb:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:4px}
+.today .fb[hidden]{display:none}
 .cnote{margin:8px 0 0;font-size:12.5px;color:var(--faint);line-height:1.45}
 .today .prog{margin-top:8px}
 .facts{font-family:var(--f-mono);font-size:12.5px;color:var(--code-dim)}
@@ -575,13 +739,280 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 /* Ô đặt tên hiển thị trong màn Xếp hạng. Chỉ lưu trong máy người dùng:
    backend chưa nhận trường này, nên dòng của người khác vẫn là tên khách —
    câu <small> dưới ô nói thẳng điều đó, đừng gỡ nó đi. */
-.namebox{margin:10px 14px 6px;padding:12px;border-radius:14px;background:#fff;color:#1c2540}
-.namebox label{display:block;font-size:12px;font-weight:600;color:#5b6890;margin-bottom:6px}
+.namebox{margin:10px 14px 6px;padding:12px;border-radius:14px;background:#261b3c;color:#fff5ea}
+.namebox label{display:block;font-size:12px;font-weight:600;color:#b4a5d4;margin-bottom:6px}
 .namebox .nrow{display:flex;gap:8px}
-.namebox input{flex:1;min-width:0;height:34px;padding:0 10px;border-radius:10px;border:1px solid #c8d6ec;background:#f7fbff;color:#1c2540;font:inherit;font-size:13.5px}
-.namebox input:focus-visible{outline:2px solid #6fb8ee;outline-offset:1px}
-.namebox .btn{height:34px;background:#1c2540;color:#fff}
-.namebox small{display:block;margin-top:8px;font-size:11px;line-height:1.45;color:#5b6890}
-.lb li.mine{background:#fff;box-shadow:inset 0 0 0 2px var(--amber)}
-.pv .empty{background:rgba(28,37,64,.06);border:1px solid rgba(28,37,64,.12);color:#1c2540;margin:12px 14px;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
-.pv .empty p{color:#4a5a80}
+.namebox input{flex:1;min-width:0;height:34px;padding:0 10px;border-radius:10px;border:1px solid #463568;background:#161024;color:#fff5ea;font:inherit;font-size:13.5px}
+.namebox input:focus-visible{outline:2px solid #c9b3ff;outline-offset:1px}
+.namebox .btn{height:34px;background:var(--amber);color:#2a1710}
+.namebox small{display:block;margin-top:8px;font-size:11px;line-height:1.45;color:#b4a5d4}
+.lb li.mine{background:#342552;box-shadow:inset 0 0 0 2px var(--amber)}
+.pv .empty{background:rgba(38,27,60,.65);border:1px solid rgba(201,179,255,.16);color:#fff5ea;margin:12px 14px;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.pv .empty p{color:#b4a5d4}
+
+/* ── DIỄN ĐÀN LOFI TRONG ĐIỆN THOẠI & XOAY NGANG MỞ RỘNG (.phone-wide) ───
+   Mặc định mở ở màn hình nhỏ dọc (Portrait 573/1100, giữ nguyên khung vẽ tay
+   phone-frame.webp như Hồ sơ & Xếp hạng). Khi người học bấm "Xoay ngang mở rộng"
+   hoặc mở bài thảo luận, chiếc điện thoại xoay 90° sang ngang (Landscape
+   1100/573) và phóng gần lại để đọc/thảo luận thoải mái. */
+.phone.phone-wide{
+  width:min(1020px,94vw,calc((100vh - 132px)*1100/573));
+  height:auto;
+  aspect-ratio:1100/573;
+  transform-origin:50% 50%;
+}
+.phone.phone-wide .pframe{
+  inset:auto;
+  left:50%;
+  top:50%;
+  width:calc(100%*573/1100);
+  height:calc(100%*1100/573);
+  transform:translate(-50%,-50%) rotate(-90deg);
+}
+.phone.phone-wide .scr{
+  left:6%;
+  top:10%;
+  width:86.8%;
+  height:80%;
+  border-radius:14px;
+  padding-left:18px;
+  box-sizing:border-box;
+  background:
+    linear-gradient(180deg,rgba(24,17,40,.88),rgba(15,10,26,.95)),
+    url(/forum-lofi/scenes/forum-lounge-1600.webp) center/cover no-repeat;
+}
+.phone.phone-wide .hd{padding:12px 18px 8px}
+.phone.phone-wide .hd .seg{max-width:360px;margin:0 auto}
+
+.pv,#pvForum,.lf-chat-messages{scrollbar-width:thin;scrollbar-color:rgba(255,236,220,.44) transparent}
+.pv::-webkit-scrollbar,#pvForum::-webkit-scrollbar,.lf-chat-messages::-webkit-scrollbar{width:8px;height:8px}
+.pv::-webkit-scrollbar-thumb,#pvForum::-webkit-scrollbar-thumb,.lf-chat-messages::-webkit-scrollbar-thumb{background:rgba(255,236,220,.44);border-radius:999px;border:2px solid transparent;background-clip:padding-box}
+
+.lf-forum-wrap{display:flex;flex-direction:column;gap:10px;padding:4px 12px 16px;color:var(--ink)}
+.phone-wide .lf-forum-wrap{padding:6px 20px 22px;gap:14px}
+
+.lf-orient-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
+  padding:6px 10px;border-radius:12px;
+  background:rgba(16,11,28,.72);border:1px solid rgba(201,179,255,.22);
+}
+.lf-orient-status{font-size:11px;color:var(--faint);font-weight:500}
+.lf-rotate-btn{
+  display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:999px;
+  background:linear-gradient(135deg,rgba(201,179,255,.24),rgba(255,201,122,.20));
+  border:1px solid rgba(255,201,122,.45);color:var(--ink);font-size:11px;font-weight:700;
+  transition:transform .2s var(--ease),background .2s,box-shadow .2s;
+}
+.lf-rotate-btn:hover{transform:scale(1.03);box-shadow:0 0 12px rgba(255,201,122,.32)}
+.lf-rot-svg{transition:transform .35s var(--ease)}
+.phone-wide .lf-rot-svg{transform:rotate(-90deg)}
+
+.lf-hero-banner{
+  position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  padding:11px 13px;border-radius:16px;overflow:hidden;
+  background:linear-gradient(135deg,rgba(44,30,68,.92),rgba(24,16,42,.95));
+  border:1px solid rgba(201,179,255,.28);
+  box-shadow:inset 0 1px 0 rgba(255,236,220,.08),0 10px 24px rgba(6,4,14,.34);
+}
+.phone-wide .lf-hero-banner{padding:14px 16px;border-radius:18px;gap:12px}
+.lf-hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.26;pointer-events:none}
+.lf-hero-txt{position:relative;z-index:1;min-width:0;flex:1}
+.lf-hero-eyebrow{display:block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--amber)}
+.phone-wide .lf-hero-eyebrow{font-size:11px}
+.lf-hero-txt h3{margin:2px 0;font-family:var(--f-display);font-size:17px;line-height:1.15;color:var(--ink)}
+.phone-wide .lf-hero-txt h3{font-size:22px;line-height:1.12}
+.lf-hero-txt p{margin:0;font-size:11.5px;color:var(--faint);line-height:1.38}
+.phone-wide .lf-hero-txt p{font-size:12.5px;line-height:1.4}
+.lf-hero-btns{position:relative;z-index:1;display:flex;gap:6px;flex-wrap:wrap}
+
+.lf-btn-amber,.lf-btn-ghost{
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;height:30px;padding:0 11px;border-radius:999px;
+  font-size:11.5px;font-weight:600;transition:transform .2s var(--ease),background .25s,border-color .25s;
+}
+.phone-wide .lf-btn-amber,.phone-wide .lf-btn-ghost{height:34px;padding:0 13px;font-size:12.5px}
+.lf-btn-amber{
+  background:linear-gradient(135deg,var(--amber),#ff9db8);color:#2a1520;font-weight:700;
+  box-shadow:0 4px 14px rgba(255,180,110,.32);
+}
+.lf-btn-ghost{background:rgba(201,179,255,.14);border:1px solid var(--line-hi);color:var(--ink)}
+.lf-btn-ghost:hover{background:rgba(201,179,255,.26);border-color:var(--lilac)}
+.lf-btn-ghost.sm{height:28px;padding:0 10px;font-size:11.5px}
+
+/* Khung tạo bài thảo luận & Khung chat nhanh */
+.lf-composer-card,.lf-chat-box{
+  display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:18px;
+  background:rgba(24,16,38,.92);border:1px solid rgba(201,179,255,.28);
+  box-shadow:0 14px 30px rgba(6,3,14,.45);
+}
+.lf-composer-head,.lf-chat-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lf-composer-head{justify-content:flex-start}
+.lf-composer-head b,.lf-chat-head span{font-family:var(--f-display);font-size:16px;font-weight:700}
+.lf-composer-head small{display:block;font-size:11.5px;color:var(--faint)}
+.lf-input,.lf-textarea,.lf-select{
+  width:100%;padding:9px 12px;border-radius:12px;box-sizing:border-box;
+  background:rgba(12,8,22,.78);border:1px solid var(--line-hi);
+  color:var(--ink);font:inherit;font-size:13.5px;line-height:1.45;
+}
+.lf-input.mono{font-family:var(--f-mono);font-size:12.5px;color:var(--code-id)}
+.lf-input:focus-visible,.lf-textarea:focus-visible,.lf-select:focus-visible{outline:2px solid var(--amber);outline-offset:1px}
+.lf-composer-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}
+
+.lf-chat-messages{max-height:165px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;padding:4px 2px}
+.lf-chat-msg{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;line-height:1.4}
+.lf-chat-bubble{flex:1;min-width:0;padding:7px 10px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.lf-chat-meta{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:2px}
+.lf-chat-meta b{font-size:12px;color:var(--amber)}
+.lf-chat-meta small{font-size:10.5px;color:var(--faint)}
+.lf-chat-bubble p{margin:0;color:#e7dff5;word-break:break-word}
+.lf-chat-form{display:flex;gap:8px}
+.lf-chat-form .lf-input{flex:1;min-width:0;height:36px;padding:0 12px}
+
+/* Bộ lọc 4 chuyên mục + Tìm kiếm & Sắp xếp */
+.lf-cat-bar{display:flex;gap:6px;flex-wrap:wrap}
+.lf-cat-pill{
+  display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 11px;border-radius:999px;
+  background:rgba(26,18,40,.78);border:1px solid var(--line);
+  font-size:12.5px;color:var(--faint);transition:background .2s,border-color .2s,transform .2s;
+}
+.lf-cat-pill:hover{background:rgba(44,31,68,.88);color:var(--ink)}
+.lf-cat-pill.active{
+  background:linear-gradient(135deg,rgba(201,179,255,.28),rgba(255,201,122,.20));
+  border-color:var(--amber);color:var(--ink);font-weight:600;
+  box-shadow:0 4px 12px rgba(8,4,18,.3);
+}
+.lf-cat-pill b{
+  font-size:11px;font-weight:700;padding:1px 6px;border-radius:999px;
+  background:rgba(255,255,255,.12);color:var(--ink);font-variant-numeric:tabular-nums;
+}
+
+.lf-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lf-search{flex:1;min-width:170px;height:36px;padding:0 12px;border-radius:999px}
+.lf-sort-group{display:flex;gap:4px;background:rgba(16,11,28,.75);padding:3px;border-radius:999px;border:1px solid var(--line)}
+.lf-sort-btn{height:28px;padding:0 10px;border-radius:999px;font-size:11.5px;color:var(--faint)}
+.lf-sort-btn.active{background:rgba(201,179,255,.24);color:var(--ink);font-weight:600}
+
+/* Danh sách bài thảo luận */
+.lf-post-list{display:flex;flex-direction:column;gap:10px}
+.lf-post-card{
+  padding:14px 15px;border-radius:18px;cursor:pointer;
+  background:linear-gradient(165deg,rgba(32,22,50,.88),rgba(21,15,35,.92));
+  border:1px solid rgba(201,179,255,.20);
+  box-shadow:0 10px 24px rgba(5,3,12,.34);
+  transition:border-color .25s,transform .25s var(--ease);
+}
+.lf-post-card:hover{border-color:rgba(255,201,122,.45);transform:translateY(-1px)}
+.lf-card-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.lf-cat-chip{
+  display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;
+  background:rgba(255,255,255,.07);border:1px solid var(--cc,var(--lilac));
+  font-size:11.5px;font-weight:600;color:var(--ink);
+}
+.lf-pin-chip{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(255,201,122,.16);color:var(--amber)}
+.lf-solved-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(139,227,168,.16);color:var(--ok)}
+.lf-time{margin-left:auto;color:var(--faint);font-size:11.5px}
+
+.lf-card-title{margin:0 0 5px;font-family:var(--f-display);font-size:18px;line-height:1.22;color:var(--ink)}
+.lf-post-card:hover .lf-card-title{color:var(--amber)}
+.lf-card-excerpt{margin:0;font-size:13px;line-height:1.5;color:#d8d0e8}
+.lf-code-preview,.lf-code-block{
+  margin:8px 0 0;padding:10px 12px;border-radius:12px;
+  background:#110d1e;border:1px solid rgba(154,216,255,.22);
+  font-family:var(--f-mono);font-size:12px;line-height:1.5;color:var(--code-id);overflow-x:auto;
+}
+.lf-card-foot{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
+  margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,236,220,.08);
+}
+.lf-author-mini{display:flex;align-items:center;gap:8px}
+.lf-ava{
+  width:32px;height:32px;border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(145deg,#ffcf9a,#c9b3ff);color:#261424;
+  font-family:var(--f-display);font-weight:700;font-size:14px;flex:none;
+}
+.lf-ava.sm{width:26px;height:26px;font-size:12px}
+.lf-ava.lg{width:42px;height:42px;font-size:18px}
+.fpc-author{font-weight:600;font-size:13px;color:var(--ink)}
+.lf-cmt-pill{
+  height:28px;padding:0 11px;border-radius:999px;
+  background:rgba(201,179,255,.14);border:1px solid var(--line-hi);
+  font-size:12px;font-weight:600;color:var(--lilac);
+}
+.lf-card-reacts{margin-top:8px}
+
+/* 6 loại cảm xúc tương tác */
+.lf-react-bar{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.lf-emo-btn{
+  display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 8px;border-radius:999px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,236,220,.12);
+  font-size:11.5px;color:var(--faint);font-variant-numeric:tabular-nums;
+  transition:transform .18s var(--ease),background .2s,border-color .2s;
+}
+.lf-emo-btn:hover{transform:translateY(-2px) scale(1.04);background:rgba(255,255,255,.12);color:var(--ink)}
+.lf-emo-btn.on{
+  background:rgba(255,201,122,.22);border-color:var(--amber);
+  color:var(--ink);font-weight:700;box-shadow:0 0 12px rgba(255,201,122,.24);
+}
+.lf-emo-lbl{display:none}
+.phone-wide .lf-emo-lbl{display:inline}
+.lf-emo-cnt{font-weight:700}
+
+/* Chi tiết bài viết & Bình luận lồng 2 cấp */
+.lf-detail-topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.lf-post-detail{
+  border-radius:18px;overflow:hidden;padding:0 0 14px;
+  background:linear-gradient(165deg,rgba(32,22,50,.92),rgba(19,13,32,.96));
+  border:1px solid rgba(201,179,255,.26);
+  box-shadow:0 14px 32px rgba(5,3,12,.45);
+}
+.lf-post-banner{width:100%;height:78px;object-fit:cover;display:block;border-bottom:1px solid var(--line)}
+.lf-post-head{display:flex;align-items:center;gap:10px;padding:12px 16px 6px}
+.lf-post-meta{flex:1;min-width:0}
+.lf-author-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.lf-role-tag{font-size:11px;padding:1px 7px;border-radius:999px;background:rgba(201,179,255,.16);color:var(--lilac)}
+.lf-detail-title{margin:4px 16px 8px;font-family:var(--f-display);font-size:22px;line-height:1.2}
+.lf-detail-content{margin:0 16px 10px;font-size:13.5px;line-height:1.6;color:#e8e0f6}
+.lf-post-detail .lf-code-block{margin:8px 16px 12px}
+.lf-detail-reactions{margin:10px 16px 0;padding-top:10px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.lf-react-caption{font-size:12px;color:var(--faint);font-weight:600}
+
+.lf-comments-sec{
+  padding:14px 16px;border-radius:18px;
+  background:rgba(22,15,36,.88);border:1px solid var(--line);
+}
+.lf-sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.lf-sec-head h4{margin:0;font-family:var(--f-display);font-size:18px}
+.lf-sec-head small{font-size:11.5px;color:var(--faint)}
+.lf-comment-form{display:flex;gap:8px;margin-bottom:12px}
+.lf-comment-form .lf-input{flex:1;min-width:0}
+
+.lf-cmt-list{display:flex;flex-direction:column;gap:12px}
+.lf-cmt-thread{display:flex;flex-direction:column;gap:8px}
+.lf-cmt-card{
+  padding:11px 12px;border-radius:14px;
+  background:rgba(36,25,56,.78);border:1px solid rgba(201,179,255,.18);
+}
+.lf-cmt-nested{background:rgba(24,16,40,.84);border-color:rgba(255,201,122,.22);flex:1;min-width:0}
+.lf-cmt-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px}
+.lf-cmt-body{margin:0 0 8px;font-size:13px;line-height:1.5;color:#eae2f8;word-break:break-word}
+.lf-cmt-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.lf-reply-trig{font-size:11.5px;font-weight:600;color:var(--amber);padding:3px 9px;border-radius:999px;background:rgba(255,201,122,.12)}
+.lf-reply-trig:hover{background:rgba(255,201,122,.24)}
+
+/* Nhánh bình luận lồng (Nested Replies) có đường nối Lofi */
+.lf-replies-wrap{display:flex;flex-direction:column;gap:8px;padding-left:12px}
+.lf-reply-item{display:flex;align-items:flex-start;gap:6px}
+.lf-thread-line{width:28px;height:48px;flex:none;margin-top:2px;opacity:.9}
+.lf-reply-form{display:flex;gap:6px;margin-top:8px}
+.lf-reply-form .lf-input{flex:1;min-width:0;height:34px;padding:0 10px}
+
+.lf-empty-state{text-align:center;padding:24px 16px;border-radius:18px;background:rgba(26,18,40,.75);border:1px dashed var(--line-hi)}
+.lf-empty-state img{margin:0 auto 8px;display:block}
+.lf-empty-state b{display:block;font-family:var(--f-display);font-size:18px;margin-bottom:4px}
+.lf-empty-state p,.lf-empty-note{margin:0;font-size:12.5px;color:var(--faint)}
+
+@media (max-width: 820px){
+  .lf-input,.lf-textarea,.lf-select,.lf-search,.lf-reply-form .lf-input{font-size:16px}
+  .phone.phone-wide{width:100%;aspect-ratio:auto;height:min(680px,calc(100vh - 100px))}
+  .phone.phone-wide .pframe{display:none}
+  .phone.phone-wide .scr{left:0;top:0;width:100%;height:100%;padding-left:0;border-radius:20px}
+}

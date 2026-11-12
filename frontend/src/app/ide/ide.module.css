@@ -1,52 +1,14 @@
-/* Bàn thí nghiệm (/ide) — bảng kem --ds-* của bản thiết kế v2
-   (khai ở public/static/css/studio-tokens.css, mà PageStyles nạp cho MỌI trang).
+/* Python IDE — chỉ dùng token (lint:tokens cấm mã màu hex trong *.module.css).
 
-   ── VÌ SAO FILE NÀY ĐỔI HẾT TOKEN (15/10/2026) ────────────────────────
-   /ide là HÒN ĐẢO XANH cuối cùng trên đường đi của người học. c501f36 đã dọn
-   hai cú giật màu trang chủ → trang khoá → bài học, nhưng đường thật còn một
-   bước nữa: bài học → Bàn thí nghiệm (nút "Chạy thử ở Bàn thí nghiệm" của
-   `lesson-chrome/TryItButton.tsx`, và thẻ công cụ ở trang chủ `app/page.tsx`).
-   Hai triệu chứng đo được:
-
-   1. `.page` KHÔNG đặt `background`, nên nền trang là `body` của
-      `edu-theme.css`: mesh ba quầng xanh/đỏ. Trang chủ (`home.module.css:27`)
-      và trang khoá (`CourseShell.module.css`) đều phải đặt `background` trên
-      một lớp phủ kín khung nhìn vì ĐÚNG lý do này, và chú thích ở hai file đó
-      nói rõ cơ chế. Một dòng ở đây là hết giật màu.
-   2. 39 lần đọc `--edu-*` trộn với `var(--ds-fs-h2)` / `var(--ds-r-md)` —
-      nửa bảng nọ nửa bảng này. Hệ quả nhìn thấy: tiêu đề ở cỡ v2 (28px) còn
-      thân trang ở 11 / 12,5 / 13 / 13,5 / 14px của bảng cũ, tức mọi chữ nhỏ
-      của trang đều dưới sàn 15px mà bản thiết kế chốt.
-
-   ── BA LUẬT FILE NÀY ĐANG CHỊU (giống trang khoá) ─────────────────────
-   1. Không cỡ chữ nào < 15px; câu người học phải đọc để biết làm gì thì
-      ≥ 17px. Cỡ chữ ở đây viết bằng `var(--ds-fs-*)`, không bằng px.
-   2. MÀU chỉ viết bằng `var(--ds-*)`: `npm run lint:tokens` cấm mã hex trong
-      mọi *.module.css, và tên màu MẶC ĐỊNH của trình duyệt (`orange`,
-      `crimson`) cũng đã gỡ hết — chúng không có trong bảng nào.
-   3. Làm nhạt bằng MÀU, không bằng `opacity`.
-
-   HAI token --edu-* được giữ, và cả hai là PHÔNG, không phải màu: `--edu-font`
-   (thân chữ) và `--edu-mono` (code). `--edu-mono` phải giữ vì
-   `fonts-naming.test.mjs` canh đúng chiều ngược lại — nó CẤM /ide viết tay
-   chuỗi `ui-monospace, 'Cascadia Code', …` và ĐÒI đọc `var(--edu-mono)`, để
-   JetBrains Mono tự lưu trữ luôn nằm đầu chuỗi ở một chỗ duy nhất. Luật "bề
-   mặt đã chuyển không đọc --edu-*" nhắm vào token MÀU; ai đưa file này vào
-   `SURFACE_CSS` của ds-tokens thì phải nới miễn trừ ra cho `--edu-mono` CÙNG
-   LÚC, không thì hai ca cấm nhau.
-
-   ── NỢ CÒN LẠI ────────────────────────────────────────────────────────
-   `components/code-visualizer/CodeVisualizer.module.css` chưa chuyển trong đợt
-   này (f5c1071 vừa viết lại cả 8 panel của nó). Nút "Xem từng bước" và dải
-   chạy ở đó tô `var(--edu-accent-grad)`, tức một nút GRADIENT XANH — bảng v2
-   không có gradient nào. Panel ấy được portal vào `.visualizeSlot` bên dưới,
-   nên sau commit này nó là chỗ xanh duy nhất còn lại trên trang này. */
-
-/* Nền trang — xem điểm (1) ở trên. */
-.page {
-  min-height: 100vh;
-  background: var(--ds-page);
-}
+   Bảng lofi chill: BỀ MẶT giữ họ --edu-* (giấy kem ấm, mực nâu, đường kẻ
+   --edu-card-line) vì trang chủ và trang khoá học đã sang đó; chỉ vai NHẤN đổi
+   sang --ds-*. KHÔNG lấy --ds-page/--ds-card/--ds-line: đo ra chúng vẫn là xanh
+   xám LẠNH, dùng ở đây là /ide lạnh một mình giữa một site đã ấm.
+   Nhấn: nền nút chính --ds-action, lấy nét/vị trí --ds-violet, dải tô ấm pha từ
+   --ds-mark-ochre. Bỏ --edu-accent-grad (gradient brand xanh hai mốc).
+   Không viết mã màu dạng hex vào file này, kể cả trong chú thích: lint:tokens
+   là một lệnh grep thẳng, nó không bóc chú thích ra trước khi tìm. */
+.page { min-height: 100vh; }
 
 .main {
   /* cùng bề rộng với trang chủ và SiteHeader để lề trái thẳng hàng */
@@ -57,7 +19,6 @@
 }
 
 .toolbar {
-  padding-top: 16px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -68,94 +29,109 @@
 
 .title {
   margin: 0;
-  font-size: var(--ds-fs-h2);
+  font-size: 28px;
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: var(--ds-ink);
+  color: var(--edu-t1);
 }
 
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
 
-/* `<label>` bọc ô chọn ví dụ. IdeClient dùng lớp này từ lâu nhưng nó CHƯA HỀ
-   được khai ở đây, nên đó là một `<label>` không style: `display` mặc định
-   của label là inline nên nó còn căn dòng tạm được, nhưng mọi thứ khác (căn
-   giữa theo chiều cao với nút Chạy) thì không. Khai ra cho đúng. */
-.exampleLabel { display: inline-flex; align-items: center; }
-
 .select {
-  /* 42 → 48px: vùng chạm tối thiểu 44 × 44 của bản thiết kế. */
-  height: 48px;
+  height: 42px;
   padding: 0 14px;
   font: inherit;
-  /* 14 → `ui` 17px: ô chọn ví dụ là thứ bấm được, cùng thang với nút. */
-  font-size: var(--ds-fs-ui);
-  color: var(--ds-ink);
-  background: var(--ds-card);
-  /* Thứ bấm được dùng viền `sketch` 2px (bản thiết kế §1.4). `line` chỉ
-     1,36:1 trên thẻ nên ô nhập viền `line` là ô không thấy ranh giới. */
-  border: var(--ds-bw-2) solid var(--ds-sketch);
-  border-radius: var(--ds-r-md);
+  font-size: 14px;
+  color: var(--edu-t1);
+  background: var(--edu-pill-bg);
+  border: 1px solid var(--edu-pill-border);
+  border-radius: 12px;
   cursor: pointer;
 }
 .select:focus-visible,
-.run:focus-visible,
-.retry:focus-visible {
-  outline: var(--ds-bw-3) solid var(--ds-violet);
-  outline-offset: 3px;
+.run:focus-visible {
+  outline: 2px solid var(--ds-violet);
+  outline-offset: 2px;
 }
 /* <option> vẽ bằng bảng màu hệ điều hành: ép nền đặc để chữ không chìm ở chế độ tối. */
-.select option { color: var(--ds-ink); background: var(--ds-card); }
+.select option { color: var(--edu-t1); background: var(--edu-panel-bg-solid); }
 
-/* Nút chính của trang. `--ds-action` + `--ds-on-action` là cặp DUY NHẤT bảng
-   v2 cho phép đặt chữ lên nền nhấn đậm, và nó tự đảo theo bản nền. Bản cũ nền
-   `--edu-accent-grad` là GRADIENT XANH — bảng v2 không có gradient nào — và
-   chữ lấy màu `--edu-panel-bg-solid`, tức "màu nền panel" dùng làm màu chữ:
-   đổi nền panel là đổi luôn chữ trên nút. */
 .run {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  /* 42 → 52px, đệm 22 → 28: kích thước nút chính của bản thiết kế §1.4. */
-  min-height: 52px;
-  padding: 0 28px;
+  gap: 10px;
+  height: 42px;
+  padding: 0 22px;
   font: inherit;
-  font-size: var(--ds-fs-ui);
-  font-weight: 800;
+  font-size: 15px;
+  font-weight: 600;
+  /* Nền ĐẶC --ds-action, không còn gradient brand: bảng lofi chỉ có MỘT màu
+     hành động, và một dải hai màu là thứ đọc ra "brand" mạnh nhất trên trang.
+     Chữ lấy --ds-on-action (màu ghép sẵn của nó) chứ không mượn nền panel —
+     đo được 5,57:1 ở chế độ sáng và 7,98:1 ở chế độ tối. */
   color: var(--ds-on-action);
   background: var(--ds-action);
   border: 0;
-  border-radius: var(--ds-r-pill);
+  border-radius: 999px;
   cursor: pointer;
-  box-shadow: var(--ds-shadow-open);
-  /* 0,15 s → thang `dur-fast`. Và chỉ chuyển `transform`/màu, không chuyển
-     `opacity` nữa vì trạng thái tắt thôi dùng opacity (xem dưới). */
-  transition: transform var(--ds-dur-fast) ease, background var(--ds-dur-fast) ease;
+  /* Bóng NÂU ẤM cùng họ --edu-card-shadow, đậm hơn một nấc vì nút này nổi trên
+     mặt giấy. KHÔNG dùng --edu-brand-glow (quầng xanh + đỏ). */
+  box-shadow: 0 6px 18px rgba(42, 32, 23, 0.16);
+  transition: transform 0.15s ease, opacity 0.15s ease;
 }
-.run:hover:not(:disabled) { transform: translateY(-1px); background: var(--ds-violet); }
-/* Nút đang tắt: làm nhạt bằng MÀU. `opacity: .6` cũ giữ nguyên nền tím đậm
-   nhưng kéo cả chữ trắng xuống, và bản thiết kế §1.2 chốt thẳng "Trạng thái
-   tắt: viền `sketch`, chữ `soft`, không dùng opacity" (opacity 0,4 cho
-   2,42:1). `soft` trên `desk` là 7,07:1. */
-.run:disabled {
-  color: var(--ds-soft);
-  background: var(--ds-desk);
-  box-shadow: none;
-  cursor: progress;
+/* Guard con trỏ thật: trên màn cảm ứng `:hover` dính lại sau cú chạm nên nút
+   kẹt ở trạng thái "đang trỏ vào". Lý lẽ và số đo ở `.start` trong
+   CodeVisualizer.module.css — cùng vòng, cùng phép tái hiện. */
+@media (hover: hover) and (pointer: fine) {
+  .run:hover:not(:disabled) { transform: translateY(-1px); }
+}
+.run:disabled { opacity: 0.6; cursor: progress; }
+
+/* Nút Dừng — CÙNG nút Chạy đổi vai, không phải nút thứ hai (xem IdeClient).
+   Giữ đúng chiều cao 42px và bán kính của .run để thanh công cụ không nhảy khi
+   nhãn đổi. Dùng màu cảnh báo chứ không phải gradient nhấn: đây là việc CẮT
+   một thứ đang chạy, không phải việc khởi động. */
+.stop {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 42px;
+  padding: 0 22px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--edu-t1);
+  background: color-mix(in srgb, crimson 16%, transparent);
+  border: 1px solid color-mix(in srgb, crimson 45%, transparent);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+/* Guard con trỏ thật — xem `.run:hover` phía trên. */
+@media (hover: hover) and (pointer: fine) {
+  .stop:hover { background: color-mix(in srgb, crimson 26%, transparent); }
+}
+.stop:focus-visible {
+  outline: 2px solid var(--ds-violet);
+  outline-offset: 2px;
+}
+
+/* Đếm ngược mấy giây cuối. `tabular-nums` để con số không làm dòng chữ co giãn
+   mỗi lần đổi — chữ nhảy cạnh nút người ta đang định bấm là tệ hơn không đếm. */
+.countdown {
+  font-size: 13px;
+  color: var(--edu-t3);
+  font-variant-numeric: tabular-nums;
 }
 
 .kbd {
   padding: 2px 7px;
   font: inherit;
-  /* 11 → `label` 15px: sàn chữ của bản thiết kế. */
-  font-size: var(--ds-fs-label);
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 500;
   color: inherit;
-  background: transparent;
-  border: var(--ds-bw-1) solid currentColor;
-  /* Viền chữ thay cho nền tint: tint sáng đặt trên nền nút xanh đậm làm chữ
-     Ctrl+Enter mờ đi (thấy rõ ở ảnh chụp 19/10). */
-  /* 6px không nằm trên thang bo góc; chip vuông là `r-sm`. */
-  border-radius: var(--ds-r-sm);
+  background: var(--edu-track-bg);
+  border-radius: 6px;
 }
 
 .srOnly {
@@ -173,10 +149,10 @@
 /* Editor trái, output phải; hẹp thì xếp dọc (xem media bên dưới). */
 .split {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
   gap: 16px;
-  height: calc(100vh - 200px);
-  min-height: 480px;
+  height: calc(100vh - 190px);
+  min-height: 460px;
 }
 
 .editorPane,
@@ -184,59 +160,67 @@
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  background: var(--ds-card);
-  border: var(--ds-bw-1) solid var(--ds-line);
-  border-radius: var(--ds-r-lg);
-  box-shadow: var(--ds-shadow-open);
+  background: var(--edu-panel-bg-solid);
+  border: 1px solid var(--edu-panel-border);
+  border-radius: 16px;
+  box-shadow: var(--edu-card-shadow);
 }
-.editorPane,
-.outputPane { display: flex; flex-direction: column; }
-.editorBody { flex: 1 1 auto; min-height: 0; }
-.outputBody { flex: 1 1 auto; min-height: 0; padding: 16px 20px 20px; overflow: auto; }
+/* Hai khung là HAI mặt phẳng trắng cạnh nhau, và trước bản này KHÔNG có gì gọi
+   tên chúng — nhánh `test` gọi đúng: "hai tấm thẻ trắng trống không". Thanh tiêu
+   đề nói ra đây là tệp đang soạn, đây là kết quả.
 
-/* Thanh tiêu đề của hai khung: cho mắt biết đây là tệp soạn và đây là kết quả,
-   thay vì hai tấm thẻ trắng trống không. Chữ `label` 15px (sàn của bảng v2). */
+   Pane thành cột flex và padding dời xuống phần THÂN: để padding trên chính pane
+   thì dải tiêu đề bị thụt vào, không chạm được hai mép. `overflow: hidden` của
+   rule dùng chung ở trên giữ nguyên nên bo góc 16px cắt đúng hai đầu dải —
+   `.outputPane` thôi tự đặt `overflow: auto`, phần cuộn nay là `.outputBody`. */
+.editorPane,
+.outputPane { display: flex; flex-direction: column; padding: 0; }
+.editorBody { flex: 1 1 auto; min-height: 0; padding: 8px 0; }
+.outputBody { flex: 1 1 auto; min-height: 0; padding: 16px 18px; overflow: auto; }
+
+/* Dải TRẦM, không phải một nhãn nhấn: nền lấy GIẤY nên nó chìm hơn mặt thẻ trắng
+   ngay dưới, và ĐƯỜNG KẺ mới là thứ chia hai mặt — đo được dải so với thẻ chỉ
+   **1,15:1**, đúng bài học của hai thanh sticky ("ở khoảng sáng này màu nền
+   không tách được hai mặt phẳng; chỉ đường kẻ mới tách").
+
+   KHÔNG dùng bộ token của nhánh `test` (`--ds-tint` #E8F0FE · `--ds-soft`
+   #3A4A66 · `--ds-line` #CFD9E8): cả ba LẠNH (B > R) trên trang giấy kem
+   #F4EEE3 — đó là nửa bảng v2 mà main đã warm đi, và bê nguyên là dán một dải
+   xanh ngang đầu cả hai khung. Lần thứ HAI cùng lỗi ấy chặn được một bản port
+   mù từ nhánh đó (lần trước: `--ds-ink`). Chữ `--edu-t2` trên dải: **9,30:1**.
+
+   Và KHÔNG có chấm tròn `--ds-action` như bên `test`: trong một trình soạn thảo,
+   chấm cạnh tên tệp NGHĨA LÀ "chưa lưu". Ở đây mã tự lưu vào localStorage nên
+   chấm ấy không bao giờ nói điều gì — một đốm brand xanh làm cảnh. */
 .paneHead {
   display: flex;
   align-items: center;
-  gap: 10px;
   flex: 0 0 auto;
-  padding: 10px 20px;
-  font-size: var(--ds-fs-label);
+  padding: 10px 18px;
+  font-size: 15px;
   font-weight: 700;
-  color: var(--ds-soft);
-  background: var(--ds-tint);
-  border-bottom: var(--ds-bw-1) solid var(--ds-line);
-}
-.paneDot {
-  width: 10px;
-  height: 10px;
-  background: var(--ds-action);
-  border-radius: var(--ds-r-round);
+  color: var(--edu-t2);
+  background: var(--edu-bg-solid);
+  border-bottom: 1px solid var(--edu-card-line);
 }
 
 .editorLoading,
 .hint {
   margin: 0;
-  /* 14 → `body` 18px: cả hai là câu văn đầy đủ, người học đọc để biết đang
-     chờ gì hoặc bấm gì tiếp. */
-  font-size: var(--ds-fs-body);
-  line-height: 1.55;
-  color: var(--ds-soft);
+  font-size: 14px;
+  color: var(--edu-t3);
 }
-.editorLoading { padding: 20px; }
+.editorLoading { padding: 18px; }
 
 .spinner {
   display: inline-block;
   width: 12px;
   height: 12px;
-  margin-right: 8px;
+  margin-right: 6px;
   vertical-align: -1px;
-  border: var(--ds-bw-2) solid var(--ds-desk);
+  border: 2px solid var(--edu-track-bg);
   border-top-color: var(--ds-violet);
-  border-radius: var(--ds-r-round);
-  /* Vòng lặp vô hạn: KHÔNG thuộc thang dur-fast/base/page — thang đó dành cho
-     phản hồi và "hiện ra". Đây là "đang chạy", 0,8 s là nhịp quay đọc được. */
+  border-radius: 50%;
   animation: ide-spin 0.8s linear infinite;
 }
 @keyframes ide-spin { to { transform: rotate(360deg); } }
@@ -244,99 +228,120 @@
 .meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 20px;
+  gap: 6px 18px;
   margin-bottom: 12px;
-  /* 13 → `label` 15px: đây là meta (thời gian chạy, mã thoát), không phải câu. */
-  font-size: var(--ds-fs-label);
-  color: var(--ds-soft);
+  font-size: 13px;
+  color: var(--edu-t3);
 }
-/* Chạy xong / chạy lỗi. `ochre` = "đã có, đúng"; `sanguine` = "chú ý, chưa
-   đúng" — bản thiết kế §"Màu: nhấn", cột "Vai trò ngữ nghĩa (duy nhất)".
-   Bản cũ `.fail` dùng `color-mix(in srgb, crimson 85%, var(--edu-t1))`: trộn
-   một màu mặc định của trình duyệt với token chữ của bảng XANH cũ, nên màu
-   lỗi đổi theo nền mà không ai đo được tỉ lệ nào. */
+/* "Mã thoát: 0" — ĐẠT. Trước đây tô --edu-accent-text, tức cùng màu XANH với
+   nút bấm: một trạng thái thành công không đọc ra thành công, và nó nằm ngay
+   cạnh .fail đỏ. --ds-ochre là vai "đạt" của bảng lofi và đổi theo chế độ
+   (5,48:1 trên thẻ sáng · 8,16:1 trên panel tối). */
 .ok { color: var(--ds-ochre); }
-.fail { color: var(--ds-sanguine); }
+.fail { color: color-mix(in srgb, crimson 85%, var(--edu-t1)); }
 
 .notice {
   margin: 0 0 12px;
-  padding: 12px 16px;
-  /* 14 → `body` 18px: thông báo là câu người học phải đọc để biết làm gì. */
-  font-size: var(--ds-fs-body);
-  line-height: 1.55;
-  color: var(--ds-ink);
-  border: var(--ds-bw-1) solid var(--ds-line);
-  border-radius: var(--ds-r-md);
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--edu-t1);
+  border: 1px solid var(--edu-card-border);
+  border-radius: 12px;
 }
 .notice p { margin: 4px 0 0; }
-/* Code nội dòng: bản thiết kế cho 0.9em nhưng TỐI THIỂU 16px, nên dùng thẳng
-   `--ds-fs-code` (16). Bản cũ 12,5px — nửa pixel, không thang nào có.
-   `word-break: break-all` bỏ đi: nó cắt tên hàm giữa chữ; `break-word` ở khối
-   cha đã đủ để URL dài không phá khung. */
-.notice code { font-size: var(--ds-fs-code); word-break: break-word; }
-
-/* Cảnh báo và lỗi dùng CÙNG một họ màu `sanguine`: bảng v2 chỉ có bốn họ nhấn
-   và vai "chú ý / chưa đúng" là của riêng họ này. Phân biệt hai mức KHÔNG
-   bằng một màu thứ hai (palette không có xanh lá, nên §"Quy tắc kèm theo"
-   chốt phải phân biệt bằng icon + chữ) mà bằng thanh nhấn trái 4px của
-   Callout: lỗi có thanh, cảnh báo không. Bản cũ dùng `orange` và `crimson` —
-   hai màu MẶC ĐỊNH của trình duyệt, không có trong bảng nào (và không viết mã
-   hex của chúng ra đây: `npm run lint:tokens` grep thô theo DÒNG, kể cả chú
-   thích). `orange` còn gánh vai thứ hai ở CodeVisualizer ("giá trị vừa đổi"),
-   nên cùng một màu nói hai điều ngược nhau trên hai panel cạnh nhau. */
+.notice code { font-size: 12.5px; word-break: break-all; }
 .noticeWarn {
-  background: var(--ds-sanguine-tint);
-  border-color: var(--ds-sanguine);
+  background: color-mix(in srgb, orange 16%, transparent);
+  border-color: color-mix(in srgb, orange 45%, transparent);
 }
 .noticeError {
-  background: var(--ds-sanguine-tint);
-  border-color: var(--ds-sanguine);
-  border-left-width: var(--ds-bw-rail);
+  background: color-mix(in srgb, crimson 12%, transparent);
+  border-color: color-mix(in srgb, crimson 40%, transparent);
 }
 
 /* Chi tiết kỹ thuật của lỗi hạ tầng: gập lại để người học không phải đọc thông
    điệp của docker, nhưng KHÔNG xoá — giảng viên cần đúng nguyên văn để báo lỗi. */
 .detail {
   margin-top: 8px;
-  font-size: var(--ds-fs-label);
+  font-size: 13px;
 }
 .detail summary {
   cursor: pointer;
-  color: var(--ds-soft);
+  color: var(--edu-t3);
 }
 .detailBody {
-  margin: 8px 0 0;
-  /* Ba chỗ mono của /ide (khối này, .stdout/.stderr và ô soạn mã) trước đây
-     viết tay `ui-monospace, 'Cascadia Code', Consolas, monospace` — tức mỗi
-     máy một dáng chữ, và KHÔNG có JetBrains Mono mà bản thiết kế chốt cho
-     code. Chuỗi dưới đây đặt JetBrains Mono tự lưu trữ lên đầu rồi mới tới
-     đúng chuỗi dự phòng cũ, nên máy thiếu phông vẫn như trước. Giữ nguyên
-     `var(--edu-mono)`: nó là token PHÔNG, và `fonts-naming.test.mjs` canh
-     đúng chiều ngược (cấm viết tay chuỗi mono ở đây). */
-  font-family: var(--edu-mono);
-  font-size: var(--ds-fs-label);
+  margin: 6px 0 0;
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: 12.5px;
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
-  color: var(--ds-soft);
+  color: var(--edu-t3);
 }
 
 .stdout,
 .stderr {
-  margin: 0 0 12px;
-  font-family: var(--edu-mono);
-  /* 13,5 → `code` 16px. Nửa pixel không nằm trên thang nào. */
-  font-size: var(--ds-fs-code);
-  line-height: 1.6;
+  margin: 0 0 10px;
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: 13.5px;
+  line-height: 1.55;
   white-space: pre-wrap;
   word-break: break-word;
 }
-.stdout { color: var(--ds-ink); }
-.stderr { color: var(--ds-sanguine); }
+.stdout { color: var(--edu-t1); }
+.stderr { color: color-mix(in srgb, crimson 85%, var(--edu-t1)); }
+
+/* Dải "đã khôi phục bản tự lưu" (xem `restored` trong IdeClient). Nói ra việc
+   vừa xảy ra thay vì âm thầm thay mã của người ta; đóng được nên nó không ăn
+   chỗ của .split mãi mãi. Dùng tông pill trung tính, KHÔNG phải .noticeWarn:
+   khôi phục thành công không phải chuyện phải cảnh báo. */
+.restored {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0 0 12px;
+  padding: 8px 8px 8px 14px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--edu-t1);
+  background: var(--edu-pill-bg);
+  border: 1px solid var(--edu-pill-border);
+  border-radius: 12px;
+}
+/* Câu chữ ăn hết chỗ còn lại, nhưng được phép xuống dòng riêng khi hẹp
+   (260px) thay vì bóp hai nút thành hai cột chữ dọc. */
+.restored span { flex: 1 1 260px; }
+
+.restoredAction,
+.restoredClose {
+  flex: 0 0 auto;
+  font: inherit;
+  font-size: 13px;
+  color: var(--edu-t1);
+  background: var(--edu-panel-bg-solid);
+  border: 1px solid var(--edu-pill-border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.restoredAction { padding: 5px 14px; font-weight: 600; }
+.restoredClose { width: 26px; height: 26px; line-height: 1; }
+/* Guard con trỏ thật — xem `.run:hover` phía trên. */
+@media (hover: hover) and (pointer: fine) {
+  .restoredAction:hover,
+  .restoredClose:hover { background: var(--edu-track-bg); }
+}
+.restoredAction:focus-visible,
+.restoredClose:focus-visible {
+  outline: 2px solid var(--ds-violet);
+  outline-offset: 2px;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .spinner { animation: none; }
-  .run { transition: none; }
+  .run,
+  .stop { transition: none; }
 }
 
 @media (max-width: 899.98px) {
@@ -349,8 +354,7 @@
 
 @media (max-width: 639.98px) {
   .main { padding: 0 16px 40px; }
-  /* 24px không có trong thang chữ; bậc dưới `h2` là `h3` 22px. */
-  .title { font-size: var(--ds-fs-h3); }
+  .title { font-size: 24px; }
   .kbd { display: none; }
 }
 
@@ -370,51 +374,89 @@
   flex-direction: column;
   box-sizing: border-box;
   height: 100%;
-  padding: 8px 16px 16px;
+  padding: 6px 14px 14px;
 }
 .fallback .notice { flex: 0 0 auto; }
 
-/* Nút phụ của bản thiết kế §1.4: viền `ink` 2px, nền trong suốt, 17/700,
-   cao 48. Bản cũ là một viên thuốc nền `--edu-pill-bg` viền 1px, 14/600 —
-   không khớp biến thể nào. */
 .retry {
-  margin-top: 8px;
-  min-height: 48px;
-  padding: 0 28px;
+  margin-top: 6px;
+  padding: 7px 16px;
   font: inherit;
-  font-size: var(--ds-fs-ui);
-  font-weight: 700;
-  color: var(--ds-ink);
-  background: transparent;
-  border: var(--ds-bw-2) solid var(--ds-ink);
-  border-radius: var(--ds-r-pill);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--edu-t1);
+  background: var(--edu-pill-bg);
+  border: 1px solid var(--edu-pill-border);
+  border-radius: 999px;
   cursor: pointer;
 }
-.retry:hover { color: var(--ds-on-action); background: var(--ds-ink); }
+/* Guard con trỏ thật — xem `.run:hover` phía trên. */
+@media (hover: hover) and (pointer: fine) {
+  .retry:hover { background: var(--edu-track-bg); }
+}
+.retry:focus-visible {
+  outline: 2px solid var(--ds-violet);
+  outline-offset: 2px;
+}
 
 .fallbackInput {
   flex: 1 1 auto;
-  /* Sàn 160px (khoảng 7 dòng mã), KHÔNG phải 0: ô gõ ăn phần còn lại sau khối
-     thông báo, mà thông báo cao lên đáng kể ở màn hẹp (khung soạn thảo chỉ còn
-     55vh) hay khi hiện thêm đoạn "Chưa tải lại". Để 0 thì flex bóp ô gõ còn một
-     hai dòng — vẫn có chỗ gõ nhưng không dùng được. Đánh đổi: khung thấp hơn
-     thông báo + 160px thì đáy ô gõ bị .editorPane (overflow: hidden) cắt bớt. */
+  /* min-height: 0 để ô gõ co được trong flex thay vì đẩy tràn khung. */
   min-height: 160px;
   box-sizing: border-box;
-  padding: 12px;
+  padding: 10px 12px;
   resize: none;
-  font-family: var(--edu-mono);
-  font-size: var(--ds-fs-code);
-  line-height: 1.6;
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: 13.5px;
+  line-height: 1.55;
   tab-size: 4;
-  color: var(--ds-ink);
+  color: var(--edu-t1);
   /* Nền khác hẳn khung chứa (cùng màu thì ô gõ tàng hình trên nền panel trắng —
      người dùng không biết là bấm vào gõ được, đúng lúc đang cần họ gõ). */
-  background: var(--ds-tint);
-  border: var(--ds-bw-2) solid var(--ds-sketch);
-  border-radius: var(--ds-r-md);
+  background: var(--edu-track-bg);
+  border: 1px solid var(--edu-pill-border);
+  border-radius: 12px;
 }
 .fallbackInput:focus-visible {
-  outline: var(--ds-bw-3) solid var(--ds-violet);
+  outline: 2px solid var(--ds-violet);
   outline-offset: -1px;
+}
+
+/* SÀN 16px CHO Ô GÕ TRÊN ĐIỆN THOẠI. Safari iOS tự phóng viewport khi một
+ * form control có `font-size < 16px` nhận focus và KHÔNG phóng lại ra; viewport
+ * của dự án không có `maximum-scale` nên không gì chặn. Lý lẽ đầy đủ, số đo và
+ * giá phải trả ghi ở `exercises.module.css`. `o-go-16px.test.mjs` canh sàn này. */
+@media (max-width: 1023.98px) {
+  .fallbackInput { font-size: 16px; }
+
+  /* SÀN 44px CHO ĐÍCH BẤM. Luật của chính repo (xem `not-found.module.css`),
+   * và nó chưa bao giờ được áp ở trang này. Đo trên production 390×844
+   * (`offsetHeight`, màn đã lắng): `.select`/`.run` 42 · `.start` 38 ·
+   * `.restoredAction` 31 · `.restoredClose` 26×26 — nút ✕ của băng khôi phục
+   * là nhỏ nhất, chưa tới 3/5 diện tích một đích đạt chuẩn.
+   *
+   * CHỈ ở khổ CẢM ỨNG, không đụng desktop: `.select`/`.run`/`.stop`/`.ctrl`/
+   * `.restoredClose` khai `height` (và `width`) TƯỜNG MINH, nên sửa thẳng là
+   * đổi cả bố cục desktop — một thay đổi lớn hơn việc đang làm và không ai
+   * đo. 1023.98px là đúng mốc mà sàn 16px ở trên đã chọn cho dải ấy.
+   * `dich-bam-vo-bai-hoc.test.mjs` canh sàn này. */
+  .select,
+  .run,
+  .stop { height: 44px; }
+  .restoredAction { min-height: 44px; }
+  .restoredClose { width: 44px; height: 44px; }
+  /* `.retry` chỉ hiện khi Monaco không nạp được (trình soạn thảo dự phòng),
+     nên con số thật của nó CHƯA ĐO trên thiết bị — đo được thì phải chặn
+     chunk của Monaco. Sàn vẫn áp: khai `min-height` là thứ cổng VERIFY được,
+     nên nó mạnh hơn khai một khoản nợ. Chính cổng đã bắt chỗ này — xem chiều
+     "NGOẠI LỆ ĐÃ LỖI THỜI" của `dich-bam-vo-bai-hoc.test.mjs`. */
+  .retry { min-height: 44px; }
+  /* `<summary>` là `display: list-item`, nên `min-height` một mình đẩy chữ
+     lên đỉnh một hộp 44px. `box-sizing: border-box` + padding 13px giữ chữ ở
+     giữa VÀ giữ dấu tam giác mở/đóng — `display: flex` thì mất dấu ấy. */
+  .detail summary {
+    min-height: 44px;
+    padding: 13px 0;
+    box-sizing: border-box;
+  }
 }

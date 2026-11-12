@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
+  <defs>
+    <radialGradient id="gs" cx="35%" cy="28%" r="70%">
+      <stop offset="0%" stop-color="#472358"/>
+      <stop offset="100%" stop-color="#1b1030"/>
+    </radialGradient>
+    <linearGradient id="sak" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffb8e2"/>
+      <stop offset="100%" stop-color="#e58cc8"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="84" height="84" rx="24" fill="url(#gs)" stroke="#e58cc8" stroke-width="2.5" stroke-opacity="0.7"/>
+  <!-- Sổ tay mở + ngôi sao lấp lánh -->
+  <rect x="24" y="28" width="48" height="42" rx="8" fill="#2a1c4e" stroke="url(#sak)" stroke-width="2.5"/>
+  <path d="M32 39l-5 5 5 5M44 39l5 5-5 5M39 37l-2 14" fill="none" stroke="#ffd599" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M31 58h22M31 63h14" stroke="#cfc3e8" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M64 20c.8 5.2 3.8 8.2 9 9-5.2.8-8.2 3.8-9 9-.8-5.2-3.8-8.2-9-9 5.2-.8 8.2-3.8 9-9z" fill="#ffd599"/>
+</svg>

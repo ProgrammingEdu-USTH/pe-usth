@@ -42,15 +42,16 @@ export default function SelfExplain({
         onChange={(e) => onChange(e.target.value)}
         style={{
           width: '100%',
-          minHeight: 132,
+          // 158 = 132 cũ + padding 2×12 + viền 2×1 (border-box, xem LessonChrome.module.css).
+          minHeight: 158,
           resize: 'vertical',
           padding: '12px 14px',
           borderRadius: 12,
-          border: '1px solid var(--ds-line)',
-          background: 'var(--ds-card)',
-          color: 'var(--ds-ink)',
+          border: '1px solid var(--edu-sidebar-border)',
+          background: 'var(--edu-panel-bg-solid)',
+          color: 'var(--edu-t1)',
           font: 'inherit',
-          fontSize: 'var(--ds-fs-body)',
+          fontSize: 14,
           lineHeight: 1.6,
         }}
       />

@@ -6,7 +6,9 @@
 // render — closure lại chạm tới bộ chạy code, mà React cấm đọc ref lúc render.
 // Bấm nút mới gọi doAction() trong StudioLesson.tsx.
 import {
+  firstUnfinished,
   gameAnswered,
+  isChoiceScreen,
   isGraded,
   isRunnableGame,
   type LessonDraft,
@@ -68,32 +70,24 @@ export function isAnswered({ lesson, scr, draft, game }: CtaContext): boolean {
   return true;
 }
 
-/** Màn có chấm mà học viên chưa làm đúng — chặn việc kết thúc bài. */
-export function firstUnfinished(
-  screens: LessonScreen[],
-  draft: LessonDraft,
-): LessonScreen | undefined {
-  return screens.find((x) => isGraded(x.kind) && !draft.done[x.key]);
-}
-
 export function primaryCta(ctx: CtaContext): Cta {
   const { scr, screens, draft, game, checked, verdict, completed, busy, running, result } = ctx;
   const tests = ctx.lesson?.step_4?.tests ?? [];
 
-  if (!scr) return { label: 'Về khoá học', tone: 'accent', action: 'leave' };
+  if (!scr) return { label: 'Về khóa học', tone: 'accent', action: 'leave' };
 
   if (scr.kind === 'recap') {
     // Học xong thì đi thẳng sang bài kế tiếp, không bắt quay về danh sách.
     if (completed)
       return ctx.hasNextLesson
         ? { label: `Bài ${ctx.lessonNo + 1} →`, tone: 'ok', action: 'nextLesson' }
-        : { label: 'Về khoá học →', tone: 'ok', action: 'leave' };
+        : { label: 'Về khóa học →', tone: 'ok', action: 'leave' };
     // Chưa làm xong màn nào đó thì không cho kết thúc bài — kể cả khi mở lại
     // từ bản nháp cũ và nhảy thẳng tới đây.
     const missing = firstUnfinished(screens, draft);
     if (missing)
       return {
-        label: `Quay lại: ${eyebrowOf(missing).label}`,
+        label: `Còn phải làm: ${eyebrowOf(missing).label}`,
         tone: 'err',
         action: 'toBlocked',
       };
@@ -102,7 +96,7 @@ export function primaryCta(ctx: CtaContext): Cta {
     // Bài lab desktop / bài quy trình không có ca chấm nào chạy được trong
     // trình duyệt, nên hoàn thành do người học tự xác nhận ở đây.
     return {
-      label: busy ? 'Đang lưu…' : 'Đánh dấu đã xong',
+      label: busy ? 'Đang lưu…' : 'Đánh dấu đã hoàn thành ✓',
       tone: 'accent',
       disabled: busy,
       action: 'complete',
@@ -110,10 +104,16 @@ export function primaryCta(ctx: CtaContext): Cta {
   }
 
   if (scr.kind === 'sandbox') {
-    if (!tests.length) return { label: 'Tiếp tục →', tone: 'accent', action: 'next' };
+    // KHÔNG có ca kiểm thử nào thì nút KHÔNG được nói "Nộp & Chấm điểm": không
+    // có gì để chấm, và bấm nó chỉ chạy code rồi báo đạt 0/0. Đúng trường hợp
+    // của khoá 172 bài đọc (không bài nào phát ra `step_4.tests`) và của bài
+    // quy trình làm trên máy. Chạy thử là việc của nút "▶ Chạy thử" trong ô
+    // soạn mã, nên nút dưới đáy chỉ còn việc đi tiếp — và nó nói đúng thế.
+    // Bảng ca kiểm thử cũng tự ẩn khi rỗng (xem SandboxEditor).
+    if (!tests.length) return { label: 'Xong — tiếp tục →', tone: 'accent', action: 'next' };
     if (draft.done[scr.key]) return { label: 'Tiếp tục →', tone: 'ok', action: 'next' };
     return {
-      label: running ? 'Đang chấm…' : 'Nộp để kiểm',
+      label: running ? 'Đang chấm…' : 'Nộp & Chấm điểm',
       tone: result && result.tests.some((t) => !t.passed) ? 'err' : 'accent',
       disabled: running || busy,
       action: 'submit',
@@ -125,14 +125,59 @@ export function primaryCta(ctx: CtaContext): Cta {
       return { label: 'Đang chạy code…', tone: 'accent', disabled: true, action: 'check' };
     if (!checked)
       return {
-        label: isRunnableGame(game) ? 'Chạy & kiểm tra' : 'Kiểm tra',
+        label: isRunnableGame(game) ? '▶ Chạy & kiểm tra' : 'Kiểm tra',
         tone: 'accent',
         disabled: !isAnswered(ctx),
         action: 'check',
       };
-    if (verdict && !verdict.correct) return { label: 'Thử lại', tone: 'err', action: 'retry' };
+    if (verdict && !verdict.correct) {
+      // TRẢ LỜI SAI Ở CÂU CHỌN PHƯƠNG ÁN: nút CHÍNH cho ĐI TIẾP, không bắt làm
+      // lại. Lý lẽ đầy đủ (Van der Kleij 2015, Butler 2007, và vì sao nó không
+      // sửa được bằng một dòng) nằm ở khối "ba trạng thái của một màn" trong
+      // lib/studio-lesson.ts.
+      //
+      // `tone: 'err'` chứ không 'ok': nút vẫn ĐỎ và nhãn vẫn nói ra rằng đây là
+      // đường đi tiếp SAU KHI xem đáp án. Yêu cầu thiết kế là "vẫn phải thấy rõ
+      // mình sai" — nếu nút này giống nút của câu đúng ('Tiếp tục →' xanh) thì
+      // đúng và sai trông như nhau, và đó là đổi một lỗi lấy một lỗi khác.
+      //
+      // Nhãn NGẮN, và đó là ràng buộc của thanh dưới ở màn hẹp: dưới 560px
+      // thanh này là flex với nút chính `flex: 1; min-width: 132px` và nút phụ
+      // `flex-shrink: 0`, nên một nhãn 26 ký tự ở hai nút cùng lúc đẩy thanh
+      // tràn ngang trên điện thoại. "Đã xem đáp án →" nói đủ việc nó làm.
+      if (isChoiceScreen(scr.kind))
+        return { label: 'Đã xem đáp án →', tone: 'err', action: 'next' };
+      // Các màn có chấm KHÁC (xếp dòng code, sửa hàm, phân loại): làm lại ở đó
+      // là làm lại VIỆC, không phải bấm nốt hai phương án còn lại.
+      return { label: 'Thử lại', tone: 'err', action: 'retry' };
+    }
     return { label: 'Tiếp tục →', tone: 'ok', action: 'next' };
   }
 
   return { label: 'Tiếp tục →', tone: 'accent', action: 'next' };
+}
+
+/**
+ * Nút PHỤ của màn đang mở — hôm nay chỉ có một: "Thử lại" sau khi trả lời sai
+ * một câu chọn phương án.
+ *
+ * GIỮ "Thử lại", nhưng làm nút PHỤ, và đây là lý do: bằng chứng của M5 là
+ * HỖN HỢP — vài nghiên cứu ghi nhận lợi ích về ĐỘNG LỰC khi được thử lại — nên
+ * bỏ hẳn nó là đi xa hơn bằng chứng cho phép. Thứ phá giá trị đo lường không
+ * phải bản thân nút thử lại, mà là việc nó là đường đi DUY NHẤT và việc điểm
+ * được tính lại sau mỗi lần bấm. Cả hai đã bỏ: `score.firstTry` khoá kết quả ở
+ * lần chấm ĐẦU, nên chọn lại sau khi đọc đáp án không mua lại được điểm nào.
+ *
+ * Trả về null ở mọi màn khác, để ô nút phụ còn dành cho "💡 Gợi ý" của màn
+ * sandbox (hai thứ này không bao giờ cùng xuất hiện: màn sandbox không có chấm
+ * phương án).
+ */
+export function secondaryCta(ctx: CtaContext): { label: string; action: Action } | null {
+  const { scr, checked, verdict } = ctx;
+  if (!scr || !checked || !verdict || verdict.correct) return null;
+  if (!isChoiceScreen(scr.kind)) return null;
+  // "Chọn lại", không "Chọn lại (không tính điểm)": nhãn nút phụ ở màn hẹp
+  // không co được (`flex-shrink: 0`). Việc điểm đã chốt ở lần trả lời đầu được
+  // nói ở màn tổng kết, chỗ con số đó hiện ra.
+  return { label: 'Chọn lại', action: 'retry' };
 }

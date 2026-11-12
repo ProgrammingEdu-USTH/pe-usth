@@ -8,6 +8,7 @@
 // chấm chạy trong Docker, chỉ cần đổi lớp dựng trong `grab()` dưới đây.
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { ghiBamDung, ghiLuotChay } from '@/lib/learning-events';
 import {
   isGraded,
   parsonsCode,
@@ -140,6 +141,15 @@ export function useLessonRun({
 }) {
   /** Kết quả chạy gần nhất của màn sandbox (không lưu vào bản nháp). */
   const [result, setResult] = useState<RunResult | null>(null);
+  /**
+   * Mã đã thật sự gửi vào worker ở lượt chạy gần nhất — XUẤT XỨ của `result`.
+   *
+   * Đi CẶP với `result` và chỉ được đặt cùng lúc với nó: thiếu nó thì không ai
+   * trả lời được câu "output đang nhìn thuộc bản code nào?" (xem
+   * lib/run-freshness.ts). Không lưu vào bản nháp — nó nói về một lượt chạy
+   * trong phiên này, mà `result` cũng không được lưu.
+   */
+  const [ranCode, setRanCode] = useState<string | null>(null);
   // Nạp sẵn runtime NGAY khi mở màn, không chờ API trả nội dung — xem
   // shouldPrewarm() để biết vì sao chờ là mất không 1,0–1,5 s mỗi lần mở bài.
   const runner = useCodeRunner({
@@ -153,7 +163,11 @@ export function useLessonRun({
    * các game chạy code. Bấm Dừng thì onDone KHÔNG được gọi — giữ đúng nếp cũ
    * là không hiện kết quả nào cho lượt bị bỏ.
    */
-  function execute(code: string, onDone: (data: RunResult) => void) {
+  function execute(
+    code: string,
+    onDone: (data: RunResult) => void,
+    ghi?: { submit: boolean; screenKey?: string },
+  ) {
     const four = lesson?.step_4;
     if (!four) return;
     setMessage('');
@@ -163,11 +177,81 @@ export function useLessonRun({
         tests: four.tests ?? [],
         forbid: four.forbid ?? [],
         files: four.files ?? [],
+        // File dữ liệu của bài: chỉ TÊN đi qua đây, worker tự tải nội dung.
+        dataFiles: four.dataFiles ?? [],
         // Hợp đồng với worker có trường `stdin` (các dòng input() đọc lần
         // lượt). Chưa có UI để học viên tự nhập ở lượt này; khi thêm ô "dữ
         // liệu vào" thì truyền mảng dòng vào đúng chỗ này.
         stdin: [],
         packages: four.packages ?? [],
+        // Hợp đồng gọi của bài tập dạng dữ liệu. Phải đi cùng lượt chạy: bộ
+        // chấm cần nó TRƯỚC cả lần chạy chính, vì bài `mode: "script"` có đề
+        // cấp sẵn một biến mà mã học viên không gán ở đâu cả.
+        contract: four.contract,
+      })
+      .then((data) => {
+        // GHI NHẬT KÝ LẦN THỬ — đặt ở đây vì đây là chỗ DUY NHẤT có đủ thông
+        // tin: mã người học, ca nào trượt, exception, và thời gian worker đo.
+        //
+        // `data === null` nghĩa là lượt chạy BỊ BỎ (bấm Dừng / rời trang). Ghi
+        // nó bằng `ghiBamDung` chứ không bằng một lượt trượt: người học không
+        // nhận được chẩn đoán nào, nên nó không phải một lần thử.
+        //
+        // `ghi` chỉ được truyền cho màn sandbox. Game chạy code (parsons/debug)
+        // KHÔNG ghi: ca chấm của chúng là ca của bài, nhưng "mã" lại là các dòng
+        // người học xếp — trộn vào cùng một loại sự kiện thì `editsSinceLastRun`
+        // và "trượt y hệt" đếm hai thứ khác nhau vào một chỗ. Khoá pe-da đang
+        // xuất bản không có game nào, nên hôm nay nhánh này không mất gì.
+        if (ghi) {
+          if (!data) ghiBamDung(ghi.screenKey);
+          else
+            ghiLuotChay(
+              {
+                submit: ghi.submit,
+                code,
+                tests: data.tests ?? [],
+                total: four.tests?.length ?? 0,
+                error: data.error,
+                machineMs: data.duration,
+              },
+              ghi.screenKey,
+            );
+        }
+        if (data) onDone(data);
+      });
+  }
+
+  /**
+   * Chạy `code` KHÔNG kèm ca chấm nào — đường của ô "Chạy thử" ở màn LUYỆN TẬP.
+   *
+   * Vì sao không dùng lại `execute`: nó ghim cứng `tests: four.tests`, tức mọi
+   * lượt chạy ở màn luyện tập sẽ bị chấm bằng ca chấm của BÀI TẬP cuối bài —
+   * một bộ ca hỏi về một hàm `solve` mà câu luyện tập không có. Người học sẽ
+   * nhận "0/3 ca đạt" cho một đoạn code đúng.
+   *
+   * Và KHÔNG truyền `contract`: nó chỉ có nghĩa với ca chấm dạng dữ liệu (tiêm
+   * `inputVariable` vào namespace trước khi chạy). Không có ca nào thì nó chỉ
+   * là một biến lạ hiện ra trong chương trình người học.
+   *
+   * `packages`/`dataFiles` thì VẪN lấy của bài: `answerCode` của câu luyện tập
+   * import numpy/pandas y như bài, và đã đo — 0/63 câu thiếu gói.
+   *
+   * KHÔNG ghi nhật ký lần thử: `ghiLuotChay` gắn với ca chấm ("trượt ca nào",
+   * "trượt y hệt lần trước"), mà ở đây không có ca nào. Trộn vào cùng một loại
+   * sự kiện là làm hỏng hai câu SQL đang đếm theo nó.
+   */
+  function chayThu(code: string, onDone: (data: RunResult) => void) {
+    const four = lesson?.step_4;
+    setMessage('');
+    void runner
+      .run({
+        code,
+        tests: [],
+        forbid: four?.forbid ?? [],
+        files: four?.files ?? [],
+        dataFiles: four?.dataFiles ?? [],
+        stdin: [],
+        packages: four?.packages ?? [],
       })
       .then((data) => {
         if (data) onDone(data);
@@ -192,14 +276,21 @@ export function useLessonRun({
       .slice(0, sandboxAt < 0 ? 0 : sandboxAt)
       .some((x) => isGraded(x.kind) && !draft.done[x.key]);
     if (submit && blocked) {
-      setMessage('Còn màn phía trước chưa xong nên chưa nộp được. Quay lại màn đang dở là nộp được ngay.');
+      setMessage('Hãy hoàn thành các màn học phía trước trước khi nộp bài.');
       return;
     }
     setResult(null);
     // Cửa tự kiểm tra chỉ mở lời giải sau lần NỘP đầu, đạt hay chưa đạt.
     if (submit && !draft.submitted) update({ submitted: true });
-    execute(draft.code, (data) => {
+    const sandboxKey = screens[sandboxAt < 0 ? 0 : sandboxAt]?.key;
+    // Chụp lại mã NGAY LÚC GỬI, không đọc `draft.code` trong callback: người
+    // học gõ tiếp trong lúc worker đang chạy là chuyện thường, và lúc đó
+    // `draft.code` đã là bản khác hẳn bản worker nhận — ghi nó làm xuất xứ thì
+    // một kết quả CŨ lại được đóng dấu "của bản đang gõ".
+    const maDaGui = draft.code;
+    execute(maDaGui, (data) => {
       setResult(data);
+      setRanCode(maDaGui);
       // Chỉ lượt NỘP mới ghi nhận: chạy thử đạt hết vẫn phải bấm nộp thì tiến
       // độ mới được lưu, nếu không học viên tưởng xong mà backend không biết.
       if (submit && passedAll(data)) {
@@ -211,7 +302,7 @@ export function useLessonRun({
         const recapAt = screens.findIndex((x) => x.kind === 'recap');
         if (recapAt >= 0) goTo(recapAt + 1);
       }
-    });
+    }, { submit, screenKey: sandboxKey });
   }
 
   /** Mã đang chấm của game chạy code. */
@@ -263,8 +354,10 @@ export function useLessonRun({
     running,
     runtimeStatus,
     result,
+    ranCode,
     run,
     runGame,
+    chayThu,
     cancel: runner.cancel,
   };
 }

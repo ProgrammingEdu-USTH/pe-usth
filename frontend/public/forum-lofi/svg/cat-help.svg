@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
+  <defs>
+    <radialGradient id="gh" cx="35%" cy="28%" r="70%">
+      <stop offset="0%" stop-color="#1f4454"/>
+      <stop offset="100%" stop-color="#151232"/>
+    </radialGradient>
+    <linearGradient id="mnt" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#9bf2d0"/>
+      <stop offset="100%" stop-color="#5cd6a9"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="84" height="84" rx="24" fill="url(#gh)" stroke="#5cd6a9" stroke-width="2.5" stroke-opacity="0.7"/>
+  <!-- Phao cứu sinh & bọ code -->
+  <circle cx="48" cy="48" r="24" fill="none" stroke="url(#mnt)" stroke-width="8"/>
+  <circle cx="48" cy="48" r="12" fill="#1d1538" stroke="#ffd599" stroke-width="2"/>
+  <path d="M31 31l7 7M65 31l-7 7M31 65l7-7M65 65l-7-7" stroke="#f2778d" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M44 48h8M48 44v8" stroke="#ffd599" stroke-width="2.6" stroke-linecap="round"/>
+</svg>

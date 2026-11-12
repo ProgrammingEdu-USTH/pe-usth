@@ -1,0 +1,104 @@
+/* Trang lỗi — chỉ dùng token của `edu-theme.css`, cùng luật như `not-found`.
+ *
+ * KHÔNG dùng token brand (`--edu-accent`, `--edu-accent-2`, `--edu-brand*`):
+ * nhóm đã chốt đi theo theme lofi chill, và `ds-contrast.test.mjs` giữ một
+ * danh sách bề mặt ĐÃ SÁNG mà chỉ được dài thêm.
+ *
+ * Nút chính lấy `background: var(--edu-t1)` và `color: var(--edu-bg-solid)` —
+ * ĐẢO đúng cặp mà `edu-theme.css` đặt cho `body`, nên nó tự đúng ở cả hai chế
+ * độ mà không phải khai một cặp màu thứ hai sẽ trôi.
+ *
+ * KHÔNG đỏ, không biểu tượng cảnh báo: người đọc trang này đang mất chỗ trong
+ * bài, và một màn đỏ làm họ nghĩ mình vừa phá cái gì. Thứ bậc ở đây là CÂU
+ * TRẢ LỜI ("làm gì tiếp") chứ không phải TIN XẤU.
+ */
+
+.wrap {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* 16px gutter hai bên: luật khổ điện thoại của repo. */
+  padding: 48px 16px;
+  box-sizing: border-box;
+  text-align: center;
+  gap: 14px;
+}
+
+.tieuDe {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--edu-t1);
+}
+
+.than {
+  margin: 0;
+  max-width: 52ch;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--edu-t2);
+}
+
+/* Hàng nút XUỐNG HÀNG ở khổ nhỏ. Luật đã phải đặt một lần cho hàng nút của
+   cảnh Góc học: ở 360×640 một hàng ba nút tràn mép, và co chúng lại thì đích
+   bấm tụt dưới cỡ ngón tay. Ba nút ở đây cũng vậy. */
+.hangNut {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.nutChinh,
+.nutPhu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 44px: đích bấm tối thiểu. Repo đã phải sửa một đích 13×6px một lần. */
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.nutChinh {
+  background: var(--edu-t1);
+  color: var(--edu-bg-solid);
+  border: 1px solid var(--edu-t1);
+}
+
+.nutPhu {
+  background: var(--edu-panel-bg-solid);
+  color: var(--edu-t1);
+  /* `--edu-card-line`, KHÔNG `--edu-card-border`: token kia là
+     `rgba(255,255,255,.85)`, tức trắng trên thẻ trắng — lỗi đã gặp bốn lần. */
+  border: 1px solid var(--edu-card-line);
+}
+
+/* Khối xoá nháp: tách khỏi hàng nút bằng một đường kẻ, vì nó là một lựa chọn
+   CÓ GIÁ (mất code đang viết) chứ không phải một đường thoát ngang hàng. */
+.nhap {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--edu-card-line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 52ch;
+}
+
+.thanNho {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--edu-t2);
+}

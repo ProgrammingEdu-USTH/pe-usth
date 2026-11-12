@@ -1,22 +1,12 @@
 'use client';
 
 // S3 · Lắp ghép khung mã: điền các slot {{slotN}} trong template bằng thẻ ở kho.
-// Game "fill" của khoá có mini-game dùng lại đúng màn này.
-//
-// Bố cục sách mở (ScaffoldBook) theo Figma 107:6804, đặt TRONG thẻ ShellB như
-// mọi màn: nhãn "Game · Điền mảnh code", tên bài ở góc, tiêu đề và câu dẫn của
-// bài. Figma bỏ phần đầu thẻ này; bản đầu làm theo và chủ sản phẩm yêu cầu trả
-// lại (19/10/2026) — thiếu nó thì màn này lạc giữa các màn khác của bài.
-// Câu dẫn (step_3.task.body) chỉ in ở đầu thẻ, không in lại dưới code như ghi
-// chú của Figma: một câu hai chỗ là đọc hai lần.
-// Màn này chạy ở cột rộng (StudioLesson đặt `wide`).
-import { scaffoldReview } from '@/lib/studio-lesson';
+// Game "fill" của khoá có mini-game dùng lại đúng màn này, chỉ đổi tiêu đề.
+import Assemble from '@/components/lesson-chrome/exercises/Assemble';
 
 import c from '../studio-chrome.module.css';
 import { ScreenShell } from './chrome';
 import type { LessonScreenProps } from './props';
-import ScaffoldBook from './ScaffoldBook';
-import ScaffoldReview from './ScaffoldReview';
 
 type Props = Pick<
   LessonScreenProps,
@@ -27,29 +17,27 @@ type Props = Pick<
   | 'update'
   | 'clearChecked'
   | 'verdict'
-  | 'onFinish'
+  | 'held'
+  | 'onHold'
 > & { title?: string };
 
 export default function ScaffoldScreen({
   lesson,
   scr,
   metaLabel,
-  title,
   draft,
   update,
   clearChecked,
   verdict,
-  onFinish,
+  held,
+  onHold,
+  title,
 }: Props) {
   const three = lesson.step_3;
   const scaffold = three?.scaffold;
   if (!scaffold) return null;
-  // Đã bấm "Kiểm tra" (`verdict` đã lọc theo checked ở StudioLesson).
-  const reviews = verdict ? scaffoldReview(lesson, draft) : [];
-  const reset = () => {
-    clearChecked();
-    update({ slots: {} });
-  };
+  const slotOf = (line: string) => /\{\{\s*slot(\d+)\s*\}\}/.exec(line);
+  const placed = new Set(Object.values(draft.slots));
 
   return (
     <ScreenShell
@@ -57,31 +45,51 @@ export default function ScaffoldScreen({
       metaLabel={metaLabel}
       title={title ?? (three?.task?.title || 'Lắp lại khung mã')}
       description={three?.task?.body}
-      // Màn này có khung kết quả riêng (ScaffoldReview) thay cho băng chung.
-      verdict={null}
+      verdict={verdict}
     >
-      <div className={c.scaffoldScreen}>
-        <ScaffoldBook
-          scaffold={scaffold}
-          slots={draft.slots}
-          wrong={reviews.filter((r) => !r.correct).map((r) => r.n)}
-          checked={Boolean(verdict)}
-          onPlace={(n, label) => {
-            // Đổi thẻ là bỏ kết quả chấm cũ, như mọi màn có "Kiểm tra".
-            clearChecked();
-            update({ slots: { ...draft.slots, [n]: label } });
-          }}
-        />
-        {verdict ? (
-          // Nút "Tiếp theo" trong khung làm đúng việc nút chính dưới đáy (lúc
-          // này đang là "Tiếp tục →"), để hai nút không bao giờ đi hai ngả.
-          <ScaffoldReview reviews={reviews} onRedo={reset} onNext={onFinish} />
-        ) : (
-          <button type="button" className={c.resetLink} onClick={reset}>
-            Đặt lại các ô
-          </button>
+      <Assemble
+        filename="main.py"
+        // Màn này không chạy mã nên không có runtime để hỏi phiên bản;
+        // ghi số là tự nhận một con số sẽ cũ đi.
+        langTag="Python"
+        lines={scaffold.template
+          .replace(/\s+$/, '')
+          .split('\n')
+          .map((line, i) => {
+            const hit = slotOf(line);
+            if (!hit) return { num: i + 1, before: line };
+            const n = Number(hit[1]);
+            return {
+              num: i + 1,
+              before: line.slice(0, hit.index),
+              slotId: `slot${n}`,
+              after: line.slice((hit.index ?? 0) + hit[0].length),
+            };
+          })}
+        filled={Object.fromEntries(
+          Object.entries(draft.slots).map(([n, label]) => [`slot${n}`, label]),
         )}
-      </div>
+        bank={scaffold.bank.filter((b) => !placed.has(b.label)).map((b) => b.label)}
+        heldToken={held}
+        onHold={onHold}
+        onFillSlot={(slotId) => {
+          if (!held) return;
+          clearChecked();
+          update({ slots: { ...draft.slots, [Number(slotId.replace('slot', ''))]: held } });
+          onHold(null);
+        }}
+      />
+      <button
+        type="button"
+        className={c.resetLink}
+        onClick={() => {
+          clearChecked();
+          update({ slots: {} });
+          onHold(null);
+        }}
+      >
+        Đặt lại các slot
+      </button>
     </ScreenShell>
   );
 }

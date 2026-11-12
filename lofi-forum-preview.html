@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Góc học Lofi · Diễn đàn thảo luận (Điện thoại & Thanh bên phải)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #0e0a18;
+      --bg-room: #161026;
+      --bg-card: rgba(30, 21, 48, 0.90);
+      --bg-card-hi: rgba(42, 30, 66, 0.94);
+      --ink: #fff5ea;
+      --faint: rgba(255, 236, 220, 0.68);
+      --line: rgba(255, 236, 220, 0.14);
+      --line-hi: rgba(255, 236, 220, 0.28);
+      --amber: #ffc97a;
+      --sakura: #ff9db8;
+      --lilac: #c9b3ff;
+      --sky: #9ad8ff;
+      --ok: #8be3a8;
+      --f-display: 'Fraunces', Georgia, serif;
+      --f-body: 'Be Vietnam Pro', system-ui, sans-serif;
+      --f-mono: 'JetBrains Mono', monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(900px 520px at 18% 12%, rgba(169, 140, 245, 0.18), transparent 70%),
+        radial-gradient(820px 480px at 82% 85%, rgba(255, 201, 122, 0.14), transparent 70%),
+        var(--bg-deep);
+      color: var(--ink);
+      font-family: var(--f-body);
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; border: 0; background: none; }
+
+    /* Thanh điều hướng Figma Frame ở trên cùng */
+    .top-showcase-bar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 12px 24px;
+      background: rgba(14, 10, 24, 0.88);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(18px);
+    }
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--amber), var(--lilac));
+      box-shadow: 0 0 14px var(--amber);
+    }
+    .brand-title b {
+      font-family: var(--f-display);
+      font-size: 18px;
+      letter-spacing: -0.01em;
+    }
+    .brand-title small {
+      font-size: 12px;
+      color: var(--faint);
+      padding: 2px 9px;
+      border-radius: 999px;
+      background: rgba(201, 179, 255, 0.14);
+      border: 1px solid var(--line);
+    }
+    .frame-switcher {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .f-tab {
+      height: 34px;
+      padding: 0 13px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--faint);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--line);
+      transition: all 0.2s;
+    }
+    .f-tab:hover { color: var(--ink); background: rgba(255, 255, 255, 0.1); }
+    .f-tab.active {
+      background: linear-gradient(135deg, rgba(201, 179, 255, 0.32), rgba(255, 201, 122, 0.24));
+      border-color: var(--amber);
+      color: var(--ink);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Bố cục Sân khấu Góc học + Khung Điện thoại / Bàn thảo luận + Thanh bên phải */
+    .stage-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 20px 24px 36px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 1080px) {
+      .stage-container { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    /* Sân khấu chính bên trái */
+    .room-viewport {
+      position: relative;
+      min-height: 760px;
+      border-radius: 26px;
+      overflow: hidden;
+      border: 1px solid rgba(201, 179, 255, 0.26);
+      background:
+        linear-gradient(180deg, rgba(16, 11, 28, 0.45), rgba(12, 8, 22, 0.78)),
+        url('forum-lofi-pack/scenes/forum-lounge-1600.webp') center/cover no-repeat;
+      box-shadow: 0 28px 70px rgba(4, 2, 10, 0.65);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Thanh trạng thái Góc học phía trên sân khấu */
+    .room-top-hud {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .hud-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 38px;
+      padding: 0 15px;
+      border-radius: 999px;
+      background: rgba(24, 16, 38, 0.82);
+      border: 1px solid var(--line-hi);
+      font-size: 13px;
+      font-weight: 600;
+      backdrop-filter: blur(14px);
+    }
+    .hud-tabs {
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(22, 15, 36, 0.82);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+    .hud-tab {
+      height: 30px;
+      padding: 0 12px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      color: var(--faint);
+    }
+    .hud-tab.on {
+      background: var(--ink);
+      color: #261524;
+      font-weight: 700;
+    }
+    .desk-phone-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(201, 179, 255, 0.26), rgba(255, 201, 122, 0.22));
+      border: 1px solid var(--amber);
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--ink);
+      box-shadow: 0 0 22px rgba(201, 179, 255, 0.3);
+      animation: pulseGlow 3s ease-in-out infinite;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 18px rgba(201, 179, 255, 0.28); }
+      50% { box-shadow: 0 0 28px rgba(255, 201, 122, 0.52); }
+    }
+
+    /* Khung Điện thoại vẽ tay (phone-frame.webp): mặc định màn hình nhỏ dọc (Portrait 573/1100),
+       và xoay 90° sang ngang (Landscape 1100/573) khi người học mở rộng bàn thảo luận */
+    .phone-stage-center {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 680px;
+    }
+    .phone {
+      position: relative;
+      width: auto;
+      height: min(680px, calc(100vh - 140px));
+      aspect-ratio: 573 / 1100;
+      padding: 0;
+      background: none;
+      box-shadow: none;
+      border-radius: 0;
+      max-width: 100%;
+      filter: drop-shadow(0 40px 50px rgba(0, 0, 0, 0.55));
+      transform-origin: 50% 50%;
+    }
+    .phone .pframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .phone .scr {
+      position: absolute;
+      left: 10%;
+      top: 6%;
+      width: 80%;
+      height: 86.8%;
+      border-radius: 10px;
+      overflow: hidden;
+      background: linear-gradient(170deg, #221936, #140e22);
+      color: #fff5ea;
+      display: flex;
+      flex-direction: column;
+    }
+    .phone .hd {
+      padding: 30px 18px 10px;
+    }
+    .seg {
+      display: flex;
+      background: #120d1e;
+      border-radius: 999px;
+      padding: 3px;
+    }
+    .seg button {
+      flex: 1;
+      text-align: center;
+      font-size: 13px;
+      padding: 7px;
+      border-radius: 999px;
+      color: #b4a5d4;
+    }
+    .seg button[aria-selected="true"] {
+      background: #2d2046;
+      color: #fff5ea;
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(8, 4, 18, 0.35);
+    }
+    .pv {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 236, 220, 0.44) transparent;
+    }
+    .pv[hidden] { display: none; }
+
+    /* Giao diện nguyên bản của Hồ sơ (#pvMe) và Xếp hạng (#pvRank) — giữ nguyên bố cục, chỉ đổi sang bảng màu tím tối Lofi */
+    .prof { padding: 6px 18px 18px; display: flex; flex-direction: column; gap: 12px; }
+    .prof .who { display: flex; gap: 12px; align-items: center; }
+    .prof .who .a {
+      width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center;
+      background: linear-gradient(150deg, #ffcf9a, #ff9db8); color: #3a1d2a;
+      font-family: var(--f-display); font-weight: 700; font-size: 22px;
+    }
+    .prof .who b { display: block; font-family: var(--f-display); font-size: 20px; line-height: 1.1; }
+    .prof .who small { color: #b4a5d4; font-size: 12.5px; }
+    .xpb { height: 8px; border-radius: 8px; background: #120d1e; overflow: hidden; }
+    .xpb i { display: block; height: 100%; width: 78%; background: linear-gradient(90deg, #a48bf0, #ffc97a); }
+    .xpl { display: flex; justify-content: space-between; font-size: 12px; color: #b4a5d4; margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stats div { background: #261b3c; border-radius: 14px; padding: 10px 12px; }
+    .stats b { display: block; font-family: var(--f-display); font-size: 22px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+    .stats small { color: #b4a5d4; font-size: 12px; }
+    .act { background: #261b3c; border-radius: 14px; padding: 12px; }
+    .act h5 { margin: 0 0 8px; font-size: 12.5px; color: #b4a5d4; font-weight: 600; }
+    .rb { display: flex; gap: 8px; }
+    .lb { list-style: none; margin: 0; padding: 4px 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; overflow: auto; }
+    .lb li {
+      display: grid; grid-template-columns: 28px 32px 1fr auto; align-items: center; gap: 10px;
+      padding: 8px 10px; border-radius: 14px; background: rgba(38, 27, 60, 0.78); font-size: 13.5px; font-variant-numeric: tabular-nums;
+    }
+    .lb li.mine { background: #342552; box-shadow: inset 0 0 0 2px var(--amber); }
+    .lb .rk { font-family: var(--f-display); font-weight: 700; color: #9e8fc0; text-align: center; }
+    .lb li:nth-child(1) .rk { color: #ffc97a; }
+    .lb li:nth-child(2) .rk { color: #d0c4e8; }
+    .lb li:nth-child(3) .rk { color: #e09866; }
+    .lb .av {
+      width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center;
+      font-weight: 600; font-size: 12.5px; color: #fff; background: #4a3570;
+    }
+    .lb .xp2 { font-weight: 600; color: #c9b3ff; font-size: 12.5px; }
+    .me {
+      margin: 6px 14px; display: grid; grid-template-columns: 28px 32px 1fr auto; align-items: center; gap: 10px;
+      padding: 10px; border-radius: 16px; background: #342552; color: #fff5ea; font-size: 13.5px; font-variant-numeric: tabular-nums;
+    }
+    .me .rk { font-family: var(--f-display); font-weight: 700; text-align: center; color: var(--amber); }
+    .me .av {
+      width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center;
+      font-weight: 700; background: linear-gradient(150deg, #ffcf9a, #ff9db8); color: #3a1d2a;
+    }
+    .up { color: var(--ok); font-size: 12px; font-weight: 600; }
+    .sample { font-size: 11px; color: #9e8fc0; text-align: center; padding: 2px 14px 10px; }
+    .namebox { margin: 10px 14px 6px; padding: 12px; border-radius: 14px; background: #261b3c; color: #fff5ea; }
+    .namebox label { display: block; font-size: 12px; font-weight: 600; color: #b4a5d4; margin-bottom: 6px; }
+    .namebox .nrow { display: flex; gap: 8px; }
+    .namebox input {
+      flex: 1; min-width: 0; height: 34px; padding: 0 10px; border-radius: 10px;
+      border: 1px solid #463568; background: #161024; color: #fff5ea; font: inherit; font-size: 13.5px;
+    }
+    .namebox .btn { height: 34px; padding: 0 14px; border-radius: 999px; font-weight: 600; font-size: 13px; background: var(--amber); color: #2a1710; }
+    .namebox small { display: block; margin-top: 8px; font-size: 11px; line-height: 1.45; color: #b4a5d4; }
+
+    /* Chế độ Điện thoại Xoay Ngang (.phone-wide) cho Diễn đàn */
+    .phone.phone-wide {
+      width: min(980px, 100%, calc((100vh - 140px) * 1100 / 573));
+      height: auto;
+      aspect-ratio: 1100 / 573;
+    }
+    .phone.phone-wide .pframe {
+      inset: auto;
+      left: 50%;
+      top: 50%;
+      width: calc(100% * 573 / 1100);
+      height: calc(100% * 1100 / 573);
+      transform: translate(-50%, -50%) rotate(-90deg);
+    }
+    .phone.phone-wide .scr {
+      left: 6%;
+      top: 10%;
+      width: 86.8%;
+      height: 80%;
+      border-radius: 14px;
+      padding-left: 18px;
+      background:
+        linear-gradient(180deg, rgba(24, 17, 40, 0.88), rgba(15, 10, 26, 0.95)),
+        url('forum-lofi-pack/scenes/forum-lounge-1600.webp') center/cover no-repeat;
+    }
+    .phone.phone-wide .hd { padding: 12px 18px 8px; }
+    .phone.phone-wide .hd .seg { max-width: 360px; margin: 0 auto; }
+
+    .lf-orient-bar {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+      padding: 6px 10px; border-radius: 12px;
+      background: rgba(16, 11, 28, 0.72); border: 1px solid rgba(201, 179, 255, 0.22);
+    }
+    .lf-orient-status { font-size: 11px; color: var(--faint); font-weight: 500; }
+    .lf-rotate-btn {
+      display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px; border-radius: 999px;
+      background: linear-gradient(135deg, rgba(201, 179, 255, 0.24), rgba(255, 201, 122, 0.20));
+      border: 1px solid rgba(255, 201, 122, 0.45); color: var(--ink); font-size: 11px; font-weight: 700;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .lf-rotate-btn:hover { transform: scale(1.03); box-shadow: 0 0 12px rgba(255, 201, 122, 0.32); }
+    .lf-rot-svg { transition: transform 0.35s; }
+    .phone-wide .lf-rot-svg { transform: rotate(-90deg); }
+
+    /* Nội dung Diễn đàn Lofi bên trong màn hình */
+    .lf-forum-wrap {
+      padding: 4px 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .phone-wide .lf-forum-wrap {
+      padding: 6px 20px 22px;
+      gap: 14px;
+    }
+    .lf-hero-banner {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 15px 18px;
+      border-radius: 18px;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(46, 31, 72, 0.92), rgba(24, 16, 42, 0.95));
+      border: 1px solid rgba(201, 179, 255, 0.28);
+      box-shadow: inset 0 1px 0 rgba(255, 236, 220, 0.08), 0 10px 24px rgba(6, 4, 14, 0.34);
+    }
+    .lf-hero-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.28;
+      pointer-events: none;
+    }
+    .lf-hero-txt { position: relative; z-index: 1; flex: 1; min-width: 200px; }
+    .lf-hero-eyebrow {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+    .lf-hero-txt h3 {
+      margin: 3px 0;
+      font-family: var(--f-display);
+      font-size: 23px;
+      line-height: 1.15;
+    }
+    .lf-hero-txt p { margin: 0; font-size: 12.5px; color: var(--faint); }
+    .lf-hero-btns { position: relative; z-index: 1; display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .lf-btn-amber, .lf-btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 34px;
+      padding: 0 14px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .lf-btn-amber {
+      background: linear-gradient(135deg, var(--amber), var(--sakura));
+      color: #2a1520;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(255, 180, 110, 0.32);
+    }
+    .lf-btn-ghost {
+      background: rgba(201, 179, 255, 0.14);
+      border: 1px solid var(--line-hi);
+      color: var(--ink);
+    }
+    .lf-btn-ghost:hover { background: rgba(201, 179, 255, 0.26); border-color: var(--lilac); }
+    .lf-btn-ghost.sm { height: 28px; padding: 0 10px; font-size: 11.5px; }
+
+    /* Khung Tạo chủ đề & Khung Chat phòng học */
+    .lf-composer-card, .lf-chat-box {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      padding: 15px;
+      border-radius: 18px;
+      background: rgba(24, 16, 38, 0.94);
+      border: 1px solid rgba(201, 179, 255, 0.30);
+      box-shadow: 0 14px 30px rgba(6, 3, 14, 0.45);
+    }
+    .lf-composer-head, .lf-chat-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .lf-composer-head { justify-content: flex-start; }
+    .lf-composer-head b, .lf-chat-head span {
+      font-family: var(--f-display);
+      font-size: 16.5px;
+      font-weight: 700;
+    }
+    .lf-composer-head small { display: block; font-size: 11.5px; color: var(--faint); }
+    .lf-input, .lf-textarea, .lf-select {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 12px;
+      background: rgba(12, 8, 22, 0.82);
+      border: 1px solid var(--line-hi);
+      color: var(--ink);
+      font-size: 13.5px;
+      line-height: 1.45;
+    }
+    .lf-input.mono { font-family: var(--f-mono); font-size: 12.5px; color: #e2e8ff; }
+    .lf-composer-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+    .lf-chat-messages {
+      max-height: 170px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      padding: 4px 2px;
+    }
+    .lf-chat-msg { display: flex; align-items: flex-start; gap: 8px; font-size: 12.5px; }
+    .lf-chat-bubble {
+      flex: 1;
+      padding: 7px 11px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--line);
+    }
+    .lf-chat-meta { display: flex; justify-content: space-between; gap: 6px; margin-bottom: 2px; }
+    .lf-chat-meta b { font-size: 12px; color: var(--amber); }
+    .lf-chat-meta small { font-size: 10.5px; color: var(--faint); }
+    .lf-chat-bubble p { margin: 0; color: #ece4f8; }
+    .lf-chat-form { display: flex; gap: 8px; }
+
+    /* Bộ lọc 4 chuyên mục */
+    .lf-cat-bar { display: flex; gap: 7px; flex-wrap: wrap; }
+    .lf-cat-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      height: 36px;
+      padding: 0 13px;
+      border-radius: 999px;
+      background: rgba(26, 18, 40, 0.82);
+      border: 1px solid var(--line);
+      font-size: 13px;
+      color: var(--faint);
+      transition: all 0.2s;
+    }
+    .lf-cat-pill:hover { background: rgba(44, 31, 68, 0.9); color: var(--ink); }
+    .lf-cat-pill.active {
+      background: linear-gradient(135deg, rgba(201, 179, 255, 0.30), rgba(255, 201, 122, 0.22));
+      border-color: var(--amber);
+      color: var(--ink);
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(8, 4, 18, 0.35);
+    }
+    .lf-cat-pill b {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      color: var(--ink);
+    }
+
+    .lf-toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .lf-search { flex: 1; min-width: 180px; height: 36px; border-radius: 999px; padding: 0 14px; }
+    .lf-sort-group {
+      display: flex;
+      gap: 4px;
+      background: rgba(16, 11, 28, 0.78);
+      padding: 3px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+    }
+    .lf-sort-btn { height: 28px; padding: 0 11px; border-radius: 999px; font-size: 12px; color: var(--faint); }
+    .lf-sort-btn.active { background: rgba(201, 179, 255, 0.26); color: var(--ink); font-weight: 600; }
+
+    /* Danh sách thẻ bài thảo luận */
+    .lf-post-list { display: flex; flex-direction: column; gap: 11px; }
+    .lf-post-card {
+      padding: 15px 16px;
+      border-radius: 18px;
+      cursor: pointer;
+      background: linear-gradient(165deg, rgba(34, 24, 54, 0.90), rgba(21, 15, 35, 0.94));
+      border: 1px solid rgba(201, 179, 255, 0.22);
+      box-shadow: 0 10px 24px rgba(5, 3, 12, 0.35);
+      transition: border-color 0.22s, transform 0.22s;
+    }
+    .lf-post-card:hover { border-color: rgba(255, 201, 122, 0.5); transform: translateY(-1px); }
+    .lf-card-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .lf-cat-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--cc, var(--lilac));
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+    .lf-pin-chip {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(255, 201, 122, 0.16);
+      color: var(--amber);
+    }
+    .lf-solved-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(139, 227, 168, 0.16);
+      color: var(--ok);
+    }
+    .lf-time { margin-left: auto; color: var(--faint); font-size: 11.5px; }
+    .lf-card-title {
+      margin: 0 0 6px;
+      font-family: var(--f-display);
+      font-size: 18.5px;
+      line-height: 1.24;
+    }
+    .lf-post-card:hover .lf-card-title { color: var(--amber); }
+    .lf-card-excerpt { margin: 0; font-size: 13.2px; line-height: 1.52; color: #dcd4ec; }
+    .lf-code-preview, .lf-code-block {
+      margin: 9px 0 0;
+      padding: 10px 13px;
+      border-radius: 12px;
+      background: #100c1c;
+      border: 1px solid rgba(154, 216, 255, 0.24);
+      font-family: var(--f-mono);
+      font-size: 12.2px;
+      line-height: 1.5;
+      color: #e4ebff;
+      overflow-x: auto;
+    }
+    .lf-card-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 236, 220, 0.08);
+    }
+    .lf-author-mini { display: flex; align-items: center; gap: 8px; }
+    .lf-ava {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(145deg, #ffcf9a, #c9b3ff);
+      color: #261424;
+      font-family: var(--f-display);
+      font-weight: 700;
+      font-size: 14px;
+      flex: none;
+    }
+    .lf-ava.sm { width: 26px; height: 26px; font-size: 12px; }
+    .lf-ava.lg { width: 42px; height: 42px; font-size: 18px; }
+    .fpc-author { font-weight: 600; font-size: 13px; }
+    .lf-cmt-pill {
+      height: 28px;
+      padding: 0 11px;
+      border-radius: 999px;
+      background: rgba(201, 179, 255, 0.14);
+      border: 1px solid var(--line-hi);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--lilac);
+    }
+    .lf-card-reacts { margin-top: 8px; }
+
+    /* Thanh 6 loại cảm xúc */
+    .lf-react-bar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .lf-emo-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      height: 29px;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 236, 220, 0.13);
+      font-size: 11.5px;
+      color: var(--faint);
+      transition: all 0.18s;
+    }
+    .lf-emo-btn:hover { transform: translateY(-2px) scale(1.04); background: rgba(255, 255, 255, 0.12); color: var(--ink); }
+    .lf-emo-btn.on {
+      background: rgba(255, 201, 122, 0.22);
+      border-color: var(--amber);
+      color: var(--ink);
+      font-weight: 700;
+      box-shadow: 0 0 12px rgba(255, 201, 122, 0.26);
+    }
+    .lf-emo-lbl { display: none; }
+    .phone.phone-wide .lf-emo-lbl { display: inline; }
+
+    /* Chi tiết bài viết & Bình luận lồng 2 cấp */
+    .lf-detail-topbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .lf-post-detail {
+      border-radius: 18px;
+      overflow: hidden;
+      padding-bottom: 14px;
+      background: linear-gradient(165deg, rgba(34, 24, 54, 0.94), rgba(19, 13, 32, 0.97));
+      border: 1px solid rgba(201, 179, 255, 0.28);
+    }
+    .lf-post-banner { width: 100%; height: 82px; object-fit: cover; display: block; border-bottom: 1px solid var(--line); }
+    .lf-post-head { display: flex; align-items: center; gap: 10px; padding: 12px 16px 6px; }
+    .lf-author-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+    .lf-role-tag { font-size: 11px; padding: 1px 7px; border-radius: 999px; background: rgba(201, 179, 255, 0.16); color: var(--lilac); }
+    .lf-detail-title { margin: 4px 16px 8px; font-family: var(--f-display); font-size: 22px; line-height: 1.22; }
+    .lf-detail-content { margin: 0 16px 10px; font-size: 13.8px; line-height: 1.62; color: #ece4f8; }
+    .lf-post-detail .lf-code-block { margin: 8px 16px 12px; }
+    .lf-detail-reactions {
+      margin: 10px 16px 0;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .lf-react-caption { font-size: 12px; color: var(--faint); font-weight: 600; }
+
+    .lf-comments-sec {
+      padding: 15px 16px;
+      border-radius: 18px;
+      background: rgba(22, 15, 36, 0.90);
+      border: 1px solid var(--line);
+    }
+    .lf-sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+    .lf-sec-head h4 { margin: 0; font-family: var(--f-display); font-size: 18px; }
+    .lf-sec-head small { font-size: 11.5px; color: var(--faint); }
+    .lf-comment-form { display: flex; gap: 8px; margin-bottom: 12px; }
+    .lf-cmt-list { display: flex; flex-direction: column; gap: 12px; }
+    .lf-cmt-thread { display: flex; flex-direction: column; gap: 8px; }
+    .lf-cmt-card {
+      padding: 11px 13px;
+      border-radius: 14px;
+      background: rgba(38, 26, 58, 0.80);
+      border: 1px solid rgba(201, 179, 255, 0.18);
+    }
+    .lf-cmt-nested {
+      background: rgba(24, 16, 40, 0.88);
+      border-color: rgba(255, 201, 122, 0.25);
+      flex: 1;
+    }
+    .lf-cmt-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 5px; }
+    .lf-cmt-body { margin: 0 0 8px; font-size: 13.2px; line-height: 1.5; color: #eee6fc; }
+    .lf-cmt-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .lf-reply-trig {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--amber);
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(255, 201, 122, 0.14);
+    }
+    .lf-replies-wrap { display: flex; flex-direction: column; gap: 8px; padding-left: 12px; }
+    .lf-reply-item { display: flex; align-items: flex-start; gap: 6px; }
+    .lf-thread-line { width: 28px; height: 48px; flex: none; margin-top: 2px; }
+    .lf-reply-form { display: flex; gap: 6px; margin-top: 8px; }
+
+    /* Thanh bên phải (#side) của Góc học */
+    .goc-hoc-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 24px;
+      background: rgba(22, 15, 34, 0.82);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(22px);
+      box-shadow: 0 20px 50px rgba(4, 2, 12, 0.5);
+    }
+    .side-pills { display: flex; gap: 6px; align-items: center; }
+    .side-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 34px;
+      padding: 0 11px;
+      border-radius: 999px;
+      background: rgba(34, 23, 50, 0.78);
+      border: 1px solid var(--line);
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+    .side-hero {
+      padding: 16px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(255, 201, 122, 0.28), rgba(255, 157, 184, 0.20) 55%, rgba(154, 216, 255, 0.16));
+      border: 1px solid rgba(255, 220, 180, 0.32);
+    }
+    .side-hero small { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: var(--amber); text-transform: uppercase; }
+    .side-hero h2 { margin: 4px 0 2px; font-family: var(--f-display); font-size: 24px; }
+    .side-hero p { margin: 0; font-size: 12.5px; color: var(--faint); }
+
+    .side-menu { display: flex; flex-direction: column; gap: 8px; }
+    .side-mi {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      text-align: left;
+      padding: 10px 13px;
+      border-radius: 16px;
+      background: rgba(32, 22, 48, 0.72);
+      border: 1px solid var(--line);
+      transition: all 0.25s;
+    }
+    .side-mi:hover, .side-mi.active-spot {
+      transform: translateX(-4px);
+      background: rgba(48, 34, 72, 0.92);
+      border-color: var(--amber);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.32);
+    }
+    .side-mi .ic {
+      width: 36px;
+      height: 36px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      flex: none;
+    }
+    .side-mi b { display: block; font-family: var(--f-display); font-size: 15.5px; }
+    .side-mi small { display: block; font-size: 12px; color: var(--faint); }
+    .side-mi .chev { margin-left: auto; opacity: 0.55; }
+
+    /* Khu vực Bảng Asset (Asset Sheet & Table) */
+    .asset-kit-section {
+      max-width: 1440px;
+      margin: 0 auto 48px;
+      padding: 0 24px;
+    }
+    .asset-kit-card {
+      padding: 24px;
+      border-radius: 24px;
+      background: rgba(22, 15, 36, 0.88);
+      border: 1px solid rgba(201, 179, 255, 0.26);
+      box-shadow: 0 24px 60px rgba(4, 2, 12, 0.55);
+    }
+    .asset-kit-card h2 {
+      margin: 0 0 6px;
+      font-family: var(--f-display);
+      font-size: 26px;
+    }
+    .asset-kit-card p { margin: 0 0 18px; color: var(--faint); font-size: 13.5px; }
+    .asset-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .asset-tile {
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(14, 10, 24, 0.78);
+      border: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 8px;
+    }
+    .asset-tile img { max-height: 64px; max-width: 100%; object-fit: contain; border-radius: 8px; }
+    .asset-tile b { font-family: var(--f-mono); font-size: 11.5px; color: var(--amber); }
+    .asset-tile small { font-size: 11px; color: var(--faint); }
+
+    .asset-table-wrap { overflow-x: auto; }
+    table.asset-tbl {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.8px;
+    }
+    table.asset-tbl th, table.asset-tbl td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+    }
+    table.asset-tbl th {
+      color: var(--amber);
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    table.asset-tbl code {
+      font-family: var(--f-mono);
+      font-size: 12px;
+      color: var(--lilac);
+    }
+  </style>
+</head>
+<body>
+  <header class="top-showcase-bar">
+    <div class="brand-title">
+      <span class="brand-dot"></span>
+      <b>PE Góc học Lofi · Diễn đàn thảo luận</b>
+      <small>Dark-Purple Lofi · 4 Chuyên mục · Bình luận lồng · 6 Cảm xúc</small>
+    </div>
+    <div class="frame-switcher" id="frameSwitcher">
+      <button type="button" class="f-tab active" data-preset="feed">Frame 1 · Danh sách 4 chuyên mục</button>
+      <button type="button" class="f-tab" data-preset="detail">Frame 2 · Chi tiết & Bình luận lồng</button>
+      <button type="button" class="f-tab" data-preset="compose">Frame 3 · Tạo chủ đề, Chat & 6 Cảm xúc</button>
+      <button type="button" class="f-tab" data-preset="handset">Frame 4 · Điện thoại trên bàn & Sidebar</button>
+      <button type="button" class="f-tab" data-preset="assets">Frame 5 · Bộ Asset & Bảng Asset</button>
+    </div>
+  </header>
+
+  <main class="stage-container" id="mainStage">
+    <!-- Sân khấu bên trái: Phòng học Lofi + Điện thoại / Bàn thảo luận -->
+    <section class="room-viewport">
+      <div class="room-top-hud">
+        <button type="button" class="hud-back" id="hudResetBtn">← Góc học</button>
+        <div class="hud-tabs">
+          <button type="button" class="hud-tab">Học tiếp</button>
+          <button type="button" class="hud-tab">Lộ trình</button>
+          <button type="button" class="hud-tab">Khoá học</button>
+          <button type="button" class="hud-tab">Ôn tập</button>
+          <button type="button" class="hud-tab">Thành tựu</button>
+          <button type="button" class="hud-tab on">Điện thoại · Diễn đàn</button>
+        </div>
+        <button type="button" class="desk-phone-trigger" id="deskPhoneHotspot" title="Bấm vào Điện thoại trên bàn để mở Diễn đàn">
+          📱 Điện thoại trên bàn · Diễn đàn & Xếp hạng
+        </button>
+      </div>
+
+      <div class="phone-stage-center">
+        <div class="phone" id="phone">
+          <img class="pframe" src="forum-lofi-pack/scenes/phone-frame.webp" alt="">
+          <div class="scr">
+            <div class="hd">
+              <div class="seg" role="tablist">
+                <button type="button" role="tab" data-pt="me" aria-selected="false">Hồ sơ</button>
+                <button type="button" role="tab" data-pt="rank" aria-selected="false">Xếp hạng</button>
+                <button type="button" role="tab" data-pt="forum" aria-selected="true">Diễn đàn</button>
+              </div>
+            </div>
+
+            <div class="pv" id="pvMe" hidden>
+              <div class="prof">
+                <div class="who"><span class="a" id="meAva">S</span><div><b id="meName">Sơn USTH</b><small>đang có phiên học</small></div></div>
+                <div><div class="xpb"><i style="width:22%"></i></div><div class="xpl"><span>4/179 bài</span><span>Python cho Data Analyst</span></div></div>
+                <div class="stats"><div><b>320</b><small>tổng XP</small></div><div><b>4</b><small>bài đã xong</small></div><div><b>2</b><small>huy hiệu</small></div><div><b>12</b><small>hạng theo XP</small></div></div>
+                <div class="act"><h5>Khoá đang học</h5><div class="rb" style="display:block"><b style="font-size:15px">M1 · Python nền tảng</b><div style="margin-top:6px;color:#b4a5d4">Phép toán và thứ tự tính</div></div></div>
+                <div class="sample">Những ô ghi "—" là số chưa đọc được, không phải số 0.</div>
+              </div>
+            </div>
+
+            <div class="pv" id="pvRank" hidden>
+              <div class="namebox">
+                <label for="tenIn">Tên hiển thị của bạn</label>
+                <div class="nrow"><input id="tenIn" maxlength="24" placeholder="ví dụ: Sơn USTH" value="Sơn USTH"><button type="button" class="btn" id="tenSave">Lưu</button></div>
+                <small>Tên này chỉ lưu TRONG MÁY BẠN để bạn nhận ra dòng của mình. Backend chưa nhận tên hiển thị, nên người khác vẫn thấy bạn là một tài khoản khách.</small>
+              </div>
+              <ul class="lb">
+                <li><span class="rk">1</span><span class="av">M</span><span>Minh Anh</span><span class="xp2">1.240 XP</span></li>
+                <li><span class="rk">2</span><span class="av">L</span><span>Lan Phương</span><span class="xp2">980 XP</span></li>
+                <li><span class="rk">3</span><span class="av">T</span><span>Tuấn Kiệt</span><span class="xp2">810 XP</span></li>
+                <li class="mine"><span class="rk">12</span><span class="av" id="rankAva1">S</span><span><span id="rankName1">Sơn USTH</span> <span class="up">bạn</span></span><span class="xp2">320 XP</span></li>
+              </ul>
+              <div class="me"><span class="rk">12</span><span class="av" id="rankAva2">S</span><span id="rankName2">Sơn USTH</span><span>320 XP</span></div>
+              <div class="sample">Tên của người khác do hệ thống đặt cho tài khoản khách (dạng "Khách XXXX") — chưa ai đặt được tên hiển thị.</div>
+            </div>
+
+            <div class="pv" id="pvForum">
+              <div id="forumMount"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Thanh bên phải (#side) của Góc học có mục Diễn đàn -->
+    <aside class="goc-hoc-sidebar" aria-label="Thanh bên phải Góc học">
+      <div class="side-pills">
+        <span class="side-pill">✓ 4/179</span>
+        <span class="side-pill">⚡ 320 XP</span>
+        <span class="side-pill">🏅 2</span>
+      </div>
+
+      <div class="side-hero">
+        <small>M1 · PYTHON NỀN TẢNG</small>
+        <h2>Học tiếp</h2>
+        <p>Bài 5/179 · Phép toán và thứ tự tính</p>
+      </div>
+
+      <nav class="side-menu" aria-label="Menu chính bên phải">
+        <button type="button" class="side-mi">
+          <span class="ic" style="background:rgba(255,201,122,.16);color:#ffc97a">🗺️</span>
+          <span><b>Lộ trình</b><small>11 học phần · 179 bài</small></span>
+          <span class="chev">›</span>
+        </button>
+        <button type="button" class="side-mi">
+          <span class="ic" style="background:rgba(154,216,255,.15);color:#9ad8ff">📚</span>
+          <span><b>Khoá học</b><small>Mỗi cuốn sách trên kệ là một bài</small></span>
+          <span class="chev">›</span>
+        </button>
+        <button type="button" class="side-mi">
+          <span class="ic" style="background:rgba(139,227,168,.14);color:#8be3a8">✏️</span>
+          <span><b>Ôn tập</b><small>Kho câu từ 4 bài đã xong</small></span>
+          <span class="chev">›</span>
+        </button>
+        <button type="button" class="side-mi">
+          <span class="ic" style="background:rgba(255,157,184,.16);color:#ff9db8">🏆</span>
+          <span><b>Thành tựu</b><small>2/24 huy hiệu</small></span>
+          <span class="chev">›</span>
+        </button>
+        <!-- Điểm truy cập Diễn đàn trên thanh bên phải -->
+        <button type="button" class="side-mi active-spot" id="sidebarForumBtn">
+          <span class="ic" style="background:rgba(169,140,245,.24);color:#d7c7ff">💬</span>
+          <span><b>Diễn đàn</b><small id="sidebarForumCount">4 chuyên mục · thảo luận & chat</small></span>
+          <span class="chev">›</span>
+        </button>
+        <button type="button" class="side-mi" id="sidebarRankBtn">
+          <span class="ic" style="background:rgba(201,179,255,.16);color:#c9b3ff">📱</span>
+          <span><b>Bảng xếp hạng</b><small>Hạng 12 theo XP</small></span>
+          <span class="chev">›</span>
+        </button>
+      </nav>
+    </aside>
+  </main>
+
+  <!-- Khu vực Bộ Asset & Bảng Asset -->
+  <section class="asset-kit-section" id="assetKitSection">
+    <div class="asset-kit-card">
+      <h2>Bộ Asset Diễn đàn Lofi (SVG, WebP Cảnh, Sprite & Bảng Asset)</h2>
+      <p>Xuất đúng định dạng vào thư mục riêng <code>forum-lofi-pack/</code> và <code>frontend/public/forum-lofi/</code>: 14 SVG hình đơn giản, 6 WebP cảnh/banner, 2 Sprite nhóm vật nhỏ kèm JSON toạ độ.</p>
+
+      <div class="asset-grid">
+        <div class="asset-tile"><img src="forum-lofi-pack/svg/cat-discuss.svg" alt=""><b>cat-discuss.svg</b><small>96×96 · Thảo luận</small></div>
+        <div class="asset-tile"><img src="forum-lofi-pack/svg/cat-question.svg" alt=""><b>cat-question.svg</b><small>96×96 · Hỏi đáp</small></div>
+        <div class="asset-tile"><img src="forum-lofi-pack/svg/cat-share.svg" alt=""><b>cat-share.svg</b><small>96×96 · Chia sẻ</small></div>
+        <div class="asset-tile"><img src="forum-lofi-pack/svg/cat-help.svg" alt=""><b>cat-help.svg</b><small>96×96 · Gỡ lỗi</small></div>
+        <div class="asset-tile"><img src="forum-lofi-pack/svg/react-like.svg" alt=""><b>react-like.svg</b><small>64×64 · Thích</small></div>
+        <div class="asset-tile"><img src="forum-lofi-pack/svg/react-love.svg" alt=""><b>react-love.svg</b><small>64×64 · Yêu thích</small></div>
+        <div class="asset-tile"><img src="forum-lofi-pack/svg/react-haha.svg" alt=""><b>react-haha.svg</b><small>64×64 · Haha</small></div>
+        <div class="asset-tile"><img src="forum-lofi-pack/svg/react-wow.svg" alt=""><b>react-wow.svg</b><small>64×64 · Wow</small></div>
+        <div class="asset-tile"><img src="forum-lofi-pack/svg/react-sad.svg" alt=""><b>react-sad.svg</b><small>64×64 · Buồn</small></div>
+        <div class="asset-tile"><img src="forum-lofi-pack/svg/react-angry.svg" alt=""><b>react-angry.svg</b><small>64×64 · Phẫn nộ</small></div>
+        <div class="asset-tile"><img src="forum-lofi-pack/svg/thread-connector.svg" alt=""><b>thread-connector.svg</b><small>36×120 · Nối bình luận lồng</small></div>
+        <div class="asset-tile"><img src="forum-lofi-pack/svg/compose-quill.svg" alt=""><b>compose-quill.svg</b><small>64×64 · Tạo chủ đề</small></div>
+        <div class="asset-tile"><img src="forum-lofi-pack/sprites/reactions-sprite.webp" alt=""><b>reactions-sprite.webp</b><small>384×64 · Sprite 6 cảm xúc</small></div>
+        <div class="asset-tile"><img src="forum-lofi-pack/sprites/forum-badges-sprite.webp" alt=""><b>forum-badges-sprite.webp</b><small>384×64 · Sprite 6 huy hiệu</small></div>
+        <div class="asset-tile"><img src="forum-lofi-pack/scenes/banner-question.webp" alt=""><b>banner-question.webp</b><small>480×160 · Cảnh Hỏi đáp</small></div>
+        <div class="asset-tile"><img src="forum-lofi-pack/scenes/phone-forum-bg.webp" alt=""><b>phone-forum-bg.webp</b><small>540×960 · Nền Điện thoại Lofi</small></div>
+      </div>
+
+      <div class="asset-table-wrap">
+        <table class="asset-tbl">
+          <thead>
+            <tr>
+              <th>Tên tệp</th>
+              <th>Định dạng</th>
+              <th>Kích thước</th>
+              <th>Dùng ở đâu</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>svg/cat-discuss.svg</code></td><td>SVG</td><td>96×96</td><td>Icon chuyên mục <b>Thảo luận</b> trên thanh lọc 4 chuyên mục và nhãn thẻ bài</td></tr>
+            <tr><td><code>svg/cat-question.svg</code></td><td>SVG</td><td>96×96</td><td>Icon chuyên mục <b>Hỏi đáp</b> trên thanh lọc 4 chuyên mục và nhãn thẻ bài</td></tr>
+            <tr><td><code>svg/cat-share.svg</code></td><td>SVG</td><td>96×96</td><td>Icon chuyên mục <b>Chia sẻ</b> trên thanh lọc 4 chuyên mục và nhãn thẻ bài</td></tr>
+            <tr><td><code>svg/cat-help.svg</code></td><td>SVG</td><td>96×96</td><td>Icon chuyên mục <b>Gỡ lỗi</b> trên thanh lọc 4 chuyên mục và nhãn thẻ bài</td></tr>
+            <tr><td><code>svg/react-like.svg</code></td><td>SVG</td><td>64×64</td><td>Nút cảm xúc <b>Thích (like)</b> trong cụm 6 cảm xúc bài viết & bình luận</td></tr>
+            <tr><td><code>svg/react-love.svg</code></td><td>SVG</td><td>64×64</td><td>Nút cảm xúc <b>Yêu thích (love)</b> trong cụm 6 cảm xúc bài viết & bình luận</td></tr>
+            <tr><td><code>svg/react-haha.svg</code></td><td>SVG</td><td>64×64</td><td>Nút cảm xúc <b>Haha (haha)</b> trong cụm 6 cảm xúc bài viết & bình luận</td></tr>
+            <tr><td><code>svg/react-wow.svg</code></td><td>SVG</td><td>64×64</td><td>Nút cảm xúc <b>Wow (wow)</b> trong cụm 6 cảm xúc bài viết & bình luận</td></tr>
+            <tr><td><code>svg/react-sad.svg</code></td><td>SVG</td><td>64×64</td><td>Nút cảm xúc <b>Buồn (sad)</b> trong cụm 6 cảm xúc bài viết & bình luận</td></tr>
+            <tr><td><code>svg/react-angry.svg</code></td><td>SVG</td><td>64×64</td><td>Nút cảm xúc <b>Phẫn nộ (angry)</b> trong cụm 6 cảm xúc bài viết & bình luận</td></tr>
+            <tr><td><code>svg/phone-shell-lofi.svg</code></td><td>SVG</td><td>420×820</td><td>Khung viền máy điện thoại lofi ánh tím khi thu gọn màn hình Điện thoại</td></tr>
+            <tr><td><code>svg/thread-connector.svg</code></td><td>SVG</td><td>36×120</td><td>Đường nhánh cong ánh vàng nối bình luận cha với bình luận trả lời lồng (2 cấp)</td></tr>
+            <tr><td><code>svg/compose-quill.svg</code></td><td>SVG</td><td>64×64</td><td>Biểu tượng bút lông ánh hổ phách ở đầu khung Tạo chủ đề thảo luận mới</td></tr>
+            <tr><td><code>svg/empty-forum.svg</code></td><td>SVG</td><td>180×140</td><td>Minh họa bàn học đêm khi bộ lọc tìm kiếm chưa có bài viết khớp</td></tr>
+            <tr><td><code>scenes/forum-lounge-1600.webp</code></td><td>WebP (cảnh)</td><td>1600×893</td><td>Cảnh nền phòng học đêm tím ấm khi mở rộng bàn thảo luận (<code>.phone-wide</code>)</td></tr>
+            <tr><td><code>scenes/phone-forum-bg.webp</code></td><td>WebP (cảnh)</td><td>540×960</td><td>Cảnh nền dọc bên trong màn hình Điện thoại (<code>#phone .scr</code>)</td></tr>
+            <tr><td><code>scenes/banner-discuss.webp</code></td><td>WebP (cảnh)</td><td>480×160</td><td>Banner đầu trang và đầu chi tiết bài của chuyên mục <b>Thảo luận</b></td></tr>
+            <tr><td><code>scenes/banner-question.webp</code></td><td>WebP (cảnh)</td><td>480×160</td><td>Banner đầu trang và đầu chi tiết bài của chuyên mục <b>Hỏi đáp</b></td></tr>
+            <tr><td><code>scenes/banner-share.webp</code></td><td>WebP (cảnh)</td><td>480×160</td><td>Banner đầu trang và đầu chi tiết bài của chuyên mục <b>Chia sẻ</b></td></tr>
+            <tr><td><code>scenes/banner-help.webp</code></td><td>WebP (cảnh)</td><td>480×160</td><td>Banner đầu trang và đầu chi tiết bài của chuyên mục <b>Gỡ lỗi</b></td></tr>
+            <tr><td><code>sprites/reactions-sprite.webp</code></td><td>WebP Sprite + JSON</td><td>384×64 (6×64×64)</td><td>Sprite gộp 6 cảm xúc (<code>like, love, haha, wow, sad, angry</code>) cho thanh cảm xúc</td></tr>
+            <tr><td><code>sprites/forum-badges-sprite.webp</code></td><td>WebP Sprite + JSON</td><td>384×64 (6×64×64)</td><td>Sprite gộp 4 huy hiệu chuyên mục + nhãn Đã giải đáp + nhãn Ghim bài</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const CHUYEN_MUC = [
+      { id: 'discuss', name: 'Thảo luận', short: 'Thảo luận', desc: 'Góc nhìn, kinh nghiệm tự học Python & phân tích dữ liệu', badge: 'forum-lofi-pack/svg/cat-discuss.svg', banner: 'forum-lofi-pack/scenes/banner-discuss.webp', color: '#f6b86b' },
+      { id: 'question', name: 'Hỏi đáp', short: 'Hỏi đáp', desc: 'Giải đáp thắc mắc lý thuyết, cú pháp và bài tập trong khóa', badge: 'forum-lofi-pack/svg/cat-question.svg', banner: 'forum-lofi-pack/scenes/banner-question.webp', color: '#a98cf5' },
+      { id: 'share', name: 'Chia sẻ', short: 'Chia sẻ', desc: 'Mẹo viết code gọn, ghi chú sổ tay và mini-project cá nhân', badge: 'forum-lofi-pack/svg/cat-share.svg', banner: 'forum-lofi-pack/scenes/banner-share.webp', color: '#e58cc8' },
+      { id: 'help', name: 'Gỡ lỗi', short: 'Gỡ lỗi', desc: 'Cứu trợ bug Python, NumPy, pandas kèm traceback cụ thể', badge: 'forum-lofi-pack/svg/cat-help.svg', banner: 'forum-lofi-pack/scenes/banner-help.webp', color: '#5cd6a9' }
+    ];
+
+    const CAM_XUC = [
+      { id: 'like', label: 'Thích', icon: 'forum-lofi-pack/svg/react-like.svg' },
+      { id: 'love', label: 'Yêu thích', icon: 'forum-lofi-pack/svg/react-love.svg' },
+      { id: 'haha', label: 'Haha', icon: 'forum-lofi-pack/svg/react-haha.svg' },
+      { id: 'wow', label: 'Wow', icon: 'forum-lofi-pack/svg/react-wow.svg' },
+      { id: 'sad', label: 'Buồn', icon: 'forum-lofi-pack/svg/react-sad.svg' },
+      { id: 'angry', label: 'Phẫn nộ', icon: 'forum-lofi-pack/svg/react-angry.svg' }
+    ];
+
+    const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+    const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+    const state = {
+      tab: 'forum',
+      wide: false,
+      category: 'all',
+      sort: 'newest',
+      search: '',
+      postId: null,
+      composing: false,
+      chatOpen: false,
+      replyToId: null,
+      posts: [
+        {
+          id: 101,
+          category: 'question',
+          pinned: true,
+          solved: true,
+          title: 'Vì sao phép chia 7 // 2 ra 3 nhưng -7 // 2 lại ra -4 trong Bài 1?',
+          content: 'Mình vừa đọc xong màn Lý thuyết (Sách mở) của Bài 1. Khi thử trong REPL thì thấy 7 // 2 == 3, nhưng thử số âm -7 // 2 thì kết quả lại là -4 chứ không phải -3. Có bạn nào giải thích giúp cơ chế làm tròn của // không?',
+          code: 'print(7 // 2)   # -> 3\nprint(-7 // 2)  # -> -4 (sao không phải -3?)',
+          author: { name: 'Minh Anh · K14', role: 'Học viên M1', avatar: 'M' },
+          createdAt: '15 phút trước',
+          my_reaction: 'love',
+          reactions: { like: 8, love: 6, haha: 1, wow: 4, sad: 0, angry: 0 },
+          comments: [
+            {
+              id: 501,
+              author: { name: 'Hải Đăng · Mentor', role: 'Trợ giảng', avatar: 'H' },
+              createdAt: '12 phút trước',
+              content: 'Câu hỏi rất hay! Toán tử // trong Python là floor division (làm tròn XUỐNG về phía âm vô cùng), không phải cắt phần thập phân (truncate). Vì -3.5 nằm giữa -4 và -3 nên làm tròn xuống sẽ về -4.',
+              my_reaction: 'like',
+              reactions: { like: 9, love: 4, haha: 0, wow: 2, sad: 0, angry: 0 },
+              replies: [
+                {
+                  id: 502,
+                  author: { name: 'Minh Anh · K14', role: 'Tác giả', avatar: 'M' },
+                  createdAt: '9 phút trước',
+                  content: 'À rõ ràng quá! Vậy nếu muốn cắt phần thập phân về phía số 0 thì dùng int(-7 / 2) sẽ ra -3 đúng không ạ?',
+                  my_reaction: null,
+                  reactions: { like: 4, love: 2, haha: 0, wow: 1, sad: 0, angry: 0 }
+                },
+                {
+                  id: 503,
+                  author: { name: 'Hải Đăng · Mentor', role: 'Trợ giảng', avatar: 'H' },
+                  createdAt: '6 phút trước',
+                  content: 'Chuẩn luôn @Minh Anh! int(-3.5) hoặc math.trunc(-3.5) đều cắt về phía 0 nên cho kết quả -3.',
+                  my_reaction: 'love',
+                  reactions: { like: 5, love: 3, haha: 0, wow: 0, sad: 0, angry: 0 }
+                }
+              ]
+            },
+            {
+              id: 504,
+              author: { name: 'Tuấn Kiệt', role: 'Học viên M2', avatar: 'T' },
+              createdAt: '4 phút trước',
+              content: 'Nhờ câu này mà mình để ý thêm cặp (a // b) * b + (a % b) == a luôn đúng với mọi số âm trong Python.',
+              my_reaction: null,
+              reactions: { like: 3, love: 1, haha: 0, wow: 2, sad: 0, angry: 0 },
+              replies: []
+            }
+          ]
+        },
+        {
+          id: 102,
+          category: 'share',
+          pinned: true,
+          solved: false,
+          title: 'Chia sẻ bộ ghi chú Sổ tay M1 + cách bật nhạc lofi học đêm cực tập trung',
+          content: 'Mình tổng hợp lại các quy tắc đặt tên biến, ép kiểu int/float/str và 5 bẫy hay gặp ở Học phần 1 thành một đoạn cheat-sheet ngắn. Mọi người lưu lại vào cuốn sổ trên bàn để ôn trước khi làm đề nhé!',
+          code: '# Mẹo kiểm tra nhanh kiểu dữ liệu và giá trị rỗng\nmau_thu = [0, "", [], None, 42]\nloc_hop_le = [x for x in mau_thu if x is not None]\nprint(loc_hop_le)  # [0, "", [], 42]',
+          author: { name: 'Lan Phương', role: 'Học viên M3', avatar: 'L' },
+          createdAt: '42 phút trước',
+          my_reaction: null,
+          reactions: { like: 11, love: 9, haha: 2, wow: 5, sad: 0, angry: 0 },
+          comments: [
+            {
+              id: 505,
+              author: { name: 'Quốc Bảo', role: 'Học viên M1', avatar: 'Q' },
+              createdAt: '28 phút trước',
+              content: 'Ví dụ phân biệt if x: với if x is not None: cứu mình đúng lúc đang làm sạch cột điểm số có số 0!',
+              my_reaction: 'like',
+              reactions: { like: 6, love: 2, haha: 0, wow: 0, sad: 0, angry: 0 },
+              replies: []
+            }
+          ]
+        },
+        {
+          id: 103,
+          category: 'help',
+          pinned: false,
+          solved: true,
+          title: 'Gỡ lỗi: TypeError khi nối chuỗi thông báo với kết quả phép tính',
+          content: 'Mình chạy đoạn mã in tổng số phút học trong tuần nhưng gặp lỗi TypeError: can only concatenate str (not "int") to str. Cách sửa nào gọn và chuẩn nhất trong Python 3?',
+          code: 'tong_phut = 25 * 5 + 40\nprint(f"Tổng thời gian: {tong_phut} phút")',
+          author: { name: 'Hoàng Nam', role: 'Học viên M1', avatar: 'N' },
+          createdAt: '1 giờ trước',
+          my_reaction: null,
+          reactions: { like: 5, love: 1, haha: 2, wow: 1, sad: 2, angry: 1 },
+          comments: []
+        },
+        {
+          id: 104,
+          category: 'discuss',
+          pinned: false,
+          solved: false,
+          title: 'Mọi người thường học vào khung giờ nào trong Góc học Lofi?',
+          content: 'Mình thích kéo thanh giờ trong ngày sang 22:00 Đêm, bật mưa ngoài cửa sổ rồi ngồi làm 2 bài Python mỗi tối. Không biết hội cú đêm USTH hay online giờ nào để cùng thảo luận bài tập?',
+          code: '',
+          author: { name: 'Đức Thịnh', role: 'Học viên M2', avatar: 'Đ' },
+          createdAt: '2 giờ trước',
+          my_reaction: 'haha',
+          reactions: { like: 14, love: 10, haha: 7, wow: 3, sad: 1, angry: 0 },
+          comments: []
+        }
+      ],
+      chat: [
+        { id: 1, user: 'Minh Anh', avatar: 'M', time: '21:15', text: 'Có ai đang làm Bài 4 học phần M1 không nhỉ?' },
+        { id: 2, user: 'Tuấn Kiệt', avatar: 'T', time: '21:16', text: 'Mình vừa qua Bài 4 xong! Nhớ chú ý quy tắc đặt tên biến không bắt đầu bằng số nhé.' },
+        { id: 3, user: 'Lan Phương', avatar: 'L', time: '21:18', text: 'Mình vừa đăng bản tóm tắt M1 ở mục Chia sẻ, mọi người ghé xem nha ✨' }
+      ]
+    };
+
+    const tongCamXuc = (rx) => Object.values(rx || {}).reduce((a, b) => a + (Number(b) || 0), 0);
+    const tongBinhLuan = (p) => (p.comments || []).reduce((s, c) => s + 1 + ((c.replies || []).length), 0);
+
+    function toggleReaction(target, type) {
+      const prev = target.my_reaction;
+      if (prev === type) {
+        target.reactions[type] = Math.max(0, (target.reactions[type] || 1) - 1);
+        target.my_reaction = null;
+      } else {
+        if (prev && target.reactions[prev] > 0) target.reactions[prev] -= 1;
+        target.reactions[type] = (target.reactions[type] || 0) + 1;
+        target.my_reaction = type;
+      }
+    }
+
+    function renderReactions(kind, id, target) {
+      return `<div class="lf-react-bar" role="group" aria-label="6 loại cảm xúc">` +
+        CAM_XUC.map((e) => {
+          const cnt = Number(target.reactions?.[e.id] || 0);
+          const on = target.my_reaction === e.id;
+          return `<button type="button" class="lf-emo-btn${on ? ' on' : ''}" data-rkind="${kind}" data-rid="${id}" data-rtype="${e.id}" title="${e.label} (${cnt})">
+            <img src="${e.icon}" alt="${e.label}" width="18" height="18">
+            <span class="lf-emo-lbl">${e.label}</span>
+            <b>${cnt}</b>
+          </button>`;
+        }).join('') + `</div>`;
+    }
+
+    function rotatePhone(toWide, animate = true) {
+      const ph = document.getElementById('phone');
+      const wasWide = ph.classList.contains('phone-wide');
+      state.wide = !!toWide;
+      const showWide = state.tab === 'forum' && state.wide;
+      ph.classList.toggle('phone-wide', showWide);
+      render();
+      if (!animate || wasWide === showWide) return;
+      const scr = ph.querySelector('.scr');
+      if (showWide) {
+        ph.animate(
+          [
+            { transform: 'perspective(1200px) rotateZ(90deg) rotateY(-18deg) scale(0.58)' },
+            { transform: 'perspective(1200px) rotateZ(-4deg) rotateX(6deg) scale(1.03)', offset: 0.72 },
+            { transform: 'none' }
+          ],
+          { duration: 680, easing: EASE }
+        );
+      } else {
+        ph.animate(
+          [
+            { transform: 'perspective(1200px) rotateZ(-90deg) rotateY(16deg) scale(1.42)' },
+            { transform: 'perspective(1200px) rotateZ(3deg) scale(0.98)', offset: 0.72 },
+            { transform: 'none' }
+          ],
+          { duration: 640, easing: EASE }
+        );
+      }
+      if (scr) {
+        scr.animate(
+          [
+            { opacity: 0.28, transform: 'scale(0.94)' },
+            { opacity: 1, transform: 'none' }
+          ],
+          { duration: 520, easing: EASE }
+        );
+      }
+    }
+
+    function render() {
+      const mount = document.getElementById('forumMount');
+      const ph = document.getElementById('phone');
+      const pvMe = document.getElementById('pvMe');
+      const pvRank = document.getElementById('pvRank');
+      const pvForum = document.getElementById('pvForum');
+
+      document.querySelectorAll('[data-pt]').forEach((b) => {
+        b.setAttribute('aria-selected', String(b.dataset.pt === state.tab));
+      });
+      pvMe.hidden = state.tab !== 'me';
+      pvRank.hidden = state.tab !== 'rank';
+      pvForum.hidden = state.tab !== 'forum';
+      ph.classList.toggle('phone-wide', state.tab === 'forum' && state.wide);
+
+      document.getElementById('sidebarForumCount').textContent = `4 chuyên mục · ${state.posts.length} chủ đề`;
+
+      const orientBarHtml = `<div class="lf-orient-bar">
+        <span class="lf-orient-status">${
+          state.wide
+            ? '📲 Chế độ xoay ngang · Bàn thảo luận rộng'
+            : '📱 Màn hình dọc · Xoay ngang để xem rộng'
+        }</span>
+        <button type="button" class="lf-rotate-btn" data-rotate-phone="1" title="${
+          state.wide ? 'Xoay dọc điện thoại về màn hình nhỏ' : 'Xoay ngang điện thoại để mở rộng màn hình thảo luận'
+        }">
+          <svg class="lf-rot-svg" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M21 12a9 9 0 0 0-9-9M3 12a9 9 0 0 0 9 9"/><polyline points="18 3 21 3 21 6"/></svg>
+          <span>${state.wide ? 'Xoay dọc thu gọn' : 'Xoay ngang mở rộng'}</span>
+        </button>
+      </div>`;
+
+      const counts = { all: state.posts.length };
+      CHUYEN_MUC.forEach((c) => { counts[c.id] = state.posts.filter((p) => p.category === c.id).length; });
+
+      const activePost = state.postId ? state.posts.find((p) => p.id === Number(state.postId)) : null;
+      if (activePost) {
+        const cat = CHUYEN_MUC.find((c) => c.id === activePost.category) || CHUYEN_MUC[0];
+        const cmts = (activePost.comments || []).map((c) => {
+          const replies = (c.replies || []).map((rp) => `
+            <div class="lf-reply-item">
+              <img class="lf-thread-line" src="forum-lofi-pack/svg/thread-connector.svg" alt="">
+              <div class="lf-cmt-card lf-cmt-nested">
+                <div class="lf-cmt-head">
+                  <span class="lf-ava sm">${esc(rp.author.avatar)}</span>
+                  <b class="fpc-author">${esc(rp.author.name)}</b>
+                  <span class="lf-role-tag">${esc(rp.author.role)}</span>
+                  <small class="lf-time">${esc(rp.createdAt)}</small>
+                </div>
+                <p class="lf-cmt-body">${esc(rp.content)}</p>
+                ${renderReactions('comment', rp.id, rp)}
+              </div>
+            </div>`).join('');
+
+          const isReplying = Number(state.replyToId) === Number(c.id);
+          return `<article class="lf-cmt-thread">
+            <div class="lf-cmt-card">
+              <div class="lf-cmt-head">
+                <span class="lf-ava">${esc(c.author.avatar)}</span>
+                <div>
+                  <b class="fpc-author">${esc(c.author.name)}</b>
+                  <span class="lf-role-tag">${esc(c.author.role)}</span>
+                </div>
+                <small class="lf-time">${esc(c.createdAt)}</small>
+              </div>
+              <p class="lf-cmt-body">${esc(c.content)}</p>
+              <div class="lf-cmt-foot">
+                ${renderReactions('comment', c.id, c)}
+                <button type="button" class="lf-reply-trig" data-reply="${c.id}">↩ Trả lời (${(c.replies || []).length})</button>
+              </div>
+              ${isReplying ? `<form class="lf-reply-form" data-reply-form="${c.id}">
+                <input type="text" class="lf-input" name="txt" placeholder="Trả lời @${esc(c.author.name)}…" required>
+                <button type="submit" class="lf-btn-amber">Gửi trả lời</button>
+                <button type="button" class="lf-btn-ghost" data-cancel-reply="1">Huỷ</button>
+              </form>` : ''}
+            </div>
+            ${replies ? `<div class="lf-replies-wrap">${replies}</div>` : ''}
+          </article>`;
+        }).join('');
+
+        mount.innerHTML = `<div class="lf-forum-wrap">
+          ${orientBarHtml}
+          <div class="lf-detail-topbar">
+            <button type="button" class="lf-btn-ghost" data-back="1">← Danh sách 4 chuyên mục</button>
+            <span class="lf-cat-chip" style="--cc:${cat.color}"><img src="${cat.badge}" width="18" height="18" alt="">${esc(cat.name)}</span>
+          </div>
+          <article class="lf-post-detail">
+            <img class="lf-post-banner" src="${cat.banner}" alt="">
+            <div class="lf-post-head">
+              <span class="lf-ava lg">${esc(activePost.author.avatar)}</span>
+              <div>
+                <div class="lf-author-row">
+                  <b class="fpc-author">${esc(activePost.author.name)}</b>
+                  <span class="lf-role-tag">${esc(activePost.author.role)}</span>
+                  ${activePost.solved ? '<span class="lf-solved-tag">✓ Đã giải đáp</span>' : ''}
+                </div>
+                <small class="lf-time">${esc(activePost.createdAt)} · Chuyên mục ${esc(cat.name)}</small>
+              </div>
+            </div>
+            <h3 class="lf-detail-title">${esc(activePost.title)}</h3>
+            <p class="lf-detail-content">${esc(activePost.content)}</p>
+            ${activePost.code ? `<pre class="lf-code-block"><code>${esc(activePost.code)}</code></pre>` : ''}
+            <div class="lf-detail-reactions">
+              <span class="lf-react-caption">Thả cảm xúc (6 loại):</span>
+              ${renderReactions('post', activePost.id, activePost)}
+            </div>
+          </article>
+          <section class="lf-comments-sec">
+            <div class="lf-sec-head">
+              <h4>💬 Bình luận lồng (${tongBinhLuan(activePost)})</h4>
+              <small>Hỗ trợ trả lời theo nhánh & thả 6 loại cảm xúc</small>
+            </div>
+            <form class="lf-comment-form" id="rootCmtForm">
+              <input type="text" class="lf-input" id="rootCmtIn" placeholder="Viết bình luận của bạn…" required>
+              <button type="submit" class="lf-btn-amber">Gửi bình luận</button>
+            </form>
+            <div class="lf-cmt-list">${cmts}</div>
+          </section>
+        </div>`;
+        bindEvents();
+        return;
+      }
+
+      const activeCat = CHUYEN_MUC.find((c) => c.id === state.category) || CHUYEN_MUC[0];
+      const q = state.search.trim().toLowerCase();
+      const list = state.posts
+        .filter((p) => state.category === 'all' || p.category === state.category)
+        .filter((p) => !q || p.title.toLowerCase().includes(q) || p.content.toLowerCase().includes(q))
+        .slice()
+        .sort((a, b) => state.sort === 'likes' ? tongCamXuc(b.reactions) - tongCamXuc(a.reactions) : b.id - a.id);
+
+      const catPills = [
+        `<button type="button" class="lf-cat-pill${state.category === 'all' ? ' active' : ''}" data-cat="all"><span>✨ Tất cả</span><b>${counts.all}</b></button>`,
+        ...CHUYEN_MUC.map((c) => `<button type="button" class="lf-cat-pill${state.category === c.id ? ' active' : ''}" data-cat="${c.id}">
+          <img src="${c.badge}" width="20" height="20" alt=""><span>${esc(c.short)}</span><b>${counts[c.id]}</b>
+        </button>`)
+      ].join('');
+
+      const composer = state.composing ? `
+        <form class="lf-composer-card" id="createPostForm">
+          <div class="lf-composer-head">
+            <img src="forum-lofi-pack/svg/compose-quill.svg" width="28" height="28" alt="">
+            <div><b>Tạo chủ đề thảo luận mới</b><small>Chọn 1 trong 4 chuyên mục · Hỗ trợ đính kèm code Python</small></div>
+          </div>
+          <select class="lf-select" name="cat">
+            ${CHUYEN_MUC.map((c) => `<option value="${c.id}">${esc(c.name)} — ${esc(c.desc)}</option>`).join('')}
+          </select>
+          <input type="text" class="lf-input" name="title" placeholder="Tiêu đề câu hỏi hoặc chủ đề thảo luận…" required>
+          <textarea class="lf-textarea" name="content" rows="2" placeholder="Nội dung chi tiết…" required></textarea>
+          <input type="text" class="lf-input mono" name="code" placeholder="Đoạn mã Python minh họa (tuỳ chọn, ví dụ: print(7 // 2))">
+          <div class="lf-composer-actions">
+            <button type="button" class="lf-btn-ghost" data-compose="0">Huỷ</button>
+            <button type="submit" class="lf-btn-amber">Đăng chủ đề lên diễn đàn</button>
+          </div>
+        </form>` : '';
+
+      const chatBox = state.chatOpen ? `
+        <section class="lf-chat-box">
+          <div class="lf-chat-head">
+            <span>🟢 Phòng chat bàn học đêm (${state.chat.length} tin nhắn)</span>
+            <button type="button" class="lf-btn-ghost sm" data-chat="0">Đóng chat</button>
+          </div>
+          <div class="lf-chat-messages">
+            ${state.chat.map((m) => `<div class="lf-chat-msg">
+              <span class="lf-ava sm">${esc(m.avatar)}</span>
+              <div class="lf-chat-bubble">
+                <div class="lf-chat-meta"><b>${esc(m.user)}</b><small>${esc(m.time)}</small></div>
+                <p>${esc(m.text)}</p>
+              </div>
+            </div>`).join('')}
+          </div>
+          <form class="lf-chat-form" id="chatForm">
+            <input type="text" class="lf-input" id="chatIn" placeholder="Nhắn nhanh với bạn cùng phòng học…" required>
+            <button type="submit" class="lf-btn-amber">Gửi</button>
+          </form>
+        </section>` : '';
+
+      const cards = list.map((p) => {
+        const cat = CHUYEN_MUC.find((c) => c.id === p.category) || CHUYEN_MUC[0];
+        return `<article class="lf-post-card" data-open="${p.id}">
+          <div class="lf-card-top">
+            <span class="lf-cat-chip" style="--cc:${cat.color}"><img src="${cat.badge}" width="16" height="16" alt="">${esc(cat.short)}</span>
+            ${p.pinned ? '<span class="lf-pin-chip">📌 Ghim</span>' : ''}
+            ${p.solved ? '<span class="lf-solved-tag">✓ Đã giải đáp</span>' : ''}
+            <small class="lf-time">${esc(p.createdAt)}</small>
+          </div>
+          <h4 class="lf-card-title">${esc(p.title)}</h4>
+          <p class="lf-card-excerpt">${esc(p.content)}</p>
+          ${p.code ? `<pre class="lf-code-preview"><code>${esc(p.code)}</code></pre>` : ''}
+          <div class="lf-card-foot">
+            <div class="lf-author-mini">
+              <span class="lf-ava sm">${esc(p.author.avatar)}</span>
+              <b class="fpc-author">${esc(p.author.name)}</b>
+            </div>
+            <button type="button" class="lf-cmt-pill" data-open="${p.id}">💬 ${tongBinhLuan(p)} bình luận</button>
+          </div>
+          <div class="lf-card-reacts" data-stop="1">${renderReactions('post', p.id, p)}</div>
+        </article>`;
+      }).join('');
+
+      mount.innerHTML = `<div class="lf-forum-wrap">
+        ${orientBarHtml}
+        <div class="lf-hero-banner">
+          <img class="lf-hero-img" src="${activeCat.banner}" alt="">
+          <div class="lf-hero-txt">
+            <span class="lf-hero-eyebrow">DIỄN ĐÀN GÓC HỌC · 4 CHUYÊN MỤC</span>
+            <h3>${state.category === 'all' ? 'Cộng đồng Python Lofi Đêm' : esc(activeCat.name)}</h3>
+            <p>${state.category === 'all' ? 'Hỏi bài, chia sẻ sổ tay, gỡ lỗi code & trò chuyện trực tiếp' : esc(activeCat.desc)}</p>
+          </div>
+          <div class="lf-hero-btns">
+            <button type="button" class="lf-btn-amber" data-compose="${state.composing ? '0' : '1'}">${state.composing ? '✕ Đóng khung đăng' : '＋ Tạo chủ đề'}</button>
+            <button type="button" class="lf-btn-ghost" data-chat="${state.chatOpen ? '0' : '1'}">💬 Chat phòng học (${state.chat.length})</button>
+          </div>
+        </div>
+        ${composer}
+        ${chatBox}
+        <div class="lf-cat-bar">${catPills}</div>
+        <div class="lf-toolbar">
+          <input type="search" class="lf-input lf-search" id="searchIn" value="${esc(state.search)}" placeholder="Tìm bài viết, từ khóa, mã lỗi…">
+          <div class="lf-sort-group">
+            <button type="button" class="lf-sort-btn${state.sort === 'newest' ? ' active' : ''}" data-sort="newest">Mới nhất</button>
+            <button type="button" class="lf-sort-btn${state.sort === 'likes' ? ' active' : ''}" data-sort="likes">Nhiều cảm xúc</button>
+          </div>
+        </div>
+        <div class="lf-post-list">${cards}</div>
+      </div>`;
+      bindEvents();
+    }
+
+    function bindEvents() {
+      const mount = document.getElementById('forumMount');
+      mount.querySelectorAll('[data-rotate-phone]').forEach((b) => b.addEventListener('click', () => rotatePhone(!state.wide)));
+      mount.querySelectorAll('[data-stop]').forEach((el) => el.addEventListener('click', (e) => e.stopPropagation()));
+      mount.querySelectorAll('[data-cat]').forEach((b) => b.addEventListener('click', () => { state.category = b.dataset.cat; state.postId = null; render(); }));
+      mount.querySelectorAll('[data-sort]').forEach((b) => b.addEventListener('click', () => { state.sort = b.dataset.sort; render(); }));
+      mount.querySelectorAll('[data-compose]').forEach((b) => b.addEventListener('click', () => { state.composing = b.dataset.compose === '1'; render(); }));
+      mount.querySelectorAll('[data-chat]').forEach((b) => b.addEventListener('click', () => { state.chatOpen = b.dataset.chat === '1'; render(); }));
+      mount.querySelectorAll('[data-open]').forEach((b) => b.addEventListener('click', () => {
+        state.postId = Number(b.dataset.open);
+        state.replyToId = null;
+        if (!state.wide) rotatePhone(true);
+        else render();
+      }));
+      mount.querySelectorAll('[data-back]').forEach((b) => b.addEventListener('click', () => { state.postId = null; render(); }));
+      mount.querySelectorAll('[data-reply]').forEach((b) => b.addEventListener('click', () => { state.replyToId = Number(b.dataset.reply); render(); }));
+      mount.querySelectorAll('[data-cancel-reply]').forEach((b) => b.addEventListener('click', () => { state.replyToId = null; render(); }));
+
+      mount.querySelectorAll('[data-rtype]').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const kind = btn.dataset.rkind;
+          const id = Number(btn.dataset.rid);
+          const type = btn.dataset.rtype;
+          if (kind === 'post') {
+            const p = state.posts.find((x) => x.id === id);
+            if (p) toggleReaction(p, type);
+          } else {
+            for (const p of state.posts) {
+              for (const c of p.comments || []) {
+                if (c.id === id) toggleReaction(c, type);
+                for (const rp of c.replies || []) if (rp.id === id) toggleReaction(rp, type);
+              }
+            }
+          }
+          render();
+        });
+      });
+
+      const sIn = document.getElementById('searchIn');
+      if (sIn) sIn.addEventListener('input', (e) => { state.search = e.target.value; render(); });
+
+      const cpForm = document.getElementById('createPostForm');
+      if (cpForm) {
+        cpForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const fd = new FormData(cpForm);
+          const np = {
+            id: Date.now(),
+            category: fd.get('cat') || 'discuss',
+            pinned: false,
+            solved: false,
+            title: fd.get('title'),
+            content: fd.get('content'),
+            code: fd.get('code') || '',
+            author: { name: 'Bạn · Học viên', role: 'Học viên', avatar: 'B' },
+            createdAt: 'Vừa xong',
+            my_reaction: 'like',
+            reactions: { like: 1, love: 0, haha: 0, wow: 0, sad: 0, angry: 0 },
+            comments: []
+          };
+          state.posts.unshift(np);
+          state.composing = false;
+          state.postId = np.id;
+          render();
+        });
+      }
+
+      const chatForm = document.getElementById('chatForm');
+      if (chatForm) {
+        chatForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const inp = document.getElementById('chatIn');
+          if (!inp.value.trim()) return;
+          state.chat.push({ id: Date.now(), user: 'Bạn', avatar: 'B', time: 'Vừa xong', text: inp.value.trim() });
+          render();
+        });
+      }
+
+      const rootCmtForm = document.getElementById('rootCmtForm');
+      if (rootCmtForm) {
+        rootCmtForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const inp = document.getElementById('rootCmtIn');
+          const p = state.posts.find((x) => x.id === Number(state.postId));
+          if (p && inp.value.trim()) {
+            p.comments.push({
+              id: Date.now(),
+              author: { name: 'Bạn · Học viên', role: 'Thành viên', avatar: 'B' },
+              createdAt: 'Vừa xong',
+              content: inp.value.trim(),
+              my_reaction: null,
+              reactions: { like: 0, love: 0, haha: 0, wow: 0, sad: 0, angry: 0 },
+              replies: []
+            });
+            render();
+          }
+        });
+      }
+
+      mount.querySelectorAll('[data-reply-form]').forEach((f) => {
+        f.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const cid = Number(f.dataset.replyForm);
+          const txt = new FormData(f).get('txt');
+          const p = state.posts.find((x) => x.id === Number(state.postId));
+          const c = p?.comments?.find((x) => x.id === cid);
+          if (c && txt) {
+            c.replies.push({
+              id: Date.now(),
+              author: { name: 'Bạn · Học viên', role: 'Phản hồi', avatar: 'B' },
+              createdAt: 'Vừa xong',
+              content: txt,
+              my_reaction: null,
+              reactions: { like: 0, love: 0, haha: 0, wow: 0, sad: 0, angry: 0 }
+            });
+            state.replyToId = null;
+            render();
+          }
+        });
+      });
+    }
+
+    document.querySelectorAll('[data-pt]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const nextTab = btn.dataset.pt;
+        const ph = document.getElementById('phone');
+        const wasWide = ph.classList.contains('phone-wide');
+        state.tab = nextTab;
+        if (nextTab !== 'forum' && wasWide) {
+          rotatePhone(false);
+        } else {
+          render();
+          const activePv = document.getElementById(nextTab === 'me' ? 'pvMe' : nextTab === 'rank' ? 'pvRank' : 'pvForum');
+          if (activePv) activePv.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: EASE });
+        }
+      });
+    });
+
+    document.getElementById('tenSave').addEventListener('click', () => {
+      const v = document.getElementById('tenIn').value.trim() || 'Khách';
+      const ch = (v[0] || 'K').toUpperCase();
+      document.getElementById('meName').textContent = v;
+      document.getElementById('meAva').textContent = ch;
+      document.getElementById('rankName1').textContent = v;
+      document.getElementById('rankAva1').textContent = ch;
+      document.getElementById('rankName2').textContent = v;
+      document.getElementById('rankAva2').textContent = ch;
+    });
+
+    document.getElementById('deskPhoneHotspot').addEventListener('click', () => {
+      state.tab = 'forum';
+      state.postId = null;
+      rotatePhone(false);
+    });
+    document.getElementById('sidebarForumBtn').addEventListener('click', () => {
+      state.tab = 'forum';
+      state.postId = null;
+      rotatePhone(false);
+    });
+    document.getElementById('sidebarRankBtn').addEventListener('click', () => {
+      state.tab = 'rank';
+      rotatePhone(false);
+    });
+
+    function applyPreset(preset) {
+      document.querySelectorAll('.f-tab').forEach((t) => t.classList.toggle('active', t.dataset.preset === preset));
+      if (preset === 'feed') {
+        state.tab = 'forum'; state.category = 'all'; state.postId = null; state.composing = false; state.chatOpen = false;
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        rotatePhone(false);
+      } else if (preset === 'detail') {
+        state.tab = 'forum'; state.postId = 101; state.replyToId = 501;
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        rotatePhone(true);
+      } else if (preset === 'compose') {
+        state.tab = 'forum'; state.postId = null; state.composing = true; state.chatOpen = true;
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        rotatePhone(true);
+      } else if (preset === 'handset') {
+        state.tab = 'forum'; state.postId = null; state.composing = false; state.chatOpen = false;
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        rotatePhone(false);
+      } else if (preset === 'assets') {
+        document.getElementById('assetKitSection').scrollIntoView({ behavior: 'instant' });
+      }
+    }
+
+    document.querySelectorAll('.f-tab').forEach((btn) => {
+      btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+    });
+
+    const params = new URLSearchParams(location.search);
+    if (params.get('frame')) applyPreset(params.get('frame'));
+    else render();
+  </script>
+</body>
+</html>

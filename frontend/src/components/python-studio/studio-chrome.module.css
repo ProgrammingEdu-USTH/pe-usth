@@ -1,21 +1,15 @@
 /* Những mảnh nhỏ chỉ có ở màn bài học dựng từ content_json: dải ghi chú,
    thông báo, nhật ký biến đổi và bảng ví dụ I/O. Các thành phần còn lại đều
-   dùng lại component trong components/lesson-chrome.
-
-   Màu và cỡ chữ lấy từ BẢNG TOKEN v2 (--ds-* trong studio-tokens.css): tám
-   cỡ chữ, bốn họ nhấn có vai ngữ nghĩa duy nhất. File này đã chuyển xong,
-   nên không còn số px cỡ chữ nào — `e2e/unit/ds-type-scale.test.mjs` trượt
-   nếu có ai viết lại một con số. (Danh sách file đã/chưa chuyển, và số nợ
-   còn lại ở studio.module.css, ghi trong studio-tokens.css.) */
+   dùng lại component trong components/lesson-chrome. */
 
 .note {
-  background: var(--ds-tint);
-  border: 1px solid var(--ds-line);
-  border-radius: var(--ds-r-md);
+  background: var(--edu-card-bg);
+  border: 1px solid var(--edu-sidebar-border);
+  border-radius: 12px;
   padding: 12px 16px;
   margin-bottom: 14px;
-  font-size: var(--ds-fs-body);
-  color: var(--ds-soft);
+  font-size: 13px;
+  color: var(--edu-t2);
 }
 
 .noteOk {
@@ -28,13 +22,13 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: var(--ds-card);
-  border: 1px solid var(--ds-line);
-  border-radius: var(--ds-r-md);
+  background: var(--edu-panel-bg-solid);
+  border: 1px solid var(--edu-sidebar-border);
+  border-radius: 12px;
   padding: 12px 16px;
   margin-top: 14px;
-  font-size: var(--ds-fs-body);
-  color: var(--ds-soft);
+  font-size: 13px;
+  color: var(--edu-t2);
 }
 
 .toast p {
@@ -45,8 +39,8 @@
 .toast button {
   border: 0;
   background: transparent;
-  color: var(--ds-soft);
-  font-size: var(--ds-fs-body);
+  color: var(--edu-t3);
+  font-size: 18px;
   line-height: 1;
   cursor: pointer;
 }
@@ -56,181 +50,10 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--ds-soft);
-  font-size: var(--ds-fs-ui);
+  color: var(--edu-t3);
+  font-size: 12px;
   text-decoration: underline;
   cursor: pointer;
-}
-
-/* ── Khung kết quả lắp khung mã (ScaffoldReview.tsx) ─────────────────
-   Figma "Lesson card" 15:1642 / 15:2372. Số đo giữ theo Figma (padding 24,
-   khoảng cách 20, emblem 44, icon 24, nút cao 48). Câu văn đầy đủ ở
-   --ds-fs-body chứ không 15px như Figma — thang chữ không cho câu văn nhỏ
-   hơn 17px (ds-type-scale.test.mjs).
-
-   Khung luôn TỐI, ở cả bản ngày lẫn Ban đêm, như Figma và như khung code
-   ngay phía trên: chỉ dùng token họ code/mark (`tối ở cả hai chế độ`).
-   Khung này không theo --st-ok-…/--st-err-… (nền nhạt ở bản ngày) vì Figma
-   vẽ nó tối; đó là chủ ý, không phải né lỗi Ban đêm — lỗi đó đã sửa ở gốc
-   trong studio-tokens.css (khối bí danh --st-*).
-
-   Sắc nền pha bằng color-mix từ màu nhấn trên nền code: ~10% gần đúng mã
-   nền sai/đúng của Figma mà không thêm token mới. "Đúng" dùng
-   --ds-code-str (xanh lá như Figma) thay vì --ds-mark-ochre (hổ
-   phách) — Figma vẽ đúng/sai bằng xanh/đỏ. */
-.review {
-  --review-accent: var(--ds-mark-sanguine);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  margin-top: 20px;
-  padding: 24px;
-  border: 1px solid color-mix(in srgb, var(--review-accent) 45%, var(--ds-code-bg));
-  border-radius: var(--ds-r-md);
-  background: color-mix(in srgb, var(--review-accent) 10%, var(--ds-code-bg));
-  color: var(--ds-code-fg);
-  animation: reviewIn 0.3s cubic-bezier(0.22, 0.61, 0.36, 1) both;
-}
-.reviewOk {
-  --review-accent: var(--ds-code-str);
-}
-.reviewErr {
-  --review-accent: var(--ds-mark-sanguine);
-}
-.reviewHead {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.reviewEmblem {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--ds-r-round);
-  background: color-mix(in srgb, var(--review-accent) 22%, var(--ds-code-bg));
-  color: var(--review-accent);
-}
-.reviewMsg {
-  display: flex;
-  flex: 1 0 0;
-  flex-direction: column;
-  gap: 5px;
-  min-width: 0;
-}
-.reviewTitle {
-  margin: 0;
-  color: var(--review-accent);
-  font-size: var(--ds-fs-h3);
-  line-height: 1.25;
-}
-.reviewSub {
-  margin: 0;
-  color: var(--ds-code-fg);
-  font-size: var(--ds-fs-label);
-  line-height: 1.5;
-}
-.reviewScore {
-  flex-shrink: 0;
-  margin: 0;
-  color: var(--review-accent);
-  font-size: var(--ds-fs-label);
-  font-weight: 600;
-}
-.reviewItem {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.reviewAnswer {
-  margin: 0;
-  color: var(--review-accent);
-  font-size: var(--ds-fs-body);
-  font-weight: 600;
-}
-.reviewText {
-  margin: 0;
-  color: var(--ds-code-fg);
-  font-size: var(--ds-fs-body);
-  line-height: 1.6;
-}
-.reviewPicked {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  color: var(--review-accent);
-  font-size: var(--ds-fs-label);
-}
-.reviewWrong {
-  padding: 8px 12px;
-  border-radius: var(--ds-r-sm);
-  background: color-mix(in srgb, var(--review-accent) 18%, var(--ds-code-bg));
-  color: var(--review-accent);
-  font-size: var(--ds-fs-body);
-}
-.reviewFoot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-top: 4px;
-}
-.reviewHint {
-  margin: 0;
-  color: var(--review-accent);
-  font-size: var(--ds-fs-label);
-}
-/* Nút tím chữ tối như Figma: --ds-mark-violet là tím dành
-   cho nền tối, chữ --ds-code-bg trên nó đúng cặp 7,69:1 của bảng token. */
-.reviewAction {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  height: 48px;
-  padding: 0 20px;
-  border: 0;
-  border-radius: var(--ds-r-md);
-  background: var(--ds-mark-violet);
-  color: var(--ds-code-bg);
-  font: inherit;
-  font-size: var(--ds-fs-ui);
-  cursor: pointer;
-}
-.reviewAction:focus-visible {
-  outline: 3px solid var(--ds-mark-violet);
-  outline-offset: 3px;
-}
-.reviewActionIcon {
-  display: inline-flex;
-}
-@keyframes reviewIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .review {
-    animation: none;
-  }
-}
-/* Màn hẹp: điểm "2 / 3 đúng" xuống dưới tiêu đề thay vì ép tiêu đề gãy chữ. */
-@media (max-width: 560px) {
-  .reviewHead {
-    flex-wrap: wrap;
-  }
-  .reviewScore {
-    width: 100%;
-    padding-left: 58px;
-  }
 }
 
 .trace {
@@ -246,20 +69,20 @@
   display: flex;
   gap: 10px;
   align-items: flex-start;
-  background: var(--ds-card);
-  border: 1px solid var(--ds-line);
+  background: var(--edu-panel-bg-solid);
+  border: 1px solid var(--edu-sidebar-border);
   border-radius: 10px;
   padding: 10px 14px;
-  font-size: var(--ds-fs-body);
-  color: var(--ds-ink);
+  font-size: 13px;
+  color: var(--edu-t1);
 }
 
 .trace b {
   flex-shrink: 0;
   font-family: 'JetBrains Mono', monospace;
-  font-size: var(--ds-fs-label);
-  color: var(--ds-violet-deep);
-  background: var(--ds-tint);
+  font-size: 11px;
+  color: var(--ds-violet);
+  background: var(--edu-card-bg);
   border-radius: 6px;
   padding: 2px 8px;
 }
@@ -280,13 +103,19 @@
 }
 
 .io dt {
-  font-size: var(--ds-fs-label);
-  color: var(--ds-soft);
+  font-size: 12px;
+  color: var(--edu-t3);
 }
 
 .io dd {
   margin: 0;
-  font-size: var(--ds-fs-ui);
+  /* 13px, KHÔNG 12px như `dt`. Khối này rỗng ở cả 130 bài cho tới 1/11/2026,
+     nên cỡ chữ của nó chưa bao giờ được xem cùng nội dung thật — và nội dung
+     thật là một dict lồng dài tới 280 ký tự (PD32) mà người học phải đọc đúng
+     từng tên khoá để viết được hàm. Đó là NỘI DUNG, không phải nhãn.
+     Nới đúng ô giá trị, giữ `dt` ở 12px: luật của AGENTS.md là nới chỗ có nội
+     dung chứ không nới tràn mọi cỡ nhỏ, kẻo mất thứ bậc. */
+  font-size: 13px;
   min-width: 0;
 }
 
@@ -294,15 +123,15 @@
   display: inline-block;
   max-width: 100%;
   overflow-wrap: anywhere;
-  background: var(--ds-tint);
+  background: var(--edu-card-bg);
   border-radius: 6px;
   padding: 2px 8px;
 }
 
 /* Bài quy trình: khối các bước phải làm trên máy, thay cho ô soạn mã. */
 .procedure {
-  background: var(--ds-tint);
-  border-radius: var(--ds-r-md);
+  background: var(--edu-card-bg);
+  border-radius: 12px;
   padding: 14px;
   margin-bottom: 16px;
 }
@@ -313,14 +142,14 @@
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 10px;
-  font-size: var(--ds-fs-body);
-  color: var(--ds-ink);
+  font-size: 13px;
+  color: var(--edu-t1);
 }
 
 .procedure p {
   margin: 0;
-  font-size: var(--ds-fs-body);
-  color: var(--ds-soft);
+  font-size: 13px;
+  color: var(--edu-t3);
 }
 
 .procedure > div:last-child {
@@ -331,12 +160,12 @@
    admin vẫn tự làm thử được, bấm mới mở. */
 .answerKey {
   margin-top: 14px;
-  background: var(--ds-card);
+  background: var(--edu-panel-bg-solid);
   border: 1px dashed var(--ds-violet);
-  border-radius: var(--ds-r-md);
+  border-radius: 12px;
   padding: 10px 14px;
-  font-size: var(--ds-fs-body);
-  color: var(--ds-ink);
+  font-size: 13px;
+  color: var(--edu-t1);
 }
 
 .answerKeyHead {
@@ -355,18 +184,18 @@
 
 .adminTag {
   background: var(--ds-violet);
-  color: var(--ds-on-action);
-  border-radius: var(--ds-r-xs);
+  color: var(--edu-panel-bg-solid);
+  border-radius: 4px;
   padding: 2px 6px;
-  font-size: var(--ds-fs-label);
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.4px;
 }
 
 .answerKeyToggle {
   margin-left: auto;
-  font-size: var(--ds-fs-label);
-  color: var(--ds-soft);
+  font-size: 12px;
+  color: var(--edu-t3);
   text-decoration: underline;
 }
 
@@ -379,12 +208,12 @@
 
 .answerKey dl > div {
   padding-left: 10px;
-  border-left: 2px solid var(--ds-violet);
+  border-left: 2px solid var(--ds-mark-ochre);
 }
 
 .answerKey dt {
-  font-size: var(--ds-fs-label);
-  color: var(--ds-soft);
+  font-size: 11px;
+  color: var(--edu-t3);
   margin-bottom: 2px;
 }
 
@@ -393,7 +222,7 @@
 }
 
 .answerKey dd code {
-  font: var(--ds-fs-code)/1.6 'JetBrains Mono', monospace;
+  font: 12px/1.6 'JetBrains Mono', monospace;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -421,13 +250,14 @@
 }
 
 .tag {
-  font-size: var(--ds-fs-label);
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
+  /* Tint ĐỤC, không phải 10% alpha của chính màu chữ: 10,26:1 ngày. */
   color: var(--ds-violet-deep);
   background: var(--ds-violet-tint);
-  border-radius: var(--ds-r-pill);
+  border-radius: 999px;
   padding: 3px 10px;
 }
 
@@ -438,12 +268,12 @@
 
 .facts {
   margin: 0 0 16px;
-  border: 1px solid var(--ds-line);
+  border: 1px solid var(--edu-sidebar-border);
   display: grid;
   grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
   gap: 8px 16px;
-  background: var(--ds-tint);
-  border-radius: var(--ds-r-md);
+  background: var(--edu-card-bg);
+  border-radius: 12px;
   padding: 12px 14px;
 }
 
@@ -452,14 +282,14 @@
 }
 
 .facts dt {
-  font-size: var(--ds-fs-label);
-  color: var(--ds-soft);
+  font-size: 12px;
+  color: var(--edu-t3);
 }
 
 .facts dd {
   margin: 0;
-  font-size: var(--ds-fs-ui);
-  color: var(--ds-ink);
+  font-size: 13px;
+  color: var(--edu-t1);
   min-width: 0;
   overflow-wrap: anywhere;
 }
@@ -467,25 +297,25 @@
 .facts code,
 .contracts code {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: var(--ds-fs-code);
-  background: var(--ds-tint);
+  font-size: 12px;
+  background: var(--edu-panel-bg-solid);
   border-radius: 6px;
   padding: 1px 6px;
 }
 
 .panel {
-  background: var(--ds-tint);
-  border: 1px solid var(--ds-line);
-  border-radius: var(--ds-r-md);
+  background: var(--edu-card-bg);
+  border: 1px solid var(--edu-sidebar-border);
+  border-radius: 12px;
   padding: 12px 14px;
   margin-bottom: 16px;
 }
 
 .panel summary {
   cursor: pointer;
-  font-size: var(--ds-fs-body);
+  font-size: 13px;
   font-weight: 700;
-  color: var(--ds-ink);
+  color: var(--edu-t1);
   display: flex;
   gap: 10px;
   align-items: baseline;
@@ -493,9 +323,9 @@
 }
 
 .panel summary span {
-  font-weight: 600;
-  font-size: var(--ds-fs-label);
-  color: var(--ds-soft);
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--edu-t3);
   font-family: 'JetBrains Mono', ui-monospace, monospace;
 }
 
@@ -509,8 +339,8 @@
 
 .panelNote {
   margin: 0 0 10px;
-  font-size: var(--ds-fs-body);
-  color: var(--ds-soft);
+  font-size: 12px;
+  color: var(--edu-t3);
 }
 
 .contracts {
@@ -523,16 +353,16 @@
 }
 
 .contracts li {
-  background: var(--ds-card);
-  border: 1px solid var(--ds-line);
+  background: var(--edu-panel-bg-solid);
+  border: 1px solid var(--edu-sidebar-border);
   border-radius: 10px;
   padding: 10px 14px;
 }
 
 .contracts p {
   margin: 6px 0 8px;
-  font-size: var(--ds-fs-body);
-  color: var(--ds-soft);
+  font-size: 13px;
+  color: var(--edu-t2);
 }
 
 .contracts dl {
@@ -547,34 +377,34 @@
 }
 
 .contracts dt {
-  font-size: var(--ds-fs-label);
-  color: var(--ds-soft);
+  font-size: 12px;
+  color: var(--edu-t3);
 }
 
 .contracts dd {
   margin: 0;
-  font-size: var(--ds-fs-ui);
-  color: var(--ds-ink);
+  font-size: 12px;
+  color: var(--edu-t1);
   overflow-wrap: anywhere;
 }
 
 .contracts .sig {
   font-weight: 700;
-  color: var(--ds-violet-deep);
+  color: var(--ds-violet);
   background: transparent;
   padding: 0;
-  font-size: var(--ds-fs-code);
+  font-size: 13px;
 }
 
 .hintCode {
   margin: 0;
   white-space: pre-wrap;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: var(--ds-fs-code);
+  font-size: 12px;
   line-height: 1.6;
   color: var(--st-syn-plain);
   background: var(--st-code-bg);
-  border-radius: var(--ds-r-sm);
+  border-radius: 8px;
   padding: 10px 12px;
   overflow-x: auto;
 }
@@ -593,7 +423,7 @@
 /* ---------------------------------------------------------------- mini-game
    Khoá Python Advanced (studio-lesson/v2): danh sách đúng/sai, nút công cụ
    của game ghép code, dải Boss, điểm bật lên, hiệu ứng code chạy đúng và
-   hộp thành tích mới. Chỉ dùng token màu --ds-…/--st-… (lint:tokens cấm mã màu). */
+   hộp thành tích mới. Chỉ dùng token màu --edu-… và --st-… (lint:tokens cấm mã màu). */
 
 .boss {
   background: var(--ds-violet-tint);
@@ -611,16 +441,16 @@
 }
 
 .tfList li {
-  background: var(--ds-tint);
-  border: 1px solid var(--ds-line);
-  border-radius: var(--ds-r-md);
+  background: var(--edu-card-bg);
+  border: 1px solid var(--edu-sidebar-border);
+  border-radius: 12px;
   padding: 14px 16px;
 }
 
 .tfList p {
   margin: 0 0 10px;
-  font-size: var(--ds-fs-body);
-  color: var(--ds-ink);
+  font-size: 14px;
+  color: var(--edu-t1);
 }
 
 .gameTools {
@@ -628,13 +458,8 @@
   gap: 18px;
 }
 
-/* Nút công cụ đang tắt: KHÔNG làm mờ bằng opacity. `opacity: .4` cho chữ
-   `ink` trên thẻ trắng chỉ còn 2,42:1 — bản thiết kế chốt hạ cấp màu (nền
-   `desk`, chữ `soft`, viền `sketch`) thay vì hạ độ đục. */
 .gameTools button:disabled {
-  background: var(--ds-desk);
-  color: var(--ds-soft);
-  border-color: var(--ds-sketch);
+  opacity: 0.4;
   cursor: default;
 }
 
@@ -643,11 +468,13 @@
   top: 72px;
   right: 24px;
   z-index: 40;
-  background: var(--ds-violet);
+  /* "+10 điểm" là XP ⇒ họ ochre ("đã có") của bảng v2, chữ --ds-on-action:
+     5,48:1 ngày / 9,68:1 đêm. */
+  background: var(--ds-ochre);
   color: var(--ds-on-action);
   font-weight: 800;
-  font-size: var(--ds-fs-ui);
-  border-radius: var(--ds-r-pill);
+  font-size: 14px;
+  border-radius: 999px;
   padding: 8px 16px;
   pointer-events: none;
   animation: pe-pop 1.6s ease-out forwards;
@@ -681,10 +508,9 @@
   background: var(--st-ok-bg);
   color: var(--st-ok-text);
   border: 1px solid var(--st-ok-line);
-  border-radius: var(--ds-r-pill);
+  border-radius: 999px;
   padding: 10px 20px;
-  font-size: var(--ds-fs-ui);
-  font-weight: 800;
+  font-size: 16px;
   animation: pe-pop 1.8s ease-out forwards;
 }
 
@@ -692,8 +518,7 @@
   position: absolute;
   left: 0;
   top: 0;
-  /* Emoji trang trí, không phải chữ đọc — vẫn lấy một cỡ có trong thang. */
-  font-size: var(--ds-fs-h2);
+  font-size: 26px;
   --angle: calc(var(--i) * 45deg);
   animation: pe-fly 1.2s ease-out forwards;
 }
@@ -715,14 +540,14 @@
   display: grid;
   place-items: center;
   padding: 16px;
-  background: color-mix(in srgb, var(--ds-ink) 45%, transparent);
+  background: color-mix(in srgb, var(--edu-t1) 45%, transparent);
 }
 
 .awards {
   width: min(420px, 100%);
-  background: var(--ds-card);
-  border: 1px solid var(--ds-line);
-  border-radius: var(--ds-r-lg);
+  background: var(--edu-panel-bg-solid);
+  border: 1px solid var(--edu-sidebar-border);
+  border-radius: 16px;
   padding: 24px;
   text-align: center;
   animation: pe-pop-in 0.3s ease-out;
@@ -730,10 +555,10 @@
 
 .awardsEyebrow {
   margin: 0 0 14px;
-  font-size: var(--ds-fs-label);
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.08em;
-  color: var(--ds-violet-deep);
+  color: var(--ds-violet);
 }
 
 .award {
@@ -741,34 +566,32 @@
   align-items: center;
   gap: 14px;
   text-align: left;
-  background: var(--ds-tint);
-  border-radius: var(--ds-r-md);
+  background: var(--edu-card-bg);
+  border-radius: 12px;
   padding: 12px 14px;
   margin-bottom: 10px;
 }
 
 .award > span {
-  font-size: var(--ds-fs-h2);
+  font-size: 30px;
 }
 
 .award strong {
-  color: var(--ds-ink);
+  color: var(--edu-t1);
 }
 
 .award p {
   margin: 2px 0 0;
-  font-size: var(--ds-fs-body);
-  color: var(--ds-soft);
+  font-size: 13px;
+  color: var(--edu-t3);
 }
 
 .awards button {
   margin-top: 8px;
   border: 0;
-  border-radius: var(--ds-r-pill);
+  border-radius: 999px;
   padding: 10px 24px;
-  font: inherit;
-  font-size: var(--ds-fs-ui);
-  font-weight: 800;
+  font-weight: 700;
   background: var(--ds-action);
   color: var(--ds-on-action);
   cursor: pointer;
@@ -780,27 +603,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* `.pop` ("+10 điểm") và `.burst strong` ("Code chạy đúng!") KHÔNG được chỉ
-     rút thời lượng xuống 0,01ms như trước. `pe-pop` là animation vào-rồi-RA:
-     khung 100% của nó là `opacity: 0`, cộng `forwards` để giữ khung cuối. Rút
-     thời lượng chỉ làm nó nhảy thẳng tới khung cuối, tức thông báo biến mất
-     hẳn — người bật giảm chuyển động không bao giờ đọc được nó (đo 14/10/2026).
-     Nay đứng yên, hiện rõ; LessonOverlays.tsx gỡ phần tử bằng hẹn giờ vì không
-     còn `animationend` nào bắn (xem lib/status-pop-life.ts). */
   .pop,
-  .burst strong {
-    animation: none;
-    opacity: 1;
-  }
-  /* `.awards` thì rút thời lượng được: `pe-pop-in` kết thúc ở opacity 1. */
+  .burst strong,
   .awards {
     animation-duration: 0.01ms;
-  }
-  /* Khung `.burst` chỉ giữ chỗ (width/height = 0) và `pe-burst-life` giữ
-     opacity 1 từ đầu tới cuối, nhưng `animationend` của NÓ là thứ gỡ cả khối
-     ở bản thường. Tắt ở đây cho khớp: bản giảm chuyển động gỡ bằng hẹn giờ. */
-  .burst {
-    animation: none;
   }
   .burst span {
     display: none;
@@ -818,11 +624,11 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: var(--ds-fs-ui);
+  font-size: 13px;
 }
 
 .runTests li {
-  border-radius: var(--ds-r-sm);
+  border-radius: 8px;
   padding: 6px 12px;
 }
 
@@ -847,27 +653,24 @@
 }
 
 .theoryBlock {
-  background: var(--ds-card);
-  border: 1px solid var(--ds-line);
+  background: var(--edu-panel-bg-solid);
+  border: 1px solid var(--edu-sidebar-border);
   border-radius: 14px;
   padding: 20px 24px;
 }
 
 .theoryBlock h4 {
   margin: 0 0 10px;
-  font-size: var(--ds-fs-h3);
-  font-weight: 700;
-  color: var(--ds-ink);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--edu-t1);
 }
 
-/* 16px là chỗ lệch nặng nhất so với bản thiết kế: đây chính là đoạn văn lý
-   thuyết, tức chữ người học đọc lâu nhất trong cả bài, mà mức thân đã chốt
-   là >= 17px. */
 .theoryBlock p {
   margin: 0;
-  font-size: var(--ds-fs-body);
+  font-size: 16px;
   line-height: 1.7;
-  color: var(--ds-soft);
+  color: var(--edu-t2);
 }
 
 .theoryBlock ul {
@@ -879,9 +682,9 @@
 }
 
 .theoryBlock li {
-  font-size: var(--ds-fs-body);
+  font-size: 16px;
   line-height: 1.65;
-  color: var(--ds-soft);
+  color: var(--edu-t2);
 }
 
 .theoryBlock p + ul {
@@ -901,9 +704,9 @@
   height: auto;
   aspect-ratio: 2 / 1;
   object-fit: contain;
-  background: var(--ds-tint);
-  border: 1px solid var(--ds-line);
-  border-radius: var(--ds-r-md);
+  background: var(--edu-card-bg);
+  border: 1px solid var(--edu-sidebar-border);
+  border-radius: 12px;
 }
 
 .theoryFigure a {
@@ -911,66 +714,11 @@
   cursor: zoom-in;
 }
 
-/* Khung của hình giữ tỉ lệ 2:1 ngay trên thẻ <a>, không chỉ trên <img>: khi
-   người dùng bấm Dừng mà không dựng được bản tĩnh thì không còn <img> nào, và
-   nếu khung tự co lại thì cả trang nhảy dưới tay người đang đọc. */
-.theoryFigureBox {
-  aspect-ratio: 2 / 1;
-}
-
-/* Chỗ đứng của hình khi đã ẩn để dừng chuyển động. */
-.theoryFigureOff {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: 100%;
-  padding: 24px;
-  text-align: center;
-  font-size: var(--ds-fs-body);
-  line-height: 1.55;
-  color: var(--ds-soft);
-  background: var(--ds-tint);
-  /* Nét đứt mang thông tin ("hình đang tắt"), nên phải >= 3:1: `line` chỉ
-     1,36:1, `sketch` 4,21:1. */
-  border: 2px dashed var(--ds-sketch);
-  border-radius: var(--ds-r-md);
-}
-
-/* Nút Dừng/Chạy hoạt hình của hình minh hoạ (WCAG 2.2.2). Nằm trong figcaption
-   nên phải nhỏ như một link, không to như nút hành động chính của màn. */
-.theoryFigureToggle {
-  margin-left: 10px;
-  padding: 2px 10px;
-  font: inherit;
-  font-size: var(--ds-fs-ui);
-  font-weight: 700;
-  color: var(--ds-violet-deep);
-  background: transparent;
-  /* Nút bấm được: viền `sketch` (4,21:1) thay cho `line` (1,36:1). */
-  border: 2px solid var(--ds-sketch);
-  border-radius: var(--ds-r-pill);
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-/* Hiệu ứng rê chuột chỉ bật khi thiết bị THẬT có con trỏ. Trên màn cảm ứng,
-   :hover dính lại sau cú chạm nên nút trông như đang được chọn. */
-@media (hover: hover) and (pointer: fine) {
-  .theoryFigureToggle:hover {
-    border-color: var(--ds-violet);
-  }
-}
-
-.theoryFigureToggle:focus-visible {
-  outline: 2px solid var(--ds-violet);
-  outline-offset: 2px;
-}
-
 .theoryFigure figcaption {
   margin-top: 10px;
-  font-size: var(--ds-fs-body);
+  font-size: 14px;
   line-height: 1.55;
-  color: var(--ds-soft);
+  color: var(--edu-t3);
 }
 
 /* Link "Xem khổ lớn" nằm ngay sau chú thích, không phải nút riêng: học viên nào
@@ -978,30 +726,25 @@
 .theoryFigure figcaption a {
   display: inline;
   margin-left: 8px;
-  color: var(--ds-violet-deep);
-  text-decoration: underline;
+  color: var(--ds-violet);
+  text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
 }
 
-.theoryFigure figcaption a:hover {
-  text-decoration: underline;
-}
-
-/* Icon "mở ở ngoài" thay cho ký tự ↗ (xem chú thích ở TheoryScreen.tsx). Giữ
-   `display: inline` của liên kết, nên icon phải tự canh theo đường chữ: nó
-   đứng trên baseline thì trông như tụt xuống nửa dòng. `margin-left` là khoảng
-   giữa chữ và icon — không dùng khoảng trắng trong JSX vì gạch chân của liên
-   kết sẽ kéo qua cả chỗ trống đó. */
-.theoryFigure figcaption a svg {
-  margin-left: 4px;
-  vertical-align: -3px;
+/* Guard con trỏ thật: trên màn cảm ứng `:hover` DÍNH LẠI sau cú chạm nên
+   phần tử kẹt ở trạng thái "đang trỏ vào" — đo 10/11/2026. Lý lẽ và số đo
+   đầy đủ ở `.start` trong `components/code-visualizer/CodeVisualizer.module.css`. */
+@media (hover: hover) and (pointer: fine) {
+  .theoryFigure figcaption a:hover {
+    text-decoration: underline;
+  }
 }
 
 .theorySource {
   margin: 0;
-  font-size: var(--ds-fs-label);
-  color: var(--ds-soft);
+  font-size: 14px;
+  color: var(--edu-t3);
 }
 
 /* Màn lý thuyết chạy ở CỘT RỘNG (--st-col-wide, xem .contentWide trong
@@ -1028,331 +771,846 @@
   }
 }
 
-/* ── Màn lắp khung mã dạng sách mở (ScaffoldBook.tsx) ─────────────────
-   Figma "Book layout" 107:6804 / 107:6600. Số đo theo Figma: bìa đệm
-   20px 28px, gáy 16px, thanh công cụ 44px, dòng code 30px (34px khi có ô),
-   thẻ đáp án cao 44px, đệm khay 20px 28px.
+/* `code nội tuyến` trong văn bản (paragraphs() ở screens/chrome.tsx). Nền nhạt
+   + chữ monospace, KHÔNG dùng nền tối của .codeCard: nó nằm giữa dòng chữ nên
+   một ô đen chen vào giữa câu làm mắt nhảy. */
+/* .inlineCode nay ở src/lib/inline-code.module.css — dùng chung với ô tổng
+   kết. Xem lý do ở đầu src/lib/inline-code.tsx. */
 
-   Sách TỐI ở cả hai chế độ, như khung code — chỉ dùng họ token code/mark.
-   Figma có bốn sắc tối khác nhau (trang, thanh, bìa, thẻ) mà bảng token chỉ
-   có --ds-code-bg và --ds-code-line, nên ba sắc còn lại pha bằng color-mix:
-   trang = code-bg (tối nhất, như Figma), thanh/bìa/thẻ sáng dần lên về phía
-   code-line. Thứ tự đậm-nhạt giữ đúng Figma; cả khối sáng hơn Figma một bậc
-   vì code-bg sáng hơn mã trang của Figma. Không thêm token mới: bảng màu
-   lấy từ design-system-v2.md (ds-tokens.test.mjs). */
-.scaffoldScreen {
+/* ── Bài ĐỌC (step_1.read, khoá 172 bài — xem scripts/pe-da/SCHEMA.md) ──────
+   Dùng lại ngôn ngữ thị giác của .theory: thẻ nền panel, viền sidebar, bo 14px.
+   Khác một điểm: ở đây KHÔNG chia thành nhiều thẻ con — một màn đọc là một
+   dòng chảy văn → code → kết quả, chia thẻ nữa thì mất mạch. */
+.read {
   display: flex;
   flex-direction: column;
-}
-.book {
-  --bk-bar: color-mix(in srgb, var(--ds-code-line) 22%, var(--ds-code-bg));
-  --bk-cover: color-mix(in srgb, var(--ds-code-line) 40%, var(--ds-code-bg));
-  --bk-card: color-mix(in srgb, var(--ds-code-line) 45%, var(--ds-code-bg));
-  --bk-violet-line: color-mix(in srgb, var(--ds-mark-violet) 50%, var(--ds-code-bg));
-  display: grid;
-  grid-template-columns: minmax(0, 684fr) 16px minmax(0, 656fr);
-  padding: 20px 28px;
-  border: 1px solid var(--ds-code-line);
-  border-radius: var(--ds-r-lg);
-  background: var(--bk-cover);
-  box-shadow: var(--ds-shadow-open);
-  color: var(--ds-code-fg);
-}
-.bookLeft,
-.bookRight {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  overflow: hidden;
-  background: var(--ds-code-bg);
-}
-.bookLeft {
-  border-radius: var(--ds-r-xs) 0 0 var(--ds-r-xs);
-}
-.bookRight {
-  border-radius: 0 var(--ds-r-xs) var(--ds-r-xs) 0;
-}
-.bookSpine {
-  background: linear-gradient(90deg, var(--ds-code-bg), var(--ds-code-line) 50%, var(--ds-code-bg));
-}
-
-/* ── trang trái: main.py ── */
-.bookToolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  height: 44px;
-  padding: 0 20px;
-  border-bottom: 1px solid var(--ds-code-line);
-  background: var(--bk-bar);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: var(--ds-fs-label);
-}
-.bookFile {
-  display: flex;
-  align-items: center;
   gap: 14px;
-  color: var(--ds-code-fg);
-}
-.bookDots {
-  display: flex;
-  gap: 6px;
-}
-.bookDots i {
-  width: 8px;
-  height: 8px;
-  border-radius: var(--ds-r-round);
-  background: var(--ds-code-num);
-}
-.bookDots i:nth-child(2) {
-  background: var(--ds-code-meta);
-}
-.bookDots i:nth-child(3) {
-  background: var(--ds-code-line);
-}
-.bookRuntime {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--ds-code-num);
-}
-.bookRuntime i {
-  width: 5px;
-  height: 5px;
-  border-radius: var(--ds-r-round);
-  background: var(--ds-mark-violet);
-}
-.bookSource {
-  padding: 16px 18px 20px;
-  overflow-x: auto;
-  font-family: 'JetBrains Mono', monospace;
-}
-.bookLine {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  min-height: 30px;
-}
-.bookLine:has(.bookSlot) {
-  min-height: 34px;
-}
-.bookNum {
-  flex-shrink: 0;
-  width: 28px;
-  color: var(--ds-code-num);
-  font-size: var(--ds-fs-label);
-  text-align: right;
-}
-.bookCode {
-  color: var(--ds-code-fg);
-  font-size: var(--ds-fs-code);
-  white-space: pre;
-}
-.bookSlot {
-  display: inline-flex;
-  align-items: center;
-  height: 30px;
-  padding: 0 10px;
-  border: 1px solid var(--bk-violet-line);
-  border-radius: var(--ds-r-xs);
-  background: color-mix(in srgb, var(--ds-mark-violet) 18%, var(--ds-code-bg));
-  color: var(--ds-code-fg);
-  vertical-align: middle;
-  transition: background 0.15s ease, outline-color 0.15s ease;
-}
-.bookSlotEmpty {
-  justify-content: center;
-  min-width: 56px;
-  border-style: dashed;
-  border-color: var(--ds-mark-violet);
-  background: transparent;
-  color: var(--ds-mark-violet);
-}
-.bookSlotWrong {
-  border-color: color-mix(in srgb, var(--ds-mark-sanguine) 50%, var(--ds-code-bg));
-  background: color-mix(in srgb, var(--ds-mark-sanguine) 12%, var(--ds-code-bg));
-  color: var(--ds-mark-sanguine);
-}
-/* Đang kéo một thẻ: chỉ ô cùng số sáng lên, để biết thả vào đâu. */
-.bookSlotTarget {
-  outline: 2px dashed var(--ds-mark-violet);
-  outline-offset: 2px;
-}
-.bookSlotOver {
-  background: color-mix(in srgb, var(--ds-mark-violet) 32%, var(--ds-code-bg));
-}
-.bookNote {
-  margin: 0;
-  padding: 0 24px 16px 46px;
-  color: var(--ds-code-num);
-  font-size: var(--ds-fs-label);
-  line-height: 1.5;
+  margin: 0 0 4px;
 }
 
-/* ── trang phải: khay thẻ ── */
-.bookTrayHead {
+/* 17px và màu t1, KHÔNG phải 16px/t2 như trước. Đổi ngày 29/10/2026 sau đợt
+   thử nghiệm: BA trên bốn người trả lời khảo sát chọn "Nhiều chỗ chữ quá nhỏ,
+   phải phóng to mới đọc được", và một người viết riêng "nên để cỡ chữ to hơn
+   và sử dụng chữ màu đen cho dễ nhìn".
+
+   Đã đo tương phản, và đây KHÔNG phải lỗi WCAG — nên đừng sửa lại vì tưởng nó
+   là: t2 (#3a4a66) trên nền trắng là 8,93:1, thừa mức AA. Vấn đề là chỗ này
+   mang THÂN BÀI của 145 bài đọc, tức thứ người học nhìn lâu nhất trong khoá, mà
+   nó lại đang nhạt hơn cả tiêu đề lẫn chữ trong bảng ngay cạnh nó. t1 là
+   17,14:1.
+
+   1.75 giữ nguyên: nới cỡ chữ mà giữ nguyên line-height tính theo bội số thì
+   giãn dòng tự đi theo. */
+.read p {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.75;
+  color: var(--edu-t1);
+}
+
+/* .codeCard tự mang margin-bottom 16px (nó được thiết kế để đứng rời trong
+   thẻ bài tập). Trong bài đọc thì gap của .read đã lo khoảng cách, nên bỏ đi —
+   nếu không khối "Kết quả:" bị đẩy xa khỏi đúng đoạn code sinh ra nó. */
+.readCode > div {
+  margin-bottom: 0;
+}
+
+/* KẾT QUẢ của khối code — console, KHÔNG phải code. Phải nhìn là biết ngay đâu
+   là lệnh đâu là cái nó in ra: nhãn riêng, viền trái màu nhấn, không số dòng.
+   Trước đây nếu nhồi `expected` vào chính CodeBlock thì học viên đọc output
+   như thể nó là dòng code tiếp theo. */
+.readExpected {
+  background: var(--st-code-bg);
+  /* Viền trái là TRANG TRÍ (nhãn "KẾT QUẢ:" mới chở nghĩa) và nằm sát nền
+     code nâu ⇒ màu nhấn bảng v2 dành cho nền tối, 8,62:1 trên nền đó. */
+  border-left: 3px solid var(--ds-mark-ochre);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.readExpectedLabel {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--st-syn-comment);
+}
+
+.readExpected pre {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--st-syn-string);
+}
+
+/* Bảng trong bài đọc: bảng HTML thường, chỉ kẻ đủ để đọc được cột. */
+.readTable {
+  overflow-x: auto;
+}
+
+.readTable table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.readTable th,
+.readTable td {
+  border: 1px solid var(--edu-sidebar-border);
+  padding: 8px 12px;
+  text-align: left;
+  color: var(--edu-t2);
+}
+
+.readTable th {
+  background: var(--edu-card-bg);
+  color: var(--edu-t1);
+  font-weight: 600;
+}
+
+/* ── SƠ ĐỒ bằng DOM (khối `diagram` của màn đọc) ────────────────────────────
+   VÌ SAO không phải ảnh: ba trên bốn người trả lời khảo sát 29/10/2026 chọn
+   "Chữ và nhãn TRONG sơ đồ quá nhỏ, phải phóng to mới đọc được". Chữ đó nằm
+   trong PNG 780×455 — chữ của trang REFLOW, chữ trong ảnh thì SCALE, nên trên
+   màn 360px ảnh bị bóp 0,46× và nhãn 10pt hiện ra 4–5px. CSS không với tới
+   pixel trong ảnh; cách duy nhất là để chữ là chữ.
+
+   Không khai `font-family`: mục đích của khối này là KẾ THỪA --edu-font và cỡ
+   chữ của trang. Ghi font ở đây là dựng lại đúng cái tường mà nó ra đời để phá
+   (và sẽ lệch với Montserrat ở lần đổi font sau). */
+.readDiagram {
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--edu-sidebar-border);
+  border-radius: 14px;
+  background: var(--edu-card-bg);
+}
+
+.readDiagramTitle {
+  margin: 0 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--edu-t3);
+}
+
+/* HAI CỘT SÁT NHAU, và đó là toàn bộ giá trị của khối: so sánh cần cả hai cùng
+   có mặt (vì vậy cũng KHÔNG animation — xem ReadBlock).
+
+   `auto-fit` + minmax: hai cột khi còn chỗ, một cột khi khung hẹp hơn ~2×245px.
+   KHÔNG dùng `repeat(2, 1fr)` cố định: trên màn 360px hai làn 165px thì biểu
+   thức tự xuống dòng giữa toán tử, tức chữ vẫn đọc được nhưng SƠ ĐỒ thì hết là
+   sơ đồ.
+
+   245px là SỐ ĐO, không phải số chọn: đo trong Chrome trên chính sơ đồ PY05,
+   dãy dài nhất (`3 * (15 - 5) → 3 * 10 → 30`) rộng 212px, cộng padding và viền
+   của làn là 241px. Thấp hơn mức đó thì hai cột vẫn dựng được nhưng mỗi dãy tự
+   gãy làm hai dòng — mà dãy gãy dòng thì phép so hai cột mất đúng cái nhịp nó
+   bán. Đổi nội dung sơ đồ thì ĐO LẠI. */
+.readDiagramGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+  /* TRẦN HAI CỘT, và nó là một phép tính chứ không phải thẩm mỹ: `auto-fit`
+     nhồi được bao nhiêu cột thì nhồi, nên ở cột rộng của màn đọc desktop cả
+     BỐN làn sẽ nằm trên MỘT hàng — lúc đó "hai làn cạnh nhau" không còn là
+     một cặp và phép so sánh tan ra. 620px lọt đúng giữa hai mốc: hai cột cần
+     2×245 + 10 = 500px (vừa), ba cột cần 3×245 + 20 = 755px (không vừa). */
+  max-width: 620px;
+  gap: 10px;
+}
+
+.readDiagramLane {
+  padding: 12px;
+  border: 1px solid var(--edu-sidebar-border);
+  /* Thanh nhấn trang trí của mỗi làn — cùng vai với viền trái .readExpected. */
+  border-left: 3px solid var(--ds-mark-ochre);
+  border-radius: 10px;
+  background: var(--edu-panel-bg-solid);
+}
+
+.readDiagramLabel {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--edu-t1);
+}
+
+/* Dãy bước. `list-style: none` chỉ bỏ dấu đầu dòng — vai trò <ol> vẫn còn, nên
+   trình đọc màn hình vẫn đọc "mục 1 trên 3" và không cần thêm chữ nào để biết
+   đây là một chuỗi. */
+.readDiagramSteps {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px 16px;
-  padding: 16px 28px;
-  border-bottom: 1px solid var(--ds-code-line);
-  background: var(--bk-bar);
+  gap: 6px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
 }
-.bookTrayText {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
+
+.readDiagramSteps code {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* 14px, không 13: đây là thứ người học phải đọc được từ xa trong một sơ đồ,
+     không phải code nội tuyến giữa câu. */
+  font-size: 14px;
+  color: var(--edu-t1);
 }
-.bookTitle {
+
+/* Mũi tên là TRANG TRÍ: nó do CSS vẽ nên không nằm trong DOM, và thứ tự thì
+   <ol> đã nói. */
+.readDiagramSteps li + li::before {
+  content: '→';
+  margin-right: 6px;
+  color: var(--edu-t3);
+}
+
+/* Bước CUỐI là kết quả: đậm lên để mắt bắt được ngay "40 so với 30" — đó là
+   câu trả lời của cả sơ đồ. */
+.readDiagramSteps li:last-child code {
+  font-weight: 700;
+  color: var(--ds-violet);
+}
+
+.readDiagramNote {
   margin: 0;
-  color: var(--ds-code-fg);
-  font-size: var(--ds-fs-body);
-  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--edu-t2);
 }
-.bookSub {
-  margin: 0;
-  color: var(--ds-code-meta);
-  font-size: var(--ds-fs-label);
+
+/* ── BẢNG TỪNG BƯỚC (ReadTrace) ─────────────────────────────────────────────
+   Vết đã tính sẵn lúc build; ở đây chỉ là cách trình bày nó. Giống khối
+   `diagram`: CHỮ THẬT, không ảnh, không canvas — cùng lời phàn nàn "chữ trong
+   sơ đồ quá nhỏ" của khảo sát 29/10/2026, và CSS không với tới pixel trong ảnh.
+
+   Không khai `font-family` cho phần chữ thường (chỉ cho cột mã, vì đó là code):
+   mục đích là kế thừa --edu-font của trang. */
+.traceRow {
+  margin: 10px 0 0;
 }
-.bookBadge {
-  flex-shrink: 0;
-  padding: 6px 14px;
-  border: 1px solid var(--ds-code-line);
-  border-radius: var(--ds-r-pill);
-  background: var(--bk-card);
-  color: var(--ds-mark-violet);
-  font-size: var(--ds-fs-label);
-  white-space: nowrap;
-}
-.bookGroups {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 12px;
-  padding: 20px 28px;
-}
-.bookGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.bookGroup + .bookGroup {
-  padding-top: 12px;
-  border-top: 1px solid var(--ds-code-line);
-}
-.bookGroupHead {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-.bookSlotBadge {
-  flex-shrink: 0;
-  padding: 2px 8px;
-  border: 1px solid var(--bk-violet-line);
-  border-radius: var(--ds-r-xs);
-  background: color-mix(in srgb, var(--ds-mark-violet) 15%, var(--ds-code-bg));
-  color: var(--ds-mark-violet);
-  font-size: var(--ds-fs-label);
-  font-weight: 600;
-}
-.bookGroupLabel {
-  min-width: 0;
-  overflow: hidden;
-  color: var(--ds-code-num);
-  font-size: var(--ds-fs-label);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.bookGroupLabel code {
-  font-family: 'JetBrains Mono', monospace;
-}
-.bookChoice {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
+
+.traceOpen {
+  /* SÀN ĐÍCH BẤM 44px. Đo trên production 08/11/2026 ở 390×844 (bài SY05,
+   * `offsetHeight` trên màn ĐÃ LẮNG — `getBoundingClientRect` bị hoạt ảnh vào
+   * màn của `.stepEnter` làm co): nút "Xem từng bước ▸" của bảng từng bước — 56 bài có vết cao **34px**.
+   * Bề rộng đã 157 nên chỉ thiếu trục dọc.
+   * `dich-bam-vo-bai-hoc.test.mjs` canh nó. */
   min-height: 44px;
-  padding: 8px 14px;
-  border: 1px solid var(--ds-code-line);
-  border-radius: var(--ds-r-sm);
-  background: var(--bk-card);
-  color: var(--ds-code-fg);
-  font: inherit;
+  padding: 7px 14px;
+  border: 1px solid var(--edu-sidebar-border);
+  border-radius: 999px;
+  background: var(--edu-card-bg);
+  color: var(--edu-t2);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .traceOpen:hover {
+    border-color: var(--ds-violet);
+    color: var(--edu-t1);
+  }
+}
+
+.trace {
+  margin-top: 10px;
+  padding: 14px;
+  border: 1px solid var(--edu-sidebar-border);
+  border-radius: 14px;
+  background: var(--edu-card-bg);
+  /* Mở ra có một nhịp rất ngắn để mắt biết khối mới xuất hiện ở đâu. Nó bị TẮT
+     HẲN khi người dùng đã nói không muốn chuyển động — xem @media cuối khối. */
+  animation: traceVao 160ms ease-out;
+}
+
+@keyframes traceVao {
+  from {
+    opacity: 0;
+  }
+}
+
+/* CỔNG DỰ ĐOÁN — xem lý lẽ (Hundhausen 2002 / Brod 2021) ở đầu StepTrace.tsx. */
+.tracePredict {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tracePredictAsk {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--edu-t1);
+}
+
+.tracePredictWhy {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--edu-t3);
+}
+
+/* Ô nhập + nút: `wrap` để ở 360px nút tụt xuống dòng dưới thay vì bóp ô nhập
+   còn 80px. */
+.tracePredictLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tracePredictInput {
+  flex: 1 1 160px;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--edu-sidebar-border);
+  border-radius: 10px;
+  background: var(--edu-panel-bg-solid);
+  color: var(--edu-t1);
+  /* 16px, KHÔNG nhỏ hơn: iOS Safari tự phóng cả trang khi focus vào input có
+     font-size < 16px, và lúc đó người học mất chỗ đang đọc. */
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 16px;
+}
+
+.tracePredictGo {
+  /* SÀN ĐÍCH BẤM 44px. Đo trên production 08/11/2026 (390×844, màn ĐÃ
+   * LẮNG, bằng `offsetHeight` vì `getBoundingClientRect` bị hoạt ảnh vào
+   * màn của `.stepEnter` làm co): nút "Xem kết quả" của cổng dự đoán cao **36px**.
+   * Bề rộng đã ≥ 44 nên chỉ thiếu trục dọc — `min-height` chữa đúng chỗ đó
+   * mà không chạm bố cục ngang. Luật 44px là luật của chính repo
+   * (`not-found.module.css`: "Repo đã phải sửa một đích 13×6px một lần"), và
+   * trước 08/11 KHÔNG rule nào trong hai module này khai `min-*` — mọi kích
+   * thước đến từ `padding` + nội dung, tức không gì bảo đảm sàn.
+   * `dich-bam-vo-bai-hoc.test.mjs` canh nó. */
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 10px;
+  /* Cặp nút chính của bảng lofi (5,57:1 ngày / 7,98:1 đêm). Chữ trắng
+     cứng cũ trên --edu-accent bản đêm chỉ 3,19:1. */
+  background: var(--ds-action);
+  color: var(--ds-on-action);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tracePredictGo:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.traceVerdictOk,
+.traceVerdictNo {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+/* Cùng mã màu với token cũ (--edu-accent-text), chỉ đổi sang tên bảng v2.
+   Đo 04/11: ở màn đọc, `.read p` (class + thẻ) THẮNG quy tắc này nên câu
+   "Khớp." thực tế hiện bằng --edu-t1 — đổi màu ở đây không ai thấy. */
+.traceVerdictOk {
+  color: var(--ds-violet);
+}
+
+.traceVerdictNo {
+  color: var(--edu-t1);
+}
+
+.traceVerdictNote {
+  font-weight: 400;
+  color: var(--edu-t2);
+}
+
+/* Cuộn NGANG ở màn hẹp. Ba cột với một cột mã `white-space: pre` thì ở 360px
+   không có cách nào vừa mà vẫn đọc được thụt lề — mà thụt lề chính là thứ nói
+   ra "dòng này nằm trong vòng lặp". Cuộn ngang giữ được cả hai. */
+.traceTable {
+  overflow-x: auto;
+}
+
+.traceTable table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.traceTable caption {
+  margin-bottom: 8px;
+  color: var(--edu-t3);
+  font-size: 12px;
   text-align: left;
-  cursor: grab;
-  transition: border-color 0.15s ease, background 0.15s ease;
 }
-.bookChoice:hover {
-  border-color: var(--bk-violet-line);
+
+.traceTable th,
+.traceTable td {
+  border: 1px solid var(--edu-sidebar-border);
+  padding: 6px 10px;
+  text-align: left;
+  vertical-align: top;
+  color: var(--edu-t2);
 }
-.bookChoice:active {
-  cursor: grabbing;
+
+.traceTable thead th {
+  background: var(--edu-panel-bg-solid);
+  color: var(--edu-t1);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
-.bookChoice:focus-visible {
-  outline: 2px solid var(--ds-mark-violet);
-  outline-offset: 2px;
+
+.traceTable tbody th {
+  white-space: nowrap;
+  color: var(--edu-t3);
+  font-weight: 600;
 }
-/* Thẻ đang nằm trong ô của nó: khay không rút thẻ đã dùng, nên phải tự đánh dấu. */
-.bookChoiceOn {
-  border-color: var(--ds-mark-violet);
-  background: color-mix(in srgb, var(--ds-mark-violet) 15%, var(--ds-code-bg));
+
+.traceFn {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
 }
-.bookGrip {
-  display: inline-flex;
-  flex-shrink: 0;
-  color: var(--ds-code-num);
+
+.traceCode {
+  display: block;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  white-space: pre;
+  color: var(--edu-t1);
 }
-.bookChoiceCode {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: var(--ds-fs-code);
-  white-space: pre-wrap;
+
+.traceEnter,
+.traceOut,
+.traceNone {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--edu-t3);
+}
+
+/* Cột "Sau đó" — GIÁ TRỊ các biến, tức thứ câu dự đoán hỏi và lý do bảng này
+   tồn tại — có bề rộng TỐI THIỂU. Không có nó, bố cục bảng tự động chia chỗ
+   theo min-content: `.traceSet` ngắt ở BẤT KỲ đâu (`overflow-wrap: anywhere`)
+   nên min-content chỉ còn ~1 ký tự, còn `.traceCode` là `white-space: pre` nên
+   cột mã giữ trọn dòng dài nhất. Đo trên production ở 390px: VZ30 ba cột
+   110/683/53px, một hàng cao 621px, cả bảng 2 990px; SY06 105/384/49px.
+   12em đo được: VZ30 cột giá trị 189px, hàng cao nhất 150px, bảng 1 110px;
+   SY06 hàng 45px, bảng 590px. 16em chỉ bớt thêm vài px (VZ30 134px) mà rộng
+   ngang hơn; ở máy tính cột này đã ~424px nên quy tắc không đổi gì. Bảng ở
+   điện thoại VỐN đã cuộn ngang vì cột mã (xem .traceTable), nên nới cột này
+   không sinh thêm việc cuộn mới. */
+.traceSau {
+  min-width: 12em;
+}
+
+/* Mỗi biến đổi là một mẩu riêng trên một dòng riêng: ba biến đổi cùng lúc mà
+   dồn vào một dòng thì không ai tách được `a = 1 b = 2` ra. */
+.traceSet {
+  display: block;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  color: var(--edu-t1);
   overflow-wrap: anywhere;
 }
-.bookFoot {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  padding: 12px 28px;
-  border-top: 1px solid var(--ds-code-line);
-  background: var(--bk-bar);
-  color: var(--ds-code-meta);
-  font-size: var(--ds-fs-label);
+
+.traceOut code {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--st-syn-string);
+  white-space: pre-wrap;
 }
-.bookMove {
-  display: inline-flex;
-  flex-shrink: 0;
-  color: var(--ds-mark-violet);
+
+.traceElided td {
+  color: var(--edu-t3);
+  font-size: 12px;
+  text-align: center;
 }
+
+/* Người dùng đã nói họ không muốn chuyển động thì KHÔNG có chuyển động nào —
+   không phải "chậm hơn". Khối này vốn chỉ có một nhịp mờ dần duy nhất, nên
+   tắt nó là tắt hết. */
 @media (prefers-reduced-motion: reduce) {
-  .bookSlot,
-  .bookChoice {
-    transition: none;
+  .trace {
+    animation: none;
   }
 }
-/* Hẹp hơn hai trang cạnh nhau: xếp trang code lên trên khay, bỏ gáy. */
-@media (max-width: 960px) {
-  .book {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
-    padding: 12px;
+
+/* `.readSource` (dòng "Nguồn: All_slide_one_file.pdf tr. 34-36; Python —
+   Tutorial" ở cuối màn đọc cuối) đã BỎ ngày 29/10/2026 theo yêu cầu của chủ dự
+   án: "không cần ghi nguồn". Dữ liệu `source.slides` vẫn còn trong bản dựng và
+   trong nguồn — chỉ thôi dựng nó ra — nên muốn bật lại thì chỉ là một khối JSX.
+
+   Màn đọc chạy ở CỘT RỘNG như màn lý thuyết (bảng và code cần chiều ngang),
+   nhưng chữ thì bó lại ~78 ký tự — xem ghi chú ở .theoryBlock p. */
+@media (min-width: 1000px) {
+  .read p {
+    max-width: 78ch;
   }
-  .bookSpine {
-    display: none;
+}
+
+/* ── Câu luyện tập (step_2.practice): tự viết rồi mới xem đáp án mẫu ──────── */
+.practice {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Dùng cho cả <p> và <label> — label mặc định là inline, không có display:block
+   thì nó không chiếm cả dòng và gap của .practice không ăn. */
+.practiceNote {
+  display: block;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--edu-t3);
+}
+
+.practiceInput {
+  width: 100%;
+  /* 146 = 120 cũ + padding 2×12 + viền 2×1: `.chrome textarea` (LessonChrome.module.css)
+     đặt border-box nên min-height nay GỒM padding — giữ nguyên chiều cao thật. */
+  min-height: 146px;
+  resize: vertical;
+  padding: 12px 14px;
+  border: 1px solid var(--edu-sidebar-border);
+  border-radius: 12px;
+  background: var(--edu-panel-bg-solid);
+  color: var(--edu-t1);
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.practiceAnswer {
+  background: var(--edu-panel-bg-solid);
+  border: 1px solid var(--edu-sidebar-border);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.practiceAnswer h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--edu-t1);
+}
+
+.practiceAnswer p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--edu-t2);
+}
+
+/* "Xem đáp án" là hành động CHÍNH của màn luyện tập (nút CTA dưới đáy chỉ đi
+   tiếp), nên nó không dùng .resetLink — cỡ chữ 12px gạch chân mờ của .resetLink
+   là dành cho hành động phụ như "Ẩn đi". */
+/* Ô ÔN GIÃN CÁCH — một câu đã sai ở bài trước, hỏi lại ở đầu bài này.
+   Đứng NGOÀI thẻ nội dung (như ConsentBanner) nên nó tự mang khung riêng. */
+.onGianCach {
+  max-width: 760px;
+  margin: 0 auto 18px;
+  padding: 16px 18px;
+  border: 1px solid var(--edu-sidebar-border);
+  border-radius: 14px;
+  background: var(--edu-panel-bg-solid);
+}
+
+.onGianCachNhan {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--edu-t3);
+}
+
+.onGianCachHoi {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--edu-t1);
+}
+
+.onGianCachDs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+}
+
+.onGianCachNut {
+  /* SÀN ĐÍCH BẤM 44px. Đo trên production 08/11/2026 (390×844, màn ĐÃ
+   * LẮNG, bằng `offsetHeight` vì `getBoundingClientRect` bị hoạt ảnh vào
+   * màn của `.stepEnter` làm co): option của màn ôn giãn cách cao **43px**.
+   * Bề rộng đã ≥ 44 nên chỉ thiếu trục dọc — `min-height` chữa đúng chỗ đó
+   * mà không chạm bố cục ngang. Luật 44px là luật của chính repo
+   * (`not-found.module.css`: "Repo đã phải sửa một đích 13×6px một lần"), và
+   * trước 08/11 KHÔNG rule nào trong hai module này khai `min-*` — mọi kích
+   * thước đến từ `padding` + nội dung, tức không gì bảo đảm sàn.
+   * `dich-bam-vo-bai-hoc.test.mjs` canh nó. */
+  min-height: 44px;
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  border: 1px solid var(--edu-sidebar-border);
+  border-radius: 10px;
+  background: var(--edu-card-bg);
+  color: var(--edu-t1);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.55;
+  cursor: pointer;
+}
+
+.onGianCachNut:disabled {
+  cursor: default;
+}
+
+/* Bí danh --st-ok/err-line thay cho --edu-ok/--edu-err kèm mã màu dự phòng:
+   --edu-err KHÔNG được khai ở đâu cả, nên viền "sai" từng là màu dự phòng
+   cam viết cứng, lệch với mọi chỗ chấm sai khác (họ sanguine). */
+.onGianCachDung {
+  border-color: var(--st-ok-line);
+}
+
+.onGianCachSai {
+  border-color: var(--st-err-line);
+}
+
+/* Lời giải thích của phương án KHÔNG được làm mờ: Van der Kleij 2015 đo phản
+   hồi CÓ GIẢI THÍCH ở d = 0,49 so với 0,05 cho chỉ đúng/sai — làm mờ nó là làm
+   mờ đúng phần có giá trị nhất. Màn trắc nghiệm chính đã vấp đúng chỗ này. */
+.onGianCachChiTiet {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--edu-t2);
+}
+
+.onGianCachKetLuan {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--edu-t2);
+}
+
+.onGianCachTiep {
+  /* SÀN 44px. ĐO trên production 09/11/2026 (NP06, 390×844, sau khi trả lời
+     câu ôn): **106×36**, `min-height` là `0px`. Cùng công thức với
+     `.practiceRun` (`padding: 9px 18px`, font 14px,
+     `--ds-action`) mà vòng #161 đo ra 38 — khác 2px vì chữ "Vào bài →"
+     không có glyph cao như "▶". Tôi DỰ ĐOÁN 38 và đo ra 36: một công thức CSS
+     giống nhau cho một con số gần nhau, không cho CÙNG con số. */
+  min-height: 44px;
+  padding: 9px 18px;
+  border: none;
+  border-radius: 999px;
+  background: var(--ds-action);
+  color: var(--ds-on-action);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Ô CHẠY THỬ của màn luyện tập — 63 câu có `answerCode`.
+   Dùng lại hình dạng của .practiceReveal (nút bo tròn, cùng cỡ chữ) nhưng TÔ
+   ĐẬM: đây là hành động CHÍNH của màn, còn "Xem đáp án" là đường thoát. Ngược
+   lại thì người học bấm xem đáp án trước, và cả cổng mất nghĩa. */
+.practiceRun {
+  /* SÀN 44px. Đo trên production 09/11/2026 (NP06, 390×844, màn "Câu 2/3",
+     `offsetHeight` trên màn đã lắng): **117×38**, trong khi
+     `.practiceReveal` NGAY DƯỚI nó — cùng cột, cùng font 14px, chỉ
+     khác 2px padding ngang — đã là 44 từ vòng #157. Hai nút xếp dọc cạnh nhau,
+     một đạt sàn một không.
+
+     Vòng #157 đo và sửa `.practiceReveal` rồi BỎ SÓT cái này, vì lượt
+     đi hôm ấy (SY05) không có câu luyện tập nào CHẠY ĐƯỢC nên cổng
+     `{chayDuoc && …}` không dựng nút. Blast radius thật: 63 câu chạy
+     được ở **62/179 bài**, tức một phần ba khoá — không phải một ngóc nhỏ.
+
+     Giá đã đo bằng cách tiêm trên trang thật: cột cha 337 → 343px, không tràn
+     ngang, 0 phần tử ngoài mép. */
+  min-height: 44px;
+  align-self: flex-start;
+  padding: 9px 18px;
+  border: none;
+  border-radius: 999px;
+  background: var(--ds-action);
+  color: var(--ds-on-action);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.practiceRun:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.practiceResult {
+  border: 1px solid var(--edu-sidebar-border);
+  border-radius: 10px;
+  background: var(--edu-card-bg);
+  padding: 10px 14px;
+}
+
+.practiceResult pre {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--edu-t1);
+}
+
+/* Chữ ở tương phản ĐẦY ĐỦ, không làm mờ: với người dùng trình đọc màn hình thì
+   màu không nói gì, nên câu verdict phải tự nói ra. Cùng quyết định đã ghi cho
+   băng "kết quả của bản code trước". */
+.practiceVerdictOk,
+.practiceVerdictNo {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+/* TỪNG TRƯỢT AA: --edu-ok trên nền trắng chỉ 3,77:1 cho chữ 13px/600.
+   Bí danh --st-ok-text (họ ochre) đạt 5,48:1 ngày / 8,25:1 đêm trên thẻ. */
+.practiceVerdictOk {
+  color: var(--st-ok-text);
+}
+
+.practiceVerdictNo {
+  color: var(--edu-t2);
+}
+
+.practiceReveal {
+  /* SÀN ĐÍCH BẤM 44px. Đo trên production 08/11/2026 (390×844, màn ĐÃ
+   * LẮNG, bằng `offsetHeight` vì `getBoundingClientRect` bị hoạt ảnh vào
+   * màn của `.stepEnter` làm co): nút "Viết thử rồi mới xem đáp án" cao **37px**.
+   * Bề rộng đã ≥ 44 nên chỉ thiếu trục dọc — `min-height` chữa đúng chỗ đó
+   * mà không chạm bố cục ngang. Luật 44px là luật của chính repo
+   * (`not-found.module.css`: "Repo đã phải sửa một đích 13×6px một lần"), và
+   * trước 08/11 KHÔNG rule nào trong hai module này khai `min-*` — mọi kích
+   * thước đến từ `padding` + nội dung, tức không gì bảo đảm sàn.
+   * `dich-bam-vo-bai-hoc.test.mjs` canh nó. */
+  min-height: 44px;
+  align-self: flex-start;
+  padding: 9px 16px;
+  border: 1px solid var(--edu-sidebar-border);
+  border-radius: 999px;
+  background: var(--edu-panel-bg-solid);
+  color: var(--edu-t1);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .practiceReveal:hover {
+    border-color: var(--ds-violet);
+    color: var(--ds-violet);
   }
-  .bookLeft,
-  .bookRight {
-    border-radius: var(--ds-r-xs);
-  }
-  .bookTrayHead,
-  .bookGroups,
-  .bookFoot {
-    padding-right: 16px;
-    padding-left: 16px;
-  }
+}
+
+/* Vòng focus: nút này trước đây chỉ có :hover, nên người dùng bàn phím Tab tới
+   nó mà không thấy mình đang ở đâu (WCAG 2.4.7). Không dùng chung với :hover —
+   đổi màu viền là tín hiệu của chuột, vòng outline là tín hiệu của bàn phím. */
+.practiceReveal:focus-visible {
+  outline: 2px solid var(--ds-violet);
+  outline-offset: 2px;
+}
+
+/* Khối TERMINAL của bài đọc (ReadBlock type 'terminal'): lệnh shell, KHÔNG phải
+   Python. Khác .readCode ở dấu nhắc $, không số dòng và không tô cú pháp — ba
+   thứ đó cộng lại là cái phân biệt "gõ ở terminal" với "gõ vào ô Python", chứ
+   không chỉ để trang trí. */
+.readTerminal {
+  background: var(--st-code-bg);
+  border: 1px dashed var(--st-code-gutter);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+.readTerminalLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--st-syn-comment);
+}
+
+/* Dấu nhắc `$` không được dính vào thứ người ta copy: bôi đen cả dòng rồi dán
+   vào terminal mà mang theo "$ " là lệnh chạy lỗi. Cùng lý do với .lineNum của
+   khối code (exercises.module.css). */
+.readTerminal pre > span {
+  user-select: none;
+  color: var(--st-syn-comment);
+}
+
+.readTerminal pre {
+  margin: 0;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--st-syn-plain);
+}
+
+/* `expected` của khối terminal là MÔ TẢ bằng lời, không phải stdout: để nó ở
+   dạng văn bản thường, KHÔNG dùng .readExpected (nền console) — nhìn như
+   output thì người học đi tìm đúng từng chữ đó trên màn hình của mình. */
+.readTerminalNote {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--edu-t2);
+}
+
+.readTerminalNote strong {
+  color: var(--edu-t1);
+}
+
+/* Biểu đồ của bài đọc (ReadBlock type 'figure'). CỐ Ý KHÔNG ghim aspect-ratio
+   như .theoryFigure: ở đó mọi hình đều vẽ theo khổ 1280×640, còn ở đây khổ thật
+   trải từ 676×338 tới 1248×624 (68/80 là 780×455) nên ghim tỉ lệ là méo.
+   `max-width` thay cho `width: 100%`: biểu đồ 780px không bị kéo giãn lên
+   ~1230px của cột rộng rồi nhoè chữ trên trục. */
+.readFigure {
+  margin: 0;
+}
+
+.readFigure img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  background: var(--edu-card-bg);
+  border: 1px solid var(--edu-sidebar-border);
+  border-radius: 12px;
+}
+
+/* SÀN 16px CHO Ô GÕ TRÊN ĐIỆN THOẠI. Safari iOS tự phóng viewport khi một
+ * form control có `font-size < 16px` nhận focus và KHÔNG phóng lại ra; viewport
+ * của dự án không có `maximum-scale` nên không gì chặn. Lý lẽ đầy đủ, số đo và
+ * giá phải trả ghi ở `exercises.module.css`. `o-go-16px.test.mjs` canh sàn này. */
+@media (max-width: 1023.98px) {
+  .practiceInput { font-size: 16px; }
 }

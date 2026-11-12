@@ -5,7 +5,12 @@
 // chạy trong Docker ở server. Mọi thứ phía trên chỉ được gọi qua `Runner` dưới
 // đây, nên thay bộ chấm là viết một lớp mới cùng hợp đồng này, không phải sửa
 // lại màn sandbox và các game chạy code.
-import type { LessonFile, LessonTest, StudioPackage } from '@/lib/studio-lesson';
+import type {
+  LessonContractCall,
+  LessonFile,
+  LessonTest,
+  StudioPackage,
+} from '@/lib/studio-lesson';
 
 export type TestResult = { name: string; passed: boolean; detail: string };
 
@@ -15,6 +20,11 @@ export type RunResult = {
   error?: string;
   /** Tóm tắt của bộ chấm về thread/process mô phỏng — hiện mờ dưới console. */
   notes?: string[];
+  /**
+   * PNG (base64) của những Figure chương trình vừa dựng ra, do
+   * `studio-harness.py` xuất. Trần 6 hình / 1,5 MB đặt ở phía harness.
+   */
+  figures?: string[];
   duration: number;
   version: string;
 };
@@ -22,7 +32,7 @@ export type RunResult = {
 /**
  * Một lượt chạy. Các trường này cũng chính là HỢP ĐỒNG THÔNG ĐIỆP với
  * public/static/js/studio-lesson.worker.js — tên trường cố định, đừng đổi:
- *   { code, tests, forbid, files, stdin, packages }
+ *   { code, tests, forbid, files, dataFiles, stdin, packages, contract }
  */
 export type RunRequest = {
   code: string;
@@ -31,6 +41,13 @@ export type RunRequest = {
   forbid: string[];
   /** File đặt sẵn cạnh main.py mỗi lần chạy (chỉ đọc). */
   files: LessonFile[];
+  /**
+   * TÊN các file của bộ dữ liệu quán bài cần (`step_4.dataFiles`). Chỉ tên:
+   * worker tải nội dung từ `/static/da-dulieu/` (cùng origin) rồi gộp vào
+   * `files` trước khi chấm. Nội dung không đi qua đây — xem chú thích ở
+   * studio-lesson.worker.js để biết vì sao (1,29 MB cho một file).
+   */
+  dataFiles?: string[];
   /**
    * Các dòng `input()` sẽ đọc lần lượt. Chưa có UI để học viên tự nhập ở lượt
    * này, nhưng bộ chấm trong worker đã nhận trường này — giữ nguyên để khi
@@ -42,6 +59,14 @@ export type RunRequest = {
    * báo 'ready', nên thời gian tải không bị tính vào 5 giây chạy code.
    */
   packages?: StudioPackage[];
+  /**
+   * Hợp đồng gọi khi `tests` là ca dạng DỮ LIỆU (`input`/`expected`).
+   *
+   * Phải đi CÙNG lượt chạy, không đọc từ đâu khác: bộ chấm cần nó TRƯỚC cả lần
+   * chạy chính — bài `mode: "script"` có đề cấp sẵn một biến mà mã học viên
+   * không gán, nên thiếu hợp đồng là NameError ngay dòng đầu.
+   */
+  contract?: LessonContractCall;
 };
 
 /** Hai mốc thời gian chờ, tách ra để lớp gọi đọc được chứ không chôn số. */

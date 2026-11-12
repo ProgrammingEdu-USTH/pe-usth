@@ -25,6 +25,7 @@ export const SHELL_HTML = /* html */ `
   <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></symbol>
   <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8M9 17h6"/></symbol>
   <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 18h2"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-5l-4 4v-4H7a3 3 0 0 1-3-3z"/><path d="M8 9h8M8 12.5h5"/></symbol>
   <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3c.6 4.5 3.5 7.4 8 8-4.5.6-7.4 3.5-8 8-.6-4.5-3.5-7.4-8-8 4.5-.6 7.4-3.5 8-8z"/></symbol>
   <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
   <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
@@ -83,6 +84,7 @@ export const SHELL_HTML = /* html */ `
     <div class="pills">
       <div class="pill glass dn" title="Bài đã hoàn thành"><svg class="i"><use href="#i-check"/></svg><span id="pillDone">—</span></div>
       <div class="pill glass xpp" title="Tổng XP"><svg class="i"><use href="#i-bolt"/></svg><span id="pillXp">—</span>&nbsp;XP</div>
+      <div class="pill glass bd" title="Huy hiệu"><svg class="i"><use href="#i-medal"/></svg><span id="pillBadge">—</span></div>
       <span class="sp"></span>
       <button class="ib glass" id="bellBtn" aria-label="Ghi chú trên bàn"><svg class="i"><use href="#i-bell"/></svg><span class="badge" id="badge">0</span></button>
       <button class="ib glass" id="demoBtn" aria-label="Tùy chỉnh khung cảnh" aria-expanded="false"><svg class="i"><use href="#i-sliders"/></svg></button>
@@ -94,11 +96,11 @@ export const SHELL_HTML = /* html */ `
       <div class="row"><div class="prog"><i id="heroProg"></i></div><span class="pct" id="heroPct">—</span><span class="play"><svg class="i"><use href="#i-play"/></svg></span></div>
     </button>
     <nav class="menu" aria-label="Điều hướng">
-      <button class="mi glass" data-go="ide"><span class="ic c-book"><svg class="i"><use href="#i-play"/></svg></span><span><b>Bàn thí nghiệm</b><small id="navIde">Soạn và chạy thử mã Python</small></span><svg class="i chev"><use href="#i-right"/></svg></button>
       <button class="mi glass" data-go="roadmap"><span class="ic c-map"><svg class="i"><use href="#i-map"/></svg></span><span><b>Lộ trình</b><small id="navRoadmap"></small></span><svg class="i chev"><use href="#i-right"/></svg></button>
       <button class="mi glass" data-go="courses"><span class="ic c-book"><svg class="i"><use href="#i-book"/></svg></span><span><b>Khoá học</b><small id="navCourses"></small></span><svg class="i chev"><use href="#i-right"/></svg></button>
       <button class="mi glass" data-go="practice"><span class="ic c-pen"><svg class="i"><use href="#i-pen"/></svg></span><span><b>Ôn tập</b><small id="navPractice"></small></span><svg class="i chev"><use href="#i-right"/></svg></button>
       <button class="mi glass" data-go="achievements"><span class="ic c-tro"><svg class="i"><use href="#i-trophy"/></svg></span><span><b>Thành tựu</b><small id="navAchv"></small></span><svg class="i chev"><use href="#i-right"/></svg></button>
+      <button class="mi glass" data-go="phone" data-tab="forum"><span class="ic c-fo"><svg class="i"><use href="#i-chat"/></svg></span><span><b>Diễn đàn</b><small id="navForum">4 chuyên mục · thảo luận</small></span><svg class="i chev"><use href="#i-right"/></svg></button>
       <button class="mi glass" data-go="phone" data-tab="rank"><span class="ic c-ph"><svg class="i"><use href="#i-phone"/></svg></span><span><b>Bảng xếp hạng</b><small id="navRank"></small></span><svg class="i chev"><use href="#i-right"/></svg></button>
     </nav>
     <section class="today glass" aria-label="Khoá đang học">
@@ -106,6 +108,7 @@ export const SHELL_HTML = /* html */ `
       <div class="prog"><i id="courseProg"></i></div>
       <p class="cnote" id="courseNote"></p>
       <div class="event"><div style="flex:1;min-width:0"><b id="courseName"></b><small id="courseSub"></small></div><a class="btn" id="courseLink" href="/courses/python_advanced">Mở khoá học</a></div>
+      <a class="fb" id="fbLink" target="_blank" rel="noopener noreferrer" title="Khảo sát ẩn danh về khoá học, mở ở tab mới" hidden>Góp ý cho nhóm làm khoá ↗</a>
     </section>
     <div class="music glass" id="music"><button class="ib" id="musicBtn" aria-label="Phát nhạc lofi"><svg class="i"><use href="#i-play"/></svg></button><div class="eq"><i></i><i></i><i></i><i></i></div><span id="musicTxt">Nhạc lofi · đang tắt</span></div>
   </aside>

@@ -17,6 +17,12 @@ import type { ScreenVerdict } from './chrome';
 export type LessonScreenProps = {
   lesson: Lesson;
   scr: LessonScreen;
+  /**
+   * Mã khoá. Màn tổng kết cần nó để gọi `/api/courses/:id/quiz/*` — nội dung
+   * bài (`content_json`) không mang mã khoá, nên nó phải đi qua props như mọi
+   * thứ khác ở tầng này.
+   */
+  courseId: string;
   /** Toàn bộ danh sách màn — màn tổng kết cần để đếm. */
   screens: LessonScreen[];
   /** Tên bài, hiện mờ ở góc thẻ. */
@@ -50,7 +56,23 @@ export type LessonScreenProps = {
   running: boolean;
   runtimeStatus: string;
   result: RunResult | null;
+  /**
+   * `result` đang hiện là của BẢN CODE TRƯỚC (người học đã sửa mà chưa chạy
+   * lại). Tính bằng `ketQuaLaCu` trong lib/run-freshness.ts — luật nằm ở hàm
+   * thuần đó, không ở component, vì logic trong component là logic không test
+   * được.
+   */
+  resultStale: boolean;
   onRun: () => void;
+  /**
+   * Chạy một đoạn mã KHÔNG kèm ca chấm — ô "Chạy thử" của màn LUYỆN TẬP.
+   *
+   * Tách khỏi `onRun` vì hai thứ khác nhau ở chỗ quan trọng nhất: `onRun` chạy
+   * `draft.code` với ca chấm của BÀI TẬP và ghi nhật ký lần thử; cái này chạy
+   * mã của MỘT CÂU luyện tập, không ca chấm, không ghi. Gộp chúng là bắt màn
+   * luyện tập nhận "0/3 ca đạt" cho một đoạn code đúng.
+   */
+  chayThu: (code: string, onDone: (data: RunResult) => void) => void;
   onStop: () => void;
   busy: boolean;
   setMessage: (text: string) => void;

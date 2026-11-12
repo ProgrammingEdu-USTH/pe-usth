@@ -1,0 +1,33 @@
+/* Thẻ của màn Tổng kết: dùng đúng vật liệu và cảnh của ShellB (kính tím, băng
+   dính, vật đứng trên mép thẻ) — màn này dựng bằng `Recap` chứ không qua ShellB,
+   nên nó mượn lớp của ShellB bằng `composes` thay vì chép lại 100 dòng. */
+.card {
+  composes: card cardScene from '../ShellB.module.css';
+  text-align: center;
+}
+.tape {
+  composes: tape from '../ShellB.module.css';
+}
+/* Vật đứng giữa mép trên (ShellB đặt nó lệch phải vì bên trái còn nhãn loại màn).
+   `composes` chỉ hợp lệ trên simple class selector (Turbopack), nên tách phần
+   composes ra khỏi quy tắc ghi đè độ đặc hiệu. */
+.scene {
+  composes: scene from '../ShellB.module.css';
+}
+.card .scene {
+  right: auto;
+  left: 50%;
+  margin-left: -120px;
+}
+.medal {
+  composes: medal from '../ShellB.module.css';
+  display: block;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 10px;
+}
+@media (max-width: 560px) {
+  .card .scene {
+    margin-left: -95px;
+  }
+}

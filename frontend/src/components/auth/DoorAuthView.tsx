@@ -54,7 +54,7 @@ export function DoorAuthView({
       }
       setFeedback({
         type: 'success',
-        title: 'Chìa khóa hợp lệ!',
+        title: 'Chìa khoá hợp lệ!',
         message: `Chào mừng ${email} trở lại! (Đang ở chế độ xem trước UI).`,
       });
       if (onOpenRoom) {
@@ -75,13 +75,13 @@ export function DoorAuthView({
         setFeedback({
           type: 'warning',
           title: 'Mật khẩu chưa khớp',
-          message: 'Mật khẩu và xác nhận mật khẩu phải giống nhau.',
+          message: 'Mật khẩu và xác nhận mật khẩu cần giống nhau.',
         });
         return;
       }
       setFeedback({
         type: 'success',
-        title: 'Đã tạo chìa khóa phòng mới!',
+        title: 'Đã tạo chìa khoá phòng mới!',
         message: `Tài khoản cho "${fullName}" đã hợp lệ về mặt giao diện!`,
       });
       if (onOpenRoom) {
@@ -102,21 +102,21 @@ export function DoorAuthView({
 
   return (
     <div className={styles.doorGatewayWrapper}>
-      {/* Thẻ Chìa khóa / Cánh cửa vào Bàn học Lofi */}
+      {/* Thẻ Chìa khoá / Cánh cửa vào Bàn học Lofi */}
       <div className={styles.doorCard}>
-        {/* Phần đầu thẻ: Biểu tượng Chìa khóa & Tiêu đề phòng */}
+        {/* Phần đầu thẻ: Biểu tượng Chìa khoá & Tiêu đề phòng */}
         <div className={styles.doorHeader}>
           <div className={styles.doorKeyBadge}>
             <span aria-hidden="true">🔑</span>
-            <span>Chìa khóa mở cửa Bàn học</span>
+            <span>Chìa khoá mở cửa Bàn học</span>
           </div>
 
           <h1 className={styles.doorTitle}>
-            {activeTab === 'login' ? 'Mở cửa vào Bàn học' : 'Tạo chìa khóa phòng mới'}
+            {activeTab === 'login' ? 'Mở cửa vào Bàn học' : 'Tạo chìa khoá phòng mới'}
           </h1>
           <p className={styles.doorSubtitle}>
             {activeTab === 'login'
-              ? 'Tra chìa khóa tài khoản để bước vào không gian học tập Lofi của bạn'
+              ? 'Tra chìa khoá tài khoản để bước vào không gian học tập Lofi của bạn'
               : 'Đăng ký tài khoản để bắt đầu lưu tiến độ và xếp hạng'}
           </p>
         </div>
@@ -130,7 +130,7 @@ export function DoorAuthView({
           }}
           tabs={[
             { id: 'login', label: 'Đăng nhập vào phòng' },
-            { id: 'register', label: 'Tạo chìa khóa mới' },
+            { id: 'register', label: 'Tạo chìa khoá mới' },
           ]}
         />
 

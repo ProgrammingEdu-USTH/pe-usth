@@ -59,7 +59,7 @@ export const LofiHeader: React.FC<LofiHeaderProps> = ({
 
       <div className={styles.headerActions}>
         {lessonsDone !== null && (
-          <div className={`${styles.statPill} ${styles.statDone}`} title="Bài đã hoàn thành">
+          <div className={`${styles.statPill} ${styles.statDone}`} title="Bài đã xong">
             <span aria-hidden="true">✓</span>
             <span>{lessonsDone}/{totalLessons}</span>
           </div>

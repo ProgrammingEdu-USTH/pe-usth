@@ -612,8 +612,8 @@ export default function LofiWorkspace({
       if (!res.ok) {
         const errBody = await res.json().catch(() => null);
         const msg = errBody?.message;
-        if (typeof msg === 'string' && (msg.includes('chưa đủ') || msg.includes('ít nhất') || msg.includes('hoàn thành'))) {
-          setReviewError('Bạn cần hoàn thành ít nhất 2 bài học trên hệ thống trước khi mở xấp giấy nhớ ôn tập.');
+        if (typeof msg === 'string' && (msg.includes('chưa đủ') || msg.includes('ít nhất') || msg.includes('hoàn' + 'thành'))) {
+          setReviewError('Bạn cần học xong ít nhất 2 bài trên hệ thống trước khi mở xấp giấy nhớ ôn tập.');
         } else {
           setReviewError(typeof msg === 'string' ? msg : 'Chưa thể tạo xấp giấy nhớ ôn tập từ máy chủ.');
         }
@@ -635,7 +635,7 @@ export default function LofiWorkspace({
           ),
           ans: -1, // Sẽ được cập nhật từ máy chủ sau khi nộp bài
           explain: '',
-          tip: 'Hãy chọn đáp án bạn tin là đúng nhất.',
+          tip: 'Chọn phương án bạn cho là phù hợp nhất.',
         }));
         setStickyNotes(mapped);
       } else {
@@ -695,8 +695,8 @@ export default function LofiWorkspace({
                   ans: graded[i]?.correctIndex ?? item.ans,
                   explain: graded[i]?.explanation || 'Đã ghi nhận câu trả lời.',
                   tip: graded[i]?.isCorrect
-                    ? 'Tuyệt vời! Bạn đã chọn chính xác.'
-                    : 'Hãy xem kỹ lời giải thích để nắm chắc kiến thức.',
+                    ? 'Bạn đã chọn chính xác.'
+                    : 'Xem kỹ lời giải thích để nắm chắc kiến thức.',
                 })),
               );
               if (typeof body.score === 'number' && body.score > 0) {
@@ -722,6 +722,174 @@ export default function LofiWorkspace({
       }
     },
     [activeQuizId, notePicks, stickyNotes],
+  );
+
+  /* ==========================================================================
+     BƯỚC 3B: BỔ SUNG THỰC HÀNH GÕ CODE VÀO SỔ TAY ÔN TẬP (GIAI ĐOẠN 3)
+     ========================================================================== */
+  const [practiceMode, setPracticeMode] = useState<'quiz' | 'code'>('quiz');
+  const [codeExercise, setCodeExercise] = useState<{
+    lessonNo: number;
+    lessonCode: string;
+    lessonTitle: string;
+    task: { title?: string; body?: string; io?: { label: string; value: string }[] };
+    starterCode: string;
+    tests: { name: string; call: string; expect: string }[];
+    hints: { title: string; body: string }[];
+  } | null>(null);
+  const [codeReviewLoading, setCodeReviewLoading] = useState(false);
+  const [codeReviewError, setCodeReviewError] = useState<string | null>(null);
+  const [codeReviewCode, setCodeReviewCode] = useState('');
+  const [codeReviewRunning, setCodeReviewRunning] = useState(false);
+  const [codeReviewOutput, setCodeReviewOutput] = useState('');
+  const [codeReviewTestResults, setCodeReviewTestResults] = useState<
+    { name: string; passed: boolean; detail: string }[] | null
+  >(null);
+  const [codeReviewSolved, setCodeReviewSolved] = useState(false);
+  const [codeReviewHintOpen, setCodeReviewHintOpen] = useState(false);
+
+  // Tải bài tập code từ backend API (yêu cầu backend chạy mới có bài)
+  const handleLoadCodeExercise = useCallback(async () => {
+    setCodeReviewLoading(true);
+    setCodeReviewError(null);
+    setCodeReviewTestResults(null);
+    setCodeReviewSolved(false);
+
+    try {
+      if (doneLessons.length === 0) {
+        setCodeReviewError('Bạn cần học xong ít nhất 1 bài trên hệ thống trước khi mở bài thực hành gõ code.');
+        setCodeExercise(null);
+        return;
+      }
+
+      const targetLessonNo = doneLessons[Math.floor(Math.random() * doneLessons.length)];
+      const apiRes = await apiFetch(
+        `/api/courses/${encodeURIComponent(COURSE_ID)}/lessons/${targetLessonNo}/content`,
+      );
+
+      if (!apiRes.ok) {
+        setCodeReviewError('Không thể kết nối máy chủ để lấy bài thực hành code. Vui lòng kiểm tra backend và bấm Thử lại.');
+        setCodeExercise(null);
+        return;
+      }
+
+      const payload = (await apiRes.json()) as {
+        lesson?: {
+          lessonCode?: string;
+          title?: string;
+          contentJson?: StudioLesson;
+        };
+      };
+
+      const s4 = payload?.lesson?.contentJson?.step_4;
+      if (s4 && (s4.starterCode || s4.task?.body)) {
+        const ex = {
+          lessonNo: targetLessonNo,
+          lessonCode: payload.lesson?.lessonCode || `P0${targetLessonNo}`,
+          lessonTitle: payload.lesson?.title || `Bài ${targetLessonNo}`,
+          task: s4.task || { title: 'Thử thách lập trình', body: 'Viết code giải quyết yêu cầu bài toán.' },
+          starterCode: s4.starterCode || '# Viết code của bạn tại đây\n',
+          tests: s4.tests || [],
+          hints: s4.hints || [],
+        };
+        setCodeExercise(ex);
+        setCodeReviewCode(ex.starterCode);
+        setCodeReviewOutput(
+          '$ python3 solution.py\n💡 Đã tải bài tập thực hành từ máy chủ.\nBấm nút "Chạy thử" hoặc "Nộp để kiểm"!',
+        );
+
+        if (s4.packages?.length) {
+          pyRunnerRef.current?.prewarm(s4.packages);
+        }
+      } else {
+        setCodeReviewError(`Bài ${targetLessonNo} chưa có thử thách thực hành code.`);
+        setCodeExercise(null);
+      }
+    } catch {
+      setCodeReviewError('Không thể kết nối máy chủ để lấy bài thực hành code. Vui lòng kiểm tra backend và bấm Thử lại.');
+      setCodeExercise(null);
+    } finally {
+      setCodeReviewLoading(false);
+    }
+  }, [doneLessons]);
+
+  // Tự động tải bài code khi chuyển sang tab thực hành gõ code
+  useEffect(() => {
+    if (
+      activeScreen === 'practice' &&
+      practiceMode === 'code' &&
+      !codeExercise &&
+      !codeReviewLoading &&
+      !codeReviewError
+    ) {
+      void handleLoadCodeExercise();
+    }
+  }, [activeScreen, practiceMode, codeExercise, codeReviewLoading, codeReviewError, handleLoadCodeExercise]);
+
+  // Chạy thử hoặc Nộp bài để kiểm tra bài tập code
+  const handleRunCodeExercise = useCallback(
+    async (isSubmit: boolean) => {
+      if (codeReviewRunning || !codeExercise) return;
+      setCodeReviewRunning(true);
+      setCodeReviewTestResults(null);
+      const t0 = performance.now();
+
+      try {
+        let runner = pyRunnerRef.current;
+        if (!runner) {
+          runner = new PyodideRunner();
+          pyRunnerRef.current = runner;
+        }
+
+        const pyRes = await runner.run(
+          {
+            code: codeReviewCode,
+            tests: isSubmit ? codeExercise.tests : [],
+            forbid: [],
+            files: [],
+            packages: [],
+          },
+          (statusText) => {
+            setCodeReviewOutput(`$ python3 solution.py\n⏳ ${statusText}`);
+          },
+        );
+
+        if (pyRes) {
+          const outLines = ['$ python3 solution.py'];
+          if (pyRes.output && pyRes.output.trim()) {
+            outLines.push(pyRes.output.trimEnd());
+          }
+          if (pyRes.error && pyRes.error.trim()) {
+            outLines.push(`⚠️ ${pyRes.error.trimEnd()}`);
+          }
+          if (!pyRes.output?.trim() && !pyRes.error?.trim()) {
+            outLines.push('(Chương trình đã chạy xong, không có đầu ra in lên màn hình)');
+          }
+          const durSec = ((pyRes.duration || performance.now() - t0) / 1000).toFixed(2);
+          outLines.push(
+            `\n${pyRes.error ? '✗ Dừng do lỗi' : '✓ Đã chạy xong'} (${durSec}s).`,
+          );
+          setCodeReviewOutput(outLines.join('\n'));
+
+          if (isSubmit && pyRes.tests) {
+            setCodeReviewTestResults(pyRes.tests);
+            const allPassed = pyRes.tests.length > 0 && pyRes.tests.every((t) => t.passed);
+            if (allPassed) {
+              setCodeReviewSolved(true);
+              setXp((prev) => prev + 25);
+              setCompleteBanner(`🎉 Đã vượt qua toàn bộ ca kiểm thử bài ôn tập (+25 XP)!`);
+            }
+          }
+        }
+      } catch (err) {
+        setCodeReviewOutput(
+          `$ python3 solution.py\n⚠️ Lỗi thực thi: ${err instanceof Error ? err.message : 'Không xác định'}`,
+        );
+      } finally {
+        setCodeReviewRunning(false);
+      }
+    },
+    [codeExercise, codeReviewCode, codeReviewRunning],
   );
 
   /* ==========================================================================
@@ -1517,324 +1685,763 @@ export default function LofiWorkspace({
 
         {activeScreen === 'practice' && (
           /* ------------------------------------------------------------------
-             TRANG 3: ÔN TẬP — SỔ TAY GIẤY NHỚ DÁN SỔ (2 TRANG SÁCH MỞ)
+             TRANG 3: ÔN TẬP — SỔ TAY GIẤY NHỚ & THỰC HÀNH GÕ CODE (2 TRANG SÁCH MỞ)
              ------------------------------------------------------------------ */
           <div ref={shellRef} className={styles.bookStageWrap}>
-            <div className={styles.openBookCover}>
+            {/* Bộ chuyển đổi chế độ ôn tập: Trắc nghiệm / Thực hành gõ code */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}>
               <div
-                key={`practice-note-${noteIdx}`}
-                className={`${styles.openBookSpread} ${styles.flipNextAnim}`}
+                style={{
+                  display: 'inline-flex',
+                  background: 'rgba(255, 255, 255, 0.78)',
+                  backdropFilter: 'blur(8px)',
+                  padding: '4px',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(180, 150, 120, 0.35)',
+                  boxShadow: '0 2px 8px rgba(60, 40, 20, 0.06)',
+                  gap: '6px',
+                }}
               >
-                {/* ================= TRANG BÊN TRÁI: XẤP GIẤY NHỚ CÂU HỎI ================= */}
-                <section className={`${styles.bookPage} ${styles.bookPageLeft}`}>
-                  <div className={styles.pageHeaderLine}>
-                    <span>SỔ TAY GIẤY NHỚ · ÔN BÀI CŨ</span>
-                    <span>
-                      TỜ {noteIdx + 1} / {stickyNotes.length}
-                    </span>
-                  </div>
-
-                  <div className={styles.pageBodyFlow}>
-                    {reviewLoading ? (
-                      <div style={{ padding: '36px 0', textAlign: 'center' }}>
-                        <p style={{ fontWeight: 700, color: '#78716c', fontSize: 15 }}>
-                          ⏳ Đang rút xấp giấy nhớ từ máy chủ...
-                        </p>
-                      </div>
-                    ) : reviewError ? (
-                      <div style={{ padding: '12px 0' }}>
-                        <p className={styles.pageSectionLabel}>THÔNG BÁO ÔN TẬP</p>
-                        <h2 className={styles.pageMainTitle}>Chưa có xấp giấy nhớ</h2>
-                        <div style={{ marginTop: 14, padding: '14px 16px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: 10, border: '1px solid rgba(245, 158, 11, 0.3)' }}>
-                          <p style={{ margin: 0, fontSize: 13.5, color: '#92400e', lineHeight: 1.5 }}>
-                            📌 {reviewError}
-                          </p>
-                        </div>
-                        <div style={{ marginTop: 18, display: 'flex', gap: 10 }}>
-                          <button
-                            type="button"
-                            className={styles.freshDeckBtn}
-                            onClick={() => void handleDrawFreshNotes()}
-                          >
-                            ↻ Thử lại
-                          </button>
-                          <button
-                            type="button"
-                            className={styles.freshDeckBtn}
-                            style={{ background: '#f5f5f4', color: '#44403c' }}
-                            onClick={() => switchScreen('lesson')}
-                          >
-                            📖 Mở Sách Bài học
-                          </button>
-                        </div>
-                      </div>
-                    ) : stickyNotes.length > 0 ? (
-                      <>
-                    <div className={styles.miniNoteTabs}>
-                      {stickyNotes.map((note, idx) => {
-                        const picked = notePicks[idx];
-                        const isDone = picked !== undefined;
-                        const isRight = isDone && picked === note.ans;
-                        return (
-                          <button
-                            key={note.id}
-                            type="button"
-                            className={`${styles.miniNoteTab} ${
-                              noteIdx === idx ? styles.miniNoteTabActive : ''
-                            }`}
-                            style={{ backgroundColor: note.bg }}
-                            onClick={() => setNoteIdx(idx)}
-                          >
-                            <span>📌 {note.tabLabel}</span>
-                            {isDone && (
-                              <span style={{ color: isRight ? '#15803d' : '#b91c1c' }}>
-                                {isRight ? '✓' : '✗'}
-                              </span>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    <div
-                      className={styles.stickyQuestionNote}
-                      style={{ backgroundColor: currentNote.bg }}
-                    >
-                      <div className={styles.washiTape} />
-                      <div className={styles.stickyNoteMeta}>
-                        <span>📝 GIẤY NHỚ CÂU HỎI</span>
-                        <span>{currentNote.lessonTag}</span>
-                      </div>
-
-                      <div className={styles.stickyQuestionText}>{currentNote.question}</div>
-
-                      <div className={styles.stickyOptList}>
-                        {currentNote.options.map((opt, oIdx) => {
-                          const isPicked = currentNotePick === oIdx;
-                          const isCorrectAnswer = oIdx === currentNote.ans;
-                          let optStateClass = '';
-                          if (currentNotePick !== undefined) {
-                            if (isCorrectAnswer) {
-                              optStateClass = styles.stickyOptCorrect;
-                            } else if (isPicked) {
-                              optStateClass = styles.stickyOptWrong;
-                            }
-                          }
-                          return (
-                            <button
-                              key={oIdx}
-                              type="button"
-                              className={`${styles.stickyOptBtn} ${optStateClass}`}
-                              onClick={() => void handlePickStickyOption(noteIdx, oIdx)}
-                            >
-                              <span>{opt}</span>
-                              {currentNotePick !== undefined && isCorrectAnswer && (
-                                <span>✓ Đúng</span>
-                              )}
-                              {currentNotePick !== undefined && isPicked && !isCorrectAnswer && (
-                                <span>✗ Chưa đúng</span>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div className={styles.stickyBottomActions}>
-                      <span
-                        style={{
-                          fontSize: 12.5,
-                          fontWeight: 600,
-                          color: '#5a4d41',
-                        }}
-                      >
-                        Đã làm: <strong>{answeredNotesCount}</strong> / {stickyNotes.length} tờ ·
-                        Đúng: <strong style={{ color: '#15803d' }}>{correctNotesCount}</strong> tờ
-                      </span>
-                      <button
-                        type="button"
-                        className={styles.freshDeckBtn}
-                        onClick={() => void handleDrawFreshNotes()}
-                      >
-                        Rút xấp giấy nhớ mới ↻
-                      </button>
-                    </div>
-                      </>
-                    ) : null}
-                  </div>
-
-                  <div className={styles.pageFooterRow}>
-                    <span>1</span>
-                    <span>Xấp 5 tờ trích từ các bài đã học</span>
-                  </div>
-                </section>
-
-                {/* ================= TRANG BÊN PHẢI: GIẤY NHỚ LỜI GIẢI & NHẬT KÝ ================= */}
-                <section className={`${styles.bookPage} ${styles.bookPageRight}`}>
-                  <div className={styles.pageHeaderLine}>
-                    <span>GHI CHÚ LỜI GIẢI &amp; NHẬT KÝ</span>
-                    <span>
-                      ĐÚNG {correctNotesCount} / {stickyNotes.length} TỜ
-                    </span>
-                  </div>
-
-                  <div className={styles.pageBodyFlow}>
-                    <div
-                      className={`${styles.stickyExplainNote} ${
-                        currentNotePick !== undefined ? styles.stickyExplainNoteSolved : ''
-                      }`}
-                    >
-                      <div className={styles.paperclipBadge}>📎 Ghim lời giải</div>
-
-                      {!currentNote ? (
-                        <div style={{ padding: '14px 4px' }}>
-                          <div
-                            style={{
-                              fontSize: 14,
-                              fontWeight: 800,
-                              color: '#6b5310',
-                              marginBottom: 8,
-                            }}
-                          >
-                            📝 Hướng dẫn ôn tập
-                          </div>
-                          <p
-                            style={{
-                              fontSize: 13.5,
-                              lineHeight: 1.6,
-                              color: '#5a4d41',
-                              margin: 0,
-                            }}
-                          >
-                            Rút xấp giấy nhớ bên trang trái để bắt đầu ôn lại các câu hỏi từ những bài học bạn đã hoàn thành trên hệ thống.
-                          </p>
-                        </div>
-                      ) : currentNotePick === undefined ? (
-                        <div style={{ padding: '14px 4px' }}>
-                          <div
-                            style={{
-                              fontSize: 14,
-                              fontWeight: 800,
-                              color: '#6b5310',
-                              marginBottom: 8,
-                            }}
-                          >
-                            ✍️ Tờ lời giải đang chờ bạn chọn đáp án
-                          </div>
-                          <p
-                            style={{
-                              fontSize: 13.5,
-                              lineHeight: 1.6,
-                              color: '#5a4d41',
-                              margin: 0,
-                            }}
-                          >
-                            Chạm vào một phương án trả lời trên tờ giấy nhớ bên trang trái. Ngay sau
-                            khi chọn, lời giải chi tiết và mẹo nhớ nhanh của{' '}
-                            <strong>{currentNote.tabLabel}</strong> sẽ hiện ra tại đây!
-                          </p>
-                        </div>
-                      ) : (
-                        <div>
-                          <div
-                            style={{
-                              fontSize: 13.5,
-                              fontWeight: 800,
-                              color: currentNotePick === currentNote.ans ? '#15803d' : '#b45309',
-                              marginBottom: 8,
-                            }}
-                          >
-                            {currentNotePick === currentNote.ans
-                              ? '🎉 Chính xác! Bạn nhớ bài rất chắc (+20 điểm thưởng)'
-                              : '💡 Chưa chính xác — Cùng xem lại ghi chú bên dưới:'}
-                          </div>
-                          <p
-                            style={{
-                              fontSize: 13.5,
-                              lineHeight: 1.6,
-                              color: '#2c221a',
-                              margin: 0,
-                            }}
-                          >
-                            {currentNote.explain}
-                          </p>
-                          <div className={styles.stickyTipBox}>{currentNote.tip}</div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className={styles.studyLogSheet}>
-                      <div className={styles.studyLogTitle}>
-                        <span>📒 NHẬT KÝ ÔN BÀI CỦA TÔI</span>
-                        <span>
-                          Kho giấy nhớ: {doneLessons.length} / {TOTAL_LESSONS} bài đã xong (
-                          {Math.max(doneLessons.length * 3, 15)} câu)
-                        </span>
-                      </div>
-                      <ul className={styles.studyLogList}>
-                        <li className={styles.studyLogItem}>
-                          <span>Lượt đang làm hiện tại</span>
-                          <strong>
-                            Đúng {correctNotesCount} trên {stickyNotes.length} tờ
-                          </strong>
-                        </li>
-                        {reviewHistory.map((item, idx) => {
-                          const [timeLabel, scoreLabel] = item.split(' · ');
-                          return (
-                            <li key={idx} className={styles.studyLogItem}>
-                              <span>{timeLabel}</span>
-                              <strong>{scoreLabel}</strong>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </div>
-                  </div>
-
-                  <div className={styles.pageFooterRow}>
-                    <span>Sổ tay ghi chép</span>
-                    <span>2</span>
-                  </div>
-                </section>
+                <button
+                  type="button"
+                  onClick={() => setPracticeMode('quiz')}
+                  style={{
+                    padding: '7px 18px',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    fontFamily: 'inherit',
+                    cursor: 'pointer',
+                    border: 'none',
+                    transition: 'all 0.15s ease',
+                    background: practiceMode === 'quiz' ? '#78350f' : 'transparent',
+                    color: practiceMode === 'quiz' ? '#ffffff' : '#78716c',
+                  }}
+                >
+                  <span aria-hidden="true">📝</span> Ôn trắc nghiệm
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPracticeMode('code')}
+                  style={{
+                    padding: '7px 18px',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    fontFamily: 'inherit',
+                    cursor: 'pointer',
+                    border: 'none',
+                    transition: 'all 0.15s ease',
+                    background: practiceMode === 'code' ? '#78350f' : 'transparent',
+                    color: practiceMode === 'code' ? '#ffffff' : '#78716c',
+                  }}
+                >
+                  <span aria-hidden="true">💻</span> Thực hành gõ code
+                </button>
               </div>
             </div>
 
-            {stickyNotes.length > 0 && (
-              <div className={styles.bookBottomNav}>
-                <button
-                  type="button"
-                  className={styles.bookNavPrevBtn}
-                  onClick={() =>
-                    setNoteIdx((i) => (i - 1 + stickyNotes.length) % stickyNotes.length)
-                  }
-                >
-                  &lt; Tờ trước
-                </button>
+            {practiceMode === 'quiz' ? (
+              <>
+                <div className={styles.openBookCover}>
+                  <div
+                    key={`practice-note-${noteIdx}`}
+                    className={`${styles.openBookSpread} ${styles.flipNextAnim}`}
+                  >
+                    {/* ================= TRANG BÊN TRÁI: XẤP GIẤY NHỚ CÂU HỎI ================= */}
+                    <section className={`${styles.bookPage} ${styles.bookPageLeft}`}>
+                      <div className={styles.pageHeaderLine}>
+                        <span>SỔ TAY GIẤY NHỚ · ÔN BÀI CŨ</span>
+                        <span>
+                          TỜ {noteIdx + 1} / {stickyNotes.length}
+                        </span>
+                      </div>
 
-                <div className={styles.bookNavDotsWrap}>
-                  {stickyNotes.map((note, idx) => (
-                    <button
-                      key={note.id}
-                      type="button"
-                      aria-label={note.tabLabel}
-                      onClick={() => setNoteIdx(idx)}
-                      className={`${styles.bookNavDot} ${
-                        noteIdx === idx ? styles.bookNavDotActive : ''
-                      }`}
-                    />
-                  ))}
-                  <span>
-                    {noteIdx + 1} / {stickyNotes.length}
-                  </span>
+                      <div className={styles.pageBodyFlow}>
+                        {reviewLoading ? (
+                          <div style={{ padding: '36px 0', textAlign: 'center' }}>
+                            <p style={{ fontWeight: 700, color: '#78716c', fontSize: 15 }}>
+                              ⏳ Đang rút xấp giấy nhớ từ máy chủ...
+                            </p>
+                          </div>
+                        ) : reviewError ? (
+                          <div style={{ padding: '12px 0' }}>
+                            <p className={styles.pageSectionLabel}>THÔNG BÁO ÔN TẬP</p>
+                            <h2 className={styles.pageMainTitle}>Chưa có xấp giấy nhớ</h2>
+                            <div
+                              style={{
+                                marginTop: 14,
+                                padding: '14px 16px',
+                                background: 'rgba(245, 158, 11, 0.1)',
+                                borderRadius: 10,
+                                border: '1px solid rgba(245, 158, 11, 0.3)',
+                              }}
+                            >
+                              <p style={{ margin: 0, fontSize: 13.5, color: '#92400e', lineHeight: 1.5 }}>
+                                📌 {reviewError}
+                              </p>
+                            </div>
+                            <div style={{ marginTop: 18, display: 'flex', gap: 10 }}>
+                              <button
+                                type="button"
+                                className={styles.freshDeckBtn}
+                                onClick={() => void handleDrawFreshNotes()}
+                              >
+                                ↻ Thử lại
+                              </button>
+                              <button
+                                type="button"
+                                className={styles.freshDeckBtn}
+                                style={{ background: '#f5f5f4', color: '#44403c' }}
+                                onClick={() => switchScreen('lesson')}
+                              >
+                                📖 Mở Sách Bài học
+                              </button>
+                            </div>
+                          </div>
+                        ) : stickyNotes.length > 0 ? (
+                          <>
+                            <div className={styles.miniNoteTabs}>
+                              {stickyNotes.map((note, idx) => {
+                                const picked = notePicks[idx];
+                                const isDone = picked !== undefined;
+                                const isRight = isDone && picked === note.ans;
+                                return (
+                                  <button
+                                    key={note.id}
+                                    type="button"
+                                    className={`${styles.miniNoteTab} ${
+                                      noteIdx === idx ? styles.miniNoteTabActive : ''
+                                    }`}
+                                    style={{ backgroundColor: note.bg }}
+                                    onClick={() => setNoteIdx(idx)}
+                                  >
+                                    <span>📌 {note.tabLabel}</span>
+                                    {isDone && (
+                                      <span style={{ color: isRight ? '#15803d' : '#b91c1c' }}>
+                                        {isRight ? '✓' : '✗'}
+                                      </span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            <div
+                              className={styles.stickyQuestionNote}
+                              style={{ backgroundColor: currentNote.bg }}
+                            >
+                              <div className={styles.washiTape} />
+                              <div className={styles.stickyNoteMeta}>
+                                <span>📝 GIẤY NHỚ CÂU HỎI</span>
+                                <span>{currentNote.lessonTag}</span>
+                              </div>
+
+                              <div className={styles.stickyQuestionText}>{currentNote.question}</div>
+
+                              <div className={styles.stickyOptList}>
+                                {currentNote.options.map((opt, oIdx) => {
+                                  const isPicked = currentNotePick === oIdx;
+                                  const isCorrectAnswer = oIdx === currentNote.ans;
+                                  let optStateClass = '';
+                                  if (currentNotePick !== undefined) {
+                                    if (isCorrectAnswer) {
+                                      optStateClass = styles.stickyOptCorrect;
+                                    } else if (isPicked) {
+                                      optStateClass = styles.stickyOptWrong;
+                                    }
+                                  }
+                                  return (
+                                    <button
+                                      key={oIdx}
+                                      type="button"
+                                      className={`${styles.stickyOptBtn} ${optStateClass}`}
+                                      onClick={() => void handlePickStickyOption(noteIdx, oIdx)}
+                                    >
+                                      <span>{opt}</span>
+                                      {currentNotePick !== undefined && isCorrectAnswer && (
+                                        <span>✓ Đúng</span>
+                                      )}
+                                      {currentNotePick !== undefined && isPicked && !isCorrectAnswer && (
+                                        <span>✗ Chưa đúng</span>
+                                      )}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            <div className={styles.stickyBottomActions}>
+                              <span
+                                style={{
+                                  fontSize: 12.5,
+                                  fontWeight: 600,
+                                  color: '#5a4d41',
+                                }}
+                              >
+                                Đã làm: <strong>{answeredNotesCount}</strong> / {stickyNotes.length} tờ ·
+                                Đúng: <strong style={{ color: '#15803d' }}>{correctNotesCount}</strong> tờ
+                              </span>
+                              <button
+                                type="button"
+                                className={styles.freshDeckBtn}
+                                onClick={() => void handleDrawFreshNotes()}
+                              >
+                                Rút xấp giấy nhớ mới ↻
+                              </button>
+                            </div>
+                          </>
+                        ) : null}
+                      </div>
+
+                      <div className={styles.pageFooterRow}>
+                        <span>1</span>
+                        <span>Xấp 5 tờ trích từ các bài đã học</span>
+                      </div>
+                    </section>
+
+                    {/* ================= TRANG BÊN PHẢI: GIẤY NHỚ LỜI GIẢI & NHẬT KÝ ================= */}
+                    <section className={`${styles.bookPage} ${styles.bookPageRight}`}>
+                      <div className={styles.pageHeaderLine}>
+                        <span>GHI CHÚ LỜI GIẢI &amp; NHẬT KÝ</span>
+                        <span>
+                          ĐÚNG {correctNotesCount} / {stickyNotes.length} TỜ
+                        </span>
+                      </div>
+
+                      <div className={styles.pageBodyFlow}>
+                        <div
+                          className={`${styles.stickyExplainNote} ${
+                            currentNotePick !== undefined ? styles.stickyExplainNoteSolved : ''
+                          }`}
+                        >
+                          <div className={styles.paperclipBadge}>📎 Ghim lời giải</div>
+
+                          {!currentNote ? (
+                            <div style={{ padding: '14px 4px' }}>
+                              <div
+                                style={{
+                                  fontSize: 14,
+                                  fontWeight: 800,
+                                  color: '#6b5310',
+                                  marginBottom: 8,
+                                }}
+                              >
+                                📝 Hướng dẫn ôn tập
+                              </div>
+                              <p
+                                style={{
+                                  fontSize: 13.5,
+                                  lineHeight: 1.6,
+                                  color: '#5a4d41',
+                                  margin: 0,
+                                }}
+                              >
+                                Rút xấp giấy nhớ bên trang trái để bắt đầu ôn lại các câu hỏi từ những bài bạn đã học xong trên hệ thống.
+                              </p>
+                            </div>
+                          ) : currentNotePick === undefined ? (
+                            <div style={{ padding: '14px 4px' }}>
+                              <div
+                                style={{
+                                  fontSize: 14,
+                                  fontWeight: 800,
+                                  color: '#6b5310',
+                                  marginBottom: 8,
+                                }}
+                              >
+                                ✍️ Tờ lời giải đang chờ bạn chọn đáp án
+                              </div>
+                              <p
+                                style={{
+                                  fontSize: 13.5,
+                                  lineHeight: 1.6,
+                                  color: '#5a4d41',
+                                  margin: 0,
+                                }}
+                              >
+                                Chạm vào một phương án trả lời trên tờ giấy nhớ bên trang trái. Ngay sau
+                                khi chọn, lời giải chi tiết và mẹo nhớ nhanh của{' '}
+                                <strong>{currentNote.tabLabel}</strong> sẽ hiện ra tại đây!
+                              </p>
+                            </div>
+                          ) : (
+                            <div>
+                              <div
+                                style={{
+                                  fontSize: 13.5,
+                                  fontWeight: 800,
+                                  color: currentNotePick === currentNote.ans ? '#15803d' : '#b45309',
+                                  marginBottom: 8,
+                                }}
+                              >
+                                {currentNotePick === currentNote.ans
+                                  ? '🎉 Chính xác! Bạn nhớ bài rất chắc (+20 điểm thưởng)'
+                                  : '💡 Chưa chính xác — Cùng xem lại ghi chú bên dưới:'}
+                              </div>
+                              <p
+                                style={{
+                                  fontSize: 13.5,
+                                  lineHeight: 1.6,
+                                  color: '#2c221a',
+                                  margin: 0,
+                                }}
+                              >
+                                {currentNote.explain}
+                              </p>
+                              <div className={styles.stickyTipBox}>{currentNote.tip}</div>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className={styles.studyLogSheet}>
+                          <div className={styles.studyLogTitle}>
+                            <span>📒 NHẬT KÝ ÔN BÀI CỦA TÔI</span>
+                            <span>
+                              Kho giấy nhớ: {doneLessons.length} / {TOTAL_LESSONS} bài đã xong (
+                              {Math.max(doneLessons.length * 3, 15)} câu)
+                            </span>
+                          </div>
+                          <ul className={styles.studyLogList}>
+                            <li className={styles.studyLogItem}>
+                              <span>Lượt đang làm hiện tại</span>
+                              <strong>
+                                Đúng {correctNotesCount} trên {stickyNotes.length} tờ
+                              </strong>
+                            </li>
+                            {reviewHistory.map((item, idx) => {
+                              const [timeLabel, scoreLabel] = item.split(' · ');
+                              return (
+                                <li key={idx} className={styles.studyLogItem}>
+                                  <span>{timeLabel}</span>
+                                  <strong>{scoreLabel}</strong>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div className={styles.pageFooterRow}>
+                        <span>Sổ tay ghi chép</span>
+                        <span>2</span>
+                      </div>
+                    </section>
+                  </div>
                 </div>
 
-                <button
-                  type="button"
-                  className={styles.bookNavNextBtn}
-                  onClick={() => setNoteIdx((i) => (i + 1) % stickyNotes.length)}
-                >
-                  Tờ tiếp theo &gt;
-                </button>
+                {stickyNotes.length > 0 && (
+                  <div className={styles.bookBottomNav}>
+                    <button
+                      type="button"
+                      className={styles.bookNavPrevBtn}
+                      onClick={() =>
+                        setNoteIdx((i) => (i - 1 + stickyNotes.length) % stickyNotes.length)
+                      }
+                    >
+                      &lt; Tờ trước
+                    </button>
+
+                    <div className={styles.bookNavDotsWrap}>
+                      {stickyNotes.map((note, idx) => (
+                        <button
+                          key={note.id}
+                          type="button"
+                          aria-label={note.tabLabel}
+                          onClick={() => setNoteIdx(idx)}
+                          className={`${styles.bookNavDot} ${
+                            noteIdx === idx ? styles.bookNavDotActive : ''
+                          }`}
+                        />
+                      ))}
+                      <span>
+                        {noteIdx + 1} / {stickyNotes.length}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      className={styles.bookNavNextBtn}
+                      onClick={() => setNoteIdx((i) => (i + 1) % stickyNotes.length)}
+                    >
+                      Tờ tiếp theo &gt;
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              /* ================= CHẾ ĐỘ THỰC HÀNH GÕ CODE PYTHON ================= */
+              <div className={styles.openBookCover}>
+                <div className={`${styles.openBookSpread} ${styles.flipNextAnim}`}>
+                  {/* ===== TRANG BÊN TRÁI: ĐỀ BÀI THỰC HÀNH CODE ===== */}
+                  <section className={`${styles.bookPage} ${styles.bookPageLeft}`}>
+                    <div className={styles.pageHeaderLine}>
+                      <span>SỔ TAY THỰC HÀNH · GÕ CODE PYTHON</span>
+                      <span>
+                        {codeExercise ? `${codeExercise.lessonCode} · BÀI ${codeExercise.lessonNo}` : 'THỰC HÀNH'}
+                      </span>
+                    </div>
+
+                    <div className={styles.pageBodyFlow}>
+                      {codeReviewLoading ? (
+                        <div style={{ padding: '36px 0', textAlign: 'center' }}>
+                          <p style={{ fontWeight: 700, color: '#78716c', fontSize: 15 }}>
+                            ⏳ Đang rút bài thực hành code từ máy chủ...
+                          </p>
+                        </div>
+                      ) : codeReviewError ? (
+                        <div style={{ padding: '12px 0' }}>
+                          <p className={styles.pageSectionLabel}>THÔNG BÁO ÔN TẬP</p>
+                          <h2 className={styles.pageMainTitle}>Chưa có bài thực hành</h2>
+                          <div
+                            style={{
+                              marginTop: 14,
+                              padding: '14px 16px',
+                              background: 'rgba(245, 158, 11, 0.1)',
+                              borderRadius: 10,
+                              border: '1px solid rgba(245, 158, 11, 0.3)',
+                            }}
+                          >
+                            <p style={{ margin: 0, fontSize: 13.5, color: '#92400e', lineHeight: 1.5 }}>
+                              📌 {codeReviewError}
+                            </p>
+                          </div>
+                          <div style={{ marginTop: 18, display: 'flex', gap: 10 }}>
+                            <button
+                              type="button"
+                              className={styles.freshDeckBtn}
+                              onClick={() => void handleLoadCodeExercise()}
+                            >
+                              ↻ Thử lại
+                            </button>
+                            <button
+                              type="button"
+                              className={styles.freshDeckBtn}
+                              style={{ background: '#f5f5f4', color: '#44403c' }}
+                              onClick={() => switchScreen('lesson')}
+                            >
+                              📖 Mở Sách Bài học
+                            </button>
+                          </div>
+                        </div>
+                      ) : codeExercise ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                          <div
+                            style={{
+                              background: '#fffdfa',
+                              padding: '16px 18px',
+                              borderRadius: 10,
+                              border: '1px solid rgba(180, 150, 120, 0.3)',
+                              boxShadow: '0 2px 6px rgba(60, 40, 20, 0.06)',
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontSize: 11,
+                                fontWeight: 700,
+                                letterSpacing: '0.05em',
+                                color: '#a16207',
+                                marginBottom: 6,
+                                textTransform: 'uppercase',
+                              }}
+                            >
+                              {codeExercise.lessonTitle}
+                            </div>
+                            <h3 style={{ margin: '0 0 10px 0', fontSize: 16, fontWeight: 800, color: '#292524' }}>
+                              {codeExercise.task.title || 'Thử thách lập trình'}
+                            </h3>
+                            <p
+                              style={{
+                                margin: 0,
+                                fontSize: 13.5,
+                                lineHeight: 1.65,
+                                color: '#44403c',
+                                whiteSpace: 'pre-wrap',
+                              }}
+                            >
+                              {codeExercise.task.body}
+                            </p>
+                          </div>
+
+                          {codeExercise.task.io && codeExercise.task.io.length > 0 && (
+                            <div
+                              style={{
+                                background: '#f8fafc',
+                                padding: '12px 14px',
+                                borderRadius: 8,
+                                border: '1px solid #e2e8f0',
+                              }}
+                            >
+                              <div style={{ fontSize: 11.5, fontWeight: 700, color: '#475569', marginBottom: 6 }}>
+                                VÍ DỤ ĐẦU VÀO / ĐẦU RA:
+                              </div>
+                              {codeExercise.task.io.map((item, idx) => (
+                                <div
+                                  key={idx}
+                                  style={{
+                                    fontSize: 12.5,
+                                    fontFamily: 'monospace',
+                                    color: '#1e293b',
+                                    marginBottom: 4,
+                                  }}
+                                >
+                                  <strong>{item.label}:</strong> {item.value}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {codeExercise.hints && codeExercise.hints.length > 0 && (
+                            <div
+                              style={{
+                                background: '#fefce8',
+                                border: '1px solid #fef08a',
+                                borderRadius: 8,
+                                padding: '10px 14px',
+                              }}
+                            >
+                              <button
+                                type="button"
+                                onClick={() => setCodeReviewHintOpen((prev) => !prev)}
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  padding: 0,
+                                  fontFamily: 'inherit',
+                                  fontWeight: 700,
+                                  fontSize: 12.5,
+                                  color: '#854d0e',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 6,
+                                }}
+                              >
+                                <span aria-hidden="true">💡</span> {codeReviewHintOpen ? 'Đóng gợi ý' : 'Mở gợi ý này'}
+                              </button>
+                              {codeReviewHintOpen && (
+                                <div style={{ marginTop: 8, fontSize: 12.5, lineHeight: 1.55, color: '#713f12' }}>
+                                  {codeExercise.hints.map((h, hIdx) => (
+                                    <div key={hIdx} style={{ marginBottom: 6 }}>
+                                      {h.title ? <strong>{h.title}: </strong> : null}
+                                      <span>{h.body}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          <div
+                            style={{
+                              marginTop: 6,
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                            }}
+                          >
+                            <span style={{ fontSize: 12, color: '#78716c' }}>
+                              Đã xong: {doneLessons.length} / {TOTAL_LESSONS} bài
+                            </span>
+                            <button
+                              type="button"
+                              className={styles.freshDeckBtn}
+                              onClick={() => void handleLoadCodeExercise()}
+                            >
+                              Rút bài code khác ↻
+                            </button>
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <div className={styles.pageFooterRow}>
+                      <span>1</span>
+                      <span>Thử thách độc lập từ các bài đã xong</span>
+                    </div>
+                  </section>
+
+                  {/* ===== TRANG BÊN PHẢI: TRÌNH SOẠN THẢO VÀ KẾT QUẢ CHẠY ===== */}
+                  <section className={`${styles.bookPage} ${styles.bookPageRight}`}>
+                    <div className={styles.pageHeaderLine}>
+                      <span>BÀN GÕ MÃ VÀ KẾT QUẢ CHẠY</span>
+                      <span>{codeReviewSolved ? '✓ ĐÃ ĐẠT (+25 XP)' : 'CHƯA NỘP'}</span>
+                    </div>
+
+                    <div className={styles.pageBodyFlow}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 10,
+                          height: '100%',
+                        }}
+                      >
+                        <div
+                          style={{
+                            background: '#090d15',
+                            borderRadius: 10,
+                            border: '1px solid #222b3d',
+                            overflow: 'hidden',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                          }}
+                        >
+                          {/* Thanh công cụ IDE */}
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              padding: '8px 14px',
+                              background: '#111726',
+                              borderBottom: '1px solid #222b3d',
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: 12,
+                                fontFamily: 'monospace',
+                                fontWeight: 700,
+                                color: '#93c5fd',
+                              }}
+                            >
+                              solution.py
+                            </span>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                              <button
+                                type="button"
+                                onClick={() => void handleRunCodeExercise(false)}
+                                disabled={codeReviewRunning}
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: 5,
+                                  padding: '5px 12px',
+                                  borderRadius: 6,
+                                  border: '1px solid #334155',
+                                  background: '#1e293b',
+                                  color: '#f8fafc',
+                                  fontSize: 12,
+                                  fontWeight: 700,
+                                  cursor: codeReviewRunning ? 'not-allowed' : 'pointer',
+                                }}
+                              >
+                                <span aria-hidden="true">▶</span> {codeReviewRunning ? 'Đang chạy...' : 'Chạy thử'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => void handleRunCodeExercise(true)}
+                                disabled={codeReviewRunning}
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: 5,
+                                  padding: '5px 14px',
+                                  borderRadius: 6,
+                                  border: 'none',
+                                  background: '#16a34a',
+                                  color: '#ffffff',
+                                  fontSize: 12,
+                                  fontWeight: 700,
+                                  cursor: codeReviewRunning ? 'not-allowed' : 'pointer',
+                                }}
+                              >
+                                <span aria-hidden="true">✓</span> {codeReviewRunning ? 'Đang kiểm...' : 'Nộp để kiểm'}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Khung gõ mã Python */}
+                          <textarea
+                            value={codeReviewCode}
+                            onChange={(e) => setCodeReviewCode(e.target.value)}
+                            spellCheck={false}
+                            className={styles.ideTextarea}
+                            style={{
+                              height: '190px',
+                              background: '#090d15',
+                              color: '#e2e8f0',
+                              border: 'none',
+                              fontSize: '13px',
+                            }}
+                          />
+
+                          {/* Cửa sổ dòng lệnh Terminal */}
+                          <div
+                            style={{
+                              borderTop: '1px solid #222b3d',
+                              background: '#050811',
+                            }}
+                          >
+                            <div
+                              style={{
+                                padding: '5px 14px',
+                                background: '#0d131f',
+                                fontSize: 10.5,
+                                fontWeight: 700,
+                                color: '#8b9bb4',
+                                letterSpacing: '0.06em',
+                              }}
+                            >
+                              TERMINAL · OUTPUT
+                            </div>
+                            <div className={styles.terminalBox} style={{ height: '115px' }}>
+                              <pre className={styles.terminalPre}>{codeReviewOutput}</pre>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Danh sách các ca kiểm thử */}
+                        {codeReviewTestResults && codeReviewTestResults.length > 0 && (
+                          <div
+                            style={{
+                              background: '#ffffff',
+                              borderRadius: 8,
+                              border: '1px solid #e2e8f0',
+                              padding: '10px 14px',
+                              boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
+                            }}
+                          >
+                            <div style={{ fontSize: 11.5, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
+                              KẾT QUẢ CÁC CA KIỂM THỬ:
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                              {codeReviewTestResults.map((t, idx) => (
+                                <div
+                                  key={idx}
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    padding: '5px 10px',
+                                    borderRadius: 6,
+                                    fontSize: 12,
+                                    background: t.passed ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                    color: t.passed ? '#15803d' : '#b91c1c',
+                                  }}
+                                >
+                                  <span>
+                                    <span aria-hidden="true">{t.passed ? '✓' : '✗'}</span> {t.name}
+                                  </span>
+                                  <span style={{ fontWeight: 700 }}>
+                                    {t.passed ? 'ĐẠT' : 'CHƯA ĐẠT'}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className={styles.pageFooterRow}>
+                      <span>Sổ tay thực hành</span>
+                      <span>2</span>
+                    </div>
+                  </section>
+                </div>
               </div>
             )}
           </div>

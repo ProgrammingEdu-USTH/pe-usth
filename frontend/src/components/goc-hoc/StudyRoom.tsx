@@ -54,6 +54,7 @@ import { choSoCoTran } from '@/lib/goc-hoc-cho-so';
 import { initStudyRoom } from './engine';
 import { SHELL_HTML } from './shell';
 import './scene.css';
+import './scene-thien-van.css';
 
 /** Trần chờ các lượt gọi số. Quá hạn thì dựng cảnh với số đang có. */
 const TRAN_CHO_MS = 3000;
@@ -261,7 +262,11 @@ export default function StudyRoom(props: StudyRoomProps) {
           <div className="gh-cho-toi" />
         </div>
       )}
-      <div ref={hostRef} />
+      {/* data-tv-surface: trang chủ nhận giao diện "Đài thiên văn" ở mức HUD
+          (xem scene-thien-van.css). Gắn ở đây — phần tử React sở hữu, có trong
+          HTML máy chủ — chứ không phải trong cảnh: engine ghi đè
+          `host.innerHTML` nhưng không đụng thuộc tính của chính host. */}
+      <div ref={hostRef} data-tv-surface="" />
     </>
   );
 }

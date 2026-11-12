@@ -231,7 +231,7 @@
       "tep": "AGENTS.md",
       "re": "test:unit[^|\\n]*?\\*\\*(\\d+) ca\\*\\*",
       "chieu": "nang",
-      "moc": 673,
+      "moc": 677,
       "vi": "Số ca test frontend trong bảng mốc nền. Hai cổng canh con số này vì chúng bắt HAI lỗi khác nhau: `check-moc-chay.mjs` CHẠY bộ test và bắt \"số trong bảng SAI\" (nó từng ghi 204 trong khi cây mã chỉ có 134), còn mục sổ này bắt \"ai đó HẠ số trong bảng cho khớp một bộ đã bị cắt bớt\" — ablate đã đo: xoá một ca thật rồi sửa bảng từ 573 xuống 572 thì cổng chạy-bộ-test XANH, chỉ sổ này đỏ. Khi nào con số vượt 1000 thì nó sẽ mang dấu cách ngăn nhóm nghìn kiểu Việt và regex `(\\d+)` hết khớp — lúc đó sửa cả regex, đừng bỏ mục này."
     },
     {
@@ -369,6 +369,14 @@
       "chieu": "ha",
       "moc": 4,
       "vi": "Trần số animation vô hạn còn chạy dưới 561px. Khổ điện thoại là nơi 133 animation của lofi ăn 62–98% luồng chính."
+    },
+    {
+      "ten": "san-chu-hud-trang-chu",
+      "tep": "frontend/e2e/unit/giao-dien-trang-chu.test.mjs",
+      "re": "const SAN_CHU_HUD = ([\\d.]+);",
+      "chieu": "nang",
+      "moc": 7.5,
+      "vi": "Sàn tương phản chữ HUD (ink/mute/faint và năm màu icon) trên kính hợp thành lên tường tối của tranh, giao diện Đài thiên văn ở trang chủ. Đo 8,03:1 ở màu thấp nhất (--sakura). Đây là một CẬN: nền thật đổi theo giờ trong ngày."
     }
   ]
 }

@@ -111,7 +111,9 @@ test('khung giữ chỗ dùng ĐÚNG ảnh và ĐÚNG lớp tối của khung h�
 
 test('khung giữ chỗ là ANH EM của host, không nằm trong host', () => {
   // Engine ghi đè host.innerHTML; React không được sở hữu nút nào ở đó.
-  assert.match(ROOM, /<div ref=\{hostRef\} \/>/, 'host phải là div rỗng tự đóng.');
+  // Cho phép thuộc tính chuỗi thuần (hiện có `data-tv-surface=""`), KHÔNG cho phép
+  // phần tử con: thứ ca này canh là host tự đóng, không phải host trần trụi.
+  assert.match(ROOM, /<div ref=\{hostRef\}(?:\s+[\w-]+="[^"]*")*\s*\/>/, 'host phải là div rỗng tự đóng.');
 });
 
 test('trang chủ KHÔNG cuộn: body không giữ lề mặc định 8px', () => {

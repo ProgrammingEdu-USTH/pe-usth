@@ -1,0 +1,105 @@
+/* GÓC HỌC — khoác giao diện "Đài thiên văn" lên HUD của trang chủ.
+
+   Vì sao là tệp riêng, không phải khối trong theme-thien-van.css:
+   cảnh này có bảng token RIÊNG (`--glass`, `--amber`, `--sakura`, `--ground`…
+   khai ở `:root` của scene.css), không dùng một token `--ds-*`/`--edu-*` nào.
+   Nên theme chiêm tinh — vốn là lớp ghi đè token — không chạm tới trang chủ,
+   và panel "Tùy chỉnh khung cảnh" còn phải ghi "Trang chủ này giữ nguyên".
+   Chủ dự án (12/11/2026): theme phải phủ cả dashboard lẫn khoá học.
+
+   PHẠM VI, nói thẳng: đây là LỚP KHOÁC, không phải cảnh mới. Bản design có một
+   phòng quan trắc VẼ RIÊNG (ống kính, cửa sổ ra vũ trụ khoá học) — tranh minh
+   hoạ ấy không có trong repo, nên căn phòng lofi vẫn là căn phòng. Thứ đổi
+   được bằng CSS: kính tím → kính nâu, hổ phách/hồng → ĐỒNG, đường kẻ → đồng,
+   và một lớp ánh sáng ấm phủ lên tranh (đèn góc trên-trái, bóng xanh đêm góc
+   dưới-phải — cùng hai quầng của `.room` trong bản design).
+
+   Mọi selector mở bằng `html[data-theme="thien-van"]:has([data-tv-surface])`
+   (đặc hiệu 0,2,1 > `:root` 0,1,0 của scene.css): người dùng lofi không đổi
+   một pixel, và `[data-tv-surface]` được gắn ở StudyRoom.tsx nên trang không
+   đổi nửa vời khi bề mặt chưa dựng.
+
+   KHÔNG có animation, KHÔNG có `:hover` ở đây: ba cổng chuyển động / hover /
+   44px đọc mọi tệp .css trong src, và tệp này chỉ khai MÀU. Hiệu ứng trỏ chuột của HUD
+   vẫn là của scene.css (đã đọc `var(--glass-hi)` nên tự đi theo). */
+
+html[data-theme="thien-van"]:has([data-tv-surface]) {
+  --ground: #15100B;
+  --ink: #F6EEE0;
+  --mute: #DCCBA6;
+  --faint: rgba(246, 238, 224, .74);
+  /* "hổ phách" của lofi (#ffc97a) là chữ eyebrow, nền nút Play và nền huy hiệu
+     cấp: nay là đồng sáng, đủ sáng để làm chữ trên kính nâu (≥ 7:1) mà vẫn đủ
+     đậm để chữ nâu #3a1d2a nằm trên nó làm nút (≥ 9:1). */
+  --amber: #DDBE78;
+  --sakura: #FF8798;
+  --sky: #9DBCFF;
+  --ok: #4FD0A0;
+  --lilac: #B9C6F0;
+  --glass: rgba(26, 19, 11, .68);
+  --glass-hi: rgba(48, 37, 20, .74);
+  --line: rgba(201, 166, 70, .26);
+  --line-hi: rgba(201, 166, 70, .48);
+  /* giấy nhớ, lịch, bảng ghim: giữ — chúng là vật trong phòng, không phải HUD */
+}
+
+/* Lớp ánh sáng phủ lên tranh. `#tags` là phần tử anh em nằm GIỮA #cam và các
+   khối HUD (#profile, #side, #hint) trong DOM, nên `::before` của nó phủ lên
+   tranh mà KHÔNG phủ lên HUD. `soft-light` chỉ dịch tông, không che chi tiết. */
+html[data-theme="thien-van"]:has([data-tv-surface]) #tags::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  background:
+    radial-gradient(900px 620px at 10% -8%, rgba(255, 198, 112, .55), rgba(255, 198, 112, 0) 70%),
+    radial-gradient(1200px 900px at 90% 110%, rgba(8, 12, 28, .7), rgba(8, 12, 28, 0) 70%);
+}
+
+/* ── HUD: các chỗ scene.css viết cứng màu hồng/hổ phách ───────────────────── */
+html[data-theme="thien-van"]:has([data-tv-surface]) .ava span {
+  background: linear-gradient(150deg, #F0DFAC, #C9A646);
+  color: #2A1D0A;
+}
+html[data-theme="thien-van"]:has([data-tv-surface]) .lv,
+html[data-theme="thien-van"]:has([data-tv-surface]) .play {
+  color: #2A1D0A;
+}
+html[data-theme="thien-van"]:has([data-tv-surface]) .play {
+  box-shadow: 0 6px 18px rgba(201, 166, 70, .4);
+}
+html[data-theme="thien-van"]:has([data-tv-surface]) .hero {
+  background: linear-gradient(135deg, rgba(201, 166, 70, .30), rgba(138, 109, 30, .22) 55%, rgba(157, 188, 255, .12));
+  border-color: rgba(221, 190, 120, .36);
+}
+html[data-theme="thien-van"]:has([data-tv-surface]) .prog i {
+  background: linear-gradient(90deg, var(--amber), #C9A646);
+}
+html[data-theme="thien-van"]:has([data-tv-surface]) .xpbar i {
+  background: linear-gradient(90deg, var(--sky), var(--lilac));
+}
+html[data-theme="thien-van"]:has([data-tv-surface]) .event {
+  background: linear-gradient(120deg, rgba(201, 166, 70, .26), rgba(138, 109, 30, .2));
+}
+html[data-theme="thien-van"]:has([data-tv-surface]) .pill.st svg {
+  stroke: var(--amber);
+}
+html[data-theme="thien-van"]:has([data-tv-surface]) .btn {
+  color: #2A1D0A;
+}
+html[data-theme="thien-van"]:has([data-tv-surface]) .c-map {
+  background: rgba(221, 190, 120, .16);
+}
+html[data-theme="thien-van"]:has([data-tv-surface]) .c-book {
+  background: rgba(157, 188, 255, .15);
+}
+html[data-theme="thien-van"]:has([data-tv-surface]) .c-pen {
+  background: rgba(79, 208, 160, .14);
+}
+html[data-theme="thien-van"]:has([data-tv-surface]) .c-tro {
+  background: rgba(255, 135, 152, .16);
+}
+html[data-theme="thien-van"]:has([data-tv-surface]) .c-ph {
+  background: rgba(185, 198, 240, .16);
+}

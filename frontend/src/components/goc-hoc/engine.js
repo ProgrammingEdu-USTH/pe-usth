@@ -621,7 +621,18 @@ function runIntro(){
   introTimer.push(setTimeout(()=>{ drawCal(); finishIntro(); },3100));
 }
 $('#skip').addEventListener('click',()=>{ finishIntro(); countUp(); drawCal(); });
-on(window,'keydown',e=>{ if (e.key==='Escape'){ if (app.classList.contains('intro')){ finishIntro(); countUp(); drawCal(); } else if (route) back(); else if (peeking) unpeek(); else { $('#calPop').hidden=true; hidePop(true); } } });
+on(window,'keydown',e=>{
+  if (e.key==='Escape'){
+    if (e.defaultPrevented) return;
+    const tag = (e.target && e.target.tagName ? e.target.tagName.toLowerCase() : '');
+    if (['input', 'textarea', 'select'].includes(tag) || (e.target && e.target.isContentEditable)) return;
+    if (e.target && typeof app.contains === 'function' && !app.contains(e.target)) return;
+    if (app.classList.contains('intro')){ finishIntro(); countUp(); drawCal(); }
+    else if (route) back();
+    else if (peeking) unpeek();
+    else { $('#calPop').hidden=true; hidePop(true); }
+  }
+});
 /* ---------- nội dung các màn ----------
  * Mọi màn dưới đây dựng từ `CONTENT` (giáo trình thật) và `USER` (số thật hoặc
  * null). Chuỗi nào đến từ SERVER (tên người, tên trong bảng xếp hạng, tên huy
@@ -742,7 +753,8 @@ function body(r){
       <p class="hw">${done == null ? 'Chưa đọc được tiến độ của bạn, nên chưa biết. Mở một bài học là máy có phiên và chỗ này tự có số.'
         : moDuoc ? `Rồi. Bạn đã xong ${done} bài, đủ để sinh một đề ôn.`
         : `Chưa. Cần xong 2 bài (bạn đang có ${done}) vì mỗi bài chỉ góp 3 câu, mà một đề cần ít nhất 5 câu.`}</p>
-      <p class="hw" style="margin-top:12px">Đề ôn nằm ở màn tổng kết — màn cuối — của bài đã xong, ngay trên nút “Hoàn thành”.</p></div>
+      <p class="hw" style="margin-top:12px">Đề ôn nằm ở màn tổng kết — màn cuối — của bài đã xong, ngay trên nút “Hoàn thành”.</p>
+      <p style="margin-top:16px"><a class="btn" href="/practice">Mở Sổ tay Ôn tập hằng ngày ➔</a></p></div>
       <div class="leafp r"><h3>Bài đã xong</h3>
       ${xong.length ? `<ul class="plist">${xong.slice(-6).reverse().map(l=>`<li><span class="s d"></span><span>${esc(l.title)}<small>Bài ${l.no}${l.code?` · ${esc(l.code)}`:''}</small></span><span class="x">+${l.xp||0}</span></li>`).join('')}</ul>`
         : `<p class="hw">${done == null ? 'Chưa có phiên học trên máy này.' : 'Chưa có bài nào. Xong bài đầu tiên là nó hiện ở đây.'}</p>`}

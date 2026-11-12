@@ -39,14 +39,7 @@ export type NavItem = {
 export function navItems(ideEnabled: boolean): NavItem[] {
   const items: NavItem[] = [
     { href: '/', label: 'Khoá học', match: '/' },
-    // KHÔNG có "Ôn tập" → `/practice`. Route đó (cùng `/practice/challenge` và
-    // `lib/practice-plan.ts`) bị gỡ ở 070886a (22/10, main lùi về trước đợt
-    // thiết kế); file này quay lại ở 4d5f86d (04/11) khi bê giao diện từ nhánh
-    // `test` — mang theo mục điều hướng mà KHÔNG mang theo trang. Đo trên
-    // production: thanh trên của mọi trang dẫn tới một trang 404. Đề ôn chấm ở
-    // máy chủ hiện nằm ở màn tổng kết của bài đã xong (ReviewQuiz). Dựng lại
-    // `/practice` là quyết định của chủ dự án; dựng xong thì trả mục này về —
-    // `lien-ket-noi-bo.test.mjs` sẽ đỏ nếu trả về trước khi trang có thật.
+    { href: '/practice', label: 'Ôn tập', match: '/practice' },
   ];
   if (ideEnabled) {
     items.push({ href: '/ide', label: 'Bàn thí nghiệm', match: '/ide' });

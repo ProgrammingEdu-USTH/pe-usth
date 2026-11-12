@@ -55,6 +55,36 @@ export default function HomePage() {
   return (
     <>
       <PageStyles hrefs={[]} />
+      {/* Khối điều hướng semantic SSR phục vụ SEO và máy đọc màn hình (T7) */}
+      <nav aria-label="Điều hướng chính" className="gh-sr-only">
+        <h2>Lộ trình và Khoá học</h2>
+        <ul>
+          <li><a href="#map">Lộ trình</a></li>
+          <li><a href="#courses">Khoá học</a></li>
+          <li><a href={course?.lessonUrl ?? `/lesson/${COURSE_ID}`}>Bài học</a></li>
+          <li><a href="/practice">Ôn tập</a></li>
+          <li><a href="#trophy">Thành tựu</a></li>
+          <li><a href="#leaderboard">Xếp hạng</a></li>
+        </ul>
+        <section>
+          <h3>{course?.title ?? 'Advanced Python'}</h3>
+          <p>{course?.description ?? ''}</p>
+          <ol>
+            {modules.map((m, idx) => (
+              <li key={idx}>
+                <h4>{m.title || `Học phần ${idx + 1}`}</h4>
+                <ul>
+                  {m.lessons?.map((lesson, lIdx) => (
+                    <li key={lIdx}>
+                      {typeof lesson === 'string' ? lesson : (lesson as { title?: string })?.title || `Bài ${lIdx + 1}`}
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ol>
+        </section>
+      </nav>
       <StudyRoom
         courseId={COURSE_ID}
         courseName={course?.title ?? 'Python nâng cao'}

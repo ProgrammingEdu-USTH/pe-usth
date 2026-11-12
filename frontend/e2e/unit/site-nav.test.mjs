@@ -50,8 +50,13 @@ const ROUTES = routes(join(FE, 'src', 'app'));
 test('mọi route đứng một mình đều có lối vào từ thanh trên', () => {
   // Route động (`[courseId]`) tới từ danh sách bài/khoá, không cần mục riêng.
   // `/practice/challenge` tới từ `/practice`, nên chỉ cần gốc có lối vào.
+  // Các route (auth), demo nội bộ và dashboard đối chiếu không nằm trên thanh học tập chính.
+  const EXCLUDED_STANDALONE = new Set([
+    '/login', '/register', '/profile', '/onboarding',
+    '/demo-minigame', '/interface', '/dashboard',
+  ]);
   const canLoiVao = ROUTES.filter(
-    (r) => r !== '/' && !r.includes('[') && !r.split('/').slice(2).length,
+    (r) => r !== '/' && !r.includes('[') && !r.split('/').slice(2).length && !EXCLUDED_STANDALONE.has(r),
   );
   assert.ok(canLoiVao.length > 0, 'không đọc được route nào — hàm quét hỏng');
 

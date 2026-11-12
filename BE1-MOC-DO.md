@@ -237,6 +237,36 @@ commit ôn tập/hậu kiểm của `origin/main` mà `test` chưa có, nên tr�
 Route đó gom câu bằng cùng `collectQuestions()`. Khi `test` gộp với main, chỉ cần đổi lời gọi
 `lesson.findMany` của nó sang `layStep2(ids, courseId)` rồi đo lại theo mục dưới.
 
+## Sau BE5: `GET /api/enrolled` và `GET /api/courses-enrolled`
+
+Đo ngày 12/11/2026 trên nhánh `test`, cùng branch Neon `ep-late-hill`. **Trước** là `4feeb38`
+(ngay trước BE5), **sau** là `test` có cả hai phần của BE5. Cách đo giống "Sau BE4": hai bản ở
+hai cổng, gọi **xen kẽ từng lượt**, 30 lượt mỗi ca, cùng một khách ghi danh `python_advanced`.
+Không lượt nào gặp 5xx.
+
+| Route | Ca đo | Số truy vấn trước → sau | Vòng tuần tự trước → sau | p50 trước → sau (ms) | p95 trước → sau (ms) |
+|---|---|---|---|---|---|
+| `GET /api/enrolled` | 1 khoá, 0 bài xong | 5 → **2** | 5 → **1** | 304 → **67** | 567 → **142** |
+| `GET /api/enrolled` | 1 khoá, 172 bài xong | 5 → **2** | 5 → **1** | 356 → **81** | 502 → **136** |
+| `GET /api/courses-enrolled` | 1 khoá, 0 bài xong | 5 → **3** | 4 → **2** | 288 → **131** | 580 → **307** |
+| `GET /api/courses-enrolled` | 1 khoá, 172 bài xong | 5 → **3** | 4 → **2** | 322 → **178** | 485 → **276** |
+
+- **Số truy vấn** do máy đếm. Mỗi ca `enrolled` của bản trước có đúng 1 lượt ra 6, đó là
+  khoản "+1 khi cache user hết hạn" đã ghi ở bảng mốc.
+- **`/enrolled` còn MỘT vòng:** hai câu (`enrollments` JOIN `courses` + tên bài, và
+  `lesson_progress` JOIN `lessons` của khoá studio) cùng bắt đầu và chạy song song, mỗi câu
+  ~55 ms trong lượt mẫu. Trong cùng lượt mẫu, bản trước đi 5 câu nối đuôi.
+- **`/courses-enrolled` còn hai vòng:** `isAdmin`, rồi (`courses` ‖ câu ghi danh). Vòng
+  `isAdmin` vẫn phải đi trước vì điều kiện lọc `is_published` gửi xuống DB phụ thuộc vào nó.
+- **Response giống hệt** giữa hai bản ở cả 4 ca, và ở ca thêm 2 khoá nữa (3 khoá), trừ thứ tự
+  của `completedLessonNumbers`: nay tăng dần thay vì theo thứ tự ngẫu nhiên của DB. Frontend chỉ
+  dùng mảng này như một tập.
+- Bản "trước" ở đây không ra đúng số của bảng mốc BE1 (p50 304 so với 290 ms ở ca 0 bài),
+  vì mạng mỗi ngày một khác. **Chỉ so trước/sau trong cùng bảng này.**
+- **Chưa làm cache 5–10 giây** (mục 4 của sheet BE5). Sau khi còn một vòng, cache chỉ bớt được
+  ~70 ms. Muốn cache đúng thì phải xoá nó từ `completeLesson`, `enroll` và `unenroll`, bỏ sót
+  một chỗ là dashboard hiện tiến độ cũ.
+
 ## Đo lại sau mỗi task
 
 1. Trỏ `.env` vào branch Neon đo (đã có sẵn dữ liệu ở trên, chỉ thiếu người dùng đo).

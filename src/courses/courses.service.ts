@@ -43,6 +43,24 @@ const COURSE_ICONS: Record<string, string> = {
 export const STUDIO_COURSES = ['python_advanced'];
 
 /** DB lưu enum tiếng Anh; card trên dashboard cần nhãn tiếng Việt. */
+/**
+ * Đúng các cột `mapCourse()` đọc. Bảng courses không có cột nào lớn ngoài
+ * `content_meta` (mà card vẫn cần), nên đây là để KHÔNG kéo thêm cột mới nào
+ * vào đường nóng mỗi khi bảng được thêm cột, chứ không phải để bớt byte hôm nay.
+ */
+const COURSE_CARD_SELECT = {
+  id: true,
+  title: true,
+  level: true,
+  rating: true,
+  lessonCount: true,
+  xp_reward: true,
+  isPublished: true,
+  language: true,
+  accentColor: true,
+  contentMeta: true,
+} satisfies Prisma.CourseSelect;
+
 const LEVEL_LABELS: Record<string, string> = {
   beginner: 'Cơ bản',
   intermediate: 'Trung cấp',
@@ -193,7 +211,11 @@ export class CoursesService {
       : { OR: [{ isPublished: true }, { enrollments: { some: { userId } } }] };
 
     const [courses, rows] = await Promise.all([
-      this.prisma.course.findMany({ where: visible, orderBy: { id: 'asc' } }),
+      this.prisma.course.findMany({
+        where: visible,
+        orderBy: { id: 'asc' },
+        select: COURSE_CARD_SELECT,
+      }),
       this.docGhiDanh(userId),
     ]);
 

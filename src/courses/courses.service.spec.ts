@@ -46,7 +46,10 @@ const asyncMock = <A extends unknown[] = unknown[]>(): AsyncMock<A> =>
   jest.fn<Promise<unknown>, A>();
 
 /** Đối số của `findMany`/`findUnique`… mà bộ test này đọc lại. */
-type TruyVan = { where?: Record<string, unknown> };
+type TruyVan = {
+  where?: Record<string, unknown>;
+  select?: Record<string, unknown>;
+};
 
 /** Chỉ những bảng/hàm mà CoursesService thật sự gọi. */
 type PrismaMock = {
@@ -402,6 +405,26 @@ describe('CoursesService — cổng is_published', () => {
         1,
         ['python_advanced'],
       ]);
+    });
+
+    it('/courses-enrolled chỉ lấy đúng cột mapCourse() đọc', async () => {
+      await service.getCoursesEnrolled(1);
+      const select = prisma.course.findMany.mock.calls[0][0]?.select;
+      expect(select).toBeDefined();
+      expect(Object.keys(select ?? {}).sort()).toEqual(
+        [
+          'accentColor',
+          'contentMeta',
+          'id',
+          'isPublished',
+          'language',
+          'lessonCount',
+          'level',
+          'rating',
+          'title',
+          'xp_reward',
+        ].sort(),
+      );
     });
 
     it('chưa ghi danh khoá nào: trả danh sách rỗng, không vỡ', async () => {

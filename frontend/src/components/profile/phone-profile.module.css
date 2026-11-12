@@ -1,0 +1,381 @@
+.profileWrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Thanh trạng thái đỉnh điện thoại */
+.statusBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #5b6890;
+  letter-spacing: 0.02em;
+}
+
+.statusIcons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+}
+
+/* Thẻ thông tin cá nhân */
+.userCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid rgba(180, 200, 230, 0.4);
+  box-shadow: 0 2px 8px rgba(30, 45, 80, 0.05);
+}
+
+.userAvatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fed7aa, #f97316);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(249, 115, 22, 0.25);
+}
+
+.userInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userStatus {
+  font-size: 11.5px;
+  color: #64748b;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  display: inline-block;
+}
+
+/* Lưới 4 ô thống kê */
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.statBox {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(180, 200, 230, 0.35);
+  box-shadow: 0 2px 6px rgba(30, 45, 80, 0.03);
+  display: flex;
+  flex-direction: column;
+}
+
+.statVal {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+/* Thẻ khoá đang học */
+.courseCard {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 13px 14px;
+  border: 1px solid rgba(180, 200, 230, 0.4);
+  box-shadow: 0 2px 8px rgba(30, 45, 80, 0.04);
+}
+
+.courseHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.courseSectionTitle {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.courseName {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 3px;
+}
+
+.courseLessonTitle {
+  font-size: 11.5px;
+  color: #475569;
+  margin: 0 0 10px;
+}
+
+.courseProgressWrap {
+  margin-top: 6px;
+}
+
+.courseProgressInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* Khu vực Tuỳ chọn khoá học */
+.optionsCard {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 14px;
+  padding: 13px 14px;
+  border: 1px dashed rgba(180, 160, 140, 0.45);
+}
+
+.optionsTitle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #78350f;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+}
+
+.optionsDesc {
+  font-size: 11.5px;
+  color: #713f12;
+  margin: 0 0 10px;
+  line-height: 1.45;
+}
+
+.resetCourseBtn {
+  width: 100%;
+  padding: 8px 14px;
+  border-radius: 9px;
+  border: 1px solid rgba(217, 119, 6, 0.35);
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.resetCourseBtn:hover {
+  background: #fde68a;
+  border-color: #d97706;
+}
+
+/* Bảng xếp hạng */
+.leaderboardList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.leaderboardItem {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid rgba(180, 200, 230, 0.3);
+  font-size: 12px;
+}
+
+.leaderboardItemMine {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.rankNumber {
+  width: 20px;
+  font-weight: 800;
+  color: #64748b;
+  text-align: center;
+}
+
+.rankAvatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: #e2e8f0;
+  color: #334155;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  margin: 0 8px;
+}
+
+.rankName {
+  flex: 1;
+  font-weight: 600;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mineBadge {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #bbf7d0;
+  color: #15803d;
+  font-weight: 700;
+}
+
+.rankXp {
+  font-weight: 700;
+  color: #d97706;
+  font-size: 11.5px;
+}
+
+/* Modal Học lại khoá */
+.modalOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modalCard {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 20px 16px 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  animation: popUp 0.2s ease-out;
+}
+
+.modalIcon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.modalTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px;
+}
+
+.modalText {
+  font-size: 12.5px;
+  color: #475569;
+  line-height: 1.5;
+  margin: 0 0 10px;
+}
+
+.modalHighlight {
+  background: #fef3c7;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 11.5px;
+  color: #92400e;
+  line-height: 1.45;
+  margin-bottom: 14px;
+  text-align: left;
+}
+
+.modalActions {
+  display: flex;
+  gap: 8px;
+}
+
+.modalCancelBtn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.modalConfirmBtn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+  background: #ea580c;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 2px 6px rgba(234, 88, 12, 0.3);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popUp {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

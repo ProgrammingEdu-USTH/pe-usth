@@ -665,6 +665,7 @@ function body(r){
         <div><div class="xpb"><i style="width:${PCT}%"></i></div><div class="xpl"><span>${USER.lessonsDone == null ? '— bài' : `${USER.lessonsDone}/${TOTAL} bài`}</span><span>${esc(CONTENT.course.name)}</span></div></div>
         <div class="stats"><div><b>${SO(USER.xp)}</b><small>tổng XP</small></div><div><b>${USER.lessonsDone == null ? '—' : USER.lessonsDone}</b><small>bài đã xong</small></div><div><b>${USER.badges ? USER.badges.done : '—'}</b><small>huy hiệu</small></div><div><b>${USER.rank ? USER.rank.rank : '—'}</b><small>hạng theo XP</small></div></div>
         <div class="act"><h5>Khoá đang học</h5><div class="rb" style="display:block"><b style="font-size:15px">${esc(CUR ? CUR.m.name : CONTENT.course.name)}</b><div style="margin-top:6px;color:#5b6890">${CUR ? esc(CUR.l.title) : ''}</div></div></div>
+        <div class="act" style="margin-top:10px"><h5>Tuỳ chọn khoá học</h5><button class="btn ghost" id="resetCourseBtn" style="width:100%;margin-top:6px;font-size:12.5px"><span aria-hidden="true">🔄</span> Học lại khoá này</button></div>
         <div class="sample">Những ô ghi "—" là số chưa đọc được, không phải số 0.</div>
       </div></div>
       <div class="pv" id="pvRank" ${t!=='rank'?'hidden':''}>
@@ -705,6 +706,18 @@ function wirePage(r, fresh){
         apDungSo(); };
       nut.addEventListener('click', luu);
       inp.addEventListener('keydown', e=>{ if (e.key==='Enter'){ e.preventDefault(); luu(); } });
+    }
+    const rst = $('#resetCourseBtn');
+    if (rst){
+      rst.addEventListener('click', ()=>{
+        if (window.confirm('Tiến độ bài học sẽ trở về 0 để bạn bắt đầu lại từ Bài 1. Toàn bộ điểm XP của bạn vẫn được giữ nguyên trọn vẹn.\n\nBạn có muốn học lại khoá này?')){
+          USER.lessonsDone = 0;
+          toast('Đã đặt lại tiến độ về Bài 1. Điểm XP vẫn được giữ nguyên.');
+          const cur = page.querySelector('.stagearea');
+          if (cur){ cur.innerHTML = body('phone'); wirePage('phone', false); }
+          apDungSo();
+        }
+      });
     }
   }
 }

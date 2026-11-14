@@ -1,0 +1,207 @@
+{
+ "lesson_code": "VZ25",
+ "sort_order": 98,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ25 · Animation: cập nhật đối tượng và xuất vòng lặp HTML",
+ "subtitle": "Nâng cao · M4 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "VZ25 · Animation: cập nhật đối tượng và xuất vòng lặp HTML",
+  "subtitle": "Nâng cao · M4 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/VZ25.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Animation: cập nhật đối tượng và xuất vòng lặp HTML",
+    "body": "Để minh họa một đường được vẽ dần, bạn không cần tạo Figure mới ở mỗi khung hình. Tạo Line2D một lần rồi gọi set_data để thay các điểm đang hiển thị. Hàm update nhận chỉ số khung và trả các đối tượng vừa đổi; nó chỉ cập nhật hình, không chạy lại chương trình dữ liệu từ đầu.",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Để minh họa một đường được vẽ dần, bạn không cần tạo Figure mới ở mỗi khung hình. Tạo Line2D một lần rồi gọi set_data để thay các điểm đang hiển thị. Hàm update nhận chỉ số khung và trả các đối tượng vừa đổi; nó chỉ cập nhật hình, không chạy lại chương trình dữ liệu từ đầu.\n\n![Biểu đồ](../visuals/VZ25-1.png)"
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "FuncAnimation gọi update theo frames và interval tính bằng mili giây. Giữ biến ani để đối tượng animation còn tồn tại. to_jshtml xuất bộ điều khiển và các khung vào HTML; với vài khung nhỏ nó chạy không cần bộ mã hóa video. Hình PNG tĩnh cạnh ví dụ là một khung, còn HTML mới chứa chuyển động.\n\n![Biểu đồ](../visuals/VZ25-2.png)"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Animation cần có nút dừng và hình tĩnh để người học xem lại; tốc độ chạy không nên che con số hoặc chỉ dựa vào nhấp nháy. Dòng style trong ví dụ giữ nhãn chữ trên nút điều khiển kể cả khi không tải được font icon từ mạng. Lặp lại chỉ là cách trình chiếu, không có nghĩa dữ liệu quay về thời điểm đầu. Ví dụ cuối tạo một cột thay đổi chiều cao, giữ nguyên thang để độ cao không bị tự co giãn ở mỗi khung.\n\n![Biểu đồ](../visuals/VZ25-3.png)"
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import matplotlib\nmatplotlib.use(\"Agg\")\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nline, = ax.plot([], [], marker=\"o\")\nax.set(xlim=(1, 3), ylim=(0, 12), xlabel=\"Day\", ylabel=\"Cups\", title=\"Reveal observations one at a time\")\nx, y = [1, 2, 3], [8, 10, 7]\ndef update(frame):\n    line.set_data(x[:frame+1], y[:frame+1])\n    return (line,)\nupdate(1)\nprint(list(line.get_ydata()))\nfrom pathlib import Path\nfrom tempfile import gettempdir\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\nfig.savefig(out / \"VZ25-1.png\", dpi=130)\nplt.close(fig)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: [8, 10]"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: True"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 7"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "update(frame) của animation có cần tạo Figure mới mỗi lần không?",
+     "options": [
+      {
+       "text": "Có, mọi khung bắt buộc là một Figure mới",
+       "correct": false,
+       "detail": "Điều đó không cần thiết và làm quản lý hình phức tạp."
+      },
+      {
+       "text": "Chỉ đổi title, dữ liệu không đổi được",
+       "correct": false,
+       "detail": "Line2D có set_data để đổi dữ liệu."
+      },
+      {
+       "text": "Không, có thể đổi Line2D đã tạo bằng set_data",
+       "correct": true,
+       "detail": "Đúng: đối tượng hình được giữ và chỉ dữ liệu hiển thị đổi."
+      }
+     ],
+     "explanation": "Tách dữ liệu gốc khỏi phần đang được trình chiếu ở một khung."
+    },
+    {
+     "question": "interval=600 có nghĩa mỗi khung kéo dài bao lâu?",
+     "options": [
+      {
+       "text": "600 mili giây, tương đương 0.6 giây theo lịch phát; thời gian thực có thể lệch tùy trình duyệt và máy.",
+       "correct": true,
+       "detail": "600 mili giây, tương đương 0.6 giây theo lịch phát; thời gian thực có thể lệch tùy trình duyệt và máy."
+      },
+      {
+       "text": "600 giây.",
+       "correct": false,
+       "detail": "600 giây lớn hơn thời gian được khai báo 1000 lần."
+      },
+      {
+       "text": "0.006 giây.",
+       "correct": false,
+       "detail": "600 mili giây bằng 0.6 giây, không phải 0.006."
+      }
+     ],
+     "explanation": "600 mili giây, tương đương 0.6 giây theo lịch phát; thời gian thực có thể lệch tùy trình duyệt và máy."
+    },
+    {
+     "question": "Vì sao giữ nguyên ylim khi cột thay đổi?",
+     "options": [
+      {
+       "text": "Để dữ liệu gốc không được cập nhật.",
+       "correct": false,
+       "detail": "Giữ thang không ngăn cập nhật dữ liệu của artist."
+      },
+      {
+       "text": "Để mọi cột luôn cao bằng nhau dù giá trị khác nhau.",
+       "correct": false,
+       "detail": "Dữ liệu khác nhau vẫn phải có chiều cao khác nhau trên cùng thang."
+      },
+      {
+       "text": "Để cùng độ cao luôn biểu diễn cùng lượng, tránh hình tự co giãn làm thay đổi cảm nhận.",
+       "correct": true,
+       "detail": "Để cùng độ cao luôn biểu diễn cùng lượng, tránh hình tự co giãn làm thay đổi cảm nhận."
+      }
+     ],
+     "explanation": "Để cùng độ cao luôn biểu diễn cùng lượng, tránh hình tự co giãn làm thay đổi cảm nhận."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Thay chiều cao cột đã có."
+   },
+   "scaffold": {
+    "template": "bars[0].{{slot1}}(values[frame])",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "set_height"
+     }
+    ],
+    "bank": [
+     {
+      "label": "set_height",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.x,data.y cùng độ dài; data.frame là chỉ số hợp lệ. Tạo Line2D rỗng một lần, viết update(frame) dùng set_data hiện từ đầu tới frame (gồm frame), gọi update với frame đã cho. Trả shownY đọc từ line và lineCount=len(ax.lines). Không tạo line mới bên trong update. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "khung giữa",
+      "value": "{'x': [1, 2, 3, 4], 'y': [3, 7, 5, 9], 'frame': 1} → {'shownY': [3, 7], 'lineCount': 1}"
+     },
+     {
+      "label": "khung đầu",
+      "value": "{'x': [1, 2], 'y': [0, 6], 'frame': 0} → {'shownY': [0], 'lineCount': 1}"
+     },
+     {
+      "label": "khung cuối",
+      "value": "{'x': [2, 4, 6], 'y': [5, 2, 8], 'frame': 2} → {'shownY': [5, 2, 8], 'lineCount': 1}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     fig, ax = plt.subplots()\n     line, = ax.plot([],[])\n     def update(frame):\n         line.set_data(data['x'][:frame+1],data['y'][:frame+1])\n         return (line,)\n     update(data['frame'])\n     result = {'shownY':list(line.get_ydata()),'lineCount':len(ax.lines)}\n     plt.close(fig)\n     return result\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cần thay chiều cao cột đang có, không tạo cột mới."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Cập nhật cùng một artist thay vì tạo hình mới mỗi khung."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "khung giữa",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'x': [1, 2, 3, 4], 'y': [3, 7, 5, 9], 'frame': 1}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'shownY': [3, 7], 'lineCount': 1}"
+    },
+    {
+     "name": "khung đầu",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'x': [1, 2], 'y': [0, 6], 'frame': 0}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'shownY': [0], 'lineCount': 1}"
+    },
+    {
+     "name": "khung cuối",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'x': [2, 4, 6], 'y': [5, 2, 8], 'frame': 2}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'shownY': [5, 2, 8], 'lineCount': 1}"
+    }
+   ]
+  }
+ }
+}

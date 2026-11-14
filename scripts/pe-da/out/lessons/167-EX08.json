@@ -1,0 +1,198 @@
+{
+ "lesson_code": "EX08",
+ "sort_order": 167,
+ "module": "M9 · Ôn tập và thực hành các chi tiết trong slide",
+ "title": "EX08 · Chuẩn bị vector và lưới trước khi vẽ",
+ "subtitle": "Trung cấp · M9 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "EX08 · Chuẩn bị vector và lưới trước khi vẽ",
+  "subtitle": "Trung cấp · M9 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/EX08.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Chuẩn bị vector và lưới trước khi vẽ",
+    "body": "Để vẽ đường sin, bạn cần các vị trí x và giá trị sin tương ứng. `linspace` tạo các vị trí cách đều; `sin` và `cos` tính trên từng phần tử của array. Ví dụ dưới cũng tạo bảng số ngẫu nhiên bằng một bộ sinh riêng `rng`. Seed giúp chạy lại ví dụ trong cùng môi trường, nhưng các số sinh ra vẫn là dữ liệu mô phỏng. Lệnh cũ `np.random.random((2, 3))` dùng bộ sinh toàn cục, cho bảng 2 hàng, 3 cột với các số từ 0 đến dưới 1. Giữ `rng` riêng giúp bạn điều khiển seed mà không đổi trạng thái ngẫu nhiên của phần code khác.",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Để vẽ đường sin, bạn cần các vị trí x và giá trị sin tương ứng. `linspace` tạo các vị trí cách đều; `sin` và `cos` tính trên từng phần tử của array. Ví dụ dưới cũng tạo bảng số ngẫu nhiên bằng một bộ sinh riêng `rng`. Seed giúp chạy lại ví dụ trong cùng môi trường, nhưng các số sinh ra vẫn là dữ liệu mô phỏng. Lệnh cũ `np.random.random((2, 3))` dùng bộ sinh toàn cục, cho bảng 2 hàng, 3 cột với các số từ 0 đến dưới 1. Giữ `rng` riêng giúp bạn điều khiển seed mà không đổi trạng thái ngẫu nhiên của phần code khác.\n\nTrong `np.mgrid`, `3j` yêu cầu ba điểm tính cả hai đầu, không phải khoảng cách 3 giữa các điểm. Ví dụ lấy ba vị trí x từ -1 đến 1 và năm vị trí y từ -2 đến 2. `X` và `Y` là hai bảng tọa độ có cùng `shape=(3, 5)`. Tại mỗi vị trí, đặt `U=-Y` và `V=X` để có hai thành phần của vector xoay; VZ29 dùng các bảng này để vẽ trường vector. Với bước là số thực như 0.5, `mgrid` hiểu đó là khoảng cách giữa các điểm."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`np.load` đọc file định dạng NumPy. Đoạn dưới lưu array ảnh vào `image.npy`, đọc lại rồi kiểm tra dữ liệu có giữ nguyên không. Tiếp theo, `get_sample_data(\"topobathy.npz\", asfileobj=False)` lấy đường dẫn file mẫu đi kèm Matplotlib. File `.npz` này chứa ba array: `topo` (độ cao/độ sâu), `longitude` (kinh độ) và `latitude` (vĩ độ). Dùng `np.load` để mở rồi chọn array theo tên. Một số file mẫu cũ như `bivariate_normal.npy` không có ở mọi phiên bản; nếu thiếu, hãy xem các mẫu có sẵn hoặc dùng array tự tạo."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import numpy as np\nx = np.linspace(0, np.pi, 3)\nprint(np.round(np.sin(x), 6).tolist())\nprint(np.round(np.cos(x), 6).tolist())\nrng = np.random.default_rng(7)\ndata = rng.random((2, 3))\nprint(data.shape, bool(((data >= 0) & (data < 1)).all()))\nprint(np.random.random((2, 3)).shape)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: [0.0, 1.0, 0.0] ⏎ [1.0, 0.0, -1.0] ⏎ (2, 3) True ⏎ (2, 3)"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: (3, 5) (3, 5) (3, 5) (3, 5) ⏎ [-1.0, 0.0, 1.0] ⏎ [-2.0, -1.0, 0.0, 1.0, 2.0]"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: (2, 2) True ⏎ ['latitude', 'longitude', 'topo'] ⏎ 2"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "np.mgrid[-1:1:3j] tạo bao nhiêu điểm?",
+     "options": [
+      {
+       "text": "3",
+       "correct": true,
+       "detail": "Bước phức 3j yêu cầu ba điểm, gồm hai đầu -1 và 1."
+      },
+      {
+       "text": "2",
+       "correct": false,
+       "detail": "Không diễn giải 3j như khoảng cách giữa hai điểm."
+      },
+      {
+       "text": "Không xác định vì số phức",
+       "correct": false,
+       "detail": "Trong cú pháp mgrid, phần ảo chỉ định số điểm."
+      }
+     ],
+     "explanation": "Bước phức 3j yêu cầu ba điểm, gồm hai đầu -1 và 1."
+    },
+    {
+     "question": "linspace(0, pi, 3) tạo mấy vị trí?",
+     "options": [
+      {
+       "text": "pi vị trí",
+       "correct": false,
+       "detail": "Chưa đúng. Tham số thứ ba là số điểm; mặc định cách dùng này gồm cả hai đầu."
+      },
+      {
+       "text": "3",
+       "correct": true,
+       "detail": "Tham số thứ ba là số điểm; mặc định cách dùng này gồm cả hai đầu."
+      },
+      {
+       "text": "2",
+       "correct": false,
+       "detail": "Chưa đúng. Tham số thứ ba là số điểm; mặc định cách dùng này gồm cả hai đầu."
+      }
+     ],
+     "explanation": "Tham số thứ ba là số điểm; mặc định cách dùng này gồm cả hai đầu."
+    },
+    {
+     "question": "np.sin(x) với x là array làm gì trước khi vẽ?",
+     "options": [
+      {
+       "text": "Tính sin từng phần tử thành array",
+       "correct": true,
+       "detail": "Tính giá trị và tạo hình là hai bước riêng; sin không tự vẽ."
+      },
+      {
+       "text": "Tự mở đồ thị sin",
+       "correct": false,
+       "detail": "Chưa đúng. Tính giá trị và tạo hình là hai bước riêng; sin không tự vẽ."
+      },
+      {
+       "text": "Đổi mọi phần tử thành chỉ số",
+       "correct": false,
+       "detail": "Chưa đúng. Tính giá trị và tạo hình là hai bước riêng; sin không tự vẽ."
+      }
+     ],
+     "explanation": "Tính giá trị và tạo hình là hai bước riêng; sin không tự vẽ."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Lấy n vị trí cách đều từ 0 đến pi, gồm cả hai đầu."
+   },
+   "scaffold": {
+    "template": "x = np.{{slot1}}(0, np.pi, n)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Hàm tạo n điểm",
+      "answer": "linspace"
+     }
+    ],
+    "bank": [
+     {
+      "label": "linspace",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Viết solve(data) nhận {\"nx\": số điểm x, \"ny\": số điểm y}, mỗi số ít nhất 2. Tạo mgrid x từ -1 đến 1 gồm nx điểm và y từ -2 đến 2 gồm ny điểm. Đặt U=-Y, V=X. Lưu U vào vector.npy rồi đọc lại bằng allow_pickle=False. Trả {\"shape\": shape của U dạng list, \"uFirst\": hàng đầu U, \"vLast\": hàng cuối V, \"roundtrip\": dữ liệu đọc có bằng U}.",
+    "io": [
+     {
+      "label": "lưới 3x5",
+      "value": "{'nx': 3, 'ny': 5} → {'shape': [3, 5], 'uFirst': [2, 1, 0, -1, -2], 'vLast': [1, 1, 1, 1, 1], 'roundtrip': True}"
+     },
+     {
+      "label": "lưới 2x3",
+      "value": "{'nx': 2, 'ny': 3} → {'shape': [2, 3], 'uFirst': [2, 0, -2], 'vLast': [1, 1, 1], 'roundtrip': True}"
+     },
+     {
+      "label": "lưới 4x2",
+      "value": "{'nx': 4, 'ny': 2} → {'shape': [4, 2], 'uFirst': [2, -2], 'vLast': [1, 1], 'roundtrip': True}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    X,Y = np.mgrid[-1:1:complex(0,data['nx']), -2:2:complex(0,data['ny'])]\n    U,V = -Y,X\n    np.save('vector.npy',U)\n    loaded = np.load('vector.npy',allow_pickle=False)\n    return {'shape':list(U.shape),'uFirst':U[0].tolist(),'vLast':V[-1].tolist(),'roundtrip':bool(np.array_equal(loaded,U))}\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "lưới 3x5",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'nx': 3, 'ny': 5}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'shape': [3, 5], 'uFirst': [2, 1, 0, -1, -2], 'vLast': [1, 1, 1, 1, 1], 'roundtrip': True}"
+    },
+    {
+     "name": "lưới 2x3",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'nx': 2, 'ny': 3}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'shape': [2, 3], 'uFirst': [2, 0, -2], 'vLast': [1, 1, 1], 'roundtrip': True}"
+    },
+    {
+     "name": "lưới 4x2",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'nx': 4, 'ny': 2}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'shape': [4, 2], 'uFirst': [2, -2], 'vLast': [1, 1], 'roundtrip': True}"
+    }
+   ]
+  }
+ }
+}

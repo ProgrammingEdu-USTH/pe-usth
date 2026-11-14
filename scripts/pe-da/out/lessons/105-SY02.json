@@ -1,0 +1,195 @@
+{
+ "lesson_code": "SY02",
+ "sort_order": 105,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY02 · Lấy mẫu ngẫu nhiên và đếm tần suất",
+ "subtitle": "Trung cấp · M5 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "SY02 · Lấy mẫu ngẫu nhiên và đếm tần suất",
+  "subtitle": "Trung cấp · M5 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/SY02.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Lấy mẫu ngẫu nhiên và đếm tần suất",
+    "body": "Bạn có danh sách đơn hàng và muốn chọn ngẫu nhiên một đơn để kiểm tra. Để thử code mà không phụ thuộc trạng thái random của phần khác, tạo một bộ sinh riêng:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn có danh sách đơn hàng và muốn chọn ngẫu nhiên một đơn để kiểm tra. Để thử code mà không phụ thuộc trạng thái random của phần khác, tạo một bộ sinh riêng:\n\n`choice` chọn một phần tử, nên danh sách phải không rỗng. `random()` trả số thực từ 0 đến trước 1. Số 7 trong `Random(7)` là seed, dùng để khởi tạo bộ sinh. Giữ cùng môi trường và cùng thứ tự gọi sẽ giúp bạn lặp lại lần thử; nếu cần chạy ổn định giữa các môi trường, đừng mặc định mọi cách lấy mẫu đều cho cùng một dãy."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`randint(1, 3)` có thể trả cả 1 lẫn 3, khác `range` không lấy điểm dừng. Ví dụ lấy năm lần rồi kiểm tra có đủ năm số và tất cả đều nằm trong khoảng 1 đến 3. Hai dòng True cho bạn thấy các điều kiện đó đã đúng; chúng không hiển thị dãy số vừa lấy.\n\n`Counter` đếm số lần xuất hiện. Có 5 lượt mua nhưng chỉ 3 loại đồ uống. `most_common(2)` lấy hai loại có tần suất cao nhất; nếu hòa, Counter giữ thứ tự gặp đầu trong dữ liệu. Tần suất này mô tả dữ liệu đã có, khác việc chọn mẫu ngẫu nhiên."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import random\nrng = random.Random(7)\nsample = rng.choice([\"A01\", \"A02\", \"A03\"])\nprint(sample in [\"A01\", \"A02\", \"A03\"])\nprint(0 <= rng.random() < 1)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: True ⏎ True"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 5 ⏎ True"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 3 0 ⏎ [('tea', 3), ('coffee', 1)]"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Counter([\"A\", \"B\", \"A\"])[\"C\"] trả gì?",
+     "options": [
+      {
+       "text": "KeyError",
+       "correct": false,
+       "detail": "Dictionary thường có thể báo KeyError; Counter hỗ trợ tần suất mặc định 0."
+      },
+      {
+       "text": "Một mã ngẫu nhiên",
+       "correct": false,
+       "detail": "Counter đếm dữ liệu; nó không thực hiện chọn mẫu."
+      },
+      {
+       "text": "0",
+       "correct": true,
+       "detail": "Counter cho tần suất 0 khi giá trị chưa xuất hiện."
+      }
+     ],
+     "explanation": "Counter cho tần suất 0 khi giá trị chưa xuất hiện."
+    },
+    {
+     "question": "rng.choice([]) có đáp ứng yêu cầu lấy một mã đơn không?",
+     "options": [
+      {
+       "text": "Có; luôn trả 0",
+       "correct": false,
+       "detail": "Chưa đúng. choice cần có ít nhất một phần tử để chọn. Hàm của ứng dụng nên nêu rõ cách xử lý đầu vào rỗng."
+      },
+      {
+       "text": "Không; cần xử lý danh sách rỗng trước",
+       "correct": true,
+       "detail": "choice cần có ít nhất một phần tử để chọn. Hàm của ứng dụng nên nêu rõ cách xử lý đầu vào rỗng."
+      },
+      {
+       "text": "Có; luôn trả chuỗi rỗng",
+       "correct": false,
+       "detail": "Chưa đúng. choice cần có ít nhất một phần tử để chọn. Hàm của ứng dụng nên nêu rõ cách xử lý đầu vào rỗng."
+      }
+     ],
+     "explanation": "choice cần có ít nhất một phần tử để chọn. Hàm của ứng dụng nên nêu rõ cách xử lý đầu vào rỗng."
+    },
+    {
+     "question": "Trong module random của Python, rng = random.Random(...). rng.randint(1, 3) có thể trả 3 không?",
+     "options": [
+      {
+       "text": "Có",
+       "correct": true,
+       "detail": "randint nhận cả hai đầu của khoảng số nguyên."
+      },
+      {
+       "text": "Không; chỉ có 1 hoặc 2",
+       "correct": false,
+       "detail": "Chưa đúng. randint nhận cả hai đầu của khoảng số nguyên."
+      },
+      {
+       "text": "Chỉ khi list có ba phần tử",
+       "correct": false,
+       "detail": "Chưa đúng. randint nhận cả hai đầu của khoảng số nguyên."
+      }
+     ],
+     "explanation": "randint nhận cả hai đầu của khoảng số nguyên."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Lấy hai loại được mua nhiều nhất."
+   },
+   "scaffold": {
+    "template": "from collections import Counter\ncounts = Counter([\"tea\", \"coffee\", \"tea\"])\nresult = counts.{{slot1}}(2)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phương thức lấy phổ biến nhất",
+      "answer": "most_common"
+     }
+    ],
+    "bank": [
+     {
+      "label": "most_common",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Một danh sách mã lỗi được ghi theo thứ tự xuất hiện. Viết solve(data) nhận list chuỗi, trả {\"counts\": tần suất từng mã, \"top\": mã xuất hiện nhiều nhất}. Khi hòa, lấy mã gặp trước; list rỗng cho top=None.",
+    "io": [
+     {
+      "label": "mã lặp",
+      "value": "['E2', 'E1', 'E2'] → {'counts': {'E2': 2, 'E1': 1}, 'top': 'E2'}"
+     },
+     {
+      "label": "hòa theo thứ tự gặp",
+      "value": "['B', 'A'] → {'counts': {'B': 1, 'A': 1}, 'top': 'B'}"
+     },
+     {
+      "label": "không có lỗi",
+      "value": "[] → {'counts': {}, 'top': None}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "from collections import Counter\ndef solve(data):\n    counts = Counter(data)\n    return {'counts': dict(counts), 'top': counts.most_common(1)[0][0] if counts else None}\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "tests": [
+    {
+     "name": "mã lặp",
+     "call": "__import__('json').loads(__import__('json').dumps(solve(['E2', 'E1', 'E2']), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'counts': {'E2': 2, 'E1': 1}, 'top': 'E2'}"
+    },
+    {
+     "name": "hòa theo thứ tự gặp",
+     "call": "__import__('json').loads(__import__('json').dumps(solve(['B', 'A']), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'counts': {'B': 1, 'A': 1}, 'top': 'B'}"
+    },
+    {
+     "name": "không có lỗi",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'counts': {}, 'top': None}"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,160 @@
+{
+ "lesson_code": "GU02",
+ "sort_order": 149,
+ "module": "M8 · Tkinter: từ form nhỏ đến quản lý điểm",
+ "title": "GU02 · Cửa sổ chính và cửa sổ phụ",
+ "subtitle": "Trung cấp · M8 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "GU02 · Cửa sổ chính và cửa sổ phụ",
+  "subtitle": "Trung cấp · M8 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/GU02.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Cửa sổ chính và cửa sổ phụ",
+    "body": "Ứng dụng quản lý điểm có một cửa sổ chính. Khi xem thông tin sinh viên, bạn có thể mở một cửa sổ phụ thuộc cửa sổ đó, thay vì tạo thêm một ứng dụng Tk độc lập.",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Ứng dụng quản lý điểm có một cửa sổ chính. Khi xem thông tin sinh viên, bạn có thể mở một cửa sổ phụ thuộc cửa sổ đó, thay vì tạo thêm một ứng dụng Tk độc lập.\n\nTk() tạo root và trình thông dịch Tcl/Tk đi kèm. title đặt tên trên thanh cửa sổ; geometry(\"640x400\") yêu cầu vùng cửa sổ rộng 640, cao 400 pixel. Số đo thực tế còn chịu quy tắc của hệ cửa sổ."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Toplevel(root) tạo cửa sổ phụ với root làm cha. Đóng cửa sổ phụ không nhất thiết đóng ứng dụng. Thông thường một ứng dụng dùng một Tk, các cửa sổ khác dùng Toplevel.\n\nWidget có parent chứa nó. Khi hủy cửa sổ phụ, các widget con của nó cũng bị hủy. Giữ quan hệ parent rõ giúp quản lý vòng đời giao diện và tránh tạo widget vào nhầm cửa sổ."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import tkinter as tk\nroot = tk.Tk(); root.withdraw()\nroot.title('Quan ly diem')\nroot.geometry('640x400')\nprint(root.title())\nprint(root.winfo_class())\nroot.destroy()",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: Quan ly diem ⏎ Tk"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: Sinh vien S01 ⏎ True ⏎ 1"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: True ⏎ 0"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Muốn mở cửa sổ Chi tiết trong app đã có root thì dùng gì?",
+     "options": [
+      {
+       "text": "tk.Toplevel(root)",
+       "correct": true,
+       "detail": "Một ứng dụng thường dùng một Tk làm root; cửa sổ phụ là Toplevel."
+      },
+      {
+       "text": "Tạo tk.Tk() mới cho mỗi lần bấm",
+       "correct": false,
+       "detail": "Điều đó tạo thêm root/interpreter, không phải quan hệ cửa sổ phụ mong muốn."
+      },
+      {
+       "text": "root.mainloop() lần nữa",
+       "correct": false,
+       "detail": "mainloop xử lý sự kiện; nó không tạo một cửa sổ mới."
+      }
+     ],
+     "explanation": "Một ứng dụng thường dùng một Tk làm root; cửa sổ phụ là Toplevel."
+    },
+    {
+     "question": "Ứng dụng đã có root, muốn mở cửa sổ Chi tiết nên dùng gì?",
+     "options": [
+      {
+       "text": "mainloop mới thay cho cửa sổ",
+       "correct": false,
+       "detail": "Chưa đúng. Toplevel dùng cùng hệ ứng dụng và parent; không cần tạo thêm root."
+      },
+      {
+       "text": "tk.Toplevel(root)",
+       "correct": true,
+       "detail": "Toplevel dùng cùng hệ ứng dụng và parent; không cần tạo thêm root."
+      },
+      {
+       "text": "Tk mới cho từng lần bấm",
+       "correct": false,
+       "detail": "Chưa đúng. Toplevel dùng cùng hệ ứng dụng và parent; không cần tạo thêm root."
+      }
+     ],
+     "explanation": "Toplevel dùng cùng hệ ứng dụng và parent; không cần tạo thêm root."
+    },
+    {
+     "question": "geometry(\"480x300\") quy định gì trong ví dụ?",
+     "options": [
+      {
+       "text": "Kích thước cửa sổ theo pixel",
+       "correct": true,
+       "detail": "Geometry của cửa sổ khác với các tham số bố trí widget."
+      },
+      {
+       "text": "Số widget tối đa",
+       "correct": false,
+       "detail": "Chưa đúng. Geometry của cửa sổ khác với các tham số bố trí widget."
+      },
+      {
+       "text": "Hàng và cột của grid",
+       "correct": false,
+       "detail": "Chưa đúng. Geometry của cửa sổ khác với các tham số bố trí widget."
+      }
+     ],
+     "explanation": "Geometry của cửa sổ khác với các tham số bố trí widget."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Tạo cửa sổ phụ có root làm parent."
+   },
+   "scaffold": {
+    "template": "details = tk.{{slot1}}(root)\ndetails.title(\"Chi tiết\")",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Loại cửa sổ phụ",
+      "answer": "Toplevel"
+     }
+    ],
+    "bank": [
+     {
+      "label": "Toplevel",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Viết windows.py: root tiêu đề \"Danh mục\", kích thước 520x320; nút \"Xem chi tiết\" mở Toplevel tiêu đề \"Chi tiết sách\", kích thước 300x180. Cửa sổ phụ có nút đóng chính nó."
+   },
+   "procedure": [
+    "Tạo duy nhất một Tk và một mainloop.",
+    "Callback mở Toplevel(root); nút đóng gọi destroy của cửa sổ phụ.",
+    "Đóng phụ rồi bấm mở lại; cuối cùng đóng root.",
+    "Tự kiểm: Root còn hoạt động sau khi đóng cửa sổ phụ.",
+    "Tự kiểm: Cửa sổ phụ có tiêu đề/kích thước đúng và nhìn thấy thật.",
+    "Tự kiểm: Chương trình thoát khi đóng root, không để vòng mainloop hay root thứ hai."
+   ]
+  }
+ }
+}

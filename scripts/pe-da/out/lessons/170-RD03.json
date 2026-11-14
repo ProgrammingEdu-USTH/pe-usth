@@ -1,0 +1,198 @@
+{
+ "lesson_code": "RD03",
+ "sort_order": 170,
+ "module": "M10 · Ôn API trực quan hóa và mở rộng NumPy cho phân tích",
+ "title": "RD03 · Sắp xếp mà vẫn giữ đúng tên và giá trị",
+ "subtitle": "Nâng cao · M10 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "RD03 · Sắp xếp mà vẫn giữ đúng tên và giá trị",
+  "subtitle": "Nâng cao · M10 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/RD03.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Sắp xếp mà vẫn giữ đúng tên và giá trị",
+    "body": "Bạn cần xếp ba cửa hàng theo doanh thu nhưng vẫn giữ tên đi cùng số tiền. Chỉ sort doanh thu rồi ghép lại tên cũ sẽ gán nhầm cửa hàng. argsort trả các vị trí theo thứ tự cần chọn.",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn cần xếp ba cửa hàng theo doanh thu nhưng vẫn giữ tên đi cùng số tiền. Chỉ sort doanh thu rồi ghép lại tên cũ sẽ gán nhầm cửa hàng. argsort trả các vị trí theo thứ tự cần chọn.\n\nThứ tự [1,2,0] lấy B trước, rồi C và A. Áp cùng một order lên mọi cột để các cặp không bị tách. kind=\"stable\" giữ thứ tự gốc giữa những giá trị bằng nhau. Nếu chỉ cần các số đã xếp, np.sort trả một array mới."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Array gốc vẫn là [30,10,20]. sales.sort() là phương thức sửa tại chỗ, nên chọn np.sort khi còn cần giữ dữ liệu gốc. Sau khi đã biết cách chọn, bạn có thể đếm các mã phân loại bằng unique.\n\nunique trả các giá trị khác nhau theo thứ tự sắp xếp mặc định. counts cùng vị trí với values: A xuất hiện hai lần, B hai lần, C một lần. Tổng đếm bằng năm quan sát. Đây là đếm lần xuất hiện, không phải cộng doanh thu của từng mã; khi cần nhiều cột và nhãn, groupby của pandas thường dễ đọc hơn."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import numpy as np\nnames = np.array([\"A\", \"B\", \"C\"])\nsales = np.array([30, 10, 20])\norder = np.argsort(sales, kind=\"stable\")\nprint(order.tolist())\nprint(names[order].tolist(), sales[order].tolist())",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: [1, 2, 0] ⏎ ['B', 'C', 'A'] [10, 20, 30]"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: [10, 20, 30] ⏎ [30, 10, 20]"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: ['A', 'B', 'C'] ⏎ [2, 2, 1] ⏎ 5"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "names=[A,B,C], sales=[30,10,20]. Sau sắp tăng đúng cặp, tên đứng đầu là gì?",
+     "options": [
+      {
+       "text": "A",
+       "correct": false,
+       "detail": "Giữ tên cũ trong khi chỉ sort số sẽ gán sai dữ liệu."
+      },
+      {
+       "text": "C",
+       "correct": false,
+       "detail": "C có 20, đứng giữa sau khi xếp tăng."
+      },
+      {
+       "text": "B",
+       "correct": true,
+       "detail": "Đúng. B đi cùng số 10 nhỏ nhất."
+      }
+     ],
+     "explanation": "Đúng. B đi cùng số 10 nhỏ nhất."
+    },
+    {
+     "question": "Cần thứ tự tăng của ba mức bán. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "[1, 2, 0]",
+       "correct": true,
+       "detail": "Giá thấp nhất ở index 1, tiếp theo 2, rồi 0."
+      },
+      {
+       "text": "[10, 20, 30]",
+       "correct": false,
+       "detail": "Đó là các giá trị đã sắp, không phải chỉ số."
+      },
+      {
+       "text": "[0, 1, 2]",
+       "correct": false,
+       "detail": "Đó là thứ tự gốc, chưa sắp theo sales."
+      }
+     ],
+     "explanation": "Giá thấp nhất ở index 1, tiếp theo 2, rồi 0."
+    },
+    {
+     "question": "Tên phải đi cùng lượng bán khi sắp. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "['B', 'C', 'A']",
+       "correct": true,
+       "detail": "Index chung order giữ đúng quan hệ tên và lượng bán."
+      },
+      {
+       "text": "['A', 'B', 'C']",
+       "correct": false,
+       "detail": "Giữ nguyên tên sau khi sắp giá trị sẽ gán sai cặp."
+      },
+      {
+       "text": "['A', 'C', 'B']",
+       "correct": false,
+       "detail": "Đó là thứ tự giảm, không phải tăng."
+      }
+     ],
+     "explanation": "Index chung order giữ đúng quan hệ tên và lượng bán."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền hàm trả về vị trí theo thứ tự cần chọn."
+   },
+   "scaffold": {
+    "template": "order = np.{{slot1}}(sales, kind=\"stable\")",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Hàm sắp vị trí",
+      "answer": "argsort"
+     }
+    ],
+    "bank": [
+     {
+      "label": "argsort",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận names và amounts cùng độ dài. Trả names và amounts đã xếp tăng theo amounts; hai giá trị bằng nhau giữ thứ tự ban đầu. Không tách tên khỏi số tiền.",
+    "io": [
+     {
+      "label": "Ba mức khác nhau",
+      "value": "{'names': ['A', 'B', 'C'], 'amounts': [30, 10, 20]} → {'names': ['B', 'C', 'A'], 'amounts': [10, 20, 30]}"
+     },
+     {
+      "label": "Hai mức bằng nhau",
+      "value": "{'names': ['X', 'Y', 'Z'], 'amounts': [5, 2, 5]} → {'names': ['Y', 'X', 'Z'], 'amounts': [2, 5, 5]}"
+     },
+     {
+      "label": "Chưa có dữ liệu",
+      "value": "{'names': [], 'amounts': []} → {'names': [], 'amounts': []}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    names = np.array(data[\"names\"])\n    amounts = np.array(data[\"amounts\"])\n    order = np.argsort(amounts, kind=\"stable\")\n    return {\"names\": names[order], \"amounts\": amounts[order]}\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Nếu sắp cột số riêng, tên vẫn ở chỗ cũ sẽ bị gán sai."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Lấy một argsort kind=\"stable\" rồi áp cùng order cho names và amounts."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "Ba mức khác nhau",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'names': ['A', 'B', 'C'], 'amounts': [30, 10, 20]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'names': ['B', 'C', 'A'], 'amounts': [10, 20, 30]}"
+    },
+    {
+     "name": "Hai mức bằng nhau",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'names': ['X', 'Y', 'Z'], 'amounts': [5, 2, 5]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'names': ['Y', 'X', 'Z'], 'amounts': [2, 5, 5]}"
+    },
+    {
+     "name": "Chưa có dữ liệu",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'names': [], 'amounts': []}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'names': [], 'amounts': []}"
+    }
+   ]
+  }
+ }
+}

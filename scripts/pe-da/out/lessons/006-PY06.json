@@ -1,0 +1,182 @@
+{
+ "lesson_code": "PY06",
+ "sort_order": 6,
+ "module": "M1 · Python nền tảng",
+ "title": "PY06 · Chuỗi, dấu nháy và ký tự xuống dòng",
+ "subtitle": "Cơ bản · M1 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PY06 · Chuỗi, dấu nháy và ký tự xuống dòng",
+  "subtitle": "Cơ bản · M1 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PY06.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Chuỗi, dấu nháy và ký tự xuống dòng",
+    "body": "Một báo cáo cần ghép tên cửa hàng vào tiêu đề. Bạn có thể dùng phép cộng với chuỗi:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một báo cáo cần ghép tên cửa hàng vào tiêu đề. Bạn có thể dùng phép cộng với chuỗi:\n\n`+` nối chuỗi, còn `*` với một số nguyên lặp chuỗi. Muốn nối số vào văn bản, chuyển nó thành chuỗi bằng `str` hoặc dùng định dạng chuỗi ở bài sau."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`\\n` trong literal tạo ký tự xuống dòng. Nháy đơn và nháy đôi đều tạo chuỗi; chọn loại giúp ít phải thêm dấu gạch chéo để biểu diễn dấu nháy bên trong. Ba dấu nháy liên tiếp có thể viết chuỗi nhiều dòng.\n\nChuỗi Python là Unicode nên bạn có thể dùng tiếng Việt. Một ký tự như \"A\" vẫn có kiểu str, không có kiểu char riêng. Hai chuỗi khác dấu là hai giá trị khác nhau. Dấu `#` bắt đầu comment, bỏ phần còn lại của dòng khỏi việc thực thi; có thể dùng nó để ghi lý do của một phép tính hoặc tạm vô hiệu hóa một dòng code. Comment không làm thay đổi giá trị của biến. Chuỗi ba nháy vẫn là object chuỗi; ở đầu hàm hoặc module, nó có thể làm docstring mô tả thành phần đó."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "store = \"Hanoi\"\nprint(\"Bao cao \" + store)\nprint(\"-\" * 5)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: Bao cao Hanoi ⏎ -----"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: Dong 1 ⏎ Dong 2"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 6 ⏎ False"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "print(\"A\\nB\") hiển thị như thế nào?",
+     "options": [
+      {
+       "text": "AB không có khoảng cách",
+       "correct": false,
+       "detail": "Ký tự xuống dòng vẫn được giữ khi in."
+      },
+      {
+       "text": "A và B trên hai dòng",
+       "correct": true,
+       "detail": "Đúng. \\n trong chuỗi là ký tự xuống dòng."
+      },
+      {
+       "text": "A\\nB trên một dòng",
+       "correct": false,
+       "detail": "Đó là cách viết trong code; print diễn giải ký tự xuống dòng có trong chuỗi."
+      }
+     ],
+     "explanation": "Đúng. \\n trong chuỗi là ký tự xuống dòng."
+    },
+    {
+     "question": "Tạo nhãn có tên thành phố. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "'Store: Hue'",
+       "correct": true,
+       "detail": "Dấu + nối nguyên các ký tự của hai chuỗi."
+      },
+      {
+       "text": "'Store: city'",
+       "correct": false,
+       "detail": "city không nằm trong dấu nháy nên được đọc giá trị."
+      },
+      {
+       "text": "'Store:Hue'",
+       "correct": false,
+       "detail": "Chuỗi bên trái có một dấu cách sau dấu hai chấm."
+      }
+     ],
+     "explanation": "Dấu + nối nguyên các ký tự của hai chuỗi."
+    },
+    {
+     "question": "In đường phân cách ngắn. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "'=-=-=-'",
+       "correct": true,
+       "detail": "Mỗi lượt lặp thêm một cặp =-."
+      },
+      {
+       "text": "'===---'",
+       "correct": false,
+       "detail": "Cả chuỗi =- được lặp theo thứ tự."
+      },
+      {
+       "text": "'=-3'",
+       "correct": false,
+       "detail": "Nhân chuỗi với số nguyên không nối chữ số 3."
+      }
+     ],
+     "explanation": "Mỗi lượt lặp thêm một cặp =-."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền số lần lặp để tạo đường kẻ bốn dấu gạch."
+   },
+   "scaffold": {
+    "template": "line = \"-\" * {{slot1}}",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Số lần lặp",
+      "answer": "4"
+     }
+    ],
+    "bank": [
+     {
+      "label": "4",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Hệ thống cung cấp city là tên địa điểm. Tạo report gồm dòng đầu \"Bao cao \" nối city, dòng sau đúng ba dấu gạch ngang. Giữ nguyên dấu và chữ hoa của city.",
+    "io": [
+     {
+      "label": "Tên ngắn",
+      "value": "'Hue' → 'Bao cao Hue\\n---'"
+     },
+     {
+      "label": "Tên có khoảng cách",
+      "value": "'Ha Noi' → 'Bao cao Ha Noi\\n---'"
+     },
+     {
+      "label": "Tên có dấu",
+      "value": "'Đà Nẵng' → 'Bao cao Đà Nẵng\\n---'"
+     }
+    ]
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tạo hai dòng trong cùng một chuỗi bằng ký tự xuống dòng."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Ghép tiền tố với city, thêm \\n rồi thêm chuỗi ba dấu gạch."
+    }
+   ],
+   "procedure": [
+    "Bài này chạy bằng script (đọc biến đầu vào, gán biến kết quả) nên chưa chấm tự động.",
+    "Đầu vào 'Hue' — kết quả cần có 'Bao cao Hue\\n---'.",
+    "Đầu vào 'Ha Noi' — kết quả cần có 'Bao cao Ha Noi\\n---'.",
+    "Đầu vào 'Đà Nẵng' — kết quả cần có 'Bao cao Đà Nẵng\\n---'."
+   ]
+  }
+ }
+}

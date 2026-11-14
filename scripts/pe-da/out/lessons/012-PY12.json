@@ -1,0 +1,182 @@
+{
+ "lesson_code": "PY12",
+ "sort_order": 12,
+ "module": "M1 · Python nền tảng",
+ "title": "PY12 · Dictionary và tra cứu theo khóa",
+ "subtitle": "Cơ bản · M1 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PY12 · Dictionary và tra cứu theo khóa",
+  "subtitle": "Cơ bản · M1 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PY12.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Dictionary và tra cứu theo khóa",
+    "body": "Mỗi học viên có mã và điểm. Dictionary giúp bạn lấy điểm theo mã thay vì nhớ vị trí trong một dãy:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Mỗi học viên có mã và điểm. Dictionary giúp bạn lấy điểm theo mã thay vì nhớ vị trí trong một dãy:\n\n`marks[key]` đọc giá trị và gây KeyError nếu thiếu khóa. `get` cho phép trả giá trị mặc định. Kiểm tra có khóa khác với kiểm tra điểm có khác 0: S02 có dữ liệu hợp lệ là điểm 0. `in` trên dict kiểm tra khóa."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Trong `for code, mark in marks.items()`, mỗi lượt lấy một cặp khóa và giá trị rồi gán vào code và mark. Đây là vòng lặp for; bài PY14 sẽ giải thích cách viết vòng lặp chi tiết hơn. `keys()` và `values()` trả các view, tức cách xem khóa hoặc giá trị luôn phản ánh nội dung hiện tại của dict; Python 3 giữ thứ tự chèn. Khóa là duy nhất, nên gán S01 lần nữa sẽ thay giá trị của khóa đó.\n\n`max(marks)` và `min(marks)` mặc định so các khóa. Thêm `key=marks.get` mới so theo điểm và vẫn trả mã tương ứng. `pop(key, default)` vừa lấy vừa xóa, trả default nếu thiếu; không có default thì khóa thiếu gây KeyError. `del marks[code]` chỉ xóa. `not in` cũng xét khóa, giống `in`. Giá trị trong dict có thể là list hoặc một dict khác, chẳng hạn hồ sơ chứa tên và nhiều điểm."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "marks = {\"S01\": 8, \"S02\": 0}\nprint(marks[\"S01\"])\nprint(marks.get(\"S03\", \"missing\"))\nprint(\"S02\" in marks)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 8 ⏎ missing ⏎ True"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: S01 9 ⏎ S02 7 ⏎ ['S01', 'S02'] [9, 7]"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: S02 5 ⏎ S01"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "marks={\"S02\":0}. marks.get(\"S02\", None) trả gì?",
+     "options": [
+      {
+       "text": "KeyError",
+       "correct": false,
+       "detail": "get cho phép giá trị mặc định; truy cập [] vào khóa thiếu mới gây KeyError."
+      },
+      {
+       "text": "0",
+       "correct": true,
+       "detail": "Đúng. Khóa tồn tại và giữ điểm 0."
+      },
+      {
+       "text": "None",
+       "correct": false,
+       "detail": "Giá trị mặc định chỉ dùng khi thiếu khóa."
+      }
+     ],
+     "explanation": "Đúng. Khóa tồn tại và giữ điểm 0."
+    },
+    {
+     "question": "Điểm 0 là một giá trị đã có. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "0",
+       "correct": true,
+       "detail": "Tra đúng khóa nhận đúng giá trị, kể cả khi giá trị là 0."
+      },
+      {
+       "text": "None",
+       "correct": false,
+       "detail": "Khóa A tồn tại và giữ điểm 0."
+      },
+      {
+       "text": "8",
+       "correct": false,
+       "detail": "8 thuộc khóa B."
+      }
+     ],
+     "explanation": "Tra đúng khóa nhận đúng giá trị, kể cả khi giá trị là 0."
+    },
+    {
+     "question": "Chưa có mã C. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "'missing'",
+       "correct": true,
+       "detail": "Không có C nên get trả đối số mặc định."
+      },
+      {
+       "text": "None",
+       "correct": false,
+       "detail": "Mặc định đã được truyền là chuỗi missing."
+      },
+      {
+       "text": "'KeyError'",
+       "correct": false,
+       "detail": "get với mặc định không gây KeyError khi thiếu khóa."
+      }
+     ],
+     "explanation": "Không có C nên get trả đối số mặc định."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền phương thức để đọc mã có thể thiếu mà không tự thêm mã vào dict."
+   },
+   "scaffold": {
+    "template": "amount = stock.{{slot1}}(\"P09\", None)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phương thức tra an toàn",
+      "answer": "get"
+     }
+    ],
+    "bank": [
+     {
+      "label": "get",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Hệ thống cung cấp stock là dictionary tồn kho theo mã sản phẩm. Gán amount bằng số lượng của P02, hoặc None nếu chưa có mã P02. Số lượng 0 phải được giữ nguyên.",
+    "io": [
+     {
+      "label": "Có hàng",
+      "value": "{'P01': 2, 'P02': 7} → 7"
+     },
+     {
+      "label": "Đã hết hàng",
+      "value": "{'P02': 0} → 0"
+     },
+     {
+      "label": "Chưa có mã",
+      "value": "{'P01': 4} → None"
+     }
+    ]
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Khóa thiếu khác khóa có số lượng bằng 0."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Dùng get với mặc định None; không kiểm bằng if stock.get(...) rồi bỏ số 0."
+    }
+   ],
+   "procedure": [
+    "Bài này chạy bằng script (đọc biến đầu vào, gán biến kết quả) nên chưa chấm tự động.",
+    "Đầu vào {'P01': 2, 'P02': 7} — kết quả cần có 7.",
+    "Đầu vào {'P02': 0} — kết quả cần có 0.",
+    "Đầu vào {'P01': 4} — kết quả cần có None."
+   ]
+  }
+ }
+}

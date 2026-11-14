@@ -1,0 +1,199 @@
+{
+ "lesson_code": "SY09",
+ "sort_order": 112,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY09 · Abstraction, interface và composition",
+ "subtitle": "Trung cấp · M5 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "SY09 · Abstraction, interface và composition",
+  "subtitle": "Trung cấp · M5 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/SY09.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Abstraction, interface và composition",
+    "body": "Một tác vụ xuất dữ liệu chỉ cần biết object có thể export. Nó không cần biết object ghi ra CSV hay JSON. Bạn có thể diễn đạt yêu cầu đó bằng abstract base class:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một tác vụ xuất dữ liệu chỉ cần biết object có thể export. Nó không cần biết object ghi ra CSV hay JSON. Bạn có thể diễn đạt yêu cầu đó bằng abstract base class:\n\nExporter còn method trừu tượng `export` chưa có cách xử lý cụ thể, nên chưa thể tạo instance. Cách giữ lại thao tác cần dùng và giấu chi tiết xử lý được gọi là trừu tượng hóa (abstraction). Python không có từ khóa interface như Java; ABC là một cách nêu các method lớp con cần cung cấp, nhưng bạn không bắt buộc dùng ABC cho mọi giao diện."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "TextExporter là một Exporter, tức quan hệ is-a. ReportService ở ví dụ tiếp theo sử dụng một exporter để làm việc, tức quan hệ has-a. Nó giữ exporter trong một thuộc tính thay vì kế thừa Exporter.\n\nỞ ví dụ cuối, ReportService chỉ cần object có method export phù hợp, thường gọi là duck typing. Trong câu hỏi Java của slide, static type là kiểu khai báo của biến; dynamic type là class thực của object lúc chạy. Biến kiểu cha có thể tham chiếu object lớp con. Python không bắt buộc khai báo kiểu cho tên; type annotation mô tả kỳ vọng cho công cụ kiểm tra, không tự ép kiểu lúc chạy."
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Python cho phép `class C(A, B)` kế thừa nhiều class. Java chỉ cho một superclass trực tiếp, nhưng một class có thể implement nhiều interface. Interface mô tả các thao tác mà bên dùng được quyền trông chờ; abstract class có thể nêu các method lớp con cần có và cung cấp hành vi dùng chung. Phần ôn này giúp đọc câu hỏi Java trong slide; bạn không cần viết lại bài Python bằng Java."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "from abc import ABC, abstractmethod\nclass Exporter(ABC):\n    @abstractmethod\n    def export(self, rows): pass\ntry:\n    Exporter()\nexcept TypeError:\n    print(\"Can cai dat export\")",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: Can cai dat export"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: A,B"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: A,B"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "ReportService giữ self.exporter để gọi export. Đây là quan hệ nào?",
+     "options": [
+      {
+       "text": "Không thể làm vì Python cần interface keyword",
+       "correct": false,
+       "detail": "Python có thể làm qua object có method phù hợp hoặc ABC."
+      },
+      {
+       "text": "has-a: service sử dụng một exporter",
+       "correct": true,
+       "detail": "Service chứa object thực hiện công việc, không cần kế thừa Exporter."
+      },
+      {
+       "text": "is-a: service bắt buộc là exporter",
+       "correct": false,
+       "detail": "Có một thuộc tính exporter không tạo quan hệ kế thừa."
+      }
+     ],
+     "explanation": "Service chứa object thực hiện công việc, không cần kế thừa Exporter."
+    },
+    {
+     "question": "Exporter còn abstract method export chưa triển khai có tạo instance trực tiếp được không?",
+     "options": [
+      {
+       "text": "Có; tên Exporter tự động bỏ abstract",
+       "correct": false,
+       "detail": "Chưa đúng. Abstract method mô tả thao tác subclass còn phải cung cấp; class chưa hoàn tất không tạo instance như class cụ thể."
+      },
+      {
+       "text": "Không; ABC ngăn tạo instance khi còn abstract method",
+       "correct": true,
+       "detail": "Abstract method mô tả thao tác subclass còn phải cung cấp; class chưa hoàn tất không tạo instance như class cụ thể."
+      },
+      {
+       "text": "Có; method tự trả dữ liệu mặc định",
+       "correct": false,
+       "detail": "Chưa đúng. Abstract method mô tả thao tác subclass còn phải cung cấp; class chưa hoàn tất không tạo instance như class cụ thể."
+      }
+     ],
+     "explanation": "Abstract method mô tả thao tác subclass còn phải cung cấp; class chưa hoàn tất không tạo instance như class cụ thể."
+    },
+    {
+     "question": "ReportService giữ một exporter trong thuộc tính. Đây là quan hệ nào?",
+     "options": [
+      {
+       "text": "has-a",
+       "correct": true,
+       "detail": "Service sử dụng một thành phần exporter thay vì kế thừa mọi chi tiết xuất dữ liệu."
+      },
+      {
+       "text": "is-a bắt buộc",
+       "correct": false,
+       "detail": "Chưa đúng. Service sử dụng một thành phần exporter thay vì kế thừa mọi chi tiết xuất dữ liệu."
+      },
+      {
+       "text": "Hai class phải có cùng MRO",
+       "correct": false,
+       "detail": "Chưa đúng. Service sử dụng một thành phần exporter thay vì kế thừa mọi chi tiết xuất dữ liệu."
+      }
+     ],
+     "explanation": "Service sử dụng một thành phần exporter thay vì kế thừa mọi chi tiết xuất dữ liệu."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Service giao việc cho object nó chứa."
+   },
+   "scaffold": {
+    "template": "def build(self, rows):\n    return self.{{slot1}}.export(rows)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Thuộc tính chứa bộ xuất",
+      "answer": "exporter"
+     }
+    ],
+    "bank": [
+     {
+      "label": "exporter",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Tạo JoinExporter(separator) có export(rows) nối các chuỗi và ReportService(exporter) có build(rows). solve(data) nhận {\"separator\": chuỗi, \"rows\": list chuỗi}, trả nội dung qua service. Dùng composition, không kế thừa JoinExporter trong service.",
+    "io": [
+     {
+      "label": "phân cách chấm phẩy",
+      "value": "{'separator': ';', 'rows': ['A', 'B']} → 'A;B'"
+     },
+     {
+      "label": "một hàng",
+      "value": "{'separator': '|', 'rows': ['only']} → 'only'"
+     },
+     {
+      "label": "không có hàng",
+      "value": "{'separator': ',', 'rows': []} → ''"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "class JoinExporter:\n    def __init__(self, separator): self.separator = separator\n    def export(self, rows): return self.separator.join(rows)\nclass ReportService:\n    def __init__(self, exporter): self.exporter = exporter\n    def build(self, rows): return self.exporter.export(rows)\ndef solve(data): return ReportService(JoinExporter(data['separator'])).build(data['rows'])\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "tests": [
+    {
+     "name": "phân cách chấm phẩy",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'separator': ';', 'rows': ['A', 'B']}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "'A;B'"
+    },
+    {
+     "name": "một hàng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'separator': '|', 'rows': ['only']}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "'only'"
+    },
+    {
+     "name": "không có hàng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'separator': ',', 'rows': []}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "''"
+    }
+   ]
+  }
+ }
+}

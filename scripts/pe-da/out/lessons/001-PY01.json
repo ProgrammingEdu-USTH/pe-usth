@@ -1,0 +1,168 @@
+{
+ "lesson_code": "PY01",
+ "sort_order": 1,
+ "module": "M1 · Python nền tảng",
+ "title": "PY01 · Chạy một phép tính và đọc kết quả",
+ "subtitle": "Cơ bản · M1 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PY01 · Chạy một phép tính và đọc kết quả",
+  "subtitle": "Cơ bản · M1 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PY01.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Chạy một phép tính và đọc kết quả",
+    "body": "Một quán bán 12 cốc vào buổi sáng và 9 cốc vào buổi chiều. Bạn muốn tính số cốc đã bán trong ngày. Mở Python hoặc một ô code (cell) trong notebook rồi chạy:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một quán bán 12 cốc vào buổi sáng và 9 cốc vào buổi chiều. Bạn muốn tính số cốc đã bán trong ngày. Mở Python hoặc một ô code (cell) trong notebook rồi chạy:\n\n`print` hiển thị kết quả của biểu thức trong ngoặc. Python là ngôn ngữ bậc cao: bạn viết tên biến và phép tính thay vì các lệnh máy. Mã nguồn mở nghĩa là mã nguồn triển khai được công khai theo giấy phép cho phép sử dụng và đóng góp. Python dùng được cho nhiều việc, từ script tự động hóa, backend web đến ứng dụng và phân tích dữ liệu. Cách viết chú trọng khả năng đọc; tên biến rõ nghĩa và thụt lề giúp người đọc theo dõi chương trình."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Khi cần dùng lại một số, đặt tên cho nó bằng phép gán:\n\nDấu `=` gán giá trị cho tên biến. Hai lần chạy trên cho cùng kết quả nhưng lần sau bạn có thể đổi số bán từng buổi mà không viết lại biểu thức."
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Nếu giá mỗi cốc là 15 nghìn đồng, doanh thu là 315 nghìn. Python cũng hỗ trợ lập trình hướng đối tượng; sau phần hàm, bạn sẽ học cách gom dữ liệu và hành vi vào class.\n\nTrong REPL, bạn nhập và chạy từng lệnh; trong script, bạn lưu code vào file `.py` rồi chạy bằng `python ten_file.py`. Trên hệ UNIX, dòng đầu như `#!/usr/bin/env python3` có thể chỉ trình thông dịch khi file được cấp quyền chạy; bạn vẫn có thể gọi Python trực tiếp. Khóa học dùng Python 3; Python 2 đã ngừng được hỗ trợ."
+    },
+    {
+     "title": "Ý chính 4",
+     "body": "Python thường được gọi là ngôn ngữ thông dịch. CPython còn biên dịch mã nguồn thành bytecode, một dạng lệnh trung gian, trước khi thực thi, nên “thông dịch” không có nghĩa hoàn toàn không biên dịch. Tính dễ đọc cũng không có nghĩa Python luôn nhanh nhất: tác vụ nặng CPU và môi trường triển khai vẫn cần lựa chọn cách xử lý phù hợp."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "print(12 + 9)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 21"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 21"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: So coc: 21 ⏎ 315"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Chạy morning = 8; afternoon = 11; print(morning + afternoon) sẽ in gì?",
+     "options": [
+      {
+       "text": "19",
+       "correct": true,
+       "detail": "Đúng. Python cộng hai giá trị 8 và 11 rồi print kết quả."
+      },
+      {
+       "text": "811",
+       "correct": false,
+       "detail": "Đó là ghép chuỗi; hai giá trị ở đây đều là số."
+      },
+      {
+       "text": "morning + afternoon",
+       "correct": false,
+       "detail": "print nhận biểu thức, nên hiển thị kết quả chứ không hiển thị tên biến."
+      }
+     ],
+     "explanation": "Đúng. Python cộng hai giá trị 8 và 11 rồi print kết quả."
+    },
+    {
+     "question": "Buổi sáng bán 10 cốc, chiều bán 7 cốc. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "17",
+       "correct": true,
+       "detail": "10 + 7 tính tổng của hai buổi."
+      },
+      {
+       "text": "107",
+       "correct": false,
+       "detail": "Hai số nguyên được cộng; đây không phải ghép chữ."
+      },
+      {
+       "text": "3",
+       "correct": false,
+       "detail": "Đó là hiệu, không phải tổng."
+      }
+     ],
+     "explanation": "10 + 7 tính tổng của hai buổi."
+    },
+    {
+     "question": "Một ca bán được 14 cốc. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "28",
+       "correct": true,
+       "detail": "Mỗi lần đọc cups nhận 14, nên hai lần đọc cộng lại là 28."
+      },
+      {
+       "text": "14",
+       "correct": false,
+       "detail": "Biểu thức dùng cups hai lần."
+      },
+      {
+       "text": "'cupscups'",
+       "correct": false,
+       "detail": "cups là tên biến giữ số, không phải chuỗi chữ."
+      }
+     ],
+     "explanation": "Mỗi lần đọc cups nhận 14, nên hai lần đọc cộng lại là 28."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền tên hàm để hiện kết quả phép tính."
+   },
+   "scaffold": {
+    "template": "{{slot1}}(8 + 11)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Hàm hiển thị",
+      "answer": "print"
+     }
+    ],
+    "bank": [
+     {
+      "label": "print",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự chạy trong môi trường của bạn",
+    "body": "Một thư viện nhận 14 sách buổi sáng và 9 sách buổi chiều. Tự viết file đếm tổng, rồi đổi số buổi chiều thành 12."
+   },
+   "procedure": [
+    "Tạo received.py với hai biến morning và afternoon.",
+    "In tổng hai biến; lưu file rồi chạy từ terminal.",
+    "Đổi afternoon thành 12, lưu và chạy lại.",
+    "Tự kiểm: Lần đầu hiển thị 23.",
+    "Tự kiểm: Sau khi sửa và chạy lại, hiển thị 26.",
+    "Tự kiểm: Bạn phân biệt được cửa sổ sửa file với terminal chạy file."
+   ]
+  }
+ }
+}

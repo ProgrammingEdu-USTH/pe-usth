@@ -1,0 +1,183 @@
+{
+ "lesson_code": "PY09",
+ "sort_order": 9,
+ "module": "M1 · Python nền tảng",
+ "title": "PY09 · Điều kiện, so sánh và khối lệnh",
+ "subtitle": "Cơ bản · M1 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PY09 · Điều kiện, so sánh và khối lệnh",
+  "subtitle": "Cơ bản · M1 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PY09.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Điều kiện, so sánh và khối lệnh",
+    "body": "Một điểm từ 8 trở lên được ghi Good, từ 5 đến dưới 8 là Pass, còn lại là Retry:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một điểm từ 8 trở lên được ghi Good, từ 5 đến dưới 8 là Pass, còn lại là Retry:\n\nPython kiểm tra các nhánh từ trên xuống và chỉ chạy nhánh đầu có điều kiện đúng. Dấu `:` mở khối; thụt lề cho biết lệnh thuộc nhánh nào. Lệnh được viết trở lại mức thụt lề ngoài nhánh tiếp tục chạy sau cấu trúc if. Dùng nhất quán bốn dấu cách và tránh trộn tab với space; thụt lề sai có thể gây IndentationError, còn trộn tab và space không nhất quán có thể gây TabError."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`and` yêu cầu cả hai điều kiện đúng; `or` cần ít nhất một điều kiện đúng; `not` đảo giá trị đúng/sai. `==` so sánh bằng, `!=` so sánh khác, còn `=` là phép gán. Với dữ liệu vô hướng, and/or có thể dừng sớm khi đã xác định được kết quả.\n\nỞ ví dụ lồng nhau, kiểm tra điểm hợp lệ được xét trước. `else` thẳng hàng với if nào thì thuộc if đó: ở đây nó thuộc kiểm tra 0 <= score <= 10, không thuộc kiểm tra score >= 8. Giảm mức thụt lề kết thúc khối bên trong. Dòng trống và comment không mở hay kết thúc khối mới. Nếu cần để trống một nhánh đang viết dở, dùng `pass`; một nhánh chỉ có comment vẫn thiếu câu lệnh."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "score = 7\nif score >= 8:\n    print(\"Good\")\nelif score >= 5:\n    print(\"Pass\")\nelse:\n    print(\"Retry\")",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: Pass"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: True ⏎ False ⏎ True"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: Valid and good"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "score = 8. Kiểm >=8 trước rồi mới >=5 thì nhãn nào được chọn?",
+     "options": [
+      {
+       "text": "Cả Good và Pass",
+       "correct": false,
+       "detail": "Một chuỗi if/elif chỉ chạy nhánh đúng đầu tiên."
+      },
+      {
+       "text": "Good",
+       "correct": true,
+       "detail": "Đúng. Nhánh đầu đã đúng, không xét tiếp nhánh >=5."
+      },
+      {
+       "text": "Pass",
+       "correct": false,
+       "detail": "Điểm 8 cũng >=5, nhưng nhánh >=8 đứng trước và đã được chọn."
+      }
+     ],
+     "explanation": "Đúng. Nhánh đầu đã đúng, không xét tiếp nhánh >=5."
+    },
+    {
+     "question": "Điểm bằng đúng ngưỡng tốt. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "'Good'",
+       "correct": true,
+       "detail": "Điều kiện >= nhận cả giá trị bằng 8."
+      },
+      {
+       "text": "'Pass'",
+       "correct": false,
+       "detail": "Nhánh đầu đã đúng, nên elif không được xét tiếp."
+      },
+      {
+       "text": "'Retry'",
+       "correct": false,
+       "detail": "Điểm 8 không rơi vào else."
+      }
+     ],
+     "explanation": "Điều kiện >= nhận cả giá trị bằng 8."
+    },
+    {
+     "question": "Điểm đạt mức qua môn nhưng chưa tốt. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "'Pass'",
+       "correct": true,
+       "detail": "Sau điều kiện đầu sai, Python chọn elif đúng."
+      },
+      {
+       "text": "'Good'",
+       "correct": false,
+       "detail": "6 không đạt điều kiện >=8."
+      },
+      {
+       "text": "'Retry'",
+       "correct": false,
+       "detail": "Điều kiện elif đã đúng."
+      }
+     ],
+     "explanation": "Sau điều kiện đầu sai, Python chọn elif đúng."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền phép so sánh để nhận cả điểm đúng bằng ngưỡng 5."
+   },
+   "scaffold": {
+    "template": "if score {{slot1}} 5:\n    label = \"Pass\"",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phép so sánh",
+      "answer": ">="
+     }
+    ],
+    "bank": [
+     {
+      "label": ">=",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Hệ thống cung cấp score trong khoảng 0–10. Gán label bằng \"high\" nếu score từ 8, \"ready\" nếu từ 5 đến dưới 8, còn lại \"retry\".",
+    "io": [
+     {
+      "label": "Đúng ngưỡng cao",
+      "value": "8 → 'high'"
+     },
+     {
+      "label": "Đúng ngưỡng sẵn sàng",
+      "value": "5 → 'ready'"
+     },
+     {
+      "label": "Chưa tới ngưỡng",
+      "value": "4 → 'retry'"
+     }
+    ]
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Xét ngưỡng cao trước để điểm 8 không bị nhận nhãn ready."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Dùng if/elif/else; các biên 8 và 5 đều được nhận ở nhánh phía trên."
+    }
+   ],
+   "procedure": [
+    "Bài này chạy bằng script (đọc biến đầu vào, gán biến kết quả) nên chưa chấm tự động.",
+    "Đầu vào 8 — kết quả cần có 'high'.",
+    "Đầu vào 5 — kết quả cần có 'ready'.",
+    "Đầu vào 4 — kết quả cần có 'retry'.",
+    "Đầu vào 7.5 — kết quả cần có 'ready'."
+   ]
+  }
+ }
+}

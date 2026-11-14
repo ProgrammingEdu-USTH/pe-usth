@@ -1,0 +1,137 @@
+{
+ "lesson_code": "CT05",
+ "sort_order": 136,
+ "module": "M6 · Hệ điều hành, tiến trình và đa luồng",
+ "title": "CT05 · SRTF, deadline và các mức ưu tiên",
+ "subtitle": "Nâng cao · M6 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "CT05 · SRTF, deadline và các mức ưu tiên",
+  "subtitle": "Nâng cao · M6 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/CT05.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "SRTF, deadline và các mức ưu tiên",
+    "body": "A bắt đầu chạy với 6 đơn vị CPU. Sau 1 đơn vị, B đến và chỉ cần 2 đơn vị. SRTF xem thời gian còn lại: A còn 5, nên B có thể được chạy trước.",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "A bắt đầu chạy với 6 đơn vị CPU. Sau 1 đơn vị, B đến và chỉ cần 2 đơn vị. SRTF xem thời gian còn lại: A còn 5, nên B có thể được chạy trước.\n\nSRTF là dạng preemptive của ý tưởng chọn việc ngắn: việc mới ngắn hơn thời gian còn lại có thể làm việc đang chạy bị thu CPU. SJF non-preemptive sẽ không tự ngắt A như vậy."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Earliest Deadline First chọn deadline sớm nhất, nên B được chọn dù nó dài hơn. Deadline là hạn cần hoàn thành; burst là lượng CPU cần. Chọn đúng chính sách không tự đảm bảo mọi deadline đều khả thi khi tổng việc quá lớn.\n\nỞ mô phỏng cuối, A chuyển từ hàng ưu tiên cao xuống hàng thấp sau khi dùng CPU. Multilevel Queue chia công việc vào các hàng thường cố định, mỗi hàng có chính sách riêng. Multilevel Feedback Queue cho phép công việc đổi hàng theo hành vi hoặc thời gian CPU đã dùng. Ngoài chính sách bên trong từng hàng, hệ thống còn cần quy tắc chọn hàng ưu tiên và quyết định khi nào thu hồi CPU. Chỉ tên thuật toán chưa cho biết đầy đủ những quy tắc đó."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "remaining = {\"A\": 5, \"B\": 2}\nprint(min(remaining, key=remaining.get))",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: B"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: B ⏎ A"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: [] ['B', 'A']"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "SRTF: A còn 5 ms; B vừa đến cần 2 ms. Điều gì xảy ra nếu bỏ qua overhead?",
+     "options": [
+      {
+       "text": "B chỉ được chạy nếu deadline gần hơn",
+       "correct": false,
+       "detail": "Deadline là tiêu chí của EDF, không phải SRTF."
+      },
+      {
+       "text": "B có thể lấy CPU vì thời gian còn lại ngắn hơn",
+       "correct": true,
+       "detail": "SRTF so thời gian còn lại và có thể ngắt job hiện tại."
+      },
+      {
+       "text": "A luôn chạy tới hết vì đến trước",
+       "correct": false,
+       "detail": "Đó là tính không ngắt, trái với SRTF."
+      }
+     ],
+     "explanation": "SRTF so thời gian còn lại và có thể ngắt job hiện tại."
+    },
+    {
+     "question": "A còn 5 đơn vị CPU, B mới đến cần 2. SRTF có thể chọn gì?",
+     "options": [
+      {
+       "text": "Tiếp tục A vì chỉ so burst ban đầu, không xét phần còn lại",
+       "correct": false,
+       "detail": "Chưa đúng. SRTF so phần thời gian còn lại và cho phép preemption khi xuất hiện việc ngắn hơn."
+      },
+      {
+       "text": "Thu CPU của A để B chạy",
+       "correct": true,
+       "detail": "SRTF so phần thời gian còn lại và cho phép preemption khi xuất hiện việc ngắn hơn."
+      },
+      {
+       "text": "Luôn đợi A xong vì SRTF non-preemptive",
+       "correct": false,
+       "detail": "Chưa đúng. SRTF so phần thời gian còn lại và cho phép preemption khi xuất hiện việc ngắn hơn."
+      }
+     ],
+     "explanation": "SRTF so phần thời gian còn lại và cho phép preemption khi xuất hiện việc ngắn hơn."
+    },
+    {
+     "question": "EDF chọn theo đại lượng nào?",
+     "options": [
+      {
+       "text": "Deadline sớm nhất",
+       "correct": true,
+       "detail": "Deadline là hạn hoàn thành, khác lượng CPU mà job cần."
+      },
+      {
+       "text": "Burst ngắn nhất trong mọi trường hợp",
+       "correct": false,
+       "detail": "Chưa đúng. Deadline là hạn hoàn thành, khác lượng CPU mà job cần."
+      },
+      {
+       "text": "Thứ tự chữ cái tên job",
+       "correct": false,
+       "detail": "Chưa đúng. Deadline là hạn hoàn thành, khác lượng CPU mà job cần."
+      }
+     ],
+     "explanation": "Deadline là hạn hoàn thành, khác lượng CPU mà job cần."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "So sánh SRTF và EDF trên A(arrival0,burst6,deadline20), B(arrival1,burst4,deadline5), C(arrival2,burst1,deadline12). Mô hình một CPU, preemptive, bỏ overhead. Với EDF, job giữ deadline tuyệt đối đã cho."
+   },
+   "procedure": [
+    "Vẽ riêng hai timeline và tại mỗi arrival ghi lý do có/không ngắt.",
+    "Với SRTF, cập nhật remaining sau mỗi đoạn chạy.",
+    "Với EDF, so deadline của các job ready; ghi job nào lỡ hạn.",
+    "Tự kiểm: SRTF: A 0–1, B 1–2, C 2–3, B 3–6, A 6–11.",
+    "Tự kiểm: EDF: A 0–1, B 1–5, C 5–6, A 6–11; B hoàn tất đúng deadline 5.",
+    "Tự kiểm: Nêu được vì sao C ngắt B trong SRTF nhưng không trong EDF."
+   ]
+  }
+ }
+}

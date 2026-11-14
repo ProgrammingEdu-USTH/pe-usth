@@ -1,0 +1,207 @@
+{
+ "lesson_code": "VZ04",
+ "sort_order": 77,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ04 · Bar chart: so sánh nhóm và sắp thứ tự",
+ "subtitle": "Cơ bản · M4 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "VZ04 · Bar chart: so sánh nhóm và sắp thứ tự",
+  "subtitle": "Cơ bản · M4 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/VZ04.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Bar chart: so sánh nhóm và sắp thứ tự",
+    "body": "Cửa hàng bán 18 cốc trà, 30 cốc cà phê và 12 cốc ca cao. Bar chart cho bạn so sánh ba lượng bán bằng chiều cao cột. Vì chiều dài cột biểu diễn lượng bán, trục số nên bắt đầu từ 0 để chênh lệch không bị phóng đại.",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Cửa hàng bán 18 cốc trà, 30 cốc cà phê và 12 cốc ca cao. Bar chart cho bạn so sánh ba lượng bán bằng chiều cao cột. Vì chiều dài cột biểu diễn lượng bán, trục số nên bắt đầu từ 0 để chênh lệch không bị phóng đại.\n\n![Biểu đồ](../visuals/VZ04-1.png)"
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Sắp theo lượng bán giúp nhận ra nhóm lớn nhất nhanh hơn. Dùng barh khi tên nhóm dài; sau khi sắp tăng dần, nhóm lớn nhất sẽ nằm phía trên. Nếu so sánh hai tuần cho cùng loại đồ uống, đặt hai cột cạnh nhau và giải thích tên mỗi tuần trong legend.\n\n![Biểu đồ](../visuals/VZ04-2.png)"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "![Biểu đồ](../visuals/VZ04-3.png)"
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nbars = ax.bar([\"Tea\", \"Coffee\", \"Cocoa\"], [18, 30, 12])\nax.set(ylabel=\"Cups\", title=\"Sales by drink\", ylim=(0, 35))\nax.bar_label(bars)\nprint(sum(bar.get_height() for bar in bars))\nplt.show()",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 60"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: Coffee"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 3"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Tên [A,B] đi với lượng [2,9]. Nếu chỉ sắp lượng thành [9,2], vấn đề gì xảy ra?",
+     "options": [
+      {
+       "text": "Không có vấn đề vì tổng không đổi",
+       "correct": false,
+       "detail": "Tổng giữ nguyên nhưng nhãn từng nhóm đã sai."
+      },
+      {
+       "text": "Cả hai cột biến mất",
+       "correct": false,
+       "detail": "Vẫn vẽ được, nên lỗi nhãn càng dễ bị bỏ qua."
+      },
+      {
+       "text": "A bị gán nhầm lượng của B",
+       "correct": true,
+       "detail": "Đúng: phải di chuyển tên và giá trị cùng nhau."
+      }
+     ],
+     "explanation": "Số liệu có ý nghĩa khi vẫn đi cùng đúng nhóm."
+    },
+    {
+     "question": "Cà phê 30 cốc và trà 18 cốc chênh nhau bao nhiêu?",
+     "options": [
+      {
+       "text": "12 cốc. Trục bắt đầu từ 0 để độ dài hai cột có chung mốc so sánh.",
+       "correct": true,
+       "detail": "12 cốc. Trục bắt đầu từ 0 để độ dài hai cột có chung mốc so sánh."
+      },
+      {
+       "text": "Chênh 48 cốc vì phải cộng hai cột.",
+       "correct": false,
+       "detail": "48 là tổng hai lượng, không phải độ chênh."
+      },
+      {
+       "text": "Chênh 1.67 cốc vì phải chia hai cột.",
+       "correct": false,
+       "detail": "Tỷ số không có cùng đơn vị cốc với độ chênh."
+      }
+     ],
+     "explanation": "12 cốc. Trục bắt đầu từ 0 để độ dài hai cột có chung mốc so sánh."
+    },
+    {
+     "question": "Khi tên nhóm dài, nên đổi sang hàm nào?",
+     "options": [
+      {
+       "text": "hist vì nhãn dài là dữ liệu số.",
+       "correct": false,
+       "detail": "Histogram phục vụ khoảng số, không giải quyết nhãn danh mục dài."
+      },
+      {
+       "text": "pie vì barh không hỗ trợ nhãn chữ.",
+       "correct": false,
+       "detail": "Barh hỗ trợ nhãn chữ và thường phù hợp tên dài."
+      },
+      {
+       "text": "barh để vẽ cột ngang, giảm nhu cầu xoay nhãn.",
+       "correct": true,
+       "detail": "barh để vẽ cột ngang, giảm nhu cầu xoay nhãn."
+      }
+     ],
+     "explanation": "barh để vẽ cột ngang, giảm nhu cầu xoay nhãn."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Tên dài: đổi sang cột ngang."
+   },
+   "scaffold": {
+    "template": "bars = ax.{{slot1}}(names, values)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "barh"
+     }
+    ],
+    "bank": [
+     {
+      "label": "barh",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.rows là list [name,count], count không âm, ít nhất một nhóm và không có hai count bằng nhau. Sắp tăng theo count rồi barh. Trả names theo thứ tự đã vẽ và widths đọc bằng get_width() của từng bar. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "giữ cặp tên",
+      "value": "{'rows': [['Poetry', 8], ['Travel', 3], ['Science', 12]]} → {'names': ['Travel', 'Poetry', 'Science'], 'widths': [3.0, 8.0, 12.0]}"
+     },
+     {
+      "label": "một nhóm",
+      "value": "{'rows': [['Art', 5]]} → {'names': ['Art'], 'widths': [5.0]}"
+     },
+     {
+      "label": "nhóm có 0",
+      "value": "{'rows': [['A', 6], ['B', 0]]} → {'names': ['B', 'A'], 'widths': [0.0, 6.0]}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     ordered = sorted(data['rows'], key=lambda row:row[1])\n     names, values = zip(*ordered)\n     fig, ax = plt.subplots()\n     bars = ax.barh(names,values)\n     result = {'names':list(names),'widths':[float(b.get_width()) for b in bars]}\n     plt.close(fig)\n     return result\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Với cột nằm ngang, tên hàm có thêm ký tự chỉ hướng."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Sắp cặp tên–lượng và dùng cột ngang cho tên nhóm."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "giữ cặp tên",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'rows': [['Poetry', 8], ['Travel', 3], ['Science', 12]]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'names': ['Travel', 'Poetry', 'Science'], 'widths': [3.0, 8.0, 12.0]}"
+    },
+    {
+     "name": "một nhóm",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'rows': [['Art', 5]]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'names': ['Art'], 'widths': [5.0]}"
+    },
+    {
+     "name": "nhóm có 0",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'rows': [['A', 6], ['B', 0]]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'names': ['B', 'A'], 'widths': [0.0, 6.0]}"
+    }
+   ]
+  }
+ }
+}

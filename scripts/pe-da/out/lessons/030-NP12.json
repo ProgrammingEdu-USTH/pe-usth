@@ -1,0 +1,206 @@
+{
+ "lesson_code": "NP12",
+ "sort_order": 30,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP12 · Tổng từng hàng và bài ghép",
+ "subtitle": "Cơ bản · M2 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "NP12 · Tổng từng hàng và bài ghép",
+  "subtitle": "Cơ bản · M2 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/NP12.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Tổng từng hàng và bài ghép",
+    "body": "Vẫn là bảng bán hàng hai cửa hàng trong ba ngày, nhưng lần này bạn cần tổng của từng cửa hàng. Hãy cộng các ngày trong cùng một hàng:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Vẫn là bảng bán hàng hai cửa hàng trong ba ngày, nhưng lần này bạn cần tổng của từng cửa hàng. Hãy cộng các ngày trong cùng một hàng:\n\nCửa hàng A bán 12 + 15 + 9 = 36 cốc; cửa hàng B bán 10 + 8 + 14 = 32 cốc. `sum(axis=1)` gộp các cột trong mỗi hàng, để lại một số cho mỗi cửa hàng."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Với bảng 2 hàng, 3 cột quen thuộc:\n\nHàng đầu có tổng 6, hàng thứ hai có tổng 15. Trên bảng này, `sum(axis=0)` cho ba tổng cột, `sum(axis=1)` cho hai tổng hàng, còn `sum()` cho một tổng là 21."
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Bạn có thể ghép các thao tác đã học: tạo các số từ 1 đến 12 bằng `arange`, xếp thành bảng 3 hàng, 4 cột bằng `reshape`, rồi tính tổng từng cột:\n\nBảng được xếp thành các hàng `[1, 2, 3, 4]`, `[5, 6, 7, 8]` và `[9, 10, 11, 12]`. Cột đầu có tổng 1 + 5 + 9 = 15. Ba cột còn lại có tổng 18, 21 và 24."
+    },
+    {
+     "title": "Ý chính 4",
+     "body": "Kết quả có bốn phần tử vì bảng có bốn cột. Nếu đổi sang `axis=1`, bạn sẽ có ba phần tử, mỗi phần tử là tổng của một hàng. Bạn có thể dự đoán số phần tử trước khi tính các tổng."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import numpy as np\n\nsales = np.array([[12, 15, 9],\n                  [10,  8, 14]])\nprint(sales.sum(axis=1))",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: [36 32]"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: [ 6 15]"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: [15 18 21 24]"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "a có shape (2,4). sum(axis=1) trả mấy số?",
+     "options": [
+      {
+       "text": "8",
+       "correct": false,
+       "detail": "Tám là số ô đầu vào, không phải số tổng hàng."
+      },
+      {
+       "text": "2",
+       "correct": true,
+       "detail": "Đúng. Hai hàng còn hai tổng."
+      },
+      {
+       "text": "4",
+       "correct": false,
+       "detail": "Bốn số là kết quả của axis=0 trên bảng này."
+      }
+     ],
+     "explanation": "Đúng. Hai hàng còn hai tổng."
+    },
+    {
+     "question": "Mỗi hàng là một đơn hàng. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "[6, 15]",
+       "correct": true,
+       "detail": "axis=1 gộp các cột trong từng hàng."
+      },
+      {
+       "text": "[5, 7, 9]",
+       "correct": false,
+       "detail": "Đó là tổng từng cột."
+      },
+      {
+       "text": "21",
+       "correct": false,
+       "detail": "Đó là tổng chung."
+      }
+     ],
+     "explanation": "axis=1 gộp các cột trong từng hàng."
+    },
+    {
+     "question": "Bảng có ba học viên, hai bài kiểm tra. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "(3,)",
+       "correct": true,
+       "detail": "Mỗi học viên giữ một tổng nên còn ba kết quả."
+      },
+      {
+       "text": "[2]",
+       "correct": false,
+       "detail": "2 là số cột đã được gộp."
+      },
+      {
+       "text": "[3, 2]",
+       "correct": false,
+       "detail": "Đó là shape bảng gốc."
+      }
+     ],
+     "explanation": "Mỗi học viên giữ một tổng nên còn ba kết quả."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền axis để mỗi hàng tuyến đường có một tổng."
+   },
+   "scaffold": {
+    "template": "by_route = stops.sum(axis={{slot1}})",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Chiều cần gộp",
+      "answer": "1"
+     }
+    ],
+    "bank": [
+     {
+      "label": "1",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận bảng số gói, mỗi hàng là một tuyến giao hàng, mỗi cột là một điểm dừng. Trả tổng số gói của từng tuyến.",
+    "io": [
+     {
+      "label": "Hai tuyến ba điểm",
+      "value": "[[2, 4, 1], [3, 1, 5]] → [7, 9]"
+     },
+     {
+      "label": "Ba tuyến hai điểm",
+      "value": "[[1, 2], [3, 4], [5, 6]] → [3, 7, 11]"
+     },
+     {
+      "label": "Tuyến chưa có gói",
+      "value": "[[0, 0]] → [0]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    return np.array(data).sum(axis=1)\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Mỗi tuyến là một hàng; cần cộng các điểm dừng trong chính hàng đó."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "sum(axis=1) để lại một tổng cho mỗi hàng."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "Hai tuyến ba điểm",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([[2, 4, 1], [3, 1, 5]]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[7, 9]"
+    },
+    {
+     "name": "Ba tuyến hai điểm",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([[1, 2], [3, 4], [5, 6]]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[3, 7, 11]"
+    },
+    {
+     "name": "Tuyến chưa có gói",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([[0, 0]]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[0]"
+    }
+   ]
+  }
+ }
+}

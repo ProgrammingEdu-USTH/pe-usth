@@ -1,0 +1,183 @@
+{
+ "lesson_code": "PY15",
+ "sort_order": 15,
+ "module": "M1 · Python nền tảng",
+ "title": "PY15 · While, break và continue",
+ "subtitle": "Cơ bản · M1 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PY15 · While, break và continue",
+  "subtitle": "Cơ bản · M1 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PY15.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "While, break và continue",
+    "body": "Một chương trình cho phép thử tối đa ba lần. Khi chưa có thao tác của người dùng, bạn có thể mô phỏng số lượt để đọc điều kiện dừng:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một chương trình cho phép thử tối đa ba lần. Khi chưa có thao tác của người dùng, bạn có thể mô phỏng số lượt để đọc điều kiện dừng:\n\nwhile kiểm tra điều kiện trước mỗi lượt. Việc tăng attempt giúp điều kiện cuối cùng thành False. Nếu quên thay đổi trạng thái mà điều kiện luôn đúng, chương trình có thể lặp mãi."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`continue` bỏ phần còn lại của lượt hiện tại; `break` thoát vòng gần nhất. Vì vậy số 1 không được in và gặp 4 thì dừng trước print. Vị trí cập nhật biến rất quan trọng: nếu `total += number` nằm sau continue, số bị bỏ qua không được cộng. Trong while, nếu cập nhật điều kiện dừng nằm sau continue, bạn có thể vô tình bỏ luôn bước giúp vòng lặp kết thúc.\n\n`iter(...)` tạo đối tượng để lấy lần lượt các lệnh trong danh sách. Mỗi lần gọi `next(commands, \"quit\")` sẽ lấy lệnh tiếp theo; khi hết dữ liệu, nó trả giá trị mặc định `\"quit\"`. Chuỗi này là sentinel, tức giá trị báo dừng, nên ví dụ không lặp mãi. Khi làm chương trình nhận lệnh trong terminal (CLI), bạn có thể lấy từng lệnh bằng `input()` và giữ cùng quy tắc thoát."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "attempt = 0\nwhile attempt < 3:\n    attempt += 1\n    print(attempt)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 1 ⏎ 2 ⏎ 3"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 0 ⏎ 2 ⏎ 3"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: sum"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Duyệt [2,-1,4,0,8], bỏ số âm bằng continue và dừng khi gặp 0 bằng break. Tổng là gì?",
+     "options": [
+      {
+       "text": "5",
+       "correct": false,
+       "detail": "Số -1 đã bị bỏ nên không góp vào tổng."
+      },
+      {
+       "text": "6",
+       "correct": true,
+       "detail": "Đúng. Chỉ 2 và 4 được cộng; 8 nằm sau điểm dừng."
+      },
+      {
+       "text": "14",
+       "correct": false,
+       "detail": "Không được cộng 8 vì đã break ở số 0."
+      }
+     ],
+     "explanation": "Đúng. Chỉ 2 và 4 được cộng; 8 nằm sau điểm dừng."
+    },
+    {
+     "question": "Tăng số lượt cho tới 3. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "3",
+       "correct": true,
+       "detail": "Biến tăng lên 3 sau lượt cuối rồi vòng dừng."
+      },
+      {
+       "text": "2",
+       "correct": false,
+       "detail": "Vòng vẫn chạy khi attempt là 2."
+      },
+      {
+       "text": "4",
+       "correct": false,
+       "detail": "Khi attempt bằng 3, điều kiện đã sai."
+      }
+     ],
+     "explanation": "Biến tăng lên 3 sau lượt cuối rồi vòng dừng."
+    },
+    {
+     "question": "Bỏ riêng số 2. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "[0, 1, 3]",
+       "correct": true,
+       "detail": "continue chỉ bỏ phần còn lại của lượt hiện tại."
+      },
+      {
+       "text": "[0, 1]",
+       "correct": false,
+       "detail": "continue không kết thúc cả vòng lặp."
+      },
+      {
+       "text": "[0, 1, 2, 3]",
+       "correct": false,
+       "detail": "Số 2 bỏ qua append."
+      }
+     ],
+     "explanation": "continue chỉ bỏ phần còn lại của lượt hiện tại."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền từ khóa để bỏ lượt hiện tại nhưng vẫn xét số tiếp theo."
+   },
+   "scaffold": {
+    "template": "for value in values:\n    if value < 0:\n        {{slot1}}\n    print(value)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Từ khóa điều khiển",
+      "answer": "continue"
+     }
+    ],
+    "bank": [
+     {
+      "label": "continue",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Hệ thống cung cấp quantities là dãy số đọc theo thứ tự. Số 0 báo hết phiên; số âm là lần nhập hỏng cần bỏ. Gán tổng các số dương trước số 0 đầu tiên vào total.",
+    "io": [
+     {
+      "label": "Dừng giữa dãy",
+      "value": "[2, -1, 4, 0, 8] → 6"
+     },
+     {
+      "label": "Dừng ngay",
+      "value": "[0, 5] → 0"
+     },
+     {
+      "label": "Không có sentinel",
+      "value": "[-2, 3, 1] → 4"
+     }
+    ]
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Số 0 kết thúc cả vòng lặp, còn số âm chỉ bỏ một lượt."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Xét break và continue trước bước cộng vào total."
+    }
+   ],
+   "procedure": [
+    "Bài này chạy bằng script (đọc biến đầu vào, gán biến kết quả) nên chưa chấm tự động.",
+    "Đầu vào [2, -1, 4, 0, 8] — kết quả cần có 6.",
+    "Đầu vào [0, 5] — kết quả cần có 0.",
+    "Đầu vào [-2, 3, 1] — kết quả cần có 4.",
+    "Đầu vào [] — kết quả cần có 0."
+   ]
+  }
+ }
+}

@@ -1,0 +1,195 @@
+{
+ "lesson_code": "CT13",
+ "sort_order": 144,
+ "module": "M6 · Hệ điều hành, tiến trình và đa luồng",
+ "title": "CT13 · Queue và lưu pickle có nén ở nền",
+ "subtitle": "Nâng cao · M6 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "CT13 · Queue và lưu pickle có nén ở nền",
+  "subtitle": "Nâng cao · M6 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/CT13.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Queue và lưu pickle có nén ở nền",
+    "body": "Ở PW6, ứng dụng đã lưu và nạp lại dữ liệu bằng pickle có nén. PW8 giữ phần đó, nhưng chuyển công việc lưu sang thread nền để người dùng không phải đợi toàn bộ quá trình. Worker có thể gửi kết quả qua queue. Trước hết, xem một thông điệp đơn giản:",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Ở PW6, ứng dụng đã lưu và nạp lại dữ liệu bằng pickle có nén. PW8 giữ phần đó, nhưng chuyển công việc lưu sang thread nền để người dùng không phải đợi toàn bộ quá trình. Worker có thể gửi kết quả qua queue. Trước hết, xem một thông điệp đơn giản:\n\nQueue cung cấp cách trao đổi dữ liệu giữa các thread. join ở đây chỉ dùng cho ví dụ dòng lệnh. Trong GUI, kiểm tra queue theo lịch của event loop thay vì chặn callback chờ worker."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`get_nowait` báo Empty khi chưa có thông điệp. Bạn có thể quay lại sau, thay vì coi chưa có kết quả là lỗi tác vụ.\n\nVí dụ này nén dữ liệu trong bộ nhớ rồi nạp lại để đối chiếu. Bài thực hành PW8 còn yêu cầu ghi ra file, xử lý lỗi và nạp lại khi mở ứng dụng. Dữ liệu đưa cho worker phải là một bản chụp nhất quán, hay snapshot: trong lúc worker đọc, không được trộn các thay đổi ở nhiều thời điểm. Bạn có thể sao chép cấu trúc phù hợp hoặc đồng bộ khi lấy snapshot. Chỉ gán snapshot = data sẽ tạo thêm tên trỏ tới cùng dữ liệu, không tạo bản sao. Chỉ nạp pickle từ nguồn tin cậy vì việc nạp có thể thực thi mã."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "from queue import Queue\nfrom threading import Thread\nq = Queue()\ndef work(): q.put({\"status\":\"done\", \"count\":3})\nt = Thread(target=work)\nt.start(); t.join()\nprint(q.get())",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: {'status': 'done', 'count': 3}"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: no message"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: True"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "get_nowait báo queue.Empty khi worker chưa xong có đồng nghĩa worker thất bại không?",
+     "options": [
+      {
+       "text": "Có; Empty luôn là exception của worker",
+       "correct": false,
+       "detail": "Empty mô tả queue tại thời điểm đọc, không mô tả nguyên nhân worker chưa gửi."
+      },
+      {
+       "text": "Không; nên chặn GUI bằng join ngay",
+       "correct": false,
+       "detail": "join trong callback dài có thể làm event loop đứng chờ."
+      },
+      {
+       "text": "Không; lúc đó chưa có thông điệp",
+       "correct": true,
+       "detail": "Queue rỗng là trạng thái tạm; lỗi worker cần thông điệp hoặc cơ chế xử lý riêng."
+      }
+     ],
+     "explanation": "Queue rỗng là trạng thái tạm; lỗi worker cần thông điệp hoặc cơ chế xử lý riêng."
+    },
+    {
+     "question": "Queue rỗng khi gọi get_nowait sẽ báo gì?",
+     "options": [
+      {
+       "text": "Luôn trả None thay mọi lỗi",
+       "correct": false,
+       "detail": "Chưa đúng. Empty cho biết hiện chưa có thông điệp; không đồng nghĩa tác vụ đã thất bại."
+      },
+      {
+       "text": "Empty",
+       "correct": true,
+       "detail": "Empty cho biết hiện chưa có thông điệp; không đồng nghĩa tác vụ đã thất bại."
+      },
+      {
+       "text": "Một thông điệp \"done\" giả định",
+       "correct": false,
+       "detail": "Chưa đúng. Empty cho biết hiện chưa có thông điệp; không đồng nghĩa tác vụ đã thất bại."
+      }
+     ],
+     "explanation": "Empty cho biết hiện chưa có thông điệp; không đồng nghĩa tác vụ đã thất bại."
+    },
+    {
+     "question": "snapshot = data có tách được một list lồng nhau không?",
+     "options": [
+      {
+       "text": "Không; chỉ thêm tên tham chiếu cùng dữ liệu",
+       "correct": true,
+       "detail": "Snapshot nhất quán cần sao chép cấu trúc hoặc đồng bộ phù hợp, không chỉ đổi tên tham chiếu."
+      },
+      {
+       "text": "Có; mọi phép gán tạo bản sao sâu",
+       "correct": false,
+       "detail": "Chưa đúng. Snapshot nhất quán cần sao chép cấu trúc hoặc đồng bộ phù hợp, không chỉ đổi tên tham chiếu."
+      },
+      {
+       "text": "Chỉ tách khi biến tên snapshot",
+       "correct": false,
+       "detail": "Chưa đúng. Snapshot nhất quán cần sao chép cấu trúc hoặc đồng bộ phù hợp, không chỉ đổi tên tham chiếu."
+      }
+     ],
+     "explanation": "Snapshot nhất quán cần sao chép cấu trúc hoặc đồng bộ phù hợp, không chỉ đổi tên tham chiếu."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Đọc thông điệp mà không chặn event loop."
+   },
+   "scaffold": {
+    "template": "try:\n    message = messages.{{slot1}}()\nexcept queue.Empty:\n    pass",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phương thức đọc không chờ",
+      "answer": "get_nowait"
+     }
+    ],
+    "bank": [
+     {
+      "label": "get_nowait",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "solve(data) nhận list số. Một Thread đưa lần lượt bình phương vào queue.Queue, sau đó put None làm dấu kết thúc. Main đọc đến None, join rồi trả list kết quả. Với bài CLI này, main được phép chờ get; không áp dụng vòng chặn đó vào callback Tkinter.",
+    "io": [
+     {
+      "label": "hai kết quả",
+      "value": "[3, 7] → [9, 49]"
+     },
+     {
+      "label": "zero không phải dấu hết",
+      "value": "[0, -2] → [0, 4]"
+     },
+     {
+      "label": "rỗng",
+      "value": "[] → []"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import threading, queue\ndef solve(data):\n    messages = queue.Queue()\n    def work():\n        for value in data: messages.put(value * value)\n        messages.put(None)\n    thread = threading.Thread(target=work)\n    thread.start()\n    result = []\n    while True:\n        value = messages.get()\n        if value is None: break\n        result.append(value)\n    thread.join()\n    return result\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "tests": [
+    {
+     "name": "hai kết quả",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([3, 7]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[9, 49]"
+    },
+    {
+     "name": "zero không phải dấu hết",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([0, -2]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[0, 4]"
+    },
+    {
+     "name": "rỗng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[]"
+    }
+   ]
+  }
+ }
+}

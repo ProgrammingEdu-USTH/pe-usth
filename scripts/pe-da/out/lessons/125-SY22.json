@@ -1,0 +1,198 @@
+{
+ "lesson_code": "SY22",
+ "sort_order": 125,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY22 · Đọc đúng định dạng Stata và SAS",
+ "subtitle": "Trung cấp · M5 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "SY22 · Đọc đúng định dạng Stata và SAS",
+  "subtitle": "Trung cấp · M5 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/SY22.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Đọc đúng định dạng Stata và SAS",
+    "body": "Một đồng nghiệp gửi file .dta hoặc .sas7bdat. Đổi tên thành .csv không đổi cấu trúc bên trong; cần hàm đọc đúng định dạng. Với Stata, bạn có thể tạo một file nhỏ rồi đọc lại để hiểu cách làm:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một đồng nghiệp gửi file .dta hoặc .sas7bdat. Đổi tên thành .csv không đổi cấu trúc bên trong; cần hàm đọc đúng định dạng. Với Stata, bạn có thể tạo một file nhỏ rồi đọc lại để hiểu cách làm:\n\nStata có định dạng nhị phân riêng; read_stata trả DataFrame. SAS7BDAT và SAS XPORT là hai định dạng khác nhau trong hệ SAS. Thư mục fixtures của bộ học có file mẫu test1.sas7bdat lấy từ bộ kiểm thử công khai của pandas, kèm CSV đối chiếu và giấy phép. Với hai ví dụ tiếp theo, mở terminal tại thư mục python-da có chứa fixtures; nếu chuyển file mẫu sang nơi khác, chỉnh lại đường dẫn trong code."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Kiểm shape, tên cột và vài giá trị giúp phát hiện đọc sai ngay từ đầu. Trang 328 dùng package sas7bdat; pandas có reader cho định dạng này nên bạn có thể dùng read_sas. encoding giúp giải chuỗi bytes thành text khi reader hỗ trợ.\n\nVí dụ thứ ba dùng package sas7bdat được nêu trong cheat sheet; bạn cần cài package này riêng. Nếu nó không tương thích với môi trường, có thể dùng read_sas của pandas với đúng định dạng rồi ghi lại lựa chọn đó. SAS XPORT vẫn cần cách đọc phù hợp riêng. Khi đối chiếu với CSV được cấp, lưu ý một số cột ngày đang lưu số ngày tính từ 1960-01-01, nên phải chuyển về cùng kiểu ngày trước khi so sánh."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import pandas as pd, tempfile\nfrom pathlib import Path\nwith tempfile.TemporaryDirectory() as folder:\n    path = Path(folder) / \"scores.dta\"\n    pd.DataFrame({\"score\": [8.0, 6.0]}).to_stata(path, write_index=False)\n    frame = pd.read_stata(path)\n    print(frame[\"score\"].tolist())",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: [8.0, 6.0]"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: (10, 100) ⏎ 0.636 pear"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: (10, 100) ⏎ 84.0"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "File XPORT có thể luôn đọc bằng format=\"sas7bdat\" chỉ vì cùng thuộc SAS không?",
+     "options": [
+      {
+       "text": "Không; XPORT và SAS7BDAT là hai định dạng",
+       "correct": true,
+       "detail": "Cần chọn format hoặc bộ đọc đúng với file được cung cấp."
+      },
+      {
+       "text": "Có; hai tên gọi cùng định dạng",
+       "correct": false,
+       "detail": "XPORT là định dạng trao đổi khác SAS7BDAT."
+      },
+      {
+       "text": "Chỉ cần đổi đuôi file",
+       "correct": false,
+       "detail": "Đổi tên không chuyển đổi cấu trúc byte của file."
+      }
+     ],
+     "explanation": "Cần chọn format hoặc bộ đọc đúng với file được cung cấp."
+    },
+    {
+     "question": "Đồng nghiệp gửi Stata .dta. Đổi đuôi thành .csv có biến nó thành CSV không?",
+     "options": [
+      {
+       "text": "Chỉ cần thêm dấu phẩy vào tên file",
+       "correct": false,
+       "detail": "Chưa đúng. Bytes và cấu trúc file quyết định cách đọc, không phải việc đổi tên."
+      },
+      {
+       "text": "Không; cần reader cho định dạng Stata",
+       "correct": true,
+       "detail": "Bytes và cấu trúc file quyết định cách đọc, không phải việc đổi tên."
+      },
+      {
+       "text": "Có; mọi định dạng chỉ khác tên",
+       "correct": false,
+       "detail": "Chưa đúng. Bytes và cấu trúc file quyết định cách đọc, không phải việc đổi tên."
+      }
+     ],
+     "explanation": "Bytes và cấu trúc file quyết định cách đọc, không phải việc đổi tên."
+    },
+    {
+     "question": "pd.read_stata thường trả dữ liệu dạng nào?",
+     "options": [
+      {
+       "text": "DataFrame",
+       "correct": true,
+       "detail": "Reader đưa bảng từ file Stata vào DataFrame để tiếp tục phân tích."
+      },
+      {
+       "text": "Một cửa sổ đồ họa",
+       "correct": false,
+       "detail": "Chưa đúng. Reader đưa bảng từ file Stata vào DataFrame để tiếp tục phân tích."
+      },
+      {
+       "text": "Một kernel Notebook",
+       "correct": false,
+       "detail": "Chưa đúng. Reader đưa bảng từ file Stata vào DataFrame để tiếp tục phân tích."
+      }
+     ],
+     "explanation": "Reader đưa bảng từ file Stata vào DataFrame để tiếp tục phân tích."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Ghi bảng Stata mà không thêm cột index."
+   },
+   "scaffold": {
+    "template": "frame.to_stata(path, write_index={{slot1}})",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Giá trị bỏ index",
+      "answer": "False"
+     }
+    ],
+    "bank": [
+     {
+      "label": "False",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "solve(data) nhận {\"values\": list số nguyên không rỗng}. Tạo DataFrame một cột units, ghi Stata .dta trong TemporaryDirectory với write_index=False, đọc lại bằng read_stata; trả {\"columns\": list tên cột, \"values\": các units}. Thực hiện round-trip định dạng thật.",
+    "io": [
+     {
+      "label": "nhiều dòng",
+      "value": "{'values': [3, 8, 0]} → {'columns': ['units'], 'values': [3, 8, 0]}"
+     },
+     {
+      "label": "một dòng",
+      "value": "{'values': [12]} → {'columns': ['units'], 'values': [12]}"
+     },
+     {
+      "label": "số âm",
+      "value": "{'values': [-2, 4]} → {'columns': ['units'], 'values': [-2, 4]}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import tempfile\nfrom pathlib import Path\nimport pandas as pd\ndef solve(data):\n    with tempfile.TemporaryDirectory() as folder:\n        path = Path(folder) / 'units.dta'\n        pd.DataFrame({'units':data['values']}).to_stata(path, write_index=False)\n        frame = pd.read_stata(path)\n        return {'columns':list(frame.columns), 'values':frame['units'].tolist()}\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ],
+   "tests": [
+    {
+     "name": "nhiều dòng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [3, 8, 0]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'columns': ['units'], 'values': [3, 8, 0]}"
+    },
+    {
+     "name": "một dòng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [12]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'columns': ['units'], 'values': [12]}"
+    },
+    {
+     "name": "số âm",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [-2, 4]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'columns': ['units'], 'values': [-2, 4]}"
+    }
+   ]
+  }
+ }
+}

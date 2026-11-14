@@ -1,0 +1,202 @@
+{
+ "lesson_code": "NP07",
+ "sort_order": 25,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP07 · Đọc shape, ndim và size",
+ "subtitle": "Cơ bản · M2 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "NP07 · Đọc shape, ndim và size",
+  "subtitle": "Cơ bản · M2 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/NP07.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Đọc shape, ndim và size",
+    "body": "Bạn nhận một bảng được mô tả là dữ liệu của hai cửa hàng trong ba ngày. Trước khi cộng số bán, hãy kiểm tra bảng có đúng kích thước đó không:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn nhận một bảng được mô tả là dữ liệu của hai cửa hàng trong ba ngày. Trước khi cộng số bán, hãy kiểm tra bảng có đúng kích thước đó không:\n\n`shape` mô tả hình dạng của array. Với bảng hai chiều, `(2, 3)` nghĩa là 2 hàng và 3 cột. `size` đếm tất cả phần tử: bảng này có 2 × 3 = 6 ô."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`ndim` cho biết số chiều. `len(a)` cho biết độ dài chiều đầu tiên; với bảng hai chiều, đó là số hàng:\n\nBốn kết quả lần lượt là: hình dạng `(2, 3)`, số chiều 2, tổng số phần tử 6 và số hàng 2. Vì vậy, không dùng `len(a)` để đếm tất cả ô của một bảng."
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "So sánh với một array một chiều:\n\n`(3,)` nghĩa là một chiều có độ dài 3. Dấu phẩy là cách Python viết tuple có một phần tử. Array này không phải bảng 1 hàng × 3 cột; bảng như vậy có `shape` là `(1, 3)` và `ndim` là 2."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import numpy as np\n\nsales = np.array([[12, 15, 9],\n                  [10,  8, 14]])\nprint(sales.shape)\nprint(sales.size)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: (2, 3) ⏎ 6"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: (2, 3) 2 6 2"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: (3,) 1 3"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "a có shape (3,2). a.size bằng bao nhiêu?",
+     "options": [
+      {
+       "text": "6",
+       "correct": true,
+       "detail": "Đúng. Có 3×2 ô."
+      },
+      {
+       "text": "3",
+       "correct": false,
+       "detail": "3 là độ dài chiều đầu, cũng là len(a) ở bảng này."
+      },
+      {
+       "text": "2",
+       "correct": false,
+       "detail": "2 là số chiều hoặc số cột trong ví dụ, không phải tổng số ô."
+      }
+     ],
+     "explanation": "Đúng. Có 3×2 ô."
+    },
+    {
+     "question": "Bảng có hai cửa hàng và ba ngày. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "(2, 3)",
+       "correct": true,
+       "detail": "Có hai list con, mỗi list ba phần tử nên shape là (2,3)."
+      },
+      {
+       "text": "[3, 2]",
+       "correct": false,
+       "detail": "shape ghi số hàng trước số cột."
+      },
+      {
+       "text": "6",
+       "correct": false,
+       "detail": "6 là size, không phải shape."
+      }
+     ],
+     "explanation": "Có hai list con, mỗi list ba phần tử nên shape là (2,3)."
+    },
+    {
+     "question": "Đếm tất cả số đo trong bảng. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "6",
+       "correct": true,
+       "detail": "size bằng 2 × 3, tức sáu phần tử."
+      },
+      {
+       "text": "2",
+       "correct": false,
+       "detail": "2 là số hàng."
+      },
+      {
+       "text": "3",
+       "correct": false,
+       "detail": "3 là số cột."
+      }
+     ],
+     "explanation": "size bằng 2 × 3, tức sáu phần tử."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền thuộc tính cho biết bảng có mấy hàng và cột."
+   },
+   "scaffold": {
+    "template": "dimensions = table.{{slot1}}",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Thuộc tính hình dạng",
+      "answer": "shape"
+     }
+    ],
+    "bank": [
+     {
+      "label": "shape",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận bảng số không rỗng. Trả dictionary có shape, ndim và size của array được tạo từ bảng. Bạn có thể trả tuple ở shape; hệ thống sẽ hiển thị thành dãy.",
+    "io": [
+     {
+      "label": "Bảng ba hàng hai cột",
+      "value": "[[1, 2], [3, 4], [5, 6]] → {'shape': [3, 2], 'ndim': 2, 'size': 6}"
+     },
+     {
+      "label": "Một hàng",
+      "value": "[[2, 4, 6]] → {'shape': [1, 3], 'ndim': 2, 'size': 3}"
+     },
+     {
+      "label": "Một ô",
+      "value": "[[0]] → {'shape': [1, 1], 'ndim': 2, 'size': 1}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    a = np.array(data)\n    return {\"shape\": a.shape, \"ndim\": a.ndim, \"size\": a.size}\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Ba đại lượng trả lời ba câu khác nhau: hình dạng, số chiều và số ô."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Đọc a.shape, a.ndim và a.size sau khi tạo array."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "Bảng ba hàng hai cột",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([[1, 2], [3, 4], [5, 6]]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'shape': [3, 2], 'ndim': 2, 'size': 6}"
+    },
+    {
+     "name": "Một hàng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([[2, 4, 6]]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'shape': [1, 3], 'ndim': 2, 'size': 3}"
+    },
+    {
+     "name": "Một ô",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([[0]]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'shape': [1, 1], 'ndim': 2, 'size': 1}"
+    }
+   ]
+  }
+ }
+}

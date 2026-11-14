@@ -1,0 +1,180 @@
+{
+ "lesson_code": "GU05",
+ "sort_order": 152,
+ "module": "M8 · Tkinter: từ form nhỏ đến quản lý điểm",
+ "title": "GU05 · Entry, mật khẩu và Checkbutton",
+ "subtitle": "Trung cấp · M8 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "GU05 · Entry, mật khẩu và Checkbutton",
+  "subtitle": "Trung cấp · M8 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/GU05.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Entry, mật khẩu và Checkbutton",
+    "body": "Form có ô tên và tùy chọn nhận thông báo. Entry luôn trả chữ; Checkbutton giữ trạng thái bật hoặc tắt độc lập với các ô khác.",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Form có ô tên và tùy chọn nhận thông báo. Entry luôn trả chữ; Checkbutton giữ trạng thái bật hoặc tắt độc lập với các ô khác.\n\ninsert(0,...) thêm chữ ở đầu; delete(0, END) xóa toàn bộ nội dung. Với ô điểm, bạn cần chuyển chuỗi sang số và xử lý lỗi nhập; Entry không tự kiểm tra giới hạn điểm."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "show=\"*\" chỉ che cách hiển thị trên màn hình. get vẫn nhận chuỗi gốc; cách này không mã hóa hay bảo vệ việc lưu mật khẩu.\n\nMỗi Checkbutton dùng một biến riêng nên bật News không làm bật Alerts. invoke mô phỏng việc kích hoạt nút. Các lựa chọn chỉ được phép chọn một trong nhóm sẽ dùng Radiobutton ở bài sau."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import tkinter as tk\nr=tk.Tk();r.withdraw()\nentry=tk.Entry(r);entry.insert(0,'An')\nprint(entry.get())\nentry.delete(0,tk.END);entry.insert(0,'Binh')\nprint(entry.get())\nr.destroy()",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: An ⏎ Binh"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: * ⏎ True"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: True False"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Entry có show=\"*\" có mã hóa mật khẩu được lưu không?",
+     "options": [
+      {
+       "text": "Không; nó chỉ che cách hiển thị",
+       "correct": true,
+       "detail": "Entry.get vẫn trả nội dung; lưu trữ và bảo vệ dữ liệu là chuyện khác."
+      },
+      {
+       "text": "Có; get sẽ trả các dấu sao",
+       "correct": false,
+       "detail": "show thay cách vẽ chữ, không đổi giá trị bên trong."
+      },
+      {
+       "text": "Có; mọi dữ liệu tự thành bytes mã hóa",
+       "correct": false,
+       "detail": "Tkinter không tự mã hóa dữ liệu khi đặt thuộc tính show."
+      }
+     ],
+     "explanation": "Entry.get vẫn trả nội dung; lưu trữ và bảo vệ dữ liệu là chuyện khác."
+    },
+    {
+     "question": "Entry.get() trả gì kể cả khi người dùng gõ 12?",
+     "options": [
+      {
+       "text": "Một StringVar mới",
+       "correct": false,
+       "detail": "Chưa đúng. Nội dung ô nhập là văn bản; chuyển sang số cần thao tác rõ ràng."
+      },
+      {
+       "text": "Chuỗi \"12\"",
+       "correct": true,
+       "detail": "Nội dung ô nhập là văn bản; chuyển sang số cần thao tác rõ ràng."
+      },
+      {
+       "text": "Luôn số nguyên 12",
+       "correct": false,
+       "detail": "Chưa đúng. Nội dung ô nhập là văn bản; chuyển sang số cần thao tác rõ ràng."
+      }
+     ],
+     "explanation": "Nội dung ô nhập là văn bản; chuyển sang số cần thao tác rõ ràng."
+    },
+    {
+     "question": "show=\"*\" trên Entry làm gì?",
+     "options": [
+      {
+       "text": "Che cách hiển thị ký tự nhập",
+       "correct": true,
+       "detail": "Che trên màn hình không tự bảo mật hoặc thay giá trị nhận được từ get."
+      },
+      {
+       "text": "Mã hóa dữ liệu đã lưu bằng mật khẩu",
+       "correct": false,
+       "detail": "Chưa đúng. Che trên màn hình không tự bảo mật hoặc thay giá trị nhận được từ get."
+      },
+      {
+       "text": "Đổi nội dung thật thành toàn dấu *",
+       "correct": false,
+       "detail": "Chưa đúng. Che trên màn hình không tự bảo mật hoặc thay giá trị nhận được từ get."
+      }
+     ],
+     "explanation": "Che trên màn hình không tự bảo mật hoặc thay giá trị nhận được từ get."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Tạo Entry mật khẩu che ký tự."
+   },
+   "scaffold": {
+    "template": "password = tk.Entry(root, show={{slot1}})\nvalue = password.{{slot2}}()",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Ký tự che",
+      "answer": "'*'"
+     },
+     {
+      "n": 2,
+      "placeholder": "Đọc giá trị",
+      "answer": "get"
+     }
+    ],
+    "bank": [
+     {
+      "label": "'*'",
+      "slot": 1,
+      "trap": ""
+     },
+     {
+      "label": "get",
+      "slot": 1,
+      "trap": "show=\"*\" che trên màn hình."
+     },
+     {
+      "label": "get",
+      "slot": 2,
+      "trap": ""
+     },
+     {
+      "label": "'*'",
+      "slot": 2,
+      "trap": "get trả nội dung người dùng nhập."
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Tạo form đăng ký nhận tin: Entry tên, Entry mật khẩu show=\"*\", hai Checkbutton \"Tin mới\"/\"Khuyến mãi\" dùng hai BooleanVar. Nút xem lựa chọn hiển thị tên và hai trạng thái, không hiển thị mật khẩu."
+   },
+   "procedure": [
+    "Điền sẵn tên \"Lan\" bằng insert rồi cho người dùng sửa.",
+    "Tạo biến riêng cho hai Checkbutton.",
+    "Callback đọc get; thử tên rỗng và hiện thông báo cần nhập tên.",
+    "Tự kiểm: Có thể bật cả hai, tắt cả hai hoặc bật từng mục riêng.",
+    "Tự kiểm: Sửa tên thành Mai thì kết quả cập nhật đúng; mật khẩu chỉ hiện dấu che.",
+    "Tự kiểm: Không có mật khẩu trong dialog, terminal hay file kết quả của bài."
+   ]
+  }
+ }
+}

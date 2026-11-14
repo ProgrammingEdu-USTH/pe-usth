@@ -1,0 +1,202 @@
+{
+ "lesson_code": "PD02",
+ "sort_order": 43,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD02 · DataFrame: đọc một bảng nhỏ",
+ "subtitle": "Cơ bản · M3 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PD02 · DataFrame: đọc một bảng nhỏ",
+  "subtitle": "Cơ bản · M3 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PD02.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "DataFrame: đọc một bảng nhỏ",
+    "body": "Bảng bán hàng cần cả tên đồ uống và số cốc. DataFrame giữ các cột này trong cùng một bảng; mỗi hàng ở ví dụ dưới là một loại đồ uống.",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bảng bán hàng cần cả tên đồ uống và số cốc. DataFrame giữ các cột này trong cùng một bảng; mỗi hàng ở ví dụ dưới là một loại đồ uống.\n\n`shape` có thứ tự số hàng, số cột. Bảng này có hai hàng và hai cột. Các cột có thể khác kiểu dữ liệu: drink chứa chữ, cups chứa số. Một cột được lấy ra bằng tên của nó."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`sales['cups']` lấy một cột thành Series. Khi truyền danh sách tên cột như `sales[['cups']]`, kết quả vẫn là DataFrame. Để xem vài hàng đầu hoặc cuối, dùng `head()` và `tail()`. `to_dict(\"records\")` chuyển mỗi hàng thành một dictionary để kết quả ngắn dễ đọc hơn.\n\n`to_numpy()` lấy các giá trị thành NumPy array, bỏ nhãn hàng và cột; array của một cột vẫn có hai chiều nên kết quả gồm các list nhỏ. Slide cũ dùng `.values` cho thao tác tương tự; code mới thường viết rõ `to_numpy()`. Nếu các cột khác kiểu, array kết quả có thể cần kiểu chung thay vì giữ nguyên kiểu của từng cột."
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Với bảng thật, `sales.info()` còn cho biết số giá trị không thiếu và kiểu dữ liệu từng cột. Hàm này in thông tin trực tiếp; không cần viết print(sales.info()). Đọc vài hàng là bước kiểm tra đầu tiên, chưa đủ để kết luận dữ liệu sạch."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import pandas as pd\nsales = pd.DataFrame({'drink': ['coffee', 'tea'], 'cups': [12, 8]})\nprint(sales.shape)\nprint(sales.columns.tolist())",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: (2, 2) ⏎ ['drink', 'cups']"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: Series ⏎ DataFrame ⏎ [12, 8]"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: [{'drink': 'coffee', 'cups': 12}] ⏎ [{'drink': 'cocoa', 'cups': 5}] ⏎ [[12], [8], [5]]"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "df có 5 hàng và 2 cột. df.shape là gì?",
+     "options": [
+      {
+       "text": "10",
+       "correct": false,
+       "detail": "10 là số ô, không phải shape."
+      },
+      {
+       "text": "(5, 2)",
+       "correct": true,
+       "detail": "Đúng: số hàng đứng trước số cột."
+      },
+      {
+       "text": "(2, 5)",
+       "correct": false,
+       "detail": "Đây là thứ tự cột–hàng, ngược với shape."
+      }
+     ],
+     "explanation": "shape mô tả hai chiều của bảng, không phải tổng số ô."
+    },
+    {
+     "question": "shape bằng (100, 4) có nghĩa gì?",
+     "options": [
+      {
+       "text": "100 cột và 4 hàng.",
+       "correct": false,
+       "detail": "Hai đại lượng đã bị đổi chỗ."
+      },
+      {
+       "text": "400 hàng và một cột.",
+       "correct": false,
+       "detail": "Nhân hai kích thước cho số ô, không phải số hàng."
+      },
+      {
+       "text": "Bảng có 100 hàng và 4 cột.",
+       "correct": true,
+       "detail": "Bảng có 100 hàng và 4 cột."
+      }
+     ],
+     "explanation": "Bảng có 100 hàng và 4 cột."
+    },
+    {
+     "question": "sales.info() cho biết điều gì về các cột? Có cần viết print(sales.info()) không?",
+     "options": [
+      {
+       "text": "Trả về bảng đã xóa các ô thiếu.",
+       "correct": false,
+       "detail": "info báo thông tin; nó không làm sạch hoặc trả bảng đã xóa ô thiếu."
+      },
+      {
+       "text": "Nó cho biết kiểu dữ liệu và số giá trị không thiếu, cùng thông tin tổng quan của bảng. info đã in trực tiếp nên gọi sales.info(), không cần bọc print.",
+       "correct": true,
+       "detail": "Nó cho biết kiểu dữ liệu và số giá trị không thiếu, cùng thông tin tổng quan của bảng. info đã in trực tiếp nên gọi sales.info(), không cần bọc print."
+      },
+      {
+       "text": "Chỉ in các giá trị của hàng đầu.",
+       "correct": false,
+       "detail": "head mới thường được dùng để nhìn vài hàng đầu."
+      }
+     ],
+     "explanation": "Nó cho biết kiểu dữ liệu và số giá trị không thiếu, cùng thông tin tổng quan của bảng. info đã in trực tiếp nên gọi sales.info(), không cần bọc print."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Lấy đúng một hàng cuối."
+   },
+   "scaffold": {
+    "template": "stock = pd.DataFrame({\"item\":[\"pen\", \"book\"], \"units\":[8, 3]})\nprint(stock.{{slot1}}(1).to_dict(\"records\"))",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "tail"
+     }
+    ],
+    "bank": [
+     {
+      "label": "tail",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.rows là list các dictionary có item và units, có ít nhất một hàng. Tạo DataFrame, trả shape dưới dạng list hai số, first là dictionary hàng đầu và last là dictionary hàng cuối.",
+    "io": [
+     {
+      "label": "ba mặt hàng",
+      "value": "{'rows': [{'item': 'ink', 'units': 4}, {'item': 'paper', 'units': 10}, {'item': 'clip', 'units': 2}]} → {'shape': [3, 2], 'first': {'item': 'ink', 'units': 4}, 'last': {'item': 'clip', 'units': 2}}"
+     },
+     {
+      "label": "một mặt hàng",
+      "value": "{'rows': [{'item': 'eraser', 'units': 0}]} → {'shape': [1, 2], 'first': {'item': 'eraser', 'units': 0}, 'last': {'item': 'eraser', 'units': 0}}"
+     },
+     {
+      "label": "hai mặt hàng",
+      "value": "{'rows': [{'item': 'ruler', 'units': 6}, {'item': 'tape', 'units': 9}]} → {'shape': [2, 2], 'first': {'item': 'ruler', 'units': 6}, 'last': {'item': 'tape', 'units': 9}}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     frame = pd.DataFrame(data['rows'])\n     return {'shape': list(frame.shape), 'first': frame.head(1).to_dict('records')[0], 'last': frame.tail(1).to_dict('records')[0]}\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cần phương thức lấy hàng cuối thay vì hàng đầu."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Đọc shape và lấy hàng đầu, hàng cuối của DataFrame."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ],
+   "tests": [
+    {
+     "name": "ba mặt hàng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'rows': [{'item': 'ink', 'units': 4}, {'item': 'paper', 'units': 10}, {'item': 'clip', 'units': 2}]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'shape': [3, 2], 'first': {'item': 'ink', 'units': 4}, 'last': {'item': 'clip', 'units': 2}}"
+    },
+    {
+     "name": "một mặt hàng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'rows': [{'item': 'eraser', 'units': 0}]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'shape': [1, 2], 'first': {'item': 'eraser', 'units': 0}, 'last': {'item': 'eraser', 'units': 0}}"
+    },
+    {
+     "name": "hai mặt hàng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'rows': [{'item': 'ruler', 'units': 6}, {'item': 'tape', 'units': 9}]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'shape': [2, 2], 'first': {'item': 'ruler', 'units': 6}, 'last': {'item': 'tape', 'units': 9}}"
+    }
+   ]
+  }
+ }
+}

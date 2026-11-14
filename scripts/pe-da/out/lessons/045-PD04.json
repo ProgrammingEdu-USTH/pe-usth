@@ -1,0 +1,198 @@
+{
+ "lesson_code": "PD04",
+ "sort_order": 45,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD04 · Index và phép tính căn theo nhãn",
+ "subtitle": "Cơ bản · M3 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PD04 · Index và phép tính căn theo nhãn",
+  "subtitle": "Cơ bản · M3 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PD04.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Index và phép tính căn theo nhãn",
+    "body": "Doanh thu và chi phí có thể được xuất theo hai thứ tự cửa hàng khác nhau. Khi hai Series có nhãn cửa hàng, pandas ghép các số theo nhãn trước khi tính.",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Doanh thu và chi phí có thể được xuất theo hai thứ tự cửa hàng khác nhau. Khi hai Series có nhãn cửa hàng, pandas ghép các số theo nhãn trước khi tính.\n\nCửa hàng A được tính 100 trừ 60 dù chi phí của A đứng sau. Điều này khác phép trừ hai NumPy array chỉ theo vị trí. Nếu bảng đang để mã cửa hàng trong cột, bạn dùng set_index để đưa mã thành nhãn hàng."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`reset_index()` chuyển nhãn trở lại thành cột. Khi một nhãn chỉ có ở một phía, phép cộng thông thường cho giá trị thiếu tại nhãn đó. Nếu quy tắc nghiệp vụ cho phép coi phần chưa có là 0, dùng add với fill_value.\n\n`reindex` chọn thứ tự và tập nhãn mong muốn. Chỉ điền 0 nếu thiếu thực sự có nghĩa là không phát sinh; nếu chưa nhận được báo cáo, điền 0 có thể làm sai doanh thu."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import pandas as pd\nrevenue = pd.Series([100, 80], index=['A', 'B'])\ncost = pd.Series([30, 60], index=['B', 'A'])\nprofit = revenue - cost\nprint(profit.to_dict())",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: {'A': 40, 'B': 50}"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 80 ⏎ ['store', 'sales']"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: {'A': False, 'B': True} ⏎ {'A': 15.0, 'B': 8.0} ⏎ [5, 0]"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "revenue A=50,B=30; cost B=8,A=20. Lợi nhuận A bằng bao nhiêu?",
+     "options": [
+      {
+       "text": "42",
+       "correct": false,
+       "detail": "42 trừ theo vị trí đầu vào, ghép sai cửa hàng."
+      },
+      {
+       "text": "20",
+       "correct": false,
+       "detail": "20 là chi phí của A, chưa trừ khỏi doanh thu."
+      },
+      {
+       "text": "30",
+       "correct": true,
+       "detail": "Đúng: nhãn A ghép 50 với 20."
+      }
+     ],
+     "explanation": "Phép tính giữa Series căn các giá trị có cùng nhãn."
+    },
+    {
+     "question": "Vì sao profit của A là 40?",
+     "options": [
+      {
+       "text": "pandas ghép nhãn A với A: 100 - 60 = 40.",
+       "correct": true,
+       "detail": "pandas ghép nhãn A với A: 100 - 60 = 40."
+      },
+      {
+       "text": "100 - 90 = 10 vì hai hàng cùng vị trí.",
+       "correct": false,
+       "detail": "Hai hàng ở cùng vị trí chưa chắc cùng nhãn."
+      },
+      {
+       "text": "60 - 100 = -40 vì chi phí luôn đứng trước.",
+       "correct": false,
+       "detail": "Phép tính đang là doanh thu trừ chi phí, không phải ngược lại."
+      }
+     ],
+     "explanation": "pandas ghép nhãn A với A: 100 - 60 = 40."
+    },
+    {
+     "question": "reset_index() thường chuyển index về đâu?",
+     "options": [
+      {
+       "text": "Xóa mọi giá trị trong index và các cột.",
+       "correct": false,
+       "detail": "reset_index không xóa mọi cột hoặc mọi giá trị."
+      },
+      {
+       "text": "Chuyển mọi cột thành index mà không tạo cột mới.",
+       "correct": false,
+       "detail": "set_index mới là thao tác đưa cột vào index."
+      },
+      {
+       "text": "Thành một hoặc nhiều cột; index mới thường là số thứ tự.",
+       "correct": true,
+       "detail": "Thành một hoặc nhiều cột; index mới thường là số thứ tự."
+      }
+     ],
+     "explanation": "Thành một hoặc nhiều cột; index mới thường là số thứ tự."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Coi phần chưa có của một bên là 0 theo quy tắc đã xác nhận."
+   },
+   "scaffold": {
+    "template": "a = pd.Series({\"A\":3, \"B\":4})\nb = pd.Series({\"B\":2})\nprint(a.add(b, {{slot1}}=0).to_dict())",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "fill_value"
+     }
+    ],
+    "bank": [
+     {
+      "label": "fill_value",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.revenue và data.cost là dictionary nhãn cửa hàng → số. Trừ hai Series theo nhãn. Trả dictionary lợi nhuận; nhãn chỉ có ở một bên phải có giá trị None, không tự điền 0.",
+    "io": [
+     {
+      "label": "căn ngược thứ tự",
+      "value": "{'revenue': {'K': 90, 'L': 60}, 'cost': {'L': 10, 'K': 40}} → {'K': 50.0, 'L': 50.0}"
+     },
+     {
+      "label": "cửa hàng chưa có chi phí",
+      "value": "{'revenue': {'A': 20, 'B': 7}, 'cost': {'A': 5}} → {'A': 15.0, 'B': None}"
+     },
+     {
+      "label": "mới có chi phí",
+      "value": "{'revenue': {'X': 0}, 'cost': {'X': 3, 'Y': 4}} → {'X': -3.0, 'Y': None}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     revenue = pd.Series(data['revenue'], dtype=float)\n     cost = pd.Series(data['cost'], dtype=float)\n     profit = revenue - cost\n     return {key: None if pd.isna(value) else float(value) for key, value in profit.items()}\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cần một tham số của phép add quy định cách xử lý phần vắng ở một bên."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Căn doanh thu và chi phí theo nhãn thay vì theo thứ tự hàng."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ],
+   "tests": [
+    {
+     "name": "căn ngược thứ tự",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'revenue': {'K': 90, 'L': 60}, 'cost': {'L': 10, 'K': 40}}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'K': 50.0, 'L': 50.0}"
+    },
+    {
+     "name": "cửa hàng chưa có chi phí",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'revenue': {'A': 20, 'B': 7}, 'cost': {'A': 5}}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'A': 15.0, 'B': None}"
+    },
+    {
+     "name": "mới có chi phí",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'revenue': {'X': 0}, 'cost': {'X': 3, 'Y': 4}}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'X': -3.0, 'Y': None}"
+    }
+   ]
+  }
+ }
+}

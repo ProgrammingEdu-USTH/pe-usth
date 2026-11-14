@@ -1,0 +1,186 @@
+{
+ "lesson_code": "PY04",
+ "sort_order": 4,
+ "module": "M1 · Python nền tảng",
+ "title": "PY04 · Biến, tên hợp lệ và kiểu dữ liệu",
+ "subtitle": "Cơ bản · M1 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PY04 · Biến, tên hợp lệ và kiểu dữ liệu",
+  "subtitle": "Cơ bản · M1 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PY04.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Biến, tên hợp lệ và kiểu dữ liệu",
+    "body": "Giá bán đọc từ một ô nhập là chuỗi \"15\". Trước khi tính doanh thu, bạn cần chuyển chuỗi đó thành số:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Giá bán đọc từ một ô nhập là chuỗi \"15\". Trước khi tính doanh thu, bạn cần chuyển chuỗi đó thành số:\n\n`type(raw).__name__` cho tên kiểu của raw; `type(price).__name__` làm tương tự với price. `str` là chuỗi, `int` là số nguyên, `float` là số thực và `bool` gồm True/False. Số nguyên Python không bị cố định trong 32 hay 64 bit; số lớn vẫn bị giới hạn bởi bộ nhớ và tài nguyên máy. `int(raw)` tạo giá trị số từ chuỗi phù hợp; chuỗi ban đầu vẫn là chuỗi. Nếu raw là \"mười lăm\", phép chuyển gây ValueError."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Python dùng kiểu động: cùng tên `value` có thể được gán tới object khác kiểu. Điều đó không biến object chuỗi cũ thành số thực. `2e4` là cách viết số thực 2 × 10 mũ 4.\n\nTên biến có thể có chữ, số và gạch dưới nhưng không bắt đầu bằng số; không dùng từ khóa như `for`. Dấu cách và dấu gạch ngang không thuộc tên như `total cups` hay `total-cups`. `cups` và `Cups` là hai tên khác nhau. `keyword.iskeyword` kiểm một tên, còn `keyword.kwlist` cho danh sách từ khóa của Python đang chạy. Chọn tên gợi rõ nội dung giúp tránh nhầm số lượng với đơn giá."
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Chuyển kiểu không xảy ra tự động cho mọi phép tính. `\"15\" + 2` gây TypeError vì đang cộng str với int; `float(\"12.5\")` cho 12.5, còn `int(\"12.5\")` gây ValueError. Khi dữ liệu đến từ ô nhập hoặc file, hãy chọn phép đổi theo ý nghĩa dữ liệu."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "raw = \"15\"\nprice = int(raw)\nprint(price * 2)\nprint(type(raw).__name__, type(price).__name__)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 30 ⏎ str int"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: float ⏎ 20000.0"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: True ⏎ False ⏎ True"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "raw = \"12.5\". Biểu thức nào tính giá của hai vé?",
+     "options": [
+      {
+       "text": "float(raw) * 2",
+       "correct": true,
+       "detail": "Đúng. Chuỗi có phần thập phân cần đổi sang float trước."
+      },
+      {
+       "text": "raw * 2",
+       "correct": false,
+       "detail": "Nhân chuỗi lặp lại văn bản, không nhân giá."
+      },
+      {
+       "text": "int(raw) * 2",
+       "correct": false,
+       "detail": "int(\"12.5\") không đổi trực tiếp được chuỗi có dấu thập phân."
+      }
+     ],
+     "explanation": "Đúng. Chuỗi có phần thập phân cần đổi sang float trước."
+    },
+    {
+     "question": "Giá vé từ ô nhập là chuỗi. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "36",
+       "correct": true,
+       "detail": "int(\"18\") tạo số nguyên 18 trước phép nhân."
+      },
+      {
+       "text": "1818",
+       "correct": false,
+       "detail": "Giá đã được đổi thành int trước khi nhân."
+      },
+      {
+       "text": "20",
+       "correct": false,
+       "detail": "Phép tính là nhân giá với hai vé, không cộng 2."
+      }
+     ],
+     "explanation": "int(\"18\") tạo số nguyên 18 trước phép nhân."
+    },
+    {
+     "question": "Giá có phần lẻ. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "15.0",
+       "correct": true,
+       "detail": "float giữ phần thập phân; hai giá 7.5 cộng lại là 15."
+      },
+      {
+       "text": "14",
+       "correct": false,
+       "detail": "Không cắt 7.5 xuống 7."
+      },
+      {
+       "text": "'7.57.5'",
+       "correct": false,
+       "detail": "float đã chuyển chuỗi thành số."
+      }
+     ],
+     "explanation": "float giữ phần thập phân; hai giá 7.5 cộng lại là 15."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền phép chuyển để giữ phần thập phân của giá."
+   },
+   "scaffold": {
+    "template": "raw = \"7.5\"\nprice = {{slot1}}(raw)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phép chuyển số",
+      "answer": "float"
+     }
+    ],
+    "bank": [
+     {
+      "label": "float",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Hệ thống cung cấp raw là giá một vé dưới dạng chuỗi, ví dụ \"7.5\". Gán giá hai vé vào total; đầu vào là chuỗi số hợp lệ, không âm.",
+    "io": [
+     {
+      "label": "Giá thập phân",
+      "value": "'7.5' → 15.0"
+     },
+     {
+      "label": "Giá nguyên viết dạng chuỗi",
+      "value": "'12' → 24.0"
+     },
+     {
+      "label": "Vé miễn phí",
+      "value": "'0' → 0.0"
+     }
+    ]
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "raw vẫn là chuỗi. Chọn phép đổi giữ được phần thập phân trước khi nhân."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Dùng float để có giá số, rồi gán kết quả nhân 2 vào total."
+    }
+   ],
+   "procedure": [
+    "Bài này chạy bằng script (đọc biến đầu vào, gán biến kết quả) nên chưa chấm tự động.",
+    "Đầu vào '7.5' — kết quả cần có 15.0.",
+    "Đầu vào '12' — kết quả cần có 24.0.",
+    "Đầu vào '0' — kết quả cần có 0.0."
+   ]
+  }
+ }
+}

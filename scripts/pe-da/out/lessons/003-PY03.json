@@ -1,0 +1,165 @@
+{
+ "lesson_code": "PY03",
+ "sort_order": 3,
+ "module": "M1 · Python nền tảng",
+ "title": "PY03 · REPL, notebook và trạng thái đã chạy",
+ "subtitle": "Cơ bản · M1 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PY03 · REPL, notebook và trạng thái đã chạy",
+  "subtitle": "Cơ bản · M1 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PY03.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "REPL, notebook và trạng thái đã chạy",
+    "body": "Trong notebook, bạn chạy cell gán `cups = 12` rồi chạy cell in `cups`. Kết quả đúng vì kernel còn giữ biến từ cell trước. Hãy xem một lần chạy có đầy đủ đầu vào:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Trong notebook, bạn chạy cell gán `cups = 12` rồi chạy cell in `cups`. Kết quả đúng vì kernel còn giữ biến từ cell trước. Hãy xem một lần chạy có đầy đủ đầu vào:\n\nNotebook có cell code và cell văn bản, có thể chứa output, hình và phương trình; Shift+Enter thường chạy cell hiện tại. Jupyter Notebook và JupyterLab là hai giao diện làm việc với notebook. Kernel là tiến trình thực thi và giữ trạng thái. Nếu chỉ gửi cell `print(cups + 1)` cho người khác, họ có thể chưa có biến `cups`."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Cell chạy sau sẽ dùng giá trị cups mới nhất trong kernel. Nếu chưa gán cups mà đã in nó, Python báo NameError vì chưa có tên đó. Khi hoàn thành notebook, khởi động lại kernel rồi chạy từ đầu để tìm bước khởi tạo bị thiếu. Một editor chủ yếu giúp sửa văn bản mã nguồn; IDE gom thêm công cụ chạy, kiểm lỗi và gỡ lỗi. VS Code có thể mở rộng bằng extension; PyCharm và Spyder là các ví dụ IDE trong slide.\n\n`type(12)` cho biết 12 có kiểu int, còn `type(\"data\")` cho biết chuỗi có kiểu str. Bạn sẽ gặp hai kiểu này ở các bài tiếp. Khi cần tra, gõ `dir(object)` để xem tên thuộc tính/phương thức, hoặc `help(print)` để đọc hướng dẫn dùng print. Nội dung trợ giúp có thể dài; hãy tìm phần tham số và ví dụ phù hợp với việc bạn đang làm."
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Nếu chưa có Notebook, chạy `python -m pip install notebook` trong terminal của môi trường đã chọn, sau đó chạy `jupyter notebook` để mở. Với conda, slide đưa lựa chọn `conda install -c conda-forge notebook`. Đây là lệnh terminal; đừng dán chúng vào cell rồi coi là câu Python thông thường. Không cần dùng cả pip và conda cho cùng lần cài.\n\nJupyter phát triển từ dự án IPython. Với notebook Python, IPython kernel thực thi code và giữ các biến; Notebook và JupyterLab là các giao diện người học dùng để gửi code tới kernel. Trong sơ đồ lịch sử của slide, ZeroMQ vận chuyển thông điệp và Tornado phục vụ phần web. jQuery và Bootstrap giúp dựng giao diện; MathJax hiển thị công thức toán. Những thành phần giao diện này không thực thi code Python thay kernel và bạn không cần tự cài từng cái để viết một cell."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "cups = 12\nprint(cups + 1)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 13"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 12 ⏎ 15"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: <class 'int'> ⏎ <class 'str'>"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Bạn gửi riêng cell print(cups + 1) cho một bạn mới mở kernel. Vì sao bạn ấy có thể nhận NameError?",
+     "options": [
+      {
+       "text": "Notebook luôn tự giữ mọi biến giữa các máy",
+       "correct": false,
+       "detail": "Trạng thái kernel thuộc phiên làm việc; gửi cell không gửi kèm bộ nhớ của bạn."
+      },
+      {
+       "text": "Bạn ấy chưa chạy cell tạo cups",
+       "correct": true,
+       "detail": "Đúng. Kernel mới chưa có tên cups."
+      },
+      {
+       "text": "print chỉ dùng được trong file .py",
+       "correct": false,
+       "detail": "print dùng được trong cả notebook và script."
+      }
+     ],
+     "explanation": "Đúng. Kernel mới chưa có tên cups."
+    },
+    {
+     "question": "Một cell khởi tạo số cốc rồi cell tiếp theo cộng thêm. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "12",
+       "correct": true,
+       "detail": "Lệnh sau đọc giá trị được lệnh trước tạo."
+      },
+      {
+       "text": "11",
+       "correct": false,
+       "detail": "Biểu thức còn cộng thêm 1."
+      },
+      {
+       "text": "1",
+       "correct": false,
+       "detail": "cups đã có giá trị 11, không bị bỏ qua."
+      }
+     ],
+     "explanation": "Lệnh sau đọc giá trị được lệnh trước tạo."
+    },
+    {
+     "question": "Bạn sửa số lượng rồi đọc lại. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "18",
+       "correct": true,
+       "detail": "Lần gán cuối quyết định giá trị cups được đọc lúc này."
+      },
+      {
+       "text": "12",
+       "correct": false,
+       "detail": "Đây là giá trị trước lần gán mới."
+      },
+      {
+       "text": "30",
+       "correct": false,
+       "detail": "Phép gán không cộng giá trị cũ và mới."
+      }
+     ],
+     "explanation": "Lần gán cuối quyết định giá trị cups được đọc lúc này."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền tên để xem kiểu của giá trị trong cups."
+   },
+   "scaffold": {
+    "template": "cups = 15\nprint({{slot1}}(cups))",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Hàm xem kiểu",
+      "answer": "type"
+     }
+    ],
+    "bank": [
+     {
+      "label": "type",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự chạy trong môi trường của bạn",
+    "body": "Tạo notebook nhỏ tính số sách còn lại. Thử một kernel mới để kiểm bạn không bỏ sót cell khởi tạo."
+   },
+   "procedure": [
+    "Cell 1 gán total = 30. Cell 2 gán borrowed = 7. Cell 3 in total - borrowed.",
+    "Chạy lần lượt và đối chiếu kết quả.",
+    "Restart kernel rồi chỉ chạy cell 3 để quan sát lỗi chưa có biến.",
+    "Restart kernel và Run All; sửa notebook nếu chạy từ đầu vẫn lỗi.",
+    "Tự kiểm: Run All từ kernel mới hiển thị 23.",
+    "Tự kiểm: Bạn giải thích được NameError đến từ biến chưa được tạo, không phải phép trừ bị sai.",
+    "Tự kiểm: Notebook hoàn chỉnh có đủ cell để người khác chạy từ đầu."
+   ]
+  }
+ }
+}

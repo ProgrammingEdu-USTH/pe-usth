@@ -1,0 +1,207 @@
+{
+ "lesson_code": "VZ03",
+ "sort_order": 76,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ03 · Line chart: thời gian, thứ tự và dữ liệu thiếu",
+ "subtitle": "Cơ bản · M4 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "VZ03 · Line chart: thời gian, thứ tự và dữ liệu thiếu",
+  "subtitle": "Cơ bản · M4 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/VZ03.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Line chart: thời gian, thứ tự và dữ liệu thiếu",
+    "body": "Doanh thu tuần này lần lượt là 8, 10 và 7 triệu đồng. Khi vẽ line chart, mỗi giá trị phải đi cùng đúng ngày của nó. Matplotlib nối theo thứ tự bạn đưa vào, vì vậy dữ liệu chưa sắp ngày có thể tạo ra đường đi ngược.",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Doanh thu tuần này lần lượt là 8, 10 và 7 triệu đồng. Khi vẽ line chart, mỗi giá trị phải đi cùng đúng ngày của nó. Matplotlib nối theo thứ tự bạn đưa vào, vì vậy dữ liệu chưa sắp ngày có thể tạo ra đường đi ngược.\n\n![Biểu đồ](../visuals/VZ03-1.png)"
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Dùng marker để thấy từng quan sát, label để phân biệt chuỗi và legend để hiển thị tên. Màu và kiểu nét có thể cùng phân biệt hai chuỗi; người đọc vẫn nhận ra đường nào khi in đen trắng. Không nối qua một giá trị bị thiếu nếu việc nối khiến người đọc tưởng rằng ngày đó đã được đo.\n\n![Biểu đồ](../visuals/VZ03-2.png)"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "![Biểu đồ](../visuals/VZ03-3.png)"
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nfrom datetime import date\ndays = [date(2026, 1, 1), date(2026, 1, 2), date(2026, 1, 3)]\nsales = [8, 10, 7]\nax.plot(days, sales, marker=\"o\")\nax.set(xlabel=\"Date\", ylabel=\"Sales (million VND)\", title=\"Three daily observations\")\nfig.autofmt_xdate()\nprint(max(sales))\nplt.show()",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 10"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 2"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 2"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Ngày [3,1,2] đi với doanh thu [7,8,10]. Sau khi sắp ngày tăng, doanh thu phải là gì?",
+     "options": [
+      {
+       "text": "[8,10,7]",
+       "correct": true,
+       "detail": "Đúng: di chuyển cả cặp ngày–doanh thu."
+      },
+      {
+       "text": "[7,8,10]",
+       "correct": false,
+       "detail": "Chỉ sắp ngày sẽ gán số tiền cho nhầm ngày."
+      },
+      {
+       "text": "[7,10,8]",
+       "correct": false,
+       "detail": "Đây là sắp doanh thu, không sắp theo ngày."
+      }
+     ],
+     "explanation": "plot nối theo thứ tự đầu vào; cần sắp cả cặp dữ liệu."
+    },
+    {
+     "question": "Dữ liệu ngày 3, ngày 1, ngày 2 cần xử lý gì trước khi vẽ?",
+     "options": [
+      {
+       "text": "Không cần làm gì vì plot tự sắp mọi ngày.",
+       "correct": false,
+       "detail": "plot nối theo thứ tự đưa vào, không bảo đảm tự sắp ngày."
+      },
+      {
+       "text": "Sắp theo ngày và giữ đúng cặp ngày–giá trị. plot nối theo thứ tự đầu vào.",
+       "correct": true,
+       "detail": "Sắp theo ngày và giữ đúng cặp ngày–giá trị. plot nối theo thứ tự đầu vào."
+      },
+      {
+       "text": "Chỉ sắp ngày, giữ giá trị ở nguyên vị trí cũ.",
+       "correct": false,
+       "detail": "Sắp riêng ngày sẽ ghép sai các cặp dữ liệu."
+      }
+     ],
+     "explanation": "Sắp theo ngày và giữ đúng cặp ngày–giá trị. plot nối theo thứ tự đầu vào."
+    },
+    {
+     "question": "np.nan ở giữa một đường cho biết ngày đó bán được 0 không?",
+     "options": [
+      {
+       "text": "Không. Nó là giá trị thiếu; 0 là một phép đo có giá trị bằng 0.",
+       "correct": true,
+       "detail": "Không. Nó là giá trị thiếu; 0 là một phép đo có giá trị bằng 0."
+      },
+      {
+       "text": "Có; thiếu dữ liệu có cùng nghĩa với bán 0 cốc.",
+       "correct": false,
+       "detail": "Điền 0 biến phần thiếu thành một phép đo không có thật."
+      },
+      {
+       "text": "Có; nan là cách viết khác của số 0.",
+       "correct": false,
+       "detail": "NaN là giá trị thiếu, không phải tên khác của 0."
+      }
+     ],
+     "explanation": "Không. Nó là giá trị thiếu; 0 là một phép đo có giá trị bằng 0."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Giữ khoảng trống ngày chưa đo bằng NaN."
+   },
+   "scaffold": {
+    "template": "sales = [8, np.{{slot1}}, 7]",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "nan"
+     }
+    ],
+    "bank": [
+     {
+      "label": "nan",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.days là số ngày khác nhau, data.sales là số hoặc None theo cùng vị trí. Sắp cặp theo ngày, dùng np.nan cho None, vẽ line chart. Trả x và y đọc từ line.get_xdata()/get_ydata(); trong kết quả JSON đổi NaN trở lại None. Giữ nguyên ngày chưa đo, không nối bằng cách xóa hàng. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "ngày chưa sắp",
+      "value": "{'days': [4, 1, 2], 'sales': [6, 9, 7]} → {'x': [1, 2, 4], 'y': [9.0, 7.0, 6.0]}"
+     },
+     {
+      "label": "ngày chưa đo",
+      "value": "{'days': [1, 2, 3], 'sales': [5, None, 0]} → {'x': [1, 2, 3], 'y': [5.0, None, 0.0]}"
+     },
+     {
+      "label": "một ngày",
+      "value": "{'days': [8], 'sales': [2]} → {'x': [8], 'y': [2.0]}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     pairs = sorted(zip(data['days'],data['sales']))\n     x = [row[0] for row in pairs]\n     y = [np.nan if row[1] is None else row[1] for row in pairs]\n     fig, ax = plt.subplots()\n     line, = ax.plot(x,y,marker='o')\n     result = {'x':[int(v) for v in line.get_xdata()], 'y':[None if not np.isfinite(v) else float(v) for v in line.get_ydata()]}\n     plt.close(fig)\n     return result\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Giá trị chưa quan sát phải tạo khoảng đứt của đường, không thay bằng 0."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Giữ đúng cặp ngày–giá trị và không điền 0 cho quan sát thiếu."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "ngày chưa sắp",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'days': [4, 1, 2], 'sales': [6, 9, 7]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'x': [1, 2, 4], 'y': [9.0, 7.0, 6.0]}"
+    },
+    {
+     "name": "ngày chưa đo",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'days': [1, 2, 3], 'sales': [5, None, 0]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'x': [1, 2, 3], 'y': [5.0, None, 0.0]}"
+    },
+    {
+     "name": "một ngày",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'days': [8], 'sales': [2]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'x': [8], 'y': [2.0]}"
+    }
+   ]
+  }
+ }
+}

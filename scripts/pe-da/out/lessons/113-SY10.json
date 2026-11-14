@@ -1,0 +1,199 @@
+{
+ "lesson_code": "SY10",
+ "sort_order": 113,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY10 · Giữ trạng thái hợp lệ bằng getter và setter",
+ "subtitle": "Trung cấp · M5 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "SY10 · Giữ trạng thái hợp lệ bằng getter và setter",
+  "subtitle": "Trung cấp · M5 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/SY10.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Giữ trạng thái hợp lệ bằng getter và setter",
+    "body": "Điểm sinh viên phải từ 0 đến 10. Nếu chỗ nào cũng có thể gán điểm tùy ý, bạn sẽ phải kiểm tra cùng quy tắc nhiều lần. Một setter gom kiểm tra về một nơi:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Điểm sinh viên phải từ 0 đến 10. Nếu chỗ nào cũng có thể gán điểm tùy ý, bạn sẽ phải kiểm tra cùng quy tắc nhiều lần. Một setter gom kiểm tra về một nơi:\n\nGetter đọc trạng thái; setter kiểm tra rồi mới cập nhật. Một dấu gạch dưới ở _value là lời nhắc đây là chi tiết nội bộ. Nó không chặn truy cập như protected của Java, vốn đặt quy tắc truy cập theo package và lớp con."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Hai dấu gạch dưới ở đầu tên kích hoạt name mangling: tên nội bộ mang theo tên class. Mục đích là tránh đụng tên trong kế thừa, không giữ bí mật trước người có quyền chạy Python. `__value` không giống tên đặc biệt có hai dấu gạch dưới ở cả hai đầu như __str__.\n\nProperty cho cú pháp grade.value trong khi vẫn gọi getter/setter. Kiểm tra trước khi gán giúp trạng thái cũ còn nguyên nếu dữ liệu sai. Trong bài thực tế, bổ sung quy tắc kiểu và số hữu hạn nếu đầu vào có thể chứa bool, NaN (giá trị “không phải số”) hoặc giá trị vô cực."
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Thuộc tính không có tiền tố đặc biệt, như name, mặc định là public theo quy ước sử dụng. Nếu Employee khai báo `self.__salary`, Python lưu tên đã đổi thành `_Employee__salary`; truy cập `employee.__salary` từ ngoài gây AttributeError. Getter có thể đọc đúng tên từ trong class. Đây là lỗi tìm thuộc tính, không phải bằng chứng dữ liệu đã được mã hóa."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "class Grade:\n    def __init__(self, value): self.set_value(value)\n    def get_value(self): return self._value\n    def set_value(self, value):\n        if not 0 <= value <= 10: raise ValueError(\"score\")\n        self._value = value\ngrade = Grade(8)\nprint(grade.get_value())",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 8"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 100 ⏎ True"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: Tu choi ⏎ 8"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Điểm cũ là 8. Setter kiểm đầu vào mới 11 trước phép gán rồi raise ValueError. Điểm cũ còn bao nhiêu?",
+     "options": [
+      {
+       "text": "8",
+       "correct": true,
+       "detail": "Ngoại lệ xảy ra trước phép gán nên trạng thái cũ còn nguyên."
+      },
+      {
+       "text": "11",
+       "correct": false,
+       "detail": "Chỉ khi gán trước khi kiểm mới làm mất trạng thái hợp lệ."
+      },
+      {
+       "text": "None",
+       "correct": false,
+       "detail": "Raise không tự xóa thuộc tính đã lưu trước đó."
+      }
+     ],
+     "explanation": "Ngoại lệ xảy ra trước phép gán nên trạng thái cũ còn nguyên."
+    },
+    {
+     "question": "Setter nên làm gì trước khi thay điểm đang lưu?",
+     "options": [
+      {
+       "text": "Xóa điểm cũ vô điều kiện",
+       "correct": false,
+       "detail": "Chưa đúng. Kiểm trước khi gán giữ trạng thái cũ nếu lần cập nhật bị từ chối."
+      },
+      {
+       "text": "Kiểm dữ liệu mới có hợp lệ không",
+       "correct": true,
+       "detail": "Kiểm trước khi gán giữ trạng thái cũ nếu lần cập nhật bị từ chối."
+      },
+      {
+       "text": "Gán điểm mới rồi mới kiểm sau",
+       "correct": false,
+       "detail": "Chưa đúng. Kiểm trước khi gán giữ trạng thái cũ nếu lần cập nhật bị từ chối."
+      }
+     ],
+     "explanation": "Kiểm trước khi gán giữ trạng thái cũ nếu lần cập nhật bị từ chối."
+    },
+    {
+     "question": "Tên _value có ngăn mọi code bên ngoài truy cập không?",
+     "options": [
+      {
+       "text": "Không; đây là quy ước nội bộ",
+       "correct": true,
+       "detail": "Một dấu gạch dưới nhắc người dùng về chi tiết triển khai, không phải ranh giới bảo mật."
+      },
+      {
+       "text": "Có; dữ liệu đã được mã hóa",
+       "correct": false,
+       "detail": "Chưa đúng. Một dấu gạch dưới nhắc người dùng về chi tiết triển khai, không phải ranh giới bảo mật."
+      },
+      {
+       "text": "Có; chỉ hệ điều hành mới đọc được",
+       "correct": false,
+       "detail": "Chưa đúng. Một dấu gạch dưới nhắc người dùng về chi tiết triển khai, không phải ranh giới bảo mật."
+      }
+     ],
+     "explanation": "Một dấu gạch dưới nhắc người dùng về chi tiết triển khai, không phải ranh giới bảo mật."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Không nhận True như điểm 1."
+   },
+   "scaffold": {
+    "template": "if {{slot1}}(value) not in (int, float):\n    raise ValueError(\"score\")",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Cách kiểm kiểu chính xác",
+      "answer": "type"
+     }
+    ],
+    "bank": [
+     {
+      "label": "type",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Tạo Grade có set_value kiểm số int/float hữu hạn từ 0 đến 10, loại bool. solve(data) bắt đầu bằng data[\"initial\"], thử lần lượt các data[\"updates\"]. Bỏ qua ValueError nhưng giữ điểm cũ; trả list giá trị sau mỗi lần thử.",
+    "io": [
+     {
+      "label": "giữ cũ khi ngoài miền",
+      "value": "{'initial': 8, 'updates': [11, 7]} → [8, 7]"
+     },
+     {
+      "label": "loại bool và text",
+      "value": "{'initial': 6, 'updates': [True, '9', 0]} → [6, 6, 0]"
+     },
+     {
+      "label": "nhận hai biên",
+      "value": "{'initial': 5, 'updates': [0, 10]} → [0, 10]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import math\nclass Grade:\n    def __init__(self, value): self.set_value(value)\n    def set_value(self, value):\n        if type(value) not in (int, float) or not math.isfinite(value) or not 0 <= value <= 10:\n            raise ValueError('score')\n        self._value = value\n    def get_value(self): return self._value\ndef solve(data):\n    grade = Grade(data['initial'])\n    result=[]\n    for value in data['updates']:\n        try: grade.set_value(value)\n        except ValueError: pass\n        result.append(grade.get_value())\n    return result\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "tests": [
+    {
+     "name": "giữ cũ khi ngoài miền",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'initial': 8, 'updates': [11, 7]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[8, 7]"
+    },
+    {
+     "name": "loại bool và text",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'initial': 6, 'updates': [True, '9', 0]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[6, 6, 0]"
+    },
+    {
+     "name": "nhận hai biên",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'initial': 5, 'updates': [0, 10]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[0, 10]"
+    }
+   ]
+  }
+ }
+}

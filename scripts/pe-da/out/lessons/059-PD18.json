@@ -1,0 +1,198 @@
+{
+ "lesson_code": "PD18",
+ "sort_order": 59,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD18 · Concat: ghép các lô dữ liệu",
+ "subtitle": "Trung cấp · M3 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PD18 · Concat: ghép các lô dữ liệu",
+  "subtitle": "Trung cấp · M3 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PD18.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Concat: ghép các lô dữ liệu",
+    "body": "Mỗi ngày cửa hàng gửi một bảng có cùng cấu trúc. Để tạo bảng nhiều ngày, bạn xếp các bảng này nối tiếp theo hàng.",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Mỗi ngày cửa hàng gửi một bảng có cùng cấu trúc. Để tạo bảng nhiều ngày, bạn xếp các bảng này nối tiếp theo hàng.\n\naxis=0 là mặc định và nối theo hàng. ignore_index=True tạo nhãn hàng mới. Nó không bỏ đơn trùng: nếu file ngày bị đọc hai lần, các dòng vẫn lặp."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Khi nối theo hàng, mặc định kết quả giữ tất cả tên cột xuất hiện trong các bảng; hàng nào không có cột tương ứng thì nhận ô thiếu. Trong ví dụ, kết quả có cả `amount`, `note` và `city`. `join=\"inner\"` chỉ giữ cột chung là `amount`. Chọn cách nào tùy việc bạn cần giữ các thông tin khác nhau giữa các lô hay chỉ cần phần chung.\n\naxis=1 ghép theo cột và căn theo index, không chỉ theo vị trí. Vì vậy target của A là 15. Khi có nhiều lô, thu gom chúng vào list rồi concat một lần, tránh nối lại toàn bộ bảng sau từng hàng."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import pandas as pd\nday1 = pd.DataFrame({'order': ['A'], 'amount': [10]})\nday2 = pd.DataFrame({'order': ['B'], 'amount': [20]})\nall_orders = pd.concat([day1, day2], ignore_index=True)\nprint(all_orders.to_dict('records'))\nprint(all_orders.index.tolist())",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: [{'order': 'A', 'amount': 10}, {'order': 'B', 'amount': 20}] ⏎ [0, 1]"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: ['amount', 'note', 'city'] ⏎ ['amount']"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: [15, 30]"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Nối hai lô cùng chứa đơn A với ignore_index=True có tự xóa trùng không?",
+     "options": [
+      {
+       "text": "Không",
+       "correct": true,
+       "detail": "Đúng: nhãn hàng đổi, hai bản ghi vẫn còn."
+      },
+      {
+       "text": "Có",
+       "correct": false,
+       "detail": "ignore_index không phải drop_duplicates."
+      },
+      {
+       "text": "Chỉ giữ lô cuối",
+       "correct": false,
+       "detail": "concat không mặc định bỏ cả lô trước."
+      }
+     ],
+     "explanation": "Ghép lô và xử lý trùng là hai thao tác khác nhau."
+    },
+    {
+     "question": "ignore_index có xóa đơn hàng trùng không?",
+     "options": [
+      {
+       "text": "Có; ignore_index tự cộng amount của các đơn trùng.",
+       "correct": false,
+       "detail": "concat không tự tổng hợp các đơn cùng mã."
+      },
+      {
+       "text": "Không; nó chỉ tạo lại nhãn index.",
+       "correct": true,
+       "detail": "Không; nó chỉ tạo lại nhãn index."
+      },
+      {
+       "text": "Có; ignore_index tự bỏ các đơn giống nhau.",
+       "correct": false,
+       "detail": "ignore_index không đọc nội dung để quyết định đơn nào lặp."
+      }
+     ],
+     "explanation": "Không; nó chỉ tạo lại nhãn index."
+    },
+    {
+     "question": "concat axis=1 căn hàng theo vị trí hay index?",
+     "options": [
+      {
+       "text": "Theo index.",
+       "correct": true,
+       "detail": "Theo index."
+      },
+      {
+       "text": "Theo vị trí 0,1,2 bất kể nhãn.",
+       "correct": false,
+       "detail": "Các hàng có nhãn khác nhau có thể không đứng cạnh nhau dù cùng vị trí."
+      },
+      {
+       "text": "Theo thứ tự chữ cái của tên cột.",
+       "correct": false,
+       "detail": "Tên cột không xác định cách căn hàng khi axis=1."
+      }
+     ],
+     "explanation": "Theo index."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Ghép theo hàng và đánh số index lại từ 0."
+   },
+   "scaffold": {
+    "template": "combined = pd.concat(parts, {{slot1}}=True)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "ignore_index"
+     }
+    ],
+    "bank": [
+     {
+      "label": "ignore_index",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.batches là list các lô; mỗi lô là list số lượng. Có ít nhất một lô không rỗng. Tạo một DataFrame mỗi lô, concat một lần theo hàng với ignore_index=True. Trả values và index thành hai list; giữ mọi số kể cả số lặp.",
+    "io": [
+     {
+      "label": "lô cuối ngắn",
+      "value": "{'batches': [[2, 3], [7]]} → {'values': [2, 3, 7], 'index': [0, 1, 2]}"
+     },
+     {
+      "label": "không tự bỏ trùng",
+      "value": "{'batches': [[4], [4, 0]]} → {'values': [4, 4, 0], 'index': [0, 1, 2]}"
+     },
+     {
+      "label": "lô đầu rỗng",
+      "value": "{'batches': [[], [9]]} → {'values': [9], 'index': [0]}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     parts = [pd.DataFrame({'qty':part}) for part in data['batches']]\n     combined = pd.concat(parts, ignore_index=True)\n     return {'values':combined['qty'].tolist(), 'index':combined.index.tolist()}\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Chỉ số cũ của mỗi batch không còn ý nghĩa sau khi nối."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Ghép lô theo hàng và hiểu ignore_index chỉ đổi nhãn."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ],
+   "tests": [
+    {
+     "name": "lô cuối ngắn",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'batches': [[2, 3], [7]]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'values': [2, 3, 7], 'index': [0, 1, 2]}"
+    },
+    {
+     "name": "không tự bỏ trùng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'batches': [[4], [4, 0]]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'values': [4, 4, 0], 'index': [0, 1, 2]}"
+    },
+    {
+     "name": "lô đầu rỗng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'batches': [[], [9]]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'values': [9], 'index': [0]}"
+    }
+   ]
+  }
+ }
+}

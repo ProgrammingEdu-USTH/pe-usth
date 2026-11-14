@@ -1,0 +1,195 @@
+{
+ "lesson_code": "PY16",
+ "sort_order": 16,
+ "module": "M1 · Python nền tảng",
+ "title": "PY16 · Hàm, giá trị trả về và docstring",
+ "subtitle": "Cơ bản · M1 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PY16 · Hàm, giá trị trả về và docstring",
+  "subtitle": "Cơ bản · M1 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PY16.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Hàm, giá trị trả về và docstring",
+    "body": "Bạn tính tổng hóa đơn nhiều lần với đơn giá và số lượng khác nhau. Thay vì lặp lại biểu thức, đặt phép tính trong một hàm:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn tính tổng hóa đơn nhiều lần với đơn giá và số lượng khác nhau. Thay vì lặp lại biểu thức, đặt phép tính trong một hàm:\n\nprice và quantity là tham số trong định nghĩa; 12 và 3 là đối số trong lần gọi. quantity có giá trị mặc định 1. Bạn có thể truyền theo vị trí hoặc ghi tên đối số để dễ đọc."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Hàm chỉ print không tự trả số vừa hiển thị. Nếu không return một giá trị, kết quả lời gọi là None. Để đưa kết quả vào bước xử lý sau, dùng return.\n\nsum, len, min và max là các hàm có sẵn của Python (built-in). Hàm average trên yêu cầu dữ liệu không rỗng; với list rỗng nó chia cho 0. Docstring ở đầu hàm nêu rõ điều kiện dữ liệu không được rỗng. Một hàm nhỏ nên có đầu vào, đầu ra và điều kiện sử dụng đủ rõ để người khác gọi đúng."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "def total(price, quantity=1):\n    \"\"\"Return price multiplied by quantity.\"\"\"\n    return price * quantity\n\nprint(total(12, 3))\nprint(total(12, quantity=2))",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 36 ⏎ 24"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 36 ⏎ None"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 8.0 ⏎ 6 10"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Một hàm chỉ gọi print(12) và không return. Giá trị nhận được khi gán result = hàm() là gì?",
+     "options": [
+      {
+       "text": "None",
+       "correct": true,
+       "detail": "Đúng. print hiển thị 12 nhưng hàm không trả 12."
+      },
+      {
+       "text": "12",
+       "correct": false,
+       "detail": "Muốn nhận 12 từ lời gọi, thân hàm phải return 12."
+      },
+      {
+       "text": "Chuỗi \"12\"",
+       "correct": false,
+       "detail": "print không chuyển output thành giá trị trả về của hàm."
+      }
+     ],
+     "explanation": "Đúng. print hiển thị 12 nhưng hàm không trả 12."
+    },
+    {
+     "question": "Không truyền quantity thì hàm dùng giá trị mặc định. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "8",
+       "correct": true,
+       "detail": "Hàm dùng quantity=1 khi lời gọi không ghi đối số đó."
+      },
+      {
+       "text": "1",
+       "correct": false,
+       "detail": "1 là quantity, còn giá là 8."
+      },
+      {
+       "text": "'TypeError'",
+       "correct": false,
+       "detail": "quantity đã có giá trị mặc định."
+      }
+     ],
+     "explanation": "Hàm dùng quantity=1 khi lời gọi không ghi đối số đó."
+    },
+    {
+     "question": "Chỉ rõ số lượng khi gọi hàm. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "24",
+       "correct": true,
+       "detail": "Đối số theo tên thay giá trị mặc định của quantity."
+      },
+      {
+       "text": "11",
+       "correct": false,
+       "detail": "Hàm nhân giá với số lượng, không cộng."
+      },
+      {
+       "text": "8",
+       "correct": false,
+       "detail": "Lời gọi đã ghi quantity=3."
+      }
+     ],
+     "explanation": "Đối số theo tên thay giá trị mặc định của quantity."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền từ khóa để nơi gọi nhận được số tiền."
+   },
+   "scaffold": {
+    "template": "def net(price, discount):\n    {{slot1}} price - discount",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Từ khóa trả kết quả",
+      "answer": "return"
+     }
+    ],
+    "bank": [
+     {
+      "label": "return",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận list thời gian chờ. Trả trung bình nếu có số đo; trả None nếu list rỗng. Đừng chỉ print kết quả.",
+    "io": [
+     {
+      "label": "Ba số đo",
+      "value": "[4, 6, 8] → 6.0"
+     },
+     {
+      "label": "Một số đo",
+      "value": "[2.5] → 2.5"
+     },
+     {
+      "label": "Chưa có số đo",
+      "value": "[] → None"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "def solve(data):\n    if len(data) == 0:\n        return None\n    return sum(data) / len(data)\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Hàm phải return để bước sau dùng được kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Kiểm list rỗng trước phép chia; với dữ liệu có số đo, chia tổng cho số phần tử."
+    }
+   ],
+   "tests": [
+    {
+     "name": "Ba số đo",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([4, 6, 8]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "6.0"
+    },
+    {
+     "name": "Một số đo",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([2.5]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "2.5"
+    },
+    {
+     "name": "Chưa có số đo",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "None"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,164 @@
+{
+ "lesson_code": "SY11",
+ "sort_order": 114,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY11 · Module và các cách import",
+ "subtitle": "Trung cấp · M5 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "SY11 · Module và các cách import",
+  "subtitle": "Trung cấp · M5 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/SY11.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Module và các cách import",
+    "body": "Bạn dùng công thức làm tròn xuống ở nhiều báo cáo. Thay vì chép lại hàm, đặt nó trong một file .py rồi import. Trước hết, thử gọi một hàm qua tên của module có sẵn:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn dùng công thức làm tròn xuống ở nhiều báo cáo. Thay vì chép lại hàm, đặt nó trong một file .py rồi import. Trước hết, thử gọi một hàm qua tên của module có sẵn:\n\n`import math` giữ tên module, nên gọi math.floor. `from math import floor` đưa tên floor vào module hiện tại. `import ... as ...` đặt bí danh. Cả ba cách cùng dùng một công cụ nhưng tạo các tên khác nhau ở nơi gọi."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "File grades.py có thể chứa các hàm tính điểm. Tạo hai file dưới đây trong cùng một thư mục. Trong main.py, viết `import grades` rồi gọi `grades.passed(6)`; không viết đuôi .py trong câu import.\n\nKết quả / quan sát thủ công:"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Chạy `python main.py` từ thư mục chứa hai file. Python tìm module grades và gọi hàm passed đã định nghĩa ở đó. Module giúp nhiều file cùng dùng một hàm; sửa công thức ở một nơi dễ bảo trì hơn chép nhiều bản. Nó còn có thể chứa class và hằng số, chẳng hạn Student và PASS_MARK. `from math import *` đưa nhiều tên vào nơi gọi và có thể che tên cũ, nên ưu tiên import rõ tên.\n\nTrang 137 còn minh họa thành phần dùng lại trong hệ thống: .ko là module kernel Linux, .so là thư viện dùng chung (shared library) thường gặp ở UNIX và .dll là thư viện động trên Windows. Đó là liên hệ về ý tưởng chia thành phần; Python module .py và package dùng import không có cùng định dạng hay API với các file nhị phân này."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import math\nprint(math.floor(8.79 * 10) / 10)\nfrom math import floor\nprint(floor(8.79 * 10) / 10)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 8.7 ⏎ 8.7"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: True ⏎ -2"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: (không in gì)"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Sau from math import floor as down, muốn làm tròn xuống 3.8 thì gọi gì?",
+     "options": [
+      {
+       "text": "math.down(3.8)",
+       "correct": false,
+       "detail": "Lời import này không tạo thuộc tính math.down."
+      },
+      {
+       "text": "floor.py(3.8)",
+       "correct": false,
+       "detail": "Tên module/hàm Python không được gọi kèm đuôi file theo cách đó."
+      },
+      {
+       "text": "down(3.8)",
+       "correct": true,
+       "detail": "Bí danh down trỏ tới hàm floor đã import."
+      }
+     ],
+     "explanation": "Bí danh down trỏ tới hàm floor đã import."
+    },
+    {
+     "question": "Sau import math, cách gọi floor nào đúng?",
+     "options": [
+      {
+       "text": "math(8.9).floor",
+       "correct": false,
+       "detail": "Chưa đúng. import math đưa tên module math vào nơi gọi; hàm nằm trong module đó."
+      },
+      {
+       "text": "math.floor(8.9)",
+       "correct": true,
+       "detail": "import math đưa tên module math vào nơi gọi; hàm nằm trong module đó."
+      },
+      {
+       "text": "floor.math(8.9)",
+       "correct": false,
+       "detail": "Chưa đúng. import math đưa tên module math vào nơi gọi; hàm nằm trong module đó."
+      }
+     ],
+     "explanation": "import math đưa tên module math vào nơi gọi; hàm nằm trong module đó."
+    },
+    {
+     "question": "Sau from math import floor, tên nào có sẵn để gọi trực tiếp?",
+     "options": [
+      {
+       "text": "floor",
+       "correct": true,
+       "detail": "Câu import này đưa riêng tên floor vào namespace hiện tại."
+      },
+      {
+       "text": "math luôn tự có sẵn",
+       "correct": false,
+       "detail": "Chưa đúng. Câu import này đưa riêng tên floor vào namespace hiện tại."
+      },
+      {
+       "text": "math.py",
+       "correct": false,
+       "detail": "Chưa đúng. Câu import này đưa riêng tên floor vào namespace hiện tại."
+      }
+     ],
+     "explanation": "Câu import này đưa riêng tên floor vào namespace hiện tại."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Gọi floor qua bí danh module."
+   },
+   "scaffold": {
+    "template": "import math as mt\nresult = {{slot1}}.floor(7.9)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Tên module đã import",
+      "answer": "mt"
+     }
+    ],
+    "bank": [
+     {
+      "label": "mt",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Tạo module discounts.py dùng chung cho hai báo cáo. Hàm net(amount, discount) trả amount-discount; main.py gọi nó cho 120 và 15 rồi in 105."
+   },
+   "procedure": [
+    "Tạo discounts.py chỉ chứa hàm net; không gọi input khi import.",
+    "Tạo main.py trong cùng thư mục và import discounts.",
+    "Chạy main.py rồi tạo một file khác cũng dùng cùng hàm với 80 và 5.",
+    "Tự kiểm: main.py in 105; second_report.py in 75.",
+    "Tự kiểm: Hai nơi gọi không có bản sao công thức net.",
+    "Tự kiểm: Sửa một công thức trong discounts.py có thể được hai báo cáo dùng lại ở lần chạy mới."
+   ]
+  }
+ }
+}

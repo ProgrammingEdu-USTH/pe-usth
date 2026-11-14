@@ -1,0 +1,195 @@
+{
+ "lesson_code": "PY18",
+ "sort_order": 18,
+ "module": "M1 · Python nền tảng",
+ "title": "PY18 · Ngoại lệ và dữ liệu không hợp lệ",
+ "subtitle": "Cơ bản · M1 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PY18 · Ngoại lệ và dữ liệu không hợp lệ",
+  "subtitle": "Cơ bản · M1 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PY18.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Ngoại lệ và dữ liệu không hợp lệ",
+    "body": "Một cột điểm có hai chuỗi hợp lệ và một chuỗi trống. Nếu chuyển tất cả thành số mà không xử lý lỗi, chương trình sẽ dừng ở ô trống:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một cột điểm có hai chuỗi hợp lệ và một chuỗi trống. Nếu chuyển tất cả thành số mà không xử lý lỗi, chương trình sẽ dừng ở ô trống:\n\ntry chứa thao tác có thể gây lỗi; except ValueError xử lý riêng lỗi chuyển đổi này. Không bắt mọi ngoại lệ rồi bỏ qua, vì lỗi lập trình như sai tên biến cần được phát hiện."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`raise` chủ động báo dữ liệu vi phạm quy tắc. Phân biệt các lỗi thường gặp: TypeError là thao tác không phù hợp kiểu, IndexError là chỉ số không tồn tại và KeyError là thiếu khóa dict. Traceback cho biết chuỗi lời gọi và vị trí phát sinh; đọc dòng lỗi cuối cùng rồi tìm lại dòng code liên quan.\n\nelse chạy khi phần try không gây ngoại lệ; finally chạy khi rời cấu trúc, thường dùng để thu dọn tài nguyên. Với file, khối with thường giúp quản lý đóng file rõ hơn. Trong dữ liệu phân tích, “bắt được lỗi” chưa quyết định nên bỏ ô, gắn nhãn thiếu hay yêu cầu nhập lại; bạn phải nêu chính sách xử lý."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "for raw in [\"6\", \"\", \"8\"]:\n    try:\n        print(float(raw))\n    except ValueError:\n        print(\"missing\")",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 6.0 ⏎ missing ⏎ 8.0"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: Outside 0..10"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 8 ⏎ finished"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "float(\"\") gây ValueError. Bạn nên làm gì nếu chính sách là giữ chỗ dữ liệu hỏng?",
+     "options": [
+      {
+       "text": "Thay bằng 0 bất kể ý nghĩa",
+       "correct": false,
+       "detail": "0 là một số đo; không tự thay ô hỏng bằng 0 nếu chưa có quy ước."
+      },
+      {
+       "text": "Bắt ValueError và thêm None",
+       "correct": true,
+       "detail": "Đúng. Giữ vị trí để không làm lệch các hàng."
+      },
+      {
+       "text": "except: pass để bỏ mọi lỗi",
+       "correct": false,
+       "detail": "Cách này có thể che lỗi lập trình và làm mất dữ liệu mà không ghi nhận."
+      }
+     ],
+     "explanation": "Đúng. Giữ vị trí để không làm lệch các hàng."
+    },
+    {
+     "question": "Một ô nhập không phải số. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "'invalid'",
+       "correct": true,
+       "detail": "float không đọc được tea nên nhánh ValueError được chạy."
+      },
+      {
+       "text": "0",
+       "correct": false,
+       "detail": "Không có quy tắc tự đổi chữ thành 0."
+      },
+      {
+       "text": "'tea'",
+       "correct": false,
+       "detail": "Code đi qua nhánh except đã viết."
+      }
+     ],
+     "explanation": "float không đọc được tea nên nhánh ValueError được chạy."
+    },
+    {
+     "question": "Điểm vượt thang 0–10. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "'rejected'",
+       "correct": true,
+       "detail": "12 đọc được thành số nhưng bị quy tắc điểm từ chối."
+      },
+      {
+       "text": "12.0",
+       "correct": false,
+       "detail": "Hàm từ chối điểm ngoài thang trước return."
+      },
+      {
+       "text": "'TypeError'",
+       "correct": false,
+       "detail": "Đổi 12 từ chuỗi thành số được; lỗi do raise ValueError của quy tắc."
+      }
+     ],
+     "explanation": "12 đọc được thành số nhưng bị quy tắc điểm từ chối."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền tên ngoại lệ dành cho chuỗi không đổi được thành float."
+   },
+   "scaffold": {
+    "template": "try:\n    value = float(raw)\nexcept {{slot1}}:\n    value = None",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Tên ngoại lệ",
+      "answer": "ValueError"
+     }
+    ],
+    "bank": [
+     {
+      "label": "ValueError",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận list chuỗi số. Trả list cùng độ dài, đổi từng chuỗi hợp lệ bằng float và thay chuỗi không chuyển được bằng None. Đầu vào không chứa chuỗi NaN hoặc vô cực.",
+    "io": [
+     {
+      "label": "Có một ô hỏng",
+      "value": "['1', '', '3.5'] → [1.0, None, 3.5]"
+     },
+     {
+      "label": "Tất cả hợp lệ",
+      "value": "['-2', '0'] → [-2.0, 0.0]"
+     },
+     {
+      "label": "Toàn chuỗi lỗi",
+      "value": "['bad', '?'] → [None, None]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "def solve(data):\n    values = []\n    for raw in data:\n        try:\n            values.append(float(raw))\n        except ValueError:\n            values.append(None)\n    return values\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Giữ một vị trí đầu ra cho mỗi chuỗi đầu vào, kể cả chuỗi lỗi."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử float trong try; chỉ bắt ValueError rồi thêm None cho đúng vị trí đó."
+    }
+   ],
+   "tests": [
+    {
+     "name": "Có một ô hỏng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve(['1', '', '3.5']), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[1.0, None, 3.5]"
+    },
+    {
+     "name": "Tất cả hợp lệ",
+     "call": "__import__('json').loads(__import__('json').dumps(solve(['-2', '0']), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[-2.0, 0.0]"
+    },
+    {
+     "name": "Toàn chuỗi lỗi",
+     "call": "__import__('json').loads(__import__('json').dumps(solve(['bad', '?']), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[None, None]"
+    }
+   ]
+  }
+ }
+}

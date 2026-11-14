@@ -1,0 +1,207 @@
+{
+ "lesson_code": "VZ05",
+ "sort_order": 78,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ05 · Scatter plot: quan hệ giữa hai biến",
+ "subtitle": "Cơ bản · M4 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "VZ05 · Scatter plot: quan hệ giữa hai biến",
+  "subtitle": "Cơ bản · M4 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/VZ05.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Scatter plot: quan hệ giữa hai biến",
+    "body": "Bạn có bốn đơn hàng, mỗi đơn có khoảng cách giao và số phút giao. Scatter plot đặt mỗi đơn thành một điểm. Nó giúp bạn xem đơn ở xa có thường giao lâu hơn không mà không giả định phải nối từ đơn này sang đơn khác.",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn có bốn đơn hàng, mỗi đơn có khoảng cách giao và số phút giao. Scatter plot đặt mỗi đơn thành một điểm. Nó giúp bạn xem đơn ở xa có thường giao lâu hơn không mà không giả định phải nối từ đơn này sang đơn khác.\n\n![Biểu đồ](../visuals/VZ05-1.png)"
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Có thể dùng màu cho nhóm và diện tích marker cho một số đo khác. Tham số s là diện tích marker tính theo điểm in bình phương, không phải bán kính. Với các điểm trùng nhau, alpha nhỏ hơn 1 làm chỗ chồng lên nhau rõ hơn. Bốn điểm minh họa có thể gợi ý một quan hệ, nhưng không đủ để kết luận khoảng cách là nguyên nhân duy nhất của thời gian giao.\n\n![Biểu đồ](../visuals/VZ05-2.png)"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "![Biểu đồ](../visuals/VZ05-3.png)"
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\ndistance = [1, 2, 3, 4]\nminutes = [8, 12, 11, 18]\nax.scatter(distance, minutes)\nax.set(xlabel=\"Distance (km)\", ylabel=\"Delivery (minutes)\", title=\"One point per order\")\nprint(len(distance))\nplt.show()",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 4"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 4.0"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 2"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "scatter s tăng từ 20 lên 80 làm đại lượng nào tăng 4 lần?",
+     "options": [
+      {
+       "text": "Khoảng cách giao hàng",
+       "correct": false,
+       "detail": "s không tự thay đổi tọa độ x của quan sát."
+      },
+      {
+       "text": "Diện tích marker",
+       "correct": true,
+       "detail": "Đúng: s là diện tích theo điểm in bình phương."
+      },
+      {
+       "text": "Bán kính",
+       "correct": false,
+       "detail": "Bán kính không tỷ lệ trực tiếp với s."
+      }
+     ],
+     "explanation": "Mỗi tham số mã hóa một đại lượng; s không phải bán kính hay vị trí."
+    },
+    {
+     "question": "Mỗi điểm trong ví dụ giao hàng là gì?",
+     "options": [
+      {
+       "text": "Một điểm là trung bình của mọi đơn.",
+       "correct": false,
+       "detail": "Dữ liệu ở đây có từng đơn, không chỉ một điểm trung bình."
+      },
+      {
+       "text": "Một điểm chỉ biểu diễn khoảng cách, không có thời gian.",
+       "correct": false,
+       "detail": "Thời gian của cùng đơn là tọa độ còn lại."
+      },
+      {
+       "text": "Một đơn hàng; tọa độ cho biết khoảng cách và số phút giao của cùng đơn đó.",
+       "correct": true,
+       "detail": "Một đơn hàng; tọa độ cho biết khoảng cách và số phút giao của cùng đơn đó."
+      }
+     ],
+     "explanation": "Một đơn hàng; tọa độ cho biết khoảng cách và số phút giao của cùng đơn đó."
+    },
+    {
+     "question": "Tăng s từ 40 lên 160 làm diện tích marker tăng mấy lần?",
+     "options": [
+      {
+       "text": "Diện tích tăng 2 lần.",
+       "correct": false,
+       "detail": "160 chia 40 là 4, không phải 2."
+      },
+      {
+       "text": "4 lần. Bán kính không tăng 4 lần.",
+       "correct": true,
+       "detail": "4 lần. Bán kính không tăng 4 lần."
+      },
+      {
+       "text": "Bán kính tăng 4 lần, diện tích tăng 16 lần.",
+       "correct": false,
+       "detail": "Bạn đã áp tỷ lệ của s cho bán kính thay vì diện tích."
+      }
+     ],
+     "explanation": "4 lần. Bán kính không tăng 4 lần."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Đặt mức trong suốt để xem điểm chồng."
+   },
+   "scaffold": {
+    "template": "points = ax.scatter(x, y, {{slot1}}=0.5)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "alpha"
+     }
+    ],
+    "bank": [
+     {
+      "label": "alpha",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.x, data.y, data.sizes cùng độ dài. Tạo scatter với s=data.sizes và alpha=0.5. Trả positions=get_offsets().tolist(), sizes=get_sizes().tolist() và alpha=get_alpha() của đối tượng scatter. Các getter chỉ dùng để đọc cấu hình và dữ liệu vừa vẽ. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "hai đơn mới",
+      "value": "{'x': [1, 4], 'y': [6, 18], 'sizes': [25, 100]} → {'positions': [[1.0, 6.0], [4.0, 18.0]], 'sizes': [25, 100], 'alpha': 0.5}"
+     },
+     {
+      "label": "điểm trùng vẫn giữ",
+      "value": "{'x': [2, 2], 'y': [7, 7], 'sizes': [40, 40]} → {'positions': [[2.0, 7.0], [2.0, 7.0]], 'sizes': [40, 40], 'alpha': 0.5}"
+     },
+     {
+      "label": "một quan sát",
+      "value": "{'x': [0], 'y': [0], 'sizes': [10]} → {'positions': [[0.0, 0.0]], 'sizes': [10], 'alpha': 0.5}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     fig, ax = plt.subplots()\n     points = ax.scatter(data['x'],data['y'],s=data['sizes'],alpha=0.5)\n     result = {'positions':points.get_offsets().tolist(),'sizes':points.get_sizes().tolist(),'alpha':points.get_alpha()}\n     plt.close(fig)\n     return result\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Độ trong suốt nằm trong khoảng 0 đến 1."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Dựng scatter và phân biệt vị trí với diện tích marker."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "hai đơn mới",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'x': [1, 4], 'y': [6, 18], 'sizes': [25, 100]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'positions': [[1.0, 6.0], [4.0, 18.0]], 'sizes': [25, 100], 'alpha': 0.5}"
+    },
+    {
+     "name": "điểm trùng vẫn giữ",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'x': [2, 2], 'y': [7, 7], 'sizes': [40, 40]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'positions': [[2.0, 7.0], [2.0, 7.0]], 'sizes': [40, 40], 'alpha': 0.5}"
+    },
+    {
+     "name": "một quan sát",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'x': [0], 'y': [0], 'sizes': [10]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'positions': [[0.0, 0.0]], 'sizes': [10], 'alpha': 0.5}"
+    }
+   ]
+  }
+ }
+}

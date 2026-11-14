@@ -1,0 +1,202 @@
+{
+ "lesson_code": "NP02",
+ "sort_order": 20,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP02 · Lấy một phần tử",
+ "subtitle": "Cơ bản · M2 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "NP02 · Lấy một phần tử",
+  "subtitle": "Cơ bản · M2 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/NP02.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Lấy một phần tử",
+    "body": "Giả sử, bạn có một array chứa số lượng cà phê bán ra mỗi ngày, theo thứ tự thứ Hai, thứ Ba và thứ Tư. Để xem số cốc bán vào thứ Ba, bạn viết:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Giả sử, bạn có một array chứa số lượng cà phê bán ra mỗi ngày, theo thứ tự thứ Hai, thứ Ba và thứ Tư. Để xem số cốc bán vào thứ Ba, bạn viết:\n\nBạn có thể sử dụng chỉ số để lấy ra một phần tử trong array. Một index (chỉ số) đại diện cho một vị trí trong array. Chỉ số bắt đầu bằng 0: `a[0]` lấy phần tử đầu tiên, `a[1]` lấy phần tử thứ hai. `a[-1]` lấy phần tử cuối cùng."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Chỉ số cho bạn biết vị trí chứ không phải giá trị. Ví dụ, phần tử có giá trị 8 trong array `[6, 8, 10]` có index là 1.\n\n| Chỉ số | 0 | 1 | 2 |\n| --- | --- | --- | --- |\n| Giá trị | 6 | 8 | 10 |"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Bạn cũng có thể đếm từ cuối dãy bằng chỉ số âm:\n\nNếu sử dụng một chỉ số không tồn tại, bạn sẽ nhận một `IndexError`. Array ba phần tử ở trên có các chỉ số từ 0 đến 2, nên `a[3]` không lấy được phần tử nào."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import numpy as np\n\ncups = np.array([12, 15, 9])\nprint(cups[1])",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 15"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 8"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 10"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "prices = np.array([18, 27, 35]). prices[1] trả gì?",
+     "options": [
+      {
+       "text": "18",
+       "correct": false,
+       "detail": "18 ở chỉ số 0."
+      },
+      {
+       "text": "1",
+       "correct": false,
+       "detail": "Chỉ số xác định vị trí, không phải giá trị trả về."
+      },
+      {
+       "text": "27",
+       "correct": true,
+       "detail": "Đúng. Chỉ số 1 là phần tử thứ hai."
+      }
+     ],
+     "explanation": "Đúng. Chỉ số 1 là phần tử thứ hai."
+    },
+    {
+     "question": "Đọc lượng bán ngày đầu. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "9",
+       "correct": true,
+       "detail": "Vị trí đầu tiên có index 0 và giá trị 9."
+      },
+      {
+       "text": "14",
+       "correct": false,
+       "detail": "14 ở vị trí thứ hai, chỉ số 1."
+      },
+      {
+       "text": "0",
+       "correct": false,
+       "detail": "Chỉ số 0 là vị trí, không phải giá trị được trả."
+      }
+     ],
+     "explanation": "Vị trí đầu tiên có index 0 và giá trị 9."
+    },
+    {
+     "question": "Số 8 nằm ở vị trí thứ hai. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "8",
+       "correct": true,
+       "detail": "a[1] đọc phần tử ở vị trí 1, tức giá trị 8."
+      },
+      {
+       "text": "1",
+       "correct": false,
+       "detail": "1 là chỉ số đã dùng, không phải phần tử nhận được."
+      },
+      {
+       "text": "10",
+       "correct": false,
+       "detail": "10 nằm ở chỉ số 2."
+      }
+     ],
+     "explanation": "a[1] đọc phần tử ở vị trí 1, tức giá trị 8."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền chỉ số để lấy 35 từ array ba giá."
+   },
+   "scaffold": {
+    "template": "prices = np.array([18, 27, 35])\nlast = prices[{{slot1}}]",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Chỉ số phần tử cuối",
+      "answer": "2"
+     }
+    ],
+    "bank": [
+     {
+      "label": "2",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận list giá không rỗng. Tạo array rồi trả giá cuối cùng. Đừng cố định một chỉ số dương vì các list có độ dài khác nhau.",
+    "io": [
+     {
+      "label": "Ba giá",
+      "value": "[18, 27, 35] → 35"
+     },
+     {
+      "label": "Một giá",
+      "value": "[6] → 6"
+     },
+     {
+      "label": "Nhiều giá",
+      "value": "[2, 4, 8, 16, 32] → 32"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    prices = np.array(data)\n    return prices[-1]\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Độ dài list thay đổi nên một chỉ số dương cố định có thể sai."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Chỉ số -1 lấy phần tử cuối của array không rỗng."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "Ba giá",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([18, 27, 35]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "35"
+    },
+    {
+     "name": "Một giá",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([6]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "6"
+    },
+    {
+     "name": "Nhiều giá",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([2, 4, 8, 16, 32]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "32"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,202 @@
+{
+ "lesson_code": "NP15",
+ "sort_order": 33,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP15 · Gắn nhãn và giới hạn điểm",
+ "subtitle": "Cơ bản · M2 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "NP15 · Gắn nhãn và giới hạn điểm",
+  "subtitle": "Cơ bản · M2 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/NP15.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Gắn nhãn và giới hạn điểm",
+    "body": "Bạn cần hiển thị điểm của ba học viên kèm trạng thái đạt hay chưa đạt. Ngưỡng đạt là 5. Để chọn nhãn cho mỗi điểm, dùng `np.where`:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn cần hiển thị điểm của ba học viên kèm trạng thái đạt hay chưa đạt. Ngưỡng đạt là 5. Để chọn nhãn cho mỗi điểm, dùng `np.where`:\n\n`np.where(điều kiện, giá trị khi đúng, giá trị khi sai)` chọn một giá trị tại mỗi vị trí. Điểm 4 nhận nhãn `chua dat`; điểm 6 và 9 nhận nhãn `dat`. Các nhãn trong ví dụ được viết không dấu để bạn dễ đối chiếu output."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Nếu chỉ muốn lấy các điểm đạt, bạn dùng mask thay vì gắn nhãn:\n\nLọc chỉ giữ 6 và 9, nên dãy còn hai số. Trong khi đó, `where` ở ví dụ đầu giữ đủ ba vị trí và đổi chúng thành nhãn. Nếu cần giữ dữ liệu dạng số nhưng chặn giá trị trong một khoảng, dùng `np.clip`:"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Sau khi cộng 0.5, hai điểm là 10.3 và 7.5. `np.clip(..., 0, 10)` đưa số vượt 10 về 10, số dưới 0 về 0, còn số trong khoảng giữ nguyên. Kết quả vẫn có hai phần tử.\n\nNếu điểm đầu vào có giá trị sai, hãy lọc chúng trước khi cộng thưởng. Chẳng hạn, -1 là một điểm không hợp lệ cần bỏ; dùng `clip` ngay từ đầu sẽ biến nó thành 0 và làm mất dấu lỗi dữ liệu."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import numpy as np\n\nscores = np.array([4, 6, 9])\nlabels = np.where(scores >= 5, \"dat\", \"chua dat\")\nprint(labels)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: ['chua dat' 'dat' 'dat']"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: [6 9]"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: [10.   7.5]"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Điểm -1 là dữ liệu sai. Nếu clip ngay về 0..10 thì chuyện gì xảy ra?",
+     "options": [
+      {
+       "text": "NumPy tự biết -1 là điểm chưa nhập",
+       "correct": false,
+       "detail": "NumPy chỉ thực hiện quy tắc số bạn yêu cầu, không tự biết quy ước nghiệp vụ."
+      },
+      {
+       "text": "Nó thành 0 và dấu lỗi dữ liệu bị che",
+       "correct": true,
+       "detail": "Đúng. Clip đổi giá trị nhưng không loại vị trí sai."
+      },
+      {
+       "text": "Nó bị bỏ khỏi array",
+       "correct": false,
+       "detail": "Lọc bằng mask mới loại vị trí; clip không làm vậy."
+      }
+     ],
+     "explanation": "Đúng. Clip đổi giá trị nhưng không loại vị trí sai."
+    },
+    {
+     "question": "Gắn nhãn cho cả điểm đạt và chưa đạt. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "['retry', 'pass', 'pass']",
+       "correct": true,
+       "detail": "Điều kiện True lấy pass; False lấy retry, giữ mọi vị trí."
+      },
+      {
+       "text": "['pass', 'pass']",
+       "correct": false,
+       "detail": "where không loại phần tử chưa đạt."
+      },
+      {
+       "text": "['pass', 'retry', 'retry']",
+       "correct": false,
+       "detail": "Thứ tự hai nhãn là đúng trước, sai sau."
+      }
+     ],
+     "explanation": "Điều kiện True lấy pass; False lấy retry, giữ mọi vị trí."
+    },
+    {
+     "question": "Chỉ một trong ba điểm đạt nhưng mọi điểm đều nhận nhãn. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "(3,)",
+       "correct": true,
+       "detail": "Mỗi điểm được gắn một nhãn, nên còn ba kết quả."
+      },
+      {
+       "text": "[1]",
+       "correct": false,
+       "detail": "where không lọc còn riêng các điểm đạt."
+      },
+      {
+       "text": "[2]",
+       "correct": false,
+       "detail": "Hai điểm chưa đạt vẫn mỗi điểm có một nhãn."
+      }
+     ],
+     "explanation": "Mỗi điểm được gắn một nhãn, nên còn ba kết quả."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền hàm giới hạn các giá trị trong khoảng 0..10."
+   },
+   "scaffold": {
+    "template": "result = np.{{slot1}}(valid + 0.5, 0, 10)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Hàm chặn giá trị",
+      "answer": "clip"
+     }
+    ],
+    "bank": [
+     {
+      "label": "clip",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận dãy điểm. Bỏ điểm ngoài 0–10, cộng thưởng 1 cho điểm hợp lệ rồi giới hạn kết quả ở 10. Trả array điểm cuối, giữ thứ tự.",
+    "io": [
+     {
+      "label": "Có điểm sai và vượt sau thưởng",
+      "value": "[-2, 4, 9.5, 12] → [5.0, 10.0]"
+     },
+     {
+      "label": "Hai biên hợp lệ",
+      "value": "[0, 10] → [1.0, 10.0]"
+     },
+     {
+      "label": "Không có điểm hợp lệ",
+      "value": "[-1, 11] → []"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    scores = np.array(data, dtype=float)\n    valid = scores[(scores >= 0) & (scores <= 10)]\n    return np.clip(valid + 1, 0, 10)\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Nếu clip trước, điểm sai sẽ thành điểm ở biên và không còn bị loại."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Lọc 0–10 trước, cộng 1 cho phần còn lại rồi clip về 0–10."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "Có điểm sai và vượt sau thưởng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([-2, 4, 9.5, 12]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[5.0, 10.0]"
+    },
+    {
+     "name": "Hai biên hợp lệ",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([0, 10]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[1.0, 10.0]"
+    },
+    {
+     "name": "Không có điểm hợp lệ",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([-1, 11]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[]"
+    }
+   ]
+  }
+ }
+}

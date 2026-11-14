@@ -1,0 +1,206 @@
+{
+ "lesson_code": "NP16",
+ "sort_order": 34,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP16 · Thống kê và điểm có trọng số",
+ "subtitle": "Trung cấp · M2 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "NP16 · Thống kê và điểm có trọng số",
+  "subtitle": "Trung cấp · M2 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/NP16.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Thống kê và điểm có trọng số",
+    "body": "Một môn 2 tín chỉ được 7 điểm, một môn 3 tín chỉ được 8 điểm. Để tính trung bình có xét tín chỉ, bạn nhân mỗi điểm với số tín chỉ rồi chia cho tổng tín chỉ: (7 × 2 + 8 × 3) / (2 + 3) = 7.6.",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một môn 2 tín chỉ được 7 điểm, một môn 3 tín chỉ được 8 điểm. Để tính trung bình có xét tín chỉ, bạn nhân mỗi điểm với số tín chỉ rồi chia cho tổng tín chỉ: (7 × 2 + 8 × 3) / (2 + 3) = 7.6.\n\nCode thực hiện đúng công thức vừa tính tay: nhân điểm với tín chỉ, cộng các tích rồi chia cho tổng tín chỉ. Số tín chỉ ở đây đóng vai trò trọng số."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Nếu các điểm có vai trò như nhau, trung bình thông thường là tổng chia số điểm. Với 6, 8 và 10, bạn có (6 + 8 + 10) / 3 = 8:\n\n`mean()` tính trung bình, `min()` lấy số nhỏ nhất và `max()` lấy số lớn nhất. Còn median (trung vị) là giá trị nằm giữa sau khi sắp xếp: `[6, 8, 10]` có median là 8. Nếu có hai giá trị giữa, median là trung bình của chúng; bạn có thể tính bằng `np.median(a)`."
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Khi cần tính theo từng cột của một bảng, `mean(axis=0)` giữ một trung bình cho mỗi cột, giống cách `sum(axis=0)` giữ một tổng cho mỗi cột.\n\nQuay lại hai môn có số tín chỉ khác nhau:"
+    },
+    {
+     "title": "Ý chính 4",
+     "body": "Trong `np.average`, `weights` nhận các trọng số. Tín chỉ 2 đi với điểm 7, tín chỉ 3 đi với điểm 8; hai array cần đặt các môn cùng thứ tự. Mẫu số vẫn là tổng tín chỉ 2 + 3 = 5. Nếu chỉ dùng `marks.mean()`, kết quả là 7.5 vì hai điểm được tính như nhau."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import numpy as np\n\nweighted = (7 * 2 + 8 * 3) / (2 + 3)\nprint(weighted)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 7.6"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 8.0 6 10"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 7.6"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Điểm [6,9], tín chỉ [1,3]. Trung bình có trọng số bằng gì?",
+     "options": [
+      {
+       "text": "8.25",
+       "correct": true,
+       "detail": "Đúng. (6×1+9×3)/(1+3)=33/4."
+      },
+      {
+       "text": "7.5",
+       "correct": false,
+       "detail": "Đây là trung bình không trọng số của 6 và 9."
+      },
+      {
+       "text": "16.5",
+       "correct": false,
+       "detail": "Mẫu số là tổng tín chỉ 4, không phải số môn 2."
+      }
+     ],
+     "explanation": "Đúng. (6×1+9×3)/(1+3)=33/4."
+    },
+    {
+     "question": "Ba bài có trọng số bằng nhau. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "6.0",
+       "correct": true,
+       "detail": "mean bằng tổng các giá trị chia số phần tử."
+      },
+      {
+       "text": "18",
+       "correct": false,
+       "detail": "18 là tổng, chưa chia ba."
+      },
+      {
+       "text": "3",
+       "correct": false,
+       "detail": "3 là số bài, không phải trung bình."
+      }
+     ],
+     "explanation": "mean bằng tổng các giá trị chia số phần tử."
+    },
+    {
+     "question": "Đọc mức bán thấp nhất trong dãy. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "7",
+       "correct": true,
+       "detail": "min trả độ lớn nhỏ nhất, không trả index."
+      },
+      {
+       "text": "15",
+       "correct": false,
+       "detail": "Đó là giá trị lớn nhất."
+      },
+      {
+       "text": "1",
+       "correct": false,
+       "detail": "Đó là vị trí của số nhỏ nhất, không phải giá trị."
+      }
+     ],
+     "explanation": "min trả độ lớn nhỏ nhất, không trả index."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền tên tham số nhận các trọng số."
+   },
+   "scaffold": {
+    "template": "gpa = np.average(marks, {{slot1}}=credits)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Tham số trọng số",
+      "answer": "weights"
+     }
+    ],
+    "bank": [
+     {
+      "label": "weights",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận dictionary values là số đo và weights là số lần đại diện cho từng số đo. Trả trung bình có trọng số. Các dãy không rỗng, cùng độ dài; trọng số không âm và có tổng dương.",
+    "io": [
+     {
+      "label": "Trọng số khác nhau",
+      "value": "{'values': [6, 9], 'weights': [1, 3]} → 8.25"
+     },
+     {
+      "label": "Trọng số bằng nhau",
+      "value": "{'values': [4, 8], 'weights': [2, 2]} → 6.0"
+     },
+     {
+      "label": "Một trọng số bằng không",
+      "value": "{'values': [100, 7], 'weights': [0, 5]} → 7.0"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    return np.average(data[\"values\"], weights=data[\"weights\"])\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Số đo thứ i phải đi cùng trọng số thứ i."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "np.average nhận dãy giá trị và weights; mẫu số là tổng trọng số."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "Trọng số khác nhau",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [6, 9], 'weights': [1, 3]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "8.25"
+    },
+    {
+     "name": "Trọng số bằng nhau",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [4, 8], 'weights': [2, 2]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "6.0"
+    },
+    {
+     "name": "Một trọng số bằng không",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [100, 7], 'weights': [0, 5]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "7.0"
+    }
+   ]
+  }
+ }
+}

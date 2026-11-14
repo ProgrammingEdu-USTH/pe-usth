@@ -1,0 +1,195 @@
+{
+ "lesson_code": "VZ17",
+ "sort_order": 90,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ17 · Seaborn: đếm nhóm và so sánh phân bố",
+ "subtitle": "Trung cấp · M4 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "VZ17 · Seaborn: đếm nhóm và so sánh phân bố",
+  "subtitle": "Trung cấp · M4 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/VZ17.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Seaborn: đếm nhóm và so sánh phân bố",
+    "body": "Bạn có các đơn được gắn tên ca sáng hoặc tối. countplot đếm số dòng trong mỗi ca, còn boxplot mô tả phân bố thời gian của từng ca. Hai hình trả lời hai câu hỏi khác nhau dù cùng dùng tên ca trên trục ngang.",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn có các đơn được gắn tên ca sáng hoặc tối. countplot đếm số dòng trong mỗi ca, còn boxplot mô tả phân bố thời gian của từng ca. Hai hình trả lời hai câu hỏi khác nhau dù cùng dùng tên ca trên trục ngang.\n\n![Biểu đồ](../visuals/VZ17-1.png)"
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Khi mẫu ít, stripplot cho thấy từng quan sát thay vì chỉ một số tóm tắt. jitter dịch nhẹ các điểm theo chiều ngang để chúng bớt chồng lên nhau; nó không đổi thời gian chờ trên trục y. Ví dụ này tắt jitter nên các điểm của mỗi ca nằm trên cùng một vị trí x. Bạn có thể vẽ boxplot trước rồi đặt các điểm gốc lên trên để vừa đọc phần tóm tắt, vừa thấy dữ liệu từng đơn.\n\n![Biểu đồ](../visuals/VZ17-2.png)"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "![Biểu đồ](../visuals/VZ17-3.png)"
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\nimport seaborn as sns\norders = pd.DataFrame({\"shift\":[\"AM\", \"AM\", \"AM\", \"PM\", \"PM\"]})\nsns.countplot(data=orders, x=\"shift\", order=[\"AM\", \"PM\"], color=\"#0072B2\", ax=ax)\nax.set(xlabel=\"Shift\", ylabel=\"Orders\", title=\"Count rows in each shift\")\nprint(orders[\"shift\"].value_counts().to_dict())\nplt.show()",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: {'AM': 3, 'PM': 2}"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: {'AM': 3.0, 'PM': 4.0}"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 8"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "countplot(x=\"shift\") đặt đại lượng gì trên trục y?",
+     "options": [
+      {
+       "text": "Trung vị",
+       "correct": false,
+       "detail": "Muốn đọc trung vị phân bố thường dùng boxplot hoặc tính riêng."
+      },
+      {
+       "text": "Số hàng mỗi ca",
+       "correct": true,
+       "detail": "Đúng: mỗi quan sát đóng góp vào số đếm của ca."
+      },
+      {
+       "text": "Trung bình thời gian chờ",
+       "correct": false,
+       "detail": "countplot không tự tổng hợp cột wait thành mean."
+      }
+     ],
+     "explanation": "Tên nhóm giống nhau không làm hai loại biểu đồ trả cùng câu hỏi."
+    },
+    {
+     "question": "countplot trục y là trung bình thời gian chờ hay số dòng?",
+     "options": [
+      {
+       "text": "Trung bình của mọi cột số trong nhóm.",
+       "correct": false,
+       "detail": "Đó là mean, không phải count của từng nhóm."
+      },
+      {
+       "text": "Tổng thời gian chờ của nhóm.",
+       "correct": false,
+       "detail": "Cộng thời gian chờ khác với đếm số dòng."
+      },
+      {
+       "text": "Là số dòng thuộc mỗi nhóm; nó không tự tính trung bình cột thời gian.",
+       "correct": true,
+       "detail": "Là số dòng thuộc mỗi nhóm; nó không tự tính trung bình cột thời gian."
+      }
+     ],
+     "explanation": "Là số dòng thuộc mỗi nhóm; nó không tự tính trung bình cột thời gian."
+    },
+    {
+     "question": "Khi cả ca có 3 quan sát, tại sao vẽ thêm stripplot?",
+     "options": [
+      {
+       "text": "Để thay thế dữ liệu gốc bằng đường hồi quy.",
+       "correct": false,
+       "detail": "Điểm gốc không phải đường hồi quy và không thay dữ liệu."
+      },
+      {
+       "text": "Để thấy giá trị thật và cỡ mẫu thay vì suy luận từ hộp tóm tắt.",
+       "correct": true,
+       "detail": "Để thấy giá trị thật và cỡ mẫu thay vì suy luận từ hộp tóm tắt."
+      },
+      {
+       "text": "Để tự làm cỡ mẫu tăng từ 3 lên 30.",
+       "correct": false,
+       "detail": "Số quan sát vẫn là 3, dù mỗi quan sát được hiện rõ hơn."
+      }
+     ],
+     "explanation": "Để thấy giá trị thật và cỡ mẫu thay vì suy luận từ hộp tóm tắt."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Giữ thứ tự ca AM trước PM."
+   },
+   "scaffold": {
+    "template": "sns.countplot(data=orders,x=\"shift\",{{slot1}}=[\"AM\",\"PM\"],ax=ax)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "order"
+     }
+    ],
+    "bank": [
+     {
+      "label": "order",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.groups là list nhãn; data.order chứa đúng các nhãn cần vẽ và mỗi nhãn có ít nhất một hàng. Dùng sns.countplot với order đã cho. Trả list chiều cao từ ax.patches theo thứ tự đó. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "thứ tự mới",
+      "value": "{'groups': ['A', 'B', 'A', 'A'], 'order': ['B', 'A']} → [1.0, 3.0]"
+     },
+     {
+      "label": "một nhóm",
+      "value": "{'groups': ['Night', 'Night'], 'order': ['Night']} → [2.0]"
+     },
+     {
+      "label": "ba nhóm",
+      "value": "{'groups': ['X', 'Y', 'Z', 'Y'], 'order': ['X', 'Y', 'Z']} → [1.0, 2.0, 1.0]"
+     }
+    ]
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cần cố định thứ tự các nhóm, không dựa vào thứ tự xuất hiện trong bảng."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Phân biệt đếm hàng của nhóm với trung bình số đo."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy",
+    "pandas"
+   ],
+   "procedure": [
+    "Bài này cần seaborn, không có trong Pyodide nên chưa chấm tự động.",
+    "Đầu vào {'groups': ['A', 'B', 'A', 'A'], 'order': ['B', 'A']} — kết quả cần có [1.0, 3.0].",
+    "Đầu vào {'groups': ['Night', 'Night'], 'order': ['Night']} — kết quả cần có [2.0].",
+    "Đầu vào {'groups': ['X', 'Y', 'Z', 'Y'], 'order': ['X', 'Y', 'Z']} — kết quả cần có [1.0, 2.0, 1.0]."
+   ]
+  }
+ }
+}

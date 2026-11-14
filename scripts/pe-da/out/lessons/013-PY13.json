@@ -1,0 +1,182 @@
+{
+ "lesson_code": "PY13",
+ "sort_order": 13,
+ "module": "M1 · Python nền tảng",
+ "title": "PY13 · Set và so sánh hai nhóm",
+ "subtitle": "Cơ bản · M1 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PY13 · Set và so sánh hai nhóm",
+  "subtitle": "Cơ bản · M1 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PY13.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Set và so sánh hai nhóm",
+    "body": "Bạn có danh sách học viên đã đăng ký và danh sách đã nộp bài. Cần tìm ai chưa nộp, không cần đếm một tên hai lần:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn có danh sách học viên đã đăng ký và danh sách đã nộp bài. Cần tìm ai chưa nộp, không cần đếm một tên hai lần:\n\nSet chỉ giữ các phần tử khác nhau và không có chỉ số vị trí. Phép hiệu `registered - submitted` giữ người thuộc nhóm đăng ký nhưng không thuộc nhóm nộp. Ví dụ dùng sorted khi in để kết quả có thứ tự ổn định."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`|` là hợp, `&` là giao, `-` là hiệu. Các phương thức tương ứng là `union`, `intersection` và `difference`. Thứ tự hai vế quan trọng với hiệu: b - a không giống a - b.\n\n`a.issubset(b)` hay `a <= b` kiểm mọi phần tử của a có trong b. `b.issuperset(a)` hay `b >= a` kiểm quan hệ ngược lại. `isdisjoint` kiểm không có phần tử chung; `x in a` kiểm một thành viên. Tạo set từ list loại phần tử trùng, nhưng không giữ thứ tự bản ghi ban đầu."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "registered = {\"An\", \"Mai\", \"Lan\"}\nsubmitted = {\"Mai\", \"Lan\"}\nprint(sorted(registered - submitted))\nprint(len(registered))",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: ['An'] ⏎ 3"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: [1, 2, 3] ⏎ [2] ⏎ [1]"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: True True ⏎ True ⏎ 2"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Đã đăng ký {A,B,C}, đã nộp {B,C}. Phép nào tìm người chưa nộp?",
+     "options": [
+      {
+       "text": "registered - submitted",
+       "correct": true,
+       "detail": "Đúng. Giữ người thuộc đăng ký nhưng không thuộc đã nộp."
+      },
+      {
+       "text": "submitted - registered",
+       "correct": false,
+       "detail": "Phép này tìm người đã nộp nhưng không có trong đăng ký."
+      },
+      {
+       "text": "registered & submitted",
+       "correct": false,
+       "detail": "Giao tìm những người có ở cả hai nhóm, tức đã nộp hợp lệ."
+      }
+     ],
+     "explanation": "Đúng. Giữ người thuộc đăng ký nhưng không thuộc đã nộp."
+    },
+    {
+     "question": "Tìm người đăng ký chưa nộp. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "['An']",
+       "correct": true,
+       "detail": "Hiệu giữ người thuộc registered mà không thuộc submitted."
+      },
+      {
+       "text": "['Binh', 'Chi']",
+       "correct": false,
+       "detail": "Đây là nhóm đã nộp, không phải phần còn thiếu."
+      },
+      {
+       "text": "['An', 'Binh', 'Chi']",
+       "correct": false,
+       "detail": "Hiệu loại các phần tử đã có trong submitted."
+      }
+     ],
+     "explanation": "Hiệu giữ người thuộc registered mà không thuộc submitted."
+    },
+    {
+     "question": "Giữ các mã có trong cả hai tập. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "[2]",
+       "correct": true,
+       "detail": "Chỉ 2 xuất hiện trong cả a lẫn b."
+      },
+      {
+       "text": "[1, 2, 3]",
+       "correct": false,
+       "detail": "Đây là hợp, không phải giao."
+      },
+      {
+       "text": "[1]",
+       "correct": false,
+       "detail": "Đây là hiệu a-b."
+      }
+     ],
+     "explanation": "Chỉ 2 xuất hiện trong cả a lẫn b."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền toán tử lấy những mã có trong cả hai nhóm."
+   },
+   "scaffold": {
+    "template": "common = a {{slot1}} b",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phép giao",
+      "answer": "&"
+     }
+    ],
+    "bank": [
+     {
+      "label": "&",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Hệ thống cung cấp codes là list mã phiếu, có thể bị lặp. Tạo unique_codes là list mã khác nhau đã xếp tăng theo tên.",
+    "io": [
+     {
+      "label": "Phiếu bị lặp",
+      "value": "['B', 'A', 'B'] → ['A', 'B']"
+     },
+     {
+      "label": "Một mã xuất hiện nhiều lần",
+      "value": "['X', 'X', 'X'] → ['X']"
+     },
+     {
+      "label": "Chưa có phiếu",
+      "value": "[] → []"
+     }
+    ]
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cần bỏ mã lặp trước khi tạo thứ tự hiển thị."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "set giữ mã khác nhau; sorted trả list có thứ tự để gán vào unique_codes."
+    }
+   ],
+   "procedure": [
+    "Bài này chạy bằng script (đọc biến đầu vào, gán biến kết quả) nên chưa chấm tự động.",
+    "Đầu vào ['B', 'A', 'B'] — kết quả cần có ['A', 'B'].",
+    "Đầu vào ['X', 'X', 'X'] — kết quả cần có ['X'].",
+    "Đầu vào [] — kết quả cần có []."
+   ]
+  }
+ }
+}

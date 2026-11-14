@@ -1,0 +1,164 @@
+{
+ "lesson_code": "GU04",
+ "sort_order": 151,
+ "module": "M8 · Tkinter: từ form nhỏ đến quản lý điểm",
+ "title": "GU04 · Button, callback và hộp thông báo",
+ "subtitle": "Trung cấp · M8 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "GU04 · Button, callback và hộp thông báo",
+  "subtitle": "Trung cấp · M8 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/GU04.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Button, callback và hộp thông báo",
+    "body": "Nút Tính GPA chỉ nên chạy phép tính khi người dùng bấm. command cần nhận hàm sẽ được gọi sau, không phải kết quả của một lần gọi ngay lúc dựng giao diện.",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Nút Tính GPA chỉ nên chạy phép tính khi người dùng bấm. command cần nhận hàm sẽ được gọi sau, không phải kết quả của một lần gọi ngay lúc dựng giao diện.\n\ncommand=calculate truyền hàm. Viết calculate() sẽ chạy ngay và thường trả None, khiến nút không còn callback mong muốn. invoke ở ví dụ là cách gọi callback bằng code; nó chưa kiểm tra cú bấm chuột thật."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "lambda tạo hàm không tham số để gọi set_status với giá trị bạn cần. Callback chạy trong vòng xử lý sự kiện của giao diện, vì vậy cần kết thúc nhanh.\n\nKết quả / quan sát thủ công:"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Khi bạn bấm Thông báo, event loop gọi notify, rồi showinfo mở hộp thoại có tiêu đề Kết quả và nội dung Đã lưu. Đây là hộp thoại modal: người dùng cần đóng hoặc phản hồi hộp thoại rồi mới tiếp tục thao tác với cửa sổ cha. Hãy chạy ví dụ, bấm nút rồi đóng hộp thoại để thử thứ tự này. Trong bản kiểm tra tự động, showinfo được thay bằng một hàm giả, gọi là mock; cách đó kiểm tra được lời gọi nhưng không cho biết hộp thoại thật hiển thị ra sao."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import tkinter as tk\nroot=tk.Tk();root.withdraw()\nresult=tk.StringVar(root, value='Pending')\ndef calculate():\n    result.set('GPA 15.0')\nbutton=tk.Button(root, text='Tinh', command=calculate)\nprint(result.get())\nbutton.invoke()\nprint(result.get())\nroot.destroy()",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: Pending ⏎ GPA 15.0"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: S01"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: (không in gì)"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "command=show_message() khiến hàm chạy lúc nào?",
+     "options": [
+      {
+       "text": "Sau khi đóng root",
+       "correct": false,
+       "detail": "Không có quy tắc trì hoãn tới khi đóng cửa sổ."
+      },
+      {
+       "text": "Ngay khi biểu thức tạo Button được đánh giá",
+       "correct": true,
+       "detail": "Muốn chờ bấm thường truyền command=show_message, hoặc lambda nếu cần đối số."
+      },
+      {
+       "text": "Chỉ sau lần bấm đầu",
+       "correct": false,
+       "detail": "Dấu ngoặc đã gọi hàm trước khi người dùng bấm."
+      }
+     ],
+     "explanation": "Muốn chờ bấm thường truyền command=show_message, hoặc lambda nếu cần đối số."
+    },
+    {
+     "question": "command=show_message khác command=show_message() thế nào?",
+     "options": [
+      {
+       "text": "Dạng đầu tự tạo thread nền",
+       "correct": false,
+       "detail": "Chưa đúng. Callback cần được giữ lại để gọi khi có tương tác; dấu ngoặc thực thi hàm ngay."
+      },
+      {
+       "text": "Dạng đầu truyền callback; dạng sau gọi ngay khi tạo nút",
+       "correct": true,
+       "detail": "Callback cần được giữ lại để gọi khi có tương tác; dấu ngoặc thực thi hàm ngay."
+      },
+      {
+       "text": "Hai dạng luôn giống nhau",
+       "correct": false,
+       "detail": "Chưa đúng. Callback cần được giữ lại để gọi khi có tương tác; dấu ngoặc thực thi hàm ngay."
+      }
+     ],
+     "explanation": "Callback cần được giữ lại để gọi khi có tương tác; dấu ngoặc thực thi hàm ngay."
+    },
+    {
+     "question": "Callback nút trả một chuỗi có làm Tkinter tự hiển thị chuỗi đó không?",
+     "options": [
+      {
+       "text": "Không; cần cập nhật widget hoặc gọi hộp thoại",
+       "correct": true,
+       "detail": "Giá trị trả từ hàm không tự biến thành nội dung UI."
+      },
+      {
+       "text": "Có; mọi return thành Label",
+       "correct": false,
+       "detail": "Chưa đúng. Giá trị trả từ hàm không tự biến thành nội dung UI."
+      },
+      {
+       "text": "Chỉ hiện nếu chuỗi là tiếng Anh",
+       "correct": false,
+       "detail": "Chưa đúng. Giá trị trả từ hàm không tự biến thành nội dung UI."
+      }
+     ],
+     "explanation": "Giá trị trả từ hàm không tự biến thành nội dung UI."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Truyền mã P4 cho callback khi bấm."
+   },
+   "scaffold": {
+    "template": "button = tk.Button(root, text=\"Xem P4\", command={{slot1}})",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Callable có đối số",
+      "answer": "lambda: show_product(\"P4\")"
+     }
+    ],
+    "bank": [
+     {
+      "label": "lambda: show_product(\"P4\")",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Tạo product.py với hai nút \"Xem trà\" và \"Xem cà phê\". Mỗi nút mở showinfo cùng tiêu đề \"Sản phẩm\" nhưng nội dung đúng sản phẩm. Khi app mới mở chưa có dialog."
+   },
+   "procedure": [
+    "Viết một hàm show_product(name) dùng messagebox.showinfo.",
+    "Gắn hai callback có đối số bằng lambda.",
+    "Đóng dialog trà rồi bấm cà phê và thử thứ tự ngược.",
+    "Tự kiểm: Không xuất hiện dialog trước khi bấm.",
+    "Tự kiểm: Hai nút hiển thị hai nội dung khác nhau, không cùng bắt nhầm một giá trị.",
+    "Tự kiểm: Đã quan sát và đóng dialog thật; patch/mock showinfo không thay được bước thử UI này."
+   ]
+  }
+ }
+}

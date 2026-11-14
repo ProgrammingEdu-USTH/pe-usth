@@ -1,0 +1,168 @@
+{
+ "lesson_code": "SY12",
+ "sort_order": 115,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY12 · Package và điểm bắt đầu của chương trình",
+ "subtitle": "Trung cấp · M5 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "SY12 · Package và điểm bắt đầu của chương trình",
+  "subtitle": "Trung cấp · M5 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/SY12.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Package và điểm bắt đầu của chương trình",
+    "body": "Dự án có thể cần nhiều module. Bạn có thể gom chúng vào một package, rồi chia tiếp thành package con. Ví dụ này dùng domains chứa grades và package con reports; reports chứa module summary. Tạo hai file __init__.py rỗng ở domains và domains/reports. Đó là các file khởi tạo package thông thường (regular package), khác với method __init__ của class:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Dự án có thể cần nhiều module. Bạn có thể gom chúng vào một package, rồi chia tiếp thành package con. Ví dụ này dùng domains chứa grades và package con reports; reports chứa module summary. Tạo hai file __init__.py rỗng ở domains và domains/reports. Đó là các file khởi tạo package thông thường (regular package), khác với method __init__ của class:\n\nKết quả / quan sát thủ công:"
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`domains.reports.summary` là tên module theo các tầng thư mục, không phải một đường dẫn có dấu slash. Trong summary.py, `from ..grades import passed` đi lên package domains rồi lấy module grades. Python còn hỗ trợ namespace packages không cần __init__.py; khóa này dùng regular package để cấu trúc dễ theo dõi.\n\nKết quả / quan sát thủ công:"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Khi import package, Python không tự import mọi module con. Ở ví dụ dưới đây, dòng `from .grades import passed` trong domains/__init__.py đưa hàm passed ra ngoài package, nên main.py gọi được `domains.passed(6)`. Khi cài thư viện ngoài, dùng `python -m pip install ten_package` trong đúng môi trường; tên cài trên PyPI đôi khi khác tên dùng để import.\n\nKết quả / quan sát thủ công:"
+    },
+    {
+     "title": "Ý chính 4",
+     "body": "Điều kiện `if __name__ == \"__main__\"` được gọi là main guard. Nó chỉ gọi run khi bạn chạy file trực tiếp làm điểm bắt đầu của chương trình. Import main để dùng hàm không tự khởi chạy giao diện. PW4 dùng main.py điều phối, input.py cho nhập liệu, output.py cho curses, domains cho class; đặt trách nhiệm rõ còn quan trọng hơn số file.\n\n`import domains.grades` nạp submodule và cho phép gọi `domains.grades.passed(6)`. Chỉ `import domains` không bảo đảm grades có sẵn, trừ khi __init__.py đã import hoặc export nó. Tên nhiều tầng như domains.reports.summary vẫn dùng dấu chấm; để tạo cây đó cần các thư mục tương ứng và __init__.py ở những regular package."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "# domains/grades.py\ndef passed(score):\n    return score >= 5\n\n# domains/reports/summary.py\nfrom ..grades import passed\n\ndef report(score):\n    return \"Pass\" if passed(score) else \"Retry\"\n\n# main.py\nfrom domains.reports.summary import report\nprint(report(6))",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: (không in gì)"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: (không in gì)"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: (không in gì)"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "main.py có main guard gọi run(). Chạy python -c \"import main\" sẽ tự gọi run không?",
+     "options": [
+      {
+       "text": "Không thể import file tên main.py",
+       "correct": false,
+       "detail": "main là tên module hợp lệ; vấn đề là lời gọi có được bảo vệ không."
+      },
+      {
+       "text": "Không",
+       "correct": true,
+       "detail": "Khi import, __name__ của module là main chứ không phải __main__."
+      },
+      {
+       "text": "Có, main guard chạy ở mọi lần import",
+       "correct": false,
+       "detail": "Điều kiện guard phải đúng mới gọi run."
+      }
+     ],
+     "explanation": "Khi import, __name__ của module là main chứ không phải __main__."
+    },
+    {
+     "question": "Tên module nhiều tầng thường viết như thế nào?",
+     "options": [
+      {
+       "text": "domains\\reports\\summary.py trong câu import",
+       "correct": false,
+       "detail": "Chưa đúng. Tên package/module dùng dấu chấm; đường dẫn file trên đĩa là một biểu diễn khác."
+      },
+      {
+       "text": "domains.reports.summary",
+       "correct": true,
+       "detail": "Tên package/module dùng dấu chấm; đường dẫn file trên đĩa là một biểu diễn khác."
+      },
+      {
+       "text": "domains/reports/summary trong câu import",
+       "correct": false,
+       "detail": "Chưa đúng. Tên package/module dùng dấu chấm; đường dẫn file trên đĩa là một biểu diễn khác."
+      }
+     ],
+     "explanation": "Tên package/module dùng dấu chấm; đường dẫn file trên đĩa là một biểu diễn khác."
+    },
+    {
+     "question": "Trong regular package của bài, __init__.py có vai trò gì?",
+     "options": [
+      {
+       "text": "File khởi tạo package",
+       "correct": true,
+       "detail": "__init__.py của package khác method __init__ của một class."
+      },
+      {
+       "text": "Method khởi tạo của mọi class bên trong",
+       "correct": false,
+       "detail": "Chưa đúng. __init__.py của package khác method __init__ của một class."
+      },
+      {
+       "text": "File chỉ chạy khi gọi pip",
+       "correct": false,
+       "detail": "Chưa đúng. __init__.py của package khác method __init__ của một class."
+      }
+     ],
+     "explanation": "__init__.py của package khác method __init__ của một class."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "summary.py ở domains/reports cần passed từ domains/grades."
+   },
+   "scaffold": {
+    "template": "from {{slot1}}grades import passed",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Dấu đi lên package cha",
+      "answer": ".."
+     }
+    ],
+    "bank": [
+     {
+      "label": "..",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Tạo package shipping để tính phí. shipping/rates.py có fee(weight)=weight*4; shipping/reports/summary.py tạo nhãn \"Fee: số\". main.py in nhãn cho weight=3, nhưng import main không được in hoặc chạy giao diện."
+   },
+   "procedure": [
+    "Tạo shipping và shipping/reports với __init__.py rỗng.",
+    "Viết rates.fee và summary.label, dùng relative import trong summary.",
+    "Trong main.py, đặt lệnh in trong run và gọi qua main guard.",
+    "Tự kiểm: Chạy trực tiếp in Fee: 12.",
+    "Tự kiểm: Import main không in gì và không nhận input.",
+    "Tự kiểm: Các module được import qua shipping.reports.summary, không sửa sys.path để che cây package sai."
+   ]
+  }
+ }
+}

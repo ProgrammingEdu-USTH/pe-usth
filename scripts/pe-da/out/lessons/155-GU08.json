@@ -1,0 +1,180 @@
+{
+ "lesson_code": "GU08",
+ "sort_order": 155,
+ "module": "M8 · Tkinter: từ form nhỏ đến quản lý điểm",
+ "title": "GU08 · Pack: xếp các vùng của giao diện",
+ "subtitle": "Trung cấp · M8 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "GU08 · Pack: xếp các vùng của giao diện",
+  "subtitle": "Trung cấp · M8 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/GU08.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Pack: xếp các vùng của giao diện",
+    "body": "Thanh công cụ có ba nút nằm cạnh nhau. pack xếp widget lần lượt vào phần không gian còn lại của parent, nên phù hợp cho hàng nút và các vùng trên–dưới.",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Thanh công cụ có ba nút nằm cạnh nhau. pack xếp widget lần lượt vào phần không gian còn lại của parent, nên phù hợp cho hàng nút và các vùng trên–dưới.\n\nMặc định side là top: các widget được xếp dọc theo thứ tự gọi pack và canh giữa trong phần không gian được cấp. Nó không phải tọa độ tuyệt đối trên cửa sổ."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "side=LEFT đặt nút lần lượt từ trái. fill=X cho phép widget lấp chiều ngang trong vùng được cấp; fill=Y lấp chiều dọc. expand xin phần không gian dư của parent, còn fill quyết định widget có giãn trong phần được cấp hay không.\n\nBạn có thể pack các Frame bên ngoài rồi dùng grid bên trong từng Frame. Tránh dùng pack và grid để quản lý các widget con trong cùng một parent; hãy chia container khi cần hai kiểu bố trí."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import tkinter as tk\nr=tk.Tk();r.withdraw()\na=tk.Label(r,text='Top');a.pack()\nb=tk.Label(r,text='Bottom');b.pack()\nprint([x.cget('text') for x in r.pack_slaves()])\nprint(a.pack_info()['side'])\nr.destroy()",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: ['Top', 'Bottom'] ⏎ top"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: ['Add', 'Edit', 'Delete'] ⏎ x"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: both True ⏎ y"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "pack(fill=\"x\") tự dành toàn bộ chỗ trống mới khi cửa sổ lớn lên không?",
+     "options": [
+      {
+       "text": "Không; fill chỉ kéo widget trong phần chỗ đã được cấp",
+       "correct": true,
+       "detail": "expand quyết định phân bổ thêm khoảng trống cho vùng của widget."
+      },
+      {
+       "text": "Có; fill và expand là một thuộc tính",
+       "correct": false,
+       "detail": "Hai thuộc tính xử lý hai bước khác nhau của bố cục."
+      },
+      {
+       "text": "Không; pack không hỗ trợ resize",
+       "correct": false,
+       "detail": "Có thể tạo bố cục co giãn bằng pack và cấu hình phù hợp."
+      }
+     ],
+     "explanation": "expand quyết định phân bổ thêm khoảng trống cho vùng của widget."
+    },
+    {
+     "question": "pack(side=\"left\") thường xếp widget từ phía nào của parent?",
+     "options": [
+      {
+       "text": "Hàng grid số 1",
+       "correct": false,
+       "detail": "Chưa đúng. side định hướng xếp theo cạnh trong vùng parent."
+      },
+      {
+       "text": "Cạnh trái",
+       "correct": true,
+       "detail": "side định hướng xếp theo cạnh trong vùng parent."
+      },
+      {
+       "text": "Tâm màn hình luôn",
+       "correct": false,
+       "detail": "Chưa đúng. side định hướng xếp theo cạnh trong vùng parent."
+      }
+     ],
+     "explanation": "side định hướng xếp theo cạnh trong vùng parent."
+    },
+    {
+     "question": "fill=\"x\" làm gì trong vùng được cấp?",
+     "options": [
+      {
+       "text": "Cho widget kéo ngang",
+       "correct": true,
+       "detail": "Fill nói về kéo widget trong vùng cấp; expand nói về nhận thêm khoảng trống."
+      },
+      {
+       "text": "Tự nhận mọi phần chỗ dư của cửa sổ",
+       "correct": false,
+       "detail": "Chưa đúng. Fill nói về kéo widget trong vùng cấp; expand nói về nhận thêm khoảng trống."
+      },
+      {
+       "text": "Tự tăng số cột grid",
+       "correct": false,
+       "detail": "Chưa đúng. Fill nói về kéo widget trong vùng cấp; expand nói về nhận thêm khoảng trống."
+      }
+     ],
+     "explanation": "Fill nói về kéo widget trong vùng cấp; expand nói về nhận thêm khoảng trống."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Cho vùng nội dung nhận thêm chỗ trống ở cả hai chiều."
+   },
+   "scaffold": {
+    "template": "content.pack(fill={{slot1}}, expand={{slot2}})",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Chiều kéo giãn",
+      "answer": "\"both\""
+     },
+     {
+      "n": 2,
+      "placeholder": "Phân bổ chỗ dư",
+      "answer": "True"
+     }
+    ],
+    "bank": [
+     {
+      "label": "\"both\"",
+      "slot": 1,
+      "trap": ""
+     },
+     {
+      "label": "True",
+      "slot": 1,
+      "trap": "both kéo widget trong phần chỗ được cấp."
+     },
+     {
+      "label": "True",
+      "slot": 2,
+      "trap": ""
+     },
+     {
+      "label": "\"both\"",
+      "slot": 2,
+      "trap": "expand=True cho vùng content nhận phần chỗ trống."
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Tạo cửa sổ có toolbar hai nút bên trái ở trên, vùng nội dung ở giữa và thanh trạng thái dưới cùng. Dùng pack; vùng nội dung nhận chỗ dư khi resize, toolbar/status giữ nội dung đọc được."
+   },
+   "procedure": [
+    "Đặt toolbar, content, status thành ba Frame/root-child riêng.",
+    "Hai nút dùng side=\"left\" trong toolbar; content fill both và expand.",
+    "Thử cửa sổ rộng, cao và nhỏ hơn kích thước ban đầu.",
+    "Tự kiểm: Nút không chồng lên vùng nội dung.",
+    "Tự kiểm: Vùng giữa tăng kích thước theo cửa sổ; thanh trạng thái nằm cuối.",
+    "Tự kiểm: Không trộn pack/grid cho các widget cùng parent."
+   ]
+  }
+ }
+}

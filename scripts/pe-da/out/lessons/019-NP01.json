@@ -1,0 +1,206 @@
+{
+ "lesson_code": "NP01",
+ "sort_order": 19,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP01 · Array là gì?",
+ "subtitle": "Cơ bản · M2 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "NP01 · Array là gì?",
+  "subtitle": "Cơ bản · M2 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/NP01.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Array là gì?",
+    "body": "Thứ Hai, một quán cà phê bán 12 cốc; thứ Ba bán 15 cốc; thứ Tư bán 9 cốc. Bạn có thể đặt ba số này vào một array để lưu và xử lý cùng nhau:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Thứ Hai, một quán cà phê bán 12 cốc; thứ Ba bán 15 cốc; thứ Tư bán 9 cốc. Bạn có thể đặt ba số này vào một array để lưu và xử lý cùng nhau:\n\nArray là một cấu trúc chứa nhiều giá trị. Array `cups` ở đây là một dãy số, còn gọi là array một chiều. Ba giá trị giữ nguyên thứ tự bạn đã nhập: 12, 15, rồi 9."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`import numpy as np` nạp thư viện NumPy và đặt tên ngắn là `np`. Sau đó, `np.array(...)` tạo một array từ danh sách nằm trong dấu ngoặc vuông. `cups` là tên biến bạn đặt cho array đó; `print(cups)` hiển thị các giá trị.\n\nThử đổi dữ liệu sang điểm của ba bài kiểm tra:"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Trong dòng `a = np.array([6, 8, 10])`, `a` là tên biến, còn `[6, 8, 10]` là danh sách được dùng để tạo array. Kết quả in ra vẫn chứa ba số đó. NumPy thường không in dấu phẩy giữa các số, nên `[6 8 10]` là cách hiển thị bình thường.\n\nBạn cũng có thể dùng một tên gợi rõ dữ liệu đang lưu, chẳng hạn `prices` cho giá bán:"
+    },
+    {
+     "title": "Ý chính 4",
+     "body": "Khi lưu nhiều số theo thứ tự trong một array, bạn có thể lấy riêng một số hoặc tính trên cả dãy. Các bài tiếp theo sẽ lần lượt làm hai việc này."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import numpy as np\n\ncups = np.array([12, 15, 9])\nprint(cups)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: [12 15  9]"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: [ 6  8 10]"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: [10 20]"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "a = np.array([4, 2, 9]). Khi in a, thứ tự nào được giữ?",
+     "options": [
+      {
+       "text": "[4 2 9]",
+       "correct": true,
+       "detail": "Đúng. np.array giữ thứ tự dữ liệu nhập."
+      },
+      {
+       "text": "[2 4 9]",
+       "correct": false,
+       "detail": "array không tự sắp tăng."
+      },
+      {
+       "text": "[9 2 4]",
+       "correct": false,
+       "detail": "array không tự đảo thứ tự."
+      }
+     ],
+     "explanation": "Đúng. np.array giữ thứ tự dữ liệu nhập."
+    },
+    {
+     "question": "Ba ca lần lượt bán 8, 11 và 6 cốc. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "[8, 11, 6]",
+       "correct": true,
+       "detail": "Array giữ đúng thứ tự các số đã nhập."
+      },
+      {
+       "text": "[6, 8, 11]",
+       "correct": false,
+       "detail": "Tạo array không tự sắp xếp dữ liệu."
+      },
+      {
+       "text": "25",
+       "correct": false,
+       "detail": "np.array lưu các số; nó chưa cộng chúng."
+      }
+     ],
+     "explanation": "Array giữ đúng thứ tự các số đã nhập."
+    },
+    {
+     "question": "Một dãy điểm có hai bài cùng điểm. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "[7, 7, 9]",
+       "correct": true,
+       "detail": "Mỗi vị trí đầu vào trở thành một vị trí trong array, kể cả số lặp."
+      },
+      {
+       "text": "[7, 9]",
+       "correct": false,
+       "detail": "Array không tự loại các số lặp."
+      },
+      {
+       "text": "[9, 7, 7]",
+       "correct": false,
+       "detail": "Tạo array không đảo thứ tự."
+      }
+     ],
+     "explanation": "Mỗi vị trí đầu vào trở thành một vị trí trong array, kể cả số lặp."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền lời gọi tạo array từ list số lượng."
+   },
+   "scaffold": {
+    "template": "import numpy as np\nbooks = {{slot1}}([4, 2, 9])",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Lời gọi tạo array",
+      "answer": "np.array"
+     }
+    ],
+    "bank": [
+     {
+      "label": "np.array",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận list số sách trả theo ngày. Trả một NumPy array chứa đúng các số theo thứ tự đó. Chưa cần cộng, sắp xếp hoặc đổi kiểu.",
+    "io": [
+     {
+      "label": "Ba ngày",
+      "value": "[4, 2, 9] → [4, 2, 9]"
+     },
+     {
+      "label": "Có ngày không trả",
+      "value": "[0, 3] → [0, 3]"
+     },
+     {
+      "label": "Chưa có bản ghi",
+      "value": "[] → []"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    return np.array(data)\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "np.array nhận nguyên list đầu vào, không cần nhập lại từng số."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Trả array vừa tạo; np.array không tự sắp xếp list."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "Ba ngày",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([4, 2, 9]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[4, 2, 9]"
+    },
+    {
+     "name": "Có ngày không trả",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([0, 3]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[0, 3]"
+    },
+    {
+     "name": "Chưa có bản ghi",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[]"
+    }
+   ]
+  }
+ }
+}

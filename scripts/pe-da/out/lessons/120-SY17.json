@@ -1,0 +1,195 @@
+{
+ "lesson_code": "SY17",
+ "sort_order": 120,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY17 · Buffer, flush, file tạm và lỗi đọc ghi",
+ "subtitle": "Trung cấp · M5 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "SY17 · Buffer, flush, file tạm và lỗi đọc ghi",
+  "subtitle": "Trung cấp · M5 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/SY17.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Buffer, flush, file tạm và lỗi đọc ghi",
+    "body": "Một chương trình ghi nhiều dòng log nhỏ. Bộ đệm (buffer) gom dữ liệu trước khi chuyển tiếp để giảm số lần đọc/ghi (I/O). Gọi flush giúp đẩy dữ liệu ra khỏi bộ đệm của Python, nhưng chưa bảo đảm dữ liệu đã được ghi bền trên thiết bị khi mất điện:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một chương trình ghi nhiều dòng log nhỏ. Bộ đệm (buffer) gom dữ liệu trước khi chuyển tiếp để giảm số lần đọc/ghi (I/O). Gọi flush giúp đẩy dữ liệu ra khỏi bộ đệm của Python, nhưng chưa bảo đảm dữ liệu đã được ghi bền trên thiết bị khi mất điện:\n\nTemporaryFile tự tạo nơi lưu tạm và dọn tài nguyên khi đóng. Đây là file tạm, khác TemporaryDirectory tạo cả thư mục. `flush` đẩy buffer của Python; OS và thiết bị còn có cache riêng. `with` giúp đóng handle dù bước bên trong có lỗi."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`buffering=-1` để Python chọn mặc định; `io.DEFAULT_BUFFER_SIZE` là hằng số tham khảo về cỡ buffer. `buffering=0` tắt buffer và chỉ hợp lệ với binary. `buffering=1` yêu cầu line buffering cho text ở phía ghi: dữ liệu được đẩy khi có newline. Giá trị lớn hơn 1 chọn cỡ buffer của luồng binary. Nó không buộc read luôn trả từng dòng.\n\nFileNotFoundError khác PermissionError khi thiếu quyền; cả hai thuộc OSError, còn IOError là tên tương thích. Chỉ báo \"thiếu file\" cho trường hợp đúng. Bắt Exception rồi trả dữ liệu rỗng sẽ làm người dùng không phân biệt file rỗng với lần đọc thất bại."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import tempfile\nwith tempfile.TemporaryFile(mode=\"w+t\", encoding=\"utf8\") as f:\n    f.write(\"A\\n\")\n    f.flush()\n    f.seek(0)\n    print(f.readline().strip())\nprint(f.closed)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: A ⏎ True"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 2 ⏎ AB"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: Thieu file"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "f.flush() đảm bảo điều gì trong phạm vi stream?",
+     "options": [
+      {
+       "text": "Luôn bảo đảm chống mất điện",
+       "correct": false,
+       "detail": "Lưu bền còn phụ thuộc hệ điều hành và thiết bị; flush một mình chưa đủ."
+      },
+      {
+       "text": "Đóng file ngay",
+       "correct": false,
+       "detail": "flush giữ file mở để có thể ghi tiếp."
+      },
+      {
+       "text": "Đẩy dữ liệu từ buffer Python xuống lớp I/O bên dưới",
+       "correct": true,
+       "detail": "flush không tự bảo đảm dữ liệu đã được thiết bị lưu bền sau mất điện."
+      }
+     ],
+     "explanation": "flush không tự bảo đảm dữ liệu đã được thiết bị lưu bền sau mất điện."
+    },
+    {
+     "question": "Một file đang mở ở chế độ ghi. Sau flush, có còn ghi thêm được không nếu chưa đóng?",
+     "options": [
+      {
+       "text": "Chỉ khi đổi tên file",
+       "correct": false,
+       "detail": "Chưa đúng. flush đẩy buffer xuống lớp I/O dưới nhưng không đóng stream."
+      },
+      {
+       "text": "Có",
+       "correct": true,
+       "detail": "flush đẩy buffer xuống lớp I/O dưới nhưng không đóng stream."
+      },
+      {
+       "text": "Không; flush đồng nghĩa close",
+       "correct": false,
+       "detail": "Chưa đúng. flush đẩy buffer xuống lớp I/O dưới nhưng không đóng stream."
+      }
+     ],
+     "explanation": "flush đẩy buffer xuống lớp I/O dưới nhưng không đóng stream."
+    },
+    {
+     "question": "Đọc file không có thật thường cần phân biệt ngoại lệ nào?",
+     "options": [
+      {
+       "text": "FileNotFoundError",
+       "correct": true,
+       "detail": "Loại ngoại lệ giúp phân biệt thiếu file với những lỗi I/O khác."
+      },
+      {
+       "text": "ZeroDivisionError",
+       "correct": false,
+       "detail": "Chưa đúng. Loại ngoại lệ giúp phân biệt thiếu file với những lỗi I/O khác."
+      },
+      {
+       "text": "StopIteration trong mọi trường hợp",
+       "correct": false,
+       "detail": "Chưa đúng. Loại ngoại lệ giúp phân biệt thiếu file với những lỗi I/O khác."
+      }
+     ],
+     "explanation": "Loại ngoại lệ giúp phân biệt thiếu file với những lỗi I/O khác."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Đẩy buffer trước khi làm việc tiếp."
+   },
+   "scaffold": {
+    "template": "with open(\"result.txt\", \"w\", encoding=\"utf-8\") as f:\n    f.write(\"done\")\n    f.{{slot1}}()",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phương thức đẩy buffer",
+      "answer": "flush"
+     }
+    ],
+    "bank": [
+     {
+      "label": "flush",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Dùng tempfile.TemporaryFile(mode=\"w+t\", encoding=\"utf-8\") để ghi chuỗi data, flush, seek(0) rồi đọc. Sau khi rời with, trả {\"text\": nội dung đọc, \"closed\": trạng thái đóng của file}. Không tạo file cố định trong thư mục làm việc.",
+    "io": [
+     {
+      "label": "văn bản",
+      "value": "'ready' → {'text': 'ready', 'closed': True}"
+     },
+     {
+      "label": "unicode",
+      "value": "'đã xong' → {'text': 'đã xong', 'closed': True}"
+     },
+     {
+      "label": "rỗng",
+      "value": "'' → {'text': '', 'closed': True}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import tempfile\ndef solve(data):\n    with tempfile.TemporaryFile(mode='w+t', encoding='utf-8') as f:\n        f.write(data)\n        f.flush()\n        f.seek(0)\n        text = f.read()\n    return {'text': text, 'closed': f.closed}\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "tests": [
+    {
+     "name": "văn bản",
+     "call": "__import__('json').loads(__import__('json').dumps(solve('ready'), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'text': 'ready', 'closed': True}"
+    },
+    {
+     "name": "unicode",
+     "call": "__import__('json').loads(__import__('json').dumps(solve('đã xong'), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'text': 'đã xong', 'closed': True}"
+    },
+    {
+     "name": "rỗng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve(''), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'text': '', 'closed': True}"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,137 @@
+{
+ "lesson_code": "CT01",
+ "sort_order": 132,
+ "module": "M6 · Hệ điều hành, tiến trình và đa luồng",
+ "title": "CT01 · Một chương trình, nhiều tiến trình",
+ "subtitle": "Nâng cao · M6 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "CT01 · Một chương trình, nhiều tiến trình",
+  "subtitle": "Nâng cao · M6 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/CT01.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Một chương trình, nhiều tiến trình",
+    "body": "Bạn mở cùng một script phân tích hai lần. File chương trình vẫn là một, nhưng hệ điều hành tạo hai lần thực thi khác nhau. Mỗi lần thực thi được gọi là một process, có PID để nhận diện:",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn mở cùng một script phân tích hai lần. File chương trình vẫn là một, nhưng hệ điều hành tạo hai lần thực thi khác nhau. Mỗi lần thực thi được gọi là một process, có PID để nhận diện:\n\nProgram là mô tả lệnh được lưu; process là một lần thực thi cùng trạng thái của nó. CPU context gồm program counter (vị trí lệnh đang thực hiện hoặc sẽ tiếp tục) và các thanh ghi giữ dữ liệu/trạng thái tính toán của CPU. Stack giữ khung lời gọi hàm; data section giữ dữ liệu tĩnh/toàn cục; heap phục vụ cấp phát động. File descriptor là số nhận diện tài nguyên I/O đang mở, chẳng hạn file hoặc thiết bị. Process cần các phần này để tiếp tục đúng công việc sau khi tạm nhường CPU."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Dictionary trên mô phỏng các trạng thái của process trong slide: new là mới tạo; ready là đã sẵn sàng và đang đợi CPU; running là đang chạy; waiting là đang chờ một sự kiện như I/O; terminated là đã kết thúc. Khi bị ngắt để nhường CPU, process có thể chuyển từ running về ready. Khi I/O hoàn thành, nó thường chuyển từ waiting về ready, chứ chưa chắc được chạy ngay.\n\nProcess đang chạy Python ở đây là cha của process vừa tạo. Con có thể tạo cháu, thành cây. Ví dụ cây `analysis(100) → worker(101) → helper(102)` đọc là analysis tạo worker, rồi worker tạo helper; công cụ pstree hiển thị những quan hệ như vậy trên hệ hỗ trợ. Tùy cơ chế OS, cha và con có thể chia sẻ toàn bộ, một phần hoặc không chia sẻ tài nguyên được xét. Không được suy rằng mọi biến Python ở cha đều là biến dùng chung với con."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import os, subprocess, sys\nchild = subprocess.check_output([sys.executable, \"-c\", \"import os; print(os.getpid())\"], text=True)\nprint(int(child) != os.getpid())",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: True"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: waiting ⏎ ready"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: True"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Một editor được mở hai lần từ cùng file chương trình. Hai lần mở có bắt buộc cùng PID không?",
+     "options": [
+      {
+       "text": "Có; PID là tên file chương trình",
+       "correct": false,
+       "detail": "PID nhận diện tiến trình, không phải tên executable."
+      },
+      {
+       "text": "Không thể chạy cùng program hai lần",
+       "correct": false,
+       "detail": "Hệ điều hành có thể tạo nhiều tiến trình từ cùng program."
+      },
+      {
+       "text": "Không; đó có thể là hai tiến trình có PID riêng",
+       "correct": true,
+       "detail": "Program là mã chương trình; process là một lần thực thi có trạng thái và tài nguyên."
+      }
+     ],
+     "explanation": "Program là mã chương trình; process là một lần thực thi có trạng thái và tài nguyên."
+    },
+    {
+     "question": "Mở cùng một script hai lần có nhất thiết chỉ một process không?",
+     "options": [
+      {
+       "text": "Chỉ tạo process thứ hai khi đổi mã nguồn",
+       "correct": false,
+       "detail": "Chưa đúng. Program là mô tả được lưu; process là một lần chạy cùng trạng thái thực thi."
+      },
+      {
+       "text": "Không; một program có thể có nhiều lần thực thi",
+       "correct": true,
+       "detail": "Program là mô tả được lưu; process là một lần chạy cùng trạng thái thực thi."
+      },
+      {
+       "text": "Có; tên file quyết định duy nhất một process",
+       "correct": false,
+       "detail": "Chưa đúng. Program là mô tả được lưu; process là một lần chạy cùng trạng thái thực thi."
+      }
+     ],
+     "explanation": "Program là mô tả được lưu; process là một lần chạy cùng trạng thái thực thi."
+    },
+    {
+     "question": "Process đã có thể chạy nhưng đang đợi CPU thuộc trạng thái nào?",
+     "options": [
+      {
+       "text": "ready",
+       "correct": true,
+       "detail": "Ready là chờ được cấp CPU; waiting là chờ một sự kiện hay I/O."
+      },
+      {
+       "text": "waiting vì đang chờ đọc đĩa",
+       "correct": false,
+       "detail": "Chưa đúng. Ready là chờ được cấp CPU; waiting là chờ một sự kiện hay I/O."
+      },
+      {
+       "text": "terminated",
+       "correct": false,
+       "detail": "Chưa đúng. Ready là chờ được cấp CPU; waiting là chờ một sự kiện hay I/O."
+      }
+     ],
+     "explanation": "Ready là chờ được cấp CPU; waiting là chờ một sự kiện hay I/O."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Vẽ sơ đồ trạng thái cho một ứng dụng đọc file: được tạo, chờ CPU, chạy, yêu cầu đọc đĩa, đợi I/O, I/O xong, chạy tiếp rồi kết thúc. Đây là mô hình khái niệm, không phải đo trạng thái thật bằng Python."
+   },
+   "procedure": [
+    "Đặt năm trạng thái new/ready/running/waiting/terminated thành các nút.",
+    "Ghi sự kiện trên từng mũi tên; cho một trường hợp running bị lấy lại CPU về ready.",
+    "Bên cạnh tiến trình, ghi PC/thanh ghi, stack, heap/data và file descriptor dùng làm gì.",
+    "Tự kiểm: Mũi tên I/O hoàn tất về ready; có bước scheduler chọn trước khi về running.",
+    "Tự kiểm: Phân biệt file program với một process đang chạy nó.",
+    "Tự kiểm: Giải thích vì sao stack và CPU context cần được giữ khi tiến trình nhường CPU."
+   ]
+  }
+ }
+}

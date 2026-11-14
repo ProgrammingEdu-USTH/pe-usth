@@ -1,0 +1,198 @@
+{
+ "lesson_code": "PD05",
+ "sort_order": 46,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD05 · Lọc hàng theo điều kiện",
+ "subtitle": "Cơ bản · M3 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PD05 · Lọc hàng theo điều kiện",
+  "subtitle": "Cơ bản · M3 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PD05.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Lọc hàng theo điều kiện",
+    "body": "Bạn cần xem các đơn từ 100 nghìn trở lên để kiểm tra chương trình khuyến mại. So sánh một cột với 100 tạo ra một dãy True/False; dãy này quyết định giữ hàng nào.",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn cần xem các đơn từ 100 nghìn trở lên để kiểm tra chương trình khuyến mại. So sánh một cột với 100 tạo ra một dãy True/False; dãy này quyết định giữ hàng nào.\n\nTrue giữ hàng, False bỏ hàng khỏi kết quả lọc. Với nhiều điều kiện, dùng & cho “và”, | cho “hoặc”, rồi đặt từng phép so sánh trong ngoặc. Không dùng and/or để nối hai Series."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`isin` kiểm tra thuộc một tập lựa chọn; `between` kiểm tra khoảng và mặc định gồm hai đầu. Dấu ~ đảo một mask. Các cách viết này giúp diễn đạt điều kiện trực tiếp bằng cột.\n\nLọc chỉ trả về phần dữ liệu thỏa điều kiện; nó không tự xóa các hàng khỏi df. Nếu muốn lưu kết quả, bạn gán nó cho một biến."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import pandas as pd\ndf = pd.DataFrame({'order': ['A', 'B', 'C'], 'amount': [80, 150, 120]})\nmask = df['amount'] >= 100\nprint(mask.tolist())\nprint(df.loc[mask, 'order'].tolist())",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: [False, True, True] ⏎ ['B', 'C']"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: [{'order': 'B', 'amount': 150}]"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: ['DN'] ⏎ ['HCM', 'DN']"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "df có amount=[80,120,150], city=[\"HN\",\"HCM\",\"HN\"]. Mask (df[\"amount\"] >= 100) & (df[\"city\"] == \"HN\") giữ vị trí nào?",
+     "options": [
+      {
+       "text": "0 và 2",
+       "correct": false,
+       "detail": "Đây chỉ kiểm city, bỏ điều kiện tiền."
+      },
+      {
+       "text": "2",
+       "correct": true,
+       "detail": "Đúng: hàng thứ ba thỏa cả hai điều kiện."
+      },
+      {
+       "text": "1 và 2",
+       "correct": false,
+       "detail": "Hàng 1 đủ tiền nhưng không thuộc HN."
+      }
+     ],
+     "explanation": "& yêu cầu từng hàng thỏa cả hai phép so sánh có ngoặc."
+    },
+    {
+     "question": "Mask [True, False, True] giữ các hàng vị trí nào?",
+     "options": [
+      {
+       "text": "Chỉ vị trí 1.",
+       "correct": false,
+       "detail": "Vị trí 1 đang có False."
+      },
+      {
+       "text": "Vị trí 1 và 3 vì vị trí bắt đầu từ 1.",
+       "correct": false,
+       "detail": "Vị trí Python bắt đầu từ 0, không phải 1."
+      },
+      {
+       "text": "Giữ vị trí 0 và 2.",
+       "correct": true,
+       "detail": "Giữ vị trí 0 và 2."
+      }
+     ],
+     "explanation": "Giữ vị trí 0 và 2."
+    },
+    {
+     "question": "Điều kiện amount >= 100 và city == HN nối bằng and hay &?",
+     "options": [
+      {
+       "text": "Dùng | vì cần thỏa đồng thời hai điều kiện.",
+       "correct": false,
+       "detail": "Dấu | là điều kiện hoặc, không buộc cả hai vế cùng đúng."
+      },
+      {
+       "text": "Dùng &, với ngoặc bao từng phép so sánh.",
+       "correct": true,
+       "detail": "Dùng &, với ngoặc bao từng phép so sánh."
+      },
+      {
+       "text": "Dùng and, không cần ngoặc.",
+       "correct": false,
+       "detail": "and không kết hợp từng phần tử của hai Series."
+      }
+     ],
+     "explanation": "Dùng &, với ngoặc bao từng phép so sánh."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Điền toán tử và cho hai Series."
+   },
+   "scaffold": {
+    "template": "mask = (df[\"amount\"] >= 100) {{slot1}} (df[\"city\"] == \"HN\")",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "&"
+     }
+    ],
+    "bank": [
+     {
+      "label": "&",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.rows chứa order, city, amount; data.city và data.minimum là yêu cầu mới. Trả list mã order có city đúng và amount >= minimum, giữ thứ tự gốc.",
+    "io": [
+     {
+      "label": "hai điều kiện",
+      "value": "{'rows': [{'order': 'X', 'city': 'DN', 'amount': 60}, {'order': 'Y', 'city': 'HN', 'amount': 90}, {'order': 'Z', 'city': 'DN', 'amount': 100}], 'city': 'DN', 'minimum': 70} → ['Z']"
+     },
+     {
+      "label": "lấy cả biên",
+      "value": "{'rows': [{'order': 'A', 'city': 'HUE', 'amount': 50}], 'city': 'HUE', 'minimum': 50} → ['A']"
+     },
+     {
+      "label": "không đơn nào",
+      "value": "{'rows': [{'order': 'B', 'city': 'HN', 'amount': 20}], 'city': 'DN', 'minimum': 0} → []"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     df = pd.DataFrame(data['rows'], columns=['order','city','amount'])\n     mask = (df['city'] == data['city']) & (df['amount'] >= data['minimum'])\n     return df.loc[mask, 'order'].tolist()\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Hai vế là Series Boolean; toán tử Python dành cho một Boolean sẽ không phù hợp."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Tạo mask nhiều điều kiện và lọc các hàng thỏa điều kiện."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ],
+   "tests": [
+    {
+     "name": "hai điều kiện",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'rows': [{'order': 'X', 'city': 'DN', 'amount': 60}, {'order': 'Y', 'city': 'HN', 'amount': 90}, {'order': 'Z', 'city': 'DN', 'amount': 100}], 'city': 'DN', 'minimum': 70}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "['Z']"
+    },
+    {
+     "name": "lấy cả biên",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'rows': [{'order': 'A', 'city': 'HUE', 'amount': 50}], 'city': 'HUE', 'minimum': 50}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "['A']"
+    },
+    {
+     "name": "không đơn nào",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'rows': [{'order': 'B', 'city': 'HN', 'amount': 20}], 'city': 'DN', 'minimum': 0}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[]"
+    }
+   ]
+  }
+ }
+}

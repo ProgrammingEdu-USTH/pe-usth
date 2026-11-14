@@ -1,0 +1,207 @@
+{
+ "lesson_code": "VZ09",
+ "sort_order": 82,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ09 · Nhãn, đơn vị, đường mốc và chú thích",
+ "subtitle": "Cơ bản · M4 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "VZ09 · Nhãn, đơn vị, đường mốc và chú thích",
+  "subtitle": "Cơ bản · M4 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/VZ09.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Nhãn, đơn vị, đường mốc và chú thích",
+    "body": "Một đường có các giá trị 8, 10 và 7 vẫn thiếu thông tin nếu người đọc không biết đó là cốc, triệu đồng hay phút. Tiêu đề cho biết câu hỏi; nhãn trục ghi biến và đơn vị. Dòng nguồn và thời gian đo giúp người khác hiểu giới hạn của hình khi nó được tách khỏi báo cáo.",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một đường có các giá trị 8, 10 và 7 vẫn thiếu thông tin nếu người đọc không biết đó là cốc, triệu đồng hay phút. Tiêu đề cho biết câu hỏi; nhãn trục ghi biến và đơn vị. Dòng nguồn và thời gian đo giúp người khác hiểu giới hạn của hình khi nó được tách khỏi báo cáo.\n\n![Biểu đồ](../visuals/VZ09-1.png)"
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Dùng annotate để chỉ vào một điểm cần giải thích. xy là tọa độ điểm, xytext là vị trí đặt chữ; hai vị trí không nhất thiết giống nhau. Không cần ghi nhãn lên mọi điểm nếu các nhãn che nhau. axhline và axvline thêm mốc mục tiêu hoặc ngày thay đổi mà không giả làm quan sát mới.\n\n![Biểu đồ](../visuals/VZ09-2.png)"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Mathtext cho phép ghi ký hiệu toán bằng chuỗi đặt trong dấu $. Nó chỉ định dạng chữ trên hình, không tính biểu thức. Ví dụ dưới ghi ngưỡng sigma bằng ký hiệu; giá trị của ngưỡng vẫn do code cung cấp.\n\n![Biểu đồ](../visuals/VZ09-3.png)"
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.plot([1, 2, 3], [8, 10, 7], marker=\"o\", label=\"Revenue\")\nax.set(xlabel=\"Day in January\", ylabel=\"Revenue (million VND)\", title=\"Revenue peaked on day 2\")\nax.legend()\nax.text(0, -0.30, \"Synthetic teaching data; three days only\", transform=ax.transAxes, fontsize=9)\nprint(ax.get_ylabel())\nplt.show()",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: Revenue (million VND)"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 1"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 3"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "axhline(9) trong hình doanh thu là gì?",
+     "options": [
+      {
+       "text": "Một đường mốc ngang ở y=9",
+       "correct": true,
+       "detail": "Đúng: nó có thể biểu diễn mục tiêu đã ghi rõ."
+      },
+      {
+       "text": "Một đơn hàng mới có doanh thu 9",
+       "correct": false,
+       "detail": "Đường mốc không thêm một quan sát vào bảng dữ liệu."
+      },
+      {
+       "text": "Một đường ở x=9",
+       "correct": false,
+       "detail": "axhline dùng tọa độ y, axvline mới dùng x."
+      }
+     ],
+     "explanation": "Mốc tham chiếu phải được phân biệt với các quan sát có thật."
+    },
+    {
+     "question": "Tiêu đề “Doanh thu” còn thiếu gì để đọc được các con số?",
+     "options": [
+      {
+       "text": "Chỉ cần xóa số trên trục.",
+       "correct": false,
+       "detail": "Xóa số trục làm mất thông tin thay vì giải thích nó."
+      },
+      {
+       "text": "Cần đơn vị, khoảng thời gian và phạm vi dữ liệu; đặt vào nhãn hoặc chú thích phù hợp.",
+       "correct": true,
+       "detail": "Cần đơn vị, khoảng thời gian và phạm vi dữ liệu; đặt vào nhãn hoặc chú thích phù hợp."
+      },
+      {
+       "text": "Chỉ cần thêm màu nền cho hình.",
+       "correct": false,
+       "detail": "Màu nền không bổ sung đơn vị hoặc kỳ báo cáo."
+      }
+     ],
+     "explanation": "Cần đơn vị, khoảng thời gian và phạm vi dữ liệu; đặt vào nhãn hoặc chú thích phù hợp."
+    },
+    {
+     "question": "xy và xytext của annotate khác nhau thế nào?",
+     "options": [
+      {
+       "text": "xy là điểm được chỉ tới; xytext là nơi đặt lời chú thích.",
+       "correct": true,
+       "detail": "xy là điểm được chỉ tới; xytext là nơi đặt lời chú thích."
+      },
+      {
+       "text": "xy là vị trí chữ, xytext là điểm dữ liệu.",
+       "correct": false,
+       "detail": "Vai trò của xy và xytext đã bị đảo."
+      },
+      {
+       "text": "Cả hai luôn là cùng một tọa độ pixel.",
+       "correct": false,
+       "detail": "Tọa độ có thể thuộc hệ khác nhau theo cấu hình, không mặc định đều là pixel."
+      }
+     ],
+     "explanation": "xy là điểm được chỉ tới; xytext là nơi đặt lời chú thích."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Chỉ điểm tại (2,10), đặt chữ tại (2.2,11)."
+   },
+   "scaffold": {
+    "template": "ax.annotate(\"Peak\", {{slot1}}=(2,10), xytext=(2.2,11))",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "xy"
+     }
+    ],
+    "bank": [
+     {
+      "label": "xy",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.target là mục tiêu, data.unit là nhãn trục y cần ghi. Tạo Figure, vẽ axhline(target,label=\"Target\"), đặt ylabel=unit. Trả target đọc từ line.get_ydata()[0], label từ line.get_label(), và ylabel từ Axes. Không thêm mục tiêu vào dãy quan sát. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "mục tiêu mới",
+      "value": "{'target': 15, 'unit': 'Books'} → {'target': 15.0, 'label': 'Target', 'ylabel': 'Books'}"
+     },
+     {
+      "label": "mốc 0",
+      "value": "{'target': 0, 'unit': 'Change (%)'} → {'target': 0.0, 'label': 'Target', 'ylabel': 'Change (%)'}"
+     },
+     {
+      "label": "mốc số thực",
+      "value": "{'target': 2.5, 'unit': 'Hours'} → {'target': 2.5, 'label': 'Target', 'ylabel': 'Hours'}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     fig, ax = plt.subplots()\n     line = ax.axhline(data['target'],label='Target')\n     ax.set_ylabel(data['unit'])\n     result = {'target':float(line.get_ydata()[0]),'label':line.get_label(),'ylabel':ax.get_ylabel()}\n     plt.close(fig)\n     return result\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Điểm cần chú thích khác vị trí đặt chữ; hãy chỉ rõ tọa độ điểm được chú thích."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Đặt nhãn đơn vị và một mốc mục tiêu không giả làm quan sát."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "mục tiêu mới",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'target': 15, 'unit': 'Books'}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'target': 15.0, 'label': 'Target', 'ylabel': 'Books'}"
+    },
+    {
+     "name": "mốc 0",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'target': 0, 'unit': 'Change (%)'}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'target': 0.0, 'label': 'Target', 'ylabel': 'Change (%)'}"
+    },
+    {
+     "name": "mốc số thực",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'target': 2.5, 'unit': 'Hours'}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'target': 2.5, 'label': 'Target', 'ylabel': 'Hours'}"
+    }
+   ]
+  }
+ }
+}

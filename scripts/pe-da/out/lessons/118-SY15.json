@@ -1,0 +1,199 @@
+{
+ "lesson_code": "SY15",
+ "sort_order": 118,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY15 · Mở file: đọc, ghi đè, nối và tạo mới",
+ "subtitle": "Trung cấp · M5 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "SY15 · Mở file: đọc, ghi đè, nối và tạo mới",
+  "subtitle": "Trung cấp · M5 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/SY15.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Mở file: đọc, ghi đè, nối và tạo mới",
+    "body": "Bạn muốn giữ tổng bán hàng sau khi tắt Python. Biến trong RAM không tự tồn tại qua lần chạy; một file giúp lưu dữ liệu. Các ví dụ chỉ ghi vào thư mục tạm của bài:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn muốn giữ tổng bán hàng sau khi tắt Python. Biến trong RAM không tự tồn tại qua lần chạy; một file giúp lưu dữ liệu. Các ví dụ chỉ ghi vào thư mục tạm của bài:\n\n`open` trả file object. `w` tạo file hoặc xóa nội dung cũ ngay lúc mở; `r` đọc và báo lỗi nếu không có file. `with` tự đóng file khi rời khối lệnh. File vẫn có thể tồn tại sau close; thư mục tạm của ví dụ được dọn khi rời block ngoài."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`a` nối ở cuối, phù hợp nhật ký. Mở log bằng w để thêm một dòng sẽ làm mất phần cũ. `t` là chế độ văn bản mặc định, dùng str; `b` là chế độ nhị phân, dùng bytes. Dấu + cho phép cả đọc và ghi, nhưng không bỏ qua quy tắc ghi đè của w hoặc nối cuối của a.\n\n`x` chỉ tạo mới và từ chối ghi đè file đã có. Trong mô hình UNIX, nhiều tài nguyên được thao tác qua file descriptor; điều đó không có nghĩa mọi tài nguyên đều là một file văn bản trên đĩa."
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Trong RAM, biến thường mất khi process kết thúc. File đã ghi và đóng có thể được đọc ở lần chạy sau; lưu bền không có nghĩa file không thể bị xóa hoặc hỏng. Vòng đời thông thường là open → đọc hoặc ghi → close. Sau close, `f.closed` là True và gọi read/write trên đối tượng file đó gây ValueError.\n\nCụ thể, `r+` đọc/ghi file đã có và không xóa nội dung lúc mở. `w+` cho đọc/ghi nhưng cắt nội dung cũ hoặc tạo file mới. `a+` cũng cho đọc/ghi, còn mỗi lần ghi vẫn nối cuối; muốn đọc từ đầu cần seek về đầu. Thêm `+` không làm ba chế độ này giống nhau."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import tempfile\nfrom pathlib import Path\nwith tempfile.TemporaryDirectory() as folder:\n    path = Path(folder) / \"report.txt\"\n    with open(path, \"w\", encoding=\"utf8\") as f: f.write(\"12\\n\")\n    with open(path, \"r\", encoding=\"utf8\") as f: print(f.read().strip())\n    print(f.closed)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 12 ⏎ True"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: ['A', 'B']"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: Da ton tai"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "File chứa A. Mở bằng w và ghi B thì còn gì?",
+     "options": [
+      {
+       "text": "A",
+       "correct": false,
+       "detail": "Lệnh ghi B đã thay dữ liệu sau khi file bị làm rỗng."
+      },
+      {
+       "text": "B",
+       "correct": true,
+       "detail": "w xóa nội dung cũ khi mở file thành công."
+      },
+      {
+       "text": "AB",
+       "correct": false,
+       "detail": "Đó là hành vi thêm ở cuối của a."
+      }
+     ],
+     "explanation": "w xóa nội dung cũ khi mở file thành công."
+    },
+    {
+     "question": "Muốn thêm một dòng log và giữ các dòng trước, chọn mode nào?",
+     "options": [
+      {
+       "text": "r",
+       "correct": false,
+       "detail": "Chưa đúng. a thêm ở cuối; w làm rỗng nội dung cũ khi mở thành công."
+      },
+      {
+       "text": "a",
+       "correct": true,
+       "detail": "a thêm ở cuối; w làm rỗng nội dung cũ khi mở thành công."
+      },
+      {
+       "text": "w",
+       "correct": false,
+       "detail": "Chưa đúng. a thêm ở cuối; w làm rỗng nội dung cũ khi mở thành công."
+      }
+     ],
+     "explanation": "a thêm ở cuối; w làm rỗng nội dung cũ khi mở thành công."
+    },
+    {
+     "question": "Muốn tạo file mới nhưng báo lỗi nếu tên đã tồn tại, chọn mode nào?",
+     "options": [
+      {
+       "text": "x",
+       "correct": true,
+       "detail": "x dùng để tạo độc quyền; nó không âm thầm ghi đè file đã có."
+      },
+      {
+       "text": "a",
+       "correct": false,
+       "detail": "Chưa đúng. x dùng để tạo độc quyền; nó không âm thầm ghi đè file đã có."
+      },
+      {
+       "text": "r",
+       "correct": false,
+       "detail": "Chưa đúng. x dùng để tạo độc quyền; nó không âm thầm ghi đè file đã có."
+      }
+     ],
+     "explanation": "x dùng để tạo độc quyền; nó không âm thầm ghi đè file đã có."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Giữ nội dung cũ và thêm một dòng UTF-8."
+   },
+   "scaffold": {
+    "template": "with open(\"log.txt\", \"{{slot1}}\", encoding=\"utf-8\") as f:\n    f.write(\"đã lưu\\n\")",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Chế độ thêm",
+      "answer": "a"
+     }
+    ],
+    "bank": [
+     {
+      "label": "a",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "solve(data) nhận list dòng không chứa newline. Trong TemporaryDirectory, tạo notes.txt bằng w ghi HEADER và newline, mở lại bằng a thêm từng dòng cùng newline; đọc lại bằng r và trả list dòng không có ký tự xuống dòng. Hãy thực hiện I/O file thật.",
+    "io": [
+     {
+      "label": "hai dòng",
+      "value": "['tea', 'coffee'] → ['HEADER', 'tea', 'coffee']"
+     },
+     {
+      "label": "unicode",
+      "value": "['cà phê'] → ['HEADER', 'cà phê']"
+     },
+     {
+      "label": "chưa có ghi chú",
+      "value": "[] → ['HEADER']"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import tempfile\nfrom pathlib import Path\ndef solve(data):\n    with tempfile.TemporaryDirectory() as folder:\n        path = Path(folder) / 'notes.txt'\n        with path.open('w', encoding='utf-8') as f: f.write('HEADER\\n')\n        with path.open('a', encoding='utf-8') as f:\n            for line in data: f.write(line + '\\n')\n        with path.open('r', encoding='utf-8') as f: return f.read().splitlines()\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "tests": [
+    {
+     "name": "hai dòng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve(['tea', 'coffee']), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "['HEADER', 'tea', 'coffee']"
+    },
+    {
+     "name": "unicode",
+     "call": "__import__('json').loads(__import__('json').dumps(solve(['cà phê']), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "['HEADER', 'cà phê']"
+    },
+    {
+     "name": "chưa có ghi chú",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "['HEADER']"
+    }
+   ]
+  }
+ }
+}

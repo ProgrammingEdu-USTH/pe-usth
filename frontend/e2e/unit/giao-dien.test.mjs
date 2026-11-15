@@ -26,6 +26,7 @@
  */
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import test from 'node:test';
 import vm from 'node:vm';
 
@@ -583,4 +584,36 @@ test('B7: bảng ca chấm — hàng nằm trên panel bằng cạnh --tv-rule, 
       assert.ok(tuongPhan(mau(fg, che), mau(bg, che)) >= 4.5, `${che}: chip ${fg} trên ${bg} dưới AA`);
     }
   }
+});
+
+// ── DẤU NGOẶC CSS CÂN BẰNG (bắt được trên chiem-tinh 16/11/2026) ───────────────────────────────────
+// Lát B4 để lại `.stepLabel {.stepLabel {` trong LessonChrome.module.css: một khối không đóng. MỌI ca
+// unit đọc CSS bằng chuỗi/regex nên đều XANH; chỉ `next build` (Turbopack) ném "composes cannot be used
+// with a simple class selector" vì `.primaryBtnOk` bị hiểu là selector LỒNG. Một dấu ngoặc lệch làm vỡ
+// build mà không bộ unit nào thấy — nên canh nó trực tiếp, trên MỌI tệp CSS của sản phẩm.
+test('mọi tệp CSS có dấu ngoặc nhọn cân bằng (khối không đóng làm vỡ next build, unit không thấy)', () => {
+  const tep = [];
+  const duyet = (dir) => {
+    for (const ten of readdirSync(dir, { withFileTypes: true })) {
+      const q = join(dir, ten.name);
+      if (ten.isDirectory()) duyet(q);
+      else if (ten.name.endsWith('.css')) tep.push(q);
+    }
+  };
+  duyet(join(GOC, 'src'));
+  // CSS di sản của trang Django cũ (lesson_db_design.css…) lệch dấu ngoặc từ trước và không nạp ở trang bài học:
+  // chỉ canh ba tệp trang bài học NẠP.
+  for (const ten of ['theme-thien-van.css', 'edu-theme.css', 'studio-tokens.css']) tep.push(join(GOC, 'public', 'static', 'css', ten));
+  assert.ok(tep.length >= 20, 'duyệt CSS trả về quá ít tệp (' + tep.length + ') — phép duyệt trượt?');
+  const lech = [];
+  for (const q of tep) {
+    // bỏ chú thích và chuỗi trước khi đếm: `content: '{'` hay `/* { */` không phải khối
+    const s = readFileSync(q, 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/"[^"\n]*"|'[^'\n]*'/g, '');
+    const mo = (s.match(/{/g) ?? []).length;
+    const dong = (s.match(/}/g) ?? []).length;
+    if (mo !== dong) lech.push(q.slice(GOC.length) + ' ({=' + mo + ', }=' + dong + ')');
+  }
+  assert.deepEqual(lech, [], 'tệp CSS lệch dấu ngoặc: ' + lech.join('; '));
 });

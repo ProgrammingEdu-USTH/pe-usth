@@ -312,7 +312,7 @@ button.segment::after {
   box-sizing: border-box;
 }
 
-.stepLabel {.stepLabel {
+.stepLabel {
   margin-left: 1px;
   min-width: 56px;
   font-size: 14px;

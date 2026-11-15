@@ -231,7 +231,7 @@
       "tep": "AGENTS.md",
       "re": "test:unit[^|\\n]*?\\*\\*(\\d+) ca\\*\\*",
       "chieu": "nang",
-      "moc": 708,
+      "moc": 713,
       "vi": "Số ca test frontend trong bảng mốc nền. Hai cổng canh con số này vì chúng bắt HAI lỗi khác nhau: `check-moc-chay.mjs` CHẠY bộ test và bắt \"số trong bảng SAI\" (nó từng ghi 204 trong khi cây mã chỉ có 134), còn mục sổ này bắt \"ai đó HẠ số trong bảng cho khớp một bộ đã bị cắt bớt\" — ablate đã đo: xoá một ca thật rồi sửa bảng từ 573 xuống 572 thì cổng chạy-bộ-test XANH, chỉ sổ này đỏ. Khi nào con số vượt 1000 thì nó sẽ mang dấu cách ngăn nhóm nghìn kiểu Việt và regex `(\\d+)` hết khớp — lúc đó sửa cả regex, đừng bỏ mục này."
     },
     {
@@ -385,6 +385,38 @@
       "chieu": "nang",
       "moc": 5.4,
       "vi": "Sàn tương phản mọi chữ trong ô mã Monaco của giao diện Đài thiên văn (chữ, từ khoá, chuỗi, số, chú thích, số dòng) trên nền và trên dòng đang đứng. Đo 5,51:1 ở chuỗi/chú thích ban ngày trên dòng đang đứng; AA là 4,5."
+    },
+    {
+      "ten": "san-khoi-code-vellum-thien-van",
+      "tep": "frontend/e2e/unit/giao-dien.test.mjs",
+      "re": "const SAN_KHOI_CODE_VELLUM = ([\\d.]+);",
+      "chieu": "nang",
+      "moc": 1.4,
+      "vi": "Sàn tương phản cạnh thẻ vellum (B3): thẻ đục trên giấy chỉ tách được bằng đường kẻ; đo --tv-rule 1,43:1 ngày, 1,79:1 đêm. CHỈ ĐƯỢC NÂNG."
+    },
+    {
+      "ten": "san-vien-hang-ca-cham-thien-van",
+      "tep": "frontend/e2e/unit/giao-dien.test.mjs",
+      "re": "const SAN_VIEN_HANG_CA_CHAM = ([\\d.]+);",
+      "chieu": "nang",
+      "moc": 1.3,
+      "vi": "Sàn tương phản đường chia hàng của bảng ca chấm (B7): đo 1,37 ngày, 1,79 đêm; là đường chia, không phải thành phần giao diện nên thấp hơn sàn khối code. CHỈ ĐƯỢC NÂNG."
+    },
+    {
+      "ten": "san-vanh-dong-thien-van",
+      "tep": "frontend/e2e/unit/giao-dien.test.mjs",
+      "re": "const SAN_VANH_DONG = ([\\d.]+);",
+      "chieu": "nang",
+      "moc": 3,
+      "vi": "Sàn tương phản vành focus đồng quanh ô soạn mã (B7): thành phần giao diện, WCAG 1.4.11; đo 4,50 ngày, 6,63 đêm. CHỈ ĐƯỢC NÂNG."
+    },
+    {
+      "ten": "san-dong-tren-tint-thien-van",
+      "tep": "frontend/e2e/unit/giao-dien.test.mjs",
+      "re": "const SAN_DONG_TREN_TINT = ([\\d.]+);",
+      "chieu": "nang",
+      "moc": 3,
+      "vi": "Sàn tương phản vạch đồng dưới hàng tiêu đề bảng (B6): thành phần giao diện, WCAG 1.4.11; đo 3,70 ngày, 6,01 đêm. CHỈ ĐƯỢC NÂNG."
     }
   ]
 }

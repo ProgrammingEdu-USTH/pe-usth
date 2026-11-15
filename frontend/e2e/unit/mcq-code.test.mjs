@@ -97,7 +97,7 @@ const boQua = { skip: coDung ? false : 'chưa dựng — chạy `py scripts/pe-d
 
 const cauCua = (b) => (b.content_json?.step_2?.mcq ?? []);
 
-test('bản dựng: 219/537 câu mang đoạn code, và mọi đoạn tách lại được', boQua, () => {
+test('bản dựng: 177/537 câu mang đoạn code (219 trừ 42 câu bị bỏ code trang trí), và mọi đoạn tách lại được', boQua, () => {
   let tong = 0;
   let coCode = 0;
   for (const b of bai) {
@@ -111,7 +111,30 @@ test('bản dựng: 219/537 câu mang đoạn code, và mọi đoạn tách lạ
     }
   }
   assert.equal(tong, 537);
-  assert.equal(coCode, 219);
+  // 219 câu của nguồn mang `code`; 42 câu trong số đó bị BỎ code vì đoạn ấy không liên quan tới đề
+  // (xem `code_khong_lien_quan` ở scripts/pe-da/build.py). Đổi con số này thì phải biết VÌ SAO.
+  assert.equal(coCode, 177);
+});
+
+test('bản dựng: câu còn mang code không phải loại "code trang trí" (không định danh nào chung với đề)', boQua, () => {
+  // Bản chép JS của phép loại trong build.py/check.py — chỉ để ca này đọc BẢN DỰNG và đòi phép loại
+  // ĐÃ chạy. Câu bị giữ code vì việc bỏ làm đề TRÙNG câu khác của bài thì được miễn.
+  const dinhDanh = (s) => new Set((s.match(/[A-Za-z_][A-Za-z_0-9]{2,}/g) ?? []).map((x) => x.toLowerCase()));
+  const chiVaoCode = /code|đoạn|lệnh|biến|ở trên|bên trên|dưới đây|in ra|print|đầu ra|output|dòng (?:cuối|đầu|thứ|số|\d)/;
+  const sai = [];
+  for (const b of bai) {
+    const qs = cauCua(b);
+    const des = qs.map((q) => tachDeVaCode(q.question).de.trim());
+    qs.forEach((q, i) => {
+      const { de, code } = tachDeVaCode(q.question);
+      if (!code) return;
+      const a = dinhDanh(de);
+      const chung = [...a].some((x) => dinhDanh(code).has(x));
+      const trangTri = a.size >= 2 && !chung && !chiVaoCode.test(de.toLowerCase());
+      if (trangTri && des.filter((d) => d === de.trim()).length === 1) sai.push(`${b.lesson_code} câu ${i}`);
+    });
+  }
+  assert.deepEqual(sai, [], `còn câu mang code trang trí: ${sai.slice(0, 6).join(', ')}`);
 });
 
 test('bản dựng: KHÔNG bài nào có hai câu trùng nguyên văn', boQua, () => {

@@ -87,7 +87,7 @@
      "explanation": "Format ghi rõ ý nghĩa của từng phần trong chuỗi ngày."
     },
     {
-     "question": "Chuỗi 05/01/2026 theo %d/%m/%Y là ngày nào?\n\nimport pandas as pd\nraw = pd.Series(['05/01/2026', '07/01/2026'])\ndates = pd.to_datetime(raw, format='%d/%m/%Y')\nprint(dates.dt.strftime('%Y-%m-%d').tolist())\nprint(dates.dt.month.tolist())",
+     "question": "Chuỗi 05/01/2026 theo %d/%m/%Y là ngày nào?",
      "options": [
       {
        "text": "Ngày 5 tháng 1 năm 2026.",

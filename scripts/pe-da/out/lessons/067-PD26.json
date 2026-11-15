@@ -87,7 +87,7 @@
      "explanation": "Dấu ngoặc tròn loại biên, ngoặc vuông nhận biên."
     },
     {
-     "question": "cut và qcut chọn ranh giới khác nhau thế nào?\n\nimport pandas as pd\nkind = pd.CategoricalDtype(categories=['low', 'medium', 'high'], ordered=True)\npriority = pd.Series(['high', 'low', 'medium'], dtype=kind)\nprint(priority.sort_values().tolist())\nprint(priority.cat.categories.tolist())",
+     "question": "cut và qcut chọn ranh giới khác nhau thế nào?",
      "options": [
       {
        "text": "Hai hàm luôn cho cùng một kết quả.",

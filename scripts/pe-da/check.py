@@ -987,6 +987,22 @@ def kiem_alt_hinh(bai: list[dict]) -> None:
         canh_bao(f'chỉ còn {khuon} hình mang alt khuôn (trần {TRAN_ALT_KHUON}) — hạ trần đi')
 
 
+_DINH_DANH = re.compile(r'[A-Za-z_][A-Za-z_0-9]{2,}')
+_TU_CHI_VAO_CODE = re.compile(
+    r'code|đoạn|lệnh|biến|ở trên|bên trên|dưới đây|in ra|print|đầu ra|output'
+    r'|dòng (?:cuối|đầu|thứ|số|\d)'
+)
+
+
+def _code_khong_lien_quan(de: str, code: str) -> bool:
+    a = {t.lower() for t in _DINH_DANH.findall(de)}
+    if len(a) < 2:
+        return False
+    if a & {t.lower() for t in _DINH_DANH.findall(code)}:
+        return False
+    return _TU_CHI_VAO_CODE.search(de.lower()) is None
+
+
 def kiem_trac_nghiem(bai: list[dict]) -> None:
     """Câu trắc nghiệm đã dựng phải khớp NGUỒN, nhất là ở chỗ đáp án nào đúng.
 
@@ -1046,7 +1062,10 @@ def kiem_trac_nghiem(bai: list[dict]) -> None:
             # TRẢ LỜI ĐƯỢC hay không.
             de_can = (g.get('prompt') or '').rstrip()
             code_nguon = (g.get('code') or '').strip()
-            if code_nguon:
+            # Phép loại code KHÔNG liên quan: BẢN CHÉP của `code_khong_lien_quan` ở build.py
+            # (xem chú thích tại đó). Cố ý chép chứ không import.
+            de_cua_bai = [(x.get('prompt') or '').rstrip() for x in goc[:len(dung)]]
+            if code_nguon and not (_code_khong_lien_quan(de_can, code_nguon) and de_cua_bai.count(de_can) == 1):
                 de_can = f'{de_can}\n\n{code_nguon}'
             if q.get('question') != de_can:
                 loi(f'{ma} câu {i}: `question` không khớp nguồn '

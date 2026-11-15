@@ -657,6 +657,36 @@ def phan_loai_khoi(code: str, cho_mo_phong: bool = False) -> tuple[bool, str]:
 # nguyên chuỗi gộp làm tiêu đề — code dồn thành một dòng, không đọc được.
 NOI_DE_CODE = '\n\n'
 
+# CODE ĐÍNH KÈM KHÔNG LIÊN QUAN tới đề: kiểm toán 16/11/2026 đo 219/537 câu mang một đoạn
+# `code`, và ở một phần trong đó đoạn ấy là TRANG TRÍ — đề hỏi về `count`/`size` hay "ECDF tại
+# 4" mà code bên dưới không chứa một định danh nào của đề. Người học đọc đề, rồi đọc code, rồi
+# không tìm thấy gì khớp và hỏi mình có đọc sai không.
+#
+# Phép loại CHỈ nhắm ca RÕ NHẤT, vì có một bài học đã trả giá (xem `cau_trac_nghiem`): bỏ code
+# khỏi câu CÒN trỏ tới nó làm 90 câu không trả lời được. Nên bỏ code khi và chỉ khi cả BA điều
+# kiện đúng: (1) đề có ≥ 2 định danh ASCII (≥ 3 ký tự), (2) KHÔNG định danh nào trong đề xuất
+# hiện trong code, (3) đề KHÔNG có từ chỉ vào code ("đoạn", "lệnh", "print", "ở trên"…). Đo trên
+# bản dựng 179 bài: 44 câu / 33 bài, và đọc từng đề thì đều tự đủ ý (số liệu nằm ngay trong
+# đề hoặc là câu khái niệm). Ca YẾU hơn (có trùng một vài định danh nhưng vẫn lệch ý, vd. PD14
+# câu 3 hỏi ô thiếu mà code không có ô thiếu) CHƯA được xử lý — cần người đọc từng câu.
+#
+# `check.py` giữ BẢN CHÉP của đúng phép này (`_code_khong_lien_quan`): import thì lỗi ở build
+# cũng thành "đúng" ở check, và luật không chứng minh gì.
+_DINH_DANH = re.compile(r'[A-Za-z_][A-Za-z_0-9]{2,}')
+_TU_CHI_VAO_CODE = re.compile(
+    r'code|đoạn|lệnh|biến|ở trên|bên trên|dưới đây|in ra|print|đầu ra|output'
+    r'|dòng (?:cuối|đầu|thứ|số|\d)'
+)
+
+
+def code_khong_lien_quan(de: str, code: str) -> bool:
+    a = {t.lower() for t in _DINH_DANH.findall(de)}
+    if len(a) < 2:
+        return False
+    if a & {t.lower() for t in _DINH_DANH.findall(code)}:
+        return False
+    return _TU_CHI_VAO_CODE.search(de.lower()) is None
+
 
 # ---------------------------------------------------------------------------
 # Trộn vị trí đáp án — ngẫu nhiên CÓ PHÂN TẦNG, seed cố định
@@ -852,6 +882,7 @@ def cau_trac_nghiem(mcq: dict, ma_bai: str = '', so_cau: int = SO_CAU_MCQ) -> li
     # vẫn rải đều hai câu còn lại.
     chon = tron_vi_tri_dap_an(ma_bai, chon)
     ra: list[dict] = []
+    de_cua_bai = [(x.get('prompt') or '').rstrip() for x in chon]
     for q in chon:
         lua_chon = q.get('options') or []
         dung = q.get('correctOption')
@@ -883,7 +914,9 @@ def cau_trac_nghiem(mcq: dict, ma_bai: str = '', so_cau: int = SO_CAU_MCQ) -> li
         # Mốc nối phải khớp với `tachDeVaCode()` ở frontend — xem hằng đó.
         de = (q.get('prompt') or '').rstrip()
         code = (q.get('code') or '').strip()
-        if code:
+        # Không bỏ code nếu việc đó làm đề TRÙNG NGUYÊN VĂN một câu khác của cùng bài: VZ20 từng có
+        # HAI câu giống từng ký tự vì thứ duy nhất phân biệt chúng là `code`.
+        if code and not (code_khong_lien_quan(de, code) and de_cua_bai.count(de) == 1):
             de = f'{de}{NOI_DE_CODE}{code}'
         ra.append({
             'question': de,

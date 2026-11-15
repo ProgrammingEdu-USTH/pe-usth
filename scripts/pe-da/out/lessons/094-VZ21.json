@@ -80,7 +80,7 @@
      "explanation": "visible có một giá trị cho mỗi trace, theo đúng thứ tự."
     },
     {
-     "question": "Hai trace thì visible cần mấy giá trị?\n\nimport pandas as pd\nimport plotly.express as px\ndata = pd.DataFrame({\"store\":[\"A\", \"A\", \"B\"], \"day\":[1, 2, 1], \"cups\":[8, 10, 5]})\nselected = data.loc[data[\"store\"].eq(\"A\")]\nfig = px.line(selected, x=\"day\", y=\"cups\", markers=True, title=\"Store A only\", labels={\"day\":\"Day\", \"cups\":\"Cups\"})\nprint(len(selected))\nfig.show()",
+     "question": "Hai trace thì visible cần mấy giá trị?",
      "options": [
       {
        "text": "Hai giá trị, theo đúng thứ tự trace; [True, False] chỉ hiện trace đầu.",

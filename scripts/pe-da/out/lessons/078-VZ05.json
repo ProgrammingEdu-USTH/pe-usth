@@ -92,7 +92,7 @@
      "explanation": "Mỗi tham số mã hóa một đại lượng; s không phải bán kính hay vị trí."
     },
     {
-     "question": "Mỗi điểm trong ví dụ giao hàng là gì?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\ndistance = [1, 2, 3, 4]\nminutes = [8, 12, 11, 18]\nax.scatter(distance, minutes)\nax.set(xlabel=\"Distance (km)\", ylabel=\"Delivery (minutes)\", title=\"One point per order\")\nprint(len(distance))\nplt.show()",
+     "question": "Mỗi điểm trong ví dụ giao hàng là gì?",
      "options": [
       {
        "text": "Một điểm là trung bình của mọi đơn.",

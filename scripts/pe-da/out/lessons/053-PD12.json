@@ -155,7 +155,7 @@
      "explanation": "Dùng dấu chấm phẩy để tách cột."
     },
     {
-     "question": "Vì sao nên đặt dtype string cho mã 001 ngay khi đọc?\n\nimport pandas as pd\nfrom io import StringIO\ntext = '# exported today\\norder,amount,note\\nA,10,ok\\nB,20,ok\\n'\ndf = pd.read_csv(StringIO(text), comment='#', header=0, nrows=1, usecols=['order', 'amount'])\nprint(df.to_dict('records'))",
+     "question": "Vì sao nên đặt dtype string cho mã 001 ngay khi đọc?",
      "options": [
       {
        "text": "Vì string tự loại mọi mã trùng.",

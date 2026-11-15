@@ -108,7 +108,7 @@
      "explanation": "relplot là hàm ở cấp Figure, tự tạo FacetGrid. scatterplot là hàm ở cấp Axes và nhận ax."
     },
     {
-     "question": "Muốn xem riêng từng cửa hàng, thêm tham số gì?\n\nimport matplotlib.pyplot as plt\nimport pandas as pd\nimport seaborn as sns\ndata = pd.DataFrame({\"shift\":[\"AM\", \"AM\", \"PM\", \"PM\"], \"wait\":[2, 4, 3, 5], \"store\":[\"A\", \"B\", \"A\", \"B\"]})\ng = sns.catplot(data=data, x=\"shift\", y=\"wait\", col=\"store\", kind=\"strip\", jitter=False, height=2.6)\ng.set_axis_labels(\"Shift\", \"Wait (minutes)\")\nfig = g.figure\nprint(len(g.axes.flat))\nplt.show()",
+     "question": "Muốn xem riêng từng cửa hàng, thêm tham số gì?",
      "options": [
       {
        "text": "xlabel=\"store\" để tự chia cửa hàng.",

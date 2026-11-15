@@ -44,7 +44,7 @@ export const envValidationSchema = Joi.object({
   // Không có .empty(''): chuỗi rỗng phải bị từ chối, không được coi như "chưa đặt".
   //
   // Nơi dùng: throttle.config.ts, auth.controller.ts, python-runner.controller.ts,
-  // notifications.controller.ts, fixed-window-throttler.storage.ts,
+  // notifications.controller.ts, forum.controller.ts, fixed-window-throttler.storage.ts,
   // api-gateway.setup.ts. Thêm biến THROTTLE_* mới thì khai ở đây.
   THROTTLE_IP_HOUR_LIMIT: throttleLimit(1000),
   THROTTLE_IP_DAY_LIMIT: throttleLimit(10000),
@@ -55,6 +55,10 @@ export const envValidationSchema = Joi.object({
   THROTTLE_GUEST_LIMIT: throttleLimit(120),
   THROTTLE_GUEST_TTL_SECONDS: throttleTtl(3600),
   THROTTLE_BADGE_LIMIT: throttleLimit(240),
+  THROTTLE_FORUM_POST_LIMIT: throttleLimit(10),
+  THROTTLE_FORUM_POST_TTL_SECONDS: throttleTtl(600),
+  THROTTLE_FORUM_COMMENT_LIMIT: throttleLimit(30),
+  THROTTLE_FORUM_COMMENT_TTL_SECONDS: throttleTtl(600),
   THROTTLE_PY_RUN_LIMIT: throttleLimit(10),
   THROTTLE_PY_RUN_TTL_SECONDS: throttleTtl(60),
   THROTTLE_PY_TRACE_LIMIT: throttleLimit(10),

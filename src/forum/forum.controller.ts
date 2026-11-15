@@ -11,6 +11,8 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { Throttle, seconds } from '@nestjs/throttler';
+import { ThrottleMessage } from 'src/common/decorators/throttle-message.decorator';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 // import type: JwtPayload là interface, dùng trong signature có decorator nên
 // isolatedModules + emitDecoratorMetadata bắt buộc import dạng type-only.
@@ -64,8 +66,22 @@ export class ForumController {
   }
 
   // ---------- Task 184 ----------
+  //
+  // Hạn mức RIÊNG cho việc ghi (đè tier 'ip_hour' chỉ cho route này): trước đây
+  // tạo bài chỉ chịu quota chung 1 000 lượt/giờ của cả hệ thống, nên một tài
+  // khoản — kể cả tài khoản khách tạo tự động — đăng được cả nghìn bài một giờ.
+  // CustomThrottlerGuard đếm theo `user:<id>` khi đã đăng nhập, nên cả phòng máy
+  // chung một NAT KHÔNG chia nhau quota này. Ngưỡng đọc thẳng process.env vì
+  // @Throttle chạy lúc nạp class (xem env.validation.ts).
   @Post('posts')
   @HttpCode(HttpStatus.OK)
+  @Throttle({
+    ip_hour: {
+      limit: Number(process.env.THROTTLE_FORUM_POST_LIMIT ?? 10),
+      ttl: seconds(Number(process.env.THROTTLE_FORUM_POST_TTL_SECONDS ?? 600)),
+    },
+  })
+  @ThrottleMessage('Bạn đăng bài hơi nhanh, đợi vài phút rồi thử lại')
   create(@CurrentUser() user: JwtPayload, @Body() dto: CreatePostDto) {
     return this.forum.createPost(user.sub, dto);
   }
@@ -125,8 +141,18 @@ export class ForumController {
   }
 
   // ---------- Task 190 ----------
+  // Cao hơn tạo bài vì một cuộc trao đổi thật cần nhiều lượt trả lời liên tiếp.
   @Post('posts/:id/comments')
   @HttpCode(HttpStatus.OK)
+  @Throttle({
+    ip_hour: {
+      limit: Number(process.env.THROTTLE_FORUM_COMMENT_LIMIT ?? 30),
+      ttl: seconds(
+        Number(process.env.THROTTLE_FORUM_COMMENT_TTL_SECONDS ?? 600),
+      ),
+    },
+  })
+  @ThrottleMessage('Bạn bình luận hơi nhanh, đợi vài phút rồi thử lại')
   addComment(
     @CurrentUser() user: JwtPayload,
     @Param('id', ParseIntPipe) id: number,

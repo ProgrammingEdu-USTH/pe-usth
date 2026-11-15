@@ -247,7 +247,7 @@
       "tep": "AGENTS.md",
       "re": "\\*\\*\\d+ bộ, (\\d+) ca\\*\\*",
       "chieu": "nang",
-      "moc": 522,
+      "moc": 523,
       "vi": "Cổng `check-moc-chay.mjs` CHẠY bộ test và bắt \"số trong bảng SAI\"; mục sổ này bắt \"ai đó HẠ số trong bảng cho khớp một bộ đã bị cắt bớt\" — ablate đã đo trên con số frontend: skip một ca rồi sửa bảng 573 → 572 thì cổng chạy-bộ-test XANH, chỉ sổ đỏ. Hai lỗi khác nhau, cần cả hai. Số CA của bộ test backend trong bảng mốc nền."
     },
     {

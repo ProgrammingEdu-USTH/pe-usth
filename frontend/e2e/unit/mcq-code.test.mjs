@@ -154,3 +154,19 @@ test('McqScreen thực sự dựng khối code: gọi tachDeVaCode và dùng Cod
   // Tiêu đề phải là ĐỀ đã tách, không phải `q.question` nguyên bản.
   assert.ok(!/title=\{q\.question\}/.test(src), 'vẫn truyền nguyên question làm tiêu đề');
 });
+
+test('McqScreen: khối code của đề KHÔNG nằm trong .readCode — nếu không nó dính liền phương án A', () => {
+  // `.readCode > div { margin-bottom: 0 }` là luật của màn ĐỌC (gap của `.read`
+  // lo khoảng cách). Mượn nó ở màn trắc nghiệm xoá luôn 16px của `.codeCard`:
+  // đo trong Chrome, đáy khối code và đỉnh phương án A cùng ở y = 396.
+  const src = readFileSync(
+    join(FE, 'src', 'components', 'python-studio', 'screens', 'McqScreen.tsx'),
+    'utf8',
+  );
+  const khongChuThich = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+  assert.ok(!/className=\{c\.readCode\}/.test(khongChuThich), 'McqScreen lại bọc khối code bằng c.readCode');
+  const css = readFileSync(join(FE, 'src', 'components', 'python-studio', 'studio-chrome.module.css'), 'utf8');
+  assert.match(css, /\.readCode > div \{\s*margin-bottom: 0;/, 'luật .readCode đổi rồi: xem lại vì sao McqScreen từng né nó');
+  const ex = readFileSync(join(FE, 'src', 'components', 'lesson-chrome', 'exercises', 'exercises.module.css'), 'utf8');
+  assert.match(ex, /\.codeCard \{[^}]*margin-bottom: 16px;/, '.codeCard thôi mang 16px: khối code và phương án A lại dính nhau');
+});

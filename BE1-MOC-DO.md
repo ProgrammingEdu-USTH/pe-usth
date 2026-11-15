@@ -267,6 +267,51 @@ Không lượt nào gặp 5xx.
   ~70 ms. Muốn cache đúng thì phải xoá nó từ `completeLesson`, `enroll` và `unenroll`, bỏ sót
   một chỗ là dashboard hiện tiến độ cũ.
 
+## Sau BE7: diễn đàn (`GET /api/posts`, chi tiết bài, bình luận)
+
+Đo ngày 15/11/2026 trên nhánh `test`, branch Neon `ep-late-hill`. **Trước** là `4034a0a`, **sau**
+là `test` có BE7. Hai bản chạy ở hai cổng, gọi **xen kẽ từng lượt**, 30 lượt mỗi ca (bỏ lượt làm
+nóng). Người xem là một khách mới đã thả cảm xúc lên 3 bài và 4 bình luận.
+
+Bảng `posts` trên DB đo vốn rỗng, nên phải tạo dữ liệu giả và xoá sau khi đo:
+- 200 khách giả;
+- 40 bài trải đều 4 chuyên mục, mỗi bài 0–200 cảm xúc, tổng 3 936;
+- 80 bình luận trên bài mới nhất (20 gốc × 3 trả lời), tổng 2 320 cảm xúc.
+
+**Số này là của dữ liệu giả, không phải của production.** Chỉ đúng về hình dạng: số hàng tỉ
+lệ với số cảm xúc.
+
+| Ca đo | Số truy vấn trước → sau | Hàng cảm xúc kéo về trước → sau | p50 trước → sau (ms) | p95 trước → sau (ms) |
+|---|---|---|---|---|
+| `GET /api/posts` (20 bài) | 4 → 5 | 2 138 → **123** | 278 → **156** | 507 → **295** |
+| `GET /api/posts?category=question` (10 bài) | 4 → 5 | 1 002 → **61** | 214 → **146** | 316 → 345 |
+| `GET /api/posts?sort=likes` (20 bài) | 4 → 5 | 3 008 → **122** | 278 → **202** | 676 → **382** |
+| `GET /api/posts/:id` | 3 → 4 | 38 → **7** | 124 → 145 | 339 → 352 |
+| `GET /api/posts/:id/comments` (80 bình luận) | 7 → **6** | 2 328 → **453** | 395 → **258** | 614 → **368** |
+
+- **Hàng cảm xúc kéo về:**
+  - trước = tổng số cảm xúc của mọi bài/bình luận trong response, vì `include` tải từng hàng;
+  - sau = số cặp (bài, loại) có trong `groupBy` + số cảm xúc của chính người xem.
+
+  Con số "sau" không tăng theo số cảm xúc nữa: một trang 20 bài tối đa 20×6 + 20 = 140 hàng,
+  dù mỗi bài có bao nhiêu cảm xúc đi nữa.
+- **Thêm một truy vấn nhưng không thêm vòng tuần tự:** hai câu đếm (`groupBy` và cảm xúc của
+  người xem) chạy **song song** với câu nạp tác giả.
+  - Bản đầu tiên của BE7 để Prisma `include: { user }`. Prisma nạp user thành một vòng riêng
+    ngay sau `posts`, nên việc đếm phải chờ tới vòng thứ ba. Lần đo đó cho chi tiết bài p50
+    157 → 191 ms và p95 bình luận tệ hơn, nên đã đổi sang tự nạp tác giả bằng `userId`.
+  - Chi tiết bài thì đếm song song ngay với `findUnique`, vì đã biết id từ URL.
+- **Response giống hệt** giữa hai bản ở cả 5 ca, đã so sau khi sắp khoá trong `reactions`.
+  Thứ tự khoá có thể khác, nhưng FE đọc theo tên loại.
+- **p95 của ca lọc chuyên mục và ca chi tiết** ngang nhau trong sai số mạng. Không nói là
+  nhanh hơn.
+- **Chỉ mục `posts` (migration `20261116000000_forum_post_indexes`) chưa áp lên DB đo**, nên
+  không nằm trong số đo này. `ep-late-hill` đang lệch migration với repo:
+  - thiếu 4 migration ngày 15/11;
+  - có 2 migration `arena` / `playground_snippets` không nằm trong repo.
+
+  AGENTS.md dặn phải gỡ lệch trước rồi mới chạy lệnh migrate.
+
 ## Đo lại sau mỗi task
 
 1. Trỏ `.env` vào branch Neon đo (đã có sẵn dữ liệu ở trên, chỉ thiếu người dùng đo).

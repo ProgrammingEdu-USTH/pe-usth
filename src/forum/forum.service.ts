@@ -17,6 +17,34 @@ const PAGE_SIZE = 20;
 /** Trần số reply nạp kèm một trang bình luận — chặn bài viết bị spam làm cạn RAM. */
 const MAX_REPLIES_PER_PAGE = 200;
 
+/** Cảm xúc của MỘT bài/bình luận như response trả ra: số đếm theo loại + của người xem. */
+type CamXuc = { reactions: Record<string, number>; my: string | null };
+type TacGia = { id: number; name: string | null; avatar: string | null };
+
+/**
+ * Ghép kết quả `groupBy` (số đếm) và cảm xúc của người xem thành Map theo id.
+ * Mọi id đều có mục — bài chưa ai thả cảm xúc vẫn ra `{ reactions: {}, my: null }`,
+ * đúng như `countByType([])` trước đây; loại có 0 lượt KHÔNG xuất hiện (FE tự điền 0).
+ */
+function gopCamXuc(
+  ids: number[],
+  dem: Array<{ id: number; type: string; n: number }>,
+  cuaToi: Array<{ id: number; type: string }>,
+): Map<number, CamXuc> {
+  const out = new Map<number, CamXuc>(
+    ids.map((id) => [id, { reactions: {}, my: null }]),
+  );
+  for (const d of dem) {
+    const cx = out.get(d.id);
+    if (cx) cx.reactions[d.type] = d.n;
+  }
+  for (const m of cuaToi) {
+    const cx = out.get(m.id);
+    if (cx) cx.my = m.type;
+  }
+  return out;
+}
+
 @Injectable()
 export class ForumService {
   constructor(
@@ -55,12 +83,20 @@ export class ForumService {
         orderBy,
         skip,
         take: PAGE_SIZE,
-        include: {
-          user: { select: { id: true, name: true, avatar: true } },
-          reactions: { select: { type: true, userId: true } },
-          _count: { select: { comments: true } },
-        },
+        include: { _count: { select: { comments: true } } },
       }),
+    ]);
+
+    // Tác giả nạp TỰ TAY thay vì `include: { user }`, để chạy SONG SONG với hai
+    // truy vấn đếm cảm xúc. Để Prisma include thì nó nạp user thành một vòng riêng
+    // NGAY SAU posts, và việc đếm chỉ bắt đầu sau vòng đó — đo được: thêm một vòng
+    // tuần tự so với bản cũ.
+    const [tacGia, camXuc] = await Promise.all([
+      this.layTacGia(posts.map((p) => p.userId)),
+      this.demCamXucBai(
+        posts.map((p) => p.id),
+        userId,
+      ),
     ]);
 
     return {
@@ -68,7 +104,9 @@ export class ForumService {
       total,
       page,
       page_size: PAGE_SIZE,
-      posts: posts.map((p) => this.mapPost(p, userId)),
+      posts: posts.map((p) =>
+        this.mapPost(p, tacGia.get(p.userId), camXuc.get(p.id)),
+      ),
     };
   }
 
@@ -100,17 +138,24 @@ export class ForumService {
 
   // ---------- Task 169 ----------
   async getPostDetail(userId: number, postId: number) {
-    const post = await this.prisma.post.findUnique({
-      where: { id: postId },
-      include: {
-        user: { select: { id: true, name: true, avatar: true } },
-        reactions: { select: { type: true, userId: true } },
-        _count: { select: { comments: true } },
-      },
-    });
+    // id đã biết từ URL nên đếm cảm xúc chạy song song với chính truy vấn bài.
+    // Bài không tồn tại thì lượt đếm đó phí, nhưng nó chỉ là một groupBy rỗng.
+    const [post, camXuc] = await Promise.all([
+      this.prisma.post.findUnique({
+        where: { id: postId },
+        include: {
+          user: { select: { id: true, name: true, avatar: true } },
+          _count: { select: { comments: true } },
+        },
+      }),
+      this.demCamXucBai([postId], userId),
+    ]);
     if (!post) throw new NotFoundException('Không tìm thấy bài viết');
 
-    return { ok: true, post: this.mapPost(post, userId) };
+    return {
+      ok: true,
+      post: this.mapPost(post, post.user, camXuc.get(post.id)),
+    };
   }
 
   // ---------- Task 170 ----------
@@ -273,10 +318,6 @@ export class ForumService {
         orderBy: { createdAt: 'asc' },
         skip,
         take: PAGE_SIZE,
-        include: {
-          user: { select: { id: true, name: true, avatar: true } },
-          reactions: { select: { type: true, userId: true } },
-        },
       }),
     ]);
 
@@ -292,12 +333,20 @@ export class ForumService {
           where: { parentCommentId: { in: roots.map((r) => r.id) } },
           orderBy: { createdAt: 'asc' },
           take: MAX_REPLIES_PER_PAGE,
-          include: {
-            user: { select: { id: true, name: true, avatar: true } },
-            reactions: { select: { type: true, userId: true } },
-          },
         })
       : [];
+
+    // MỘT lượt cho cả gốc lẫn reply: tác giả và cảm xúc nạp song song, thay vì
+    // Prisma include nạp user + reactions thành vòng riêng sau MỖI truy vấn
+    // bình luận (gốc, rồi reply).
+    const tatCa = [...roots, ...replies];
+    const [tacGia, camXuc] = await Promise.all([
+      this.layTacGia(tatCa.map((c) => c.userId)),
+      this.demCamXucBinhLuan(
+        tatCa.map((c) => c.id),
+        userId,
+      ),
+    ]);
 
     return {
       ok: true,
@@ -307,10 +356,12 @@ export class ForumService {
       // "xem thêm" thay vì âm thầm giấu nội dung.
       replies_truncated: replies.length >= MAX_REPLIES_PER_PAGE,
       comments: roots.map((r) => ({
-        ...this.mapComment(r, userId),
+        ...this.mapComment(r, tacGia.get(r.userId), camXuc.get(r.id)),
         replies: replies
           .filter((x) => x.parentCommentId === r.id)
-          .map((x) => this.mapComment(x, userId)),
+          .map((x) =>
+            this.mapComment(x, tacGia.get(x.userId), camXuc.get(x.id)),
+          ),
       })),
     };
   }
@@ -515,20 +566,85 @@ export class ForumService {
     return comment;
   }
 
+  /**
+   * Số cảm xúc theo loại + cảm xúc của người xem cho một loạt bài, đếm Ở DB.
+   *
+   * Trước đây danh sách/chi tiết `include` MỌI hàng `post_likes` của từng bài rồi
+   * đếm trong Node: số hàng kéo về tỉ lệ với số CẢM XÚC chứ không với số bài, nên
+   * một bài 1 000 cảm xúc là 1 000 hàng cho một thẻ trong danh sách. `groupBy` trả
+   * tối đa 6 hàng mỗi bài (6 loại), còn cảm xúc của người xem tối đa 1 hàng mỗi bài
+   * (khoá chính `(user_id, post_id)`). Hai truy vấn chạy song song nên chỉ tốn MỘT
+   * vòng — đúng bằng vòng mà `include` cũ vẫn tốn riêng.
+   */
+  private async demCamXucBai(
+    ids: number[],
+    userId: number,
+  ): Promise<Map<number, CamXuc>> {
+    if (!ids.length) return new Map();
+    const [dem, cuaToi] = await Promise.all([
+      this.prisma.postReaction.groupBy({
+        by: ['postId', 'type'],
+        where: { postId: { in: ids } },
+        _count: { _all: true },
+      }),
+      this.prisma.postReaction.findMany({
+        where: { userId, postId: { in: ids } },
+        select: { postId: true, type: true },
+      }),
+    ]);
+    return gopCamXuc(
+      ids,
+      dem.map((d) => ({ id: d.postId, type: d.type, n: d._count._all })),
+      cuaToi.map((m) => ({ id: m.postId, type: m.type })),
+    );
+  }
+
+  /** Tên + ảnh của các tác giả, theo id — đúng các cột `include: { user }` cũ chọn. */
+  private async layTacGia(ids: number[]): Promise<Map<number, TacGia>> {
+    if (!ids.length) return new Map();
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: [...new Set(ids)] } },
+      select: { id: true, name: true, avatar: true },
+    });
+    return new Map(users.map((u) => [u.id, u]));
+  }
+
+  /** Như `demCamXucBai`, cho bình luận (`comment_likes`). */
+  private async demCamXucBinhLuan(
+    ids: number[],
+    userId: number,
+  ): Promise<Map<number, CamXuc>> {
+    if (!ids.length) return new Map();
+    const [dem, cuaToi] = await Promise.all([
+      this.prisma.commentReaction.groupBy({
+        by: ['commentId', 'type'],
+        where: { commentId: { in: ids } },
+        _count: { _all: true },
+      }),
+      this.prisma.commentReaction.findMany({
+        where: { userId, commentId: { in: ids } },
+        select: { commentId: true, type: true },
+      }),
+    ]);
+    return gopCamXuc(
+      ids,
+      dem.map((d) => ({ id: d.commentId, type: d.type, n: d._count._all })),
+      cuaToi.map((m) => ({ id: m.commentId, type: m.type })),
+    );
+  }
+
   private mapPost(
     p: {
       id: number;
-      userId: number;
       title: string | null;
       content: string | null;
       category: string | null;
       likeCount: number;
       createdAt: Date;
-      user: { id: number; name: string | null; avatar: string | null };
-      reactions: Array<{ type: string; userId: number }>;
       _count: { comments: number };
     },
-    userId: number,
+    author: TacGia | undefined,
+    cx: CamXuc | undefined,
   ) {
     return {
       id: p.id,
@@ -537,9 +653,11 @@ export class ForumService {
       category: p.category,
       likeCount: p.likeCount,
       createdAt: p.createdAt,
-      author: p.user,
-      reactions: this.countByType(p.reactions),
-      my_reaction: p.reactions.find((r) => r.userId === userId)?.type ?? null,
+      // `posts.user_id` là khoá ngoại tới users nên tác giả luôn có; `?? null`
+      // chỉ để kiểu khỏi nói dối khi không có.
+      author: author ?? null,
+      reactions: cx?.reactions ?? {},
+      my_reaction: cx?.my ?? null,
       comment_count: p._count.comments,
     };
   }
@@ -547,30 +665,21 @@ export class ForumService {
   private mapComment(
     c: {
       id: number;
-      userId: number;
-      postId: number;
       parentCommentId: number | null;
       content: string | null;
       createdAt: Date;
-      user: { id: number; name: string | null; avatar: string | null };
-      reactions: Array<{ type: string; userId: number }>;
     },
-    userId: number,
+    author: TacGia | undefined,
+    cx: CamXuc | undefined,
   ) {
     return {
       id: c.id,
       content: c.content,
       createdAt: c.createdAt,
       parentCommentId: c.parentCommentId,
-      author: c.user,
-      reactions: this.countByType(c.reactions),
-      my_reaction: c.reactions.find((r) => r.userId === userId)?.type ?? null,
+      author: author ?? null,
+      reactions: cx?.reactions ?? {},
+      my_reaction: cx?.my ?? null,
     };
-  }
-
-  private countByType(rows: Array<{ type: string }>): Record<string, number> {
-    const out: Record<string, number> = {};
-    for (const r of rows) out[r.type] = (out[r.type] ?? 0) + 1;
-    return out;
   }
 }

@@ -30,6 +30,12 @@ import { expect, test, type Page, type Route } from '@playwright/test';
 // đã bắt ba nơi khớp nhau, và ca đầu của tệp này kiểm `data-theme` thật sự được áp.
 const KHOA_GIAO_DIEN = 'pe-giao-dien';
 const KHOA_CHE_DO = 'theme';
+// Khoá PHIÊN BẢN (rào an toàn #278): script trước-paint chỉ nhận `pe-giao-dien` khi khoá này KHỚP
+// phiên bản trong mã. ĐỌC từ nguồn để spec không nuôi bản chép thứ hai của một con số sẽ đổi.
+const NGUON_GD = readFileSync(join(__dirname, '..', 'src', 'lib', 'giao-dien.ts'), 'utf8');
+const KHOA_PHIEN_BAN = /KHOA_PHIEN_BAN_GIAO_DIEN\s*=\s*'([^']+)'/.exec(NGUON_GD)?.[1];
+const PHIEN_BAN = /PHIEN_BAN_GIAO_DIEN\s*=\s*(\d+)/.exec(NGUON_GD)?.[1];
+if (!KHOA_PHIEN_BAN || !PHIEN_BAN) throw new Error('giao-dien.ts không còn khoá phiên bản — spec đặt giao diện sai');
 
 /**
  * PHÁT HIỆN THẬT do chính spec này tìm ra ngày đầu chạy (390×844, màn đầu PY01/NP02): hai đích bấm
@@ -141,16 +147,19 @@ for (const ma of BAI)
           await mockApi(page, apiLa);
           // Đặt giao diện + sáng/tối TRƯỚC khi vẽ, đúng đường script trước-paint của layout đọc.
           await page.addInitScript(
-            ([kg, kc, giaoDien, cheDo]) => {
+            ([kg, kc, giaoDien, cheDo, kpb, pb]) => {
               try {
                 localStorage.setItem(kc, cheDo === 'toi' ? 'dark' : 'light');
                 if (giaoDien === 'lofi') localStorage.removeItem(kg);
-                else localStorage.setItem(kg, giaoDien);
+                else {
+                  localStorage.setItem(kg, giaoDien);
+                  localStorage.setItem(kpb, pb);
+                }
               } catch {
                 /* không ghi được thì ca sẽ đỏ ở phép kiểm giao diện bên dưới */
               }
             },
-            [KHOA_GIAO_DIEN, KHOA_CHE_DO, gd, cd] as const,
+            [KHOA_GIAO_DIEN, KHOA_CHE_DO, gd, cd, KHOA_PHIEN_BAN, PHIEN_BAN] as const,
           );
 
           await page.goto(`/lesson/python_advanced?lesson=${hang.sort_order - 1}`);
@@ -163,6 +172,11 @@ for (const ma of BAI)
           }));
           expect(ap.theme, 'data-theme trên <html>').toBe(gd === 'lofi' ? null : gd);
           expect(ap.dark, 'body.dark').toBe(cd === 'toi');
+          // Tuỳ chọn: E2E_SHOT=<thư mục> chụp màn đầu mỗi ổ để MẮT xem (không dùng trong CI).
+          if (process.env.E2E_SHOT) {
+            await page.waitForTimeout(900);
+            await page.screenshot({ path: join(process.env.E2E_SHOT, `${ma}-${gd}-${cd}-${kho.ten}.png`) });
+          }
 
           // 1) Không tràn ngang (đo cả body: body có overflow-x thì documentElement che mất).
           const tran = await page.evaluate(() => {
@@ -194,7 +208,12 @@ for (const ma of BAI)
             const nho = await page.evaluate(({ lop, biet }) => {
               const lopCua = (el: Element) => (el.getAttribute('class') ?? '').split(/\s+/);
               const duocMien = (el: Element) =>
-                lopCua(el).some((c) => lop.some((n) => c === n || c.includes('_' + n + '__') || c.endsWith('__' + n)) || biet.some((n) => c.includes(n)));
+                lopCua(el).some((c) => lop.some((n) => c === n || c.includes('_' + n + '__') || c.endsWith('__' + n)) || biet.some((n) => {
+                  // 'TryItButton_button' (webpack: Module_name__hash) hoặc 'TryItButton-module__hash__button' (Turbopack):
+                  // so ĐẦU và ĐUÔI của tên, không so định dạng băm của một bundler cụ thể.
+                  const [dau, ...duoi] = n.split('_');
+                  return duoi.length ? c.includes(dau) && c.endsWith(duoi.join('_')) : c.includes(n);
+                }));
               const ra: string[] = [];
               for (const el of document.querySelectorAll<HTMLElement>(
                 'button, a[href], input:not([type=hidden]), select, textarea, summary, [role=button]',

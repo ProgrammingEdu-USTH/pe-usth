@@ -36,6 +36,7 @@ import {
   SCRIPT_TRUOC_PAINT,
   THUOC_TINH,
 } from '../../src/lib/giao-dien.ts';
+import { moiRule } from './_css-rule.mjs';
 
 const GOC = new URL('../../', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
 const doc = (p) => readFileSync(`${GOC}${p}`, 'utf8');
@@ -371,4 +372,55 @@ test('eyebrow chip ấm: chữ ≥ 4,5:1 trên nền chip ở ngày và đêm (t
   const sh = boChuThich(doc('src/components/lesson-chrome/ShellB.module.css'));
   assert.match(sh, /var\(--tv-eyebrow-bg\)/);
   assert.match(sh, /var\(--tv-eyebrow-ink\)/);
+});
+
+// ── RÀO AN TOÀN của giao diện thử nghiệm (#278) ─────────────────────────────
+
+// (a) KHỐI CODE trên thẻ: đêm chỉ 1,11:1 nếu không có cạnh.
+const SAN_KHOI_CODE = 1.4;
+const MAT_CODE = [
+  ['src/components/lesson-chrome/exercises/exercises.module.css', ['.codeCard', '.consoleBlock']],
+  ['src/components/python-studio/studio-chrome.module.css', ['.readExpected']],
+];
+
+test('khối code/console: nền ≥ 1,4:1 so với thẻ HOẶC có cạnh --tv-rule ≥ 1,4:1 với cả hai mặt kề (ngày + đêm)', () => {
+  let canCanh = 0;
+  for (const che of ['ngay', 'dem']) {
+    const code = mau('--ds-code-bg', che);
+    const the = mau('--ds-card', che);
+    const bg = tuongPhan(code, the);
+    if (bg >= SAN_KHOI_CODE) continue;
+    canCanh += 1;
+    const canh = mau('--tv-rule', che);
+    assert.ok(tuongPhan(canh, the) >= SAN_KHOI_CODE, `${che}: cạnh --tv-rule ${tuongPhan(canh, the).toFixed(2)}:1 so với thẻ < ${SAN_KHOI_CODE}`);
+    assert.ok(tuongPhan(canh, code) >= SAN_KHOI_CODE, `${che}: cạnh --tv-rule ${tuongPhan(canh, code).toFixed(2)}:1 so với nền code < ${SAN_KHOI_CODE}`);
+    for (const [tep, sels] of MAT_CODE) {
+      const rules = moiRule(boChuThich(doc(tep)));
+      for (const s of sels) {
+        const co = rules.some((r) => r.sels.some((x) => x.includes(`html[data-theme="${TV}"]`) && x.endsWith(s)) && /box-shadow:\s*0 0 0 1px var\(--tv-rule\)/.test(r.than));
+        assert.ok(co, `${che}: nền ${s} chỉ ${bg.toFixed(2)}:1 so với thẻ (< ${SAN_KHOI_CODE}) mà ${tep} không có cạnh box-shadow var(--tv-rule) dưới theme — hai mặt phẳng nâu gần như một`);
+      }
+    }
+  }
+  assert.ok(canCanh >= 1, 'không chế độ nào cần cạnh: số đo đổi (đêm từng 1,11:1) — kiểm lại, đừng để ca này đạt rỗng');
+});
+
+// (c) nhãn "Thử nghiệm" + đường về lofi
+test('theme-thien-van.css: 0 :hover, 0 cursor, 0 @keyframes, và mọi --tv-* có ≥ 1 người dùng', () => {
+  assert.ok(!/:hover/.test(THEME), 'tệp theme không được có :hover — mọi :hover phải ở CSS module và nằm trong (hover: hover) and (pointer: fine)');
+  assert.ok(!/cursor\s*:/.test(THEME), 'tệp theme không được khai cursor: (đích bấm thuộc CSS module, nơi cổng 44px canh)');
+  assert.ok(!/@keyframes/.test(THEME), 'tệp theme không được khai @keyframes: hoạt ảnh nằm ở CSS module để đi qua cổng ngân sách');
+  const khai = new Set([...THEME.matchAll(/(--tv-[\w-]+)\s*:/g)].map((m) => m[1]));
+  assert.ok(khai.size >= 8, `chỉ đọc được ${khai.size} token --tv-*: bộ đọc hỏng`);
+  const nguon = [];
+  (function duyet(d) {
+    for (const e of readdirSync(`${GOC}${d}`, { withFileTypes: true })) {
+      const p = `${d}/${e.name}`;
+      if (e.isDirectory()) duyet(p);
+      else if (/\.(css|tsx?|jsx?)$/.test(e.name)) nguon.push(boChuThich(doc(p)));
+    }
+  })('src');
+  const van = nguon.join('\n') + '\n' + THEME;
+  const motCoi = [...khai].filter((t) => !new RegExp(`var\\(\\s*${t}(?![\\w-])`).test(van));
+  assert.deepEqual(motCoi, [], `token --tv-* khai mà không ai dùng: ${motCoi.join(', ')} — một token mồ côi là một lời khai về bề mặt không có`);
 });

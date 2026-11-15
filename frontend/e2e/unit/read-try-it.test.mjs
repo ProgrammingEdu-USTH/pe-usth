@@ -292,3 +292,44 @@ test('nhãn nút nói ra khi mã bàn giao gồm cả các đoạn TRƯỚC', ()
     true,
   );
 });
+
+// ── NÚT SAO CHÉP MÃ (teardown Codecademy 16/11/2026) ────────────────────────────────────────────
+test('màn đọc: khối `code` có nút Sao chép với đúng `block.code`; lệnh terminal thì không', () => {
+  const rs = readFileSync(new URL('../../src/components/python-studio/screens/ReadScreen.tsx', import.meta.url), 'utf8').replace(/\r/g, '');
+  assert.ok(rs.includes('action={<CopyCodeButton code={block.code} />}'), 'khối code phải truyền nút Sao chép với block.code');
+  assert.ok(rs.includes("import CopyCodeButton from '@/components/lesson-chrome/exercises/CopyCodeButton';"), 'ReadScreen thiếu import nút');
+  const cb = readFileSync(new URL('../../src/components/lesson-chrome/exercises/CodeBlock.tsx', import.meta.url), 'utf8').replace(/\r/g, '');
+  assert.ok(cb.includes('{action}'), 'CodeBlock không dựng `action` ở thanh tiêu đề');
+  const tu = rs.indexOf("case 'terminal':");
+  const den = rs.indexOf('case ', tu + 10);
+  assert.ok(tu > 0 && den > tu, 'không bóc được nhánh terminal của ReadScreen');
+  assert.ok(!rs.slice(tu, den).includes('CopyCodeButton'), 'lệnh terminal không được mang nút chép (nó là lệnh shell, chạy trên máy)');
+});
+
+test('nút Sao chép: hai đường chép đều bọc try/catch, có vùng trạng thái, dọn hẹn giờ', () => {
+  // Bỏ chú thích trước khi so: đầu tệp có nhắc `execCommand('copy')` bằng chữ, nên so trên văn bản THÔ
+  // thì gỡ đường dự phòng ra vẫn đạt (ablate đo được: 0 đỏ).
+  const src = readFileSync(new URL('../../src/components/lesson-chrome/exercises/CopyCodeButton.tsx', import.meta.url), 'utf8')
+    .replace(/\r/g, '')
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/^\s*\/\/.*$/gm, '');
+  assert.ok(src.includes('navigator.clipboard.writeText'), 'thiếu Clipboard API');
+  assert.ok(src.includes("execCommand('copy')"), 'thiếu đường dự phòng execCommand');
+  assert.equal((src.match(/try \{/g) ?? []).length, 2, 'cả hai đường chép phải bọc try/catch — chép hỏng không được ném');
+  assert.ok(src.includes('role="status"'), 'thiếu vùng trạng thái cho trình đọc màn hình');
+  // HAI chỗ: một ở lần bấm kế (huỷ hẹn cũ), một trong cleanup của effect (huỷ khi rời màn).
+  assert.ok((src.match(/clearTimeout/g) ?? []).length >= 2, 'thiếu dọn hẹn giờ khi rời màn');
+  assert.ok(!src.includes('apiFetch') && !src.includes('record('), 'nút chép không được gọi API hay ghi sự kiện học');
+});
+
+test('nút Sao chép: đích bấm 44×44, :hover chỉ trong guard con trỏ, có vành focus', () => {
+  const css = readFileSync(new URL('../../src/components/lesson-chrome/exercises/exercises.module.css', import.meta.url), 'utf8').replace(/\r/g, '');
+  const i = css.indexOf('.copyBtn {');
+  assert.ok(i > 0, 'thiếu rule .copyBtn');
+  const khoi = css.slice(i, css.indexOf('}', i));
+  assert.ok(/min-height:\s*44px/.test(khoi) && /min-width:\s*44px/.test(khoi), '.copyBtn phải khai min-height và min-width 44px');
+  assert.ok(css.includes('.copyBtn:focus-visible'), 'thiếu vành focus');
+  const h = css.indexOf('.copyBtn:hover');
+  assert.ok(h > 0 && css.lastIndexOf('@media (hover: hover) and (pointer: fine)', h) > css.lastIndexOf('}', h - 40) - 200, '.copyBtn:hover phải nằm trong @media (hover: hover) and (pointer: fine)');
+  assert.ok(css.includes('.copySr {'), 'thiếu lớp vùng trạng thái ẩn');
+});

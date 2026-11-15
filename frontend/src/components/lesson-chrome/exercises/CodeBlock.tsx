@@ -13,19 +13,22 @@ export interface CodeBlockProps {
   filename?: string;
   langTag?: string;
   showDots?: boolean;
+  /** Nút/hành động đặt ở góc phải của thanh tiêu đề (vd. "Sao chép"). */
+  action?: React.ReactNode;
   lines: CodeBlockLine[];
 }
 
-export default function CodeBlock({ filename, langTag, showDots = true, lines }: CodeBlockProps) {
+export default function CodeBlock({ filename, langTag, showDots = true, action, lines }: CodeBlockProps) {
   return (
     <div className={styles.codeCard}>
-      {(filename || langTag || showDots) && (
+      {(filename || langTag || showDots || action) && (
         <div className={styles.codeHeader}>
           {showDots && (
             <div className={styles.dots}><i /><i /><i /></div>
           )}
           {filename && <span className={styles.filename}>{filename}</span>}
           {langTag && <span className={styles.langTag}>{langTag}</span>}
+          {action}
         </div>
       )}
       <div className={styles.codeBody}>

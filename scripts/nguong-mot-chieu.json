@@ -231,7 +231,7 @@
       "tep": "AGENTS.md",
       "re": "test:unit[^|\\n]*?\\*\\*(\\d+) ca\\*\\*",
       "chieu": "nang",
-      "moc": 687,
+      "moc": 696,
       "vi": "Số ca test frontend trong bảng mốc nền. Hai cổng canh con số này vì chúng bắt HAI lỗi khác nhau: `check-moc-chay.mjs` CHẠY bộ test và bắt \"số trong bảng SAI\" (nó từng ghi 204 trong khi cây mã chỉ có 134), còn mục sổ này bắt \"ai đó HẠ số trong bảng cho khớp một bộ đã bị cắt bớt\" — ablate đã đo: xoá một ca thật rồi sửa bảng từ 573 xuống 572 thì cổng chạy-bộ-test XANH, chỉ sổ này đỏ. Khi nào con số vượt 1000 thì nó sẽ mang dấu cách ngăn nhóm nghìn kiểu Việt và regex `(\\d+)` hết khớp — lúc đó sửa cả regex, đừng bỏ mục này."
     },
     {
@@ -385,6 +385,54 @@
       "chieu": "nang",
       "moc": 5.4,
       "vi": "Sàn tương phản mọi chữ trong ô mã Monaco của giao diện Đài thiên văn (chữ, từ khoá, chuỗi, số, chú thích, số dòng) trên nền và trên dòng đang đứng. Đo 5,51:1 ở chuỗi/chú thích ban ngày trên dòng đang đứng; AA là 4,5."
+    },
+    {
+      "ten": "tran-tvslip-ms-thien-van",
+      "tep": "frontend/e2e/unit/giao-dien-chuyen-dong.test.mjs",
+      "re": "const TRAN_TVSLIP_MS = (\\d+);",
+      "chieu": "ha",
+      "moc": 320,
+      "vi": "Trần thời lượng tvSlip (chuyển động vào màn của giao diện Đài thiên văn). Lofi stepIn dài hơn; bản đầu 520 ms bị đo là chậm với người bấm liên tục. CHỈ ĐƯỢC HẠ."
+    },
+    {
+      "ten": "tran-tvslip-px-thien-van",
+      "tep": "frontend/e2e/unit/giao-dien-chuyen-dong.test.mjs",
+      "re": "const TRAN_TVSLIP_PX = (\\d+);",
+      "chieu": "ha",
+      "moc": 12,
+      "vi": "Trần quãng dịch chuyển dọc của tvSlip (px). Dịch lớn hơn là chuyển động do tương tác gây chóng mặt (WCAG 2.3.3). CHỈ ĐƯỢC HẠ."
+    },
+    {
+      "ten": "tran-tvslip-do-thien-van",
+      "tep": "frontend/e2e/unit/giao-dien-chuyen-dong.test.mjs",
+      "re": "const TRAN_TVSLIP_DO = ([\\d.]+);",
+      "chieu": "ha",
+      "moc": 0.4,
+      "vi": "Trần góc xoay (độ) của tvSlip — cảm giác phiếu giấy đặt xuống, không phải lắc. CHỈ ĐƯỢC HẠ."
+    },
+    {
+      "ten": "tran-lui-ms-thien-van",
+      "tep": "frontend/e2e/unit/giao-dien-chuyen-dong.test.mjs",
+      "re": "const TRAN_LUI_MS = (\\d+);",
+      "chieu": "ha",
+      "moc": 120,
+      "vi": "Trần thời lượng của 'Quay lại': chỉ mờ vào, không dịch chuyển, vì người học lùi để đối chiếu chứ không để xem hiệu ứng. CHỈ ĐƯỢC HẠ."
+    },
+    {
+      "ten": "san-khoi-code-thien-van",
+      "tep": "frontend/e2e/unit/giao-dien.test.mjs",
+      "re": "const SAN_KHOI_CODE = ([\\d.]+);",
+      "chieu": "nang",
+      "moc": 1.4,
+      "vi": "Sàn tương phản cạnh khối code (nền #221A13 trên thẻ nâu đêm chỉ 1,11:1 nếu không có cạnh). Cùng mức sàn chip code của lofi. CHỈ ĐƯỢC NÂNG."
+    },
+    {
+      "ten": "tran-byte-font-thien-van",
+      "tep": "frontend/e2e/unit/giao-dien.test.mjs",
+      "re": "const TRAN_BYTE_FONT = (\\d+) \\* 1000;",
+      "chieu": "ha",
+      "moc": 32,
+      "vi": "Trần tổng dung lượng EB Garamond tự lưu trữ (nghìn byte): hai subset latin + vietnamese bậc 600 = 31,8 KB. Font lười, chỉ tải khi theme bật, nhưng vẫn là byte người học trả. CHỈ ĐƯỢC HẠ."
     }
   ]
 }

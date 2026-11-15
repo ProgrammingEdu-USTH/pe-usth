@@ -369,12 +369,23 @@ button.segment::after {
    có dấu gạch nối bị gộp nhầm với tên khác. Mọi hoạt ảnh khai bằng shorthand
    `animation:` vì cổng không đọc longhand. */
 :global(html[data-theme="thien-van"]) .stepEnter {
-  animation: tvSlip 0.52s var(--tv-ease) backwards;
+  animation: tvSlip 0.3s var(--tv-ease) backwards;
+}
+/* Đi LÙI ("Quay lại"): chỉ mờ dần vào, KHÔNG dịch chuyển. Đặt tờ giấy xuống là
+   hành động TIẾN; lùi mà vẫn trượt từ dưới lên thì người học thấy mình đang đi
+   tiếp. Hướng do `data-huong="lui"` của LessonChrome.tsx quyết. */
+:global(html[data-theme="thien-van"]) .stepEnter[data-huong="lui"] {
+  animation: tvFade 0.12s linear backwards;
+}
+@keyframes tvFade {
+  from {
+    opacity: 0;
+  }
 }
 @keyframes tvSlip {
   from {
     opacity: 0;
-    transform: translateY(20px) rotate(-0.5deg);
+    transform: translateY(10px) rotate(-0.3deg);
   }
 }
 
@@ -669,7 +680,8 @@ button.segment:focus-visible,
   .segmentFill {
     transition: none;
   }
-  :global(html[data-theme="thien-van"]) .stepEnter {
+  :global(html[data-theme="thien-van"]) .stepEnter,
+  :global(html[data-theme="thien-van"]) .stepEnter[data-huong="lui"] {
     animation: none;
   }
   :global(html[data-theme="thien-van"]) .chrome::before {

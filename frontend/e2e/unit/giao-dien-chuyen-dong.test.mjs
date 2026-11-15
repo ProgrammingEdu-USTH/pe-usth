@@ -153,6 +153,20 @@ test('thước đồng: con trượt chạy bằng transform ≤ 420 ms (không 
   assert.ok(tat, 'con trượt không tắt (transition: none) dưới prefers-reduced-motion');
 });
 
+test('vào so le của phương án: backwards, bước ≤ 60 ms, ≤ 6 bậc (Mcq.tsx kẹp), tắt dưới reduced-motion', () => {
+  const tep = 'src/components/lesson-chrome/exercises/exercises.module.css';
+  const rules = moiRule(readFileSync(join(GOC, tep), 'utf8'));
+  const r = rules.find((x) => x.media === null && x.sels.some((s) => s.includes(TIEN_TO) && s.endsWith('.optionCard')));
+  assert.ok(r, 'không có hoạt ảnh vào so le trên .optionCard');
+  assert.match(r.than, /animation\s*:\s*tvOpt\b[^;]*\bbackwards\b/);
+  const buoc = /animation-delay\s*:\s*calc\(\s*var\(--tv-i[^)]*\)\s*\*\s*(\d+)ms\s*\)/.exec(r.than);
+  assert.ok(buoc && Number(buoc[1]) <= 60, 'bước so le phải ≤ 60 ms, đang là ' + buoc?.[1]);
+  const tsx = readFileSync(join(GOC, 'src/components/lesson-chrome/exercises/Mcq.tsx'), 'utf8');
+  const kep = /'--tv-i':\s*Math\.min\(\s*idx\s*,\s*(\d+)\s*\)/.exec(tsx);
+  assert.ok(kep && Number(kep[1]) <= 5, 'Mcq.tsx phải kẹp chỉ số so le ≤ 5 (6 bậc), đang là ' + kep?.[1]);
+  assert.ok(tatTrong(tep, /prefers-reduced-motion/).has(r.sels.find((s) => s.includes(TIEN_TO))), 'vào so le không tắt dưới prefers-reduced-motion');
+});
+
 test('chuyển động theme: MỌI hoạt ảnh tắt được dưới prefers-reduced-motion (kể cả chỉ-opacity)', () => {
   const ho = [];
   for (const a of TAT_ANIM) {

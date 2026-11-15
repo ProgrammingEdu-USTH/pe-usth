@@ -414,6 +414,40 @@ test('thước đồng (thanh tiến độ): vạch chia + con trượt ≥ 3:1 
   assert.match(T('.segment').than, /margin-left:\s*0/, 'đoạn dưới theme còn khe margin: con trượt sẽ lệch vạch');
 });
 
+test('thẻ phương án: đĩa đồng A/B/C nhắc lại ĐỦ bốn trạng thái (composes không kế thừa luật con), chữ ≥ 4,5:1 và viền ≥ 3:1', () => {
+  const css = boChuThich(doc('src/components/lesson-chrome/exercises/exercises.module.css'));
+  const rules = moiRule(css);
+  const co = (s) => rules.find((r) => r.sels.some((x) => x.includes('html[data-theme="' + TV + '"]') && x.endsWith(s)));
+  for (const s of ['.optionLetter', '.optionSelected .optionLetter', '.optionCorrect .optionLetter', '.optionWrong .optionLetter']) {
+    assert.ok(co(s), 'thiếu rule "' + s + '" dưới theme: trạng thái đó mất đĩa (composes không bắc cầu xuống phần tử con)');
+  }
+  assert.match(co('.optionLetter').than, /border:[^;]*var\(--tv-brass\)/);
+  assert.match(doc('src/components/lesson-chrome/exercises/Mcq.tsx'), /className=\{styles\.optionLetter\}/, 'Mcq.tsx không gắn lớp đĩa');
+  for (const che of ['ngay', 'dem']) {
+    const the = mau('--ds-card', che);
+    assert.ok(tuongPhan(mau('--tv-brass', che), the) >= 3, che + ': viền đĩa < 3:1 trên thẻ');
+    assert.ok(tuongPhan(mau('--edu-t2', che), the) >= 4.5, che + ': chữ đĩa < 4,5:1');
+    // --st-ok-text / --st-err-text là bí danh của --ds-ochre / --ds-sanguine (studio-tokens.css, trên body)
+    for (const nen of ['--ds-violet', '--ds-ochre', '--ds-sanguine']) {
+      const r = tuongPhan(mau('--edu-panel-bg-solid', che), mau(nen, che));
+      assert.ok(r >= 4.5, che + ': chữ trong đĩa trạng thái trên ' + nen + ' ' + r.toFixed(2) + ':1 < 4,5');
+    }
+  }
+});
+
+test('phiếu hồng (màn đoán): nền --ds-sanguine-tint, chữ hỏi/giải thích ≥ 4,5:1 và viền ≥ 3:1 ở ngày + đêm', () => {
+  const rules = moiRule(boChuThich(doc('src/components/python-studio/studio-chrome.module.css')));
+  const r = rules.find((x) => x.sels.some((s) => s.includes('html[data-theme="' + TV + '"]') && s.endsWith('.tracePredict')));
+  assert.ok(r, 'studio-chrome.module.css không có phiếu hồng dưới theme');
+  assert.match(r.than, /background:\s*var\(--ds-sanguine-tint\)/);
+  assert.match(r.than, /border:[^;]*var\(--ds-sanguine\)/);
+  for (const che of ['ngay', 'dem']) {
+    const tint = mau('--ds-sanguine-tint', che);
+    for (const ch of ['--edu-t1', '--edu-t3']) assert.ok(tuongPhan(mau(ch, che), tint) >= 4.5, che + ': ' + ch + ' trên phiếu < 4,5:1');
+    assert.ok(tuongPhan(mau('--ds-sanguine', che), tint) >= 3, che + ': viền phiếu < 3:1');
+  }
+});
+
 // ── RÀO AN TOÀN của giao diện thử nghiệm (#278) ─────────────────────────────
 
 // (a) KHỐI CODE trên thẻ: đêm chỉ 1,11:1 nếu không có cạnh.

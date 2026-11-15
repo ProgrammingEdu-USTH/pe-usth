@@ -160,7 +160,67 @@
   font-weight: 700;
   font-size: 13px;
 }
-.optionSub {
+/* GIAO DIỆN "ĐÀI THIÊN VĂN": ĐĨA ĐỒNG A/B/C ở đầu phương án, như số thứ tự khắc
+   trên mặt thước. Viền đồng --tv-brass (4,50:1 trên thẻ ngày, 5,45:1 đêm — đạt
+   3:1 của thành phần giao diện); chữ trong đĩa là --edu-t2 trên --ds-card.
+   TRẠNG THÁI chọn / đúng / sai nhắc lại ĐỦ ở đây, vì `composes` chỉ gắn thêm lớp
+   lên nút chứ không đưa luật con xuống đĩa: mỗi trạng thái phải có rule
+   descendant của riêng nó (cùng bài học của `.markCorrect`/`.markWrong` bên
+   dưới). Màu trạng thái lấy token của lofi (--ds-violet, --st-ok-text,
+   --st-err-text) nên đã có bản đêm; chữ --edu-panel-bg-solid trên chúng giống
+   hệt dấu ✓✕ ở bên phải. */
+.optionLetter {
+  font-weight: 700;
+}
+:global(html[data-theme="thien-van"]) .optionLetter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-right: 6px;
+  vertical-align: middle;
+  box-sizing: border-box;
+  border: 1.5px solid var(--tv-brass);
+  border-radius: 50%;
+  background: var(--ds-card);
+  color: var(--edu-t2);
+  font-size: 13px;
+  text-transform: uppercase;
+}
+:global(html[data-theme="thien-van"]) .optionSelected .optionLetter {
+  border-color: var(--ds-violet);
+  background: var(--ds-violet);
+  color: var(--edu-panel-bg-solid);
+}
+:global(html[data-theme="thien-van"]) .optionCorrect .optionLetter {
+  border-color: var(--st-ok-text);
+  background: var(--st-ok-text);
+  color: var(--edu-panel-bg-solid);
+}
+:global(html[data-theme="thien-van"]) .optionWrong .optionLetter {
+  border-color: var(--st-err-text);
+  background: var(--st-err-text);
+  color: var(--edu-panel-bg-solid);
+}
+/* VÀO SO LE: mỗi phương án đặt xuống chậm hơn cái trước 45 ms, tối đa 6 bậc
+   (--tv-i do Mcq.tsx đặt, đã kẹp ≤ 5) nên phương án thứ 7 trở đi không đợi thêm.
+   fill-mode `backwards`: trước lúc bắt đầu thì ở trạng thái "from", sau đó trả
+   lại style thật — `both`/`forwards` giữ trạng thái cuối và đè lên opacity
+   nội tuyến của phương án đã mờ sau khi chấm. Rule nằm trên `.optionCard` — lớp
+   mà MỌI trạng thái đều mang nhờ `composes` — nên đổi trạng thái KHÔNG đổi
+   `animation-name` và hoạt ảnh không chạy lại khi bấm chọn. */
+:global(html[data-theme="thien-van"]) .optionCard {
+  animation: tvOpt 0.28s var(--tv-ease) backwards;
+  animation-delay: calc(var(--tv-i, 0) * 45ms);
+}
+@keyframes tvOpt {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.optionSub {.optionSub {
   display: block;
   font-size: 12px;
   color: var(--edu-t3);
@@ -465,6 +525,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  :global(html[data-theme="thien-van"]) .optionCard {
+    animation: none;
+  }
   .consoleRow,
   .consoleRowOk,
   .consoleRowErr,

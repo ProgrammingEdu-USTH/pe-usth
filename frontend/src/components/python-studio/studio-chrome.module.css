@@ -1042,7 +1042,19 @@
   gap: 8px;
 }
 
-.tracePredictAsk {
+/* GIAO DIỆN "ĐÀI THIÊN VĂN": PHIẾU HỒNG cho màn đoán. Đoán là chỗ người học
+   phải CAM KẾT một câu trả lời trước khi xem — nên nó là một tờ phiếu rời, màu
+   khác thẻ bài, viền nét đứt (tờ cắt ra để điền). Tint --ds-sanguine-tint:
+   chữ --edu-t1 15,23:1 / --edu-t3 7,23:1 ngày; đêm 11,60:1 / 7,11:1. Viền
+   --ds-sanguine 6,33:1 ngày, 5,91:1 đêm. */
+:global(html[data-theme="thien-van"]) .tracePredict {
+  background: var(--ds-sanguine-tint);
+  border: 1px dashed var(--ds-sanguine);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.tracePredictAsk {.tracePredictAsk {
   margin: 0;
   font-size: 15px;
   line-height: 1.6;

@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react';
+
 // Dịch từ màn Stitch "1. mcq — trắc nghiệm 1 lựa chọn".
 // Bản DÙNG CHUNG để bóc `code nội tuyến`, không chép lại một bản thứ hai — xem
 // `inline-code.test.mjs`. `lesson-chrome/exercises/` không được import ngược
@@ -59,7 +61,7 @@ export default function Mcq({
         </div>
       )}
       <div className={styles.optionsList}>
-        {options.map((opt) => {
+        {options.map((opt, idx) => {
           const isSelected = selected === opt.key;
           const isRight = checked && correctKey === opt.key;
           const isWrong = checked && isSelected && correctKey !== opt.key;
@@ -94,7 +96,12 @@ export default function Mcq({
               // và 1 548/1 548 phương án của khoá 172 bài đều có `detail`. Mờ
               // 0,8 thay vì 0,55: vẫn tụt hẳn so với hai ô kia, vẫn đọc được.
               style={
-                checked && !isRight && !isWrong ? { opacity: opt.sub ? 0.8 : 0.55 } : undefined
+                {
+                  // Vào so le của theme Đài thiên văn: chỉ SỐ THỨ TỰ (tối đa 6 bậc) đi
+                  // qua biến, còn thời lượng/độ trễ nằm ở CSS (xem .optionCard).
+                  '--tv-i': Math.min(idx, 5),
+                  ...(checked && !isRight && !isWrong ? { opacity: opt.sub ? 0.8 : 0.55 } : {}),
+                } as CSSProperties
               }
             >
               <span className={styles.optionMain}>
@@ -102,7 +109,7 @@ export default function Mcq({
                     và 5 lời giải thích của bản dựng có backtick, nên trước đây
                     người học đọc ra nguyên dấu. Cùng lỗi với ô tổng kết (lần
                     hai) và ô bảng (lần ba). */}
-                <code>{opt.key}.</code> {withInlineCode(opt.label)}
+                <code className={styles.optionLetter}>{opt.key}</code> {withInlineCode(opt.label)}
                 {opt.sub && (
                   <span className={styles.optionSub}>{withInlineCode(opt.sub)}</span>
                 )}

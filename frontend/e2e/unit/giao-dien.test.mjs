@@ -453,7 +453,7 @@ test('phiếu hồng (màn đoán): nền --ds-sanguine-tint, chữ hỏi/giải
 // (a) KHỐI CODE trên thẻ: đêm chỉ 1,11:1 nếu không có cạnh.
 const SAN_KHOI_CODE = 1.4;
 const MAT_CODE = [
-  ['src/components/lesson-chrome/exercises/exercises.module.css', ['.codeCard', '.consoleBlock']],
+  ['src/components/lesson-chrome/exercises/exercises.module.css', ['.codeCard', '.consoleBlock', '.consolePanel']],
   ['src/components/python-studio/studio-chrome.module.css', ['.readExpected']],
 ];
 
@@ -552,4 +552,35 @@ test('B6: hình PNG nền trắng nằm trong "tờ" (padding + border-box + vi�
 
 test('B6: chip code nội tuyến có viền --tv-rule dưới theme', () => {
   assert.ok(ruleTV(CSS_CHIP_TV, '.inlineCode').some((x) => /border-color:\s*var\(--tv-rule\)/.test(x.than)), '.inlineCode thiếu border-color var(--tv-rule) dưới theme');
+});
+
+// ── B7: ô soạn mã + console + bảng ca chấm trên vellum ───────────────────────
+const CSS_EX = 'src/components/lesson-chrome/exercises/exercises.module.css';
+const SAN_VIEN_HANG_CA_CHAM = 1.3; // ngày đo 1,37, đêm 1,79: đường chia hàng, không phải thành phần bấm được
+const SAN_VANH_DONG = 3; // vành focus ngoài khung: thành phần giao diện, WCAG 1.4.11
+
+test('B7: ô soạn mã giữ nền code nâu; khung kết quả có cạnh --tv-rule; khung đang gõ sáng viền đồng 2px', () => {
+  const css = boChuThich(doc(CSS_EX));
+  assert.match(css, /\.codeCard\s*\{[^}]*background:\s*var\(--st-code-bg\)/, 'ô soạn mã phải GIỮ nền khối code (--st-code-bg), không đổi sang giấy');
+  assert.ok(ruleTV(CSS_EX, '.consolePanel').some((r) => /box-shadow:\s*0 0 0 1px var\(--tv-rule\)/.test(r.than)), '.consolePanel thiếu cạnh --tv-rule dưới theme');
+  assert.ok(ruleTV(CSS_EX, '.codeCard:focus-within').some((r) => /box-shadow:\s*0 0 0 2px var\(--tv-brass\)/.test(r.than)), '.codeCard:focus-within thiếu vành đồng 2px');
+  assert.match(css, /textarea\.codeBody:focus-visible\s*\{[^}]*outline:\s*3px solid/, 'vành focus 3px trong textarea bị gỡ');
+  for (const che of ['ngay', 'dem']) {
+    const r = tuongPhan(mau('--tv-brass', che), mau('--ds-card', che));
+    assert.ok(r >= SAN_VANH_DONG, `${che}: vành đồng so với thẻ chỉ ${r.toFixed(2)}:1 (sàn ${SAN_VANH_DONG})`);
+  }
+});
+
+test('B7: bảng ca chấm — hàng nằm trên panel bằng cạnh --tv-rule, câu "vì sao" (t2) và nhãn (t1) ≥ AA trên nền hàng, chip đạt/chưa đạt đọc được', () => {
+  for (const che of ['ngay', 'dem']) {
+    const hang = mau('--edu-panel-bg-solid', che);
+    
+    assert.equal(giaTri('--edu-sidebar-border', che), giaTri('--tv-rule', che), `${che}: viền hàng ca chấm (--edu-sidebar-border) phải CÙNG --tv-rule`);
+    assert.ok(tuongPhan(mau('--tv-rule', che), hang) >= SAN_VIEN_HANG_CA_CHAM, `${che}: viền hàng không tách khỏi nền hàng`);
+    assert.ok(tuongPhan(mau('--edu-t2', che), hang) >= 4.5 && tuongPhan(mau('--edu-t1', che), hang) >= 4.5, `${che}: chữ hàng ca chấm dưới AA`);
+    assert.ok(tuongPhan(mau('--edu-t2', che), hang) >= tuongPhan(mau('--edu-t3', che), hang), `${che}: câu "vì sao" nhạt hơn t3 — vi phạm thứ bậc feedback-rank`);
+    for (const [fg, bg] of [['--ds-ochre', '--ds-ochre-tint'], ['--ds-sanguine', '--ds-sanguine-tint']]) {
+      assert.ok(tuongPhan(mau(fg, che), mau(bg, che)) >= 4.5, `${che}: chip ${fg} trên ${bg} dưới AA`);
+    }
+  }
 });

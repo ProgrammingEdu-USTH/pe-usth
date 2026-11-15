@@ -679,6 +679,20 @@ textarea.codeBody:focus-visible {
    dùng --edu-card-border (trắng 85%: trắng-trên-trắng, lỗi đã gặp bốn lần).
    `giao-dien.test.mjs` tính các tỉ số này từ chính CSS. */
 :global(html[data-theme="thien-van"]) .codeCard,
-:global(html[data-theme="thien-van"]) .consoleBlock {
+:global(html[data-theme="thien-van"]) .consoleBlock,
+:global(html[data-theme="thien-van"]) .consolePanel {
   box-shadow: 0 0 0 1px var(--tv-rule);
+}
+
+/* GIAO DIỆN "ĐÀI THIÊN VĂN" — Ô SOẠN MÃ (B7). Ô GIỮ nền khối code nâu #221A13 và
+   chữ kem (đã đo ở khối "BẢNG NÂU ẤM"), không đổi sang giấy. Thêm hai thứ:
+   (1) `.consolePanel` (khung kết quả chạy) cũng có cạnh --tv-rule như `.codeCard`
+   — ban đêm nâu-trên-nâu 1,11:1 nếu thiếu; (2) khi ô soạn mã đang được gõ
+   (`:focus-within`), cả khung sáng viền ĐỒNG --tv-brass 2px (4,50:1 ngày,
+   5,45:1 đêm so với thẻ, qua 3:1 của thành phần giao diện) — vòng ochre bên
+   trong textarea vẫn ở đó, vòng này nói "khung nào đang nhận phím" từ xa. Rule
+   có `:focus-within` nên đặc hiệu cao hơn rule cạnh 1px phía trên và thay nó.
+   Cỡ 16px ở điện thoại KHÔNG đụng (o-go-16px). */
+:global(html[data-theme="thien-van"]) .codeCard:focus-within {
+  box-shadow: 0 0 0 2px var(--tv-brass);
 }

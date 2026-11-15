@@ -28,8 +28,12 @@ export type CauOn = {
   key: string;
   question: string;
   options: { text: string; detail?: string; correct?: boolean }[];
-  /** Lúc câu này vào hàng chờ, ms. */
+  /** Lúc câu này vào hàng chờ (hoặc được xếp lại), ms. */
   luc: number;
+  /** Số lần đã trả lời SAI ngay ở màn ôn. Vắng = 0 (hàng của bản trước). */
+  lan?: number;
+  /** Phải chờ bấy nhiêu ms từ `luc` mới hỏi lại. Vắng = `HAN_CHO_MS`. */
+  han?: number;
 };
 
 /**
@@ -64,6 +68,20 @@ export function khoaOn(courseId: string): string {
  * hàng chờ chỉ dài ra và không ai gặp câu nào.
  */
 export const HAN_CHO_MS = 30 * 60 * 1000;
+
+/**
+ * Sai NGAY Ở MÀN ÔN thì câu KHÔNG bị xoá mà được xếp lại, giãn dần: lần ôn sai
+ * thứ nhất → hỏi lại sau 1 ngày, thứ hai → sau 3 ngày, thứ ba → bỏ.
+ *
+ * Trước đây "xem xong" là xoá, kể cả khi người học vừa chọn SAI lần nữa — tức câu
+ * họ chưa nhớ biến mất khỏi hàng chờ đúng lúc nó cần nhất. Phải có trần (3 lần):
+ * một câu sai mãi là dấu hiệu của chính câu đó hoặc của bài gốc, và hỏi hoài thì
+ * người học đọc ra là bị trừng phạt.
+ * Các bậc 1 ngày / 3 ngày là THIẾT KẾ theo hướng Cepeda (khoảng giãn tăng dần),
+ * KHÔNG phải số đã đo trên người học của khoá này.
+ */
+export const BAC_GIAN_CACH_MS = [HAN_CHO_MS, 24 * 60 * 60 * 1000, 3 * 24 * 60 * 60 * 1000] as const;
+export const TRAN_LAN_ON = BAC_GIAN_CACH_MS.length;
 
 /**
  * Giữ tối đa bấy nhiêu câu. Quá thì BỎ CÂU CŨ NHẤT.
@@ -149,9 +167,33 @@ export function layCauOn(
   kho: Kho | null = khoCucBo(),
 ): CauOn | null {
   const duocHoi = docHangCho(courseId, kho)
-    .filter((x) => x.lessonNo !== lessonNo && bayGio - x.luc >= HAN_CHO_MS)
+    .filter((x) => x.lessonNo !== lessonNo && bayGio - x.luc >= (x.han ?? HAN_CHO_MS))
     .sort((a, b) => a.luc - b.luc);
   return duocHoi[0] ?? null;
+}
+
+/**
+ * Người học vừa trả lời SAI một câu ngay ở màn ôn: xếp lại với khoảng chờ dài hơn,
+ * hoặc bỏ nếu đã sai `TRAN_LAN_ON` lần. Câu không còn trong hàng chờ thì không làm gì.
+ */
+export function datLaiCauOn(
+  courseId: string,
+  key: string,
+  kho: Kho | null = khoCucBo(),
+  bayGio: number = Date.now(),
+): void {
+  const ds = docHangCho(courseId, kho);
+  const x = ds.find((y) => y.key === key);
+  if (!x) return;
+  const lan = (x.lan ?? 0) + 1;
+  if (lan >= TRAN_LAN_ON) {
+    ghi(courseId, ds.filter((y) => y.key !== key), kho);
+    return;
+  }
+  x.lan = lan;
+  x.luc = bayGio;
+  x.han = BAC_GIAN_CACH_MS[lan];
+  ghi(courseId, ds, kho);
 }
 
 /** Bỏ một câu khỏi hàng chờ (đã hỏi xong). */

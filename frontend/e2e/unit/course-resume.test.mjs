@@ -177,3 +177,19 @@ test('hàng bài mang đúng id mà effect cuộn tìm', () => {
     `Không hàng bài nào mang id={\`${tienTo}\${index}\`} — effect cuộn sẽ tìm ra null và không cuộn.`,
   );
 });
+
+// ── Kiểm toán 16/11/2026: người học không thấy tiến độ theo TỪNG chặng và không chữ nào nói điều kiện giữ tiến độ ──
+test('tiêu đề mỗi chặng ghi "x/N bài đã xong", tính từ doneSet (chữ, không chỉ dấu ✓)', () => {
+  const code = boChuThich(DETAIL);
+  assert.ok(code.includes('doneSet.has(flatIdx + k + 1)'), 'x phải đếm từ doneSet theo chỉ số phẳng của chặng');
+  assert.ok(code.includes('bài đã xong'), 'tiêu đề chặng phải nói bằng chữ');
+  assert.ok(code.includes('xong > 0'), 'chưa có tiến độ thì giữ chữ cũ "N bài", không mời nhìn 0/N');
+});
+
+test('có MỘT dòng nói điều kiện giữ tiến độ (trình duyệt này, nghỉ >30 ngày hoặc đổi máy)', () => {
+  assert.ok(DETAIL.includes('data-giu-tien-do'), 'trang khoá thiếu dòng giữ tiến độ');
+  assert.ok(DETAIL.includes('nghỉ hơn 30 ngày hoặc đổi máy'), 'dòng giữ tiến độ phải nói đủ hai điều kiện');
+  // Trang công khai KHÔNG được gọi API chỉ để in dòng này: nó là chữ tĩnh.
+  const dong = DETAIL.slice(DETAIL.indexOf('data-giu-tien-do') - 80, DETAIL.indexOf('data-giu-tien-do') + 200);
+  assert.ok(!/apiFetch|fetch\(/.test(dong), 'dòng giữ tiến độ phải là chữ tĩnh');
+});

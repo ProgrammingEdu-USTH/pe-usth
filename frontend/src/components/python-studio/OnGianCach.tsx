@@ -29,8 +29,8 @@ export default function OnGianCach({
   onXong,
 }: {
   cau: CauOn;
-  /** Gọi khi người học đã xem xong — nơi gọi lo xoá câu khỏi hàng chờ. */
-  onXong: () => void;
+  /** Gọi khi người học đã xem xong, kèm việc họ chọn ĐÚNG hay SAI — nơi gọi lo xoá hoặc xếp lại. */
+  onXong: (dung: boolean) => void;
 }) {
   const [chon, setChon] = useState<number | null>(null);
   const daChon = chon !== null;
@@ -78,7 +78,7 @@ export default function OnGianCach({
               : 'Chưa đúng — đáp án đúng đã được đánh dấu ở trên.'}{' '}
             Câu ôn KHÔNG tính vào điểm bài này.
           </p>
-          <button type="button" className={c.onGianCachTiep} onClick={onXong}>
+          <button type="button" className={c.onGianCachTiep} onClick={() => onXong(dung)}>
             Vào bài →
           </button>
         </>

@@ -11,6 +11,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+  BAC_GIAN_CACH_MS,
+  datLaiCauOn,
   docHangCho,
   HAN_CHO_MS,
   khoaOn,
@@ -193,4 +195,50 @@ test('hỏi xong thì XOÁ khỏi hàng chờ', () => {
   // Không xoá thì câu đó hỏi lại mãi mãi ở mọi bài sau — và người học không có
   // cách nào thoát.
   assert.ok(/xoaCauOn\(courseId, cauOn\.key\)/.test(SRC_SL), 'không xoá sau khi hỏi xong');
+});
+
+// ── SAI Ở MÀN ÔN thì XẾP LẠI, không xoá (kiểm toán 16/11/2026) ──────────────────────────────────
+// Trước đây "xem xong" là xoá kể cả khi người học vừa chọn SAI lần nữa: câu họ chưa nhớ biến mất
+// đúng lúc nó cần nhất.
+const NGAY = 24 * 60 * 60 * 1000;
+
+test('sai ở màn ôn: câu ở LẠI hàng chờ, và chưa hỏi lại trước 1 ngày', () => {
+  const kho = khoGia();
+  themCauSai('c', cau(1, 3, 0), kho, 0);
+  datLaiCauOn('c', 's2-mcq-1', kho, HAN_CHO_MS);
+  const ds = docHangCho('c', kho);
+  assert.equal(ds.length, 1, 'câu sai ở màn ôn phải ở lại hàng chờ');
+  assert.equal(ds[0].lan, 1);
+  assert.equal(ds[0].han, BAC_GIAN_CACH_MS[1]);
+  assert.equal(layCauOn('c', 9, HAN_CHO_MS + NGAY - 1, kho), null, 'chưa đủ 1 ngày thì chưa hỏi lại');
+  assert.ok(layCauOn('c', 9, HAN_CHO_MS + NGAY, kho), 'đủ 1 ngày thì hỏi lại');
+});
+
+test('sai lần thứ hai ở màn ôn: giãn lên 3 ngày; sai lần thứ ba thì BỎ', () => {
+  const kho = khoGia();
+  themCauSai('c', cau(1, 3, 0), kho, 0);
+  datLaiCauOn('c', 's2-mcq-1', kho, 1000);
+  datLaiCauOn('c', 's2-mcq-1', kho, 2000);
+  assert.equal(docHangCho('c', kho)[0].han, BAC_GIAN_CACH_MS[2]);
+  assert.equal(layCauOn('c', 9, 2000 + 3 * NGAY - 1, kho), null);
+  datLaiCauOn('c', 's2-mcq-1', kho, 3000);
+  assert.equal(docHangCho('c', kho).length, 0, 'sai ba lần ở màn ôn thì thôi, không hỏi mãi');
+});
+
+test('hàng của bản trước (không có lan/han) vẫn dùng HAN_CHO_MS', () => {
+  const kho = khoGia();
+  themCauSai('c', cau(1, 3, 0), kho, 0);
+  assert.equal(docHangCho('c', kho)[0].han, undefined);
+  assert.equal(layCauOn('c', 9, HAN_CHO_MS - 1, kho), null);
+  assert.ok(layCauOn('c', 9, HAN_CHO_MS, kho));
+  datLaiCauOn('c', 'khong-co-key', kho, 5); // không làm gì, không ném
+  assert.equal(docHangCho('c', kho).length, 1);
+});
+
+test('nơi gọi: ĐÚNG thì xoá, SAI thì xếp lại (không xoá luôn)', () => {
+  assert.ok(/onXong=\{\(dung\) =>/.test(SRC_SL), 'StudioLesson phải nhận kết quả đúng/sai từ ô ôn');
+  assert.ok(/if \(dung\) xoaCauOn\(courseId, cauOn\.key\)/.test(SRC_SL), 'đúng thì xoá');
+  assert.ok(/else datLaiCauOn\(courseId, cauOn\.key\)/.test(SRC_SL), 'sai thì xếp lại');
+  const og = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../src/components/python-studio/OnGianCach.tsx'), 'utf8');
+  assert.ok(/onClick=\{\(\) => onXong\(dung\)\}/.test(og), 'OnGianCach phải truyền dung/sai cho nơi gọi');
 });

@@ -464,6 +464,13 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
                     </span>
                   </div>
                   <div className={styles.blockBody}>
+                    {/* Điều kiện giữ tiến độ nói BẰNG CHỮ: khoá học không đăng nhập, tiến độ gắn
+                        với trình duyệt này (tài khoản khách sống 30 ngày kể từ lần dùng cuối). Trước
+                        đây không chữ nào nói điều này nên người nghỉ lâu hoặc đổi máy thấy như mất
+                        sạch mà không hiểu vì sao. */}
+                    <p className={styles.blockMeta} data-giu-tien-do="1">
+                      Tiến độ lưu theo trình duyệt này — nghỉ hơn 30 ngày hoặc đổi máy thì sẽ bắt đầu lại.
+                    </p>
                     {modules.map((module, mi) => {
                       const open = openModules[mi] ?? mi === moduleMacDinh;
                       const bodyId = `cd-module-body-${mi}`;
@@ -481,7 +488,21 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
                           >
                             <div className={styles.moduleArrow}><Icon name="chevronRight" /></div>
                             <div className={styles.moduleName}>{module.title}</div>
-                            <div className={styles.moduleMeta}>{module.lessons.length} bài</div>
+                            {/* "x/N bài đã xong" ở TỪNG chặng — chữ, không chỉ dấu ✓ (trình đọc
+                                màn hình không thấy dấu). `flatIdx` lúc này đang là chỉ số bài đầu
+                                của chặng (vòng lặp bài phía dưới mới tăng nó). Chưa có tiến độ thì
+                                giữ đúng chữ cũ "N bài": khách vãng lai không bị mời nhìn "0/N". */}
+                            <div className={styles.moduleMeta}>
+                              {(() => {
+                                const xong = module.lessons.reduce(
+                                  (n, _t, k) => n + (doneSet.has(flatIdx + k + 1) ? 1 : 0),
+                                  0,
+                                );
+                                return xong > 0
+                                  ? `${xong}/${module.lessons.length} bài đã xong`
+                                  : `${module.lessons.length} bài`;
+                              })()}
+                            </div>
                           </button>
                           <div
                             className={`${styles.moduleBody}${open ? ` ${styles.moduleBodyOpen}` : ''}`}

@@ -41,7 +41,7 @@ import LessonScreenView from './screens';
 import { ICON } from './screens/chrome';
 import { datBoiCanhBai, dayNgay, ghiSuKien } from '@/lib/learning-events';
 import { ketQuaLaCu } from '@/lib/run-freshness';
-import { layCauOn, themCauSai, xoaCauOn, type CauOn } from '@/lib/spaced-review';
+import { datLaiCauOn, layCauOn, themCauSai, xoaCauOn, type CauOn } from '@/lib/spaced-review';
 
 import ConsentBanner from './ConsentBanner';
 import OnGianCach from './OnGianCach';
@@ -554,8 +554,10 @@ export default function StudioLesson({
         {d.step === 1 && cauOn ? (
           <OnGianCach
             cau={cauOn}
-            onXong={() => {
-              xoaCauOn(courseId, cauOn.key);
+            onXong={(dung) => {
+              // Đúng thì bỏ; SAI ngay ở màn ôn thì xếp lại (1 ngày → 3 ngày → bỏ).
+              if (dung) xoaCauOn(courseId, cauOn.key);
+              else datLaiCauOn(courseId, cauOn.key);
               setCauOn(undefined);
             }}
           />

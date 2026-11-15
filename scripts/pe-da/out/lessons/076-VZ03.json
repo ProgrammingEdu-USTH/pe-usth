@@ -162,7 +162,7 @@
      "explanation": "Sắp theo ngày và giữ đúng cặp ngày–giá trị. plot nối theo thứ tự đầu vào."
     },
     {
-     "question": "np.nan ở giữa một đường cho biết ngày đó bán được 0 không?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.plot([1, 2, 3], [8, 10, 7], marker=\"o\", linestyle=\"-\", label=\"Coffee\")\nax.plot([1, 2, 3], [5, 6, 6], marker=\"s\", linestyle=\"--\", label=\"Tea\")\nax.set(xlabel=\"Day\", ylabel=\"Sales (million VND)\", title=\"Sales by drink\")\nax.legend()\nprint(len(ax.lines))\nplt.show()",
+     "question": "np.nan ở giữa một đường cho biết ngày đó bán được 0 không?",
      "options": [
       {
        "text": "Có; thiếu dữ liệu có cùng nghĩa với bán 0 cốc.",

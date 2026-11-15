@@ -44,6 +44,19 @@ function dayIndex(d: Date): number {
 }
 
 /**
+ * NGÀY ÂN HẠN: nghỉ đúng bấy nhiêu ngày vẫn KHÔNG mất chuỗi (và ngày học kế tiếp vẫn +1).
+ *
+ * Trước đây nghỉ MỘT ngày là về 1. Với khoá không đăng nhập, không bắt buộc, người học một mình,
+ * đó là trừng phạt người nghỉ ngày — kiểm toán 16/11/2026 gọi tên là "ngõ cụt cảm xúc" và chủ dự
+ * án chốt SỬA bằng ngày ân hạn (không gỡ chuỗi). 1 ngày: đủ cho một ngày bận, chưa đủ để chuỗi
+ * thành con số vô nghĩa.
+ *
+ * GIỚI HẠN đã biết: ân hạn tính THEO TỪNG KHOẢNG NGHỈ, không theo số lần — người học cách ngày
+ * giữ chuỗi mãi. Giới hạn số lần (vd. 1 lần/tuần) cần thêm cột lưu, và chưa có bằng chứng cần.
+ */
+export const NGAY_AN_HAN = 1;
+
+/**
  * Task 109 — logic streak dùng CHUNG cho completeLesson và completeMission.
  * Sheet 3 cảnh báo: viết lặp ở 2 chỗ sẽ lệch nhau và phá bảng xếp hạng streak.
  */
@@ -62,19 +75,21 @@ export class StreakService {
     // Đã học hôm nay rồi -> GIỮ NGUYÊN, không cộng lần 2 trong cùng ngày.
     if (gap <= 0) return currentStreak > 0 ? currentStreak : 1;
 
-    // Học liên tục từ hôm qua -> +1.
-    if (gap === 1) return currentStreak + 1;
+    // Học liên tục từ hôm qua, hoặc nghỉ trong hạn ân hạn -> +1.
+    if (gap <= 1 + NGAY_AN_HAN) return currentStreak + 1;
 
-    // Bỏ quá 1 ngày -> reset về 1.
+    // Nghỉ quá hạn ân hạn -> reset về 1.
     return 1;
   }
 
-  /** true nếu ngày học gần nhất là hôm nay hoặc hôm qua (streak còn hiệu lực). */
+  /** true nếu ngày học gần nhất nằm trong hôm nay, hôm qua hoặc hạn ân hạn (streak còn hiệu lực). */
   isStreakActive(
     lastStudyDate: Date | null | undefined,
     today: Date = new Date(),
   ): boolean {
     if (!lastStudyDate) return false;
-    return dayIndex(toStudyDate(today)) - dayIndex(lastStudyDate) <= 1;
+    return (
+      dayIndex(toStudyDate(today)) - dayIndex(lastStudyDate) <= 1 + NGAY_AN_HAN
+    );
   }
 }

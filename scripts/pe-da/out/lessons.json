@@ -11901,7 +11901,7 @@
        "explanation": "Cần giữ riêng việc chưa có số đo với một số đo bằng 0."
       },
       {
-       "question": "Trung bình của [20, thiếu, 22] mặc định là bao nhiêu?\n\nimport pandas as pd\ntemperature = pd.Series([20.0, None, 22.0])\nprint(temperature.isna().tolist())\nprint(temperature.isna().sum())\nprint(temperature.mean())",
+       "question": "Trung bình của [20, thiếu, 22] mặc định là bao nhiêu?",
        "options": [
         {
          "text": "21, vì phép tính bỏ giá trị thiếu.",
@@ -12677,7 +12677,7 @@
        "explanation": "Số ô trong cột khác số giá trị có thể dùng để tính."
       },
       {
-       "question": "count và size khác gì khi có ô thiếu?\n\nimport pandas as pd\ndf = pd.DataFrame({'store': ['A', 'B', 'C'], 'revenue': [100, 300, 200]})\nprint(df.sort_values('revenue', ascending=False)['store'].tolist())\nprint(df.nlargest(2, 'revenue')['store'].tolist())",
+       "question": "count và size khác gì khi có ô thiếu?",
        "options": [
         {
          "text": "count bỏ ô thiếu; size vẫn đếm chúng.",
@@ -12696,7 +12696,7 @@
        "explanation": "count bỏ ô thiếu; size vẫn đếm chúng."
       },
       {
-       "question": "Muốn lấy ba doanh thu cao nhất, có thể dùng hàm nào?\n\nimport pandas as pd\nstatus = pd.Series(['paid', 'paid', 'cancelled', None], dtype='string')\nprint(status.value_counts().to_dict())\nprint(status.count())\nprint(status.size)",
+       "question": "Muốn lấy ba doanh thu cao nhất, có thể dùng hàm nào?",
        "options": [
         {
          "text": "df.head(3) luôn là ba doanh thu lớn nhất.",
@@ -12981,7 +12981,7 @@
        "explanation": "Dùng dấu chấm phẩy để tách cột."
       },
       {
-       "question": "Vì sao nên đặt dtype string cho mã 001 ngay khi đọc?\n\nimport pandas as pd\nfrom io import StringIO\ntext = '# exported today\\norder,amount,note\\nA,10,ok\\nB,20,ok\\n'\ndf = pd.read_csv(StringIO(text), comment='#', header=0, nrows=1, usecols=['order', 'amount'])\nprint(df.to_dict('records'))",
+       "question": "Vì sao nên đặt dtype string cho mã 001 ngay khi đọc?",
        "options": [
         {
          "text": "Vì string tự loại mọi mã trùng.",
@@ -14190,7 +14190,7 @@
        "explanation": "Danh mục trùng khóa có thể nhân hàng; many_to_one phát hiện trường hợp này."
       },
       {
-       "question": "Hai hàng cùng khóa bên trái nối với ba hàng cùng khóa bên phải tạo bao nhiêu hàng?\n\nimport pandas as pd\norders = pd.DataFrame({'customer_id': [1, 1], 'amount': [10, 20]})\ncustomers = pd.DataFrame({'customer_id': [1, 1], 'city': ['HN', 'DN']})\njoined = orders.merge(customers, on='customer_id')\nprint(len(joined))\nprint(joined['amount'].sum())",
+       "question": "Hai hàng cùng khóa bên trái nối với ba hàng cùng khóa bên phải tạo bao nhiêu hàng?",
        "options": [
         {
          "text": "Sáu hàng.",
@@ -15228,7 +15228,7 @@
        "explanation": "Format ghi rõ ý nghĩa của từng phần trong chuỗi ngày."
       },
       {
-       "question": "Chuỗi 05/01/2026 theo %d/%m/%Y là ngày nào?\n\nimport pandas as pd\nraw = pd.Series(['05/01/2026', '07/01/2026'])\ndates = pd.to_datetime(raw, format='%d/%m/%Y')\nprint(dates.dt.strftime('%Y-%m-%d').tolist())\nprint(dates.dt.month.tolist())",
+       "question": "Chuỗi 05/01/2026 theo %d/%m/%Y là ngày nào?",
        "options": [
         {
          "text": "Ngày 5 tháng 1 năm 2026.",
@@ -16414,7 +16414,7 @@
        "explanation": "Dấu ngoặc tròn loại biên, ngoặc vuông nhận biên."
       },
       {
-       "question": "cut và qcut chọn ranh giới khác nhau thế nào?\n\nimport pandas as pd\nkind = pd.CategoricalDtype(categories=['low', 'medium', 'high'], ordered=True)\npriority = pd.Series(['high', 'low', 'medium'], dtype=kind)\nprint(priority.sort_values().tolist())\nprint(priority.cat.categories.tolist())",
+       "question": "cut và qcut chọn ranh giới khác nhau thế nào?",
        "options": [
         {
          "text": "Hai hàm luôn cho cùng một kết quả.",
@@ -16929,7 +16929,7 @@
        "explanation": "Giảm số cột được nạp."
       },
       {
-       "question": "Vì sao không nên lấy trung bình các trung bình lô khác kích thước?\n\nimport pandas as pd\nnames = pd.Series(['north', 'south'] * 1000, dtype='object')\ncategories = names.astype('category')\nprint(categories.memory_usage(deep=True) < names.memory_usage(deep=True))\nprint(categories.astype('object').equals(names))",
+       "question": "Vì sao không nên lấy trung bình các trung bình lô khác kích thước?",
        "options": [
         {
          "text": "Vì mọi trung bình lô luôn giống nhau.",
@@ -17400,7 +17400,7 @@
        "explanation": "Để lỗi vẫn được nhìn thấy và xử lý theo quy tắc nghiệp vụ."
       },
       {
-       "question": "Một quy tắc không âm có phù hợp mọi bảng giao dịch không?\n\nimport pandas as pd\ndf = pd.DataFrame({'order': ['A', 'B'], 'amount': [10, 20]})\nassert df['order'].notna().all()\nassert df['order'].is_unique\nassert df['amount'].notna().all()\nassert (df['amount'] >= 0).all()\nprint('Passed: 2 orders, total', df['amount'].sum())",
+       "question": "Một quy tắc không âm có phù hợp mọi bảng giao dịch không?",
        "options": [
         {
          "text": "Có; số âm tự được đổi thành số dương khi đọc CSV.",
@@ -17699,7 +17699,7 @@
        "explanation": "Gắn cờ là bước tìm hiểu, không phải kết luận về tính đúng sai."
       },
       {
-       "question": "Trước khi tính giá trị đơn trung bình, cần kiểm tra điều gì về mỗi hàng?\n\nimport pandas as pd\norders = pd.DataFrame({'order': ['A', 'B', 'C', 'D'], 'channel': ['web', 'web', 'shop', 'shop'], 'amount': [10, 30, 20, 100]})\nassert orders['order'].is_unique\nsummary = orders.groupby('channel')['amount'].agg(['count', 'mean', 'median'])\nprint(summary.to_dict('index'))",
+       "question": "Trước khi tính giá trị đơn trung bình, cần kiểm tra điều gì về mỗi hàng?",
        "options": [
         {
          "text": "Có thể bỏ qua ý nghĩa hàng nếu cột amount là số.",
@@ -17998,7 +17998,7 @@
        "explanation": "Thiếu danh mục và thiếu doanh thu là hai vấn đề khác nhau."
       },
       {
-       "question": "Vì sao dự án kiểm tra tổng tiền trước và sau merge?\n\nimport pandas as pd\nfrom io import StringIO\nraw = 'ma_don,quay,ngay,tong_tien\\nO1, q1 ,2026-01-01,10\\nO2,B,2026-01-02,20\\nO2,B,2026-01-02,20\\nO3,C,2026-02-01,30\\n'\ndf = pd.read_csv(StringIO(raw), dtype={'ma_don': 'string', 'quay': 'string'})\ndf['quay'] = df['quay'].str.strip().str.upper()\ndf['ngay'] = pd.to_datetime(df['ngay'], format='%Y-%m-%d')\nclean = df.drop_duplicates()\nassert clean['ma_don'].is_unique\nprint(len(df), len(clean), clean['tong_tien'].sum())",
+       "question": "Vì sao dự án kiểm tra tổng tiền trước và sau merge?",
        "options": [
         {
          "text": "Để ép mọi hàng thành cùng một tong_tien.",
@@ -18017,7 +18017,7 @@
        "explanation": "Để phát hiện việc nhân dòng hoặc làm mất đơn khi nối."
       },
       {
-       "question": "Tại sao giữ nhóm Unknown trong báo cáo mẫu?\n\nimport pandas as pd\ndon = pd.DataFrame({'ma_don': ['O1', 'O2', 'O3'], 'quay': ['Q1', 'Q2', 'QH'], 'tong_tien': [10, 20, 30]})\ndanh_muc_quay = pd.DataFrame({'quay': ['Q1', 'Q2'], 'khu_vuc': ['Phía Nam', 'Trung tâm']})\njoined = don.merge(danh_muc_quay, on='quay', how='left', validate='many_to_one', indicator=True)\nassert len(joined) == len(don)\nassert joined['tong_tien'].sum() == don['tong_tien'].sum()\nprint(joined.loc[joined['_merge'] == 'left_only', 'ma_don'].tolist())\nprint(joined['tong_tien'].sum())",
+       "question": "Tại sao giữ nhóm Unknown trong báo cáo mẫu?",
        "options": [
         {
          "text": "Để các đơn chưa khớp khu vực vẫn được thể hiện và tổng báo cáo còn khớp tổng đơn.",
@@ -18313,7 +18313,7 @@
        "explanation": "Loại biểu đồ đi theo câu hỏi, không phải chỉ vì thư viện vẽ được."
       },
       {
-       "question": "Muốn so sánh số cốc cà phê với trà, chọn line hay bar?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\ndays = [1, 2, 3]\ncups = [12, 15, 9]\nax.plot(days, cups, marker=\"o\")\nax.set(xlabel=\"Day\", ylabel=\"Cups\", title=\"Cups sold over three days\")\nprint(sum(cups))\nplt.show()",
+       "question": "Muốn so sánh số cốc cà phê với trà, chọn line hay bar?",
        "options": [
         {
          "text": "Chọn histogram vì tên đồ uống là một trục số liên tục.",
@@ -18332,7 +18332,7 @@
        "explanation": "Chọn bar. Hai loại đồ uống là hai nhóm; chiều cao cột giúp so sánh lượng bán."
       },
       {
-       "question": "Trong hình đầu, trục x và y đại diện cho gì?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.bar([\"Coffee\", \"Tea\"], [36, 24])\nax.set(ylabel=\"Cups\", title=\"Coffee and tea sales\", ylim=(0, 40))\nprint(36 - 24)\nplt.show()",
+       "question": "Trong hình đầu, trục x và y đại diện cho gì?",
        "options": [
         {
          "text": "x và y đều là số thứ tự dòng.",
@@ -18927,7 +18927,7 @@
        "explanation": "Sắp theo ngày và giữ đúng cặp ngày–giá trị. plot nối theo thứ tự đầu vào."
       },
       {
-       "question": "np.nan ở giữa một đường cho biết ngày đó bán được 0 không?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.plot([1, 2, 3], [8, 10, 7], marker=\"o\", linestyle=\"-\", label=\"Coffee\")\nax.plot([1, 2, 3], [5, 6, 6], marker=\"s\", linestyle=\"--\", label=\"Tea\")\nax.set(xlabel=\"Day\", ylabel=\"Sales (million VND)\", title=\"Sales by drink\")\nax.legend()\nprint(len(ax.lines))\nplt.show()",
+       "question": "np.nan ở giữa một đường cho biết ngày đó bán được 0 không?",
        "options": [
         {
          "text": "Có; thiếu dữ liệu có cùng nghĩa với bán 0 cốc.",
@@ -19304,7 +19304,7 @@
        "explanation": "Số liệu có ý nghĩa khi vẫn đi cùng đúng nhóm."
       },
       {
-       "question": "Cà phê 30 cốc và trà 18 cốc chênh nhau bao nhiêu?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nbars = ax.bar([\"Tea\", \"Coffee\", \"Cocoa\"], [18, 30, 12])\nax.set(ylabel=\"Cups\", title=\"Sales by drink\", ylim=(0, 35))\nax.bar_label(bars)\nprint(sum(bar.get_height() for bar in bars))\nplt.show()",
+       "question": "Cà phê 30 cốc và trà 18 cốc chênh nhau bao nhiêu?",
        "options": [
         {
          "text": "Chênh 1.67 cốc vì phải chia hai cột.",
@@ -19323,7 +19323,7 @@
        "explanation": "12 cốc. Trục bắt đầu từ 0 để độ dài hai cột có chung mốc so sánh."
       },
       {
-       "question": "Khi tên nhóm dài, nên đổi sang hàm nào?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\ndata = sorted([(\"Tea\", 18), (\"Coffee\", 30), (\"Cocoa\", 12)], key=lambda row: row[1])\nnames, cups = zip(*data)\nax.barh(names, cups)\nax.set(xlabel=\"Cups\", title=\"Largest seller is at the top\", xlim=(0, 35))\nprint(names[-1])\nplt.show()",
+       "question": "Khi tên nhóm dài, nên đổi sang hàm nào?",
        "options": [
         {
          "text": "barh để vẽ cột ngang, giảm nhu cầu xoay nhãn.",
@@ -19576,7 +19576,7 @@
        "explanation": "Mỗi tham số mã hóa một đại lượng; s không phải bán kính hay vị trí."
       },
       {
-       "question": "Mỗi điểm trong ví dụ giao hàng là gì?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\ndistance = [1, 2, 3, 4]\nminutes = [8, 12, 11, 18]\nax.scatter(distance, minutes)\nax.set(xlabel=\"Distance (km)\", ylabel=\"Delivery (minutes)\", title=\"One point per order\")\nprint(len(distance))\nplt.show()",
+       "question": "Mỗi điểm trong ví dụ giao hàng là gì?",
        "options": [
         {
          "text": "Một điểm là trung bình của mọi đơn.",
@@ -19886,7 +19886,7 @@
        "explanation": "[3,6), tức cột thứ hai."
       },
       {
-       "question": "Histogram và bar chart khác nhau thế nào?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nwait = [1, 2, 2, 4, 5, 8]\ncounts, edges, bars = ax.hist(wait, bins=[0, 5, 10], edgecolor=\"white\")\nax.set(xlabel=\"Wait (minutes)\", ylabel=\"Orders\", title=\"The same data, wider bins\")\nprint(counts.astype(int).tolist())\nplt.show()",
+       "question": "Histogram và bar chart khác nhau thế nào?",
        "options": [
         {
          "text": "Bar chart chỉ dùng cho số liên tục, histogram chỉ dùng cho nhãn chữ.",
@@ -20511,7 +20511,7 @@
        "explanation": "vmin/vmax cùng đơn vị giúp màu mang cùng ý nghĩa."
       },
       {
-       "question": "Heatmap 2 hàng và 3 cột có bao nhiêu ô dữ liệu?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\ncounts = np.array([[2, 5, 3], [4, 1, 6]])\nim = ax.imshow(counts, cmap=\"viridis\", vmin=0, vmax=6, aspect=\"auto\")\nax.set_xticks([0, 1, 2], [\"Morning\", \"Noon\", \"Evening\"])\nax.set_yticks([0, 1], [\"Store A\", \"Store B\"])\nax.set_title(\"Orders by store and time\")\nfig.colorbar(im, ax=ax, label=\"Orders\")\nprint(counts.shape)\nplt.show()",
+       "question": "Heatmap 2 hàng và 3 cột có bao nhiêu ô dữ liệu?",
        "options": [
         {
          "text": "Có 7 ô vì tính cả colorbar.",
@@ -20530,7 +20530,7 @@
        "explanation": "6 ô; colorbar và nhãn không phải ô dữ liệu."
       },
       {
-       "question": "Hai cửa hàng dùng cùng màu xanh đậm có chắc cùng số đơn không?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\ncounts = np.array([[2, 5], [4, 1]])\nim = ax.imshow(counts, cmap=\"Blues\", vmin=0, vmax=6)\nfor (row, col), value in np.ndenumerate(counts):\n    ax.text(col, row, str(value), ha=\"center\", va=\"center\", color=\"black\")\nax.set(xticks=[0, 1], xticklabels=[\"Morning\", \"Noon\"], yticks=[0, 1], yticklabels=[\"A\", \"B\"], title=\"Read the count in each cell\")\nfig.colorbar(im, ax=ax, label=\"Orders\")\nprint(int(counts.sum()))\nplt.show()",
+       "question": "Hai cửa hàng dùng cùng màu xanh đậm có chắc cùng số đơn không?",
        "options": [
         {
          "text": "Chỉ khi cùng thang màu và cùng đơn vị. Cần đọc vmin, vmax hoặc colorbar.",
@@ -20792,7 +20792,7 @@
        "explanation": "Mốc tham chiếu phải được phân biệt với các quan sát có thật."
       },
       {
-       "question": "Tiêu đề “Doanh thu” còn thiếu gì để đọc được các con số?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.plot([1, 2, 3], [8, 10, 7], marker=\"o\", label=\"Revenue\")\nax.set(xlabel=\"Day in January\", ylabel=\"Revenue (million VND)\", title=\"Revenue peaked on day 2\")\nax.legend()\nax.text(0, -0.30, \"Synthetic teaching data; three days only\", transform=ax.transAxes, fontsize=9)\nprint(ax.get_ylabel())\nplt.show()",
+       "question": "Tiêu đề “Doanh thu” còn thiếu gì để đọc được các con số?",
        "options": [
         {
          "text": "Chỉ cần xóa số trên trục.",
@@ -21054,7 +21054,7 @@
        "explanation": "Để phân biệt chuỗi khi in đen trắng hoặc khi người đọc khó nhận ra chênh lệch màu."
       },
       {
-       "question": "Giá trị từ 0 đến 100 nên dùng thang tuần tự hay phân kỳ quanh 0?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nim = ax.imshow([[1, 2], [3, 4]], cmap=\"viridis\", vmin=0, vmax=4)\nax.set(xticks=[0, 1], xticklabels=[\"Mon\", \"Tue\"], yticks=[0, 1], yticklabels=[\"A\", \"B\"], title=\"A sequential numeric scale\")\nfig.colorbar(im, ax=ax, label=\"Orders\")\nprint(im.get_clim())\nplt.show()",
+       "question": "Giá trị từ 0 đến 100 nên dùng thang tuần tự hay phân kỳ quanh 0?",
        "options": [
         {
          "text": "Chọn màu ngẫu nhiên cho từng số, không cần thứ tự.",
@@ -21319,7 +21319,7 @@
        "explanation": "Cần phân biệt hiệu số bằng nhau với tỷ số bằng nhau."
       },
       {
-       "question": "Hai giá trị 98 và 100 chênh 2 hay 200 đơn?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.bar([\"A\", \"B\"], [98, 100])\nax.set(ylabel=\"Orders\", title=\"Keep a meaningful bar baseline\", ylim=(0, 110))\nax.set_yticks([0, 50, 100])\nprint(round(100 / 98, 3))\nplt.show()",
+       "question": "Hai giá trị 98 và 100 chênh 2 hay 200 đơn?",
        "options": [
         {
          "text": "Chênh 2 đơn. Thu hẹp trục không làm chênh lệch số học lớn lên.",
@@ -21966,7 +21966,7 @@
        "explanation": "SE của trung bình khác độ phân tán của từng quan sát."
       },
       {
-       "question": "Cộng trừ một độ lệch chuẩn có phải mặc định là khoảng tin cậy 95%?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.errorbar([1, 2], [10, 12], yerr=[2, 3], fmt=\"o\", capsize=5)\nax.set(xticks=[1, 2], xticklabels=[\"A\", \"B\"], ylabel=\"Delivery (minutes)\", title=\"Means with supplied +/- standard deviations\")\nprint(10 - 2, 10 + 2)\nplt.show()",
+       "question": "Cộng trừ một độ lệch chuẩn có phải mặc định là khoảng tin cậy 95%?",
        "options": [
         {
          "text": "Không. Độ lệch chuẩn nói về độ phân tán; khoảng tin cậy nói về độ bất định của một ước lượng theo phương pháp được chọn.",
@@ -21985,7 +21985,7 @@
        "explanation": "Không. Độ lệch chuẩn nói về độ phân tán; khoảng tin cậy nói về độ bất định của một ước lượng theo phương pháp được chọn."
       },
       {
-       "question": "Với SD=4 và n=16, sai số chuẩn trung bình bằng bao nhiêu?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\ntimes = np.array([8, 10, 12, 10], dtype=float)\nsd = times.std(ddof=1)\nse = sd / np.sqrt(len(times))\nax.errorbar([1], [times.mean()], yerr=[se], fmt=\"o\", capsize=5)\nax.set(xticks=[1], xticklabels=[\"A\"], ylabel=\"Delivery (minutes)\", title=\"Mean +/- one standard error; n=4\")\nprint(round(float(sd), 2), round(float(se), 2))\nplt.show()",
+       "question": "Với SD=4 và n=16, sai số chuẩn trung bình bằng bao nhiêu?",
        "options": [
         {
          "text": "SE=0.25 vì chia trực tiếp SD cho n.",
@@ -22243,7 +22243,7 @@
        "explanation": "800 pixel. Điều này giả định không cắt hoặc thay đổi kích thước sau xuất."
       },
       {
-       "question": "Muốn đặt hình lên nền slide có màu, cân nhắc tham số nào?\n\nimport matplotlib\nmatplotlib.use(\"Agg\")\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nfrom io import StringIO\nax.bar([\"Coffee\", \"Tea\"], [36, 24])\nax.set(ylabel=\"Cups\", title=\"Vector export\")\nbuffer = StringIO()\nfig.savefig(buffer, format=\"svg\", transparent=True, bbox_inches=\"tight\")\nsvg = buffer.getvalue()\nprint(\"<svg\" in svg)\nfrom pathlib import Path\nfrom tempfile import gettempdir\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\nfig.savefig(out / \"VZ14-2.png\", dpi=130)\nplt.close(fig)",
+       "question": "Muốn đặt hình lên nền slide có màu, cân nhắc tham số nào?",
        "options": [
         {
          "text": "transparent=True; sau đó kiểm tra tương phản trên nền slide thật.",
@@ -22463,7 +22463,7 @@
        "explanation": "Dữ liệu truyền vào hình phải khớp câu hỏi báo cáo."
       },
       {
-       "question": "Bảng có ba dòng cà phê. Muốn một cột tổng doanh thu cần làm gì?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\norders = pd.DataFrame({\"drink\":[\"Coffee\", \"Tea\", \"Coffee\"], \"revenue\":[20, 12, 30]})\ntotals = orders.groupby(\"drink\")[\"revenue\"].sum()\ntotals.plot.bar(ax=ax, rot=0)\nax.set(xlabel=\"Drink\", ylabel=\"Revenue (thousand VND)\", title=\"Aggregate before comparing categories\")\nprint(totals.to_dict())\nplt.show()",
+       "question": "Bảng có ba dòng cà phê. Muốn một cột tổng doanh thu cần làm gì?",
        "options": [
         {
          "text": "Vẽ từng hàng thành cột rồi tự coi chúng là tổng.",
@@ -22482,7 +22482,7 @@
        "explanation": "groupby theo đồ uống rồi sum doanh thu, sau đó plot.bar kết quả."
       },
       {
-       "question": "Index ngày chưa sắp có ảnh hưởng đến line chart không?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\ndaily = pd.DataFrame({\"date\":[\"2026-01-03\", \"2026-01-01\", \"2026-01-02\"], \"cups\":[7, 8, 10]})\ndaily[\"date\"] = pd.to_datetime(daily[\"date\"])\ndaily = daily.sort_values(\"date\")\ndaily.plot(x=\"date\", y=\"cups\", ax=ax, marker=\"o\", legend=False)\nax.set(xlabel=\"Date\", ylabel=\"Cups\", title=\"Sort dates before joining observations\")\nprint(daily[\"cups\"].tolist())\nplt.show()",
+       "question": "Index ngày chưa sắp có ảnh hưởng đến line chart không?",
        "options": [
         {
          "text": "Có. Đường nối theo thứ tự đầu vào; cần sắp theo ngày.",
@@ -22737,7 +22737,7 @@
        "explanation": "ECDF tính theo các quan sát, không cần chọn bins."
       },
       {
-       "question": "ECDF tại 4 bằng 4/6 có nghĩa gì?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\nimport seaborn as sns\norders = pd.DataFrame({\"wait\":[1, 2, 2, 4, 5, 8]})\nsns.histplot(data=orders, x=\"wait\", bins=[0, 3, 6, 9], ax=ax)\nax.set(xlabel=\"Wait (minutes)\", ylabel=\"Orders\", title=\"A named column in a DataFrame\")\nprint(len(orders))\nplt.show()",
+       "question": "ECDF tại 4 bằng 4/6 có nghĩa gì?",
        "options": [
         {
          "text": "Mỗi quan sát chắc chắn có xác suất đúng 4/6.",
@@ -22756,7 +22756,7 @@
        "explanation": "Bốn trong sáu quan sát có thời gian chờ nhỏ hơn hoặc bằng 4 phút."
       },
       {
-       "question": "Tăng bw_adjust thường làm KDE thay đổi thế nào?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\nimport seaborn as sns\norders = pd.DataFrame({\"wait\":[1, 2, 2, 4, 5, 8]})\nsns.ecdfplot(data=orders, x=\"wait\", ax=ax)\nax.set(xlabel=\"Wait (minutes)\", ylabel=\"Proportion <= x\", title=\"How many orders wait at most four minutes?\")\nprint(round(float((orders[\"wait\"] <= 4).mean()), 3))\nplt.show()",
+       "question": "Tăng bw_adjust thường làm KDE thay đổi thế nào?",
        "options": [
         {
          "text": "Đường được làm mượt hơn; có thể che những chi tiết hoặc đỉnh nhỏ.",
@@ -23105,7 +23105,7 @@
        "explanation": "Phải biết hình đang biểu diễn từng quan sát hay ước lượng nhóm."
       },
       {
-       "question": "lineplot có ba dòng cùng ngày thường vẽ ba điểm hay một trung bình?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\nimport seaborn as sns\norders = pd.DataFrame({\"km\":[1, 2, 2, 3], \"minutes\":[8, 12, 10, 11], \"mode\":[\"Bike\", \"Bike\", \"Motor\", \"Motor\"]})\nsns.scatterplot(data=orders, x=\"km\", y=\"minutes\", hue=\"mode\", style=\"mode\", ax=ax)\nax.set(xlabel=\"Distance (km)\", ylabel=\"Delivery (minutes)\", title=\"Color and marker encode the same group\")\nprint(orders[\"mode\"].nunique())\nplt.show()",
+       "question": "lineplot có ba dòng cùng ngày thường vẽ ba điểm hay một trung bình?",
        "options": [
         {
          "text": "Mặc định nó tổng hợp thành ước lượng trung bình cho ngày đó, kèm khoảng theo cấu hình.",
@@ -23124,7 +23124,7 @@
        "explanation": "Mặc định nó tổng hợp thành ước lượng trung bình cho ngày đó, kèm khoảng theo cấu hình."
       },
       {
-       "question": "Muốn vẽ đường riêng của từng store mà không lấy trung bình cần gì?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\nimport seaborn as sns\ndaily = pd.DataFrame({\"day\":[1, 1, 2, 2], \"cups\":[8, 12, 10, 14]})\nsns.lineplot(data=daily, x=\"day\", y=\"cups\", errorbar=None, marker=\"o\", ax=ax)\nax.set(xlabel=\"Day\", ylabel=\"Mean cups\", title=\"Repeated x values are aggregated\")\nprint(daily.groupby(\"day\")[\"cups\"].mean().tolist())\nplt.show()",
+       "question": "Muốn vẽ đường riêng của từng store mà không lấy trung bình cần gì?",
        "options": [
         {
          "text": "Xóa store khỏi dữ liệu rồi Seaborn tự tách cửa hàng.",
@@ -23305,7 +23305,7 @@
        "explanation": "relplot là hàm ở cấp Figure, tự tạo FacetGrid. scatterplot là hàm ở cấp Axes và nhận ax."
       },
       {
-       "question": "Muốn xem riêng từng cửa hàng, thêm tham số gì?\n\nimport matplotlib.pyplot as plt\nimport pandas as pd\nimport seaborn as sns\ndata = pd.DataFrame({\"shift\":[\"AM\", \"AM\", \"PM\", \"PM\"], \"wait\":[2, 4, 3, 5], \"store\":[\"A\", \"B\", \"A\", \"B\"]})\ng = sns.catplot(data=data, x=\"shift\", y=\"wait\", col=\"store\", kind=\"strip\", jitter=False, height=2.6)\ng.set_axis_labels(\"Shift\", \"Wait (minutes)\")\nfig = g.figure\nprint(len(g.axes.flat))\nplt.show()",
+       "question": "Muốn xem riêng từng cửa hàng, thêm tham số gì?",
        "options": [
         {
          "text": "xlabel=\"store\" để tự chia cửa hàng.",
@@ -23617,7 +23617,7 @@
        "explanation": "visible có một giá trị cho mỗi trace, theo đúng thứ tự."
       },
       {
-       "question": "Hai trace thì visible cần mấy giá trị?\n\nimport pandas as pd\nimport plotly.express as px\ndata = pd.DataFrame({\"store\":[\"A\", \"A\", \"B\"], \"day\":[1, 2, 1], \"cups\":[8, 10, 5]})\nselected = data.loc[data[\"store\"].eq(\"A\")]\nfig = px.line(selected, x=\"day\", y=\"cups\", markers=True, title=\"Store A only\", labels={\"day\":\"Day\", \"cups\":\"Cups\"})\nprint(len(selected))\nfig.show()",
+       "question": "Hai trace thì visible cần mấy giá trị?",
        "options": [
         {
          "text": "Hai giá trị, theo đúng thứ tự trace; [True, False] chỉ hiện trace đầu.",
@@ -24252,7 +24252,7 @@
        "explanation": "Đại lượng cần so sánh phải được xác định trước khi vẽ."
       },
       {
-       "question": "A:20/1000 và B:10/100, nơi nào có tỷ lệ khiếu nại cao hơn?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nrate = [20/1000*100, 10/100*100]\nbars = ax.bar([\"A\", \"B\"], rate)\nax.bar_label(bars, fmt=\"%.1f%%\")\nax.set(ylabel=\"Complaints (%)\", title=\"Use the relevant denominator\", ylim=(0, 12))\nprint(rate)\nplt.show()",
+       "question": "A:20/1000 và B:10/100, nơi nào có tỷ lệ khiếu nại cao hơn?",
        "options": [
         {
          "text": "B:10%, trong khi A:2%. Cần so cùng một chỉ số và ghi mẫu số.",
@@ -24271,7 +24271,7 @@
        "explanation": "B:10%, trong khi A:2%. Cần so cùng một chỉ số và ghi mẫu số."
       },
       {
-       "question": "Hai đường giao nhau khi mỗi đường có một trục y riêng nói lên điều gì?\n\nimport matplotlib.pyplot as plt\nfig, axes = plt.subplots(2, 1, figsize=(6, 5), sharex=True, layout=\"constrained\")\naxes[0].plot([1, 2, 3], [100, 120, 110], marker=\"o\")\naxes[0].set(ylabel=\"Visitors\", title=\"Separate units; shared time\")\naxes[1].plot([1, 2, 3], [2, 4, 3], marker=\"s\", color=\"#D55E00\")\naxes[1].set(xlabel=\"Day\", ylabel=\"Revenue (million VND)\")\nprint(len(fig.axes))\nplt.show()",
+       "question": "Hai đường giao nhau khi mỗi đường có một trục y riêng nói lên điều gì?",
        "options": [
         {
          "text": "Hai đại lượng chắc chắn bằng nhau ở điểm giao.",
@@ -24524,7 +24524,7 @@
        "explanation": "Tách dữ liệu gốc khỏi phần đang được trình chiếu ở một khung."
       },
       {
-       "question": "interval=600 có nghĩa mỗi khung kéo dài bao lâu?\n\nimport matplotlib\nmatplotlib.use(\"Agg\")\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nline, = ax.plot([], [], marker=\"o\")\nax.set(xlim=(1, 3), ylim=(0, 12), xlabel=\"Day\", ylabel=\"Cups\", title=\"Reveal observations one at a time\")\nx, y = [1, 2, 3], [8, 10, 7]\ndef update(frame):\n    line.set_data(x[:frame+1], y[:frame+1])\n    return (line,)\nupdate(1)\nprint(list(line.get_ydata()))\nfrom pathlib import Path\nfrom tempfile import gettempdir\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\nfig.savefig(out / \"VZ25-1.png\", dpi=130)\nplt.close(fig)",
+       "question": "interval=600 có nghĩa mỗi khung kéo dài bao lâu?",
        "options": [
         {
          "text": "0.006 giây.",
@@ -24790,7 +24790,7 @@
        "explanation": "Lời kết luận phải bám vào số đã được tính và đơn vị của dữ liệu."
       },
       {
-       "question": "Tính doanh thu cho 2 cà phê giá 20 và 3 trà giá 12.\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\norders = pd.DataFrame({\"drink\":[\"Coffee\", \"Tea\", \"Coffee\"], \"so_coc\":[2, 3, 1], \"price\":[20, 12, 20]})\nvalid = orders.loc[orders[\"so_coc\"].ge(0) & orders[\"price\"].ge(0)].copy()\nvalid[\"revenue\"] = valid[\"so_coc\"] * valid[\"price\"]\ntotals = valid.groupby(\"drink\")[\"revenue\"].sum().sort_values()\ntotals.plot.barh(ax=ax)\nax.set(xlabel=\"Revenue (thousand VND)\", ylabel=\"Drink\", title=\"Coffee contributes more revenue in this sample\")\nprint(totals.to_dict())\nplt.show()",
+       "question": "Tính doanh thu cho 2 cà phê giá 20 và 3 trà giá 12.",
        "options": [
         {
          "text": "Tổng 32 vì chỉ cộng hai đơn giá.",
@@ -24809,7 +24809,7 @@
        "explanation": "Cà phê 40, trà 36; tổng 76 theo cùng đơn vị giá. Phải ghi rõ đơn vị và quy tắc lượng, giá."
       },
       {
-       "question": "Dữ liệu chỉ có doanh thu, có gọi loại doanh thu cao nhất là lợi nhuận cao nhất không?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\ntotals = pd.Series({\"Coffee\":60, \"Tea\":36})\nshare = totals / totals.sum() * 100\nbars = ax.bar(share.index, share.values)\nax.bar_label(bars, fmt=\"%.1f%%\")\nax.set(ylabel=\"Revenue share (%)\", title=\"Coffee accounts for 62.5% of sample revenue\", ylim=(0, 100))\nprint(round(float(share[\"Coffee\"]), 1))\nplt.show()",
+       "question": "Dữ liệu chỉ có doanh thu, có gọi loại doanh thu cao nhất là lợi nhuận cao nhất không?",
        "options": [
         {
          "text": "Có; chi phí luôn bằng 0 trong mọi dữ liệu.",
@@ -25072,7 +25072,7 @@
        "explanation": "Cơ cấu có ý nghĩa khi các phần cộng về cùng một tổng dương."
       },
       {
-       "question": "Hai tỷ lệ lấy từ hai tập khách khác nhau có nên ghép pie không?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.bar([\"All drinks\"], [60], label=\"Coffee\")\nax.bar([\"All drinks\"], [40], bottom=[60], label=\"Tea\")\nax.set(ylabel=\"Share (%)\", title=\"Parts of the same total\", ylim=(0, 100))\nax.legend()\nprint(60 + 40)\nplt.show()",
+       "question": "Hai tỷ lệ lấy từ hai tập khách khác nhau có nên ghép pie không?",
        "options": [
         {
          "text": "Có nếu mỗi phần dùng một màu riêng.",
@@ -25091,7 +25091,7 @@
        "explanation": "Không. Các phần của pie phải thuộc cùng một tổng và có ý nghĩa cộng lại."
       },
       {
-       "question": "fill có tự tính diện tích hay tổng tích lũy cho bạn không?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nwedges, labels, values = ax.pie([60, 40], labels=[\"Coffee\", \"Tea\"], autopct=\"%.0f%%\", colors=[\"#0072B2\", \"#D55E00\"])\nax.set_title(\"Only two mutually exclusive shares\")\nprint([text.get_text() for text in values])\nplt.show()",
+       "question": "fill có tự tính diện tích hay tổng tích lũy cho bạn không?",
        "options": [
         {
          "text": "Có; fill tự tính đường tích lũy từ mọi tọa độ.",

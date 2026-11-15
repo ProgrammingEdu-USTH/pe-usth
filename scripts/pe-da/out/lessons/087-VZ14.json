@@ -117,7 +117,7 @@
      "explanation": "800 pixel. Điều này giả định không cắt hoặc thay đổi kích thước sau xuất."
     },
     {
-     "question": "Muốn đặt hình lên nền slide có màu, cân nhắc tham số nào?\n\nimport matplotlib\nmatplotlib.use(\"Agg\")\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nfrom io import StringIO\nax.bar([\"Coffee\", \"Tea\"], [36, 24])\nax.set(ylabel=\"Cups\", title=\"Vector export\")\nbuffer = StringIO()\nfig.savefig(buffer, format=\"svg\", transparent=True, bbox_inches=\"tight\")\nsvg = buffer.getvalue()\nprint(\"<svg\" in svg)\nfrom pathlib import Path\nfrom tempfile import gettempdir\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\nfig.savefig(out / \"VZ14-2.png\", dpi=130)\nplt.close(fig)",
+     "question": "Muốn đặt hình lên nền slide có màu, cân nhắc tham số nào?",
      "options": [
       {
        "text": "transparent=True; sau đó kiểm tra tương phản trên nền slide thật.",

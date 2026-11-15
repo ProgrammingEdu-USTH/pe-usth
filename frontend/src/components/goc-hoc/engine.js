@@ -603,7 +603,20 @@ function runIntro(){
   introTimer.push(setTimeout(()=>{ drawCal(); finishIntro(); },3100));
 }
 $('#skip').addEventListener('click',()=>{ finishIntro(); countUp(); drawCal(); });
-on(window,'keydown',e=>{ if (e.key==='Escape'){ if (app.classList.contains('intro')){ finishIntro(); countUp(); drawCal(); } else if (route) back(); else if (peeking) unpeek(); else { $('#calPop').hidden=true; hidePop(true); } } });
+/* ESC: thoát màn / bỏ qua intro — NHƯNG không khi người học đang GÕ. Panel "Hỏi gợi ý"
+ * (`#hintIn`) và ô tên (`#tenIn`) là hai ô gõ của cảnh; Esc trong đó từng gọi `back()` /
+ * `finishIntro()` và đá người ta khỏi màn đang nhập dở. Bắt `tagName` chứ không bắt id:
+ * ô gõ thứ ba thêm vào sau cũng được che. Phát hiện khi soát nhánh `test` (33834e6). */
+function onEscape(e){
+  if (e.key!=='Escape' || e.defaultPrevented) return;
+  const t = e.target, tag = t && t.tagName ? t.tagName.toLowerCase() : '';
+  if (tag==='input' || tag==='textarea' || tag==='select' || (t && t.isContentEditable)) return;
+  if (app.classList.contains('intro')){ finishIntro(); countUp(); drawCal(); }
+  else if (route) back();
+  else if (peeking) unpeek();
+  else { $('#calPop').hidden=true; hidePop(true); }
+}
+on(window,'keydown',onEscape);
 /* ---------- nội dung các màn ----------
  * Mọi màn dưới đây dựng từ `CONTENT` (giáo trình thật) và `USER` (số thật hoặc
  * null). Chuỗi nào đến từ SERVER (tên người, tên trong bảng xếp hạng, tên huy

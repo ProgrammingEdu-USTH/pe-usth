@@ -6,7 +6,6 @@ import Mcq from '@/components/lesson-chrome/exercises/Mcq';
 import { toCodeLines } from '@/lib/py-highlight';
 import { correctIndex, letterKey, optionDetail, optionText, tachDeVaCode } from '@/lib/studio-lesson';
 
-import c from '../studio-chrome.module.css';
 import { paragraphs, ScreenShell } from './chrome';
 import type { LessonScreenProps } from './props';
 
@@ -37,7 +36,12 @@ export default function McqScreen({
     // của bản dựng có backtick và trước đây hiện ra nguyên dấu.
     <ScreenShell scr={scr} metaLabel={metaLabel} title={paragraphs(de)} verdict={verdict}>
       {code ? (
-        <div className={c.readCode}>
+        // KHÔNG dùng `c.readCode` ở đây: `.readCode > div` đặt `margin-bottom: 0`
+        // cho CodeBlock vì ở màn ĐỌC gap của `.read` đã lo khoảng cách. Màn trắc
+        // nghiệm không có `.read`, nên mượn lớp ấy làm khối code dính LIỀN thẻ
+        // phương án đầu tiên (đo: codeCard bottom 396, phương án A top 396 —
+        // 0px) ở 471/1032 câu có đoạn code. `.codeCard` tự mang 16px; để nguyên.
+        <div>
           <CodeBlock filename="python" langTag="đoạn code của câu hỏi" lines={toCodeLines(code)} />
         </div>
       ) : null}

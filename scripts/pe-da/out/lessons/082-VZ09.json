@@ -98,7 +98,7 @@
      "explanation": "Mốc tham chiếu phải được phân biệt với các quan sát có thật."
     },
     {
-     "question": "Tiêu đề “Doanh thu” còn thiếu gì để đọc được các con số?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.plot([1, 2, 3], [8, 10, 7], marker=\"o\", label=\"Revenue\")\nax.set(xlabel=\"Day in January\", ylabel=\"Revenue (million VND)\", title=\"Revenue peaked on day 2\")\nax.legend()\nax.text(0, -0.30, \"Synthetic teaching data; three days only\", transform=ax.transAxes, fontsize=9)\nprint(ax.get_ylabel())\nplt.show()",
+     "question": "Tiêu đề “Doanh thu” còn thiếu gì để đọc được các con số?",
      "options": [
       {
        "text": "Chỉ cần xóa số trên trục.",

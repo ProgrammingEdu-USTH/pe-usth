@@ -87,7 +87,7 @@
      "explanation": "Cần giữ riêng việc chưa có số đo với một số đo bằng 0."
     },
     {
-     "question": "Trung bình của [20, thiếu, 22] mặc định là bao nhiêu?\n\nimport pandas as pd\ntemperature = pd.Series([20.0, None, 22.0])\nprint(temperature.isna().tolist())\nprint(temperature.isna().sum())\nprint(temperature.mean())",
+     "question": "Trung bình của [20, thiếu, 22] mặc định là bao nhiêu?",
      "options": [
       {
        "text": "21, vì phép tính bỏ giá trị thiếu.",

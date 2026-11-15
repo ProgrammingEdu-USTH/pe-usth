@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 
 import PageStyles from '@/components/PageStyles';
 import StudioLesson from '@/components/python-studio/StudioLesson';
+import { findCourse } from '@/lib/catalog';
 import { soBaiTuTruyVan } from '@/lib/nhap-bai';
 
 // Cùng lý do với /lesson/python: Lighthouse SEO trừ điểm vì thiếu meta
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
   // thứ bộ mới không có một cái nào.
   title: 'Bài học Python cho Data Analyst – Programming EDU',
   description:
-    'Python cho Data Analyst: 172 bài từ phép cộng đầu tiên tới NumPy, pandas '
+    `Python cho Data Analyst: ${findCourse('python_advanced')?.lessons ?? 179} bài từ phép cộng đầu tiên tới NumPy, pandas `
     + 'và trực quan hoá — đọc lời giảng, xem code kèm kết quả rồi chạy lại ngay '
     + 'trong trình duyệt.',
 };
@@ -23,8 +24,8 @@ const STUDIO_CSS = [
   '/static/css/studio-tokens.css',
 ];
 
-// Khoá Python Advanced: cùng 40 bài PE v3 nhưng nội dung là studio-lesson/v2
-// (mini-game sinh bởi scripts/pe-v3/build_advanced.py). Link từ trang khoá học
+// Khoá "Python cho Data Analyst" (mã nội bộ python_advanced): giáo trình ĐỌC pe-da, nội dung
+// là studio-lesson/v2 sinh bởi scripts/pe-da/build.py. Link từ trang khoá học
 // truyền chỉ số bài 0-based; bảng lessons đánh số từ 1 (sort_order).
 export default async function LessonPythonAdvancedPage({
   searchParams,

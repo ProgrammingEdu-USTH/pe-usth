@@ -97,7 +97,7 @@ const boQua = { skip: coDung ? false : 'chưa dựng — chạy `py scripts/pe-d
 
 const cauCua = (b) => (b.content_json?.step_2?.mcq ?? []);
 
-test('bản dựng: 219/537 câu mang đoạn code, và mọi đoạn tách lại được', boQua, () => {
+test('bản dựng: 177/537 câu mang đoạn code (219 trừ 42 câu bị bỏ code trang trí), và mọi đoạn tách lại được', boQua, () => {
   let tong = 0;
   let coCode = 0;
   for (const b of bai) {
@@ -111,7 +111,30 @@ test('bản dựng: 219/537 câu mang đoạn code, và mọi đoạn tách lạ
     }
   }
   assert.equal(tong, 537);
-  assert.equal(coCode, 219);
+  // 219 câu của nguồn mang `code`; 42 câu trong số đó bị BỎ code vì đoạn ấy không liên quan tới đề
+  // (xem `code_khong_lien_quan` ở scripts/pe-da/build.py). Đổi con số này thì phải biết VÌ SAO.
+  assert.equal(coCode, 177);
+});
+
+test('bản dựng: câu còn mang code không phải loại "code trang trí" (không định danh nào chung với đề)', boQua, () => {
+  // Bản chép JS của phép loại trong build.py/check.py — chỉ để ca này đọc BẢN DỰNG và đòi phép loại
+  // ĐÃ chạy. Câu bị giữ code vì việc bỏ làm đề TRÙNG câu khác của bài thì được miễn.
+  const dinhDanh = (s) => new Set((s.match(/[A-Za-z_][A-Za-z_0-9]{2,}/g) ?? []).map((x) => x.toLowerCase()));
+  const chiVaoCode = /code|đoạn|lệnh|biến|ở trên|bên trên|dưới đây|in ra|print|đầu ra|output|dòng (?:cuối|đầu|thứ|số|\d)/;
+  const sai = [];
+  for (const b of bai) {
+    const qs = cauCua(b);
+    const des = qs.map((q) => tachDeVaCode(q.question).de.trim());
+    qs.forEach((q, i) => {
+      const { de, code } = tachDeVaCode(q.question);
+      if (!code) return;
+      const a = dinhDanh(de);
+      const chung = [...a].some((x) => dinhDanh(code).has(x));
+      const trangTri = a.size >= 2 && !chung && !chiVaoCode.test(de.toLowerCase());
+      if (trangTri && des.filter((d) => d === de.trim()).length === 1) sai.push(`${b.lesson_code} câu ${i}`);
+    });
+  }
+  assert.deepEqual(sai, [], `còn câu mang code trang trí: ${sai.slice(0, 6).join(', ')}`);
 });
 
 test('bản dựng: KHÔNG bài nào có hai câu trùng nguyên văn', boQua, () => {
@@ -153,4 +176,20 @@ test('McqScreen thực sự dựng khối code: gọi tachDeVaCode và dùng Cod
   assert.ok(src.includes('CodeBlock'), 'code phải dựng bằng CodeBlock, không phải văn xuôi');
   // Tiêu đề phải là ĐỀ đã tách, không phải `q.question` nguyên bản.
   assert.ok(!/title=\{q\.question\}/.test(src), 'vẫn truyền nguyên question làm tiêu đề');
+});
+
+test('McqScreen: khối code của đề KHÔNG nằm trong .readCode — nếu không nó dính liền phương án A', () => {
+  // `.readCode > div { margin-bottom: 0 }` là luật của màn ĐỌC (gap của `.read`
+  // lo khoảng cách). Mượn nó ở màn trắc nghiệm xoá luôn 16px của `.codeCard`:
+  // đo trong Chrome, đáy khối code và đỉnh phương án A cùng ở y = 396.
+  const src = readFileSync(
+    join(FE, 'src', 'components', 'python-studio', 'screens', 'McqScreen.tsx'),
+    'utf8',
+  );
+  const khongChuThich = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+  assert.ok(!/className=\{c\.readCode\}/.test(khongChuThich), 'McqScreen lại bọc khối code bằng c.readCode');
+  const css = readFileSync(join(FE, 'src', 'components', 'python-studio', 'studio-chrome.module.css'), 'utf8');
+  assert.match(css, /\.readCode > div \{\s*margin-bottom: 0;/, 'luật .readCode đổi rồi: xem lại vì sao McqScreen từng né nó');
+  const ex = readFileSync(join(FE, 'src', 'components', 'lesson-chrome', 'exercises', 'exercises.module.css'), 'utf8');
+  assert.match(ex, /\.codeCard \{[^}]*margin-bottom: 16px;/, '.codeCard thôi mang 16px: khối code và phương án A lại dính nhau');
 });

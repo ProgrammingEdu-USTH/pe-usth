@@ -76,3 +76,20 @@ test('ô soạn mã của bài học hứa chạy ĐÚNG tên file nó đang hi�
     `placeholder phải dùng \${filename}, đang là: ${cho[0].slice(0, 90)}`,
   );
 });
+
+// Mô tả (meta description) của hai cửa vào phải nói đúng điều đang xảy ra. Kiểm toán 16/11/2026
+// đo được hai câu sai: /ide hứa "sandbox cách ly trên máy chủ" (bộ chạy máy chủ đã xoá từ 25/10, mã
+// chạy trong trình duyệt) và trang bài học ghi cứng "172 bài" khi khoá có 179. Một mô tả sai nằm ở
+// kết quả tìm kiếm — nơi người mới thấy ĐẦU TIÊN.
+test('mo ta cua /ide va trang bai hoc khong noi sai (may chu, so bai ghi cung)', () => {
+  const doc = (rel) => readFileSync(new URL(rel, import.meta.url), 'utf8').replace(/\r/g, '');
+  const ide = doc('../../src/app/ide/page.tsx');
+  const moTaIde = /description:\s*'([^']*)'/.exec(ide);
+  assert.ok(moTaIde, 'ide/page.tsx không còn khai description kiểu chuỗi đơn');
+  assert.ok(!/máy chủ|sandbox/i.test(moTaIde[1]), 'mô tả /ide còn nói máy chủ/sandbox: ' + moTaIde[1]);
+  const bai = doc('../../src/app/(standalone)/lesson/python_advanced/page.tsx');
+  const khoiMoTa = bai.slice(bai.indexOf('description:'), bai.indexOf('};', bai.indexOf('description:')));
+  assert.ok(khoiMoTa.length > 40, 'không bóc được khối description của trang bài học');
+  assert.ok(!/\b1\d\d bài/.test(khoiMoTa), 'mô tả trang bài học ghi cứng số bài, phải lấy từ catalog: ' + khoiMoTa.slice(0, 80));
+  assert.ok(/findCourse\(/.test(khoiMoTa), 'mô tả trang bài học phải lấy số bài từ findCourse (catalog.ts)');
+});

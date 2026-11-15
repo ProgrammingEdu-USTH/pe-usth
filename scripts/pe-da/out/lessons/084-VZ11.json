@@ -115,7 +115,7 @@
      "explanation": "Cần phân biệt hiệu số bằng nhau với tỷ số bằng nhau."
     },
     {
-     "question": "Hai giá trị 98 và 100 chênh 2 hay 200 đơn?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.bar([\"A\", \"B\"], [98, 100])\nax.set(ylabel=\"Orders\", title=\"Keep a meaningful bar baseline\", ylim=(0, 110))\nax.set_yticks([0, 50, 100])\nprint(round(100 / 98, 3))\nplt.show()",
+     "question": "Hai giá trị 98 và 100 chênh 2 hay 200 đơn?",
      "options": [
       {
        "text": "Chênh 2 đơn. Thu hẹp trục không làm chênh lệch số học lớn lên.",

@@ -148,7 +148,7 @@
      "explanation": "Gắn cờ là bước tìm hiểu, không phải kết luận về tính đúng sai."
     },
     {
-     "question": "Trước khi tính giá trị đơn trung bình, cần kiểm tra điều gì về mỗi hàng?\n\nimport pandas as pd\norders = pd.DataFrame({'order': ['A', 'B', 'C', 'D'], 'channel': ['web', 'web', 'shop', 'shop'], 'amount': [10, 30, 20, 100]})\nassert orders['order'].is_unique\nsummary = orders.groupby('channel')['amount'].agg(['count', 'mean', 'median'])\nprint(summary.to_dict('index'))",
+     "question": "Trước khi tính giá trị đơn trung bình, cần kiểm tra điều gì về mỗi hàng?",
      "options": [
       {
        "text": "Có thể bỏ qua ý nghĩa hàng nếu cột amount là số.",

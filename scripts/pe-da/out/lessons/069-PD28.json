@@ -106,7 +106,7 @@
      "explanation": "Giảm số cột được nạp."
     },
     {
-     "question": "Vì sao không nên lấy trung bình các trung bình lô khác kích thước?\n\nimport pandas as pd\nnames = pd.Series(['north', 'south'] * 1000, dtype='object')\ncategories = names.astype('category')\nprint(categories.memory_usage(deep=True) < names.memory_usage(deep=True))\nprint(categories.astype('object').equals(names))",
+     "question": "Vì sao không nên lấy trung bình các trung bình lô khác kích thước?",
      "options": [
       {
        "text": "Vì mọi trung bình lô luôn giống nhau.",

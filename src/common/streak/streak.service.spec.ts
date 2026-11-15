@@ -1,4 +1,4 @@
-import { StreakService, toStudyDate } from './streak.service';
+import { NGAY_AN_HAN, StreakService, toStudyDate } from './streak.service';
 
 describe('StreakService.computeNewStreak (Task 118)', () => {
   const svc = new StreakService();
@@ -23,8 +23,13 @@ describe('StreakService.computeNewStreak (Task 118)', () => {
     expect(svc.computeNewStreak(d(6), 0, today)).toBe(1);
   });
 
-  it('bỏ quá 1 ngày -> reset về 1', () => {
-    expect(svc.computeNewStreak(d(4), 10, today)).toBe(1);
+  it('nghỉ đúng 1 ngày (ân hạn) -> GIỮ chuỗi và +1', () => {
+    expect(NGAY_AN_HAN).toBe(1);
+    expect(svc.computeNewStreak(d(4), 10, today)).toBe(11);
+  });
+
+  it('nghỉ quá hạn ân hạn (từ 2 ngày) -> reset về 1', () => {
+    expect(svc.computeNewStreak(d(3), 10, today)).toBe(1);
     expect(svc.computeNewStreak(d(1), 30, today)).toBe(1);
   });
 
@@ -35,10 +40,11 @@ describe('StreakService.computeNewStreak (Task 118)', () => {
     expect(svc.computeNewStreak(lateYesterday, 3, earlyToday)).toBe(4);
   });
 
-  it('isStreakActive: hôm nay/hôm qua = còn hiệu lực, xa hơn = mất', () => {
+  it('isStreakActive: hôm nay/hôm qua/trong hạn ân hạn = còn hiệu lực, xa hơn = mất', () => {
     expect(svc.isStreakActive(d(6), today)).toBe(true);
     expect(svc.isStreakActive(d(5), today)).toBe(true);
-    expect(svc.isStreakActive(d(4), today)).toBe(false);
+    expect(svc.isStreakActive(d(4), today)).toBe(true);
+    expect(svc.isStreakActive(d(3), today)).toBe(false);
     expect(svc.isStreakActive(null, today)).toBe(false);
   });
 });

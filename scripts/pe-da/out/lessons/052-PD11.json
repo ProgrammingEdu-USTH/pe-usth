@@ -87,7 +87,7 @@
      "explanation": "Số ô trong cột khác số giá trị có thể dùng để tính."
     },
     {
-     "question": "count và size khác gì khi có ô thiếu?\n\nimport pandas as pd\ndf = pd.DataFrame({'store': ['A', 'B', 'C'], 'revenue': [100, 300, 200]})\nprint(df.sort_values('revenue', ascending=False)['store'].tolist())\nprint(df.nlargest(2, 'revenue')['store'].tolist())",
+     "question": "count và size khác gì khi có ô thiếu?",
      "options": [
       {
        "text": "count bỏ ô thiếu; size vẫn đếm chúng.",
@@ -106,7 +106,7 @@
      "explanation": "count bỏ ô thiếu; size vẫn đếm chúng."
     },
     {
-     "question": "Muốn lấy ba doanh thu cao nhất, có thể dùng hàm nào?\n\nimport pandas as pd\nstatus = pd.Series(['paid', 'paid', 'cancelled', None], dtype='string')\nprint(status.value_counts().to_dict())\nprint(status.count())\nprint(status.size)",
+     "question": "Muốn lấy ba doanh thu cao nhất, có thể dùng hàm nào?",
      "options": [
       {
        "text": "df.head(3) luôn là ba doanh thu lớn nhất.",

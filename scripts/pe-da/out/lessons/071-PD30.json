@@ -106,7 +106,7 @@
      "explanation": "Để lỗi vẫn được nhìn thấy và xử lý theo quy tắc nghiệp vụ."
     },
     {
-     "question": "Một quy tắc không âm có phù hợp mọi bảng giao dịch không?\n\nimport pandas as pd\ndf = pd.DataFrame({'order': ['A', 'B'], 'amount': [10, 20]})\nassert df['order'].notna().all()\nassert df['order'].is_unique\nassert df['amount'].notna().all()\nassert (df['amount'] >= 0).all()\nprint('Passed: 2 orders, total', df['amount'].sum())",
+     "question": "Một quy tắc không âm có phù hợp mọi bảng giao dịch không?",
      "options": [
       {
        "text": "Có; số âm tự được đổi thành số dương khi đọc CSV.",

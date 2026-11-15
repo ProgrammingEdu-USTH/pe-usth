@@ -32,7 +32,7 @@ import { useEffect, useState } from 'react';
 
 import PageStyles from '@/components/PageStyles';
 import SiteHeader from '@/components/SiteHeader';
-import ThemePicker from '@/components/ThemePicker';
+import ThemePicker, { NhanThuNghiem } from '@/components/ThemePicker';
 import { apiFetch, asList, findEnrollment } from '@/lib/api';
 import { findCourse, LEVEL_LABEL } from '@/lib/catalog';
 import {
@@ -393,6 +393,7 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
                 <ThemePicker cheDo={false} />
               </div>
             </div>
+            <NhanThuNghiem />
 
             <div className={styles.grid}>
               {/* ── Cột trái ── */}

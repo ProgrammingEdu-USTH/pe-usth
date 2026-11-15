@@ -25,6 +25,22 @@ export const GIAO_DIEN_MAC_DINH: GiaoDien = 'lofi';
 export const KHOA_GIAO_DIEN = 'pe-giao-dien';
 export const KHOA_CHE_DO = 'theme';
 
+/**
+ * PHIÊN BẢN của giao diện thứ hai — khoá an toàn khi nó đổi hình dạng.
+ *
+ * Giao diện chiêm tinh là bản THỬ và sẽ còn đổi (bố cục, token, bề mặt phủ). Một
+ * giá trị `thien-van` người dùng chọn từ hôm kia là sự đồng ý với bản CỦA HÔM KIA;
+ * nếu một ngày bản mới phá bề mặt nào đó thì cách duy nhất đưa mọi người về chỗ
+ * an toàn mà không đụng vào từng máy là nâng số này: script trước-paint chỉ nhận
+ * giá trị khi phiên bản đi kèm KHỚP, còn lại rơi về lofi. Nâng số = tắt theme cho
+ * mọi người một lần; ai muốn lại thì chọn lại trong bảng chọn.
+ *
+ * Lưu ở khoá RIÊNG (không nhồi vào giá trị) để khoá `pe-giao-dien` giữ nguyên
+ * nghĩa là "id giao diện" và whitelist không phải biết chuyện phiên bản.
+ */
+export const PHIEN_BAN_GIAO_DIEN = 1;
+export const KHOA_PHIEN_BAN_GIAO_DIEN = 'pe-giao-dien-v';
+
 /** Thuộc tính trên <html>. */
 export const THUOC_TINH = 'data-theme';
 
@@ -54,7 +70,8 @@ export const SCRIPT_TRUOC_PAINT =
   "document.body.classList.toggle('light',!d);" +
   `var t=localStorage.getItem(${JSON.stringify(KHOA_GIAO_DIEN)});` +
   `var w=${JSON.stringify(GIAO_DIEN.filter((g) => g !== GIAO_DIEN_MAC_DINH))};` +
-  `if(w.indexOf(t)>-1)document.documentElement.setAttribute(${JSON.stringify(THUOC_TINH)},t);` +
+  `var pb=localStorage.getItem(${JSON.stringify(KHOA_PHIEN_BAN_GIAO_DIEN)});` +
+  `if(w.indexOf(t)>-1&&pb===${JSON.stringify(String(PHIEN_BAN_GIAO_DIEN))})document.documentElement.setAttribute(${JSON.stringify(THUOC_TINH)},t);` +
   '}catch(e){}})();';
 
 /** Giao diện đang áp lên <html>. Ngoài trình duyệt (SSR) trả về mặc định. */
@@ -70,8 +87,13 @@ export function datGiaoDien(g: GiaoDien): void {
   if (g === GIAO_DIEN_MAC_DINH) document.documentElement.removeAttribute(THUOC_TINH);
   else document.documentElement.setAttribute(THUOC_TINH, g);
   try {
-    if (g === GIAO_DIEN_MAC_DINH) localStorage.removeItem(KHOA_GIAO_DIEN);
-    else localStorage.setItem(KHOA_GIAO_DIEN, g);
+    if (g === GIAO_DIEN_MAC_DINH) {
+      localStorage.removeItem(KHOA_GIAO_DIEN);
+      localStorage.removeItem(KHOA_PHIEN_BAN_GIAO_DIEN);
+    } else {
+      localStorage.setItem(KHOA_GIAO_DIEN, g);
+      localStorage.setItem(KHOA_PHIEN_BAN_GIAO_DIEN, String(PHIEN_BAN_GIAO_DIEN));
+    }
   } catch {
     /* không nhớ được cũng không sao: lần tải sau về mặc định */
   }

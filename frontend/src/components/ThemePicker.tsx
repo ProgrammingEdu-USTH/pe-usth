@@ -133,3 +133,24 @@ export default function ThemePicker({ cheDo: hienCheDo = true }: { cheDo?: boole
     </div>
   );
 }
+
+/**
+ * Nhãn "Thử nghiệm" + đường VỀ LOFI, hiện khi (và chỉ khi) đang ở Đài thiên văn.
+ *
+ * Vì sao có: giao diện thứ hai là bản THỬ, và `ThemePicker` ở thanh trên bị ẩn
+ * dưới 861px (hết chỗ). Người trên điện thoại chọn theme ở trang chủ/trang khoá
+ * rồi vào bài sẽ không còn nút nào để quay về — "ẩn ThemePicker" là cách tệ nhất
+ * vì người đã chọn bị KẸT. Nhãn này luôn thấy, ≥ 44px, một chạm là về lofi.
+ * Không ghi sự kiện học nào (đổi `PHIEN_BAN_DONG_Y` là chuyện khác hẳn).
+ */
+export function NhanThuNghiem() {
+  const giaoDien = useSyncExternalStore(dangKyGiaoDien, docGiaoDien, () => GIAO_DIEN_MAC_DINH);
+  if (giaoDien === GIAO_DIEN_MAC_DINH) return null;
+  return (
+    <button type="button" className={styles.nhanThuNghiem} onClick={() => datGiaoDien(GIAO_DIEN_MAC_DINH)}>
+      <span className={styles.nhanChu}>Thử nghiệm</span>
+      <span aria-hidden="true">·</span>
+      <span>Về giao diện lofi</span>
+    </button>
+  );
+}

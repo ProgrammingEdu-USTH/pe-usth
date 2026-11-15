@@ -25,7 +25,7 @@
  * "bề mặt nào đó đổi màu" — phần đó là ảnh chụp trình duyệt của từng vòng.
  */
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import test from 'node:test';
 import vm from 'node:vm';
 
@@ -34,11 +34,15 @@ import {
   GIAO_DIEN_MAC_DINH,
   KHOA_CHE_DO,
   KHOA_GIAO_DIEN,
+  KHOA_PHIEN_BAN_GIAO_DIEN,
+  PHIEN_BAN_GIAO_DIEN,
   NHAN_GIAO_DIEN,
   SCRIPT_TRUOC_PAINT,
   THUOC_TINH,
+  datGiaoDien,
   laGiaoDien,
 } from '../../src/lib/giao-dien.ts';
+import { moiRule } from './_css-rule.mjs';
 
 const GOC = new URL('../../', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
 const doc = (p) => readFileSync(`${GOC}${p}`, 'utf8');
@@ -155,12 +159,20 @@ test('script trước-paint: chỉ nhận id trong whitelist, kể cả khi loca
   };
 
   // đúng: giao diện hợp lệ khác mặc định → đặt thuộc tính
-  assert.deepEqual(chay({ [KHOA_GIAO_DIEN]: TV }).thuocTinh, [[THUOC_TINH, TV]]);
+  const PB = String(PHIEN_BAN_GIAO_DIEN);
+  assert.deepEqual(chay({ [KHOA_GIAO_DIEN]: TV, [KHOA_PHIEN_BAN_GIAO_DIEN]: PB }).thuocTinh, [[THUOC_TINH, TV]]);
+  // KHOÁ PHIÊN BẢN: giá trị đúng id nhưng thiếu / khác phiên bản → bỏ qua, dùng lofi
+  for (const pb of [undefined, '', '0', String(PHIEN_BAN_GIAO_DIEN + 1), String(PHIEN_BAN_GIAO_DIEN - 1), 'thien-van', '1 ', 1.0001]) {
+    const luu = { [KHOA_GIAO_DIEN]: TV };
+    if (pb !== undefined) luu[KHOA_PHIEN_BAN_GIAO_DIEN] = pb;
+    if (String(pb) === PB) continue;
+    assert.deepEqual(chay(luu).thuocTinh, [], `phiên bản ${JSON.stringify(pb)} ≠ ${PB} mà vẫn bật theme`);
+  }
 
   // sai: mọi giá trị khác KHÔNG được thành thuộc tính
   const LA = [GIAO_DIEN_MAC_DINH, '', 'THIEN-VAN', 'thien-van ', '"><script>alert(1)</script>', '__proto__', 'constructor', 'thien-van,lofi', undefined, null];
   for (const v of LA) {
-    assert.deepEqual(chay(v === undefined ? {} : { [KHOA_GIAO_DIEN]: v }).thuocTinh, [], `giá trị ${JSON.stringify(v)} lọt qua whitelist`);
+    assert.deepEqual(chay(v === undefined ? {} : { [KHOA_GIAO_DIEN]: v, [KHOA_PHIEN_BAN_GIAO_DIEN]: PB }).thuocTinh, [], `giá trị ${JSON.stringify(v)} lọt qua whitelist`);
   }
 
   // hành vi cũ của script không được mất: sáng/tối
@@ -374,4 +386,93 @@ test('eyebrow chip ấm: chữ ≥ 4,5:1 trên nền chip ở ngày và đêm (t
   const sh = boChuThich(doc('src/components/lesson-chrome/ShellB.module.css'));
   assert.match(sh, /var\(--tv-eyebrow-bg\)/);
   assert.match(sh, /var\(--tv-eyebrow-ink\)/);
+});
+
+// ── RÀO AN TOÀN của giao diện thử nghiệm (#278) ─────────────────────────────
+
+// (a) KHỐI CODE trên thẻ: đêm chỉ 1,11:1 nếu không có cạnh.
+const SAN_KHOI_CODE = 1.4;
+const MAT_CODE = [
+  ['src/components/lesson-chrome/exercises/exercises.module.css', ['.codeCard', '.consoleBlock']],
+  ['src/components/python-studio/studio-chrome.module.css', ['.readExpected']],
+];
+
+test('khối code/console: nền ≥ 1,4:1 so với thẻ HOẶC có cạnh --tv-rule ≥ 1,4:1 với cả hai mặt kề (ngày + đêm)', () => {
+  let canCanh = 0;
+  for (const che of ['ngay', 'dem']) {
+    const code = mau('--ds-code-bg', che);
+    const the = mau('--ds-card', che);
+    const bg = tuongPhan(code, the);
+    if (bg >= SAN_KHOI_CODE) continue;
+    canCanh += 1;
+    const canh = mau('--tv-rule', che);
+    assert.ok(tuongPhan(canh, the) >= SAN_KHOI_CODE, `${che}: cạnh --tv-rule ${tuongPhan(canh, the).toFixed(2)}:1 so với thẻ < ${SAN_KHOI_CODE}`);
+    assert.ok(tuongPhan(canh, code) >= SAN_KHOI_CODE, `${che}: cạnh --tv-rule ${tuongPhan(canh, code).toFixed(2)}:1 so với nền code < ${SAN_KHOI_CODE}`);
+    for (const [tep, sels] of MAT_CODE) {
+      const rules = moiRule(boChuThich(doc(tep)));
+      for (const s of sels) {
+        const co = rules.some((r) => r.sels.some((x) => x.includes(`html[data-theme="${TV}"]`) && x.endsWith(s)) && /box-shadow:\s*0 0 0 1px var\(--tv-rule\)/.test(r.than));
+        assert.ok(co, `${che}: nền ${s} chỉ ${bg.toFixed(2)}:1 so với thẻ (< ${SAN_KHOI_CODE}) mà ${tep} không có cạnh box-shadow var(--tv-rule) dưới theme — hai mặt phẳng nâu gần như một`);
+      }
+    }
+  }
+  assert.ok(canCanh >= 1, 'không chế độ nào cần cạnh: số đo đổi (đêm từng 1,11:1) — kiểm lại, đừng để ca này đạt rỗng');
+});
+
+// (c) nhãn "Thử nghiệm" + đường về lofi
+test('nhãn Thử nghiệm: luôn thấy khi ở thien-van (kể cả dưới 861px), ≥ 44px, một chạm về lofi, có ở bài học và trang khoá', () => {
+  const tsx = boChuThich(doc('src/components/ThemePicker.tsx'));
+  const m = /export function NhanThuNghiem\(\)\s*\{([\s\S]*?)\n\}/.exec(tsx);
+  assert.ok(m, 'ThemePicker.tsx thiếu NhanThuNghiem');
+  assert.match(m[1], /giaoDien === GIAO_DIEN_MAC_DINH\) return null/, 'nhãn phải ẩn ở lofi');
+  assert.match(m[1], /datGiaoDien\(GIAO_DIEN_MAC_DINH\)/, 'nhãn phải đưa về lofi bằng datGiaoDien');
+  assert.match(m[1], /Thử nghiệm/);
+  const css = boChuThich(doc('src/components/ThemePicker.module.css'));
+  const r = moiRule(css).find((x) => x.sels.includes('.nhanThuNghiem') && !x.media);
+  assert.ok(r, 'thiếu .nhanThuNghiem');
+  assert.match(r.than, /min-height:\s*44px/);
+  assert.match(r.than, /min-width:\s*44px/);
+  const chrome = boChuThich(doc('src/components/lesson-chrome/LessonChrome.tsx'));
+  const i = chrome.indexOf('<NhanThuNghiem />');
+  assert.ok(i > chrome.indexOf('</header>'), 'LessonChrome: nhãn không được nằm trong header/themeSlot (ẩn dưới 861px)');
+  assert.ok(i > 0);
+  assert.match(boChuThich(doc('src/app/(standalone)/courses/[courseId]/CourseDetail.tsx')), /<NhanThuNghiem \/>/, 'CourseDetail thiếu nhãn');
+});
+
+// (d) KHOÁ PHIÊN BẢN: datGiaoDien phải ghi đúng cặp khoá mà script trước-paint đọc
+test('khoá phiên bản: datGiaoDien ghi cặp (id, phiên bản) và xoá cả hai khi về lofi', () => {
+  const kho = new Map();
+  const cu = { document: globalThis.document, localStorage: globalThis.localStorage };
+  globalThis.localStorage = { getItem: (k) => kho.get(k) ?? null, setItem: (k, v) => kho.set(k, String(v)), removeItem: (k) => kho.delete(k) };
+  globalThis.document = { documentElement: { setAttribute() {}, removeAttribute() {} } };
+  try {
+    datGiaoDien(TV);
+    assert.equal(kho.get(KHOA_GIAO_DIEN), TV);
+    assert.equal(kho.get(KHOA_PHIEN_BAN_GIAO_DIEN), String(PHIEN_BAN_GIAO_DIEN));
+    datGiaoDien(GIAO_DIEN_MAC_DINH);
+    assert.equal(kho.has(KHOA_GIAO_DIEN) || kho.has(KHOA_PHIEN_BAN_GIAO_DIEN), false);
+  } finally {
+    globalThis.document = cu.document;
+    globalThis.localStorage = cu.localStorage;
+  }
+});
+
+// (e) tệp token công khai là CHỈ token: không hover, không con trỏ, không animation, không token mồ côi
+test('theme-thien-van.css: 0 :hover, 0 cursor, 0 @keyframes, và mọi --tv-* có ≥ 1 người dùng', () => {
+  assert.ok(!/:hover/.test(THEME), 'tệp theme không được có :hover — mọi :hover phải ở CSS module và nằm trong (hover: hover) and (pointer: fine)');
+  assert.ok(!/cursor\s*:/.test(THEME), 'tệp theme không được khai cursor: (đích bấm thuộc CSS module, nơi cổng 44px canh)');
+  assert.ok(!/@keyframes/.test(THEME), 'tệp theme không được khai @keyframes: hoạt ảnh nằm ở CSS module để đi qua cổng ngân sách');
+  const khai = new Set([...THEME.matchAll(/(--tv-[\w-]+)\s*:/g)].map((m) => m[1]));
+  assert.ok(khai.size >= 8, `chỉ đọc được ${khai.size} token --tv-*: bộ đọc hỏng`);
+  const nguon = [];
+  (function duyet(d) {
+    for (const e of readdirSync(`${GOC}${d}`, { withFileTypes: true })) {
+      const p = `${d}/${e.name}`;
+      if (e.isDirectory()) duyet(p);
+      else if (/\.(css|tsx?|jsx?)$/.test(e.name)) nguon.push(boChuThich(doc(p)));
+    }
+  })('src');
+  const van = nguon.join('\n') + '\n' + THEME;
+  const motCoi = [...khai].filter((t) => !new RegExp(`var\\(\\s*${t}(?![\\w-])`).test(van));
+  assert.deepEqual(motCoi, [], `token --tv-* khai mà không ai dùng: ${motCoi.join(', ')} — một token mồ côi là một lời khai về bề mặt không có`);
 });

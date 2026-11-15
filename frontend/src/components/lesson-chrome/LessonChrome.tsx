@@ -10,7 +10,7 @@
 // --st-card-radius được tạo sẵn từ trước, dùng ở đây).
 import { useState } from 'react';
 
-import ThemePicker from '@/components/ThemePicker';
+import ThemePicker, { NhanThuNghiem } from '@/components/ThemePicker';
 
 import styles from './LessonChrome.module.css';
 
@@ -205,6 +205,8 @@ export default function LessonChrome({
 
       <main className={styles.main}>
         <div className={wide ? `${styles.contentContainer} ${styles.contentWide}` : styles.contentContainer}>
+          {/* Nhãn thử nghiệm + đường về lofi: luôn thấy, kể cả dưới 861px (ThemePicker ẩn ở đó). */}
+          <NhanThuNghiem />
           {/* key={step} để mỗi lần đổi bước là một lần chạy lại animation vào */}
           <div key={step} className={styles.stepEnter} data-huong={lui ? 'lui' : undefined}>
             {children}

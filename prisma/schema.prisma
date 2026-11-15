@@ -583,6 +583,11 @@ model Post {
 
   // Khoá ngoại không đứng đầu chỉ mục nào: tra/xoá theo cha sẽ quét cả bảng (migration fk_indexes).
   @@index([userId])
+  // Ba cách xem danh sách diễn đàn (migration forum_post_indexes): lọc chuyên mục +
+  // mới nhất, mới nhất không lọc (trang mặc định), và sắp theo lượt cảm xúc.
+  @@index([category, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@index([likeCount(sort: Desc)])
   @@map("posts")
 }
 

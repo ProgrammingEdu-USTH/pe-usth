@@ -25,7 +25,7 @@
  * "bề mặt nào đó đổi màu" — phần đó là ảnh chụp trình duyệt của từng vòng.
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 import vm from 'node:vm';
 
@@ -237,6 +237,8 @@ test('cấu trúc tệp token: mọi selector mở bằng html[data-theme], ngà
   assert.ok(!/@import/.test(THEME), 'theme-thien-van.css không được @import: nó nạp trên MỌI trang, kể cả của người dùng lofi');
 
   for (const k of KHOI) {
+    // NGOẠI LỆ DUY NHẤT: @font-face cho font tự lưu trữ (ca riêng ở dưới canh nội dung của nó)
+    if (k.sel === '@font-face') continue;
     assert.ok(k.sel.startsWith(`html[data-theme="${TV}"]`), `selector "${k.sel}" không bắt đầu bằng html[data-theme="${TV}"] — nó sẽ đè lên người dùng lofi`);
   }
   const ngay = khoi(NGAY);
@@ -323,4 +325,53 @@ test('tương phản ĐÊM: thang chữ, tint (lofi-đêm vô hình trên thẻ 
   assert.ok(tuongPhan(mau('--edu-t1', 'dem'), chip) >= 4.5, 'đêm: chữ t1 trên chip code dưới AA');
   const thumb = tuongPhan(mau('--edu-scrollbar-thumb', 'dem'), mau('--edu-bg-solid', 'dem'));
   assert.ok(thumb >= SAN_THANH_CUON, `đêm: thanh cuộn trên nền đêm chỉ ${thumb.toFixed(2)}:1 (sàn ${SAN_THANH_CUON})`);
+});
+
+// ── EB Garamond tự lưu trữ (#277) ────────────────────────────────────────────
+const FACES = KHOI.filter((k) => k.sel === '@font-face');
+const TRAN_BYTE_FONT = 32 * 1000;
+
+test('EB Garamond: @font-face chỉ same-origin /static/fonts/, một bậc 600, subset ≤ 32 KB, size-adjust', () => {
+  assert.equal(FACES.length, 2, 'phải có đúng hai @font-face (latin + vietnamese) — một bậc 600');
+  let tong = 0;
+  for (const f of FACES) {
+    assert.equal(f.dec['font-family'], "'EB Garamond'");
+    assert.equal(f.dec['font-weight'], '600', 'chỉ chở bậc 600: bậc khác là byte thừa cho mọi người dùng');
+    assert.equal(f.dec['font-display'], 'swap');
+    assert.match(f.dec['size-adjust'] ?? '', /^\d+%$/, 'thiếu size-adjust: chữ nhảy cỡ khi font thật thay font dự phòng');
+    const urls = [...f.dec.src.matchAll(/url\(\s*['"]?([^'")]+)['"]?\s*\)/g)].map((m) => m[1]);
+    assert.ok(urls.length >= 1, '@font-face không có src url()');
+    for (const u of urls) {
+      assert.match(u, /^\/static\/fonts\/[\w./-]+\.woff2$/, `src "${u}" không phải /static/fonts/*.woff2 cùng origin (CSP font-src, và không gửi IP cho bên thứ ba)`);
+      assert.ok(!/\.\./.test(u));
+      tong += readFileSync(`${GOC}public${u}`).length;
+    }
+    assert.ok(f.dec['unicode-range'], 'thiếu unicode-range: không có nó thì trình duyệt tải CẢ hai tệp cho mọi trang');
+  }
+  assert.ok(tong <= TRAN_BYTE_FONT, `font nặng ${tong} B > ${TRAN_BYTE_FONT}`);
+  assert.ok(FACES.some((f) => /U\+1EA0/.test(f.dec['unicode-range'])), 'thiếu subset tiếng Việt (U+1EA0-1EF9)');
+  assert.ok(existsSync(`${GOC}public/static/fonts/eb-garamond/OFL.txt`), 'thiếu giấy phép OFL.txt cạnh font');
+});
+
+test('EB Garamond: lười — không preload ở layout, không ở tệp CSS nào mà lofi nạp, tiêu đề chỉ theo theme', () => {
+  assert.ok(!/eb-garamond/i.test(doc('src/app/layout.tsx')), 'layout.tsx preload EB Garamond: mọi người dùng lofi tải font không dùng');
+  const lofi = ['public/static/css/edu-theme.css', 'public/static/css/studio-tokens.css'];
+  for (const f of lofi) assert.ok(!/EB Garamond/i.test(doc(f)), `${f} nhắc EB Garamond: lofi sẽ tải font`);
+  const shell = boChuThich(doc('src/components/lesson-chrome/ShellB.module.css'));
+  const mo = [...shell.matchAll(/([^{}]*)\{([^{}]*)\}/g)].filter((m) => /EB Garamond/.test(m[2]));
+  assert.ok(mo.length >= 1, 'tiêu đề không dùng EB Garamond');
+  for (const m of mo) assert.match(m[1], /html\[data-theme="thien-van"\]/, `quy tắc dùng EB Garamond ngoài theme: "${m[1].trim()}" — lofi giữ Baloo 2`);
+  const tit = mo.find((m) => /\.title(?![A-Za-z])/.test(m[1]));
+  assert.ok(tit && /letter-spacing:\s*0(?![.\d])/.test(tit[2]) && /lining-nums/.test(tit[2]) && /font-weight:\s*600/.test(tit[2]), 'tiêu đề cần letter-spacing 0, lining-nums, bậc 600');
+});
+
+test('eyebrow chip ấm: chữ ≥ 4,5:1 trên nền chip ở ngày và đêm (tính từ CSS), và có người dùng', () => {
+  for (const che of ['ngay', 'dem']) {
+    const r = tuongPhan(mau('--tv-eyebrow-ink', che), mau('--tv-eyebrow-bg', che));
+    assert.ok(r >= 4.5, `${che}: eyebrow ${r.toFixed(2)}:1 < 4,5`);
+  }
+  assert.equal(giaTri('--tv-eyebrow-ink', 'ngay'), '#5C4F2C');
+  const sh = boChuThich(doc('src/components/lesson-chrome/ShellB.module.css'));
+  assert.match(sh, /var\(--tv-eyebrow-bg\)/);
+  assert.match(sh, /var\(--tv-eyebrow-ink\)/);
 });

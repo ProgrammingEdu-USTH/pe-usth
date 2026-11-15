@@ -45,6 +45,12 @@
   text-transform: uppercase;
 }
 
+/* GIAO DIỆN "ĐÀI THIÊN VĂN": chip eyebrow ấm (token trong theme-thien-van.css). */
+:global(html[data-theme="thien-van"]:has([data-tv-surface])) .eyebrow {
+  background: var(--tv-eyebrow-bg);
+  color: var(--tv-eyebrow-ink);
+}
+
 .meta {
   display: inline-flex;
   align-items: center;
@@ -70,6 +76,16 @@
   color: var(--edu-t1);
   line-height: 1.4;
   margin: 0;
+}
+/* Tiêu đề màn bài học bằng EB Garamond CHỈ khi chọn Đài thiên văn. Lofi giữ
+   Baloo 2 và không request font nào (@font-face lười, xem theme-thien-van.css).
+   Bậc 600 là bậc duy nhất được chở; letter-spacing 0 vì dấu âm của lofi làm
+   serif dính chữ; lining-nums để số trong tiêu đề (bài 12, 3/5) thẳng hàng. */
+:global(html[data-theme="thien-van"]:has([data-tv-surface])) .title {
+  font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+  font-weight: 600;
+  letter-spacing: 0;
+  font-variant-numeric: lining-nums;
 }
 .titleCentered {
   composes: title;

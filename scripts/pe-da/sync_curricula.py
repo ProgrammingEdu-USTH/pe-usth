@@ -42,6 +42,15 @@ def main() -> int:
 
     data = json.loads(TARGET.read_text(encoding='utf-8'))
     data['CURRICULA']['python_advanced'] = json.loads(SOURCE.read_text(encoding='utf-8'))
+    # Hai con số trang khoá học in ("N câu luyện tập · N bài tập có ca chấm") lấy từ
+    # CHÍNH bản dựng ở đây, không ghi cứng trong TSX: một con số viết tay trong
+    # component là con số sẽ trôi (bảng mốc nền từng ghi 204 ca test khi cây mã
+    # chỉ có 134). Định nghĩa trùng `check-moc-nen.mjs`: câu luyện tập = mọi phần
+    # tử của `step_2.practice`; bài tập có ca chấm = bài có `step_4.tests` khác rỗng.
+    data['CURRICULA']['python_advanced']['stats'] = {
+        'practice': sum(len((b['content_json'].get('step_2') or {}).get('practice') or []) for b in bai),
+        'graded': sum(1 for b in bai if (b['content_json'].get('step_4') or {}).get('tests')),
+    }
     TARGET.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
     tong = sum(len(m['lessons']) for m in data['CURRICULA']['python_advanced']['modules'])

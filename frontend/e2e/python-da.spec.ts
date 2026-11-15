@@ -35,7 +35,7 @@ const KHOA_CHE_DO = 'theme';
 const NGUON_GD = readFileSync(join(__dirname, '..', 'src', 'lib', 'giao-dien.ts'), 'utf8');
 const KHOA_PHIEN_BAN = /KHOA_PHIEN_BAN_GIAO_DIEN\s*=\s*'([^']+)'/.exec(NGUON_GD)?.[1];
 const PHIEN_BAN = /PHIEN_BAN_GIAO_DIEN\s*=\s*(\d+)/.exec(NGUON_GD)?.[1];
-if (!KHOA_PHIEN_BAN || !PHIEN_BAN) throw new Error('giao-dien.ts không còn khoá phiên bản — spec đặt giao diện sai');
+// Khoá phiên bản CHỈ có khi mã có rào an toàn (nhánh chiem-tinh-v3). Không có thì chỉ đặt `pe-giao-dien`.
 
 /**
  * PHÁT HIỆN THẬT do chính spec này tìm ra ngày đầu chạy (390×844, màn đầu PY01/NP02): hai đích bấm
@@ -153,13 +153,13 @@ for (const ma of BAI)
                 if (giaoDien === 'lofi') localStorage.removeItem(kg);
                 else {
                   localStorage.setItem(kg, giaoDien);
-                  localStorage.setItem(kpb, pb);
+                  if (kpb && pb) localStorage.setItem(kpb, pb);
                 }
               } catch {
                 /* không ghi được thì ca sẽ đỏ ở phép kiểm giao diện bên dưới */
               }
             },
-            [KHOA_GIAO_DIEN, KHOA_CHE_DO, gd, cd, KHOA_PHIEN_BAN, PHIEN_BAN] as const,
+            [KHOA_GIAO_DIEN, KHOA_CHE_DO, gd, cd, KHOA_PHIEN_BAN ?? '', PHIEN_BAN ?? ''] as const,
           );
 
           await page.goto(`/lesson/python_advanced?lesson=${hang.sort_order - 1}`);

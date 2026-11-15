@@ -8,9 +8,7 @@
 // components/python-studio; ăn theo token --edu-*/--st-* đã gom ở
 // edu-theme.css + studio-tokens.css (--st-chrome-h/--st-action-h/--st-col/
 // --st-card-radius được tạo sẵn từ trước, dùng ở đây).
-import { useState } from 'react';
-
-import ThemePicker, { NhanThuNghiem } from '@/components/ThemePicker';
+import ThemePicker from '@/components/ThemePicker';
 
 import styles from './LessonChrome.module.css';
 
@@ -93,15 +91,6 @@ export default function LessonChrome({
   wide,
   children,
 }: LessonChromeProps) {
-  // Hướng đi của bước: lùi thì màn mới chỉ mờ vào (xem `.stepEnter[data-huong]`).
-  // Mẫu "đổi state ngay trong lúc render" — React 19 cho phép, còn đọc ref khi
-  // render thì bị `react-hooks/refs` chặn.
-  const [buocTruoc, setBuocTruoc] = useState(step);
-  const [lui, setLui] = useState(false);
-  if (step !== buocTruoc) {
-    setBuocTruoc(step);
-    setLui(step < buocTruoc);
-  }
   const primaryClass =
     primaryTone === 'ok'
       ? styles.primaryBtnOk
@@ -205,10 +194,8 @@ export default function LessonChrome({
 
       <main className={styles.main}>
         <div className={wide ? `${styles.contentContainer} ${styles.contentWide}` : styles.contentContainer}>
-          {/* Nhãn thử nghiệm + đường về lofi: luôn thấy, kể cả dưới 861px (ThemePicker ẩn ở đó). */}
-          <NhanThuNghiem />
           {/* key={step} để mỗi lần đổi bước là một lần chạy lại animation vào */}
-          <div key={step} className={styles.stepEnter} data-huong={lui ? 'lui' : undefined}>
+          <div key={step} className={styles.stepEnter}>
             {children}
           </div>
         </div>

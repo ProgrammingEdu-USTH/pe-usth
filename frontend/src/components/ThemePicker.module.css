@@ -120,36 +120,6 @@
   border-radius: 6px;
 }
 
-/* Nhãn "Thử nghiệm" + đường về lofi (xem NhanThuNghiem). min-height/min-width
-   44: luật đích bấm; bề rộng do chữ quyết nên cần cả min-width. */
-.nhanThuNghiem {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  min-width: 44px;
-  padding: 0 14px;
-  margin: 0 0 8px;
-  border: 1px solid var(--edu-card-line);
-  border-radius: 999px;
-  background: var(--edu-panel-bg-solid);
-  color: var(--edu-t2);
-  font: inherit;
-  font-size: 13px;
-  cursor: pointer;
-}
-.nhanChu {
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--edu-t1);
-}
-@media (hover: hover) and (pointer: fine) {
-  .nhanThuNghiem:hover {
-    background: var(--ds-violet-tint);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .panel {
     animation: none;

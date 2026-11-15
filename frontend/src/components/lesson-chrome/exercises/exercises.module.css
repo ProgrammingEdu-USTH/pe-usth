@@ -607,15 +607,3 @@ textarea.codeBody:focus-visible {
 @media (max-width: 1023.98px) {
   textarea.codeBody { font-size: 16px; }
 }
-
-/* GIAO DIỆN "ĐÀI THIÊN VĂN": khối code/console cần CẠNH. Ban ngày nền code
-   #221A13 so với thẻ vellum là 15,7:1 nên không cần; ban đêm thẻ là #2A2416 và
-   khối code chỉ cách thẻ 1,11:1 — hai mặt phẳng nâu gần như một. Đường kẻ
-   `--tv-rule` (đêm #574B2A: 1,79:1 so với thẻ, 2,00:1 so với nền code; ngày
-   #DCCFA6: 1,43:1 so với thẻ) vẽ bằng box-shadow để không đổi kích thước. KHÔNG
-   dùng --edu-card-border (trắng 85%: trắng-trên-trắng, lỗi đã gặp bốn lần).
-   `giao-dien.test.mjs` tính các tỉ số này từ chính CSS. */
-:global(html[data-theme="thien-van"]:has([data-tv-surface])) .codeCard,
-:global(html[data-theme="thien-van"]:has([data-tv-surface])) .consoleBlock {
-  box-shadow: 0 0 0 1px var(--tv-rule);
-}

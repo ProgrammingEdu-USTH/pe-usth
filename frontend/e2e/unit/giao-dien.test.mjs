@@ -498,3 +498,58 @@ test('theme-thien-van.css: 0 :hover, 0 cursor, 0 @keyframes, và mọi --tv-* c�
   const motCoi = [...khai].filter((t) => !new RegExp(`var\\(\\s*${t}(?![\\w-])`).test(van));
   assert.deepEqual(motCoi, [], `token --tv-* khai mà không ai dùng: ${motCoi.join(', ')} — một token mồ côi là một lời khai về bề mặt không có`);
 });
+
+// ── B6: màn đọc trên thẻ vellum — bảng, hình, chip ───────────────────────────
+const CSS_STUDIO = 'src/components/python-studio/studio-chrome.module.css';
+const CSS_CHIP_TV = 'src/lib/inline-code.module.css';
+const dauTV = `html[data-theme="${TV}"]`;
+const ruleTV = (tep, sel) => moiRule(boChuThich(doc(tep))).filter((r) => r.sels.some((x) => x.includes(dauTV) && x.endsWith(sel)));
+const SAN_DONG_TREN_TINT = 3; // vạch đồng dưới hàng tiêu đề: thành phần giao diện (WCAG 1.4.11)
+
+test('B6: bảng đọc + bảng từng bước kẻ bằng --tv-rule, tiêu đề --ds-tint + vạch đồng, hàng chẵn --ds-paper (giữ min-width cột "Sau đó")', () => {
+  for (const s of ['.readTable th', '.readTable td', '.traceTable th', '.traceTable td']) {
+    const r = ruleTV(CSS_STUDIO, s);
+    assert.ok(r.some((x) => /border-color:\s*var\(--tv-rule\)/.test(x.than)), `${s}: thiếu border-color var(--tv-rule) dưới theme`);
+  }
+  for (const s of ['.readTable th', '.traceTable thead th']) {
+    const r = ruleTV(CSS_STUDIO, s);
+    assert.ok(r.some((x) => /background:\s*var\(--ds-tint\)/.test(x.than) && /border-bottom:\s*2px solid var\(--tv-brass\)/.test(x.than)), `${s}: thiếu nền --ds-tint + vạch đồng 2px`);
+  }
+  for (const s of ['.readTable tbody tr:nth-child(even) td', '.traceTable tbody tr:nth-child(even) td', '.traceTable tbody tr:nth-child(even) th']) {
+    assert.ok(ruleTV(CSS_STUDIO, s).some((x) => /background:\s*var\(--ds-paper\)/.test(x.than)), `${s}: thiếu nền hàng chẵn --ds-paper`);
+  }
+  // cột "Sau đó" ở điện thoại: không ai được gỡ min-width (bẫy hàng cao 621px)
+  assert.match(boChuThich(doc(CSS_STUDIO)), /\.traceSau\s*\{\s*min-width:\s*12em/, '.traceSau mất min-width 12em');
+  for (const che of ['ngay', 'dem']) {
+    const tint = mau('--ds-tint', che);
+    const paper = mau('--ds-paper', che);
+    const the = mau('--ds-card', che);
+    assert.ok(tuongPhan(mau('--edu-t1', che), tint) >= 4.5, `${che}: chữ tiêu đề bảng trên --ds-tint dưới AA`);
+    assert.ok(tuongPhan(mau('--edu-t2', che), paper) >= 4.5, `${che}: chữ ô bảng trên hàng chẵn --ds-paper dưới AA`);
+    assert.ok(tuongPhan(mau('--edu-t3', che), paper) >= 4.5, `${che}: chữ nhãn hàng trên --ds-paper dưới AA`);
+    assert.ok(tuongPhan(mau('--tv-brass', che), tint) >= SAN_DONG_TREN_TINT, `${che}: vạch đồng trên --ds-tint ${tuongPhan(mau('--tv-brass', che), tint).toFixed(2)}:1 < ${SAN_DONG_TREN_TINT}`);
+    assert.ok(tuongPhan(paper, the) >= 1.01, `${che}: hàng chẵn trùng hẳn thẻ — xen kẽ vô hình`);
+  }
+});
+
+test('B6: hình PNG nền trắng nằm trong "tờ" (padding + border-box + viền), ban đêm hạ độ sáng bằng filter', () => {
+  for (const s of ['.readFigure img', '.theoryFigure img']) {
+    const r = ruleTV(CSS_STUDIO, s);
+    const ngay = r.find((x) => !x.sels.some((y) => y.includes('body.dark')));
+    assert.ok(ngay, `${s}: thiếu rule ngày dưới theme`);
+    assert.match(ngay.than, /box-sizing:\s*border-box/, `${s}: thiếu border-box — max-width 100% + padding làm ảnh tràn ngang ở 320px`);
+    assert.match(ngay.than, /padding:\s*8px/, `${s}: thiếu padding "tờ"`);
+    assert.match(ngay.than, /background:\s*var\(--ds-paper\)/, `${s}: nền tờ phải là --ds-paper`);
+    assert.match(ngay.than, /border-color:\s*var\(--tv-rule\)/, `${s}: viền tờ phải là --tv-rule`);
+    const dem = r.find((x) => x.sels.some((y) => y.includes('body.dark')));
+    assert.ok(dem && /filter:\s*brightness\(0?\.8\d*\)/.test(dem.than), `${s}: ban đêm thiếu filter brightness(0,8x) — mảng trắng chói giữa thẻ nâu`);
+  }
+  // viền tờ phải thấy được trên thẻ (cạnh giấy, sàn 1,4 như khối code)
+  for (const che of ['ngay', 'dem']) {
+    assert.ok(tuongPhan(mau('--tv-rule', che), mau('--ds-card', che)) >= SAN_KHOI_CODE_VELLUM, `${che}: viền tờ --tv-rule không tách khỏi thẻ`);
+  }
+});
+
+test('B6: chip code nội tuyến có viền --tv-rule dưới theme', () => {
+  assert.ok(ruleTV(CSS_CHIP_TV, '.inlineCode').some((x) => /border-color:\s*var\(--tv-rule\)/.test(x.than)), '.inlineCode thiếu border-color var(--tv-rule) dưới theme');
+});

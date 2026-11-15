@@ -12,3 +12,10 @@
   color: var(--edu-t1);
   overflow-wrap: anywhere;
 }
+
+/* GIAO DIỆN "ĐÀI THIÊN VĂN": chip code trên thẻ vellum. Nền --edu-code-inline-bg
+   của theme đã tách khỏi thẻ (1,37:1 ngày, đêm cao hơn); thêm viền --tv-rule để
+   chip còn đọc ra khi nền in/phóng to làm tint nhạt đi. Chữ vẫn --edu-t1. */
+:global(html[data-theme="thien-van"]) .inlineCode {
+  border-color: var(--tv-rule);
+}

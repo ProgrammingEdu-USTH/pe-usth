@@ -1637,3 +1637,45 @@
 :global(html[data-theme="thien-van"]) .readExpected {
   box-shadow: 0 0 0 1px var(--tv-rule);
 }
+
+/* GIAO DIỆN "ĐÀI THIÊN VĂN" — MÀN ĐỌC TRÊN THẺ VELLUM (B6).
+   BẢNG (.readTable, .traceTable): kẻ bằng --tv-rule (cùng giá trị --edu-sidebar-border
+   nhưng đúng VAI "đường kẻ giấy"), hàng tiêu đề nền --ds-tint với vạch đồng
+   --tv-brass 2px bên dưới như đường thước, hàng chẵn nền --ds-paper (nhạt hơn thẻ
+   một nấc, chỉ để mắt bám hàng; chữ vẫn ≥ 5,3:1 trên cả hai). Không đụng
+   `.traceSau { min-width: 12em }` nên cột "Sau đó" ở điện thoại giữ nguyên
+   (bẫy hàng cao 621px). */
+:global(html[data-theme="thien-van"]) .readTable th,
+:global(html[data-theme="thien-van"]) .readTable td,
+:global(html[data-theme="thien-van"]) .traceTable th,
+:global(html[data-theme="thien-van"]) .traceTable td {
+  border-color: var(--tv-rule);
+}
+:global(html[data-theme="thien-van"]) .readTable th,
+:global(html[data-theme="thien-van"]) .traceTable thead th {
+  background: var(--ds-tint);
+  border-bottom: 2px solid var(--tv-brass);
+}
+:global(html[data-theme="thien-van"]) .readTable tbody tr:nth-child(even) td,
+:global(html[data-theme="thien-van"]) .traceTable tbody tr:nth-child(even) td,
+:global(html[data-theme="thien-van"]) .traceTable tbody tr:nth-child(even) th {
+  background: var(--ds-paper);
+}
+
+/* HÌNH (.readFigure, .theoryFigure): PNG của khoá nền TRẮNG (80 hình). Trên
+   vellum ngày #FBF5E3 mép trắng chói; ban đêm là một mảng trắng giữa thẻ nâu.
+   Đặt ảnh vào một "tờ": padding + viền --tv-rule + nền --ds-paper, ảnh không đổi.
+   `box-sizing: border-box` là BẮT BUỘC — `max-width: 100%` tính trên content-box
+   thì padding làm ảnh tràn 16px (hỏng ở 320px). Ban đêm hạ độ sáng ảnh còn 0,88
+   bằng filter (không đụng pixel gốc, không đổi chữ trong ảnh). */
+:global(html[data-theme="thien-van"]) .readFigure img,
+:global(html[data-theme="thien-van"]) .theoryFigure img {
+  box-sizing: border-box;
+  padding: 8px;
+  background: var(--ds-paper);
+  border-color: var(--tv-rule);
+}
+:global(html[data-theme="thien-van"] body.dark) .readFigure img,
+:global(html[data-theme="thien-van"] body.dark) .theoryFigure img {
+  filter: brightness(0.88);
+}

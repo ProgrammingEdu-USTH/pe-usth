@@ -55,6 +55,9 @@ const SAN_CHIP_DEM = 1.4;
 const SAN_TINT_DEM = 1.12;
 const SAN_THANH_CUON = 3.6;
 
+// Cạnh thẻ vellum so với chính thẻ (ngày đo 1,48 / đêm 1,56 — sàn đặt thấp một nhịp).
+const SAN_KHOI_CODE_VELLUM = 1.4;
+
 // ── đọc CSS ────────────────────────────────────────────────────────────────
 const THEME = boChuThich(doc('public/static/css/theme-thien-van.css'));
 
@@ -372,6 +375,20 @@ test('eyebrow chip ấm: chữ ≥ 4,5:1 trên nền chip ở ngày và đêm (t
   const sh = boChuThich(doc('src/components/lesson-chrome/ShellB.module.css'));
   assert.match(sh, /var\(--tv-eyebrow-bg\)/);
   assert.match(sh, /var\(--tv-eyebrow-ink\)/);
+});
+
+test('thẻ vellum (ShellB .card): nền --ds-card đục, cạnh --tv-rule ≥ 1,4:1 so với thẻ, eyebrow dùng mực chứ không dùng đồng sáng', () => {
+  const rules = moiRule(boChuThich(doc('src/components/lesson-chrome/ShellB.module.css')));
+  const the = rules.find((r) => r.sels.some((s) => s.includes(`html[data-theme="${TV}"]`) && s.endsWith(" .card")));
+  assert.ok(the, 'ShellB.module.css không có rule .card dưới theme: thẻ lại rơi về --edu-panel-bg (rgba .97, ngả sang màu thanh)');
+  assert.match(the.than, /background:\s*var\(--ds-card\)/);
+  assert.match(the.than, /border-color:\s*var\(--tv-rule\)/);
+  for (const che of ['ngay', 'dem']) {
+    const r = tuongPhan(mau('--tv-rule', che), mau('--ds-card', che));
+    assert.ok(r >= SAN_KHOI_CODE_VELLUM, `${che}: cạnh thẻ ${r.toFixed(2)}:1 < ${SAN_KHOI_CODE_VELLUM}`);
+  }
+  const eb = rules.find((r) => r.sels.some((s) => s.endsWith('.eyebrow') && s.includes(TV)));
+  assert.ok(eb && !/--tv-brass/.test(eb.than), 'eyebrow không được dùng --tv-brass: đồng #8A6D1E chỉ 3,95–4,50:1 ở cỡ 12px');
 });
 
 // ── RÀO AN TOÀN của giao diện thử nghiệm (#278) ─────────────────────────────

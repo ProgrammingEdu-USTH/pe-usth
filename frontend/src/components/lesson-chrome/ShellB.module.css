@@ -46,6 +46,20 @@
 }
 
 /* GIAO DIỆN "ĐÀI THIÊN VĂN": chip eyebrow ấm (token trong theme-thien-van.css). */
+/* GIAO DIỆN "ĐÀI THIÊN VĂN": thẻ là tờ VELLUM nằm trên tập giấy. Nền ĐỤC
+   --ds-card (#FBF5E3 ngày / #2A2416 đêm) thay cho --edu-panel-bg: token ấy là
+   rgba .97 của nền thanh nên ngả sang #F6F0E4 và hai mặt (thẻ / thanh) gần như
+   một. Cạnh --tv-rule (đồng-giấy) vì ở khoảng sáng này màu nền không tách nổi
+   mặt phẳng — chỉ đường kẻ mới tách. Bóng giữ --edu-card-shadow (hai nét dày
+   1px/3px + bóng đổ xa, đã ấm trong tệp token). backdrop-filter bỏ: nền đã đục
+   thì làm mờ phía sau là tốn một lớp compositor cho 0 hiệu ứng nhìn thấy. */
+:global(html[data-theme="thien-van"]) .card {
+  background: var(--ds-card);
+  border-color: var(--tv-rule);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
 :global(html[data-theme="thien-van"]) .eyebrow {
   background: var(--tv-eyebrow-bg);
   color: var(--tv-eyebrow-ink);

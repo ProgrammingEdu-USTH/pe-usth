@@ -1,16 +1,25 @@
 'use client';
 
-// Bàn thí nghiệm (/ide): editor Monaco bên trái, kết quả bên phải. Bấm Run (hoặc Ctrl+Enter)
+// Python IDE: editor Monaco bên trái, kết quả bên phải. Bấm Run (hoặc Ctrl+Enter)
 // gửi mã tới POST /api/python/run; backend chạy trong container Docker cách ly
 // rồi trả stdout/stderr (xem src/python-runner ở backend). Một request đồng bộ,
 // không hàng đợi — nên "đang chạy" kéo dài tới khi chương trình xong hoặc hết giờ.
 //
-// Đây là công cụ, KHÔNG phải khoá học: không ghi tiến độ/XP/đăng ký.
+// Đây là công cụ, KHÔNG phải khóa học: không ghi tiến độ/XP/đăng ký.
 //
 // Lỗi HẠ TẦNG (máy chủ không có Docker, runner tắt, IDE chưa mở) được nói bằng
 // một câu bình thường, nguyên văn thông điệp kỹ thuật thì gập vào <details>. Lỗi
 // của MÃ người học (SyntaxError, exception, hết giờ) vẫn hiện nguyên như trước —
 // đó mới là thứ công cụ này tồn tại để cho thấy.
+//
+// HAI THỨ CHỈ CÓ Ở ĐƯỜNG CLIENT (xem src/lib/ide-runner.ts):
+//  · nút Chạy đổi thành "■ Dừng" trong lúc chạy, kèm đếm ngược 5 giây cuối —
+//    trước bản này, gặp `while True:` là ngồi chờ hết 15 giây mà không có cách
+//    nào dừng và cũng không biết bao giờ thì dừng;
+//  · tự lưu mã đang soạn vào localStorage, để câu "mã của bạn vẫn còn nguyên"
+//    còn đúng cả sau một lần F5.
+// Đường MÁY CHỦ giữ nguyên hành vi cũ: nó có giới hạn 10 s riêng ở backend và
+// không có gì ở client cắt được một request đang bay.
 
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
@@ -18,16 +27,25 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from '
 import CodeVisualizer, { type MonacoHandle } from '@/components/code-visualizer/CodeVisualizer';
 import PageStyles from '@/components/PageStyles';
 import SiteHeader from '@/components/SiteHeader';
-import { apiFetch } from '@/lib/api';
-import { EDITOR_LOAD_TIMEOUT_MS, editorLoadPhase } from '@/lib/editor-load-gate';
-import { nextEditorCheckDelayMs } from '@/lib/editor-load-recheck';
 import {
-  forgetIdeReloadCode,
-  planIdeReload,
-  readIdeCodeOnLoad,
-  sessionStorageOrNull,
-} from '@/lib/ide-handoff';
-import { isRunnerDown, RUNNER_UNAVAILABLE_MESSAGE } from '@/lib/runner-error';
+  clearIdeCode,
+  countdownSeconds,
+  disposeIdeRunner,
+  IDE_AUTOSAVE_DEBOUNCE_MS,
+  IDE_OUTPUT_CAP_CHARS,
+  IDE_RUN_TIMEOUT_MS,
+  type IdeCodeSource,
+  loadIdeCode,
+  needsLinkConfirm,
+  pickIdeOpeningCode,
+  runInBrowser,
+  saveIdeCode,
+  stopInBrowser,
+  warmIdeRunner,
+} from '@/lib/ide-runner';
+import { EDITOR_LOAD_TIMEOUT_MS, editorLoadPhase } from '@/lib/editor-load-gate';
+import { ideCodeHref, readIdeCodeFromHash } from '@/lib/ide-handoff';
+import { canKeoKetQua } from '@/lib/ide-output-scroll';
 
 import { DEFAULT_CODE, IDE_EXAMPLES } from './examples';
 import styles from './ide.module.css';
@@ -40,37 +58,21 @@ import styles from './ide.module.css';
  * 12 lượt tải sang jsdelivr. Phòng máy chặn hoặc làm chậm domain đó là mất
  * trắng trang IDE, mà /ide đang là thứ duy nhất demo được (xem AGENTS.md: DB
  * dùng chung đang hỏng đăng nhập). Pyodide đã tự host ở
- * public/pyodide/v0.27.7/ đúng vì lý do này từ trước; Monaco bị bỏ sót.
+ * public/pyodide/v314.0.7/ đúng vì lý do này từ trước; Monaco bị bỏ sót.
  *
  * Thư mục GHIM PHIÊN BẢN (v0.57.0) nên nội dung không bao giờ đổi → có luật
  * cache `immutable` trong next.config.ts, giống /pyodide/:path*. Muốn nâng cấp
  * là chép sang thư mục mới rồi đổi hằng số này, KHÔNG ghi đè file cũ.
  *
- * Cách dựng lại thư mục — chạy TỪ `frontend/`, trong Git Bash (bốn lệnh dưới
- * là POSIX, máy làm việc của repo này là Windows). node_modules/monaco-editor
- * chỉ có ở `frontend/`; 0.57.0 đã ghim trong frontend/package-lock.json vì
- * @monaco-editor/react khai nó là peer dependency:
- *     rm -rf public/monaco/v0.57.0/vs && mkdir -p public/monaco/v0.57.0
- *     cp -r node_modules/monaco-editor/min/vs public/monaco/v0.57.0/vs
- *     rm -rf public/monaco/v0.57.0/vs/nls
- *     rm -rf public/monaco/v0.57.0/vs/language/typescript
- *     rm public/monaco/v0.57.0/vs/assets/ts.worker-*.js
- * (Không cần dọn `*.d.ts`: cả 13 tệp .d.ts của bản 0.57.0 đều nằm trong
- * `nls/lang/`, nên `rm -rf nls` ở trên đã cuốn hết — một lệnh `find … -delete`
- * thêm vào đây xoá đúng 0 tệp.)
- * Ra 122 tệp, 9 152 631 byte (bản gốc 151 tệp, 25 564 261 byte). Đã kiểm ngày
- * 14/10/2026: dựng theo đúng các lệnh trên vào thư mục tạm rồi `diff -r` với
- * bản trong repo — trùng từng byte.
- *
- * Hai nhóm bị bỏ và hậu quả THẬT nếu sau này cần tới chúng:
- *  - `nls/` chỉ chứa bản dịch giao diện, chỉ tải khi require.config đặt
- *    availableLanguages — ở đây không đặt.
- *  - TypeScript: worker ở `assets/ts.worker-*.js` và `language/typescript/`.
- *    Đặt `language="typescript"` thì editor KHÔNG treo — tô màu cú pháp vẫn có
- *    (phần đó nằm ở basic-languages, còn giữ) — chỉ lượt tải TS worker bị 404,
- *    tức mất gợi ý/báo lỗi kiểu. Cần những thứ đó thì chép lại hai nhóm này.
- * JSON KHÔNG bị tỉa (còn `assets/json.worker-*.js`, `language/json/`), nên
- * `language="json"` chạy đủ như bản gốc.
+ * Cách dựng lại thư mục (0.57.0 đã ghim trong package-lock.json vì
+ * @monaco-editor/react khai nó là peer dependency):
+ *     cp -r node_modules/monaco-editor/min/vs frontend/public/monaco/v0.57.0/vs
+ * rồi bỏ ba nhóm KHÔNG bao giờ được tải với editor python (25 MB → 9,3 MB):
+ *     rm -rf …/vs/nls/lang          # chỉ tải khi require.config đặt availableLanguages
+ *     rm -rf …/vs/language/typescript && rm …/vs/assets/ts.worker-*.js
+ *     find …/vs -name '*.d.ts' -delete
+ * Thêm `language="typescript"`/`"json"` hay đổi ngôn ngữ giao diện ở đâu đó
+ * thì phải chép lại ĐỦ, không thì editor treo đúng kiểu đang sửa.
  */
 const MONACO_VS_PATH = '/monaco/v0.57.0/vs';
 
@@ -128,15 +130,32 @@ type RunResult = {
   durationMs: number;
   /** Thời gian chờ trong hàng đợi của máy chạy (ms). Backend/runner cũ không gửi → undefined. */
   queuedMs?: number;
+  /**
+   * Ai đã cắt lần chạy (chỉ đường client đặt — xem IdeRunResult trong
+   * src/lib/ide-runner.ts). Kết quả từ máy chủ không có trường này, nên nhánh
+   * máy chủ vẫn rơi vào đúng thông báo "Hết giờ" cũ.
+   */
+  cutBy?: 'timeout' | 'user';
 };
 
 type RunState =
   | { status: 'idle' }
-  | { status: 'running' }
+  | {
+      status: 'running';
+      /**
+       * Lần chạy NÀY có dừng được không. Chỉ đường client dừng được, nên cờ
+       * này đi theo từng lần chạy chứ không phải đọc `ideRunnerMode()` lúc
+       * render: đọc lúc render thì máy chủ (không thấy `?runner=`) và client
+       * ra hai kết quả khác nhau, tức lệch hydration.
+       */
+      canStop: boolean;
+      /** Mốc performance.now() lúc bấm Chạy, để đếm ngược mấy giây cuối. */
+      startedAt: number;
+    }
   | { status: 'done'; result: RunResult }
   | {
       status: 'error';
-      kind: 'private' | 'busy' | 'unavailable' | 'other';
+      kind: 'unavailable' | 'other';
       message: string;
       /** Nguyên văn thông điệp kỹ thuật, gập trong <details> cho người vận hành. */
       detail?: string;
@@ -152,6 +171,26 @@ const getDark = () => document.body.classList.contains('dark');
 const getDarkServer = () => false;
 
 /**
+ * "Đã qua lần render đầu ở client chưa".
+ *
+ * VÌ SAO CẦN: dải "đã khôi phục bản tự lưu" là chữ THẬT trong DOM, mà máy chủ
+ * không đọc được localStorage nên HTML nó trả về không bao giờ có dải đó. Vẽ
+ * dải ngay lần render đầu ở client là lệch hydration.
+ *
+ * Vì sao `useSyncExternalStore` chứ không `setState` trong effect: đây đúng là
+ * cơ chế React dành cho giá trị CHỈ CÓ Ở CLIENT — `getServerSnapshot` trả
+ * false, React tự so lại sau khi hydrate rồi render thêm một lượt. Viết bằng
+ * `useEffect(() => setX(true))` thì lint `react-hooks/set-state-in-effect`
+ * chặn, và nó chặn đúng: đó là một lượt render phụ đi qua state không cần thiết.
+ */
+function subscribeHydrated() {
+  // Không bao giờ đổi sau khi hydrate xong, nên không cần đăng ký gì.
+  return () => {};
+}
+const getHydrated = () => true;
+const getHydratedServer = () => false;
+
+/**
  * Trần số ký tự DỰNG vào DOM cho mỗi luồng. Backend cho phép tới 1 MB (~500 nghìn
  * dòng với `print('x')`); dựng hết vào <pre> làm trình duyệt khựng hàng giây.
  * Chỉ cắt phần HIỂN THỊ, dữ liệu trả về vẫn nguyên.
@@ -164,44 +203,42 @@ function clip(text: string): { text: string; clipped: boolean } {
     : { text, clipped: false };
 }
 
+// Chỉ còn hai loại lỗi từ khi bỏ đường máy chủ: `unavailable` (không dựng được
+// Pyodide/Worker) và `other`. Hai loại cũ — `private` (401, backend đòi JWT) và
+// `busy` (429, hàng đợi máy chủ) — không còn nguồn nào sinh ra.
 const ERROR_TITLES: Record<Extract<RunState, { status: 'error' }>['kind'], string> = {
-  // "Bàn thí nghiệm", không "IDE": bảng thuật ngữ của bản thiết kế chốt
-  // MỘT tên cho trình soạn code, và người học chỉ gặp cái tên đó.
-  private: 'Bàn thí nghiệm chưa mở cho phiên này',
-  busy: 'Chưa chạy được lúc này',
-  unavailable: 'Bộ chạy Python đang được dựng',
+  unavailable: 'Chưa chạy được Python trong trình duyệt',
   other: 'Lỗi',
 };
 
-/** Backend bọc lỗi thành { error: { message } } (AllExceptionsFilter) hoặc { message } (ValidationPipe). */
-function errorMessage(body: unknown, fallback: string): string {
-  const b = body as { error?: { message?: unknown } | string; message?: unknown } | null;
-  const raw = (typeof b?.error === 'object' ? b.error?.message : undefined) ?? b?.message;
-  if (Array.isArray(raw)) return raw.join(', ');
-  return typeof raw === 'string' && raw ? raw : fallback;
-}
-
 /**
- * Mã bàn giao từ nút "Thử ngay trong IDE" của trang bài học: /ide#code=…
- * (xem src/lib/ide-handoff.ts). Tham số méo, quá dài hoặc không có → ví dụ mặc
- * định, không bao giờ để trang trắng.
+ * Mã /ide mở ra, và nó đến từ đâu. BA nguồn, thứ tự ưu tiên nằm trong
+ * `pickIdeOpeningCode` (src/lib/ide-runner.ts, có test):
+ *  1. `/ide#code=…` — bàn giao từ nút "Thử ngay trong IDE" của trang bài học
+ *     (xem src/lib/ide-handoff.ts). Tham số méo hoặc quá dài → coi như không có.
+ *  2. bản tự lưu trong localStorage;
+ *  3. ví dụ mặc định — không bao giờ để trang trắng.
  *
  * Đọc ngay lúc khởi tạo state (không phải trong effect) để editor mở ra đã có
  * đúng mã, khỏi nhấp một nhịp ví dụ mặc định. Không gây lệch hydration: máy chủ
- * không thấy fragment nên nó trả DEFAULT_CODE, nhưng `code` chỉ chảy vào Monaco
- * — thứ tải động với ssr:false — nên HTML của máy chủ và lần render đầu ở client
- * đều là khung "Đang tải trình soạn thảo…", không có chữ nào khác nhau.
+ * không thấy fragment lẫn localStorage nên nó trả DEFAULT_CODE, nhưng `code`
+ * chỉ chảy vào Monaco — thứ tải động với ssr:false — nên HTML của máy chủ và
+ * lần render đầu ở client đều là khung "Đang tải trình soạn thảo…", không có
+ * chữ nào khác nhau. Dải "đã khôi phục" thì KHÁC: nó là chữ thật trong HTML,
+ * nên nó bật lên trong effect, sau hydration (xem `restored` bên dưới).
  */
-function initialCode(): string {
-  if (typeof window === 'undefined') return DEFAULT_CODE;
-  // Sau fragment còn bản cất của nút "Thử lại" (sessionStorage) — đường dành
-  // cho mã quá dài để nhét vào địa chỉ. Thứ tự ưu tiên và lý do: xem
-  // readIdeCodeOnLoad() trong src/lib/ide-handoff.ts (có test).
-  return readIdeCodeOnLoad(window.location.hash, sessionStorageOrNull()) ?? DEFAULT_CODE;
+function initialOpening(): { code: string; source: IdeCodeSource } {
+  if (typeof window === 'undefined') return { code: DEFAULT_CODE, source: 'default' };
+  return pickIdeOpeningCode({
+    hashCode: readIdeCodeFromHash(window.location.hash),
+    savedCode: loadIdeCode(),
+    defaultCode: DEFAULT_CODE,
+  });
 }
 
 export default function IdeClient() {
-  const [code, setCode] = useState(initialCode);
+  const [opening] = useState(initialOpening);
+  const [code, setCode] = useState(opening.code);
   const [state, setState] = useState<RunState>({ status: 'idle' });
   const dark = useSyncExternalStore(subscribeTheme, getDark, getDarkServer);
   // Nội dung editor MỚI NHẤT, cập nhật đồng bộ trong onChange. Ctrl+Enter được gắn
@@ -212,12 +249,24 @@ export default function IdeClient() {
     codeRef.current = next;
     setCode(next);
   }, []);
-  // Bản cất của nút "Thử lại" đã nằm trong state ở trên → xoá nó đi, kẻo mở lại
-  // /ide trong tab này về sau hiện mã cũ thay cho ví dụ mặc định.
-  useEffect(() => forgetIdeReloadCode(sessionStorageOrNull()), []);
 
   const running = state.status === 'running';
+  // Lần chạy đang treo có dừng được không, và nó bắt đầu lúc nào. Rút ra thành
+  // hai giá trị vô hướng để làm dep của effect đếm ngược: để nguyên object
+  // `state` thì effect dựng lại interval sau MỌI lần setState.
+  const canStop = state.status === 'running' && state.canStop;
+  const runStartedAt = state.status === 'running' ? state.startedAt : 0;
+  // Số giây đếm ngược đang hiện. Khai ở đây — trước `run()` — vì `run()` phải
+  // xoá số sót của lần chạy trước; mọi lời giải thích nằm ở chỗ bắc bộ hẹn, tìm
+  // "Đếm ngược mấy giây cuối" bên dưới.
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  // Ô kết quả, và cờ "lần chạy này do người học bấm, kết quả về thì kéo ô vào
+  // màn". Trên điện thoại ô nằm DƯỚI editor 55vh: đo ở 390×844 có băng khôi
+  // phục, nó bắt đầu ở y = 888 — bấm Chạy xong màn hình không đổi một pixel.
+  // Luật quyết định nằm ở lib/ide-output-scroll.ts.
+  const outputRef = useRef<HTMLElement | null>(null);
+  const keoKetQuaRef = useRef(false);
   // Cho CodeVisualizer tô dòng đang chạy ngay trong Monaco. Giữ ở đây vì chỉ
   // `onMount` của editor mới có hai đối tượng này; mọi việc với decoration nằm
   // trong CodeVisualizer.
@@ -228,6 +277,89 @@ export default function IdeClient() {
   // cho React biết); nó portal nút vào đây, nên trạng thái nút vẫn do chính nó
   // giữ, không phải một bản sao ở đây.
   const [visualizeSlot, setVisualizeSlot] = useState<HTMLSpanElement | null>(null);
+
+  // --- TỰ LƯU MÃ ĐANG SOẠN -------------------------------------------------
+  // Luật chọn nguồn và ba hàm đọc/ghi/xoá nằm ở src/lib/ide-runner.ts (có test);
+  // ở đây chỉ còn phần nối vào React.
+
+  /**
+   * Có đang hiện dải "đã khôi phục bản tự lưu" không.
+   *
+   * VÌ SAO PHẢI HIỆN CHO BIẾT thay vì khôi phục im lặng: người học mở /ide ra
+   * thấy một đoạn mã mình không vừa gõ thì phản ứng đầu tiên là "trang hỏng"
+   * hoặc "mất bài", chứ không phải "à, nó nhớ hộ mình".
+   *
+   * Dẫn xuất ra chứ không giữ thành state riêng: nguồn mã (`opening.source`)
+   * đã chốt lúc mở trang và không đổi nữa, nên chỉ còn hai biến thật — đã
+   * hydrate chưa, và người dùng đã đóng dải chưa.
+   */
+  const hydrated = useSyncExternalStore(subscribeHydrated, getHydrated, getHydratedServer);
+  const [restoreDismissed, setRestoreDismissed] = useState(false);
+  const restored = hydrated && opening.source === 'autosave' && !restoreDismissed;
+
+  /**
+   * Mã đến từ một ĐƯỜNG LINK (`/ide#code=…`) và sắp chạy trong trình duyệt của
+   * chính người mở — hỏi một câu trước khi chạy.
+   *
+   * Đo được trên bản thật: trong Worker thì `localStorage`/`document` đều không
+   * với tới (cách ly miễn phí), NHƯNG `fetch` mở và một lời gọi
+   * `POST /auth/refresh` kèm `credentials:'include'` trả về access token của
+   * chính người đang xem. Nên thiệt hại không phải đọc trộm token mà là CHIẾM
+   * PHIÊN, và chặn `ctypes` không giải quyết gì vì `js.fetch` là API hợp pháp.
+   *
+   * Đây KHÔNG phải lớp phòng thật — lớp thật là tách origin. Nó chỉ cắt chuỗi
+   * "gửi link, người kia bấm Chạy, xong" bằng một lần hỏi, và chỉ hỏi đúng ca
+   * đáng hỏi. Mã người học tự gõ hoặc khôi phục từ máy họ thì không hỏi.
+   */
+  const [linkTrusted, setLinkTrusted] = useState(false);
+  const askLink = hydrated && !linkTrusted
+    && needsLinkConfirm(opening.source);
+  // `run` là useCallback rỗng deps (xem codeRef ở trên, cùng lý do): đọc state
+  // trong đó là đọc bản của lần render đầu, tức cú bấm NGAY sau khi xác nhận sẽ
+  // vẫn thấy "chưa xác nhận". Gương ra ref để nó luôn đọc giá trị mới nhất.
+  // Gương qua effect chứ không gán thẳng lúc render: React 19 chặn ghi ref
+  // trong thân component (`react-hooks/purity`), và lý do của nó đúng — ghi lúc
+  // render thì một lần render bị bỏ dở vẫn để lại dấu vết.
+  const askLinkRef = useRef(askLink);
+  useEffect(() => {
+    askLinkRef.current = askLink;
+  }, [askLink]);
+
+  // Ghi có HOÃN: `setItem` là lời gọi đồng bộ trên main thread, ghi mỗi phím
+  // nghĩa là tuần tự hoá lại cả bài sau từng ký tự. Mỗi lần `code` đổi, hẹn
+  // lại từ đầu — nên một câu gõ liền mạch chỉ tốn đúng một lượt ghi.
+  useEffect(() => {
+    const hen = setTimeout(() => saveIdeCode(code), IDE_AUTOSAVE_DEBOUNCE_MS);
+    return () => clearTimeout(hen);
+  }, [code]);
+
+  // Chốt sổ khi rời trang. Thiếu bước này thì đúng mấy ký tự cuối — thứ người
+  // ta vừa gõ xong rồi F5 — là thứ bị mất, tức là mất đúng cái mà tự lưu tồn
+  // tại để giữ.
+  //
+  // `pagehide` chứ không `beforeunload`: beforeunload làm trình duyệt bỏ trang
+  // ra khỏi bộ nhớ đệm back/forward, và Safari trên iOS gần như không bắn nó
+  // khi người dùng chuyển app. `pagehide` bắn cả khi trang chỉ bị ĐÓNG BĂNG.
+  useEffect(() => {
+    const luuNgay = () => saveIdeCode(codeRef.current);
+    window.addEventListener('pagehide', luuNgay);
+    return () => {
+      window.removeEventListener('pagehide', luuNgay);
+      // Cả lúc component bị gỡ: điều hướng trong app (next/link) không bắn
+      // pagehide lần nào.
+      luuNgay();
+    };
+  }, []);
+
+  /** "Dùng ví dụ mặc định": bỏ bản tự lưu và quay về ví dụ gốc. */
+  const dungViDuMacDinh = useCallback(() => {
+    updateCode(DEFAULT_CODE);
+    clearIdeCode();
+    setRestoreDismissed(true);
+    // Effect ghi-có-hoãn ở trên sẽ lưu lại chính DEFAULT_CODE sau 800 ms. Vô
+    // hại: `pickIdeOpeningCode` so bản lưu với ví dụ mặc định và coi trùng là
+    // 'default', nên lần mở sau không báo "đã khôi phục" nữa.
+  }, [updateCode]);
 
   // --- LƯỚI AN TOÀN KHI KHÔNG NẠP ĐƯỢC TRÌNH SOẠN THẢO ---------------------
   // Ba tín hiệu đi vào editorLoadPhase() (src/lib/editor-load-gate.ts, có test):
@@ -252,22 +384,17 @@ export default function IdeClient() {
     // lần nên trang đứng mãi ở "Đang tải" — đúng cái lỗi bản sửa này đang chữa.
     editorStartedAtRef.current = performance.now();
     // Hẹn LẠI chứ không hẹn một lần: nếu lượt bắn đầu vì lý do nào đó chưa đủ
-    // trần (bộ hẹn giờ bắn sớm vài phần mười ms so với performance.now(), tab
-    // bị treo rồi tỉnh), lượt sau vẫn kiểm tiếp. Khi nào hẹn, khi nào thôi do
-    // nextEditorCheckDelayMs() quyết (src/lib/editor-load-recheck.ts, có test):
-    // nó hỏi lại CHỪNG NÀO cổng còn nói 'loading', và thôi ngay khi cổng kết
-    // luận — nên vừa không đứng im, vừa không phải vòng lặp vô hạn.
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const check = () => {
-      const elapsedMs = performance.now() - editorStartedAtRef.current;
-      setEditorElapsedMs(elapsedMs);
-      const phase = editorLoadPhase({ mounted: false, rejected: getMonacoRejected(), elapsedMs });
-      const delay = nextEditorCheckDelayMs(phase, elapsedMs, EDITOR_LOAD_TIMEOUT_MS);
-      if (delay !== null) timer = setTimeout(check, delay);
+    // trần (đồng hồ, tab bị treo rồi tỉnh), lượt sau vẫn kiểm tiếp. Dừng hẳn
+    // khi đã quá trần, nên không phải vòng lặp vô hạn.
+    let timer: ReturnType<typeof setTimeout>;
+    const dem = () => {
+      const troi = performance.now() - editorStartedAtRef.current;
+      setEditorElapsedMs(troi);
+      if (troi < EDITOR_LOAD_TIMEOUT_MS) {
+        timer = setTimeout(dem, EDITOR_LOAD_TIMEOUT_MS - troi);
+      }
     };
-    // Lượt đầu hẹn thẳng một trần (không gọi check() ngay): vừa mở thì đã chờ
-    // 0 ms, hỏi cổng lúc này chắc chắn ra 'loading' — chỉ tốn một lần render.
-    timer = setTimeout(check, EDITOR_LOAD_TIMEOUT_MS);
+    timer = setTimeout(dem, EDITOR_LOAD_TIMEOUT_MS);
     return () => clearTimeout(timer);
   }, [editorMounted]);
 
@@ -286,123 +413,143 @@ export default function IdeClient() {
    * lời từ chối cũ — dựng lại component chỉ cho ra khung "đang tải" treo lần
    * nữa. Chỉ lần tải trang mới mới có loader mới.
    *
-   * Mã đang gõ được cất TRƯỚC khi tải lại, bằng planIdeReload()
-   * (src/lib/ide-handoff.ts, có test): vào fragment nếu vừa (cùng cơ chế nút
-   * "Thử ngay trong IDE"), không vừa — quá 16.000 ký tự — thì vào
-   * sessionStorage. Bản đầu chỉ có fragment: mã dài là tải lại MẤT BÀI, trong
-   * khi chú thích chỗ này hứa ngược lại. Nếu cả hai đều không cất được (bộ nhớ
-   * bị chặn, hết hạn mức) thì KHÔNG tải lại: hiện lời nhắn bảo chép mã ra trước,
-   * người dùng tự bấm tải lại khi đã chép xong.
-   *
-   * `replaceState` đổi địa chỉ mà không điều hướng, rồi `reload()` nạp lại
-   * chính địa chỉ đó — đặt thẳng `location.hash` bằng giá trị đang có thì trình
-   * duyệt coi là không đổi và không tải lại gì.
+   * Mã người dùng đang gõ được cất vào fragment trước khi tải lại (cùng cơ chế
+   * nút "Thử ngay trong IDE" của trang bài học, xem src/lib/ide-handoff.ts) nên
+   * thử lại KHÔNG mất bài. `replaceState` đổi địa chỉ mà không điều hướng, rồi
+   * `reload()` nạp lại chính địa chỉ đó — đặt thẳng `location.hash` bằng giá
+   * trị đang có thì trình duyệt coi là không đổi và không tải lại gì.
    */
-  const [retryBlocked, setRetryBlocked] = useState(false);
   const retryEditor = useCallback(() => {
-    const plan = planIdeReload(codeRef.current, sessionStorageOrNull());
-    if (!plan.ok) {
-      setRetryBlocked(true);
-      return;
-    }
-    window.history.replaceState(null, '', plan.href);
-    window.location.reload();
-  }, []);
-  // Người dùng đã thấy lời nhắn và tự xác nhận đã chép mã. THỬ CẤT LẠI MỘT LẦN
-  // NỮA trước khi tải lại: giữa lúc đọc lời nhắn họ thường xoá bớt mã cho ngắn
-  // lại (ngắn tới mức vừa fragment), hoặc bộ nhớ của trình duyệt hồi lại. Bản
-  // đầu gọi thẳng reload() nên hai trường hợp đó vẫn mất bài một cách vô ích —
-  // `retryBlocked` một khi bật thì không bao giờ tắt.
-  const forceReload = useCallback(() => {
-    const plan = planIdeReload(codeRef.current, sessionStorageOrNull());
-    if (plan.ok) window.history.replaceState(null, '', plan.href);
+    const href = ideCodeHref(codeRef.current);
+    if (href) window.history.replaceState(null, '', href);
     window.location.reload();
   }, []);
 
   const run = useCallback(async () => {
     if (abortRef.current) return; // đang chạy: bỏ qua cú bấm thứ hai
+    if (askLinkRef.current) return; // mã từ link chưa được xác nhận — xem `askLink`
     const controller = new AbortController();
     abortRef.current = controller;
-    setState({ status: 'running' });
+    keoKetQuaRef.current = true;
+    // Pyodide ngay trong trình duyệt — đường DUY NHẤT từ 25/10/2026. Nhánh gửi
+    // lên `POST /api/python/run` đã đi cùng `src/python-runner/`.
+    setSecondsLeft(null); // xem chú thích của bộ đếm ngược: xoá số sót của lần trước
+    // `canStop: true` không còn điều kiện: chỉ đường client mới cắt được lần
+    // chạy (bằng `terminate()`), và nay chỉ còn đường đó.
+    setState({ status: 'running', canStop: true, startedAt: performance.now() });
     try {
-      const res = await apiFetch('/api/python/run', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: codeRef.current }),
-        signal: controller.signal,
-      });
-      const body: unknown = await res.json().catch(() => null);
-      if (res.status === 401) {
-        // Không có đăng nhập để mà gợi ý: 401 nghĩa là backend vẫn đòi JWT cho route
-        // này và phiên khách hiện tại không có token. Tên biến môi trường là việc của
-        // người vận hành chứ không phải của người học → xuống <details>.
-        setState({
-          status: 'error',
-          kind: 'private',
-          // Cùng MỘT câu với nhánh 503 và nhánh docker-chết: người học thấy
-          // cùng một hỏng hóc ("không chạy được trên máy chủ") nên không có lý
-          // do nào để ba nhánh nói ba kiểu. Nguyên nhân thật ở `detail`.
-          message: RUNNER_UNAVAILABLE_MESSAGE,
-          // KHÔNG gợi ý PY_RUNNER_PUBLIC=true ở đây. Câu cũ mời người vận hành
-          // bật một cờ mở toang route chạy mã cho cả internet, trong khi 401
-          // gần như luôn có nghĩa khác: phiên khách chưa kịp cấp. apiFetch đã
-          // tự gọi POST /auth/guest khi gặp 401 rồi gửi lại — nên IDE chạy
-          // bình thường với PY_RUNNER_PUBLIC=false.
-          detail: `HTTP 401 — ${errorMessage(body, 'phiên đăng nhập chưa sẵn sàng; tải lại trang để nhận phiên khách mới.')}`,
-        });
-      } else if (res.status === 429) {
-        setState({
-          status: 'error',
-          kind: 'busy',
-          // 429 có hai nguồn với hai lời khuyên KHÁC NHAU, backend đã phân biệt bằng
-          // thông điệp: "Bạn chạy quá nhiều lần, đợi khoảng 1 phút…" (throttle) hoặc
-          // "Máy chủ đang quá tải, thử lại sau" (hàng đợi đầy / chờ quá hạn). Hiện đúng
-          // câu đó, đừng thay bằng câu chung: cả hai đều là lời khuyên cho người dùng.
-          message: errorMessage(body, 'Máy chủ đang quá tải, thử lại sau'),
-        });
-      } else if (res.status === 503) {
-        // 503 ở route này LUÔN là hạ tầng, không bao giờ là lỗi của mã: chế độ remote
-        // không gọi được runner (tắt, lệch khoá, quá hạn), chế độ local không có docker
-        // ("Máy chủ chưa cài Docker"). Trước đây trang hiện thẳng câu của backend vì nó
-        // nói đúng nguyên nhân — nhưng người đọc là sinh viên, nên câu đó xuống
-        // <details> còn trên mặt là một câu bình thường.
-        setState({
-          status: 'error',
-          kind: 'unavailable',
-          message: RUNNER_UNAVAILABLE_MESSAGE,
-          detail: `HTTP 503 — ${errorMessage(body, 'bộ chạy Python không trả lời.')}`,
-        });
-      } else if (!res.ok) {
-        setState({
-          status: 'error',
-          kind: 'other',
-          message: errorMessage(body, `Không chạy được (HTTP ${res.status}).`),
-        });
-      } else if (isRunnerDown(body as RunResult)) {
-        // 200 nhưng docker chết trước khi Python kịp chạy — xem isRunnerDown().
-        setState({
-          status: 'error',
-          kind: 'unavailable',
-          message: RUNNER_UNAVAILABLE_MESSAGE,
-          detail: (body as RunResult).stderr.trim(),
-        });
-      } else {
-        setState({ status: 'done', result: body as RunResult });
-      }
+      const result = await runInBrowser(codeRef.current);
+      if (!controller.signal.aborted) setState({ status: 'done', result });
     } catch (e) {
-      if (controller.signal.aborted) return; // người dùng rời trang
-      setState({
-        status: 'error',
-        kind: 'other',
-        message: e instanceof Error ? `Không kết nối được máy chủ: ${e.message}` : 'Không kết nối được máy chủ.',
-      });
+      if (!controller.signal.aborted) {
+        setState({
+          status: 'error',
+          kind: 'unavailable',
+          message:
+            'Không khởi động được Python trong trình duyệt. Thử tải lại trang; '
+            + 'nếu vẫn vậy, trình duyệt có thể đang chặn Web Worker.',
+          detail: e instanceof Error ? e.message : String(e),
+        });
+      }
     } finally {
       abortRef.current = null;
     }
   }, []);
 
+  /**
+   * Kết quả vừa về (xong, bị cắt, hay lỗi) mà ô kết quả nằm ngoài màn ⇒ kéo nó
+   * vào. Chờ tới lúc KẾT QUẢ VỀ chứ không cuộn ngay lúc bấm: trong lúc chạy,
+   * nút "■ Dừng" ở trên editor phải còn trong tầm tay — cuộn sớm là đẩy nó ra
+   * khỏi màn đúng lúc người học có thể cần nó.
+   *
+   * Effect (sau khi React đã vẽ ô kết quả mới) chứ không gọi ngay sau
+   * setState: lúc đó DOM còn là bản cũ. `block: 'nearest'` cuộn ÍT NHẤT có thể;
+   * máy tính xếp ngang thì `canKeoKetQua` trả false và không có gì xảy ra.
+   */
+  useEffect(() => {
+    if (!keoKetQuaRef.current) return;
+    if (state.status !== 'done' && state.status !== 'error') return;
+    keoKetQuaRef.current = false;
+    const el = outputRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    if (!canKeoKetQua(r.top, r.bottom, window.innerHeight)) return;
+    const giamChuyenDong = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    el.scrollIntoView({ block: 'nearest', behavior: giamChuyenDong ? 'auto' : 'smooth' });
+  }, [state]);
+
+  /**
+   * Người học bấm "■ Dừng".
+   *
+   * KHÔNG abort `abortRef`: lần chạy bị dừng vẫn phải được VẼ RA (thông báo
+   * "bạn đã dừng chương trình" + nhắc rằng mã trong editor còn nguyên), mà
+   * nhánh client bỏ qua kết quả khi `controller.signal.aborted`. Abort ở đây
+   * là tự bịt miệng chính thông báo mình vừa viết.
+   *
+   * Việc cắt thật — `terminate()` worker rồi nạp sẵn worker thay thế — nằm
+   * trong `stopInBrowser()` (src/lib/ide-runner.ts); promise của `runInBrowser`
+   * resolve với `cutBy: 'user'` và `run()` ở trên hiển thị nó như một lần chạy
+   * bình thường bị cắt, không phải một lỗi.
+   */
+  const stop = useCallback(() => {
+    stopInBrowser();
+  }, []);
+
+  /**
+   * "Tôi tin đoạn mã này — cho chạy": tin VÀ chạy, một cú bấm.
+   *
+   * Trước đây nút này chỉ `setLinkTrusted(true)` — dải cảnh báo biến mất và
+   * KHÔNG có gì chạy, dù nhãn hứa "cho chạy". Người dùng phải bấm Chạy lần nữa.
+   *
+   * Ghi thẳng vào `askLinkRef` chứ không chờ effect gương nó: state mới chưa
+   * tới `run()` trong cùng một lượt, nên không ghi ref thì `run()` vẫn thấy
+   * "chưa xác nhận" và lại không chạy gì. Ghi ref TRONG event handler là hợp lệ
+   * — luật `react-hooks/purity` chỉ chặn ghi trong thân component lúc render.
+   */
+  const tinVaChay = useCallback(() => {
+    setLinkTrusted(true);
+    askLinkRef.current = false;
+    void run();
+  }, [run]);
+
+  /**
+   * Đếm ngược mấy giây cuối. Mốc lấy bằng `performance.now()` — đồng hồ ĐƠN
+   * ĐIỆU, không bị kéo lùi khi máy đồng bộ NTP; cùng lý do như bộ đếm chờ
+   * Monaco ở trên.
+   *
+   * Nhịp 250 ms chứ không 1000 ms: với nhịp 1 giây, con số hiện ra có thể đã
+   * cũ gần một giây, nên người đọc thấy "còn 1 s" rồi bị cắt ngay — đúng cái
+   * bất ngờ mà đếm ngược sinh ra để dẹp.
+   *
+   * ĐỒNG HỒ ĐƯỢC ĐỌC TRONG BỘ HẸN, không phải lúc render. `performance.now()`
+   * là hàm không thuần khiết: gọi nó giữa lúc render làm cùng một cây React
+   * cho ra hai kết quả khác nhau, và lint `react-hooks/purity` chặn đúng chỗ
+   * đó. Nhưng `setSecondsLeft` cũng không được gọi THẲNG trong thân effect
+   * (`react-hooks/set-state-in-effect`) — nên cả hai luật cùng dẫn về một
+   * khuôn: effect chỉ bắc bộ hẹn, mọi lượt đặt state đi qua bộ hẹn đó.
+   *
+   * Giá trị cũ của lần chạy TRƯỚC bị che bằng `canStop` lúc render, và `run()`
+   * đặt lại null ngay khi bấm Chạy — thiếu bước đó thì 250 ms đầu của lần chạy
+   * mới còn hiện "tự dừng sau 0 s" sót lại từ lần vừa bị cắt. Chính vì `run()`
+   * dùng tới nó mà `secondsLeft` được khai ở TRÊN `run()`, không phải ở đây.
+   */
+  useEffect(() => {
+    if (!canStop) return;
+    const dem = () => setSecondsLeft(countdownSeconds(performance.now() - runStartedAt));
+    const nhip = setInterval(dem, 250);
+    return () => clearInterval(nhip);
+  }, [canStop, runStartedAt]);
+  const demNguoc = canStop ? secondsLeft : null;
+
   // Rời trang giữa chừng thì huỷ request đang treo (container vẫn tự hết giờ ở máy chủ).
   useEffect(() => () => abortRef.current?.abort(), []);
+
+  // Đường client: nạp sẵn runtime lúc người học còn đang gõ. Runtime ~13 MB,
+  // để rơi vào lần bấm Chạy đầu thì họ tưởng chương trình của mình chậm.
+  useEffect(() => {
+    warmIdeRunner();
+    return disposeIdeRunner;
+  }, []);
 
   return (
     <>
@@ -411,7 +558,7 @@ export default function IdeClient() {
         <SiteHeader />
         <main className={styles.main}>
           <div className={styles.toolbar}>
-            <h1 className={styles.title}>Bàn thí nghiệm</h1>
+            <h1 className={styles.title}>Python IDE</h1>
             <div className={styles.actions}>
               <label className={styles.exampleLabel}>
                 <span className={styles.srOnly}>Ví dụ test</span>
@@ -432,31 +579,85 @@ export default function IdeClient() {
                 </select>
               </label>
               <span ref={setVisualizeSlot} className={styles.visualizeSlot} />
-              <button type="button" className={styles.run} onClick={() => void run()} disabled={running}>
-                {/* ▶ là trang trí: trong nhãn nút nó bị trình đọc màn hình đọc
-                    thành tên ký tự, nên phải aria-hidden chứ không để trần. */}
-                {running ? 'Đang chạy…' : <><span aria-hidden="true">▶</span> Chạy</>}
+              {/* Đếm ngược để ĐỂ CẠNH nút Dừng, không nhét vào khung kết quả:
+                  khung đó có aria-live="polite" nên một con số đổi mỗi 250 ms
+                  sẽ bị đọc đi đọc lại cho người dùng trình đọc màn hình. Câu
+                  nói ra luật ("không tự dừng sau 15 giây sẽ bị cắt") nằm trong
+                  khung kết quả và chỉ đọc một lần — xem <Output>. */}
+              {demNguoc !== null && (
+                <span className={styles.countdown} aria-hidden="true">
+                  tự dừng sau {demNguoc} s
+                </span>
+              )}
+              {/* MỘT nút đổi vai, không phải hai nút cạnh nhau (mẫu của
+                  PyScript: editor đang chạy thì Run thành Stop). Chi phí bằng
+                  không, mà đổi được cảm giác "hệ thống cắt tôi" thành "tôi dừng
+                  nó". Đường máy chủ không dừng được nên vẫn vô hiệu hoá như cũ. */}
+              {/* Vô hiệu hoá khi mã từ link chưa được xác nhận. Trước đây nút
+                  vẫn bấm được nhưng `run()` lặng lẽ `return` ở cổng xác nhận —
+                  người dùng bấm Chạy và KHÔNG có gì xảy ra, không một lời giải
+                  thích. Nút mờ cạnh dải cảnh báo thì tự nói ra lý do. */}
+              <button
+                type="button"
+                className={canStop ? styles.stop : styles.run}
+                onClick={canStop ? stop : () => void run()}
+                disabled={(running && !canStop) || askLink}
+                title={askLink ? 'Xác nhận đoạn mã đến từ link ở bên dưới trước khi chạy' : undefined}
+              >
+                {canStop ? '■ Dừng' : running ? 'Đang chạy…' : '▶ Chạy'}
                 {!running && <kbd className={styles.kbd}>Ctrl+Enter</kbd>}
               </button>
             </div>
           </div>
 
+          {askLink && (
+            // Mã này đến từ một đường link và sắp chạy trong trình duyệt của
+            // chính người đang mở. Nói thẳng điều đó rồi để họ quyết — xem
+            // `needsLinkConfirm` trong ide-runner.ts để biết vì sao chỉ hỏi ở
+            // đúng ca này.
+            <div className={styles.restored} role="status">
+              <span>
+                Đoạn mã này đến từ một đường link, và nó sẽ chạy ngay trong trình duyệt của
+                bạn. Chỉ chạy nếu bạn tin nơi gửi link.
+              </span>
+              <button
+                type="button"
+                className={styles.restoredAction}
+                onClick={tinVaChay}
+              >
+                Tôi tin đoạn mã này — cho chạy
+              </button>
+            </div>
+          )}
+          {restored && (
+            <div className={styles.restored} role="status">
+              <span>
+                Đã khôi phục đoạn mã bạn gõ lần trước trên máy này. Bản tự lưu nằm trong trình
+                duyệt của bạn, không gửi lên máy chủ.
+              </span>
+              <button type="button" className={styles.restoredAction} onClick={dungViDuMacDinh}>
+                Dùng ví dụ mặc định
+              </button>
+              <button
+                type="button"
+                className={styles.restoredClose}
+                onClick={() => setRestoreDismissed(true)}
+                aria-label="Ẩn thông báo khôi phục"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
           <div className={styles.split}>
             <section className={styles.editorPane} aria-label="Trình soạn thảo mã Python">
-              <div className={styles.paneHead} aria-hidden="true">
-                <span className={styles.paneDot} />
-                main.py
-              </div>
+              {/* Tên tệp là chỉ dẫn cho MẮT. Vùng này đã mang `aria-label` nói đúng
+                  điều đó, nên dải ẩn với trình đọc màn hình thay vì bắt nó đọc một
+                  nhãn thứ hai cho cùng một khung. */}
+              <div className={styles.paneHead} aria-hidden="true">main.py</div>
               <div className={styles.editorBody}>
               {editorPhase === 'failed' ? (
-                <PlainEditor
-                  code={code}
-                  onChange={updateCode}
-                  onRun={run}
-                  onRetry={retryEditor}
-                  retryBlocked={retryBlocked}
-                  onForceReload={forceReload}
-                />
+                <PlainEditor code={code} onChange={updateCode} onRun={run} onRetry={retryEditor} />
               ) : (
                 <Editor
                   height="100%"
@@ -472,11 +673,15 @@ export default function IdeClient() {
                   }}
                   options={{
                     minimap: { enabled: false },
+                    // 14 -> 15 và lineHeight 24: ba trên bốn người trả lời khảo sát
+                    // 29/10 chọn "nhiều chỗ chữ quá nhỏ", và repo đã nâng ba ô gõ của
+                    // bài học lên 16px vì cùng lý do. KHÔNG lấy kèm hai tuỳ chọn còn
+                    // lại của nhánh `test` (`renderLineHighlight: none`,
+                    // `overviewRulerLanes: 0`): chúng GỠ hai chỉ dẫn định hướng —
+                    // dòng đang đứng và vạch đánh dấu trên thanh cuộn — chứ không
+                    // thêm gì, và không có bằng chứng nào nói người học muốn mất chúng.
                     fontSize: 15,
                     lineHeight: 24,
-                    padding: { top: 12, bottom: 12 },
-                    renderLineHighlight: 'none',
-                    overviewRulerLanes: 0,
                     tabSize: 4,
                     insertSpaces: true,
                     scrollBeyondLastLine: false,
@@ -487,23 +692,26 @@ export default function IdeClient() {
               </div>
             </section>
 
-            <section className={styles.outputPane} aria-label="Kết quả" aria-live="polite" aria-busy={running}>
-              <div className={styles.paneHead}>Kết quả</div>
+            <section
+              ref={outputRef}
+              className={styles.outputPane}
+              aria-label="Kết quả"
+              aria-live="polite"
+              aria-busy={running}
+            >
+              {/* `aria-hidden` cùng lý do như dải bên trái: section đã tên là "Kết
+                  quả", nên một dải chữ y hệt chỉ làm trình đọc màn hình nói hai lần. */}
+              <div className={styles.paneHead} aria-hidden="true">Kết quả</div>
               <div className={styles.outputBody}>
-              <Output state={state} />
-
-              {/* "Xem từng bước" nằm TRONG mục kết quả, không phải một khối
-                  riêng dưới cả hai cột. Lý do: nó cũng là kết quả của việc
-                  chạy — chỉ khác ở chỗ xem được từng bước — nên đặt nó ngoài
-                  mục này buộc người học nhìn xuống một vùng thứ ba để đọc cùng
-                  một thứ. Khối cũ còn kéo dài hết chiều ngang trang nên đẩy
-                  console lên cao và tách rời khỏi vết của chính nó.
-                  Toàn bộ nằm trong component — xem
-                  frontend/src/components/code-visualizer/CodeVisualizer.tsx. */}
-              <CodeVisualizer codeRef={codeRef} editorRef={monacoRef} triggerHost={visualizeSlot} />
+                <Output state={state} />
               </div>
             </section>
           </div>
+
+          {/* Xem từng bước: chạy MỘT lượt trong cùng sandbox rồi bước qua vết
+              cục bộ. Toàn bộ nằm trong component — xem
+              frontend/src/components/code-visualizer/CodeVisualizer.tsx. */}
+          <CodeVisualizer codeRef={codeRef} editorRef={monacoRef} triggerHost={visualizeSlot} />
         </main>
       </div>
     </>
@@ -517,18 +725,19 @@ function Output({ state }: { state: RunState }) {
   if (state.status === 'running')
     return (
       <p className={styles.hint}>
-        {/* "Đang chạy trong sandbox…" là bản cũ: "sandbox" lọt tiếng Anh, và
-            nó cũng không trả lời câu người học đang thắc mắc lúc chờ — mã đang
-            chạy Ở ĐÂU. Ở trang này là MÁY CHỦ (POST /api/python/run), khác với
-            bài học chạy Pyodide trong trình duyệt; nói ra thì khối ghi chú
-            "Hai nơi chạy Python" ở trang chủ mới có chỗ bám. */}
-        <span className={styles.spinner} aria-hidden="true" /> Đang chạy trên máy chủ…
+        <span className={styles.spinner} aria-hidden="true" /> Đang chạy trong sandbox…
+        {/* Nói LUẬT một lần ở đây (chứ không để đếm ngược nói hộ): khung này
+            có aria-live="polite" nên câu này được đọc đúng một lượt, và người
+            học biết trước cả hai điều — có hạn 15 giây, và có nút dừng ngay. */}
+        {state.canStop
+          && ` Chương trình không tự kết thúc trong ${IDE_RUN_TIMEOUT_MS / 1000} giây sẽ bị cắt;`
+            + ' bấm “■ Dừng” để cắt ngay.'}
       </p>
     );
 
   if (state.status === 'error') {
     // Hạ tầng chưa sẵn sàng thì KHÔNG tô đỏ: người học không làm gì sai cả.
-    const infra = state.kind === 'unavailable' || state.kind === 'private';
+    const infra = state.kind === 'unavailable';
     return (
       <div className={`${styles.notice} ${infra ? styles.noticeWarn : styles.noticeError}`} role="alert">
         <strong>
@@ -549,6 +758,8 @@ function Output({ state }: { state: RunState }) {
   const { result } = state;
   const out = clip(result.stdout);
   const err = clip(result.stderr);
+  // Bị cắt thì KHÔNG có mã thoát nào để nói (tiến trình không bao giờ thoát),
+  // nên `timedOut` — đặt true cho cả hết giờ và nút Dừng — vẫn là cờ đúng ở đây.
   const ranOk = !result.timedOut && !result.outputTruncated;
   return (
     <>
@@ -563,19 +774,22 @@ function Output({ state }: { state: RunState }) {
         )}
       </div>
 
-      {result.timedOut && (
-        <div className={`${styles.notice} ${styles.noticeWarn}`}>
-          Hết giờ: chương trình chạy quá thời gian cho phép nên đã bị dừng.
-        </div>
-      )}
+      <CutNotice result={result} />
       {result.exitCode === 137 && (
         <div className={`${styles.notice} ${styles.noticeWarn}`}>
           Chương trình bị dừng vì dùng quá giới hạn bộ nhớ — mã thoát 137.
         </div>
       )}
+      {/* Hai đường chạy cắt đầu ra theo HAI luật khác nhau, và nói chung một
+          câu là nói sai một trong hai. Đường MÁY CHỦ: quá 1 MB thì máy chủ giết
+          tiến trình. Đường TRÌNH DUYỆT (`cutBy` có giá trị): worker ngừng gom
+          sau 60 000 ký tự mỗi luồng nhưng chương trình VẪN chạy — nói "đã bị
+          dừng" ở đây là sai, và con số 1 MB cũng sai. */}
       {result.outputTruncated && (
         <div className={`${styles.notice} ${styles.noticeWarn}`}>
-          Đầu ra vượt 1 MB nên bị cắt và chương trình đã bị dừng.
+          {result.cutBy
+            ? `Đầu ra quá dài nên chỉ giữ ${IDE_OUTPUT_CAP_CHARS.toLocaleString('vi-VN')} ký tự đầu của mỗi luồng.`
+            : 'Đầu ra vượt 1 MB nên bị cắt và chương trình đã bị dừng.'}
         </div>
       )}
 
@@ -590,6 +804,62 @@ function Output({ state }: { state: RunState }) {
 }
 
 /**
+ * Thông báo cho một lần chạy BỊ CẮT. Ba nguồn cắt, ba câu khác nhau — xem
+ * `cutBy` trong src/lib/ide-runner.ts.
+ *
+ * CÂU CHỮ Ở ĐÂY LÀ PHẦN QUAN TRỌNG NHẤT, nên viết ra cả ba điều phải nói:
+ *  1. chương trình CỦA NGƯỜI HỌC không tự dừng — không đổ lỗi cho hệ thống,
+ *     không bắt họ đọc "Pyodide has suffered a fatal error" cho một dòng
+ *     `while True:`;
+ *  2. các biến (và phần đã in ra) của lần chạy đó đã mất — `terminate()` xoá
+ *     sạch namespace lẫn MEMFS, nói trước thì họ không ngồi tìm kết quả;
+ *  3. MÃ TRONG TRÌNH SOẠN THẢO VẪN CÒN NGUYÊN. Đây là lợi thế thật của kiến
+ *     trúc này: Monaco sống ở main thread nên cắt worker không đụng tới mã.
+ *     Đối chiếu: help article của CodeHS thừa nhận trình duyệt "becomes
+ *     unresponsive and crashes" mà không hiện lấy một thông báo nào.
+ */
+function CutNotice({ result }: { result: RunResult }) {
+  if (result.cutBy === 'user' || result.cutBy === 'timeout') {
+    const boiNguoiHoc = result.cutBy === 'user';
+    const giay = IDE_RUN_TIMEOUT_MS / 1000;
+    return (
+      <div className={`${styles.notice} ${styles.noticeWarn}`}>
+        <strong>{boiNguoiHoc ? 'Bạn đã dừng chương trình' : `Đã dừng sau ${giay} giây`}</strong>
+        <p>
+          Chương trình chưa tự kết thúc — hay gặp nhất là một vòng lặp chưa chạm tới điều kiện
+          dừng. Các biến của lần chạy này mất theo, nhưng{' '}
+          <strong>mã trong trình soạn thảo vẫn còn nguyên</strong>: sửa điều kiện dừng rồi bấm
+          Chạy lại.
+        </p>
+        {/* Chỉ nói khi THẬT SỰ có đầu ra. Worker gửi đầu ra về theo từng đợt
+            200 ms nên phần hiện bên dưới có thể thiếu đợt cuối cùng — nói ra
+            chỗ đó, đừng để họ đếm dòng rồi tưởng mã mình sai. */}
+        {(result.stdout || result.stderr) && (
+          <p>Phần đã in ra tới lúc dừng vẫn ở bên dưới (có thể thiếu một chút ở cuối).</p>
+        )}
+        {/* Chỉ nhắc khi họ VỪA chờ hết 15 giây: lần sau không phải chờ nữa. */}
+        {!boiNguoiHoc && (
+          <p>Lần sau không cần chờ hết {giay} giây — nút “■ Dừng” cắt ngay lúc bạn bấm.</p>
+        )}
+      </div>
+    );
+  }
+
+  // Không có `cutBy` = kết quả từ đường MÁY CHỦ (backend không biết trường
+  // này). Giữ nguyên câu cũ: ở đó chương trình bị container cắt, client không
+  // có nút dừng nào để mời họ bấm.
+  if (result.timedOut) {
+    return (
+      <div className={`${styles.notice} ${styles.noticeWarn}`}>
+        Hết giờ: chương trình chạy quá thời gian cho phép nên đã bị dừng.
+      </div>
+    );
+  }
+
+  return null;
+}
+
+/**
  * Trình soạn thảo DỰ PHÒNG: một <textarea> trần, hiện khi Monaco không lên.
  *
  * Vì sao phải có chứ không chỉ báo lỗi rồi thôi: /ide là thứ duy nhất còn demo
@@ -600,25 +870,18 @@ function Output({ state }: { state: RunState }) {
  * Vì sao Monaco bị GỠ HẲN khi rơi vào đây (không giữ ẩn để nó lên sau rồi
  * đổi lại): editor tự hiện ra giữa lúc người ta đang gõ sẽ cướp con trỏ và
  * trông như trang hỏng — đúng lúc đang đứng trình bày. Thà đứng yên ở bản dự
- * phòng; muốn Monaco thì bấm "Thử lại" (tải lại trang; mã được cất vào địa
- * chỉ hoặc sessionStorage trước, không cất được thì trang KHÔNG tự tải lại —
- * xem retryEditor).
+ * phòng; muốn Monaco thì bấm "Thử lại" (tải lại trang, mã được giữ).
  */
 function PlainEditor({
   code,
   onChange,
   onRun,
   onRetry,
-  retryBlocked,
-  onForceReload,
 }: {
   code: string;
   onChange: (next: string) => void;
   onRun: () => void | Promise<void>;
   onRetry: () => void;
-  /** "Thử lại" vừa không cất được mã → hỏi lại người dùng thay vì tải lại mù. */
-  retryBlocked: boolean;
-  onForceReload: () => void;
 }) {
   return (
     <div className={styles.fallback}>
@@ -629,29 +892,11 @@ function PlainEditor({
           vẫn chạy được: gõ mã rồi bấm “Chạy” như thường (chỉ không có tô màu cú pháp và gợi
           ý). Thụt dòng bằng 4 dấu cách.
         </p>
-        {retryBlocked ? (
-          // Đến được đây nghĩa là mã quá dài để nhét vào địa chỉ VÀ trình duyệt
-          // không cho ghi sessionStorage. Tải lại lúc này là mất bài, nên để
-          // người dùng tự quyết sau khi đã chép mã ra chỗ khác.
-          <>
-            <p>
-              <strong>Chưa tải lại:</strong> mã của bạn quá dài để giữ qua lần tải lại, và trình
-              duyệt đang chặn bộ nhớ tạm của trang. Hãy chép mã ra chỗ khác trước (bấm vào ô gõ,
-              Ctrl+A rồi Ctrl+C), sau đó mới tải lại.
-            </p>
-            <p>
-              <button type="button" className={styles.retry} onClick={onForceReload}>
-                Đã chép mã — tải lại
-              </button>
-            </p>
-          </>
-        ) : (
-          <p>
-            <button type="button" className={styles.retry} onClick={onRetry}>
-              Thử lại
-            </button>
-          </p>
-        )}
+        <p>
+          <button type="button" className={styles.retry} onClick={onRetry}>
+            Thử lại
+          </button>
+        </p>
       </div>
       <textarea
         className={styles.fallbackInput}

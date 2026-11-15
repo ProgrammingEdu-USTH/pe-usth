@@ -1,0 +1,195 @@
+{
+ "lesson_code": "SY03",
+ "sort_order": 106,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY03 · Tìm và sửa mẫu văn bản bằng regex",
+ "subtitle": "Trung cấp · M5 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "SY03 · Tìm và sửa mẫu văn bản bằng regex",
+  "subtitle": "Trung cấp · M5 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/SY03.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Tìm và sửa mẫu văn bản bằng regex",
+    "body": "Trong ghi chú \"Paid by S012 today\", bạn muốn lấy mã sinh viên thay vì dựa vào vị trí ký tự cố định. Regex mô tả dạng của mã:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Trong ghi chú \"Paid by S012 today\", bạn muốn lấy mã sinh viên thay vì dựa vào vị trí ký tự cố định. Regex mô tả dạng của mã:\n\n`S` là chữ phải có; `\\d{3}` là ba chữ số; `\\b` đánh dấu ranh giới từ. Chữ r trước dấu nháy tạo raw string, giúp dấu gạch chéo được truyền đúng vào regex. `search` tìm khớp đầu tiên và trả Match; không thấy thì trả None."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`sub` thay các đoạn khớp, ở đây gộp khoảng trắng liên tiếp thành một dấu cách. Khác search, kết quả của sub là chuỗi mới. Dấu chấm trong regex thường khớp một ký tự bất kỳ trừ ký tự xuống dòng. Muốn tìm dấu chấm thật, viết `r\"a\\.b\"` hoặc dùng `re.escape(\"a.b\")` để tạo mẫu tìm đúng chuỗi đó.\n\nDòng cuối khớp cấu trúc ngày nhưng ngày 31/02 không tồn tại. Sau bước tìm chuỗi, hãy dùng datetime.strptime để xác nhận ngày. Một mẫu khớp không tự chứng minh dữ liệu có ý nghĩa đúng."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import re\nmatch = re.search(r\"\\bS\\d{3}\\b\", \"Paid by S012 today\")\nprint(match.group(0) if match else None)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: S012"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: An paid today"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: True ⏎ True ⏎ True"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Mẫu r\"a.b\" có khớp chuỗi \"a-b\" không?",
+     "options": [
+      {
+       "text": "Chỉ khớp khi chuỗi bắt đầu bằng số",
+       "correct": false,
+       "detail": "Mẫu không có yêu cầu chữ số nào."
+      },
+      {
+       "text": "Có",
+       "correct": true,
+       "detail": "Dấu chấm trong regex khớp một ký tự bất kỳ, trừ newline trong chế độ mặc định."
+      },
+      {
+       "text": "Không, vì thiếu dấu chấm thật",
+       "correct": false,
+       "detail": "Muốn dấu chấm thật cần escape; dấu chấm không escape mang nghĩa mẫu."
+      }
+     ],
+     "explanation": "Dấu chấm trong regex khớp một ký tự bất kỳ, trừ newline trong chế độ mặc định."
+    },
+    {
+     "question": "Không tìm thấy mã trong ghi chú, re.search trả gì?",
+     "options": [
+      {
+       "text": "Match có nội dung 0",
+       "correct": false,
+       "detail": "Chưa đúng. search trả Match khi thấy mẫu, nếu không thấy thì trả None. Cần kiểm trước group."
+      },
+      {
+       "text": "None",
+       "correct": true,
+       "detail": "search trả Match khi thấy mẫu, nếu không thấy thì trả None. Cần kiểm trước group."
+      },
+      {
+       "text": "Chuỗi rỗng",
+       "correct": false,
+       "detail": "Chưa đúng. search trả Match khi thấy mẫu, nếu không thấy thì trả None. Cần kiểm trước group."
+      }
+     ],
+     "explanation": "search trả Match khi thấy mẫu, nếu không thấy thì trả None. Cần kiểm trước group."
+    },
+    {
+     "question": "Muốn tìm đúng dấu chấm trong mã a.b, cách nào rõ nghĩa?",
+     "options": [
+      {
+       "text": "re.search(re.escape(\"a.b\"), text)",
+       "correct": true,
+       "detail": "Dấu chấm regex có nghĩa đặc biệt; escape biến chuỗi cần tìm thành mẫu nguyên văn."
+      },
+      {
+       "text": "re.search(r\"a.b\", text)",
+       "correct": false,
+       "detail": "Chưa đúng. Dấu chấm regex có nghĩa đặc biệt; escape biến chuỗi cần tìm thành mẫu nguyên văn."
+      },
+      {
+       "text": "re.search(r\"a*b\", text)",
+       "correct": false,
+       "detail": "Chưa đúng. Dấu chấm regex có nghĩa đặc biệt; escape biến chuỗi cần tìm thành mẫu nguyên văn."
+      }
+     ],
+     "explanation": "Dấu chấm regex có nghĩa đặc biệt; escape biến chuỗi cần tìm thành mẫu nguyên văn."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Thay nhiều khoảng trắng liên tiếp bằng một dấu cách."
+   },
+   "scaffold": {
+    "template": "clean = re.{{slot1}}(r\"\\s+\", \" \", \"A   B\")",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Hàm thay mẫu",
+      "answer": "sub"
+     }
+    ],
+    "bank": [
+     {
+      "label": "sub",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Ghi chú giao hàng chứa mã P và đúng bốn chữ số, đứng thành một từ riêng. Viết solve(data) nhận chuỗi, trả mã khớp đầu tiên hoặc None. Không nhận P12 hay P12345.",
+    "io": [
+     {
+      "label": "có mã",
+      "value": "'paid P2048 today' → 'P2048'"
+     },
+     {
+      "label": "quá dài",
+      "value": "'P12345 then P0007' → 'P0007'"
+     },
+     {
+      "label": "không có mã",
+      "value": "'P12 pending' → None"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import re\ndef solve(data):\n    match = re.search(r'\\bP\\d{4}\\b', data)\n    return match.group(0) if match else None\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "tests": [
+    {
+     "name": "có mã",
+     "call": "__import__('json').loads(__import__('json').dumps(solve('paid P2048 today'), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "'P2048'"
+    },
+    {
+     "name": "quá dài",
+     "call": "__import__('json').loads(__import__('json').dumps(solve('P12345 then P0007'), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "'P0007'"
+    },
+    {
+     "name": "không có mã",
+     "call": "__import__('json').loads(__import__('json').dumps(solve('P12 pending'), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "None"
+    }
+   ]
+  }
+ }
+}

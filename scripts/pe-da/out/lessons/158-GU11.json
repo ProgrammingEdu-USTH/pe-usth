@@ -1,0 +1,180 @@
+{
+ "lesson_code": "GU11",
+ "sort_order": 158,
+ "module": "M8 · Tkinter: từ form nhỏ đến quản lý điểm",
+ "title": "GU11 · Event loop và tác vụ nền",
+ "subtitle": "Nâng cao · M8 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "GU11 · Event loop và tác vụ nền",
+  "subtitle": "Nâng cao · M8 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/GU11.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Event loop và tác vụ nền",
+    "body": "Nút Lưu ghi một file lớn có thể mất vài giây. Nếu callback tự ghi file và chờ xong, giao diện khó nhận thêm thao tác. mainloop chỉ tiếp tục xử lý sự kiện khi callback trả quyền điều khiển.",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Nút Lưu ghi một file lớn có thể mất vài giây. Nếu callback tự ghi file và chờ xong, giao diện khó nhận thêm thao tác. mainloop chỉ tiếp tục xử lý sự kiện khi callback trả quyền điều khiển.\n\nafter lên lịch để event loop gọi một hàm; nó không tạo thread mới. Trong ví dụ, after(0, ...) xếp thao tác thêm \"tick\" vào list, còn after(20, r.quit) yêu cầu dừng mainloop sau khoảng 20 mili giây. quit dừng vòng xử lý sự kiện đang chạy, còn destroy hủy cửa sổ. Ứng dụng dùng thật thường giữ mainloop chạy cho tới khi người dùng đóng cửa sổ."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Worker chỉ tính tổng và gửi kết quả qua Queue. Thread đã tạo Tk đọc kết quả rồi cập nhật StringVar. Trong ví dụ nhỏ này, join chờ phép tính hoàn tất trước khi đọc queue. Với việc lưu file lâu trong ứng dụng thật, không gọi join trong callback giao diện, vì giao diện sẽ phải chờ theo. Ví dụ tiếp dùng after để kiểm tra kết quả mà không chặn vòng xử lý sự kiện.\n\nTrong ứng dụng, poll đọc queue không chặn rồi tự lên lịch lại. Worker nên gửi cả trạng thái thành công hoặc lỗi, để UI bật lại nút và báo kết quả. Phần thread, queue và lưu nền là mở rộng nối với PW8; slide GUI gốc dừng ở mainloop. Khi đóng cửa sổ, ứng dụng phải có quy tắc rõ cho worker đang lưu."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import tkinter as tk\nr=tk.Tk();r.withdraw()\nevents=[]\nr.after(0,lambda: events.append('tick'))\nr.after(20,r.quit)\nr.mainloop()\nprint(events)\nr.destroy()",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: ['tick']"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 60"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 42"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Gọi time.sleep(3) trong callback nút sẽ có tác động gì?",
+     "options": [
+      {
+       "text": "Event loop bị chặn trong thời gian đó",
+       "correct": true,
+       "detail": "Callback chạy trên UI thread; nó phải kết thúc để xử lý sự kiện tiếp."
+      },
+      {
+       "text": "Tự chuyển việc sang thread nền",
+       "correct": false,
+       "detail": "sleep không tạo thread."
+      },
+      {
+       "text": "Chỉ riêng Label ngủ, cửa sổ vẫn xử lý mọi sự kiện",
+       "correct": false,
+       "detail": "Hàm đang giữ UI thread nên nhiều thao tác cửa sổ sẽ chờ."
+      }
+     ],
+     "explanation": "Callback chạy trên UI thread; nó phải kết thúc để xử lý sự kiện tiếp."
+    },
+    {
+     "question": "Callback gọi một phép tính dài trực tiếp sẽ ảnh hưởng gì?",
+     "options": [
+      {
+       "text": "Chỉ văn bản trong Label bị chậm",
+       "correct": false,
+       "detail": "Chưa đúng. Event loop cần được trả quyền để xử lý các sự kiện tiếp theo."
+      },
+      {
+       "text": "UI có thể không xử lý sự kiện đến khi callback trả về",
+       "correct": true,
+       "detail": "Event loop cần được trả quyền để xử lý các sự kiện tiếp theo."
+      },
+      {
+       "text": "Mọi callback tự chuyển sang thread nền",
+       "correct": false,
+       "detail": "Chưa đúng. Event loop cần được trả quyền để xử lý các sự kiện tiếp theo."
+      }
+     ],
+     "explanation": "Event loop cần được trả quyền để xử lý các sự kiện tiếp theo."
+    },
+    {
+     "question": "root.after(100,poll) có chạy poll ngay khi đặt lịch không?",
+     "options": [
+      {
+       "text": "Không; đăng ký callback cho event loop gọi sau",
+       "correct": true,
+       "detail": "Truyền callable và nhường quyền cho event loop; thời điểm thực tế còn phụ thuộc lúc loop xử lý được."
+      },
+      {
+       "text": "Có; giống poll() tại chỗ",
+       "correct": false,
+       "detail": "Chưa đúng. Truyền callable và nhường quyền cho event loop; thời điểm thực tế còn phụ thuộc lúc loop xử lý được."
+      },
+      {
+       "text": "Chỉ chạy nếu tự tạo process mới",
+       "correct": false,
+       "detail": "Chưa đúng. Truyền callable và nhường quyền cho event loop; thời điểm thực tế còn phụ thuộc lúc loop xử lý được."
+      }
+     ],
+     "explanation": "Truyền callable và nhường quyền cho event loop; thời điểm thực tế còn phụ thuộc lúc loop xử lý được."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Lên lịch kiểm queue lại sau 100 ms."
+   },
+   "scaffold": {
+    "template": "root.{{slot1}}(100, {{slot2}})",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "API lên lịch",
+      "answer": "after"
+     },
+     {
+      "n": 2,
+      "placeholder": "Callable kiểm queue",
+      "answer": "poll_messages"
+     }
+    ],
+    "bank": [
+     {
+      "label": "after",
+      "slot": 1,
+      "trap": ""
+     },
+     {
+      "label": "poll_messages",
+      "slot": 1,
+      "trap": "after đăng ký callback và nhường quyền cho event loop."
+     },
+     {
+      "label": "poll_messages",
+      "slot": 2,
+      "trap": ""
+     },
+     {
+      "label": "after",
+      "slot": 2,
+      "trap": "poll_messages sẽ được gọi sau khoảng thời gian yêu cầu khi event loop có thể xử lý."
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Tạo app có nút \"Tải báo cáo\", Label trạng thái và nút đếm lần bấm. Worker giả lập tác vụ I/O bằng sleep(2) rồi gửi \"Báo cáo sẵn sàng\" qua Queue; main thread poll bằng after. Trong lúc chờ, nút đếm vẫn phản hồi."
+   },
+   "procedure": [
+    "Callback tải đổi trạng thái rồi start worker và trả ngay; không join trong callback.",
+    "Worker không gọi configure hoặc Tk API; poll dùng get_nowait và xử lý Empty.",
+    "Chọn chính sách đóng cửa sổ khi worker đang chạy: chờ hoàn tất có thông báo hoặc hủy theo cơ chế rõ; không gọi widget đã destroy.",
+    "Tự kiểm: Bấm đếm nhiều lần trong 2 giây chờ: số đếm vẫn tăng.",
+    "Tự kiểm: Kết quả chỉ cập nhật từ poll trên UI thread; không có gọi Tk từ worker.",
+    "Tự kiểm: Bấm tải lặp và đóng khi đang tải không gây TclError hoặc để tiến trình treo không được giải thích."
+   ]
+  }
+ }
+}

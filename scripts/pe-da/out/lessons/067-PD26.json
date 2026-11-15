@@ -1,0 +1,198 @@
+{
+ "lesson_code": "PD26",
+ "sort_order": 67,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD26 · Dữ liệu phân loại và chia khoảng",
+ "subtitle": "Nâng cao · M3 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PD26 · Dữ liệu phân loại và chia khoảng",
+  "subtitle": "Nâng cao · M3 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PD26.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Dữ liệu phân loại và chia khoảng",
+    "body": "Mức ưu tiên low, medium, high có thứ tự riêng. Nếu sắp theo bảng chữ cái, high có thể đứng trước low; kiểu category cho phép bạn ghi rõ thứ tự mong muốn.",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Mức ưu tiên low, medium, high có thứ tự riêng. Nếu sắp theo bảng chữ cái, high có thể đứng trước low; kiểu category cho phép bạn ghi rõ thứ tự mong muốn.\n\nThứ tự do categories quy định, không phải cách đánh vần tên. Giá trị không thuộc tập categories trở thành thiếu khi chuyển kiểu. Category phù hợp với số nhãn ít và lặp nhiều; không phải lúc nào cũng tiết kiệm nếu gần như mỗi hàng một nhãn riêng."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`cut` dùng các mốc bạn đặt. Mặc định, một khoảng không lấy mốc bên trái nhưng có lấy mốc bên phải: khoảng `(0, 10]` nhận các số lớn hơn 0 và nhỏ hơn hoặc bằng 10. Vì vậy, 10 thuộc nhóm đầu. Giá trị ngoài các khoảng thành thiếu. Thêm `include_lowest=True` nếu cần nhận cả mốc thấp nhất là 0.\n\nqcut chọn ranh giới theo phân vị để số quan sát trong nhóm gần nhau khi dữ liệu cho phép; nhiều giá trị trùng có thể khiến không tạo đủ khoảng. observed=True chỉ báo cáo nhóm category thực sự có mặt. Ghi rõ observed giúp tránh phụ thuộc mặc định giữa các phiên bản."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import pandas as pd\nkind = pd.CategoricalDtype(categories=['low', 'medium', 'high'], ordered=True)\npriority = pd.Series(['high', 'low', 'medium'], dtype=kind)\nprint(priority.sort_values().tolist())\nprint(priority.cat.categories.tolist())",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: ['low', 'medium', 'high'] ⏎ ['low', 'medium', 'high']"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: ['small', 'medium', 'large']"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: ['lower', 'lower', 'upper', 'upper'] ⏎ {'A': 5}"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "pd.cut([0,10,20],bins=[0,10,20]) mặc định gán 10 vào đâu?",
+     "options": [
+      {
+       "text": "Thiếu",
+       "correct": false,
+       "detail": "10 nằm đúng biên được nhận của khoảng đầu."
+      },
+      {
+       "text": "(0,10]",
+       "correct": true,
+       "detail": "Đúng: khoảng mặc định nhận biên phải."
+      },
+      {
+       "text": "(10,20]",
+       "correct": false,
+       "detail": "Biên trái 10 của khoảng này bị loại."
+      }
+     ],
+     "explanation": "Dấu ngoặc tròn loại biên, ngoặc vuông nhận biên."
+    },
+    {
+     "question": "cut và qcut chọn ranh giới khác nhau thế nào?",
+     "options": [
+      {
+       "text": "cut luôn chia số lượng hàng đều nhau, qcut dùng biên cho trước.",
+       "correct": false,
+       "detail": "Bạn đã đổi vai trò cut và qcut."
+      },
+      {
+       "text": "Hai hàm luôn cho cùng một kết quả.",
+       "correct": false,
+       "detail": "Các biên và phân bố dữ liệu có thể làm hai kết quả khác nhau."
+      },
+      {
+       "text": "cut dùng các mốc được chỉ định hoặc khoảng giá trị; qcut dựa trên phân vị dữ liệu.",
+       "correct": true,
+       "detail": "cut dùng các mốc được chỉ định hoặc khoảng giá trị; qcut dựa trên phân vị dữ liệu."
+      }
+     ],
+     "explanation": "cut dùng các mốc được chỉ định hoặc khoảng giá trị; qcut dựa trên phân vị dữ liệu."
+    },
+    {
+     "question": "Với bins=[0,10,50], giá trị 10 mặc định thuộc khoảng nào?",
+     "options": [
+      {
+       "text": "Không thuộc khoảng nào vì 10 là biên.",
+       "correct": false,
+       "detail": "Biên chung thuộc một khoảng theo quy tắc đóng biên, không tự bị loại."
+      },
+      {
+       "text": "(0,10], vì khoảng mặc định đóng bên phải.",
+       "correct": true,
+       "detail": "(0,10], vì khoảng mặc định đóng bên phải."
+      },
+      {
+       "text": "(10,50], vì mọi khoảng đóng bên trái.",
+       "correct": false,
+       "detail": "Mặc định khoảng bên phải mới đóng, không phải bên trái."
+      }
+     ],
+     "explanation": "(0,10], vì khoảng mặc định đóng bên phải."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Nhận thêm giá trị ở mốc nhỏ nhất."
+   },
+   "scaffold": {
+    "template": "bands = pd.cut(scores, bins=[0,10,20], {{slot1}}=True)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "include_lowest"
+     }
+    ],
+    "bank": [
+     {
+      "label": "include_lowest",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.values là các số. Chia theo bins=[0,10,20], labels=[\"low\",\"high\"], include_lowest=True. Trả list nhãn, giá trị ngoài 0..20 thành None.",
+    "io": [
+     {
+      "label": "các biên",
+      "value": "{'values': [0, 10, 20]} → ['low', 'low', 'high']"
+     },
+     {
+      "label": "ngoài miền",
+      "value": "{'values': [-1, 21]} → [None, None]"
+     },
+     {
+      "label": "ở giữa khoảng",
+      "value": "{'values': [3, 11, 9]} → ['low', 'high', 'low']"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     bands = pd.cut(pd.Series(data['values']), bins=[0,10,20], labels=['low','high'], include_lowest=True)\n     return [None if pd.isna(v) else str(v) for v in bands]\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Điểm bằng mép trái đầu tiên cần thuộc nhóm đầu."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Gán khoảng theo biên rõ ràng và hiểu việc nhận hai đầu."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ],
+   "tests": [
+    {
+     "name": "các biên",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [0, 10, 20]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "['low', 'low', 'high']"
+    },
+    {
+     "name": "ngoài miền",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [-1, 21]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[None, None]"
+    },
+    {
+     "name": "ở giữa khoảng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [3, 11, 9]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "['low', 'high', 'low']"
+    }
+   ]
+  }
+ }
+}

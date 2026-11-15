@@ -106,8 +106,10 @@ lần của chính trình duyệt học viên.
 """
 
 import ast
+import base64
 import builtins
 import copy
+import datetime
 import errno
 import importlib
 import importlib.machinery
@@ -115,6 +117,7 @@ import importlib.util
 import io
 import json
 import linecache
+import math
 import os
 import queue
 import re
@@ -125,6 +128,7 @@ import threading
 import time
 import traceback
 import types
+import warnings
 from contextlib import redirect_stderr, redirect_stdout
 
 WORK_ROOT = '/tmp/studio'
@@ -366,6 +370,11 @@ def _input(prompt=''):
         # Đúng hành vi CPython khi stdin cạn. Cố ý KHÔNG trả '' hay treo máy:
         # trả '' thì chương trình sai âm thầm, còn treo thì worker bị
         # terminate() sau 5 giây và học viên không hiểu vì sao.
+        #
+        # Nhưng "EOFError: EOF when reading a line" thì người mới học không đọc
+        # được. Đếm lại ở đây để _notes() thêm một dòng giải thích BẰNG LỜI —
+        # giữ nguyên ngoại lệ thật (traceback phải đúng), chỉ nói thêm.
+        _STDIN['eof'] = _STDIN.get('eof', 0) + 1
         raise EOFError('EOF when reading a line')
     return line[:-1] if line.endswith('\n') else line
 
@@ -4359,6 +4368,14 @@ def _hook_figure(module):
                               'empty': not any(ax.has_data() for ax in self.axes)})
         return original_save(self, fname, *args, **kwargs)
 
+    # Phơi bản GỐC ra ngoài closure cho `_anh_figure` dùng.
+    #
+    # PHÒNG XA, không phải điều kiện sống — đã đo: lúc `_anh_figure` chạy thì
+    # `_ctx()` đã là None (ngăn xếp pop xong khi lần chạy kết thúc), nên bản móc
+    # cũng không ghi gì vào `ctx.saved`. Giữ đường này vì nếu sau có ai dời việc
+    # xuất ảnh vào TRONG một lần chạy thì bản móc sẽ ghi thêm một dòng "đã lưu
+    # hình" cho bài mà người học chưa lưu gì — và ca chấm đọc đúng danh sách đó.
+    savefig._studio_original = original_save
     fig_cls.savefig = savefig
 
 
@@ -4386,6 +4403,68 @@ def _chart(fig):
         })
     sup = getattr(fig, '_suptitle', None)
     return {'suptitle': sup.get_text() if sup is not None else '', 'axes': axes}
+
+
+# Trần cho ảnh gửi về trình duyệt. Một hình 6x3,5 inch ở dpi 96 nặng ~40-80 KB,
+# nên sáu hình vẫn dưới 1,5 MB — đủ rộng cho mọi bài, mà vẫn chặn được một vòng
+# lặp vẽ 200 hình làm phình thông điệp postMessage tới mức treo tab.
+_ANH_TOI_DA = 6
+_ANH_BYTE_MOI_HINH = 600_000
+_ANH_BYTE_TONG = 1_500_000
+
+
+def _anh_figure(figures):
+    """PNG (base64) của những Figure mà chương trình người học dựng ra.
+
+    VÌ SAO: trước bản này, chạy một bài biểu đồ chỉ nhận lại MỘT DÒNG CHỮ
+    "[matplotlib] 3 Figure được tạo". Hình trên màn đọc là PNG người soạn giáo
+    trình xuất sẵn, không phải kết quả của người học — nên sửa một dòng code rồi
+    chạy lại thì không thấy gì đổi. Với một khoá Data Analyst có 26+ bài biểu đồ
+    thì đó là mất gần hết giá trị của việc tự chạy.
+
+    Gọi sau ca chấm cũng được: `_run_program` mở đầu bằng `_reset_pyplot()`
+    (`plt.close('all')`), nhưng `main.figures` giữ tham chiếu TRỰC TIẾP tới
+    Figure và `savefig` vẫn chạy trên một Figure đã close — đã đo. Vẫn gọi ngay
+    sau lần chạy chính cho gần chỗ sinh ra nó.
+    """
+    if not figures:
+        return []
+    anh = []
+    tong = 0
+    # Nuốt cảnh báo và mọi thứ in ra: harness cố ý gộp stderr vào stdout để
+    # console học viên hiện cả hai, nên một MatplotlibDeprecationWarning do
+    # CHÍNH bước xuất ảnh sinh ra sẽ chen vào KẾT QUẢ BỊ CHẤM của họ.
+    with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            for fig in figures[:_ANH_TOI_DA]:
+                try:
+                    # Hình trống thì bỏ: dựng ra một ô xám không giúp ai, mà
+                    # `plt.subplots()` ở dòng đầu bài nào cũng có.
+                    if not fig.axes or not any(ax.has_data() for ax in fig.axes):
+                        continue
+                    buf = io.BytesIO()
+                    goc = getattr(type(fig).savefig, '_studio_original', None)
+                    if goc is None:
+                        goc = type(fig).savefig
+                    # dpi 96: giữ ảnh nhẹ. LÝ DO CŨ GHI Ở ĐÂY LÀ SAI và đã
+                    # xoá — nó viết "cho figsize nguyên, tránh tự sinh cảnh
+                    # báo kích thước điểm ảnh là số thực". Đo lại: dpi 96/100/
+                    # 120/130 và figsize (6,3)/(6,3.5) đều cho ĐÚNG 36 cảnh
+                    # báo. dpi không liên quan; xem bộ lọc ở `_install()`.
+                    goc(fig, buf, format='png', dpi=96, bbox_inches='tight')
+                    data = buf.getvalue()
+                    if len(data) > _ANH_BYTE_MOI_HINH:
+                        continue
+                    if tong + len(data) > _ANH_BYTE_TONG:
+                        break
+                    tong += len(data)
+                    anh.append(base64.b64encode(data).decode('ascii'))
+                except BaseException:
+                    # Không xuất được hình thì thôi. Bước này KHÔNG bao giờ được
+                    # làm một lời giải đúng trông như sai.
+                    continue
+    return anh
 
 
 def _reset_pyplot():
@@ -4453,6 +4532,28 @@ def _install():
         sys.modules['concurrent.futures.thread'].ThreadPoolExecutor = SimThreadPoolExecutor
     # Backend không cần màn hình; đặt trước khi matplotlib được import.
     os.environ['MPLBACKEND'] = 'Agg'
+    # ── MỘT cảnh báo của RUỘT matplotlib, và chỉ một ────────────────────
+    # `redirect_stderr(ctx.out)` là CỐ Ý: console của học viên phải hiện cảnh
+    # báo thư viện, vì phần lớn chúng nói về code họ vừa viết. Cái này thì
+    # KHÔNG: nó đến từ khâu raster hoá của backend Agg trong matplotlib 3.10,
+    # và không có dòng nào của người học gây ra nó.
+    # ĐÃ ĐO (Pyodide 314.0.7, cùng runtime trong repo), và phép đo bác đúng
+    # cái lý do từng được viết ngay dưới đây:
+    #   · figsize=(6,3.5)/dpi=130 · (6,3.5)/100 · (6,3)/130 · (6,3)/100 ·
+    #     (6,3.5)/120  →  ĐỀU 36 cảnh báo. figsize và dpi KHÔNG đổi một con số;
+    #   · chỉ vẽ, không render → 0 · `canvas.draw()` → 24 · `savefig` PNG → 24 ·
+    #     `savefig` SVG → 0. Thủ phạm là khâu RASTER HOÁ, không phải kích thước.
+    # Nên `dpi=96` ở `_anh_figure` KHÔNG hề tránh được nó, và AGENTS.md từng
+    # giao việc này cho NGƯỜI SOẠN GIÁO TRÌNH — một việc họ không làm được.
+    # Lọc theo ĐÚNG thông điệp, không theo category: `MatplotlibDeprecationWarning`
+    # còn mang cả những cảnh báo về API mà bài HỌC gọi sai, và nuốt chúng là
+    # giấu đi thứ người học cần đọc. Đã đo: với bộ lọc này, đường xuất hình đi
+    # từ 24 cảnh báo xuống 0, còn một `RuntimeWarning` do người học tự ném thì
+    # VẪN hiện.
+    warnings.filterwarnings(
+        'ignore',
+        message=r'The [xy] parameter as float was deprecated',
+    )
     if _FINDER not in sys.meta_path:
         sys.meta_path.insert(0, _FINDER)
         # CPython (lúc dựng bài) có tkinter/multiprocessing thật: bỏ bản đã nạp
@@ -4531,8 +4632,20 @@ def _finish_run(ctx):
         _flush_popens(ctx)
 
 
-def _execute(ctx, source, files, vars=None, entry=None, setup=None):
-    """Chạy cả chương trình trong một thư mục mới. Trả dict kết quả thô."""
+def _execute(ctx, source, files, vars=None, entry=None, setup=None, inject=None):
+    """Chạy cả chương trình trong một thư mục mới. Trả dict kết quả thô.
+
+    `inject` khác `vars` và khác `setup`, cả ba đều cần:
+
+    * `vars` thay VẾ PHẢI của một dòng gán cấp ngoài cùng đã có trong mã học
+      viên (`year = 1991` -> `year = 2026`). Dùng được vì bài pe-v3 tự khai dữ
+      liệu đề trong code.
+    * `setup` chạy SAU mã học viên, nên không đặt được dữ liệu vào trước.
+    * `inject` đặt sẵn tên vào namespace TRƯỚC khi mã chạy. Đây là hợp đồng
+      `mode: "script"` của gói practice: đề cấp `raw`, học viên chỉ viết phần
+      xử lý và gán vào `total` — trong mã họ KHÔNG có dòng gán `raw` nào để
+      `vars` thay. Thiếu cách này thì 12 bài script không chấm được.
+    """
     outcome = {'exit': None, 'error': None, 'exc': None, 'value': None, 'ns': None, 'dir': None}
     path = _prepare_dir(files)
     outcome['dir'] = path
@@ -4553,6 +4666,10 @@ def _execute(ctx, source, files, vars=None, entry=None, setup=None):
             outcome['exc'] = exc
             return outcome
         ns = {'__name__': '__main__' if entry is None else 'solution', '__builtins__': builtins}
+        if inject:
+            # copy.deepcopy như worker.py của gói: ca chấm sau không được nhận
+            # dữ liệu mà mã học viên đã sửa tại chỗ ở ca trước.
+            ns.update({k: copy.deepcopy(v) for k, v in inject.items()})
         outcome['ns'] = ns
         with redirect_stdout(ctx.out), redirect_stderr(ctx.out), _redirect_stdin(ctx.stdin):
             try:
@@ -4745,7 +4862,7 @@ class Studio:
         self._main_dir = main_dir
 
     def run(self, vars=None, files=None, entry=None, setup=None, fail_fork_at=None, child_exit=None,
-            stdin=None):
+            stdin=None, inject=None):
         """Chạy lại CẢ chương trình (thư mục mới), có thể thay dữ liệu đề cấp.
 
         `stdin=['Hoa', '20']` cho ca chấm đổi bộ input như đang đổi `vars` —
@@ -4754,7 +4871,7 @@ class Studio:
         merged = dict(self.files)
         merged.update(files or {})
         options = {'fail_fork_at': fail_fork_at, 'child_exit': child_exit or {}}
-        return _run_program(self.source, merged, vars, entry, setup, options, stdin)
+        return _run_program(self.source, merged, vars, entry, setup, options, stdin, inject)
 
     def call(self, fn, *args, **kwargs):
         """Gọi một hàm, ghi lại stdout/lỗi/thread phát sinh trong lời gọi."""
@@ -4834,7 +4951,8 @@ class Studio:
         return self.main.subprocess_calls
 
 
-def _run_program(source, files, vars=None, entry=None, setup=None, options=None, stdin=None):
+def _run_program(source, files, vars=None, entry=None, setup=None, options=None, stdin=None,
+                 inject=None):
     saved_job = dict(_JOB)
     _JOB.clear()
     _JOB.update({'source': source, 'files': files, 'vars': vars, 'entry': entry, 'setup': setup,
@@ -4848,7 +4966,7 @@ def _run_program(source, files, vars=None, entry=None, setup=None, options=None,
     # vậy child chạy lại nhận đúng bộ input đó từ dòng đầu.
     ctx = Ctx(options=options or {})
     try:
-        outcome = _execute(ctx, source, files, vars, entry, setup)
+        outcome = _execute(ctx, source, files, vars, entry, setup, inject)
     finally:
         _JOB.clear()
         _JOB.update(saved_job)
@@ -4862,6 +4980,13 @@ def _run_program(source, files, vars=None, entry=None, setup=None, options=None,
 def _notes(result):
     """Mấy dòng tóm tắt mô phỏng, hiện mờ dưới console của học viên."""
     notes = []
+    # input() không có gì để đọc. Người mới gõ input() trong ô chạy tự do sẽ
+    # nhận "EOFError: EOF when reading a line" — đúng nhưng vô nghĩa với họ.
+    # Nói thẳng ra là ở đây không gõ được từ bàn phím, kèm cách làm thay.
+    if _STDIN.get('eof'):
+        notes.append('[nhập liệu] Ô này không nhập được từ bàn phím, nên input() '
+                     'báo EOFError. Gán sẵn giá trị để thử: ten = "Hoa" thay cho '
+                     'ten = input("Tên: ").')
     if result.threads:
         joined = sum(1 for t in result.threads if t.joined)
         line = '[mô phỏng thread] %d Thread được tạo, %d đã start, %d đã join' % (
@@ -4928,13 +5053,394 @@ def _studio_preload(packages_json='[]'):
     return json.dumps(errors)
 
 
-def _studio_main(source, cases_json, files_json, stdin_json='[]'):
-    # stdin_json có mặc định để check-pyodide.mjs (và mọi chỗ gọi cũ) vẫn gọi
-    # được bằng 3 tham số.
+# ---------------------------------------------------------------------------
+# ĐO ĐỘ HIỆU QUẢ (step_4.perf) — chạy SAU khi mọi ca chấm đã đạt.
+#
+# Vì sao có: hai lời giải cùng ĐÚNG vẫn có thể cách nhau một bậc độ phức tạp, và
+# bài học muốn chỉ ra điều đó. Vì sao không dùng đồng hồ: đo trong WASM lệch tới
+# 2,07 lần trên cùng một đoạn code và còn phán SAI BẬC; `performance.now()` lại
+# bị làm thô về ~100 µs vì trang không cross-origin isolated. Một học viên nộp
+# đúng cùng một code hai lần mà nhận hai phán quyết khác nhau thì mất lòng tin
+# vào cả hệ thống nhanh hơn bất cứ lỗi nào. Nên đo bằng ĐẾM, tất định tuyệt đối.
+#
+# HAI NGUỒN ĐẾM, KHÔNG PHẢI MỘT. Đây là chỗ dễ hiểu sai nhất:
+# `sys.monitoring.CALL` KHÔNG bắn cho dunder gọi qua TOÁN TỬ. Đo trong chính
+# Pyodide 314.0.7: vòng lặp lồng kinh điển sinh sự kiện cho enumerate/len/range/
+# append/sorted và KHÔNG MỘT sự kiện nào cho `Probe.__eq__` (qua `==`) hay
+# `list.__contains__` (qua `in`) — trong khi bộ đếm bên trong Probe thấy 65 phép
+# so sánh. Số mũ theo CALL là 0,99 ("hiệu quả"); theo Probe là 1,97. Ai cài bảng
+# phí trên CALL mà bỏ Probe sẽ dựng một bộ chấm KHEN đúng cái bài học muốn chữa,
+# không ngoại lệ nào được ném, không log nào đỏ.
+#
+# ĐIỂM MÙ đã biết — bài rơi vào đây thì ĐỪNG khai `perf`:
+#  · ghép chuỗi (`s += x`, `''.join(parts)` trong vòng lặp): `+=` là toán tử nên
+#    CALL mù; `join` thì `arg0` là DẤU NGĂN chứ không phải danh sách (đo được),
+#    nên không có cách nào thấy được khối lượng thật;
+#  · dịch phần tử bằng toán tử (`out = [x] + out`): cùng lý do;
+#  · `set`/`dict` trên dữ liệu đối kháng: chi phí thăm dò nằm ngoài tầm cả hai
+#    nguồn (đo được: va chạm slot mà khác hash KHÔNG sinh một phép __eq__ nào);
+#  · bài NumPy/pandas: `np.asarray([Probe(1)])` cho dtype int32 và phần tử KHÔNG
+#    còn là Probe (đo được) — dùng `elem: "none"` cho nhóm này.
+_PERF_TOOL = 3
+_PERF_TRAN = 2_000_000   # trần: vượt là dừng sớm, trả 'unknown', không treo 5 giây
+_PERF_SAN = 200          # sàn áp cho MẪU SỐ, kiểm TRƯỚC khi chia
+
+
+class _PerfBoHoc(Exception):
+    """Vượt trần gas. Chỉ được bắt trong pha đo, không bao giờ thành 'ca trượt'."""
+
+
+# Hình dạng độ phức tạp lấy từ docs.python.org/3.14/builtins/time-complexity.html,
+# trừ ba dòng dưới đây lấy từ CPython Objects/listobject.c (trang tài liệu không
+# liệt kê chúng, mà chúng lại là lý do bảng phí tồn tại):
+#  · list_count_impl quét HẾT list, không thoát sớm  -> len là đúng;
+#  · list_index_impl và list_remove_impl THOÁT SỚM ở phần tử khớp đầu tiên,
+#    nên len là tính THỪA. Giữ len vì hằng số không đổi số mũ, và vì bù lại cho
+#    phần `PyObject_RichCompareBool` trả 1 ngay khi hai toán hạng là một object
+#    (tức Probe không đếm được phép so sánh ấy).
+_PHI_THEO_LEN = frozenset({
+    'count', 'index', 'remove', 'copy', 'reverse', 'sum', 'min', 'max',
+    'sorted', 'set', 'list', 'tuple', 'dict', 'any', 'all', 'enumerate',
+})
+# n·log n — dùng bit_length() chứ không math.log2: số nguyên, không có số thực,
+# và nó là chặn TRÊN, tức sai về phía đắt (hướng lệch có chủ ý).
+_PHI_THEO_NLOGN = frozenset({'sort'})
+# Phí phẳng vì KHỐI LƯỢNG THẬT NẰM Ở ĐỐI SỐ, mà callback chỉ thấy arg0 = chính
+# instance (đo được: `a.extend(b)` -> arg0 là `a`; `'-'.join(p)` -> arg0 là `'-'`).
+# Tính len(arg0) ở đây là tính SAI CHIỀU, nên tính phẳng và ghi nhận điểm mù.
+_PHI_PHANG_DU_LA_QUET = frozenset({'extend', 'update', 'join'})
+
+
+def _perf_do_mot_lan(ham, ns, bien_dem):
+    """Chạy `ham()` một lần, trả (số đơn vị, lỗi nếu có)."""
+    mon = sys.monitoring
+    tong = [0]
+
+    def cb(code, offset, callable_, arg0):
+        # Chỉ tính code của HỌC VIÊN. _run_program compile với tên 'main.py'
+        # (dòng ~4550), còn ca chấm eval ra '<string>' — nên phép lọc này không
+        # nuốt nhầm chi phí của chính bộ chấm.
+        if code.co_filename != 'main.py':
+            return
+        ten = getattr(callable_, '__name__', '')
+        if ten in _PHI_THEO_LEN:
+            try:
+                tong[0] += len(arg0)
+            except TypeError:
+                tong[0] += 1
+        elif ten in _PHI_THEO_NLOGN:
+            try:
+                n = len(arg0)
+                tong[0] += n * max(1, n.bit_length())
+            except TypeError:
+                tong[0] += 1
+        else:
+            tong[0] += 1
+        if tong[0] > _PERF_TRAN:
+            raise _PerfBoHoc('vượt trần %d đơn vị' % _PERF_TRAN)
+
+    # Tool id là tài nguyên TOÀN CỤC và KHÔNG tự dọn: đo được rằng sau khi bỏ dở,
+    # get_tool(3) vẫn trả về tên cũ và get_events(3) vẫn là CALL. Runtime lại
+    # được giữ giữa các lần chạy, nên thiếu `finally` là lần sau ValueError.
+    if mon.get_tool(_PERF_TOOL) is not None:
+        return None, 'tool id %d đang có người dùng' % _PERF_TOOL
+    mon.use_tool_id(_PERF_TOOL, 'pe-perf')
+    try:
+        mon.register_callback(_PERF_TOOL, mon.events.CALL, cb)
+        mon.set_events(_PERF_TOOL, mon.events.CALL)
+        try:
+            ham()
+        finally:
+            mon.set_events(_PERF_TOOL, 0)
+            mon.register_callback(_PERF_TOOL, mon.events.CALL, None)
+    except _PerfBoHoc as exc:
+        return None, str(exc)
+    except BaseException as exc:
+        return None, '%s: %s' % (type(exc).__name__, exc)
+    finally:
+        mon.free_tool_id(_PERF_TOOL)
+    return tong[0] + bien_dem.lay(), None
+
+
+class _PerfDem:
+    """Nguồn đếm thứ hai: phép so sánh/băm mà CALL không bao giờ thấy."""
+
+    def __init__(self):
+        self.n = 0
+
+    def lay(self):
+        v = self.n
+        self.n = 0
+        return v
+
+
+class _PerfKhong:
+    """Dùng cho bài NumPy/pandas: bọc kiểu bị nuốt mất nên đừng bọc."""
+
+    def lay(self):
+        return 0
+
+
+def _perf_lam_probe(dem):
+    class _Probe(int):
+        __slots__ = ()
+
+        def __eq__(self, other):
+            dem.n += 1
+            return int(self) == int(other)
+
+        def __ne__(self, other):
+            dem.n += 1
+            return int(self) != int(other)
+
+        def __lt__(self, other):
+            dem.n += 1
+            return int(self) < int(other)
+
+        def __le__(self, other):
+            dem.n += 1
+            return int(self) <= int(other)
+
+        def __gt__(self, other):
+            dem.n += 1
+            return int(self) > int(other)
+
+        def __ge__(self, other):
+            dem.n += 1
+            return int(self) >= int(other)
+
+        def __hash__(self):
+            dem.n += 1
+            return int.__hash__(self)
+
+    return _Probe
+
+
+def _perf_sinh(n, boc, mode):
+    """Dữ liệu chấm: CHỈ số nguyên.
+
+    Chuỗi bị random hoá hash mỗi lần nạp trang nên số đếm đổi giữa hai phiên —
+    tất định là điều kiện biên của cả phương pháp, không phải chi tiết. Và tránh
+    bước nhảy luỹ thừa 2: không phải vì lời giải `set` bị oan (đo rồi, không bị)
+    mà vì chi phí thăm dò nằm ngoài tầm cả hai nguồn đếm, tức có thể KHEN NHẦM.
+    """
+    buoc = 7 if mode != 'trung' else 3
+    tho = [(i * buoc + 11) % (n * 2 + 7) for i in range(n)]
+    return [boc(v) for v in tho] if boc is not None else tho
+
+
+def _perf_hang(p):
+    if p is None:
+        return 'unknown'
+    if p < 1.5:
+        return 'efficient'
+    if p >= 1.75:
+        return 'slow'
+    return 'unknown'
+
+
+def _perf_chay(ns, perf):
+    """Trả dict kết quả đo, hoặc {'verdict': 'unknown', 'reason': …}."""
+    import math
+
+    goi = perf.get('call')
+    if not goi:
+        return {'verdict': 'unknown', 'reason': 'bài không khai perf.call'}
+    co_ban = int(perf.get('base') or 100)
+    co = [co_ban, co_ban * 2, co_ban * 4]
+    dung_probe = (perf.get('elem') or 'int') == 'int'
+    mode = perf.get('shape') or 'thuong'
+
+    dem = _PerfDem() if dung_probe else _PerfKhong()
+    boc = _perf_lam_probe(dem) if dung_probe else None
+
+    so_dem = []
+    for n in co:
+        du_lieu = _perf_sinh(n, boc, mode)
+        rieng = dict(ns)
+        rieng['_perf_data'] = du_lieu
+        c, loi = _perf_do_mot_lan(lambda: eval(goi, rieng), rieng, dem)
+        if loi is not None:
+            return {'verdict': 'unknown', 'reason': loi}
+        so_dem.append(c)
+
+    cn, _c2n, c4n = so_dem
+    # Sàn áp cho MẪU SỐ và kiểm TRƯỚC khi chia. Thiếu phép kiểm này thì một lời
+    # giải mà bộ đếm mù (cn = c4n = 2) ra p = 0 và bị đọc thành "hằng số, rất
+    # hiệu quả" — tức khen một lời giải có thể đang là bậc hai.
+    if cn < _PERF_SAN:
+        if cn == c4n:
+            return {'verdict': 'efficient', 'counts': so_dem,
+                    'reason': 'số đếm không đổi theo cỡ dữ liệu'}
+        return {'verdict': 'unknown', 'counts': so_dem,
+                'reason': 'số đếm quá nhỏ (%d) để kết luận' % cn}
+    p = math.log2(c4n / cn) / 2
+    return {'verdict': _perf_hang(p), 'counts': so_dem, 'p': round(p, 3)}
+
+
+# --------------------------------------------------------------- hợp đồng DỮ LIỆU
+#
+# Hai hợp đồng ca chấm cùng tồn tại, và chúng KHÔNG thay nhau được:
+#
+#   * biểu thức (pe-v4) — {name, call, expect}: hai chuỗi được eval trong
+#     namespace của học viên rồi so bằng `==`. Cần thế vì ca chấm pe-v4 phải
+#     gọi được `_studio.run(...)`, dựng fixture, đọc timeline thread/process.
+#     427 ca đang dựa vào nó.
+#   * dữ liệu (gói practice) — {name, input, expected}: giá trị JSON thuần, mỗi
+#     ca chạy LẠI chương trình trên một namespace mới. 419 ca của 138 bài tự
+#     làm dùng hợp đồng này.
+#
+# Vì sao không quy hết về `==` như hợp đồng cũ: ĐÃ ĐO, 65/389 ca trượt oan, và
+# cả 65 ca đều vì đúng hai chuyện máy móc.
+#
+#   1. JSON KHÔNG CÓ TUPLE. `solve` trả (8, 3), `expected` trong gói là [8, 3]
+#      — và (8, 3) == [8, 3] là False. 8 ca ở NP07/PY11/RD01.
+#   2. SO SÁNH MẢNG NUMPY RA MẢNG. np.array([1,2]) == [1,2] trả
+#      array([True, True]), rồi bool() của nó ném "truth value of an array with
+#      more than one element is ambiguous". 19 ca ở 8 bài NP*. Đây là lỗi KHÔNG
+#      giống lỗi: học viên viết đúng, nhận về ValueError của numpy.
+#
+# Nên hai hàm dưới là bản chép ngữ nghĩa từ practice/worker.py của gói —
+# `expected` của 419 ca được VIẾT theo chúng, nghĩ ra cách chuẩn hoá khác là tự
+# tạo lệch. Giữ cả những nhánh trông như dư (NAType, không-hữu-hạn): bỏ đi là
+# một lớp bài pandas lặng lẽ trượt.
+
+
+def _chuan_gia_tri(value, _sau=0):
+    """Hạ một giá trị Python về dạng JSON đối chiếu được (= normalize của gói).
+
+    `_sau` chặn đệ quy vô hạn: dữ liệu tự tham chiếu (a = []; a.append(a)) làm
+    hàm này chạy mãi. Gói không cần chặn vì nó chạy trong process riêng có thể
+    giết; ở đây nó chạy TRONG worker của học viên, treo là treo cả bài.
+    """
+    if _sau > 24:
+        raise TypeError('Dữ liệu lồng quá sâu để đối chiếu.')
+    if value is None or isinstance(value, (str, bool, int)):
+        return value
+    # pandas.NA / pandas.NaT: so sánh chúng với bất cứ gì cũng ra NA, nên phải
+    # hạ về None TRƯỚC. Kiểm bằng TÊN KIỂU, không `import pandas` — harness
+    # phải nạp được cả khi bài không dùng pandas.
+    if (type(value).__name__ in ('NAType', 'NaTType')
+            and type(value).__module__.startswith('pandas')):
+        return None
+    if isinstance(value, float):
+        # nan != nan, và inf không đi qua JSON. Cả hai về None để phép so dưới
+        # còn nói được điều gì.
+        return value if math.isfinite(value) else None
+    if isinstance(value, (datetime.datetime, datetime.date, datetime.time)):
+        return value.isoformat()
+    if isinstance(value, dict):
+        return {str(k): _chuan_gia_tri(v, _sau + 1) for k, v in value.items()}
+    if isinstance(value, (tuple, list)):
+        return [_chuan_gia_tri(v, _sau + 1) for v in value]
+    # ndarray, Series, DataFrame, numpy scalar — theo ĐÚNG thứ tự này:
+    # `.tolist()` trước `.item()` vì numpy scalar có CẢ HAI, mà `.item()` của
+    # mảng nhiều phần tử thì ném.
+    if hasattr(value, 'tolist'):
+        return _chuan_gia_tri(value.tolist(), _sau + 1)
+    if hasattr(value, 'item'):
+        return _chuan_gia_tri(value.item(), _sau + 1)
+    raise TypeError('Kết quả cần là số, chữ, list/dict hoặc array đối chiếu '
+                    'được. Nhận được %s.' % type(value).__name__)
+
+
+def _bang_du_lieu(actual, expected):
+    """So hai giá trị đã chuẩn hoá (= equal của gói).
+
+    Số so bằng math.isclose(rel_tol=1e-6, abs_tol=1e-6), KHÔNG bằng `==`:
+    0.1 + 0.2 ra 0.30000000000000004 và bài dạy tính tiền sẽ trượt vì nhị phân,
+    không vì học viên. `abs_tol` cần thêm vì `rel_tol` một mình không so được
+    gì với 0.
+    """
+    if isinstance(expected, bool):
+        # bool TRƯỚC int: trong Python True == 1, nên bài hỏi True mà trả 1 sẽ
+        # "đạt" nếu để nhánh số bắt trước.
+        return isinstance(actual, bool) and actual == expected
+    if isinstance(expected, (int, float)):
+        return (isinstance(actual, (int, float)) and not isinstance(actual, bool)
+                and math.isclose(actual, expected, rel_tol=1e-6, abs_tol=1e-6))
+    if isinstance(expected, list):
+        return (isinstance(actual, list) and len(actual) == len(expected)
+                and all(_bang_du_lieu(a, b) for a, b in zip(actual, expected)))
+    if isinstance(expected, dict):
+        # set(actual) == set(expected): THỪA khoá cũng là sai, không chỉ thiếu.
+        return (isinstance(actual, dict) and set(actual) == set(expected)
+                and all(_bang_du_lieu(actual[k], v) for k, v in expected.items()))
+    return type(actual) == type(expected) and actual == expected
+
+
+def _kiem_kieu_tra(value, required):
+    """`returnType` của gói: ghim KIỂU trả về, kiểm TRƯỚC khi chuẩn hoá.
+
+    Chỉ 3 ca dùng (tuple x1, numpy.ndarray x2) nhưng chúng là 3 ca duy nhất
+    dạy "dựng đúng cấu trúc dữ liệu", mà chuẩn hoá thì xoá sạch khác biệt đó:
+    [1, 2] và np.array([1, 2]) sau _chuan_gia_tri là một.
+    """
+    if not required:
+        return
+    ten = type(value).__name__
+    if required == 'numpy.ndarray':
+        hop = any(c.__name__ == 'ndarray' and c.__module__.startswith('numpy')
+                  for c in type(value).__mro__)
+    else:
+        hop = ten == required
+    if not hop:
+        raise TypeError('Bài yêu cầu trả %s, nhưng nhận %s. Kiểm lại cách bạn '
+                        'tạo dữ liệu, không chỉ các giá trị in ra.' % (required, ten))
+
+
+def _chay_ca_du_lieu(studio, case, hop_dong):
+    """Chạy MỘT ca chấm theo hợp đồng dữ liệu. Trả (passed, detail).
+
+    Chạy lại cả chương trình cho từng ca — giống worker.py của gói, và đó là
+    chủ đích: hợp đồng này nói "với đầu vào này thì kết quả là gì", nên trạng
+    thái cấp module mà ca trước để lại không được dính sang ca sau.
+    """
+    mode = hop_dong.get('mode') or 'function'
+    du_lieu = case.get('input')
+    if mode == 'script':
+        ten_vao = hop_dong.get('inputVariable') or 'data'
+        ten_ra = hop_dong.get('resultVariable') or 'result'
+        run = studio.run(inject={ten_vao: du_lieu})
+        if run.error:
+            return False, '%s: %s' % (run.error, run.message)
+        if ten_ra not in run.ns:
+            return False, 'Hãy gán kết quả vào biến %s như yêu cầu bài.' % ten_ra
+        gia_tri = run.ns[ten_ra]
+    else:
+        run = studio.run()
+        if run.error:
+            return False, '%s: %s' % (run.error, run.message)
+        solve = run.ns.get('solve')
+        if not callable(solve):
+            return False, ('Chưa có hàm solve(data). Hãy giữ tên hàm để bộ chấm '
+                           'truyền dữ liệu vào.')
+        goi = studio.call(solve, copy.deepcopy(du_lieu))
+        if goi.error:
+            return False, '%s: %s' % (goi.error, goi.message)
+        gia_tri = goi.value
+
+    _kiem_kieu_tra(gia_tri, hop_dong.get('returnType'))
+    thuc = _chuan_gia_tri(gia_tri)
+    mong = case.get('expected')
+    if _bang_du_lieu(thuc, mong):
+        return True, 'Đạt: %s' % json.dumps(thuc, ensure_ascii=False)[:200]
+    return False, 'Cần có %s nhưng nhận %s' % (
+        json.dumps(mong, ensure_ascii=False)[:160],
+        json.dumps(thuc, ensure_ascii=False)[:160])
+
+
+def _studio_main(source, cases_json, files_json, stdin_json='[]',
+                 perf_json='null', contract_json='null'):
+    # stdin_json và perf_json có mặc định để check-pyodide.mjs (và mọi chỗ gọi
+    # cũ) vẫn gọi được bằng 3 tham số.
     _install()
     os.makedirs(WORK_ROOT, exist_ok=True)
     _STDIN['lines'] = json.loads(stdin_json or '[]') or []
     _STDIN['loose'] = None
+    # Runtime được GIỮ LẠI giữa các lần chạy, nên bộ đếm EOF phải đặt lại ở đây;
+    # quên thì lần chạy sau vẫn hiện dòng giải thích của lần trước.
+    _STDIN['eof'] = 0
     _TK_FALLBACK[0] = None
     _LOOSE_TK[0] = None
     files = {}
@@ -4943,16 +5449,34 @@ def _studio_main(source, cases_json, files_json, stdin_json='[]'):
     _SUPPORT_MODULES.clear()
     _SUPPORT_MODULES.update(name[:-3] for name in files if name.endswith('.py'))
     cases = json.loads(cases_json or '[]')
+    # Hợp đồng DỮ LIỆU của bài (mode/inputVariable/resultVariable/
+    # returnType) — dùng chung cho mọi ca của bài đó, nên gửi MỘT lần
+    # thay vì nhắc lại trong từng ca.
+    hop_dong = json.loads(contract_json or 'null') or None
     results = []
     error = None
 
-    main = _run_program(source, files)
+    # Lần chạy CHÍNH cũng cần dữ liệu đề khi hợp đồng là `script`.
+    #
+    # Đo được: thiếu chỗ này thì 12/12 bài script trượt với
+    # "NameError: name 'raw' is not defined" và KHÔNG ca nào kịp chạy — vòng
+    # chấm nằm sau `if error is None`, nên một NameError ở lần chạy chính giết
+    # cả bài. Mà đó cũng đúng là điều học viên thấy khi bấm Chạy: mã của họ đọc
+    # `raw` do đề cấp, không phải biến họ tự gán.
+    #
+    # Lấy đầu vào của ca ĐẦU TIÊN, vì đó là bộ dữ liệu bài dùng làm ví dụ.
+    tiem_chinh = None
+    if hop_dong and (hop_dong.get('mode') == 'script') and cases:
+        ten_vao = hop_dong.get('inputVariable') or 'data'
+        tiem_chinh = {ten_vao: cases[0].get('input')}
+    main = _run_program(source, files, inject=tiem_chinh)
     output = main.stdout
     if main.error and main.error != 'SimulationError':
         error = main.traceback
     elif main.error == 'SimulationError':
         error = 'Mô phỏng dừng: %s' % main.message
     notes = _notes(main)
+    figures = _anh_figure(main.figures)
 
     if error is None:
         studio = Studio(source, files, main.dir)
@@ -4968,10 +5492,18 @@ def _studio_main(source, cases_json, files_json, stdin_json='[]'):
                 os.chdir(main.dir)
                 sink = io.StringIO()
                 with redirect_stdout(sink), redirect_stderr(sink), _redirect_stdin(_loose_stdin()):
-                    actual = eval(case['call'], ns)
-                    expected = eval(case['expect'], ns)
-                ok = actual == expected
-                detail = ('Đạt: %r' % (actual,)) if ok else ('Mong đợi %r nhưng nhận %r' % (expected, actual))
+                    # Phân nhánh theo TRƯỜNG CÓ MẶT, không theo một cờ riêng:
+                    # ca pe-v4 luôn có `call`, ca gói practice luôn có `input`/
+                    # `expected`. Một cờ riêng là thứ thứ hai phải khớp, và nó
+                    # sẽ lệch — kiểu ca thì đọc ngay ra từ chính dữ liệu.
+                    if 'call' in case:
+                        actual = eval(case['call'], ns)
+                        expected = eval(case['expect'], ns)
+                        ok = actual == expected
+                        detail = (('Đạt: %r' % (actual,)) if ok
+                                  else ('Mong đợi %r nhưng nhận %r' % (expected, actual)))
+                    else:
+                        ok, detail = _chay_ca_du_lieu(studio, case, hop_dong or {})
                 results.append({'name': name, 'passed': bool(ok), 'detail': detail[:400]})
             except (AssertionError, StudioSetupError) as exc:
                 results.append({'name': name, 'passed': False,
@@ -4984,10 +5516,41 @@ def _studio_main(source, cases_json, files_json, stdin_json='[]'):
             finally:
                 os.chdir(old)
 
+    # Pha ĐO ĐỘ HIỆU QUẢ — NẰM NGOÀI vòng ca chấm, và đó là chuyện sống còn:
+    # vòng trên kết thúc bằng `except BaseException` ghi {'passed': False}, nên
+    # một ngoại lệ của pha đo (vượt trần gas chẳng hạn) rơi vào đó sẽ hiện ra
+    # thành "ca kiểm tra trượt" GẮN TÊN CA CỦA HỌC VIÊN, trên một lời giải
+    # ĐÚNG. Đo được: ngoại lệ ném từ callback của sys.monitoring nổi lên qua
+    # đúng frame main.py của học viên, nên rủi ro ấy có thật.
+    #
+    # `results` phải KHÁC RỖNG: `all([])` là True, nên thiếu phép kiểm này thì
+    # mọi bài không có ca chấm nào cũng lọt vào pha đo rồi cố eval một
+    # `perf.call` không tồn tại.
+    perf_kq = None
+    perf = json.loads(perf_json or 'null')
+    if perf and error is None and results and all(r['passed'] for r in results):
+        old = os.getcwd()
+        try:
+            os.chdir(main.dir)
+            # Sink riêng: harness cố ý gộp stderr vào stdout để console học viên
+            # hiện cả hai, nên bất cứ thứ gì pha đo in ra sẽ thành KẾT QUẢ BỊ
+            # CHẤM của họ.
+            with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+                perf_kq = _perf_chay(main.ns, perf)
+        except BaseException as exc:
+            # Mọi lỗi của pha đo chỉ được biến thành 'unknown'. Pha này không
+            # bao giờ được làm một lời giải đúng trông như sai.
+            perf_kq = {'verdict': 'unknown',
+                       'reason': '%s: %s' % (type(exc).__name__, exc)}
+        finally:
+            os.chdir(old)
+
     return json.dumps({
         'tests': results,
         'error': error,
         'output': output[:12000],
         'notes': notes,
+        'perf': perf_kq,
+        'figures': figures,
         'version': sys.version.split()[0],
     })

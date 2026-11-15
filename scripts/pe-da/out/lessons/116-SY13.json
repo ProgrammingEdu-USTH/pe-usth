@@ -1,0 +1,198 @@
+{
+ "lesson_code": "SY13",
+ "sort_order": 116,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY13 · Làm tròn xuống và tính điểm có trọng số",
+ "subtitle": "Trung cấp · M5 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "SY13 · Làm tròn xuống và tính điểm có trọng số",
+  "subtitle": "Trung cấp · M5 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/SY13.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Làm tròn xuống và tính điểm có trọng số",
+    "body": "Môn Python có 3 tín chỉ, môn Database có 1. Hai điểm 8 và 6 không đóng góp như nhau vào điểm trung bình (GPA). Trước khi tính trung bình, hãy làm riêng phép nhân điểm với trọng số:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Môn Python có 3 tín chỉ, môn Database có 1. Hai điểm 8 và 6 không đóng góp như nhau vào điểm trung bình (GPA). Trước khi tính trung bình, hãy làm riêng phép nhân điểm với trọng số:\n\nTổng có trọng số là 30, tổng tín chỉ là 4, nên GPA bằng 7.5. Chỉ dùng marks.mean() sẽ cho 7.0 và bỏ qua số tín chỉ. Trước bài này, bạn cần đã hiểu array, phép toán theo phần tử và sum; không nên bắt đầu học NumPy bằng cả công thức gộp này."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "PW3 yêu cầu làm tròn xuống một chữ số sau dấu thập phân lúc nhập điểm. floor làm tròn xuống về phía số nhỏ hơn, khác round chọn gần nhất. Điểm âm phải bị từ chối theo quy tắc điểm trước khi lưu; ví dụ âm chỉ để làm rõ nghĩa của floor. Số thực nhị phân còn có sai số biểu diễn; nếu cần làm tròn đúng theo số thập phân người dùng đã nhập, hãy dùng Decimal và nêu rõ quy tắc làm tròn.\n\n`key=lambda x: x[\"gpa\"]` là một hàm ngắn lấy GPA của mỗi sinh viên để sắp xếp; `reverse=True` đổi sang thứ tự giảm dần. Nếu cần thứ tự khi GPA bằng nhau, công bố thêm quy tắc theo mã hoặc giữ thứ tự nhập ban đầu. `sorted` trả danh sách mới, không sửa danh sách ban đầu."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import numpy as np\nmarks = np.array([8.0, 6.0])\ncredits = np.array([3.0, 1.0])\nprint(marks * credits)\nprint((marks * credits).sum() / credits.sum())",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: [24.  6.] ⏎ 7.5"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 8.7 ⏎ -1.3 ⏎ 8.8"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: ['B', 'A'] ⏎ ['A', 'B']"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Điểm 8 và 6, tín chỉ lần lượt 3 và 1: GPA là bao nhiêu?",
+     "options": [
+      {
+       "text": "7.5",
+       "correct": true,
+       "detail": "Tổng có trọng số (8×3+6×1)=30, chia tổng tín chỉ 4."
+      },
+      {
+       "text": "7.0",
+       "correct": false,
+       "detail": "Đây là trung bình không trọng số, bỏ qua tín chỉ khác nhau."
+      },
+      {
+       "text": "15.0",
+       "correct": false,
+       "detail": "Bạn đã chia tổng có trọng số cho số môn 2 thay vì tổng tín chỉ 4."
+      }
+     ],
+     "explanation": "Tổng có trọng số (8×3+6×1)=30, chia tổng tín chỉ 4."
+    },
+    {
+     "question": "Điểm [8,6], tín chỉ [3,1]. Trung bình không trọng số bỏ qua điều gì?",
+     "options": [
+      {
+       "text": "Kiểu chữ của tên môn",
+       "correct": false,
+       "detail": "Chưa đúng. GPA theo tín chỉ chia tổng điểm×tín chỉ cho tổng tín chỉ."
+      },
+      {
+       "text": "Môn 3 tín chỉ phải đóng góp nhiều hơn",
+       "correct": true,
+       "detail": "GPA theo tín chỉ chia tổng điểm×tín chỉ cho tổng tín chỉ."
+      },
+      {
+       "text": "Số thứ tự của array bắt đầu từ 0",
+       "correct": false,
+       "detail": "Chưa đúng. GPA theo tín chỉ chia tổng điểm×tín chỉ cho tổng tín chỉ."
+      }
+     ],
+     "explanation": "GPA theo tín chỉ chia tổng điểm×tín chỉ cho tổng tín chỉ."
+    },
+    {
+     "question": "math.floor(8.79*10)/10 cho giá trị nào?",
+     "options": [
+      {
+       "text": "8.7",
+       "correct": true,
+       "detail": "Floor một chữ số giữ phần đến hàng phần mười theo hướng làm tròn xuống."
+      },
+      {
+       "text": "8.8",
+       "correct": false,
+       "detail": "Chưa đúng. Floor một chữ số giữ phần đến hàng phần mười theo hướng làm tròn xuống."
+      },
+      {
+       "text": "8.79",
+       "correct": false,
+       "detail": "Chưa đúng. Floor một chữ số giữ phần đến hàng phần mười theo hướng làm tròn xuống."
+      }
+     ],
+     "explanation": "Floor một chữ số giữ phần đến hàng phần mười theo hướng làm tròn xuống."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Làm tròn xuống một chữ số thập phân."
+   },
+   "scaffold": {
+    "template": "import math\nvalue = math.{{slot1}}(8.79 * 10) / 10",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Hàm làm tròn xuống",
+      "answer": "floor"
+     }
+    ],
+    "bank": [
+     {
+      "label": "floor",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "solve(data) nhận {\"marks\": list điểm, \"credits\": list tín chỉ cùng độ dài}. Dữ liệu hợp lệ, tín chỉ dương. Trả GPA theo tín chỉ; nếu cả hai list rỗng, trả None. Không làm tròn điểm trước tính trong bài này.",
+    "io": [
+     {
+      "label": "trọng số đảo",
+      "value": "{'marks': [9, 5], 'credits': [1, 3]} → 6.0"
+     },
+     {
+      "label": "điểm 0 vẫn có tín chỉ",
+      "value": "{'marks': [0, 10], 'credits': [2, 1]} → 3.3333333333333335"
+     },
+     {
+      "label": "chưa có môn",
+      "value": "{'marks': [], 'credits': []} → None"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    if not data['marks']: return None\n    marks = np.asarray(data['marks'], dtype=float)\n    credits = np.asarray(data['credits'], dtype=float)\n    return float((marks * credits).sum() / credits.sum())\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "trọng số đảo",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'marks': [9, 5], 'credits': [1, 3]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "6.0"
+    },
+    {
+     "name": "điểm 0 vẫn có tín chỉ",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'marks': [0, 10], 'credits': [2, 1]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "3.3333333333333335"
+    },
+    {
+     "name": "chưa có môn",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'marks': [], 'credits': []}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "None"
+    }
+   ]
+  }
+ }
+}

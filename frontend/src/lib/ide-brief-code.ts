@@ -1,23 +1,51 @@
-// Chọn đoạn mã mà nút "Chạy thử ở Bàn thí nghiệm" ở màn ĐỀ BÀI gửi sang /ide.
+// Chọn đoạn mã mà nút "Thử ngay trong IDE" ở màn ĐỀ BÀI gửi sang /ide.
 //
 // Vì sao cần hẳn một file: hai môi trường chạy KHÁC NHAU, và chỗ nào quên điều
 // đó là người học nhận một IDE chết.
 //
 //   · Bài học chạy Pyodide trong trình duyệt + studio-harness.py — có tkinter
 //     MÔ PHỎNG, subprocess/threading mô phỏng, numpy/pandas/matplotlib tải sẵn.
-//   · IDE chạy CPython 3.12 THẬT trong Docker. Đo ngày 13/10/2026 trên chính
-//     sandbox đang phục vụ: có numpy, pandas, sqlite3, threading, multiprocessing,
-//     subprocess — nhưng KHÔNG có matplotlib, và tkinter thì import được tên
-//     nhưng nổ "libtk8.6.so: cannot open shared object file" vì container không
-//     có thư viện Tk lẫn màn hình.
+//   · IDE nay CŨNG chạy Pyodide trong trình duyệt, KHÔNG còn Docker. Khác biệt
+//     còn lại chỉ là: IDE không có studio-harness.py, nên không có phần MÔ PHỎNG.
 //
-// Nên bài vẽ biểu đồ và bài GUI KHÔNG hiện nút: thà thiếu nút còn hơn mở tab
-// mới rồi để người học đọc một traceback không phải lỗi của họ. Ngược lại, bài
-// process/thread chạy trong IDE còn ĐÚNG HƠN trong bài học — ở đó là mô phỏng,
-// ở đây là PID và thread thật.
+// DANH SÁCH NÀY TỪNG NGƯỢC HẲN, và đó là hậu quả của lần chuyển sang client:
+// bản cũ viết theo ảnh Docker `python:3.12-slim` (có threading/multiprocessing/
+// subprocess thật, không có matplotlib). Đo lại trong Chrome 155 ngày
+// 25/10/2026 trên chính /ide:
+//
+//   matplotlib 3.10.8  CHẠY ĐƯỢC (dựng được Figure)   ← trước đây bị CHẶN
+//   numpy 2.4.6        CHẠY ĐƯỢC
+//   pandas 3.0.2       CHẠY ĐƯỢC
+//   sqlite3            CHẠY ĐƯỢC (bản 314 đưa vào stdlib)
+//   threading          RuntimeError: can't start new thread   ← trước đây CHO QUA
+//   multiprocessing    ModuleNotFoundError: _multiprocessing  ← trước đây CHO QUA
+//   subprocess         OSError 138: emscripten does not support processes
+//   os.fork            OSError 52: Function not implemented
+//   tkinter            ModuleNotFoundError (giới hạn WASM, không phải thiếu wheel)
+//
+// Nên bài GUI và bài process/thread KHÔNG hiện nút: thà thiếu nút còn hơn mở
+// tab mới rồi để người học đọc một traceback không phải lỗi của họ. Bài vẽ biểu
+// đồ thì NGƯỢC LẠI — nay chạy được, nên không còn lý do chặn.
+//
+// PHẠM VI THẬT, đừng phóng to: hai hàm trong file này chỉ được gọi từ màn
+// `brief` (screens/index.tsx) và màn `explain` (ExplainScreen.tsx), mà bộ 172
+// bài đang xuất bản KHÔNG có màn nào trong hai màn đó — đếm được: 0/172 bài có
+// `step_1.brief`, 0/172 có `step_2.one.code.source`; chúng dùng
+// `step_1:{read,context}` · `step_2:{practice}` · `step_4:{task,starterCode}`.
+// Nên hôm nay luật này không ẩn/hiện nút cho một người học nào. Vẫn sửa, vì một
+// luật ghi lại kiến trúc ĐÃ BỎ chính là thứ sẽ âm thầm sai vào ngày pe-v4 được
+// bật lại, hoặc ngày bộ 172 bài thêm một màn đề bài.
 
-/** Thư viện sandbox của IDE không chạy được. Nhận ra bằng chính dòng import. */
-const KHONG_CHAY_DUOC = /^\s*(?:import|from)\s+(matplotlib|tkinter|_studio)\b/m;
+/**
+ * Thư viện sandbox của IDE không chạy được. Nhận ra bằng chính dòng import.
+ *
+ * `_studio` là API của studio-harness.py, chỉ có trong bài học. Ba cái còn lại
+ * là giới hạn WASM, không phải thiếu wheel — xem bảng đo ở đầu file. `threading`
+ * nằm trong danh sách dù IMPORT ĐƯỢC: `Thread.start()` mới ném, mà một bài dạy
+ * thread thì chắc chắn gọi `start()`.
+ */
+const KHONG_CHAY_DUOC =
+  /^\s*(?:import|from)\s+(tkinter|_studio|threading|multiprocessing|subprocess)\b/m;
 
 /**
  * Mã CHẠY ĐƯỢC trong sandbox của IDE hay không.
@@ -34,7 +62,10 @@ export type BriefCodeLesson = {
   step_1?: { brief?: { code?: string; tests?: string[] } };
   step_4?: {
     starterCode?: string;
-    tests?: { call?: string; expect?: string }[];
+    // Nhận CẢ HAI dạng ca chấm. Hàm dưới chỉ dò chuỗi trong `call` để đoán
+    // bài có cần thư viện gì, nên ca dạng dữ liệu đơn giản là không đóng góp
+    // gì — nhưng kiểu phải cho qua, không thì cả StudioLesson không gán được.
+    tests?: ({ call?: string; expect?: string } | { input?: unknown; expected?: unknown })[];
     files?: { name?: string; content?: string }[];
   };
 };
@@ -48,7 +79,7 @@ export type BriefCodeLesson = {
 const TRAN_FILE_KEM_THEO = 8000;
 
 /**
- * Mã Python tự ghi ra các file mà bài cần có sẵn bên cạnh chương trình.
+ * Mã Python tự ghi ra các file dữ liệu mà bài cần đọc.
  *
  * Vì sao phải có: đo ngày 13/10/2026 bằng cách chạy THẬT starterCode của cả 48
  * bài qua sandbox — PD03, PD08, PD09 chết với FileNotFoundError: sales.csv.
@@ -56,20 +87,6 @@ const TRAN_FILE_KEM_THEO = 8000;
  * nào sai cả: trong bài học, file do harness của Studio tạo sẵn
  * (`step_4.files`), còn sandbox của IDE chỉ có đúng file mã của người học. Đây
  * chính là lý do phải ĐO chứ không đọc code mà đoán.
- *
- * HAI LOẠI FILE, và chú thích phải nói đúng loại. Bản trước coi MỌI phần tử
- * `step_4.files` là "file dữ liệu bài cần ĐỌC". Sai từ lúc T05 được thêm
- * `race_demo.py`: bấm nút ở T05 sinh ra mã mở đầu bằng câu "Bài này đọc file
- * dữ liệu" trong khi T05 không `open()` gì cả. Chú thích sai do CODE sinh ra
- * cho người học đọc còn tệ hơn không có chú thích. Nay phân biệt:
- *   · không phải `.py` → file DỮ LIỆU, bài sẽ `open()` nó (sales.csv…);
- *   · đuôi `.py`       → file MÃ kèm theo, bài chạy nó làm process con hoặc
- *     import nó (P04 `sum_numbers.py`, T05 `race_demo.py`).
- * Cả hai loại vẫn cần `chdir` — đó KHÔNG phải chuyện đọc dữ liệu mà là chuyện
- * có chỗ GHI (xem chú thích trong mã sinh ra). Riêng file `.py` còn cần thư
- * mục đó nằm trong `sys.path`, vì sau `chdir` thì `sys.path[0]` vẫn là thư mục
- * của file đang chạy, không phải thư mục làm việc — thiếu dòng đó là
- * `import race_demo` nổ ModuleNotFoundError.
  *
  * Nội dung nhúng bằng JSON.stringify: chuỗi JSON cũng là chuỗi Python hợp lệ
  * (cùng cách thoát xuống dòng, dấu nháy kép, dấu chéo ngược), nên không phải tự
@@ -82,23 +99,9 @@ function maTaoFile(files: { name?: string; content?: string }[]): string | null 
   if (!dung.length) return null;
   const tong = dung.reduce((n, f) => n + (f.content as string).length, 0);
   if (tong > TRAN_FILE_KEM_THEO) return null;
-
-  const laMa = (f: { name?: string }) => /\.py$/i.test(f.name ?? '');
-  const fileMa = dung.filter(laMa);
-  const fileDuLieu = dung.filter((f) => !laMa(f));
-  const ten = (fs: { name?: string }[]) => fs.map((f) => f.name).join(', ');
-
-  // Một câu, nói đúng thứ bài thật sự cần — không hứa "đọc dữ liệu" khi bài
-  // chỉ có file mã kèm theo.
-  const moTa = fileDuLieu.length && fileMa.length
-    ? `đọc file dữ liệu (${ten(fileDuLieu)}) và cần file mã kèm theo (${ten(fileMa)})`
-    : fileMa.length
-      ? `cần file mã kèm theo (${ten(fileMa)})`
-      : `đọc file dữ liệu (${ten(fileDuLieu)})`;
-
   return [
-    `# Bài này ${moTa}. Trong bài học, Studio tạo sẵn mấy file đó; ở Bàn thí`,
-    '# nghiệm thì mấy dòng dưới đây tự ghi ra, để chạy được y như vậy.',
+    '# Bài này đọc file dữ liệu. Trong bài học file đó do Studio tạo sẵn; ở IDE',
+    '# thì mấy dòng dưới đây tự ghi ra, để chạy được y như vậy.',
     '#',
     '# Phải chuyển sang /tmp trước: container chạy --read-only nên thư mục làm',
     '# việc (/code) KHÔNG ghi được — đã đo, ghi thẳng ra đó là OSError [Errno 30]',
@@ -106,16 +109,6 @@ function maTaoFile(files: { name?: string; content?: string }[]): string | null 
     '# open("<tên file>") trong bài vẫn đúng y như khi chạy ở Studio.',
     'import os as _os, tempfile as _tf',
     '_os.chdir(_tf.mkdtemp())',
-    // Sau chdir, sys.path[0] vẫn là thư mục của file đang chạy; thiếu dòng này
-    // thì `import <file kèm theo>` nổ ModuleNotFoundError.
-    ...(fileMa.length
-      ? [
-        '# Thư mục vừa chuyển tới phải nằm trong sys.path để import được file',
-        '# mã kèm theo: sau chdir, sys.path[0] vẫn là thư mục của file đang chạy.',
-        'import sys as _sys',
-        '_sys.path.insert(0, _os.getcwd())',
-      ]
-      : []),
     'from pathlib import Path as _P',
     ...dung.map(
       (f) =>
@@ -145,7 +138,12 @@ export function ideCodeChoDeBai(lesson: BriefCodeLesson | null | undefined): str
   const starter = lesson?.step_4?.starterCode;
   if (!chayDuocTrongIde(starter)) return null;
 
+  // Chỉ ca dạng BIỂU THỨC vào được dòng chú thích này: `f(3) → 9` đọc được như
+  // một lời gọi, còn ca dạng dữ liệu thì `input` có thể là cả một dict nhiều
+  // khoá — dán vào đầu file chỉ làm người học rối. Bài chỉ có ca dạng dữ liệu
+  // thì trả nguyên starter (nhánh `!ca.length` ngay dưới).
   const ca = (lesson?.step_4?.tests ?? [])
+    .filter((t): t is { call?: string; expect?: string } => 'call' in t)
     .filter((t) => t.call && t.expect)
     .slice(0, 4)
     .map((t) => `#   ${t.call}  →  ${t.expect}`);
@@ -157,7 +155,7 @@ export function ideCodeChoDeBai(lesson: BriefCodeLesson | null | undefined): str
   if ((lesson?.step_4?.files ?? []).length && !taoFile) return null;
 
   return [
-    '# Điền thân hàm rồi bấm Chạy. Cần ra đúng những kết quả này:',
+    '# Thử ngay: điền thân hàm rồi bấm Chạy. Cần ra đúng những kết quả này:',
     ...ca,
     '',
     ...(taoFile ? [taoFile] : []),

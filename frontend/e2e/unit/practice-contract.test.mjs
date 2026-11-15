@@ -1,0 +1,319 @@
+/**
+ * Unit test cho HỢP ĐỒNG DỮ LIỆU của ca chấm — đường đi từ `step_4` tới worker.
+ *
+ * Vì sao phải có bộ này. Tới 26/10/2026 khoá 172 bài đang xuất bản KHÔNG có một
+ * ca chấm nào: mọi bài có `step_4.task` và phần lớn có `starterCode`, nhưng
+ * `step_4.tests` thì trống trơn — người học viết code rồi tự so bằng mắt. Nay
+ * 124 bài có bài tập được chấm với 415 ca, và chúng dùng một hợp đồng KHÁC hợp
+ * đồng của pe-v4: `{name, input, expected}` thay cho `{name, call, expect}`.
+ *
+ * Cái dễ vỡ không phải phép so khớp (đó là việc của studio-harness.py, có
+ * `scripts/pe-da/check-practice.mjs` canh bằng 415 ca thật + 556 biến thể sai).
+ * Cái dễ vỡ là ĐƯỜNG ĐI: `contract` phải chạy qua năm chặng —
+ *
+ *     step_4.contract -> useCodeRunner -> RunRequest -> pyodide-runner.send()
+ *                     -> postMessage -> studio-lesson.worker.js -> _studio_main
+ *
+ * — và rơi ở chặng nào cũng KHÔNG có lỗi nào được ném. Bộ chấm chỉ lặng lẽ rơi
+ * về tên biến mặc định (`data`/`result`), rồi 12 bài `mode: "script"` trượt
+ * TOÀN BỘ ca với NameError, trên lời giải đúng. Đúng loại lỗi mà một bộ test
+ * chạy ở Node không thấy nhưng học viên thấy ngay.
+ *
+ * Bằng chứng bộ này bắt được lỗi thật (quy ước AGENTS.md: gỡ bản sửa ra, test
+ * phải trượt). Ba lần gỡ, ba kết quả khác nhau:
+ *   · bỏ `contract: request.contract ?? null` trong pyodide-runner.send()
+ *     → 2 ca trượt ("runner gửi contract", "contract null thay vì undefined");
+ *   · bỏ dòng đọc `data.contract` trong studio-lesson.worker.js
+ *     → 2 ca trượt ("worker đọc contract", "worker truyền vào _studio_main");
+ *   · bỏ `contract: four.contract` trong useCodeRunner.ts
+ *     → 1 ca trượt ("useCodeRunner gửi contract của bài").
+ *
+ * Chạy: cd frontend && npm run test:unit
+ */
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { laCaDuLieu } from '../../src/lib/studio-lesson.ts';
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(HERE, '..', '..', '..');
+const FE = join(ROOT, 'frontend');
+
+const doc = (...p) => readFileSync(join(FE, ...p), 'utf8');
+
+/** Bản dựng THẬT — không bịa fixture, xem bẫy fixture trong AGENTS.md. */
+const bundle = JSON.parse(
+  readFileSync(join(ROOT, 'scripts', 'pe-da', 'out', 'lessons.json'), 'utf8'),
+).lessons;
+
+const coBaiTap = bundle.filter((b) => (b.content_json?.step_4?.tests ?? []).length);
+
+// ───────────────────────────────────────────── phân loại hai hợp đồng ca chấm
+
+test('laCaDuLieu: ca có `call` là dạng biểu thức, ca có `input` là dạng dữ liệu', () => {
+  assert.equal(laCaDuLieu({ name: 'x', call: 'f(1)', expect: '1' }), false);
+  assert.equal(laCaDuLieu({ name: 'x', input: [1], expected: 1 }), true);
+  // `expected: null` là đáp án HỢP LỆ của nhiều bài ("đầu vào rỗng -> không có
+  // kết quả"), nên phép phân loại không được dựa vào giá trị khác null.
+  assert.equal(laCaDuLieu({ name: 'x', input: [], expected: null }), true);
+});
+
+test('bài CÓ contract thì không được trộn hai hợp đồng', () => {
+  // Trộn chỉ HẠI KHI bài khai `contract`: mode/inputVariable/resultVariable/
+  // returnType chỉ được áp cho ca DỮ LIỆU, nên ca biểu thức lặng lẽ bỏ qua
+  // chúng và không báo gì — bộ chấm phân nhánh theo từng ca nên nó cứ chạy.
+  //
+  // Bài KHÔNG khai contract thì không có gì để bỏ qua. Luật cũ cấm MỌI bài
+  // trộn, tức rộng hơn chính lý do của nó, và nó đã chặn đúng cách duy nhất
+  // cứu được ca "tên kèm byte null" của SY20: ca đó cần một byte NUL — thứ DUY
+  // NHẤT làm lời giải tầm thường `return data` trượt ở bài round-trip này — mà
+  // Postgres jsonb không lưu được NUL, nên nạp 172 bài chết ở câu UPDATE thứ
+  // 123 và rollback cả khoá. Viết nó thành biểu thức thì NUL nằm trong MÃ
+  // NGUỒN Python chứ không trong dữ liệu. Luật này khớp `kiem_bai_tap()` của
+  // scripts/pe-da/check.py — bốn chỗ cùng ghi giả định này, đừng để lệch.
+  let thuanMotHopDong = 0;
+  for (const b of coBaiTap) {
+    const t = b.content_json.step_4.tests;
+    const duLieu = t.filter(laCaDuLieu).length;
+    const thuan = duLieu === 0 || duLieu === t.length;
+    if (thuan) thuanMotHopDong += 1;
+    if (b.content_json.step_4.contract) {
+      assert.ok(
+        thuan,
+        `${b.lesson_code}: ${duLieu}/${t.length} ca dạng dữ liệu — bài CÓ contract mà trộn hai hợp đồng`,
+      );
+    }
+  }
+  // Trộn phải là NGOẠI LỆ. Nới luật mà không đặt trần là mở cửa cho "bài nào
+  // khó thì viết một ca biểu thức cho xong", và khi đó luật trên không còn nói
+  // được gì. Hôm nay đúng 1 bài (SY20).
+  assert.ok(
+    thuanMotHopDong >= coBaiTap.length - 2,
+    `${coBaiTap.length - thuanMotHopDong} bài trộn hợp đồng — quá nhiều, xem lại thay vì nới tiếp`,
+  );
+});
+
+test('bài script khai ĐỦ cả inputVariable và resultVariable', () => {
+  // Thiếu một trong hai thì bộ chấm tiêm vào tên mặc định mà đề không nói, và
+  // MỌI ca trượt với NameError — trên lời giải đúng.
+  const script = coBaiTap.filter((b) => b.content_json.step_4.contract?.mode === 'script');
+  assert.ok(script.length >= 1, 'bản dựng phải có bài mode=script để ca này nói được gì');
+  for (const b of script) {
+    const hd = b.content_json.step_4.contract;
+    assert.ok(hd.inputVariable, `${b.lesson_code}: thiếu inputVariable`);
+    assert.ok(hd.resultVariable, `${b.lesson_code}: thiếu resultVariable`);
+  }
+});
+
+test('contract chỉ chứa khoá bộ chấm thật sự đọc', () => {
+  // Khoá lạ không làm gì đỏ: `_chay_ca_du_lieu` đọc đúng bốn khoá rồi bỏ qua
+  // phần còn lại, nên một `soLuong: 3` viết thêm sẽ im lặng vô hiệu.
+  const biet = new Set(['mode', 'inputVariable', 'resultVariable', 'returnType']);
+  for (const b of coBaiTap) {
+    for (const k of Object.keys(b.content_json.step_4.contract ?? {})) {
+      assert.ok(biet.has(k), `${b.lesson_code}: contract có khoá lạ "${k}"`);
+    }
+  }
+});
+
+test('bài nào có ca dạng dữ liệu thì PHẢI có contract hoặc theo mặc định solve(data)', () => {
+  for (const b of coBaiTap) {
+    const s4 = b.content_json.step_4;
+    if (!s4.tests.some(laCaDuLieu)) continue;
+    const mode = s4.contract?.mode ?? 'function';
+    assert.ok(
+      mode === 'function' || mode === 'script',
+      `${b.lesson_code}: contract.mode lạ: ${mode}`,
+    );
+    // Hợp đồng `function` nghĩa là mã học viên phải định nghĩa `solve` — khung
+    // đề buộc phải mớm sẵn tên đó, không thì không ai đoán ra.
+    if (mode === 'function') {
+      assert.match(
+        s4.starterCode ?? '',
+        /def\s+solve\s*\(/,
+        `${b.lesson_code}: hợp đồng solve(data) nhưng khung đề không có def solve(`,
+      );
+    }
+  }
+});
+
+// ──────────────────────────────────────── đường đi của contract qua các chặng
+
+test('useCodeRunner gửi contract của bài', () => {
+  const src = doc('src', 'components', 'python-studio', 'useCodeRunner.ts');
+  assert.match(
+    src,
+    /^\s*contract:\s*four\.contract,?$/m,
+    'useCodeRunner.execute() phải đưa four.contract vào RunRequest',
+  );
+});
+
+test('runner gửi contract trong postMessage', () => {
+  const src = doc('src', 'components', 'python-studio', 'runner', 'pyodide-runner.ts');
+  assert.match(
+    src,
+    /^\s*contract:\s*request\.contract\s*\?\?\s*null,?$/m,
+    'pyodide-runner.send() phải truyền contract sang worker',
+  );
+});
+
+test('contract gửi đi là null, KHÔNG phải undefined', () => {
+  // `JSON.stringify(undefined)` trả chuỗi "undefined", và `json.loads` phía
+  // Python nổ trên đó — ở một chỗ không ai nghĩ tới. `?? null` là chỗ chặn.
+  const src = doc('src', 'components', 'python-studio', 'runner', 'pyodide-runner.ts');
+  assert.ok(
+    !/contract:\s*request\.contract,/.test(src),
+    'gửi contract mà không có `?? null` thì worker JSON.stringify ra "undefined"',
+  );
+});
+
+test('hợp đồng thông điệp trong chú thích có nhắc contract', () => {
+  // Chú thích đó là chỗ duy nhất liệt kê tên trường cố định giữa React và
+  // worker; để nó lỗi thời là người sau đọc xong vẫn không biết có trường này.
+  // 29/10: thêm `dataFiles` (tên file của bộ dữ liệu quán — xem
+  // e2e/unit/data-files.test.mjs). Danh sách này phải ĐẦY ĐỦ, không chỉ "có
+  // chữ contract": nó là chỗ duy nhất một người đọc biết worker nhận gì.
+  const types = doc('src', 'components', 'python-studio', 'runner', 'types.ts');
+  assert.match(
+    types,
+    /\{ code, tests, forbid, files, dataFiles, stdin, packages, contract \}/,
+  );
+});
+
+test('worker đọc contract từ thông điệp', () => {
+  const src = doc('public', 'static', 'js', 'studio-lesson.worker.js');
+  assert.match(
+    src,
+    /^\s*const contract = data\.contract/m,
+    'studio-lesson.worker.js phải đọc data.contract',
+  );
+});
+
+test('worker truyền contract vào _studio_main ở ĐÚNG vị trí tham số thứ 6', () => {
+  // `_studio_main(source, cases_json, files_json, stdin_json, perf_json,
+  // contract_json)`. Truyền thiếu một tham số là contract rơi vào chỗ của
+  // perf_json: pha đo độ hiệu quả nhận một dict lạ, và hợp đồng thì mất —
+  // không ngoại lệ nào được ném.
+  const src = doc('public', 'static', 'js', 'studio-lesson.worker.js');
+  // Lấy từ `grade(` tới dấu `)` ĐÓNG NGOÀI CÙNG, đếm ngoặc chứ không dùng
+  // regex: bản đầu của ca này dùng `/grade\(([^;]*?)\)/` và nó dừng ở dấu đóng
+  // của `JSON.stringify(contract)`, nên ca test ĐỎ trên một đoạn code đúng.
+  const dau = src.indexOf('grade(');
+  assert.notEqual(dau, -1, 'không tìm thấy lời gọi grade(...) trong worker');
+  let sau = dau + 'grade('.length;
+  let sau_ngoac = 1;
+  while (sau < src.length && sau_ngoac > 0) {
+    if (src[sau] === '(') sau_ngoac += 1;
+    else if (src[sau] === ')') sau_ngoac -= 1;
+    sau += 1;
+  }
+  assert.equal(sau_ngoac, 0, 'lời gọi grade(...) không đóng ngoặc');
+  const doi = src.slice(dau + 'grade('.length, sau - 1);
+  assert.match(doi, /JSON\.stringify\(stdin\)/, 'tham số 4 phải là stdin');
+  assert.match(doi, /'null'/, "tham số 5 (perf_json) phải là 'null'");
+  assert.match(doi, /JSON\.stringify\(contract\)/, 'tham số 6 phải là contract');
+  // Thứ tự, không chỉ sự có mặt.
+  assert.ok(
+    doi.indexOf("'null'") < doi.indexOf('JSON.stringify(contract)'),
+    'contract phải đứng SAU perf_json',
+  );
+});
+
+test('harness khai contract_json và phân nhánh theo trường có mặt', () => {
+  const py = readFileSync(
+    join(FE, 'public', 'static', 'js', 'studio-harness.py'), 'utf8');
+  assert.match(py, /def _studio_main\([^)]*contract_json/s,
+    '_studio_main phải nhận contract_json');
+  assert.match(py, /^\s*if 'call' in case:/m,
+    "phân nhánh phải theo `'call' in case`, không theo một cờ riêng");
+  assert.match(py, /_chay_ca_du_lieu\(studio, case, hop_dong or \{\}\)/,
+    'nhánh dữ liệu phải gọi _chay_ca_du_lieu');
+});
+
+// ─────────────────────────────────────────────────── số đo, để không tụt mốc
+
+test('bản dựng có 143 bài tập được chấm và 480 ca', () => {
+  // Con số này phải đo lại mỗi lần đổi nguồn hoặc đổi cổng lọc, không được
+  // đoán — xem AGENTS.md, dòng "204 ca test tưởng có mà không có".
+  //
+  // 377 -> 415 ngày 27/10/2026: pha 2 của check-practice.mjs tìm được 38 bài mà
+  // một LỜI GIẢI TẦM THƯỜNG (khung trống, dội lại đầu vào, trả rỗng theo kiểu)
+  // vẫn đạt một ca — người học chưa viết dòng nào đã thấy một ca xanh. Mỗi bài
+  // đó nhận THÊM một ca mà lời giải tầm thường ấy trượt. Số bài vẫn 124: chỉ
+  // thêm ca, không thêm bài.
+  const ca = coBaiTap.reduce((s, b) => s + b.content_json.step_4.tests.length, 0);
+  //
+  // 130 -> 138 ngày 3/11/2026: TÁM bài `free` cuối cùng còn chấm được mà chưa
+  // chấm (CT03–CT06, SY25–SY28) nhận bài tập. Con số thật là 8, không phải 49:
+  // trong 49 bài không có ca chấm thì 24 là `procedure` (không có mã Python nào
+  // chạy) và 17 thiếu wheel hoặc đụng `sys.executable`.
+  //
+  // 138 -> 139 ngày 4/11/2026: SY24 (sqlalchemy) được mở khoá sau khi vendor
+  // wheel vào /pyodide/v314.0.7/ — 3 ca soạn tại repo, vì gói nguồn có 0 bài
+  // tập cho bài này. SY23 thì KHÔNG mở: h5py kéo theo scipy 13,7 MB.
+  //
+  // 139 -> 140 ngày 4/11/2026: PY01 — BÀI ĐẦU TIÊN của khoá — nhận bài tập 4 ca
+  // (mục 4 bảng xếp hạng: cho bài 1 một thành công máy chấm được). Câu "tám bài
+  // là những bài DUY NHẤT còn chấm được" ở trên đếm SÓT: đo lại còn 6 bài chạy
+  // trong trình duyệt mà chưa chấm — PY01, PY02, PY03, SY11, RC01, GU12.
+  //
+  // 140 -> 141 ngày 4/11/2026: SY11 (module & import) — làm tròn XUỐNG bằng
+  // math.floor; ca 9.99 tách đúng floor (9.9) với round (10.0), nên lời giải
+  // dùng round trượt 3/4. PY02/PY03 KHÔNG nhận bài tập: chúng dạy môi trường và
+  // trạng thái kernel, không chấm được nếu không đòi thứ bài chưa dạy.
+  //
+  // 141 -> 142 ngày 4/11/2026: RC01 — đếm child process và thread từ dict mô
+  // hình Worker; ca "số thread mỗi process khác nhau" bắt lời giải nhân theo
+  // process đầu (trượt 2/4).
+  //
+  // 142 -> 143 ngày 4/11/2026: GU12 — trung bình có trọng số CHỈ trên nguyên
+  // liệu đã khai (đường chưa khai không vào mẫu số), món chưa khai gì trả None
+  // chứ không 0. Đây là bài cuối chạy trong trình duyệt mà chưa chấm; còn
+  // PY02/PY03 cố ý không làm (xem 129063a).
+  //
+  // 479 -> 480 ngày 7/11/2026: GU12 nhận ca thứ NĂM. Bốn ca cũ đều ra thương
+  // CHẴN (16.4 · 17.5 · None · 12.5), nên yêu cầu "làm tròn 2 chữ số" trong đề
+  // không ca nào kiểm — ablate bỏ round khỏi lời giải mẫu vẫn ĐẠT 4/4. Ca mới
+  // là 40/3: bỏ round thì trả 13.333333333333334, lệch 0,0033 > dung sai 1e-6
+  // của bộ chấm. Ablate lại: 4/5 đạt, 1 trượt.
+  assert.equal(coBaiTap.length, 143, 'số bài có bài tập được chấm');
+  assert.equal(ca, 480, 'tổng số ca chấm');
+});
+
+test('mọi bài tập được chấm đều có lời giải mẫu KHÁC khung đề', () => {
+  // `check-practice.mjs` dùng lời giải mẫu làm thước đo: thiếu nó thì bài đó
+  // không có gì chứng minh ca chấm của nó đúng. Trùng khung đề thì khung đề
+  // đang chứa đáp án.
+  for (const b of coBaiTap) {
+    const s4 = b.content_json.step_4;
+    assert.ok(s4.solutionCode?.trim(), `${b.lesson_code}: không có lời giải mẫu`);
+    assert.notEqual(
+      s4.solutionCode.trim(), (s4.starterCode ?? '').trim(),
+      `${b.lesson_code}: lời giải mẫu trùng khung đề`,
+    );
+  }
+});
+
+test('CỔNG LUYỆN TẬP: chưa gõ gì thì không xem được đáp án', () => {
+  // 669 màn luyện tập = 31% toàn khoá, nhiều hơn cả 565 màn đọc — và trước
+  // 1/11/2026 không màn nào đòi người học làm gì trước khi hiện đáp án. Người
+  // thử nói đúng một câu: "nên đặt trọng tâm vào practice"; khối lượng đã là
+  // trọng tâm rồi, thứ thiếu là lời đòi.
+  //
+  // Cùng luật với cổng dự đoán của StepTrace (`disabled={!doan.trim()}`) và
+  // cùng bằng chứng: Hundhausen 2002 — bỏ điều kiện "dự đoán" thì lợi thế
+  // BIẾN MẤT. Một dòng `disabled`, và nó là toàn bộ phần có bằng chứng; gỡ ra
+  // thì mọi ca về DỮ LIỆU trong file này vẫn xanh.
+  const src = doc('src', 'components', 'python-studio', 'screens', 'PracticeScreen.tsx');
+  // Ghim TÍNH CHẤT, không ghim nguyên chuỗi: từ 3/11 cổng còn đòi thêm "đã
+  // chạy" với 63 câu có `answerCode`, nên một `assert` khớp cả dòng
+  // `disabled={!typed.trim()}` sẽ bắn oan mỗi lần cổng MẠNH THÊM. Thứ không
+  // được mất là điều kiện "chưa gõ gì thì không mở".
+  assert.match(src, /disabled=\{!typed\.trim\(\)/);
+  // Nhãn phải NÓI RA điều kiện. Một nút xám không giải thích gì thì người học
+  // đọc ra là "hỏng", đúng họ lỗi mà repo này đã gặp ở thanh tiến độ.
+  assert.match(src, /Viết thử rồi mới xem được/);
+});

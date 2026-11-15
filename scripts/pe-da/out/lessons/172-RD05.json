@@ -1,0 +1,185 @@
+{
+ "lesson_code": "RD05",
+ "sort_order": 172,
+ "module": "M10 · Ôn API trực quan hóa và mở rộng NumPy cho phân tích",
+ "title": "RD05 · Lấy mẫu có hoàn lại và mô phỏng dữ liệu",
+ "subtitle": "Nâng cao · M10 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "RD05 · Lấy mẫu có hoàn lại và mô phỏng dữ liệu",
+  "subtitle": "Nâng cao · M10 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/RD05.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Lấy mẫu có hoàn lại và mô phỏng dữ liệu",
+    "body": "Bạn muốn thử chương trình đọc nhiệt độ khi chưa có dữ liệu cảm biến thật. Bộ sinh có thể tạo số theo phân phối chuẩn với trung bình và độ lệch chuẩn bạn chọn. Đây là giả định để mô phỏng, không phải bằng chứng nhiệt độ thực có phân phối đó.",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn muốn thử chương trình đọc nhiệt độ khi chưa có dữ liệu cảm biến thật. Bộ sinh có thể tạo số theo phân phối chuẩn với trung bình và độ lệch chuẩn bạn chọn. Đây là giả định để mô phỏng, không phải bằng chứng nhiệt độ thực có phân phối đó.\n\nloc=25 và scale=2 là tham số phân phối, không bắt buộc trung bình và độ lệch chuẩn của đúng 100 số vừa sinh bằng chính xác 25 và 2. Seed giúp tái lập trong cùng môi trường và thứ tự lệnh. Với dữ liệu hữu hạn đã có, choice chọn trực tiếp các phần tử."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "replace=True cho phép cùng một đơn được chọn nhiều lần. replace=False không cho lặp một vị trí; lấy ba vị trí trong bảng ba đơn phải giữ đủ ba đơn, chỉ khác thứ tự. Bootstrap dùng mẫu có hoàn lại để xem một thống kê thay đổi thế nào khi lấy mẫu lại.\n\nMỗi hàng của `samples` là một mẫu gồm ba đơn; `mean(axis=1)` tính một trung bình cho mỗi mẫu, được 1000 trung bình. `quantile` lấy phân vị 2.5% và 97.5% của các trung bình này để đặt hai đầu khoảng bootstrap theo phân vị. Ví dụ minh họa cách tính, trong khi ba đơn gốc quá ít để kết luận chắc về toàn bộ các đơn. Cách lấy mẫu từng hàng còn giả định các quan sát độc lập phù hợp với bài toán; dữ liệu gắn theo khách hoặc theo thời gian có thể cần cách lấy mẫu khác. Khoảng 95% không có nghĩa là trung bình tổng thể cố định có xác suất 95% nằm trong khoảng vừa tính."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import numpy as np\nrng = np.random.default_rng(7)\ntemps = rng.normal(loc=25, scale=2, size=100)\nprint(temps.shape)\nprint(bool(np.isfinite(temps).all()))",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: (100,) ⏎ True"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: (3,) ⏎ True ⏎ [10.0, 20.0, 30.0]"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: (1000, 3) (1000,) ⏎ 20.0 ⏎ True"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Có ba đơn gốc, tạo 1000 mẫu bootstrap. Bạn có 1000 đơn gốc mới không?",
+     "options": [
+      {
+       "text": "Không; đó là nhiều lần lấy mẫu lại từ ba đơn",
+       "correct": true,
+       "detail": "Đúng. Tăng số lần lặp không tạo thêm quan sát gốc."
+      },
+      {
+       "text": "Có, mỗi trung bình là một đơn mới",
+       "correct": false,
+       "detail": "Trung bình mẫu lại là thống kê, không phải một đơn quan sát."
+      },
+      {
+       "text": "Có nếu cố định seed",
+       "correct": false,
+       "detail": "Seed giúp tái lập, không làm xuất hiện thêm dữ liệu thật."
+      }
+     ],
+     "explanation": "Đúng. Tăng số lần lặp không tạo thêm quan sát gốc."
+    },
+    {
+     "question": "Tạo 20 số mô phỏng, chưa phải 20 phép đo thật. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "(20,)",
+       "correct": true,
+       "detail": "size quyết định số giá trị sinh ra, tách khỏi loc và scale."
+      },
+      {
+       "text": "[25]",
+       "correct": false,
+       "detail": "25 là tham số loc, không phải số mẫu."
+      },
+      {
+       "text": "[2]",
+       "correct": false,
+       "detail": "2 là scale, không phải số mẫu."
+      }
+     ],
+     "explanation": "size quyết định số giá trị sinh ra, tách khỏi loc và scale."
+    },
+    {
+     "question": "Có thể lấy nhiều hơn số vị trí nguồn. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "(5,)",
+       "correct": true,
+       "detail": "Mỗi lượt có thể chọn lại một đơn đã chọn trước."
+      },
+      {
+       "text": "[3]",
+       "correct": false,
+       "detail": "replace=True cho phép chọn lại nên vẫn lấy năm lượt."
+      },
+      {
+       "text": "'ValueError'",
+       "correct": false,
+       "detail": "Trường hợp quá số vị trí chỉ bị cấm với replace=False."
+      }
+     ],
+     "explanation": "Mỗi lượt có thể chọn lại một đơn đã chọn trước."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền giá trị cho phép một quan sát được chọn lại trong cùng mẫu."
+   },
+   "scaffold": {
+    "template": "samples = rng.choice(orders, size=(100, 3), replace={{slot1}})",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Cho phép chọn lại",
+      "answer": "True"
+     }
+    ],
+    "bank": [
+     {
+      "label": "True",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận bảng các mẫu bootstrap đã lấy, mỗi hàng là một mẫu thời gian giao hàng. Trả means là trung bình mỗi hàng và interval là hai phân vị 2.5%,97.5% của các trung bình. Các hàng đều có cùng số cột và không thiếu dữ liệu.",
+    "io": [
+     {
+      "label": "Ba mẫu hai đơn",
+      "value": "[[10, 20], [20, 20], [10, 10]] → {'means': [15.0, 20.0, 10.0], 'interval': [10.25, 19.75]}"
+     },
+     {
+      "label": "Mọi mẫu giống nhau",
+      "value": "[[2, 2], [2, 2], [2, 2]] → {'means': [2.0, 2.0, 2.0], 'interval': [2.0, 2.0]}"
+     },
+     {
+      "label": "Bốn mẫu có lặp",
+      "value": "[[0, 10], [10, 10], [0, 0], [10, 0]] → {'means': [5.0, 10.0, 0.0, 5.0], 'interval': [0.375, 9.625]}"
+     }
+    ]
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Mỗi hàng của data là một mẫu; cần một trung bình cho mỗi hàng trước."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Tính mean(axis=1), sau đó quantile của dãy means tại 0.025 và 0.975."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ],
+   "procedure": [
+    "Bài này chưa chạy đạt trong Pyodide (bộ chấm trình duyệt) nên chưa chấm tự động.",
+    "Đầu vào [[10, 20], [20, 20], [10, 10]] — kết quả cần có {'means': [15.0, 20.0, 10.0], 'interval': [10.25, 19.75]}.",
+    "Đầu vào [[2, 2], [2, 2], [2, 2]] — kết quả cần có {'means': [2.0, 2.0, 2.0], 'interval': [2.0, 2.0]}.",
+    "Đầu vào [[0, 10], [10, 10], [0, 0], [10, 0]] — kết quả cần có {'means': [5.0, 10.0, 0.0, 5.0], 'interval': [0.375, 9.625]}."
+   ]
+  }
+ }
+}

@@ -1,0 +1,199 @@
+{
+ "lesson_code": "PY17",
+ "sort_order": 17,
+ "module": "M1 · Python nền tảng",
+ "title": "PY17 · Scope, tham chiếu hàm và callback",
+ "subtitle": "Cơ bản · M1 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PY17 · Scope, tham chiếu hàm và callback",
+  "subtitle": "Cơ bản · M1 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PY17.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Scope, tham chiếu hàm và callback",
+    "body": "Một callback sẽ chạy khi người dùng bấm nút. Để hiểu vì sao phải truyền tên hàm thay vì gọi ngay, trước hết thử lưu hàm trong một biến:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một callback sẽ chạy khi người dùng bấm nút. Để hiểu vì sao phải truyền tên hàm thay vì gọi ngay, trước hết thử lưu hàm trong một biến:\n\n`greet` tham chiếu tới chính hàm đó; `greet()` gọi hàm và nhận kết quả. Trong Tkinter dùng `command=greet`, trong threading dùng `target=worker`. Nếu viết `command=greet()`, hàm chạy ngay và giá trị trả về bị dùng thay cho callback."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Biến value trong calculate có phạm vi cục bộ (local scope): nó chỉ thuộc lần gọi hàm đó và che tên value bên ngoài. Vì vậy, gán value = 20 trong hàm không đổi value ở cấp module. Mỗi lần gọi có các biến cục bộ riêng; một khối if hoặc for không tự tạo phạm vi hàm mới.\n\n`global` cần khi bạn muốn gán lại tên cấp module từ trong hàm. Chỉ đọc tên bên ngoài không tự đòi hỏi global. Trong ứng dụng lớn, ưu tiên truyền dữ liệu và trả kết quả, hoặc giữ trạng thái trong object, để tránh quá nhiều biến dùng chung."
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Khi truyền đối số cho Thread, `args=(10,)` là tuple một phần tử; dấu phẩy là cần thiết. Bạn sẽ dùng lại phân biệt “truyền hàm” và “gọi hàm” ở cả bài tiến trình, luồng và GUI."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "def greet():\n    return \"Hello\"\n\ncallback = greet\nprint(callback())",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: Hello"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 20 10"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 1"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "callback = greet khác callback = greet() ở điểm nào?",
+     "options": [
+      {
+       "text": "Hai cách đều chờ tới khi bấm nút",
+       "correct": false,
+       "detail": "greet() chạy ngay khi dòng gán được thực thi."
+      },
+      {
+       "text": "Cách đầu gọi hai lần",
+       "correct": false,
+       "detail": "Gán tham chiếu hàm không gọi hàm lần nào."
+      },
+      {
+       "text": "Cách đầu giữ hàm, cách sau gọi hàm ngay",
+       "correct": true,
+       "detail": "Đúng. Dấu ngoặc thực hiện lời gọi."
+      }
+     ],
+     "explanation": "Đúng. Dấu ngoặc thực hiện lời gọi."
+    },
+    {
+     "question": "Gán hàm cho một tên khác rồi gọi sau. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "'Hello'",
+       "correct": true,
+       "detail": "callback và greet cùng tham chiếu tới một hàm."
+      },
+      {
+       "text": "None",
+       "correct": false,
+       "detail": "callback vẫn là callable và có return."
+      },
+      {
+       "text": "'greet'",
+       "correct": false,
+       "detail": "Lời gọi thực thi thân hàm, không trả tên hàm."
+      }
+     ],
+     "explanation": "callback và greet cùng tham chiếu tới một hàm."
+    },
+    {
+     "question": "Biến bên trong hàm có cùng tên biến bên ngoài. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "[20, 10]",
+       "correct": true,
+       "detail": "inside nhận kết quả local, value bên ngoài vẫn 10."
+      },
+      {
+       "text": "[20, 20]",
+       "correct": false,
+       "detail": "Gán value trong hàm không đổi biến module ở đây."
+      },
+      {
+       "text": "[10, 10]",
+       "correct": false,
+       "detail": "Hàm tạo biến local giá trị 20."
+      }
+     ],
+     "explanation": "inside nhận kết quả local, value bên ngoài vẫn 10."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Bạn muốn giữ hàm save để gọi sau, không gọi ngay. Điền tên đúng."
+   },
+   "scaffold": {
+    "template": "callback = {{slot1}}",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Tham chiếu hàm",
+      "answer": "save"
+     }
+    ],
+    "bank": [
+     {
+      "label": "save",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận một số. Bên trong, định nghĩa hàm add_one trả data + 1, gán chính hàm đó cho callback rồi trả kết quả callback(). Đây là lần thử quy tắc truyền hàm trước khi dùng nút bấm.",
+    "io": [
+     {
+      "label": "Số dương",
+      "value": "6 → 7"
+     },
+     {
+      "label": "Số không",
+      "value": "0 → 1"
+     },
+     {
+      "label": "Số âm",
+      "value": "-2 → -1"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "def solve(data):\n    def add_one():\n        return data + 1\n    callback = add_one\n    return callback()\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "add_one là hàm; add_one() là kết quả sau khi gọi."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Gán hàm cho callback trước, rồi mới gọi callback() ở dòng trả kết quả."
+    }
+   ],
+   "tests": [
+    {
+     "name": "Số dương",
+     "call": "__import__('json').loads(__import__('json').dumps(solve(6), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "7"
+    },
+    {
+     "name": "Số không",
+     "call": "__import__('json').loads(__import__('json').dumps(solve(0), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "1"
+    },
+    {
+     "name": "Số âm",
+     "call": "__import__('json').loads(__import__('json').dumps(solve(-2), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "-1"
+    }
+   ]
+  }
+ }
+}

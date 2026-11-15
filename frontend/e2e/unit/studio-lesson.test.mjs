@@ -37,12 +37,13 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
   EMPTY_SCORE,
+  READ_BLOCK_TYPES,
   SELF_EXPLAIN_MIN,
   buildScreens,
   correctIndex,
@@ -55,7 +56,6 @@ import {
   parsonsCode,
   quizPercent,
   sameTraceValue,
-  scaffoldReview,
   scoreCheck,
   screenVerdict,
 } from '../../src/lib/studio-lesson.ts';
@@ -352,31 +352,40 @@ test('screenVerdict/mcq: MỌI lựa chọn sai đều bị chấm sai', () => {
   }
 });
 
-test('screenVerdict/mcq: KHIẾM KHUYẾT ĐÃ BIẾT — lựa chọn ngoài phạm vi làm ném TypeError', () => {
-  // Ghi lại chứ không bỏ qua. screenVerdict tính picked = keyIndex(...) rồi gọi
-  // optionDetail(q.options[picked]). Với picked ngoài [0, options.length) thì
-  // q.options[picked] là undefined → optionDetail đọc o.detail → TypeError, màn
-  // bài trắng. Hai nguồn picked xấu:
-  //   - chưa chọn gì: keyIndex('') = -1, mà Number.isInteger(-1) là true nên
-  //     nhánh bảo vệ duy nhất trong file không chặn được;
-  //   - nháp cũ trong localStorage (`pe-studio-lesson-v1:…` ở StudioLesson.tsx
-  //     dòng ~288) lưu khoá của bản bài có nhiều lựa chọn hơn; build lại giáo
-  //     trình làm số lựa chọn giảm là học viên đó mở bài là crash, mãi mãi, vì
-  //     nháp được nạp lại mỗi lần vào.
-  // Hiện người dùng chưa gặp vì nút "Kiểm tra" bị disable bởi answered()
-  // (`d.mcq[index] !== undefined`) — nhưng đó là hàng rào DUY NHẤT, và nó không
-  // chặn được nháp cũ.
-  // Khi studio-lesson.ts chặn index ngoài phạm vi, đổi các assert.throws dưới
-  // đây thành `.correct === false`.
+test('screenVerdict/mcq: lựa chọn ngoài phạm vi trả `correct: false`, KHÔNG ném', () => {
+  // ĐÃ SỬA 27/10/2026. Ca này trước đây tên là "KHIẾM KHUYẾT ĐÃ BIẾT" và nó
+  // khoá đúng hành vi NÉM: `screenVerdict` tính `picked = keyIndex(...)` rồi gọi
+  // `optionDetail(q.options[picked])`, nên picked ngoài [0, options.length) cho
+  // `undefined` và `optionDetail` đọc `o.detail` → TypeError, màn bài TRẮNG.
+  //
+  // Hai nguồn picked xấu, cả hai nay đều ra `correct: false`:
+  //   · chưa chọn gì — `keyIndex('')` = -1, mà `Number.isInteger(-1)` là TRUE
+  //     nên nhánh bảo vệ duy nhất không chặn được. Nay điều kiện là `picked >= 0`.
+  //   · nháp cũ trong localStorage giữ khoá của bản bài có NHIỀU lựa chọn hơn;
+  //     dựng lại giáo trình làm số lựa chọn giảm thì học viên đó mở bài là
+  //     crash, mãi mãi, vì nháp được nạp lại mỗi lần vào. Nay `optionDetail`
+  //     nhận `undefined` — nó vốn trả `string | undefined` nên không mất gì.
+  //
+  // Vì sao sửa BÂY GIỜ: hàng rào duy nhất trước đây là nút "Kiểm tra" bị disable
+  // bởi `answered()`, và nó không chặn được nháp cũ. Tới 27/10 thì 172 bài mỗi
+  // bài có 3 màn trắc nghiệm, tức đường đi này thành đường đi CHÍNH của sản
+  // phẩm chứ không còn là ngõ cụt của 48 bài đã ẩn.
   const scr = screenByKey(buildScreens(b01), 's2-mcq-0');
   const n = b01.step_2.mcq[0].options.length;
-  assert.throws(() => screenVerdict(b01, scr, draftOf(b01)), TypeError);
-  assert.throws(() => screenVerdict(b01, scr, draftOf(b01, { mcq: { 0: '' } })), TypeError);
-  assert.throws(() => screenVerdict(b01, scr, draftOf(b01, { mcq: { 0: letterKey(n) } })), TypeError);
-  assert.throws(() => screenVerdict(b01, scr, draftOf(b01, { mcq: { 0: 'z' } })), TypeError);
+  for (const nhap of [
+    draftOf(b01),                                   // chưa chọn gì
+    draftOf(b01, { mcq: { 0: '' } }),               // khoá rỗng
+    draftOf(b01, { mcq: { 0: letterKey(n) } }),     // vừa quá cuối mảng
+    draftOf(b01, { mcq: { 0: 'z' } }),              // nháp cũ, khoá lạ
+  ]) {
+    const v = screenVerdict(b01, scr, nhap);
+    assert.equal(v.correct, false);
+    // Và vẫn phải NÓI được điều gì: rơi về giải thích của câu, hoặc của đáp án
+    // đúng. Trả `explain: undefined` là học viên thấy một dấu X không lời.
+    assert.equal(typeof v.explain, 'string');
+  }
 
-  // Màn dự đoán xử lý cùng tình huống đúng cách — dùng nó làm mẫu khi sửa:
-  // options[-1] là undefined nhưng `Boolean(chosen?.correct)` nên chỉ ra false.
+  // Màn dự đoán vốn đã xử lý đúng cách — giữ lại làm mốc đối chiếu.
   const pScr = screenByKey(buildScreens(b01), 's1-predict');
   assert.equal(screenVerdict(b01, pScr, draftOf(b01)).correct, false);
   assert.equal(screenVerdict(b01, pScr, draftOf(b01, { predict: 'z' })).correct, false);
@@ -745,64 +754,542 @@ test('đi hết bài B01 v2 như học viên thật: sai một màn thì % khôn
   assert.equal(quizPercent(screens, { ...d, assisted: true }, false), 75);
 });
 
-// ─────────────────────────────────────────── khung kết quả lắp khung mã (S3)
-// Khung kết quả (ScaffoldReview.tsx, theo Figma 15:1642 / 15:2372) đọc
-// `scaffoldReview` để nói "2 / 3 đúng", "Bạn đã chọn …" và lý do. Fixture là
-// bài P01 của khoá ĐANG CHẠY (pe-v4) — đúng bài trong bản thiết kế.
+// ───────────────────── 7. khoá BÀI ĐỌC (step_1.read + step_2.practice)
+//
+// Khoá python_advanced đổi ruột sang 172 bài giáo trình ĐỌC
+// (scripts/pe-da/SCHEMA.md): không trắc nghiệm, không scaffold, không ca kiểm
+// thử. Nhóm này chứng minh buildScreens() phát ĐÚNG SỐ màn `read`/`practice`,
+// hai loại màn đó KHÔNG được chấm, và ReadScreen biết dựng ĐỦ 5 loại khối.
+//
+// Fixture là bản dựng THẬT `scripts/pe-da/out/lessons.json` — đúng cái mà bước
+// nạp đẩy vào `lessons.content_json`, cùng quy ước với các nhóm trên (bẫy
+// AGENTS.md: fixture tự bịa thì test nói dối).
+//
+// Bằng chứng nhóm này bắt được lỗi thật (quy ước AGENTS.md: gỡ bản sửa ra, test
+// phải trượt).
+//  (a) Gỡ hai dòng phát màn trong buildScreens() của src/lib/studio-lesson.ts
+//      (`(one?.read ?? []).forEach(…)` và `(two?.practice ?? []).forEach(…)`)
+//      → 4 ca trượt, đều trong nhóm này:
+//        ✖ bài đọc: mỗi lát của step_1.read thành MỘT màn, đúng thứ tự
+//          AssertionError: 0 !== 3   (không màn đọc nào được phát)
+//        ✖ bài đọc: mỗi câu step_2.practice thành MỘT màn, xếp sau mcq/classify
+//        ✖ bài đọc: màn read đứng TRƯỚC mọi màn khác của S1
+//        ✖ bài đọc: cả bài không có màn nào được chấm, nên % luôn 100
+//      Hậu quả thật: 172 bài đọc mở ra chỉ còn sandbox + tổng kết, toàn bộ nội
+//      dung giáo trình không hiện ra màn nào.
+//  (b) Trả `READ_BLOCK_TYPES` về bản thiếu hai loại (chỉ paragraph | code |
+//      table, đúng bản đặc tả đầu) → 1 ca trượt:
+//        ✖ bài đọc: renderer biết dựng ĐỦ 5 loại khối build phát ra
+//          AssertionError: Expected values to be strictly deep-equal
+//          (thiếu 'figure' và 'terminal')
+//      Hậu quả thật: khối figure rơi vào nhánh bảng của Block(), `.headers.map`
+//      ném TypeError và 26 bài có hình thành trang trắng. Bỏ hẳn hai loại khỏi
+//      `ReadBlock` thì `npm run typecheck` đỏ TRƯỚC cả test — đã kiểm bằng cách
+//      thêm một loại thứ sáu chưa có nhánh:
+//        ReadScreen.tsx: error TS2322: Type '{ type: "video"; … }' is not
+//        assignable to type 'never'.
+//  (c) Đổi `.readFigure img` thành dùng lại `.theoryFigure` (có
+//      `aspect-ratio: 2 / 1`) → 1 ca trượt:
+//        ✖ bài đọc: khối figure KHÔNG dùng lại Figure/CSS của màn lý thuyết
+//      Hậu quả thật: 68/80 ảnh là 780×455 (tỉ lệ 1,71), ghim 2/1 là méo hết.
 
-const P01 = JSON.parse(
-  readFileSync(join(ROOT, 'scripts', 'pe-v4', 'out-advanced', 'lessons', '001-P01.json'), 'utf8'),
-).content_json;
-const p01Answers = () =>
-  Object.fromEntries(P01.step_3.scaffold.slots.map((s) => [s.n, s.answer]));
+const paBuild = JSON.parse(
+  readFileSync(join(ROOT, 'scripts', 'pe-da', 'out', 'lessons.json'), 'utf8'),
+);
+/** `content_json` của 172 bài đọc — đúng cột mà frontend nhận từ API. */
+const DA = paBuild.lessons.map((row) => [row.lesson_code, row.content_json]);
+const daBy = (code) => {
+  const found = DA.find(([c]) => c === code);
+  assert.ok(found, `không có bài ${code} trong bản dựng pe-da`);
+  return found[1];
+};
+const vz01 = daBy('VZ01'); // 3 lát, lát nào cũng có figure
+const np02 = daBy('NP02'); // bài DUY NHẤT có khối table
+const py02 = daBy('PY02'); // có khối terminal
 
-test('scaffoldReview: điền đúng cả 3 ô → 3/3, khớp screenVerdict, mỗi ô kèm bẫy của nó', () => {
-  const d = { ...initialLessonDraft(P01), slots: p01Answers() };
-  const rv = scaffoldReview(P01, d);
-  assert.equal(rv.length, 3);
-  assert.ok(rv.every((r) => r.correct));
-  assert.equal(screenVerdict(P01, { kind: 'scaffold', key: 's3-scaffold' }, d).correct, true);
-  // Ô 1 loại được bẫy `name in program` — giải thích "vì sao đúng" lấy từ đây.
+/** Mọi khối đọc của cả 172 bài, phẳng ra. */
+const daBlocks = DA.flatMap(([, l]) => (l.step_1?.read ?? []).flat());
+
+test('fixture bài đọc: bản dựng pe-da đúng hình dạng ReadBlock/PracticeItem', () => {
+  assert.equal(DA.length, 179);
+  for (const [code, l] of DA) {
+    assert.equal(l.schema, 'studio-lesson/v2', code);
+    // Bộ này KHÔNG có trắc nghiệm: lối vào quiz ôn tập vì vậy không bao giờ mở
+    // được (QuizzesService đòi MIN_POOL = 5 câu lấy từ step_2.mcq).
+    assert.equal(l.step_3, undefined, code);
+    assert.equal(l.play, undefined, code);
+  }
+  // `step_4.tests` KHÔNG còn luôn rỗng. Dòng này từng là
+  // `assert.equal(l.step_4?.tests, undefined)` cho cả 172 bài, và nó đúng cho
+  // tới 26/10/2026 — khi đó khoá không có một ca chấm nào, người học viết code
+  // rồi tự so bằng mắt. Nay 124 bài có bài tập được chấm từ
+  // scripts/pe-da/source/practice.json. Số 124 và 415 được canh riêng ở
+  // practice-contract.test.mjs; ở đây chỉ chốt rằng bài nào CÓ ca chấm thì có
+  // đủ khung đề và lời giải mẫu — thiếu một trong hai là bảng ca kiểm thử hiện
+  // ra mà không có chỗ viết, hoặc không có thước đo nào chứng minh ca đúng.
+  // `step_2.mcq` cũng KHÔNG còn rỗng. Dòng này từng là
+  // `assert.equal(l.step_2?.mcq, undefined)` cho cả 172 bài — đúng cho tới
+  // 27/10/2026, khi 516 câu trắc nghiệm NGƯỜI VIẾT của gói được rót vào. Trước
+  // đó kho quiz ôn tập ở backend (chấm Ở SERVER, không gửi đáp án ra client)
+  // rỗng hoàn toàn: 0/172 bài có câu hỏi.
+  for (const [code, l] of DA) {
+    const mcq = l.step_2?.mcq ?? [];
+    assert.equal(mcq.length, 3, code);
+    for (const q of mcq) {
+      assert.equal(typeof q.question, 'string', code);
+      assert.ok(q.options.length >= 2, code);
+      // Đúng MỘT đáp án: 0 thì màn không bao giờ đúng được và
+      // `firstUnfinished()` chặn nút kết thúc bài; 2 thì `correctIndex()` lấy
+      // cái đầu và câu đó chấm sai một nửa học viên.
+      assert.equal(correctIndex(q), q.options.findIndex((o) => o.correct === true), code);
+      assert.equal(q.options.filter((o) => o.correct === true).length, 1, code);
+    }
+  }
+
+  const coCa = DA.filter(([, l]) => (l.step_4?.tests ?? []).length);
+  assert.ok(coCa.length > 0, 'bản dựng phải có bài tập được chấm');
+  for (const [code, l] of coCa) {
+    assert.ok(l.step_4.starterCode?.trim(), code);
+    assert.ok(l.step_4.solutionCode?.trim(), code);
+    // Hợp đồng DỮ LIỆU (`input`/`expected`) là mặc định của khoá này; hợp
+    // đồng BIỂU THỨC (`call`/`expect`) của pe-v4 là NGOẠI LỆ phải nêu tên.
+    //
+    // SY20 là ngoại lệ duy nhất hôm nay, và nó bắt buộc: ca "tên kèm byte
+    // null" cần một byte NUL — thứ DUY NHẤT làm lời giải tầm thường
+    // `return data` trượt ở bài round-trip này (đã đo trong Pyodide: 12 tên
+    // khác đi qua zipfile nguyên vẹn) — mà Postgres jsonb KHÔNG lưu được NUL.
+    // Nạp 172 bài vì thế chết ở câu UPDATE thứ 123 và rollback cả khoá. Viết
+    // ca đó thành biểu thức thì NUL nằm trong MÃ NGUỒN Python, không trong
+    // dữ liệu. Nêu tên chứ không nới chung: bài thứ hai muốn trộn phải sửa
+    // dòng này và nói ra lý do ở đây.
+    const DUOC_TRON = new Set(['SY20']);
+    for (const t of l.step_4.tests) {
+      if ('call' in t) {
+        assert.ok(DUOC_TRON.has(code), `${code}: ca dùng hợp đồng biểu thức mà không nằm trong danh sách ngoại lệ`);
+        assert.ok(t.expect, `${code}: ca biểu thức thiếu expect`);
+        continue;
+      }
+      assert.ok('input' in t && 'expected' in t, `${code}: ca thiếu input/expected`);
+    }
+  }
+  // Số khối từng loại, đúng con số ghi trong SCHEMA.md. Đây là cái chốt: build
+  // đổi hình dạng dữ liệu thì ca này đỏ TRƯỚC, thay vì để các ca dưới tiếp tục
+  // xanh trên dữ liệu không còn tồn tại.
+  const count = {};
+  for (const b of daBlocks) count[b.type] = (count[b.type] ?? 0) + 1;
+  // 29/10/2026: code 495 -> 499, terminal 21 -> 17. BỐN khối đổi nhánh, và đó là
+  // CẢI THIỆN chứ không phải hỏng: SY11 và SY12 trước đây dán hai file giả vào
+  // một khối (`# grades.py` … `# main.py`) nên build xếp chúng là `terminal` —
+  // mã không chạy được. Bản văn mới viết lại thành Python chạy thật (tạo file
+  // trong thư mục tạm rồi import), nên chúng thành `code`. Bằng chứng:
+  // `check-pyodide.mjs` đi từ 406 lên 408 đoạn mà vẫn 0 hỏng.
+  // 29/10/2026: thêm `diagram: 1` — khối SƠ ĐỒ BẰNG DOM, hôm nay đúng một bài
+  // (PY05). Nó là PHÉP THỬ trước khi bỏ công cho cả bộ; dữ liệu nằm ở
+  // `SO_DO_DOC` trong build.py, không phải trường mới của course.json.
+  // 29/10/2026 (đợt sau): paragraph 738 → 764. Đây là ĐỔI NỘI DUNG, không đổi
+  // hình dạng — gói nguồn được viết lại cùng ngày và tách thêm đoạn văn; số
+  // khối code/terminal/figure/table không nhúc nhích. Đo lại bằng cách dựng
+  // rồi đếm, đừng đoán.
+  // 29/10/2026 (đợt NỐI MODULE): 764 → 773. Đúng 9 đoạn CÂU KẾT thêm vào cuối
+  // CT01, CT03, CT12, RD05, VZ30, EX03, EX04, EX07, EX08 — mấy bài mà nối câu
+  // kết vào đoạn cuối sẽ đẩy đoạn qua trần L2, hoặc khối CUỐI của bài là
+  // `code` nên đoạn văn cuối không phải chỗ người học đọc sau cùng. Mọi loại
+  // khối khác không nhúc nhích một đơn vị nào.
+  // 29/10/2026 (đợt FILE DỮ LIỆU): +1 paragraph và +1 code. Đúng một khối đọc
+  // `mon.csv`/`quay.csv` thật, chèn vào cuối PD13 cùng đoạn văn dẫn nó — khối
+  // đầu tiên của khoá đọc một FILE chứ không dựng dữ liệu bằng `StringIO`.
+  // Nguồn khai báo nằm ở `KHOI_DU_LIEU` trong build.py, không phải course.json,
+  // vì cùng lý lẽ với SO_DO_DOC: đây là phép thử cho cơ chế nạp file.
+  // 29/10/2026 (đợt FILE DỮ LIỆU cho BÀI TẬP): +1 paragraph và +1 code nữa.
+  // Khối thứ hai đọc `mon.csv`, chèn vào cuối PD16 — bài ĐẦU TIÊN vừa có ca
+  // chấm vừa khai `dataFiles`, thứ mà cổng cấm cũ của build.py/check.py không
+  // cho phép (gỡ được vì `check-practice.mjs` nay nạp file từ đĩa). Mọi loại
+  // khối khác không nhúc nhích.
+  // 30/10/2026: +7 bài của module 11 (TH01-TH07, thực hành trên bộ CC0 thật).
+  // Mỗi bài một màn đọc: 4-5 đoạn + 1 khối code đọc file. table 1 -> 2 là bảng
+  // mô tả cột của bộ dữ liệu ở TH01.
+  // 07/11/2026: table 2 -> 4, paragraph 811 -> 813. Hai câu NHỒI MỆNH ĐỀ bằng
+  // dấu `;` thành BẢNG — đúng cách sửa mà VAN-PHONG.md §L3 chốt, và CT03 chính
+  // là ví dụ đã viết sẵn ở đó ("job queue… ready queue… device queue…" → ba
+  // hàng, hai cột). Mỗi lần chuyển: 1 đoạn nhồi → 1 đoạn dẫn + 1 bảng + 1 đoạn
+  // còn lại, nên +1 table và +1 paragraph. Đo sau khi chuyển: L3 43 → 41 lỗi,
+  // L2 cảnh báo 17 → 16, không luật nào tăng.
+  // 08/11/2026: table 11 -> 14, paragraph GIỮ 820. Ba câu nhồi mệnh đề nặng
+  // nhất thành bảng (CT02 bốn đối số `CreateProcess` · CT09 "riêng mỗi luồng
+  // hay chung cả tiến trình" — đúng câu hỏi ở TIÊU ĐỀ bài · GU09 bốn tham số
+  // của `place`). Khác hai đợt trước ở một chỗ KỸ THUẬT: lần này đoạn văn được
+  // GIỮ LẠI và bảng CHÈN NGAY SAU, nên paragraph không đổi. Lý do: `chia_man`
+  // chẻ màn ở ĐOẠN VĂN đứng sau code, nên THAY một đoạn bằng một bảng sẽ xoá
+  // một ranh giới màn và làm `màn đọc` tụt — đo được 567 giữ nguyên sau bản
+  // này. Thêm/bớt khối thì chạy `py scripts/pe-da/build.py` rồi đếm lại, đừng
+  // cộng tay. Đo sau khi chuyển: L3 32 → 29 lỗi, L2 lỗi 7 → 6, L13 cảnh báo
+  // 217 → 215, không luật nào tăng.
+  // 08/11/2026 (lát thứ năm): table 14 -> 16, paragraph GIỮ 820. MỘT bảng, HAI
+  // bài — bốn hậu tố `l`/`v`/`p`/`e` của họ `exec`, nhồi trong CT02[5] và trong
+  // EX04[4] bằng hai cách diễn đạt khác nhau. Lý lẽ không phải "nó là liệt kê":
+  // CT02 ĐÃ CÓ một khối table (`Đối số | Nó là gì`) cho bốn đối số của
+  // `CreateProcess` rồi nhồi danh sách SONG SINH vào một câu, trong CÙNG bài —
+  // nên tiền lệ, cặp tiêu đề cột và hai-cột đều lấy từ chính bài đó. Vẫn CHÈN
+  // SAU đoạn văn: đo được nếu THAY đoạn bằng bảng thì màn đọc tụt 567 -> 565,
+  // tức xoá đúng hai ranh giới màn. Đo sau khi chuyển: L3 29 → 27 lỗi, L2 cảnh
+  // báo 15 → 13, không luật nào tăng.
+  assert.deepEqual(count, {
+    paragraph: 820,
+    code: 508,
+    terminal: 17,
+    figure: 80,
+    table: 16,
+    diagram: 3,
+  });
+  // Câu luyện tập là câu MỞ kèm lời giải mẫu — không có phương án sai nào để
+  // so, nên không chấm được. Đây là lý do isGraded('practice') phải là false.
+  for (const d of vz01.step_2.practice) {
+    assert.equal(typeof d.prompt, 'string');
+    assert.equal(typeof d.answer, 'string');
+    assert.equal(d.options, undefined);
+    assert.equal(d.correct, undefined);
+  }
+});
+
+test('bài đọc: renderer biết dựng ĐỦ 6 loại khối build phát ra', () => {
+  // Nhánh `default: const unhandled: never = block` trong ReadScreen chỉ bắt
+  // được lúc typecheck, mà DỮ LIỆU đổi không cần biên dịch lại — nên phải đối
+  // chiếu "loại khối build phát ra" với "loại khối renderer khai".
+  assert.deepEqual([...READ_BLOCK_TYPES].sort(), [
+    'code',
+    'diagram',
+    'figure',
+    'paragraph',
+    'table',
+    'terminal',
+  ]);
+  const seen = [...new Set(daBlocks.map((b) => b.type))];
+  const unhandled = seen.filter((t) => !READ_BLOCK_TYPES.includes(t));
   assert.deepEqual(
-    rv.find((r) => r.n === 1).traps.map((t) => t.label),
-    ['name in program'],
+    unhandled,
+    [],
+    `loại khối build phát ra mà ReadScreen không có nhánh: ${unhandled.join(', ')}`,
   );
-  // Đáp án đúng không bao giờ bị liệt kê như một bẫy.
-  for (const r of rv) assert.ok(!r.traps.some((t) => t.label === r.answer));
+  // Và ngược lại: không khai loại nào build không bao giờ phát (chết cứng).
+  assert.deepEqual([...seen].sort(), [...READ_BLOCK_TYPES].sort());
+
+  // Hình dạng từng loại, vì mỗi nhánh của Block() đọc đúng những khoá này.
+  for (const b of daBlocks) {
+    if (b.type === 'paragraph') assert.equal(typeof b.text, 'string');
+    if (b.type === 'code' || b.type === 'terminal') assert.equal(typeof b.code, 'string');
+    if (b.type === 'table') {
+      assert.ok(Array.isArray(b.headers) && Array.isArray(b.rows));
+      for (const row of b.rows) assert.equal(row.length, b.headers.length);
+    }
+    if (b.type === 'figure') {
+      // PNG cùng miền: khối này hiện bằng <img src> nên file phải có thật,
+      // nếu không 26 bài hiện ra ô ảnh vỡ mà không log nào đỏ. `.html` của
+      // Plotly (4,7 MB/hình) cố ý KHÔNG được phát ra đây.
+      assert.match(b.src, /^\/static\/da\/[\w.-]+\.png$/, b.src);
+      assert.ok(
+        existsSync(join(ROOT, 'frontend', 'public', b.src.replace(/^\//, ''))),
+        `thiếu file ảnh ${b.src}`,
+      );
+      // `alt` bắt buộc (người không xem được hình), `caption` thì build KHÔNG
+      // phát — đó là lý do không dùng lại LessonFigure của màn lý thuyết.
+      assert.ok(b.alt && b.alt.length > 0, b.src);
+      assert.equal(b.caption, undefined, b.src);
+    }
+  }
 });
 
-test('scaffoldReview: đặt bẫy của chính ô → sai, kèm đúng lý do của bẫy đó; ô khác vẫn đúng', () => {
-  const d = { ...initialLessonDraft(P01), slots: { ...p01Answers(), 1: 'name in program' } };
-  const rv = scaffoldReview(P01, d);
-  const one = rv.find((r) => r.n === 1);
-  assert.equal(one.correct, false);
-  assert.equal(one.picked, 'name in program');
-  assert.match(one.trap, /đếm nhầm program khác tên/);
-  assert.equal(one.belongsTo, undefined);
-  assert.deepEqual(rv.filter((r) => r.correct).map((r) => r.n), [2, 3]);
-  // Cùng luật với nút dưới đáy: khung nói sai thì banner/CTA cũng phải sai.
-  assert.equal(screenVerdict(P01, { kind: 'scaffold', key: 's3-scaffold' }, d).correct, false);
+test('bài đọc: khối figure KHÔNG dùng lại Figure/CSS của màn lý thuyết', () => {
+  // Không render được JSX trong runner này (node --test chỉ bóc kiểu, không
+  // biên dịch JSX), nên kiểm ở mức NGUỒN — vẫn bắt đúng hồi quy cần chặn.
+  const screen = readFileSync(
+    join(ROOT, 'frontend', 'src', 'components', 'python-studio', 'screens', 'ReadScreen.tsx'),
+    'utf8',
+  );
+  assert.equal(
+    /from '\.\/TheoryScreen'/.test(screen),
+    false,
+    'ReadScreen không được import Figure của TheoryScreen: LessonFigure.caption là bắt buộc mà khối figure của bài đọc không có',
+  );
+  assert.ok(screen.includes('c.readFigure'), 'khối figure phải dùng class .readFigure riêng');
+  // Dò lượt DÙNG class (`c.theoryFigure`), không dò chữ "theoryFigure" trần —
+  // chú thích trong ReadScreen có nhắc tên đó để giải thích vì sao không dùng.
+  assert.equal(screen.includes('c.theoryFigure'), false);
+
+  // Và class riêng đó KHÔNG được ghim tỉ lệ: khổ thật trải từ 676×338 tới
+  // 1248×624, ghim 2/1 như .theoryFigure là méo 68/80 ảnh.
+  const css = readFileSync(
+    join(ROOT, 'frontend', 'src', 'components', 'python-studio', 'studio-chrome.module.css'),
+    'utf8',
+  );
+  const rule = css.match(/\.readFigure img \{[^}]*\}/);
+  assert.ok(rule, 'thiếu quy tắc .readFigure img');
+  assert.equal(/aspect-ratio/.test(rule[0]), false, rule[0]);
+  // Đối chứng: .theoryFigure img THẬT SỰ có ghim — nếu ngày nào nó bỏ đi thì
+  // câu "không dùng lại vì nó ghim tỉ lệ" ở trên thành vô nghĩa và phải xem lại.
+  const theory = css.match(/\.theoryFigure img \{[^}]*\}/);
+  assert.ok(theory && /aspect-ratio: 2 \/ 1/.test(theory[0]));
+
+  // Nút "Xem đáp án" phải có vòng focus: Tab tới mà không thấy mình ở đâu là
+  // WCAG 2.4.7. :hover một mình không đủ (đó là tín hiệu của chuột).
+  assert.ok(/\.practiceReveal:focus-visible \{[^}]*outline:/.test(css));
 });
 
-test('scaffoldReview: đặt thẻ của ô KHÁC → không mượn bẫy sai chỗ, chỉ ra ô mà thẻ thuộc về', () => {
-  // Hoán đáp án ô 2 và 3 cho nhau: mỗi thẻ đều "đúng" — nhưng ở ô khác.
-  const ans = p01Answers();
-  const d = { ...initialLessonDraft(P01), slots: { ...ans, 2: ans[3], 3: ans[2] } };
-  const rv = scaffoldReview(P01, d);
-  const two = rv.find((r) => r.n === 2);
-  const three = rv.find((r) => r.n === 3);
-  assert.equal(two.correct, false);
-  assert.equal(two.belongsTo, 3);
-  assert.equal(two.trap, undefined);
-  assert.equal(three.belongsTo, 2);
+test('bài đọc: mỗi lát của step_1.read thành MỘT màn, đúng thứ tự', () => {
+  // VZ01 (sort_order 74): 3 lát, mỗi lát "paragraph code figure".
+  assert.deepEqual(
+    vz01.step_1.read.map((slice) => slice.map((b) => b.type).join(' ')),
+    ['paragraph code figure', 'paragraph code figure', 'paragraph code figure'],
+  );
 
-  // Bẫy của ô 3 (`row_ppid`) đặt vào ô 1: lý do của nó nói về vòng for —
-  // chẳng dính gì tới phép so sánh ở ô 1, nên KHÔNG được hiện ở đây.
-  const lac = scaffoldReview(P01, {
-    ...initialLessonDraft(P01),
-    slots: { ...ans, 1: 'row_ppid' },
-  }).find((r) => r.n === 1);
-  assert.equal(lac.correct, false);
-  assert.equal(lac.trap, undefined, 'mượn nhầm lý do của bẫy ô 3');
-  assert.equal(lac.belongsTo, 3);
+  const screens = buildScreens(vz01);
+  const read = screens.filter((s) => s.kind === 'read');
+  assert.equal(read.length, 3);
+  assert.deepEqual(
+    read.map((s) => s.key),
+    ['s1-read-0', 's1-read-1', 's1-read-2'],
+  );
+  // `index` phải trỏ đúng lát: ReadScreen đọc read[scr.index], lệch một ô là
+  // người học đọc nhầm đoạn mà không có gì báo lỗi.
+  assert.deepEqual(
+    read.map((s) => s.index),
+    [0, 1, 2],
+  );
+  for (const s of read) assert.equal(s.origin, 1);
+
+  // Đúng với CẢ 172 bài, không riêng bài mẫu: số màn đọc = số lát.
+  for (const [code, l] of DA)
+    assert.equal(
+      buildScreens(l).filter((s) => s.kind === 'read').length,
+      l.step_1.read.length,
+      code,
+    );
+  // Thêm/bớt lát là thêm/bớt màn, không phải gộp vào một màn đọc dài.
+  assert.equal(
+    buildScreens({ ...vz01, step_1: { ...vz01.step_1, read: vz01.step_1.read.slice(0, 2) } })
+      .filter((s) => s.kind === 'read').length,
+    2,
+  );
+  // Không khai `read` thì không có màn đọc nào — 48 bài pe-v4 vẫn như cũ.
+  for (const [f, old] of V4)
+    assert.equal(
+      buildScreens(old).some((s) => s.kind === 'read'),
+      false,
+      f,
+    );
+});
+
+test('bài đọc: mỗi câu step_2.practice thành MỘT màn, xếp sau mcq/classify', () => {
+  for (const [code, l] of DA) {
+    const practice = buildScreens(l).filter((s) => s.kind === 'practice');
+    assert.equal(practice.length, l.step_2?.practice?.length ?? 0, code);
+    assert.deepEqual(
+      practice.map((s) => [s.key, s.index, s.origin]),
+      (l.step_2?.practice ?? []).map((_, i) => [`s2-practice-${i}`, i, 2]),
+      code,
+    );
+  }
+
+  // Bài trộn cả hai: phần ĐƯỢC CHẤM làm trước, phần tự viết làm sau.
+  const mixed = {
+    ...vz01,
+    step_2: { mcq: b01.step_2.mcq, classify: b01.step_2.classify, practice: vz01.step_2.practice },
+  };
+  const kinds = buildScreens(mixed)
+    .filter((s) => s.origin === 2)
+    .map((s) => s.kind);
+  const lastGraded = Math.max(kinds.lastIndexOf('mcq'), kinds.lastIndexOf('classify'));
+  assert.ok(lastGraded >= 0, 'fixture B01 phải có mcq/classify');
+  assert.ok(
+    kinds.indexOf('practice') > lastGraded,
+    'practice phải đứng sau mcq/classify, nhưng thứ tự là ' + kinds.join(' '),
+  );
+  // Và các màn cũ của S2 không bị mất đi.
+  assert.equal(kinds.filter((k) => k === 'mcq').length, b01.step_2.mcq.length);
+});
+
+test('bài đọc: màn read đứng TRƯỚC mọi màn khác của S1', () => {
+  // Bài trộn bài đọc với lý thuyết + đề bài của khoá pe-v4: đọc xong mới tới
+  // lý thuyết/đề bài, không phải ngược lại.
+  const [, v4] = V4[0];
+  const mixed = { ...v4, play: undefined, step_1: { ...v4.step_1, read: vz01.step_1.read } };
+  const s1 = buildScreens(mixed).filter((s) => s.origin === 1);
+  const lastRead = s1.map((s) => s.kind).lastIndexOf('read');
+  assert.equal(lastRead, 2);
+  assert.equal(
+    s1.slice(0, lastRead + 1).every((s) => s.kind === 'read'),
+    true,
+  );
+  assert.ok(lastRead + 1 < s1.length, 'fixture phải còn màn S1 khác sau bài đọc');
+  assert.equal(s1[lastRead + 1].kind, 'theory');
+});
+
+test('bài đọc: 3 màn trắc nghiệm ĐƯỢC chấm, màn đọc và luyện tập thì không', () => {
+  // ĐỔI HÀNH VI NGƯỜI HỌC THẤY ĐƯỢC, 27/10/2026. Ca này từng tên là "cả bài
+  // không có màn nào được chấm, nên % luôn 100" và nó ĐÚNG: pe-da không có câu
+  // trắc nghiệm nào, nên điểm bài học luôn 100% và XP được trả bất kể học viên
+  // hiểu hay không. Nay mỗi bài có 3 câu trắc nghiệm được chấm, nên trả lời sai
+  // là điểm dưới 100 và XP ít hơn.
+  //
+  // `isGraded` vẫn là danh sách TRẮNG, và `read`/`practice` vẫn KHÔNG nằm trong
+  // đó: màn đọc không có gì để so, còn câu luyện tập là câu MỞ kèm lời giải mẫu
+  // (không có phương án sai nào). Đưa chúng vào là chặn nút kết thúc bài bằng
+  // một màn không bao giờ "đúng" được.
+  assert.equal(isGraded('read'), false);
+  assert.equal(isGraded('practice'), false);
+  assert.equal(isGraded('mcq'), true);
+
+  for (const [code, l] of DA) {
+    const screens = buildScreens(l);
+    // Đúng 3 màn được chấm — khớp 3 câu trắc nghiệm build phát ra.
+    assert.equal(screens.filter((s) => isGraded(s.kind)).length, 3, code);
+    assert.deepEqual(
+      screens.filter((s) => isGraded(s.kind)).map((s) => s.kind),
+      ['mcq', 'mcq', 'mcq'],
+      code,
+    );
+    // Nháp TRỐNG = chưa trả lời câu nào, nên % phải là 0 chứ không phải 100.
+    // Nếu ở đây ra 100 thì học viên bỏ qua cả ba câu vẫn ăn XP đầy đủ.
+    assert.equal(quizPercent(screens, initialLessonDraft(l), false), 0, code);
+    // Khoá màn không trùng nhau (bản nháp lưu theo khoá này) và bài kết bằng
+    // tổng kết.
+    assert.equal(new Set(screens.map((s) => s.key)).size, screens.length, code);
+    assert.equal(screens.at(-1).kind, 'recap', code);
+  }
+
+  // VZ01: 3 màn đọc + 3 trắc nghiệm + 3 câu luyện tập + sandbox + tổng kết.
+  // Trắc nghiệm đứng TRƯỚC luyện tập: phần được chấm làm trước.
+  assert.deepEqual(
+    buildScreens(vz01).map((s) => s.kind),
+    ['read', 'read', 'read', 'mcq', 'mcq', 'mcq',
+      'practice', 'practice', 'practice', 'sandbox', 'recap'],
+  );
+  // Nháp có chỗ cho câu tự viết và cờ "đã xem đáp án".
+  const d = initialLessonDraft(vz01);
+  assert.deepEqual(d.practice, {});
+  assert.deepEqual(d.practiceSeen, {});
+  // Màn ĐƯỢC chấm trả một kết quả (chưa chọn gì = sai); màn đọc và luyện tập
+  // trả null và không bao giờ khác.
+  for (const s of buildScreens(vz01)) {
+    const v = screenVerdict(vz01, s, d);
+    if (isGraded(s.kind)) {
+      assert.equal(v.correct, false, s.key);
+      assert.equal(typeof v.explain, 'string', s.key);
+    } else {
+      assert.equal(v, null, s.key);
+    }
+  }
+});
+
+test('bài đọc: đi hết 3 câu trắc nghiệm như học viên thật — đúng hết thì 100%', () => {
+  // Nửa còn lại của ca trên. Không có nó thì một lỗi làm MỌI câu bị tính sai
+  // vẫn đi qua, vì ca trên chỉ kiểm nháp rỗng ra 0.
+  //
+  // Phải đi qua `scoreCheck` chứ không chỉ đặt `draft.mcq`: `quizPercent` đọc
+  // `d.score.firstTry[key]`, tức "đúng ngay lần KIỂM TRA đầu", không đọc câu
+  // trả lời đang chọn. Bản đầu của ca này đặt `draft.mcq` rồi mong 100 và nhận
+  // 0 — đúng cơ chế, sai chỗ đặt.
+  const screens = buildScreens(vz01);
+  const mcqScreens = screens.filter((x) => isGraded(x.kind));
+  assert.equal(mcqScreens.length, 3);
+
+  const diHet = (chon) => {
+    let d = initialLessonDraft(vz01);
+    for (const scr of mcqScreens) {
+      const i = scr.index;
+      d = { ...d, mcq: { ...d.mcq, [i]: chon(vz01.step_2.mcq[i], i) } };
+      const v = screenVerdict(vz01, scr, d);
+      d = { ...d, score: scoreCheck(d.score, scr.key, Boolean(v?.correct)).score };
+    }
+    return quizPercent(screens, d, false);
+  };
+
+  // Đúng cả ba.
+  assert.equal(diHet((q) => letterKey(correctIndex(q))), 100);
+
+  // Sai câu đầu, đúng hai câu sau -> 2/3.
+  assert.equal(
+    diHet((q, i) =>
+      letterKey(i === 0 ? (correctIndex(q) + 1) % q.options.length : correctIndex(q))),
+    67,
+  );
+
+  // Sai cả ba -> 0, và KHÔNG âm.
+  assert.equal(
+    diHet((q) => letterKey((correctIndex(q) + 1) % q.options.length)),
+    0,
+  );
+});
+
+// --- Ô VÍ DỤ ĐẦU VÀO/ĐẦU RA (step_4.task.io) -------------------------------
+//
+// `SandboxScreen` dựng `<dl className={c.io}>` từ `step_4.task.io`, và cho tới
+// 1/11/2026 **0/130 bài có ca chấm phát ra khoá đó** — renderer dựng sẵn, không
+// ai đi qua. 87 bài giao đúng `def solve(data): pass` nên hình dạng của `data`
+// chỉ nằm trong văn xuôi; với PD01 thì đó là SÁU tên khoá không câu nào nói ra.
+//
+// Ba ca dưới đây đọc BẢN DỰNG từ phía người dùng dữ liệu, không từ khâu dựng:
+// gỡ `vi_du_io` khỏi build.py thì `kiem_vi_du_io` của check.py cũng thôi thấy gì
+// để kiểm (luật của nó mở đầu bằng "không có io thì bỏ qua"), nên hai khâu kia
+// cùng im lặng. Chỗ này thì đỏ.
+test('bài đọc: MỌI bài có ca chấm đều có ô ví dụ đầu vào/đầu ra', () => {
+  const coCaCham = DA.filter(([, l]) => (l.step_4?.tests ?? []).length > 0);
+  // SÀN, không phải con số đúng: thêm một module là 130 thành 137, và một ca
+  // ghim số chính xác sẽ đỏ oan — đúng bệnh 14 con số ghi cứng mà AGENTS.md ghi.
+  assert.ok(coCaCham.length >= 130, `chỉ còn ${coCaCham.length} bài có ca chấm`);
+  const thieu = coCaCham.filter(([, l]) => !(l.step_4?.task?.io ?? []).length);
+  assert.deepEqual(thieu.map(([c]) => c), []);
+});
+
+test('bài đọc: ô ví dụ có nhãn DUY NHẤT — renderer dùng label làm React key', () => {
+  for (const [code, l] of DA) {
+    const vd = l.step_4?.task?.io;
+    if (!vd) continue;
+    assert.equal(vd.length, 2, `${code}: ô ví dụ phải đúng 2 hàng`);
+    const nhan = vd.map((r) => r.label);
+    assert.equal(new Set(nhan).size, 2, `${code}: nhãn trùng ${nhan.join(' / ')}`);
+    for (const r of vd) {
+      assert.equal(typeof r.value, 'string');
+      assert.ok(r.value.length > 0, `${code}: hàng ${r.label} không có giá trị`);
+    }
+  }
+});
+
+test('bài đọc: ô ví dụ là repr PYTHON, không phải JSON', () => {
+  // Khác nhau ở đúng chỗ người học sẽ gõ lại: JSON viết `true/false/null` và
+  // bắt buộc nháy kép. Dán một giá trị JSON vào ô đề của bài Python là dạy sai
+  // cú pháp ngay trong đề. Nên không giá trị nào được chứa ba từ khoá JSON ở
+  // dạng token, và dict phải hiện ra với nháy ĐƠN.
+  const giaTri = DA.flatMap(([code, l]) =>
+    (l.step_4?.task?.io ?? []).map((r) => [code, r.value]),
+  );
+  assert.ok(giaTri.length >= 260, `chỉ có ${giaTri.length} giá trị ví dụ`);
+  for (const [code, v] of giaTri) {
+    for (const tu of ['true', 'false', 'null']) {
+      assert.ok(
+        !new RegExp(`\\b${tu}\\b`).test(v),
+        `${code}: ví dụ dùng từ khoá JSON "${tu}" thay cho Python: ${v.slice(0, 60)}`,
+      );
+    }
+  }
+  // Và ít nhất một bài phải thực sự có dict nháy đơn, kẻo phép kiểm trên xanh
+  // vì không giá trị nào là dict.
+  assert.ok(giaTri.some(([, v]) => v.includes("{'")), 'không ví dụ nào là dict Python');
+});
+
+test('bài đọc: khối terminal và khối table vẫn là hai loại riêng', () => {
+  // PY02 dạy dựng môi trường: lệnh shell, không phải Python. Nếu hai loại này
+  // bị gộp thì học viên copy `python -m venv .venv` vào ô Python.
+  const term = py02.step_1.read.flat().filter((b) => b.type === 'terminal');
+  assert.ok(term.length >= 2);
+  for (const b of term) {
+    assert.equal(b.type, 'terminal');
+    // `expected` ở đây là MÔ TẢ bằng lời, không phải stdout — nên ReadScreen
+    // dùng nhãn "Dấu hiệu thành công", không phải "Kết quả:".
+    assert.ok(b.expected.length > 20, b.expected);
+  }
+  // Và khối table thật (bài duy nhất có) vẫn đủ cột cho mọi hàng.
+  const table = np02.step_1.read.flat().find((b) => b.type === 'table');
+  assert.ok(table);
+  assert.deepEqual(table.headers, ['Chỉ số', '0', '1', '2']);
+  for (const row of table.rows) assert.equal(row.length, 4);
 });

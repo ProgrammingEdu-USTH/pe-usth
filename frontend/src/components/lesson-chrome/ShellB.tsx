@@ -8,6 +8,17 @@ import { useState } from 'react';
 
 import styles from './ShellB.module.css';
 
+/**
+ * Năm "cảnh" của màn đọc — mỗi cảnh một huy hiệu SVG, một banner WebP đứng trên
+ * mép thẻ. Danh sách và tài nguyên: `public/lesson-lofi/ASSETS.md`.
+ *   theory  — Lý thuyết / Bài đọc (sách mở)
+ *   example — Ví dụ (laptop có dòng mã)
+ *   predict — Dự đoán kết quả (bảng ghim + bong bóng ?)
+ *   quiz    — Trắc nghiệm (điện thoại + A B C)
+ *   recap   — Tổng kết (cúp + huy chương), do `Recap.tsx` dùng
+ */
+export type LessonScene = 'theory' | 'example' | 'predict' | 'quiz' | 'recap';
+
 export interface ShellBProps {
   eyebrowIcon: React.ReactNode;
   eyebrowLabel: string;
@@ -15,6 +26,8 @@ export interface ShellBProps {
   title: React.ReactNode;
   description?: React.ReactNode;
   centered?: boolean;
+  /** Cảnh trang trí của thẻ. Không truyền ⇒ thẻ trơn như trước (màn tải, lỗi, đăng ký). */
+  scene?: LessonScene;
   children?: React.ReactNode;
   hint?: { icon: React.ReactNode; label: string; text: React.ReactNode };
   /** true = hiện sẵn gợi ý; mặc định phải bấm nút "Gợi ý" mới mở. */
@@ -31,6 +44,7 @@ export default function ShellB({
   title,
   description,
   centered,
+  scene,
   children,
   hint,
   hintOpenByDefault = false,
@@ -41,11 +55,23 @@ export default function ShellB({
   const open = controlled ? hintOpen : internalOpen;
 
   return (
-    <section className={styles.card}>
+    <section className={scene ? `${styles.card} ${styles.cardScene}` : styles.card} data-scene={scene}>
+      {/* Trang trí: băng dính ở góc, vật đứng trên mép thẻ, dải đánh dấu trang cho
+          sách mở. Toàn `aria-hidden` — ảnh nền CSS nên cũng không vào cây truy cập. */}
+      {scene && (
+        <>
+          <span className={styles.tape} aria-hidden="true" />
+          <span className={styles.scene} data-scene={scene} aria-hidden="true" />
+          {scene === 'theory' && <span className={styles.bookmark} aria-hidden="true" />}
+        </>
+      )}
       <div className={centered ? styles.headerCentered : styles.header}>
-        <span className={styles.eyebrow}>
-          {eyebrowIcon}
-          {eyebrowLabel}
+        <span className={styles.lead}>
+          {scene && <span className={styles.medal} data-scene={scene} aria-hidden="true" />}
+          <span className={styles.eyebrow}>
+            {eyebrowIcon}
+            {eyebrowLabel}
+          </span>
         </span>
         {metaLabel && (
           <span className={styles.meta}>

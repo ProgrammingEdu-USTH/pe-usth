@@ -6,6 +6,8 @@
 // Sandbox.tsx giữ nguyên cho trang xem trước; bài học thật dùng file này.
 import { useId, useState } from 'react';
 
+import { NHAN_KET_QUA_CU } from '@/lib/run-freshness';
+
 import styles from './exercises.module.css';
 import Console, { ConsoleLine } from './Console';
 
@@ -28,21 +30,49 @@ export interface SandboxEditorProps {
   onShowSolution?: () => void;
   consoleLines: ConsoleLine[] | null;
   consoleMeta?: string;
+  /**
+   * PNG (base64) của những Figure chương trình vừa dựng ra, do
+   * `studio-harness.py` xuất.
+   *
+   * Vì sao cần: trước bản này một bài biểu đồ chạy xong chỉ nhận lại dòng chữ
+   * "[matplotlib] 3 Figure được tạo" — hình trên màn đọc là PNG người soạn giáo
+   * trình xuất sẵn, nên sửa một dòng code rồi chạy lại thì KHÔNG thấy gì đổi.
+   */
+  figures?: string[];
   tests: SandboxTestRow[];
+  /**
+   * Kết quả đang hiện là của BẢN CODE TRƯỚC: người học đã sửa ô soạn mã mà
+   * chưa bấm Chạy lại. Ô kết quả tự làm mờ và nói thẳng điều đó ra.
+   *
+   * Phép so nằm ở `ketQuaLaCu` trong lib/run-freshness.ts, không ở đây: màn
+   * này không biết lần chạy gần nhất đã gửi mã gì, và cũng không nên biết.
+   */
+  stale?: boolean;
   disabled?: boolean;
   /** Chữ mờ khi ô còn trống — bài không có code khởi tạo thì nói rõ ô này dùng làm gì. */
   placeholder?: string;
+  /**
+   * Câu thay cho "x/y ca kiểm thử đạt" khi bài KHÔNG có ca nào. Phải truyền từ
+   * ngoài: thiếu `tests` có nhiều lý do khác nhau (bài quy trình làm trên máy,
+   * bài đọc chạy thử tự do) và trước đây chỗ này ghi cứng một lý do duy nhất
+   * nên nó nói sai cho các lý do còn lại.
+   */
+  noTestsHint?: string;
 }
 
 const STATUS_STYLE: Record<SandboxTestRow['status'], { bg: string; text: string; label: string }> = {
   pass: { bg: 'var(--st-ok-bg)', text: 'var(--st-ok-text)', label: '✓ Đạt' },
   fail: { bg: 'var(--st-err-bg)', text: 'var(--st-err-text)', label: '✕ Chưa đạt' },
-  pending: { bg: 'var(--ds-tint)', text: 'var(--ds-soft)', label: '• Chưa chạy' },
+  pending: { bg: 'var(--edu-card-bg)', text: 'var(--edu-t3)', label: '• Chưa chạy' },
 };
 
 export default function SandboxEditor({
   filename = 'solution.py',
-  langTag = 'CPython 3.12',
+  // KHÔNG ghi số phiên bản vào đây. Nhãn này chỉ là bản dự phòng cho lúc runtime
+  // CHƯA nói nó là bản nào, nên nó luôn hiện trước lần chạy đầu — và nó từng ghi
+  // "CPython 3.12", con số của ảnh Docker python:3.12-slim đã bỏ. Người học mở
+  // bài thấy 3.12, chạy một lần rồi thấy 3.14.2. Không có số thì không sai được.
+  langTag = 'CPython',
   code,
   onCodeChange,
   running,
@@ -51,9 +81,12 @@ export default function SandboxEditor({
   onShowSolution,
   consoleLines,
   consoleMeta,
+  figures,
   tests,
+  stale,
   disabled,
   placeholder,
+  noTestsHint = 'Bài này không có ca kiểm thử tự động',
 }: SandboxEditorProps) {
   const passed = tests.filter((t) => t.status === 'pass').length;
   const hintId = useId();
@@ -83,7 +116,9 @@ export default function SandboxEditor({
           onChange={(e) => onCodeChange(e.target.value)}
           style={{
             width: '100%',
-            minHeight: 220,
+            // 248 = 220 cũ + padding dọc 2×14: `.chrome textarea` (LessonChrome.module.css)
+            // đặt border-box nên min-height nay GỒM padding — giữ nguyên chiều cao thật.
+            minHeight: 248,
             resize: 'vertical',
             border: 0,
             // KHÔNG đặt outline:none ở đây. Bản trước có, và vì style nội tuyến
@@ -94,7 +129,7 @@ export default function SandboxEditor({
             color: 'var(--st-syn-plain)',
             background: 'transparent',
             fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
-            fontSize: 'var(--ds-fs-code)',
+            fontSize: 13,
             lineHeight: 1.7,
             // Tab thay vì nhảy focus: đang gõ code thụt lề là chuyện thường.
             tabSize: 4,
@@ -146,7 +181,7 @@ export default function SandboxEditor({
         >
           {/* Ký hiệu ■/▶ chỉ là hình: để trần thì trình đọc màn hình đọc thành
               "black square"/"black right-pointing triangle" trước tên nút. */}
-          {running ? 'Dừng' : 'Chạy thử'}
+          <span aria-hidden="true">{running ? '■' : '▶'}</span> {running ? 'Dừng' : 'Chạy thử'}
         </button>
         {onShowSolution && (
           <button type="button" className={styles.chip} onClick={onShowSolution}>
@@ -156,62 +191,135 @@ export default function SandboxEditor({
         {/* Kết quả chấm phải được ĐỌC LÊN: trước đây chỉ có màu và dấu ✓/✕ đổi,
             người dùng trình đọc màn hình bấm "Chạy thử" rồi không biết gì xảy ra. */}
         <span className={styles.runHint} role="status">
-          {tests.length
-            ? `${passed}/${tests.length} ca kiểm thử đạt`
-            : 'Bài này làm trên máy tính của bạn, không có ca chấm tự động'}
+          {tests.length ? `${passed}/${tests.length} ca kiểm thử đạt` : noTestsHint}
         </span>
       </div>
 
-      <Console
-        title="KẾT QUẢ CHẠY"
-        meta={consoleMeta}
-        running={running}
-        lines={consoleLines}
-        placeholder='Bấm "Chạy thử" để thực thi solution.py ngay trong trình duyệt.'
-      />
+      {/* XUẤT XỨ của ô kết quả, và nó là trạng thái CHỨ KHÔNG phải một sơ đồ.
+          Bài PY01 hỏi thẳng: "Nếu không bấm chạy lại, output đang nhìn thuộc
+          bản code nào?" — trước bản này màn hình không có chỗ nào trả lời, nên
+          người học sửa một dòng rồi đọc tiếp console bên dưới như thể nó là kết
+          quả của bản vừa sửa. Console vẫn nguyên màu, bảng ca kiểm thử vẫn ✓
+          xanh, dòng "123 ms" vẫn đứng đó.
 
-      {tests.length > 0 && (
-        <div style={{ marginTop: 16, background: 'var(--ds-tint)', borderRadius: 12, padding: 14 }}>
-          <div style={{ fontSize: 'var(--ds-fs-ui)', fontWeight: 700, color: 'var(--ds-ink)', marginBottom: 10 }}>
-            Kiểm thử &nbsp;
-            <span style={{ color: 'var(--ds-soft)', fontWeight: 500 }}>
-              {passed}/{tests.length} đạt
-            </span>
-          </div>
-          {/* Danh sách thật (ul/li): trình đọc màn hình đọc được "3 mục" thay vì
-              một chuỗi div không rõ đâu là hết. */}
-          <ul style={{ display: 'flex', flexDirection: 'column', gap: 8, listStyle: 'none', margin: 0, padding: 0 }}>
-            {tests.map((t, i) => {
-              const style = STATUS_STYLE[t.status];
-              return (
-                <li
-                  key={i}
-                  style={{
-                    background: 'var(--ds-card)',
-                    border: '1px solid var(--ds-line)',
-                    borderRadius: 8,
-                    padding: '8px 12px',
-                    fontSize: 'var(--ds-fs-ui)',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                    <span style={{ color: 'var(--ds-ink)' }}>{t.label}</span>
-                    <span
-                      className={styles.chip}
-                      style={{ background: style.bg, color: style.text, border: 0, cursor: 'default', flexShrink: 0 }}
-                    >
-                      {style.label}
-                    </span>
-                  </div>
-                  {t.detail && t.status !== 'pending' && (
-                    <div style={{ fontSize: 'var(--ds-fs-label)', color: 'var(--ds-soft)', marginTop: 4 }}>{t.detail}</div>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+          Băng chữ này ở ĐỘ TƯƠNG PHẢN ĐẦY ĐỦ và mang `role="status"` — nó mới
+          là thứ chở thông tin. Phần làm mờ bên dưới chỉ là lớp nhắc lại bằng
+          thị giác, nên nó được phép nhạt; nếu làm ngược (chỉ mờ, không chữ) thì
+          với người dùng trình đọc màn hình không có gì xảy ra cả. */}
+      {stale && (
+        <p className={styles.staleNotice} role="status">
+          <span aria-hidden="true">⟳ </span>
+          {NHAN_KET_QUA_CU}
+        </p>
       )}
+
+      <div className={stale ? styles.staleResult : undefined}>
+        <Console
+          title="KẾT QUẢ CHẠY"
+          meta={consoleMeta}
+          running={running}
+          lines={consoleLines}
+          // Dùng `filename` chứ không ghi cứng "solution.py": màn Thử thách độc
+          // lập truyền filename="main.py", nên ô này từng ghi `main.py` ở đầu rồi
+          // hứa chạy `solution.py` ở ngay dưới — hai tên cho một file.
+          placeholder={`Bấm "Chạy thử" để thực thi ${filename} ngay trong trình duyệt.`}
+        />
+
+        {!!figures?.length && (
+          // Hình do CHÍNH chương trình vừa chạy dựng ra, không phải ảnh soạn sẵn
+          // của bài. Đặt ngay dưới console vì nó là một phần của "kết quả chạy".
+          //
+          // `data:` URI thì CSP cho qua: `img-src 'self' data: blob: https:`
+          // trong frontend/next.config.ts.
+          <div style={{ marginTop: 12 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--edu-t3)', marginBottom: 8, letterSpacing: '.04em' }}>
+              {figures.length > 1 ? `${figures.length} HÌNH VỪA VẼ` : 'HÌNH VỪA VẼ'}
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+              {figures.map((png, i) => (
+                // `next/image` không làm gì được ở đây: nguồn là `data:` URI vừa
+                // sinh trong trình duyệt, không phải file để tối ưu hay CDN để
+                // cache. Dùng <Image> là thêm một lớp bọc rồi vẫn phải
+                // `unoptimized`. Chỉ thị phải nằm NGAY TRÊN thẻ — để nó trên khối
+                // chú thích này thì nó trỏ vào một dòng comment, thành "unused
+                // directive" mà cảnh báo cũ vẫn còn.
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={i}
+                  src={`data:image/png;base64,${png}`}
+                  // Người dùng trình đọc màn hình không thấy được biểu đồ; nói ra
+                  // thứ duy nhất chắc chắn đúng là nó là hình thứ mấy của lần
+                  // chạy nào. Nội dung biểu đồ thì console và `notes` đã tả.
+                  alt={figures.length > 1 ? `Hình ${i + 1} do chương trình vừa vẽ` : 'Hình do chương trình vừa vẽ'}
+                  style={{
+                    maxWidth: '100%',
+                    // Nền trắng CỐ ĐỊNH: matplotlib xuất PNG nền trong suốt ở một
+                    // số style, và trên giao diện tối thì trục với chữ đen biến
+                    // mất hẳn.
+                    background: '#fff',
+                    borderRadius: 8,
+                    border: '1px solid var(--edu-line, rgba(0,0,0,.12))',
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {tests.length > 0 && (
+          <div style={{ marginTop: 16, background: 'var(--edu-card-bg)', borderRadius: 12, padding: 14 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--edu-t1)', marginBottom: 10 }}>
+              Kiểm thử &nbsp;
+              <span style={{ color: 'var(--edu-t3)', fontWeight: 500 }}>
+                {passed}/{tests.length} đạt
+              </span>
+            </div>
+            {/* Danh sách thật (ul/li): trình đọc màn hình đọc được "3 mục" thay vì
+                một chuỗi div không rõ đâu là hết. */}
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: 8, listStyle: 'none', margin: 0, padding: 0 }}>
+              {tests.map((t, i) => {
+                const style = STATUS_STYLE[t.status];
+                return (
+                  <li
+                    key={i}
+                    style={{
+                      background: 'var(--edu-panel-bg-solid)',
+                      border: '1px solid var(--edu-sidebar-border)',
+                      borderRadius: 8,
+                      padding: '8px 12px',
+                      fontSize: 13,
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                      <span style={{ color: 'var(--edu-t1)' }}>{t.label}</span>
+                      <span
+                        className={styles.chip}
+                        style={{ background: style.bg, color: style.text, border: 0, cursor: 'default', flexShrink: 0 }}
+                      >
+                        {style.label}
+                      </span>
+                    </div>
+                    {/* THỨ BẬC, không phải thẩm mỹ. Nhãn ở trên chỉ GỌI TÊN đầu
+                        vào ("Mã ngắn"); dòng này mới nói VÌ SAO ca trượt ("Cần
+                        có 3 nhưng nhận 0"). Nó từng ở 12px/--edu-t3 (5,46:1)
+                        trong khi nhãn ở 13px/--edu-t1 (17,14:1) — tức phần
+                        mang thông tin bị làm NHỎ NHẤT và NHẠT NHẤT trong cả
+                        bảng, ở 460 ca / 138 bài. Van der Kleij: phản hồi CÓ
+                        GIẢI THÍCH d = 0,49, chỉ đúng/sai d = 0,05 — đây đúng
+                        là phần 0,49. Cùng lỗi đã ghi cho lời giải thích phương
+                        án trắc nghiệm (từng bị opacity .55).
+                        --edu-t2 (8,93:1) chứ không --edu-t1: nó vẫn là hàng
+                        phụ của nhãn, chỉ không được là hàng mờ nhất. */}
+                    {t.detail && t.status !== 'pending' && (
+                      <div style={{ fontSize: 13, color: 'var(--edu-t2)', marginTop: 4 }}>{t.detail}</div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

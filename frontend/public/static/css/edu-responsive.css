@@ -532,7 +532,31 @@
    quá bề ngang khung chứa.
    ══════════════════════════════════════════════════════════════ */
 @media (max-width: 1023.98px) {
-  html, body { overflow-x: hidden; }
+  /* `clip`, KHÔNG `hidden` — và đó là một bản sửa lỗi, không phải vệ sinh.
+   *
+   * ĐO TRÊN PRODUCTION 08/11/2026 (Chrome, 390×844 emulate mobile, màn tổng kết
+   * của `/lesson/python_advanced`): `.topBar` và `.bottomBar` của `LessonChrome`
+   * đều khai `position: sticky` + `z-index: 50`, mà KHÔNG thanh nào ghim —
+   * `topBar.y = -400` ở `scrollY = 400`, và `bottomBar.y = 1362 - scrollY` đúng
+   * dòng chảy TĨNH. Hệ quả: nút "Quay lại" (thứ NĂM người thử đòi) và nút chính
+   * của màn chỉ thấy được ở ĐÁY TUYỆT ĐỐI — phải cuộn 606px mới tới.
+   *
+   * Vì `overflow` khác `visible` ở GỐC biến html/body thành scroll container,
+   * nên `position: sticky` thôi ghim theo viewport. `clip` thì clip mà KHÔNG tạo
+   * scroll container, nên sticky chạy lại. Và `clip` nằm trong tập mà CSS cho
+   * phép đi cùng `visible`, nên trục kia KHÔNG bị tính lại thành `auto` — một
+   * thuộc tính là đủ, không cần khai `overflow-y`.
+   *
+   * Kiểm trên chính trang production sau khi tiêm: `topBar.y` 0 · `bottomBar.y`
+   * 755 (= 844 − 89, đúng đáy viewport) · `scrollWidth` GIỮ 390, tức phép chống
+   * tràn ngang của mục này vẫn còn nguyên. Đừng đổi về `hidden`:
+   * `lesson-chrome-sticky.test.mjs` canh đúng dòng này.
+   *
+   * PHÉP THỬ ĐẦU CỦA TÔI LÀ GIEO VÔ HIỆU, ghi lại để khỏi ai lặp: đặt
+   * `overflow-y: visible` mà để `overflow-x: hidden` thì KHÔNG đổi một pixel
+   * nào, vì khi một trục là `hidden` thì CSS tính trục `visible` kia lại thành
+   * `auto`. Phải đổi chính trục đang `hidden`. */
+  html, body { overflow-x: clip; }
   #main img, #main video, #main canvas, #main svg:not([width]) { max-width: 100%; height: auto; }
   #main pre, #main table { max-width: 100%; overflow-x: auto; }
 }

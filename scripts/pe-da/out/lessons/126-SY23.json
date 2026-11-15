@@ -1,0 +1,206 @@
+{
+ "lesson_code": "SY23",
+ "sort_order": 126,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY23 · HDF5 và MATLAB: đọc mảng kèm tên",
+ "subtitle": "Trung cấp · M5 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "SY23 · HDF5 và MATLAB: đọc mảng kèm tên",
+  "subtitle": "Trung cấp · M5 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/SY23.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "HDF5 và MATLAB: đọc mảng kèm tên",
+    "body": "File cảm biến không chỉ có một bảng: có thể chứa nhiều mảng và thông tin mô tả (metadata) dưới các nhóm. HDF5 giữ cấu trúc đó; tên nhóm giống các tầng đường dẫn bên trong file:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "File cảm biến không chỉ có một bảng: có thể chứa nhiều mảng và thông tin mô tả (metadata) dưới các nhóm. HDF5 giữ cấu trúc đó; tên nhóm giống các tầng đường dẫn bên trong file:\n\n`f[\"scores\"]` là đối tượng đại diện cho dataset trong file, nên còn phụ thuộc vào file đang mở. Thêm `[()]` để đọc giá trị ra một array; array này vẫn dùng được sau khi đóng file. Nhóm meta chứa dataset source, được truy cập bằng tên. Với API h5py dùng ở bài này, đọc bằng `[()]` thay cho thuộc tính .value cũ trong cheat sheet."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Không đoán dataset đầu tiên là dữ liệu cần dùng. Tìm đúng tên và kiểm shape/dtype để tránh tính nhầm mảng metadata. Việc liệt kê keys ở HDF5 và ở dictionary MATLAB đều giúp khám phá cấu trúc, nhưng hai object này không có cùng kiểu tài nguyên.\n\n`loadmat` trả dictionary các biến; còn các key metadata như __header__ nên cần lấy đúng tên scores. Một số biến thể MAT mới như 7.3 dựa trên HDF5 cần công cụ phù hợp, không mặc định mọi file .mat đều đọc bằng cùng một lời gọi."
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Với dictionary nhận từ loadmat, keys() xem tên biến, values() xem các giá trị và items() duyệt từng cặp tên/giá trị, chẳng hạn for name, value in values.items(): print(name, type(value).__name__). Những mục như __header__ mô tả file; đừng đưa tất cả values() vào cùng một phép tính rồi coi đó là bảng dữ liệu."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import tempfile, h5py\nfrom pathlib import Path\nwith tempfile.TemporaryDirectory() as folder:\n    path = Path(folder) / \"scores.h5\"\n    with h5py.File(path, \"w\") as f:\n        f.create_dataset(\"scores\", data=[[8, 6], [5, 9]])\n        f.create_dataset(\"meta/source\", data=b\"lab\")\n    with h5py.File(path, \"r\") as f:\n        print(sorted(f.keys()))\n        print(f[\"scores\"][()].tolist())",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: ['meta', 'scores'] ⏎ [[8, 6], [5, 9]]"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: ['source'] ⏎ lab"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: True ⏎ (2, 2) ⏎ [[8, 6], [5, 9]]"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Trong with h5py.File(...), f[\"scores\"] là gì trước khi dùng [()]?",
+     "options": [
+      {
+       "text": "Luôn là list độc lập",
+       "correct": false,
+       "detail": "Dataset không phải list Python đã sao chép sẵn."
+      },
+      {
+       "text": "Một đường dẫn thư mục hệ điều hành",
+       "correct": false,
+       "detail": "Đây là tên đối tượng bên trong HDF5."
+      },
+      {
+       "text": "Dataset gắn với file",
+       "correct": true,
+       "detail": "Dùng [()] lấy dữ liệu ra bộ nhớ khi file còn mở."
+      }
+     ],
+     "explanation": "Dùng [()] lấy dữ liệu ra bộ nhớ khi file còn mở."
+    },
+    {
+     "question": "Muốn array dùng được sau khi đóng HDF5, nên lấy gì khi file còn mở?",
+     "options": [
+      {
+       "text": "Tên file viết hoa",
+       "correct": false,
+       "detail": "Chưa đúng. Dataset handle phụ thuộc file; đọc giá trị ra array tách dữ liệu cần dùng khỏi vòng đời file."
+      },
+      {
+       "text": "Giá trị dataset bằng [()]",
+       "correct": true,
+       "detail": "Dataset handle phụ thuộc file; đọc giá trị ra array tách dữ liệu cần dùng khỏi vòng đời file."
+      },
+      {
+       "text": "Chỉ giữ dataset handle rồi đóng file",
+       "correct": false,
+       "detail": "Chưa đúng. Dataset handle phụ thuộc file; đọc giá trị ra array tách dữ liệu cần dùng khỏi vòng đời file."
+      }
+     ],
+     "explanation": "Dataset handle phụ thuộc file; đọc giá trị ra array tách dữ liệu cần dùng khỏi vòng đời file."
+    },
+    {
+     "question": "Đọc đúng dataset trong HDF5 nên dựa vào điều gì?",
+     "options": [
+      {
+       "text": "Tên và cấu trúc đã kiểm, không mặc định key đầu tiên",
+       "correct": true,
+       "detail": "Một file có nhiều mảng và metadata; cần chọn đúng tên rồi kiểm shape/dtype."
+      },
+      {
+       "text": "Luôn key có tên ngắn nhất",
+       "correct": false,
+       "detail": "Chưa đúng. Một file có nhiều mảng và metadata; cần chọn đúng tên rồi kiểm shape/dtype."
+      },
+      {
+       "text": "Màu icon của file",
+       "correct": false,
+       "detail": "Chưa đúng. Một file có nhiều mảng và metadata; cần chọn đúng tên rồi kiểm shape/dtype."
+      }
+     ],
+     "explanation": "Một file có nhiều mảng và metadata; cần chọn đúng tên rồi kiểm shape/dtype."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Lấy array ra từ dataset và lấy biến trong kết quả loadmat."
+   },
+   "scaffold": {
+    "template": "scores = h5file[\"scores\"][{{slot1}}]\nmat_scores = scipy.io.loadmat(path)[{{slot2}}]",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Đọc toàn bộ dataset",
+      "answer": "()"
+     },
+     {
+      "n": 2,
+      "placeholder": "Tên biến MATLAB",
+      "answer": "\"scores\""
+     }
+    ],
+    "bank": [
+     {
+      "label": "()",
+      "slot": 1,
+      "trap": ""
+     },
+     {
+      "label": "\"scores\"",
+      "slot": 1,
+      "trap": "[()] đọc toàn bộ dữ liệu hiện tại."
+     },
+     {
+      "label": "\"scores\"",
+      "slot": 2,
+      "trap": ""
+     },
+     {
+      "label": "()",
+      "slot": 2,
+      "trap": "Chọn khóa scores; không lấy toàn bộ dictionary như một ma trận."
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "solve(data) nhận ma trận chữ nhật không rỗng gồm số nguyên. Trong file HDF5 tạm, ghi dataset tên measurements, mở lại lấy array bằng [()] khi file còn mở. Sau khi đóng, trả {\"shape\": list kích thước, \"values\": list lồng nhau}.",
+    "io": [
+     {
+      "label": "hai hàng",
+      "value": "[[2, 4], [6, 8]] → {'shape': [2, 2], 'values': [[2, 4], [6, 8]]}"
+     },
+     {
+      "label": "một hàng",
+      "value": "[[0, 3, 9]] → {'shape': [1, 3], 'values': [[0, 3, 9]]}"
+     },
+     {
+      "label": "một cột",
+      "value": "[[-1], [7]] → {'shape': [2, 1], 'values': [[-1], [7]]}"
+     }
+    ]
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "procedure": [
+    "Bài này cần h5py, không có trong Pyodide nên chưa chấm tự động.",
+    "Đầu vào [[2, 4], [6, 8]] — kết quả cần có {'shape': [2, 2], 'values': [[2, 4], [6, 8]]}.",
+    "Đầu vào [[0, 3, 9]] — kết quả cần có {'shape': [1, 3], 'values': [[0, 3, 9]]}.",
+    "Đầu vào [[-1], [7]] — kết quả cần có {'shape': [2, 1], 'values': [[-1], [7]]}."
+   ]
+  }
+ }
+}

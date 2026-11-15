@@ -24,7 +24,7 @@
 //   useLessonProgress.ts  màn đang mở, màn đã đúng, điểm/combo, hiệu ứng
 //   cta.ts            luật của nút CTA dưới đáy (hàm thuần)
 //   answer-key.ts     bảng đáp án cho admin (hàm thuần)
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import LessonChrome from '@/components/lesson-chrome/LessonChrome';
 import ShellB from '@/components/lesson-chrome/ShellB';
@@ -32,18 +32,31 @@ import c from './studio-chrome.module.css';
 import AdminAnswerKey from './AdminAnswerKey';
 import LessonOverlays from './LessonOverlays';
 import { answerKeyFor } from './answer-key';
-import { firstUnfinished, primaryCta, type Action, type Cta } from './cta';
+import { primaryCta, secondaryCta, type Action, type Cta } from './cta';
 import { useLessonRun } from './useCodeRunner';
 import { useLessonData } from './useLessonData';
 import { useLessonDraft } from './useLessonDraft';
 import { useLessonProgress } from './useLessonProgress';
 import LessonScreenView from './screens';
 import { ICON } from './screens/chrome';
+import { datBoiCanhBai, dayNgay, ghiSuKien } from '@/lib/learning-events';
+import { ketQuaLaCu } from '@/lib/run-freshness';
+import { layCauOn, themCauSai, xoaCauOn, type CauOn } from '@/lib/spaced-review';
+
+import ConsentBanner from './ConsentBanner';
+import OnGianCach from './OnGianCach';
 import {
   buildScreens,
   EMPTY_SCORE,
+  firstUnfinished,
   gameOf,
   isRunnableGame,
+  markDoneOnNext,
+  gioiHanXemLai,
+  maxReachedStep,
+  nhomMan,
+  optionDetail,
+  optionText,
   quizPercent,
   screenVerdict,
   type LessonScreen,
@@ -67,12 +80,12 @@ export default function StudioLesson({
     lesson,
     meta,
     user,
+    streak,
     totalLessons,
     enrolled,
     completed,
     loading,
     loadError,
-    loadFailure,
     empty,
     busy,
     message,
@@ -81,6 +94,8 @@ export default function StudioLesson({
     awards,
     setAwards,
     enroll,
+    consent,
+    decideConsent,
   } = data;
   const load = data.reload;
   const d = draftState.draft;
@@ -88,7 +103,122 @@ export default function StudioLesson({
   const saveStatus = draftState.saveStatus;
 
   const screens = useMemo(() => (lesson ? buildScreens(lesson) : []), [lesson]);
+
+  // Chờ LÂU thì phải nói ra đang chờ gì.
+  //
+  // Đo trên production ngày 25/10/2026: request API ĐẦU TIÊN sau lúc máy chủ
+  // nghỉ mất hơn 25 giây (Render + Neon thức dậy), các request sau 300 ms. Suốt
+  // 25 giây đó trang chỉ hiện "Đang tải bài học…" — không một chữ nào nói vì
+  // sao, nên người học đầu tiên trong ngày kết luận là trang hỏng rồi bỏ đi.
+  // Mốc 6 giây: đủ dài để lần tải bình thường (300 ms – 3 s) không bao giờ thấy
+  // dòng này, đủ ngắn để họ đọc được nó trước khi mất kiên nhẫn.
+  const [choLau, setChoLau] = useState(false);
+  useEffect(() => {
+    if (!loading) return;
+    const hen = setTimeout(() => setChoLau(true), 6000);
+    // Dọn ở CLEANUP, không phải trong thân effect: React 19 chặn `setState`
+    // đồng bộ trong thân (`react-hooks/set-state-in-effect`) vì nó gây một
+    // lượt render dây chuyền, và luật đó đúng.
+    return () => {
+      clearTimeout(hen);
+      setChoLau(false);
+    };
+  }, [loading]);
   const scr: LessonScreen | undefined = screens[d.step - 1];
+
+  /**
+   * ÔN GIÃN CÁCH — một câu đã trả lời SAI ở bài trước, hỏi lại ở ĐẦU bài này.
+   *
+   * Đọc một lần khi mở bài, không đọc lại mỗi lần render: hàng chờ chỉ đổi khi
+   * người học trả lời sai (ở bài này, tức sau khi ô đã qua) hoặc khi ô này xong.
+   * Đọc lại mỗi render thì một câu vừa sai ở màn 5 có thể nhảy ra giữa bài.
+   *
+   * `null` = chưa đọc; `undefined` = đọc rồi, không có câu nào.
+   */
+  const [cauOn, setCauOn] = useState<CauOn | null | undefined>(null);
+  useEffect(() => {
+    // HOÃN khỏi thân effect: React 19 chặn `setState` đồng bộ ở đây
+    // (`react-hooks/set-state-in-effect`). Cùng khuôn với `choLau` ngay trên.
+    const hen = setTimeout(() => setCauOn(layCauOn(courseId, lessonNo) ?? undefined), 0);
+    return () => clearTimeout(hen);
+    // Chỉ chạy lại khi ĐỔI BÀI. Thêm `d.step` vào đây là hỏi lại mỗi lần sang màn.
+  }, [courseId, lessonNo]);
+
+  /**
+   * NHỊP CÒN ĐANG MỞ BÀI + sự kiện BỎ DỞ.
+   *
+   * Vì sao cần cả hai, và vì sao chúng không thay nhau được:
+   *  · `X-Lesson.Open` một mình không phân biệt được "đọc 20 phút" với "mở tab
+   *    rồi đi ăn cơm". Chỉ nhịp heartbeat nói được họ còn ở đó.
+   *  · Nhưng "nhịp dừng" cũng xảy ra khi máy sleep hay mất mạng, nên nó KHÔNG
+   *    thay được `X-Lesson.Abandon` — cái đó là một HÀNH VI (tab bị ẩn / rời
+   *    trang khi chưa hoàn thành), không phải một khoảng lặng.
+   *
+   * Màn hiện tại đi kèm sự kiện bỏ dở: "bỏ ở màn nào" là thứ duy nhất phân biệt
+   * được "đề bài không hiểu nổi" với "đọc xong rồi bỏ".
+   *
+   * 30 giây: đủ thưa để một buổi học 40 phút chỉ sinh 80 sự kiện, đủ dày để
+   * phân giải thời-gian-trên-tác-vụ xuống nửa phút — mà phép đo đó chỉ dùng làm
+   * bộ phát hiện ngoại lai TRONG MỘT NGƯỜI ("người này mất 40 phút cho bài 12
+   * phút"), nên không cần mịn hơn.
+   *
+   * Đọc trạng thái qua REF, không qua dependency: để nhịp và listener gắn ĐÚNG
+   * MỘT LẦN cho cả lượt mở bài. Đưa `scr`/`completed` vào deps thì mỗi lần
+   * chuyển màn là gỡ rồi gắn lại interval, và nhịp 30 giây không bao giờ tới.
+   */
+  const trangThaiRef = useRef<{ screenKey?: string; completed: boolean; step: number }>({
+    completed: false,
+    step: 1,
+  });
+  // Đồng bộ trong EFFECT, không trong thân render: React 19 chặn việc ghi ref
+  // lúc render (`react-hooks/refs`), và luật đó đúng — ghi lúc render thì một
+  // lần render bị bỏ (StrictMode, Suspense) vẫn để lại giá trị mới.
+  // Không có mảng dep: effect này cố ý chạy sau MỌI lần render.
+  useEffect(() => {
+    trangThaiRef.current = { screenKey: scr?.key, completed, step: d.step };
+  });
+
+  useEffect(() => {
+    if (loading || !lesson) return;
+    const nhip = setInterval(() => {
+      // Tab đang ẩn thì KHÔNG đập nhịp: nhịp là để nói "họ còn ở đây", mà một
+      // tab ẩn thì họ không ở đây. (Trình duyệt cũng bóp `setInterval` ở tab
+      // nền, nên nhịp ở đó vừa sai vừa thưa.)
+      if (document.visibilityState !== 'visible') return;
+      const t = trangThaiRef.current;
+      ghiSuKien('X-Lesson.Heartbeat', {
+        screenKey: t.screenKey,
+        payload: { step: t.step, completed: t.completed },
+      });
+    }, 30_000);
+
+    const boDo = (vi_sao: 'hidden' | 'unmount') => {
+      const t = trangThaiRef.current;
+      // ĐÃ HOÀN THÀNH thì không phải bỏ dở. Ghi cả hai vào một loại là làm
+      // câu SQL "bài nào có người đâm tường" đếm cả những người học xong.
+      if (t.completed) return;
+      ghiSuKien('X-Lesson.Abandon', {
+        screenKey: t.screenKey,
+        payload: { step: t.step, totalSteps: screens.length, reason: vi_sao },
+      });
+    };
+    const khiAn = () => {
+      if (document.visibilityState === 'hidden') boDo('hidden');
+    };
+    document.addEventListener('visibilitychange', khiAn);
+
+    return () => {
+      clearInterval(nhip);
+      document.removeEventListener('visibilitychange', khiAn);
+      boDo('unmount');
+      // Gỡ bối cảnh = đóng cổng ghi, VÀ đẩy nốt những gì đang chờ. Không gỡ thì
+      // lần mở bài sau nối tiếp bối cảnh cũ và vài sự kiện bị gán nhầm bài.
+      datBoiCanhBai(null);
+      dayNgay();
+    };
+    // `lesson`/`loading` là hai thứ duy nhất quyết định lượt mở bài này có
+    // sống hay không; mọi trạng thái đổi theo từng màn đi qua ref ở trên.
+  }, [loading, lesson, screens.length]);
   const play = lesson?.play;
   const boss = Boolean(play?.boss);
   const game = lesson ? gameOf(lesson, scr) : undefined;
@@ -153,11 +283,32 @@ export default function StudioLesson({
     setCelebrate,
     // `quizScore` do TRÌNH DUYỆT chấm (AGENTS.md: server tin con số này, chỉ
     // chặn trần XP bằng `lessons.xp_reward`).
-    saveCompletion: () => data.complete(play ? quizPercent(screens, d, boss) : 100),
+    saveCompletion: () => data.complete(diemBai()),
   });
-  const { running, runtimeStatus, result, run, runGame } = lessonRun;
+  const { running, runtimeStatus, result, run, runGame, chayThu } = lessonRun;
   const cancelRun = lessonRun.cancel;
-  const complete = () => data.complete(play ? quizPercent(screens, d, boss) : 100);
+  // Kết quả đang hiện có thuộc bản code đang gõ không. Luật nằm ở hàm thuần
+  // `ketQuaLaCu` (lib/run-freshness.ts), ở đó cũng ghi vì sao phép so là SO
+  // CHUỖI chứ không phải một cờ "đã gõ phím".
+  const resultStale = ketQuaLaCu({
+    daChay: lessonRun.ranCode,
+    dangGo: d.code,
+    coKetQua: result !== null,
+  });
+  /**
+   * Điểm bài gửi về backend: tỉ lệ màn chấm ĐÚNG NGAY LẦN ĐẦU.
+   *
+   * Trước đây là `play ? quizPercent(…) : 100` — tức khoá 172 bài luôn gửi
+   * 100, kể cả khi trả lời sai cả 3 câu trắc nghiệm, vì `score.firstTry` của
+   * nó rỗng (xem `award`). Cộng với luật cũ "sai thì chỉ còn nút Thử lại",
+   * điểm bài là 100% với MỌI người học sau vài lần bấm. Nay `quizPercent` tự
+   * trả 100 khi bài không có màn nào được chấm (bài quy trình, bài làm trên
+   * máy), nên không cần cổng `play` nữa.
+   */
+  function diemBai(): number {
+    return quizPercent(screens, d, boss);
+  }
+  const complete = () => data.complete(diemBai());
 
   // ---------- Trạng thái màn hiện tại ----------
 
@@ -216,37 +367,116 @@ export default function StudioLesson({
       if (v) {
         const misses = game?.type === 'match' ? (d.games?.[game.id]?.misses ?? 0) : 0;
         award(scr.key, v.correct, v.correct && !misses);
+        // ÔN GIÃN CÁCH: trả lời SAI ở LẦN ĐẦU thì câu vào hàng chờ, để hỏi lại
+        // ở đầu một bài SAU (Cepeda 2006). Chỉ lần đầu — `firstTry` chưa có
+        // nghĩa là chưa chấm lần nào; chấm lại sau khi đã biết đáp án không nói
+        // lên điều gì về việc họ nhớ hay không.
+        //
+        // Cất cả nội dung câu hỏi vì lúc mở bài 20 thì content của bài 3 không
+        // có trong tay, và đi lấy lại là một lượt API trên đường mở bài.
+        const mcq = scr.kind === 'mcq' ? lesson.step_2?.mcq?.[scr.index ?? 0] : null;
+        if (mcq && !v.correct && d.score?.firstTry?.[scr.key] === undefined)
+          themCauSai(courseId, {
+            // `StudioLesson` không mang mã bài. Tiêu đề có dạng
+            // "PD01 · Series: một cột dữ liệu có nhãn", nên lấy phần trước dấu
+            // chấm giữa; không có thì rơi về "bài <số>". Đừng thêm một trường
+            // vào content_json chỉ để có một chuỗi hiển thị.
+            maBai: (lesson.title?.split('·')[0] ?? '').trim() || `bài ${lessonNo}`,
+            lessonNo,
+            key: scr.key,
+            question: mcq.question,
+            // `McqOption` là `string | {…}` — dùng CHÍNH hai helper mà màn trắc
+            // nghiệm dùng, không đọc thẳng `.text`: dạng chuỗi sẽ ra undefined
+            // và ô ôn hiện ba nút trắng (đúng lỗi `normalizeQuestion` đã gặp).
+            options: mcq.options.map((o, i) => ({
+              text: optionText(o),
+              detail: optionDetail(o),
+              // Dạng object mang cờ `correct`; dạng chuỗi thì đáp án nằm ở
+              // `mcq.correct` (chỉ số).
+              correct: typeof o === 'string' ? mcq.correct === i : Boolean(o.correct),
+            })),
+          });
       }
       if (v?.correct) markDone(scr.key);
+      // ĐÁP ÁN TRẮC NGHIỆM CHI TIẾT, không chỉ điểm.
+      //
+      // `lesson_progress.quiz_score` là MỘT con số gộp cho cả bài, nên nó không
+      // bao giờ chỉ ra được distractor NÀO bị chọn lặp lại — mà đúng cái đó mới
+      // quyết định được bài nào cần `MisconceptionScreen`. Ghi `picked` (khoá
+      // phương án, kiểu 'A'/'B') chứ KHÔNG ghi nội dung phương án: nội dung là
+      // chữ của người soạn giáo trình, tra lại được bằng `screenKey` + `index`.
+      //
+      // Chỉ các màn CÓ CHẤM tại chỗ; `read`/`practice` của khoá bài đọc không
+      // có gì để so nên `screenVerdict` trả null ở đó.
+      if (v && (scr.kind === 'mcq' || scr.kind === 'predict')) {
+        ghiSuKien('X-Quiz.Answer', {
+          screenKey: scr.key,
+          payload: {
+            screenKind: scr.kind,
+            index: scr.index ?? 0,
+            picked: scr.kind === 'mcq' ? (d.mcq[scr.index ?? 0] ?? '') : d.predict,
+            correct: v.correct,
+            // Lần chấm ĐẦU của màn này hay chấm lại sau khi sai: một phương án
+            // sai bị chọn ở lần đầu nói khác hẳn với chọn sau khi đã thử hết.
+            firstTry: d.score?.firstTry?.[scr.key] === undefined,
+            assisted: Boolean(d.assisted),
+          },
+        });
+      }
       return;
     }
     if (action === 'retry') return setCheckedKey('');
-    if (scr) markDone(scr.key);
+    // ĐI TIẾP. `markDoneOnNext` chứ không `markDone` trần: câu chọn phương án
+    // nay đi tiếp được cả khi SAI, mà đánh dấu "đã làm đúng" cho một câu sai
+    // thì ô "Câu đã làm đúng" ở màn tổng kết đếm luôn cả nó.
+    if (scr && markDoneOnNext(scr, verdict)) markDone(scr.key);
     goTo(d.step + 1);
   }
 
   function leave() {
-    window.location.assign(`/courses/${courseId}`);
+    // Mang theo chỉ số bài để trang khoá học mở đúng module chứa nó. Một
+    // người thử ngày 27/10: "khi mà t click vào dấu x để tắt hoặc về trang thì
+    // nó lại mở full list mục 1 và t lại phải tìm lại bài nếu t học mục 2,3".
+    // Tức đường ra duy nhất của màn bài học luôn thả người ta xuống đầu khoá
+    // 172 bài.
+    //
+    // `lessonNo - 1` vì hai bên đánh số LỆCH NHAU: `lessonNo` là `sort_order`
+    // đếm từ 1, còn link ở trang khoá học là chỉ số phẳng đếm từ 0. Quên trừ
+    // thì nó mở đúng module trong hầu hết trường hợp nên trông như chạy được,
+    // chỉ sai ở bài ĐẦU của mỗi module — đúng kiểu lỗi không ai thấy.
+    window.location.assign(`/courses/${courseId}?lesson=${lessonNo - 1}`);
   }
 
   // ---------- Vỏ ----------
 
   const cta = primary();
+  /** Nút PHỤ của màn đang mở (hôm nay: "Chọn lại" sau câu trắc nghiệm sai). */
+  const phu = secondaryCta({
+    lesson,
+    scr,
+    screens,
+    draft: d,
+    game,
+    checked,
+    verdict,
+    completed,
+    hasNextLesson,
+    lessonNo,
+    running,
+    busy,
+    result,
+  });
   const adminKey = user?.role === 'admin' ? answerKeyFor({ lesson, scr, game, draft: d }) : null;
-  const reached = screens.reduce(
-    (acc, x, i) => (d.done[x.key] ? Math.max(acc, i + 2) : acc),
-    1,
-  );
+  const reached = maxReachedStep(screens, d);
   function frame(children: React.ReactNode, over?: Partial<React.ComponentProps<typeof LessonChrome>>) {
     return (
       <LessonChrome
         step={Math.min(d.step, Math.max(1, screens.length || 1))}
         totalSteps={Math.max(1, screens.length || 1)}
-        // Không truyền `streak` nữa — chuỗi ngày đã gỡ khỏi thanh trên cùng
-        // (xem chú thích trong LessonChrome.tsx).
+        streak={streak}
         points={play ? score.points : undefined}
         courseLabel={
-          (boss ? 'BÀI TỔNG HỢP CHẶNG · ' : '') +
+          (boss ? '⚔️ BOSS · ' : '') +
           (lesson?.step_1?.brief?.title || meta?.title
             ? `${courseName} · ` + (lesson?.step_1?.brief?.title || meta?.title)
             : `${courseName} Studio`)
@@ -258,32 +488,78 @@ export default function StudioLesson({
         primaryTone={cta.tone}
         primaryDisabled={cta.disabled}
         onPrimaryClick={() => doAction(cta.action)}
+        // Quay lại màn trước. Dùng CHÍNH `goTo` mà thanh tiến độ dùng, không
+        // viết một đường đi thứ hai: `goTo` đã lo xoá kết quả chấm của màn cũ,
+        // đóng gợi ý và cuộn lên đầu — bỏ sót một trong ba thứ đó thì màn mới
+        // mở ra kèm băng "Chưa đúng" của màn trước.
+        onBack={() => goTo(d.step - 1)}
         onSeek={screens.length > 1 ? goTo : undefined}
-        seekMax={Math.max(d.step, Math.min(screens.length, reached))}
+        // Bài đã hoàn thành thì mọi đoạn bấm được — khớp với cách `doneSteps` vẽ
+        // chúng là đầy. Xem gioiHanXemLai trong lib/studio-lesson.ts.
+        seekMax={gioiHanXemLai(screens.length, d.step, reached, completed)}
         doneSteps={screens.map((x) => completed || Boolean(d.done[x.key]))}
-        // Cột rộng — xem .contentWide trong LessonChrome.module.css: màn lý
-        // thuyết (hình minh hoạ khổ 1280×640) và màn lắp khung mã (sách mở
-        // hai trang, Figma 107:6804 rộng 1384px).
-        wide={
-          scr?.kind === 'theory' ||
-          scr?.kind === 'scaffold' ||
-          (scr?.kind === 'game' && scr.gameType === 'fill')
-        }
+        // Ranh giới ba phần. `nhomMan` gom theo khối LIỀN NHAU chứ không theo
+        // phần, nên nếu một ngày màn bị xen kẽ thì thanh vẽ đúng thứ có thật
+        // thay vì gộp hai khối rời thành một.
+        mocPhan={nhomMan(screens).map((g) => g.tu)}
+        // Màn lý thuyết và màn BÀI ĐỌC chạy ở cột rộng — xem .contentWide
+        // trong LessonChrome.module.css (hình minh hoạ khổ 1280×640; bài đọc
+        // thì vì bảng và khối code cần chiều ngang — chữ vẫn bó ~78 ký tự).
+        wide={scr?.kind === 'theory' || scr?.kind === 'read'}
+        // Ô nút phụ có HAI người dùng, và chúng không bao giờ cùng xuất hiện:
+        // "Chọn lại" sau một câu trắc nghiệm sai (màn mcq/predict) và "💡 Gợi
+        // ý" (chỉ màn sandbox). `secondaryCta` được hỏi TRƯỚC vì nó nói về màn
+        // đang mở, còn nhánh gợi ý mới là nhánh mặc định của màn sandbox.
         secondaryLabel={
-          hints.length && scr?.kind === 'sandbox' && !boss
-            ? hintOpen
-              ? '💡 Ẩn gợi ý'
-              : gate && !d.assisted
-                ? '💡 Gợi ý (tính là có hỗ trợ)'
-                : '💡 Gợi ý'
-            : undefined
+          phu
+            ? phu.label
+            : hints.length && scr?.kind === 'sandbox' && !boss
+              ? hintOpen
+                ? '💡 Ẩn gợi ý'
+                : gate && !d.assisted
+                  ? '💡 Gợi ý (tính là có hỗ trợ)'
+                  : '💡 Gợi ý'
+              : undefined
         }
         onSecondaryClick={() => {
+          if (phu) return doAction(phu.action);
           if (!hintOpen && !d.assisted) update({ assisted: true });
+          // MỞ GỢI Ý: `lesson_progress` không có chỗ nào ghi việc này, mà nó là
+          // dấu hiệu bỏ-cuộc mạnh nhất còn TRONG bài — người học vẫn ở đây
+          // nhưng đã hết tự lực. Chỉ ghi lúc MỞ, không ghi lúc đóng.
+          if (!hintOpen) {
+            ghiSuKien('Resource.View', {
+              screenKey: scr?.key,
+              payload: { resource: 'hint', level: hintIndex, gate, boss },
+            });
+          }
           setHintOpen((o) => !o);
         }}
         {...over}
       >
+        {/* HỘP XIN ĐỒNG Ý, đặt TRƯỚC nội dung bài có chủ đích: nó phải được
+            thấy, và một hộp dưới đáy một bài dài là một hộp không ai đọc. Nhưng
+            nó KHÔNG chặn bài — người học cuộn qua và học bình thường nếu chưa
+            muốn trả lời (chặn bài để lấy sự đồng ý là cưỡng chế).
+
+            `consent?.shouldAsk` chứ không `!consent?.granted`: người đã TỪ CHỐI
+            cũng là `granted: false` nhưng KHÔNG được hỏi lại — xem `canHoiLai()`
+            ở backend. Và `consent === null` (chưa đọc xong) cũng không hiện, nên
+            hộp không loé lên một nhịp ở mỗi lần mở bài. */}
+        {consent?.shouldAsk ? <ConsentBanner onDecide={decideConsent} /> : null}
+        {/* Ô ÔN GIÃN CÁCH, chỉ ở MÀN ĐẦU của bài: hỏi giữa chừng là cắt ngang
+            mạch đang đọc. Đứng NGOÀI luồng màn (như ConsentBanner) nên nó không
+            vào tiến độ, không vào XP, không vào điểm bài — câu này thuộc một bài
+            khác, cộng nó vào bài đang mở là làm điểm nói về thứ không có ở đây. */}
+        {d.step === 1 && cauOn ? (
+          <OnGianCach
+            cau={cauOn}
+            onXong={() => {
+              xoaCauOn(courseId, cauOn.key);
+              setCauOn(undefined);
+            }}
+          />
+        ) : null}
         {children}
         <LessonOverlays
           pop={pop}
@@ -300,39 +576,49 @@ export default function StudioLesson({
   }
 
   const info = (title: string, body: React.ReactNode, eyebrow = 'Python Studio') => (
-    <ShellB eyebrowIcon={ICON.book} eyebrowLabel={eyebrow} title={title} description={body} centered />
+    <ShellB
+      eyebrowIcon={ICON.book}
+      eyebrowLabel={eyebrow}
+      title={title}
+      description={body}
+      centered
+      scene="theory"
+    />
   );
 
   if (loading)
-    return frame(info('Đang tải bài học…', 'Chờ một chút, nội dung đang được lấy từ máy chủ.'), {
+    return frame(info('Đang tải bài học…', choLau
+      ? 'Máy chủ đang khởi động lại sau một lúc không có ai học — lần đầu trong '
+        + 'ngày có thể mất khoảng nửa phút. Tiến độ của bạn vẫn còn, không cần '
+        + 'tải lại trang.'
+      : 'Chờ một chút, nội dung đang được lấy từ máy chủ.'), {
       primaryLabel: 'Đang tải…',
       primaryDisabled: true,
       onPrimaryClick: () => undefined,
       onSeek: undefined,
+      onBack: undefined,
     });
 
-  // Nhan đề và câu giải thích đến từ `lib/lesson-load-error.ts`: nó phân biệt
-  // DB chết / quá tải / lệch gốc API / 401 thật. Bản cũ dán MỘT nhan đề "Chưa
-  // kết nối được bài học" cho mọi nguyên nhân, và câu bên dưới là thông điệp
-  // 401 — tức đổ lỗi cho phiên của người học khi máy chủ mất cơ sở dữ liệu.
   if (loadError)
-    return frame(info(loadFailure?.title ?? 'Chưa mở được bài học', loadFailure?.body ?? loadError), {
+    return frame(info('Chưa kết nối được bài học', loadError), {
       primaryLabel: 'Thử lại',
       onPrimaryClick: () => void load(),
       onSeek: undefined,
+      onBack: undefined,
     });
 
   if (!enrolled && user?.role !== 'admin')
     return frame(
       info(
         meta?.title || `Bài học ${courseName}`,
-        'Đăng ký khoá học miễn phí để mở bài học và lưu tiến độ.',
+        'Đăng ký khóa học miễn phí để mở bài học và lưu tiến độ.',
       ),
       {
-        primaryLabel: busy ? 'Đang đăng ký…' : `Đăng ký khoá ${courseName} & bắt đầu`,
+        primaryLabel: busy ? 'Đang đăng ký…' : `Đăng ký khóa ${courseName} & bắt đầu`,
         primaryDisabled: busy,
         onPrimaryClick: () => void enroll(),
         onSeek: undefined,
+        onBack: undefined,
       },
     );
 
@@ -343,7 +629,7 @@ export default function StudioLesson({
         'Bài học này chưa có nội dung Studio. Quản trị viên có thể nhập nội dung từ file PDF hoặc Markdown trong trang quản trị.',
         'Đang biên soạn',
       ),
-      { primaryLabel: 'Về khoá học →', onPrimaryClick: leave, onSeek: undefined },
+      { primaryLabel: 'Về khóa học →', onPrimaryClick: leave, onSeek: undefined, onBack: undefined },
     );
 
   return frame(
@@ -356,7 +642,7 @@ export default function StudioLesson({
       )}
       {completed && scr?.kind !== 'recap' && (
         <div className={`${c.note} ${c.noteOk}`} role="status">
-          ✓ Bài này đã xong và được lưu trên hệ thống. Bạn có thể luyện tập lại.
+          ✓ Bài này đã hoàn thành và được lưu trên hệ thống. Bạn có thể luyện tập lại.
         </div>
       )}
       {lesson && scr && (
@@ -364,6 +650,7 @@ export default function StudioLesson({
           lesson={lesson}
           scr={scr}
           screens={screens}
+          courseId={courseId}
           metaLabel={meta?.title}
           draft={d}
           update={update}
@@ -388,7 +675,9 @@ export default function StudioLesson({
           running={running}
           runtimeStatus={runtimeStatus}
           result={result}
+          resultStale={resultStale}
           onRun={() => run(false)}
+          chayThu={chayThu}
           onStop={cancelRun}
           busy={busy}
           setMessage={setMessage}

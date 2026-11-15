@@ -1,0 +1,108 @@
+{
+  "session_id": "daily_20261112",
+  "course_id": "python_advanced",
+  "title": "Ôn tập hằng ngày",
+  "total_items": 4,
+  "items": [
+    {
+      "id": "q1",
+      "type": "quiz",
+      "lesson_id": 1,
+      "lesson_title": "Cú pháp & Danh sách",
+      "question": "Kết quả của biểu thức list comprehension [x * 2 for x in range(3)] là gì?",
+      "options": [
+        "[0, 2, 4]",
+        "[2, 4, 6]",
+        "[0, 1, 2]",
+        "[1, 2, 3]"
+      ],
+      "correctIndex": 0,
+      "explanation": "range(3) sinh ra dãy số 0, 1, 2. Phép nhân 2 với từng phần tử cho kết quả tương ứng là [0, 2, 4]."
+    },
+    {
+      "id": "c1",
+      "type": "code",
+      "lesson_id": 2,
+      "lesson_title": "Xử lý danh sách & Lọc dữ liệu",
+      "title": "Viết hàm lọc số chẵn",
+      "description": "Viết hàm filter_even(numbers: list[int]) -> list[int] nhận vào một danh sách các số nguyên và trả về danh sách mới chỉ chứa các số chẵn theo đúng thứ tự xuất hiện ban đầu.",
+      "starterCode": "def filter_even(numbers: list[int]) -> list[int]:\n    # Viết mã của bạn ở đây\n    pass\n",
+      "tests": [
+        {
+          "name": "Danh sách số nguyên hỗn hợp",
+          "call": "filter_even([1, 2, 3, 4, 5, 6])",
+          "expected": "[2, 4, 6]"
+        },
+        {
+          "name": "Danh sách toàn số lẻ",
+          "call": "filter_even([1, 3, 5])",
+          "expected": "[]"
+        },
+        {
+          "name": "Danh sách có số 0 và số âm",
+          "call": "filter_even([0, -2, -3])",
+          "expected": "[0, -2]"
+        }
+      ],
+      "solution": "def filter_even(numbers: list[int]) -> list[int]:\n    return [x for x in numbers if x % 2 == 0]",
+      "hints": [
+        {
+          "title": "Dùng toán tử chia lấy dư",
+          "body": "Số chẵn là số thoả mãn điều kiện x % 2 == 0."
+        },
+        {
+          "title": "Cách viết ngắn gọn",
+          "body": "Bạn có thể dùng list comprehension: [x for x in numbers if x % 2 == 0]."
+        }
+      ]
+    },
+    {
+      "id": "q2",
+      "type": "quiz",
+      "lesson_id": 4,
+      "lesson_title": "Từ điển & Tra cứu khoá",
+      "question": "Trong Python, phương thức nào của từ điển (dict) trả về giá trị mặc định thay vì gây lỗi KeyError khi khoá không tồn tại?",
+      "options": [
+        "dict.fetch(key, default)",
+        "dict.get(key, default)",
+        "dict.find(key, default)",
+        "dict.lookup(key, default)"
+      ],
+      "correctIndex": 1,
+      "explanation": "Phương thức dict.get(key, default) trả về giá trị của khoá nếu tồn tại, hoặc giá trị mặc định nếu khoá chưa có trong từ điển mà không ném lỗi KeyError."
+    },
+    {
+      "id": "c2",
+      "type": "code",
+      "lesson_id": 5,
+      "lesson_title": "Ngoại lệ & Bắt lỗi an toàn",
+      "title": "Hàm chia hai số an toàn",
+      "description": "Viết hàm safe_divide(a: float, b: float) -> float | None thực hiện phép chia a / b. Nếu b bằng 0 (ZeroDivisionError), hãy bắt lỗi và trả về None thay vì để chương trình bị dừng.",
+      "starterCode": "def safe_divide(a: float, b: float):\n    # Viết mã của bạn ở đây\n    pass\n",
+      "tests": [
+        {
+          "name": "Phép chia số nguyên thông thường",
+          "call": "safe_divide(10, 2)",
+          "expected": "5.0"
+        },
+        {
+          "name": "Trường hợp chia cho 0",
+          "call": "safe_divide(5, 0)",
+          "expected": "None"
+        },
+        {
+          "name": "Phép chia với số âm",
+          "call": "safe_divide(-9, 3)",
+          "expected": "-3.0"
+        }
+      ],
+      "solution": "def safe_divide(a: float, b: float):\n    try:\n        return a / b\n    except ZeroDivisionError:\n        return None",
+      "hints": [
+        {
+          "title": "Cấu trúc try...except",
+          "body": "Bọc phép tính return a / b trong khối try, và bắt ngoại lệ ZeroDivisionError để return None."
+        }
+      ]
+    }
+  ]
+}

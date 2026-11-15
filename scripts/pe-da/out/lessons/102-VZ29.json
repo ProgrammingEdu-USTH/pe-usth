@@ -1,0 +1,207 @@
+{
+ "lesson_code": "VZ29",
+ "sort_order": 102,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ29 · Trường vector: arrow, quiver và streamplot",
+ "subtitle": "Nâng cao · M4 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "VZ29 · Trường vector: arrow, quiver và streamplot",
+  "subtitle": "Nâng cao · M4 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/VZ29.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Trường vector: arrow, quiver và streamplot",
+    "body": "Nếu dữ liệu là hướng di chuyển, một giá trị màu không đủ cho biết hướng. arrow vẽ một mũi tên đơn, quiver vẽ các vector tại nhiều vị trí, còn streamplot thể hiện các đường đi theo trường vector. Cần phân biệt vị trí bắt đầu với thành phần vector theo x và y.",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Nếu dữ liệu là hướng di chuyển, một giá trị màu không đủ cho biết hướng. arrow vẽ một mũi tên đơn, quiver vẽ các vector tại nhiều vị trí, còn streamplot thể hiện các đường đi theo trường vector. Cần phân biệt vị trí bắt đầu với thành phần vector theo x và y.\n\n![Biểu đồ](../visuals/VZ29-1.png)"
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Trong quiver(X, Y, U, V), X và Y xác định nơi đặt mũi tên, còn U và V là độ dời theo x và y. Ví dụ dưới đặt U=1, V=0, nên mỗi mũi tên chỉ sang phải một đơn vị. Các tùy chọn angles=\"xy\", scale_units=\"xy\", scale=1 giữ hướng và độ dài theo đơn vị tọa độ. Nếu để Matplotlib tự co giãn, độ dài mũi tên trên hình không nhất thiết bằng trực tiếp giá trị U và V. Khi vẽ dữ liệu thật, ghi rõ đơn vị và cách đọc độ dài vector.\n\n![Biểu đồ](../visuals/VZ29-2.png)"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "streamplot cần lưới phù hợp và hai trường U,V cùng kích thước. Trường U=-Y, V=X dưới đây xoay quanh gốc; màu biểu diễn độ lớn vận tốc và colorbar ghi đúng đại lượng đó. Đường dòng là hình dung một trường đã cho, không tự chứng minh các hạt ngoài đời đã đi qua chính những đường ấy.\n\n![Biểu đồ](../visuals/VZ29-3.png)"
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.arrow(0, 0, 2, 1, width=0.03, length_includes_head=True, color=\"#0072B2\")\nax.set(xlim=(-0.5, 2.5), ylim=(-0.5, 1.5), xlabel=\"x (m)\", ylabel=\"y (m)\", title=\"One displacement: dx=2, dy=1\", aspect=\"equal\")\nprint((0 + 2, 0 + 1))\nplt.show()",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: (2, 1)"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 4"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: (15, 15)"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "arrow(2,3,4,-1,length_includes_head=True) có đầu mũi tên ở đâu?",
+     "options": [
+      {
+       "text": "(2,3)",
+       "correct": false,
+       "detail": "Đây là điểm đầu."
+      },
+      {
+       "text": "(6,2)",
+       "correct": true,
+       "detail": "Đúng: điểm đầu cộng độ dời (4,-1)."
+      },
+      {
+       "text": "(4,-1)",
+       "correct": false,
+       "detail": "Hai số cuối là độ dời, không phải điểm cuối."
+      }
+     ],
+     "explanation": "X,Y là vị trí; U,V là thành phần của vector tại vị trí đó."
+    },
+    {
+     "question": "ax.arrow(0, 0, 2, 1, length_includes_head=True) có đầu mũi tên ở tọa độ nào?",
+     "options": [
+      {
+       "text": "Điểm (0,0), vì dx và dy bị bỏ qua.",
+       "correct": false,
+       "detail": "Độ dời không bị bỏ; gốc và đầu mũi tên là hai điểm khác nhau."
+      },
+      {
+       "text": "Điểm (1,2), vì hai độ dời luôn đổi chỗ.",
+       "correct": false,
+       "detail": "dx đi theo trục x và dy đi theo trục y, không đổi chỗ."
+      },
+      {
+       "text": "(2,1), vì hai tham số cuối là độ dời dx=2,dy=1, không phải một cặp tọa độ độc lập với điểm bắt đầu.",
+       "correct": true,
+       "detail": "(2,1), vì hai tham số cuối là độ dời dx=2,dy=1, không phải một cặp tọa độ độc lập với điểm bắt đầu."
+      }
+     ],
+     "explanation": "(2,1), vì hai tham số cuối là độ dời dx=2,dy=1, không phải một cặp tọa độ độc lập với điểm bắt đầu."
+    },
+    {
+     "question": "U,V trong quiver là vị trí hay thành phần vector?",
+     "options": [
+      {
+       "text": "Cả bốn đều là tọa độ điểm cuối.",
+       "correct": false,
+       "detail": "Quiver không mặc định nhận cả bốn mảng như các tọa độ điểm cuối."
+      },
+      {
+       "text": "Là thành phần vector theo x và y. X,Y xác định vị trí đặt vector.",
+       "correct": true,
+       "detail": "Là thành phần vector theo x và y. X,Y xác định vị trí đặt vector."
+      },
+      {
+       "text": "U,V là vị trí đặt vector; X,Y là thành phần.",
+       "correct": false,
+       "detail": "Bạn đã đảo vai trò của X,Y với U,V."
+      }
+     ],
+     "explanation": "Là thành phần vector theo x và y. X,Y xác định vị trí đặt vector."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Giữ độ dài vector theo đơn vị tọa độ."
+   },
+   "scaffold": {
+    "template": "vectors = ax.quiver(X,Y,U,V,angles=\"xy\",scale_units=\"xy\",{{slot1}}=1)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "scale"
+     }
+    ],
+    "bank": [
+     {
+      "label": "scale",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.x,data.y là hai dãy vị trí lưới. Tạo X,Y bằng meshgrid, đặt U=-Y,V=X, vẽ quiver với angles=\"xy\",scale_units=\"xy\",scale=1 và aspect equal. Trả u,v đọc từ vectors.U/vectors.V (đã trải phẳng theo hàng), shape ban đầu của U. Không trả X,Y thay cho U,V. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "trường xoay 2x2",
+      "value": "{'x': [0, 1], 'y': [0, 2]} → {'u': [0, 0, -2, -2], 'v': [0, 1, 0, 1], 'shape': [2, 2]}"
+     },
+     {
+      "label": "một hàng âm",
+      "value": "{'x': [-1, 1], 'y': [-2]} → {'u': [2, 2], 'v': [-1, 1], 'shape': [1, 2]}"
+     },
+     {
+      "label": "một điểm",
+      "value": "{'x': [3], 'y': [4]} → {'u': [-4], 'v': [3], 'shape': [1, 1]}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     X,Y = np.meshgrid(data['x'],data['y'])\n     U,V = -Y,X\n     fig, ax = plt.subplots()\n     vectors = ax.quiver(X,Y,U,V,angles='xy',scale_units='xy',scale=1)\n     ax.set_aspect('equal')\n     result = {'u':vectors.U.tolist(),'v':vectors.V.tolist(),'shape':list(U.shape)}\n     plt.close(fig)\n     return result\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Thang mũi tên bằng 1 giữ độ dài theo đơn vị dữ liệu khi đã dùng scale_units=xy."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Giữ vị trí đặt vector khác thành phần hướng và độ lớn."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "trường xoay 2x2",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'x': [0, 1], 'y': [0, 2]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'u': [0, 0, -2, -2], 'v': [0, 1, 0, 1], 'shape': [2, 2]}"
+    },
+    {
+     "name": "một hàng âm",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'x': [-1, 1], 'y': [-2]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'u': [2, 2], 'v': [-1, 1], 'shape': [1, 2]}"
+    },
+    {
+     "name": "một điểm",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'x': [3], 'y': [4]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'u': [-4], 'v': [3], 'shape': [1, 1]}"
+    }
+   ]
+  }
+ }
+}

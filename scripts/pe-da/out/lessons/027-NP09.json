@@ -1,0 +1,206 @@
+{
+ "lesson_code": "NP09",
+ "sort_order": 27,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP09 · Lấy ô, hàng và cột",
+ "subtitle": "Cơ bản · M2 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "NP09 · Lấy ô, hàng và cột",
+  "subtitle": "Cơ bản · M2 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/NP09.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Lấy ô, hàng và cột",
+    "body": "Trong bảng bán hàng, mỗi hàng là một cửa hàng và mỗi cột là một ngày. Bạn muốn lấy riêng số bán của ngày thứ hai ở cả hai cửa hàng:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Trong bảng bán hàng, mỗi hàng là một cửa hàng và mỗi cột là một ngày. Bạn muốn lấy riêng số bán của ngày thứ hai ở cả hai cửa hàng:\n\n`sales[:, 1]` có hai phần: dấu `:` lấy tất cả hàng, còn chỉ số 1 chọn cột thứ hai. Kết quả `[15 8]` lần lượt là số cốc của cửa hàng A và B trong ngày đó."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Để lấy một ô, viết cả chỉ số hàng và chỉ số cột. Cả hai đều bắt đầu từ 0:\n\n`a[1, 0]` lấy hàng thứ hai, cột đầu tiên nên được 4. `a[0]` lấy cả hàng đầu tiên, được `[1 2 3]`."
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Còn nếu cần cột thứ hai của bảng này:\n\nSố 2 ở hàng đầu và số 5 ở hàng sau cùng nằm trong cột chỉ số 1. Bạn có thể lấy cột cuối bằng `a[:, -1]`."
+    },
+    {
+     "title": "Ý chính 4",
+     "body": "Dấu `:` cũng dùng để lấy một đoạn. `a[0:2]` lấy các hàng từ chỉ số 0 đến trước chỉ số 2, tức hàng 0 và hàng 1. Cách đếm điểm dừng này giống `arange`: không lấy vị trí dừng."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import numpy as np\n\nsales = np.array([[12, 15, 9],\n                  [10,  8, 14]])\nprint(sales[:, 1])",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: [15  8]"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 4 ⏎ [1 2 3]"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: [2 5]"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "a=np.array([[2,4,6],[1,3,5]]). a[:,1] trả gì?",
+     "options": [
+      {
+       "text": "4",
+       "correct": false,
+       "detail": "Đó chỉ là một ô; dấu : yêu cầu lấy mọi hàng."
+      },
+      {
+       "text": "[4,3]",
+       "correct": true,
+       "detail": "Đúng. Lấy cột chỉ số 1 của cả hai hàng."
+      },
+      {
+       "text": "[1,3,5]",
+       "correct": false,
+       "detail": "Đó là hàng chỉ số 1, viết a[1]."
+      }
+     ],
+     "explanation": "Đúng. Lấy cột chỉ số 1 của cả hai hàng."
+    },
+    {
+     "question": "Chọn ô ở hàng thứ hai, cột đầu. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "8",
+       "correct": true,
+       "detail": "Chỉ số thứ nhất chọn hàng; chỉ số thứ hai chọn cột."
+      },
+      {
+       "text": "4",
+       "correct": false,
+       "detail": "4 nằm ở hàng đầu, cột thứ hai."
+      },
+      {
+       "text": "2",
+       "correct": false,
+       "detail": "2 là ô [0,0]."
+      }
+     ],
+     "explanation": "Chỉ số thứ nhất chọn hàng; chỉ số thứ hai chọn cột."
+    },
+    {
+     "question": "Đọc toàn bộ cửa hàng đầu. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "[2, 4, 6]",
+       "correct": true,
+       "detail": "Một chỉ số hàng giữ các phần tử của hàng đó."
+      },
+      {
+       "text": "[2, 8]",
+       "correct": false,
+       "detail": "Đó là cột đầu."
+      },
+      {
+       "text": "2",
+       "correct": false,
+       "detail": "a[0] chọn hàng, không chọn riêng ô đầu."
+      }
+     ],
+     "explanation": "Một chỉ số hàng giữ các phần tử của hàng đó."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền ký hiệu để giữ mọi hàng khi lấy cột số 1."
+   },
+   "scaffold": {
+    "template": "column = readings[{{slot1}}, 1]",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Vùng hàng",
+      "answer": ":"
+     }
+    ],
+    "bank": [
+     {
+      "label": ":",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận bảng số không rỗng. Mỗi hàng là một trạm, cột cuối là mốc đo mới nhất. Trả array số đo mới nhất của mọi trạm.",
+    "io": [
+     {
+      "label": "Hai trạm ba mốc",
+      "value": "[[2, 4, 6], [1, 3, 5]] → [6, 5]"
+     },
+     {
+      "label": "Một mốc mỗi trạm",
+      "value": "[[7], [8], [9]] → [7, 8, 9]"
+     },
+     {
+      "label": "Một trạm",
+      "value": "[[0, 1]] → [1]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    readings = np.array(data)\n    return readings[:, -1]\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Bạn cần tất cả trạm, nên không chọn riêng một chỉ số hàng."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Dùng : ở phần chọn hàng và -1 ở phần chọn cột."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "Hai trạm ba mốc",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([[2, 4, 6], [1, 3, 5]]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[6, 5]"
+    },
+    {
+     "name": "Một mốc mỗi trạm",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([[7], [8], [9]]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[7, 8, 9]"
+    },
+    {
+     "name": "Một trạm",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([[0, 1]]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[1]"
+    }
+   ]
+  }
+ }
+}

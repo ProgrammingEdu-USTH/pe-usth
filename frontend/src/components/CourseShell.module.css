@@ -75,8 +75,10 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 20px;
-  padding: 0;
+  /* Đệm dọc 8px để vùng bấm cao 34px thay cho 18px (WCAG 2.5.8 đòi ≥ 24);
+     margin âm bù lại để chữ đứng y chỗ cũ, khoảng cách tới thẻ dưới không đổi. */
+  margin: -8px 0 12px;
+  padding: 8px 0;
   font: inherit;
   /* 14 → 15px: sàn nhãn của bản thiết kế (không có chữ nào < 15px). */
   font-size: 15px;
@@ -85,7 +87,12 @@
   text-decoration: none;
   transition: color var(--ds-dur-fast) ease, gap var(--ds-dur-fast) ease;
 }
-.back:hover { color: var(--ds-violet); gap: 11px; }
+/* Guard con trỏ thật: trên màn cảm ứng `:hover` DÍNH LẠI sau cú chạm nên
+   phần tử kẹt ở trạng thái "đang trỏ vào" — đo 10/11/2026. Lý lẽ và số đo
+   đầy đủ ở `.start` trong `components/code-visualizer/CodeVisualizer.module.css`. */
+@media (hover: hover) and (pointer: fine) {
+  .back:hover { color: var(--ds-violet); gap: 11px; }
+}
 .back:focus-visible {
   outline: var(--ds-bw-3) solid var(--ds-violet);
   outline-offset: 3px;
@@ -182,7 +189,9 @@
   color: var(--ds-on-action);
   background: var(--ds-action);
 }
-.btnPrimary:hover { background: var(--ds-violet); }
+@media (hover: hover) and (pointer: fine) {
+  .btnPrimary:hover { background: var(--ds-violet); }
+}
 .btnPrimary:focus-visible {
   outline: var(--ds-bw-3) solid var(--ds-violet);
   outline-offset: 3px;
@@ -193,7 +202,9 @@
   background: transparent;
   border: var(--ds-bw-2) solid var(--ds-ink);
 }
-.btnSecondary:hover { color: var(--ds-on-action); background: var(--ds-ink); }
+@media (hover: hover) and (pointer: fine) {
+  .btnSecondary:hover { color: var(--ds-on-action); background: var(--ds-ink); }
+}
 .btnSecondary:focus-visible {
   outline: var(--ds-bw-3) solid var(--ds-violet);
   outline-offset: 3px;
@@ -321,7 +332,9 @@
   border-radius: var(--ds-r-md);
   transition: background var(--ds-dur-fast) ease, border-color var(--ds-dur-fast) ease;
 }
-.lesson:hover { border-color: var(--ds-violet); background: var(--ds-violet-tint); }
+@media (hover: hover) and (pointer: fine) {
+  .lesson:hover { border-color: var(--ds-violet); background: var(--ds-violet-tint); }
+}
 .lesson:focus-visible {
   outline: var(--ds-bw-3) solid var(--ds-violet);
   outline-offset: 3px;
@@ -499,6 +512,11 @@
 
 @media (max-width: 639.98px) {
   .content { padding: 0 16px 56px; }
+  /* Ở 390px nút phụ "Góp ý cho nhóm làm khoá" (≈230px chữ + 56px đệm) rộng
+     hơn chỗ có ~2px nên gãy làm HAI DÒNG CANH TRÁI trong một viên thuốc — đọc
+     ra là vỡ. Trên điện thoại hai nút xếp chồng, mỗi nút trọn bề ngang, đệm
+     ngang 20px để nhãn nằm một dòng; canh giữa phòng khi nhãn dài hơn. */
+  .heroCta .btn { flex: 1 1 100%; padding: 0 20px; text-align: center; }
 }
 
 /* Người bật "giảm chuyển động": bỏ mọi chuyển cảnh, giữ nguyên màu/viền —

@@ -1,0 +1,94 @@
+/* Trang 404 — chỉ dùng token của `edu-theme.css`.
+ *
+ * KHÔNG dùng token brand (`--edu-accent`, `--edu-accent-2`, `--edu-brand*`):
+ * nhóm đã chốt đi theo theme lofi chill, và `ds-contrast.test.mjs` giữ một
+ * danh sách bề mặt ĐÃ SÁNG mà chỉ được dài thêm. Mọi màu ở đây là token ấm
+ * của bảng hiện hành.
+ *
+ * Nút chính lấy `background: var(--edu-t1)` và `color: var(--edu-bg-solid)` —
+ * tức ĐẢO đúng cặp mà `edu-theme.css` đặt cho `body`. Nhờ vậy nó tự đúng ở cả
+ * hai chế độ: ban ngày là nâu đen trên giấy kem (13,80:1), ban đêm là chữ sáng
+ * trên nền tối, không phải khai thêm một cặp màu thứ hai sẽ trôi.
+ */
+
+.wrap {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* 16px gutter hai bên: luật khổ điện thoại của repo. */
+  padding: 48px 16px;
+  box-sizing: border-box;
+  text-align: center;
+  gap: 14px;
+}
+
+.ma {
+  margin: 0;
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1;
+  /* Con số chỉ là mốc, không phải thông tin chính — nên nó NHẠT hơn tiêu đề,
+     đúng thứ bậc mà `feedback-rank.test.mjs` đã phải sửa một lần ở chỗ khác
+     (phần MANG THÔNG TIN không được nhỏ hơn và nhạt hơn phần đặt tên). */
+  color: var(--edu-t3);
+  letter-spacing: -0.02em;
+}
+
+.tieuDe {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--edu-t1);
+}
+
+.than {
+  margin: 0;
+  max-width: 44ch;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--edu-t2);
+}
+
+.hangNut {
+  display: flex;
+  /* XUỐNG HÀNG, không co lại — cùng quyết định đã đo ở hàng nút điều hướng của
+     cảnh Góc học: ở 360px hai nút cạnh nhau tràn mép, mà co chip xuống dưới
+     cỡ ngón tay thì tệ hơn. */
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.nutChinh,
+.nutPhu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 44px là cỡ đích bấm nhỏ nhất dùng được bằng ngón tay. Repo này đã phải sửa
+     một đích bấm 13×6px một lần, nên con số ở đây là sàn, không phải thẩm mỹ. */
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.nutChinh {
+  background: var(--edu-t1);
+  color: var(--edu-bg-solid);
+  border: 1px solid var(--edu-t1);
+}
+
+.nutPhu {
+  background: var(--edu-panel-bg-solid);
+  color: var(--edu-t1);
+  /* Đường kẻ THẤY ĐƯỢC trên thẻ sáng: `--edu-card-line` là token đã được
+     `ds-contrast.test.mjs` canh cả hai chiều ngày/đêm. Dùng `--edu-card-border`
+     ở đây là dựng lại đúng lỗi "trắng trên trắng" đã gặp bốn lần. */
+  border: 1px solid var(--edu-card-line);
+}

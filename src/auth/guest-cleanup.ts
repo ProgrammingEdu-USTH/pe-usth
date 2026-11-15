@@ -62,6 +62,13 @@ export const DELETE_ORDER: readonly UserRef[] = [
 export const CASCADE_REFS: readonly UserRef[] = [
   'quizzes.user_id',
   'review_quiz_results.user_id',
+  // Migration 20261028000000_learning_events (nhánh main): ON DELETE CASCADE.
+  'learning_events.user_id',
+  // Migration 20261028020000_learning_event_consents: ON DELETE CASCADE. Có trong sao
+  // lưu của script dọn khách (bản ghi đồng ý của người học bị xoá theo user).
+  'learning_event_consents.user_id',
+  // Migration 20261115030000_learning_time_daily: ON DELETE CASCADE.
+  'learning_time_daily.user_id',
 ];
 
 /**

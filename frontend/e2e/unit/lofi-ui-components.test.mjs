@@ -18,6 +18,9 @@ test('Lofi UI Components: Export đầy đủ các thành phần dùng chung', (
   assert.ok(content.includes('LofiProgressBar'), 'Export LofiProgressBar');
   assert.ok(content.includes('LofiFeedbackBanner'), 'Export LofiFeedbackBanner');
   assert.ok(content.includes('LofiHeader'), 'Export LofiHeader');
+  assert.ok(content.includes('LofiInput'), 'Export LofiInput');
+  assert.ok(content.includes('LofiTabs'), 'Export LofiTabs');
+  assert.ok(content.includes('LofiPhoneMockup'), 'Export LofiPhoneMockup');
 });
 
 test('Lofi UI Components: CSS Module khai báo đầy đủ các class giao diện', () => {
@@ -40,4 +43,15 @@ test('Lofi UI Components: CSS Module khai báo đầy đủ các class giao di�
   assert.ok(css.includes('.bannerWarning'), 'Có banner phản hồi cảnh báo');
   // Header
   assert.ok(css.includes('.headerNav'), 'Có thanh điều hướng headerNav');
+  // Ô nhập liệu Lofi
+  assert.ok(css.includes('.inputField'), 'Có ô nhập liệu inputField');
+  assert.ok(css.includes('.inputWrapper'), 'Có wrapper bao inputWrapper');
+  // Phân đoạn tab
+  assert.ok(css.includes('.segmentedTabs'), 'Có thanh gạt segmentedTabs');
+  assert.ok(css.includes('.segmentedTabActive'), 'Có trạng thái active segmentedTabActive');
+  // Điện thoại & Animation
+  assert.ok(css.includes('.phoneBody'), 'Có thân máy phoneBody');
+  assert.ok(css.includes('.phoneScreen'), 'Có màn hình phoneScreen');
+  assert.ok(css.includes('.phoneGlow'), 'Có hiệu ứng phát sáng phoneGlow');
+  assert.ok(css.includes('.decorParticle'), 'Có hạt trang trí decorParticle');
 });

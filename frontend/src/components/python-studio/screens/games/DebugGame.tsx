@@ -34,12 +34,12 @@ export default function DebugGame({
       scr={scr}
       metaLabel={metaLabel}
       title={game.title}
-      description='Code dưới đây có MỘT lỗi thường gặp. Bấm "Chạy thử" để xem ca nào trượt, sửa lại rồi bấm Chạy & kiểm tra.'
+      description='Code dưới đây có MỘT lỗi thường gặp. Bấm "Chạy thử" để xem ca nào trượt, sửa lại rồi bấm ▶ Chạy & kiểm tra.'
       verdict={verdict}
     >
       <SandboxEditor
         filename="main.py"
-        langTag={runtimeStatus || 'CPython 3.12'}
+        langTag={runtimeStatus || 'CPython'}
         code={state.code ?? game.code}
         onCodeChange={(code) => updateGame(game.id, { code })}
         running={running}

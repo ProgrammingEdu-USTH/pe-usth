@@ -1,0 +1,182 @@
+{
+ "lesson_code": "PY14",
+ "sort_order": 14,
+ "module": "M1 · Python nền tảng",
+ "title": "PY14 · For, range và biến tích lũy",
+ "subtitle": "Cơ bản · M1 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PY14 · For, range và biến tích lũy",
+  "subtitle": "Cơ bản · M1 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PY14.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "For, range và biến tích lũy",
+    "body": "Bạn cần cộng số cốc của ba ngày. Một vòng for có thể lần lượt lấy từng số và cộng vào biến tổng:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn cần cộng số cốc của ba ngày. Một vòng for có thể lần lượt lấy từng số và cộng vào biến tổng:\n\n`total` được khởi tạo trước vòng lặp. Mỗi lượt, value nhận một phần tử theo thứ tự. Khi cần tạo số thứ tự, dùng range:"
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`range(start, stop, step)` không lấy stop; bước âm tạo dãy giảm. `range(5)` bắt đầu từ 0. range là một object range, nên ví dụ gọi list để hiện toàn bộ số. `enumerate` cho cả chỉ số và giá trị.\n\n`zip` ghép các phần tử cùng vị trí; cách gọi này dừng khi dãy ngắn nhất hết phần tử. Trong `for name, mark`, cặp do zip tạo được unpack vào hai tên. List comprehension như `[x * 2 for x in values if x >= 2]` tạo list mới: điều kiện chọn phần tử, biểu thức tính giá trị được giữ. Nó giữ thứ tự duyệt input. Nếu cần nhiều bước, vòng lặp thường dễ đọc hơn."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "cups = [12, 15, 9]\ntotal = 0\nfor value in cups:\n    total += value\nprint(total)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 36"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: [1, 2, 3, 4] ⏎ [5, 3, 1] ⏎ 0 6 ⏎ 1 8"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: Mai 8 ⏎ An 7 ⏎ [4, 6]"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "total=0; duyệt [2,4,6] rồi total += value mỗi lượt. total cuối là gì?",
+     "options": [
+      {
+       "text": "6",
+       "correct": false,
+       "detail": "6 chỉ là giá trị ở lượt cuối, không phải tổng."
+      },
+      {
+       "text": "0",
+       "correct": false,
+       "detail": "Các lần += đã cập nhật total."
+      },
+      {
+       "text": "12",
+       "correct": true,
+       "detail": "Đúng. Tổng được khởi tạo một lần trước vòng lặp."
+      }
+     ],
+     "explanation": "Đúng. Tổng được khởi tạo một lần trước vòng lặp."
+    },
+    {
+     "question": "Cộng các ca bán hàng. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "10",
+       "correct": true,
+       "detail": "Mỗi lượt cộng một số vào total đã khởi tạo."
+      },
+      {
+       "text": "2",
+       "correct": false,
+       "detail": "Biến total giữ tổng, không chỉ phần tử cuối."
+      },
+      {
+       "text": "3",
+       "correct": false,
+       "detail": "3 là số ca, không phải tổng lượng bán."
+      }
+     ],
+     "explanation": "Mỗi lượt cộng một số vào total đã khởi tạo."
+    },
+    {
+     "question": "Các mã tăng hai đơn vị. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "[1, 3, 5]",
+       "correct": true,
+       "detail": "range bắt đầu 1, tăng 2 và dừng trước 7."
+      },
+      {
+       "text": "[1, 3, 5, 7]",
+       "correct": false,
+       "detail": "7 là điểm dừng nên bị loại."
+      },
+      {
+       "text": "[1, 2, 3, 4, 5, 6]",
+       "correct": false,
+       "detail": "Bước nhảy là 2."
+      }
+     ],
+     "explanation": "range bắt đầu 1, tăng 2 và dừng trước 7."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền điểm dừng để range tạo 0,1,2,3."
+   },
+   "scaffold": {
+    "template": "numbers = range({{slot1}})",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Điểm dừng",
+      "answer": "4"
+     }
+    ],
+    "bank": [
+     {
+      "label": "4",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Hệ thống cung cấp weights là list khối lượng kiện hàng. Chỉ những kiện từ 3 kg trở lên được đưa vào chuyến lớn. Gán tổng khối lượng các kiện đó vào total; list rỗng có tổng 0.",
+    "io": [
+     {
+      "label": "Có kiện bị bỏ",
+      "value": "[2, 3, 4] → 7"
+     },
+     {
+      "label": "Đúng ngưỡng",
+      "value": "[3] → 3"
+     },
+     {
+      "label": "Chuyến trống",
+      "value": "[] → 0"
+     }
+    ]
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Đặt total bằng 0 trước vòng lặp, không đặt lại ở mỗi lượt."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Chỉ cộng weight khi weight >= 3; list rỗng sẽ giữ total bằng 0."
+    }
+   ],
+   "procedure": [
+    "Bài này chạy bằng script (đọc biến đầu vào, gán biến kết quả) nên chưa chấm tự động.",
+    "Đầu vào [2, 3, 4] — kết quả cần có 7.",
+    "Đầu vào [3] — kết quả cần có 3.",
+    "Đầu vào [] — kết quả cần có 0."
+   ]
+  }
+ }
+}

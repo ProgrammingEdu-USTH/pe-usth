@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
+  <defs>
+    <radialGradient id="gd" cx="35%" cy="28%" r="70%">
+      <stop offset="0%" stop-color="#3d2b6e"/>
+      <stop offset="100%" stop-color="#1b1236"/>
+    </radialGradient>
+    <linearGradient id="amb" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffd599"/>
+      <stop offset="100%" stop-color="#f0945a"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="84" height="84" rx="24" fill="url(#gd)" stroke="#f6b86b" stroke-width="2.5" stroke-opacity="0.65"/>
+  <circle cx="48" cy="48" r="34" fill="none" stroke="#ffd599" stroke-opacity="0.18" stroke-dasharray="4 4"/>
+  <!-- Hai bong bóng hội thoại lofi ấm -->
+  <path d="M24 34c0-6.6 6.3-12 14-12h16c7.7 0 14 5.4 14 12v10c0 6.6-6.3 12-14 12h-7l-9 7v-7c-7.7 0-14-5.4-14-12V34z" fill="url(#amb)"/>
+  <circle cx="38" cy="39" r="2.6" fill="#23163c"/>
+  <circle cx="46" cy="39" r="2.6" fill="#23163c"/>
+  <circle cx="54" cy="39" r="2.6" fill="#23163c"/>
+  <path d="M44 54c0-5 5-9 11-9h10c6 0 11 4 11 9v7c0 5-5 9-11 9h-4l-6 5v-5c-6 0-11-4-11-9v-7z" fill="#e58cc8" opacity="0.92"/>
+  <path d="M53 57h14M53 61h9" stroke="#23163c" stroke-width="2.2" stroke-linecap="round"/>
+</svg>

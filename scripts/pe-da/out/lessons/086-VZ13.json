@@ -1,0 +1,207 @@
+{
+ "lesson_code": "VZ13",
+ "sort_order": 86,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ13 · Error bar: phân tán và độ bất định",
+ "subtitle": "Nâng cao · M4 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "VZ13 · Error bar: phân tán và độ bất định",
+  "subtitle": "Nâng cao · M4 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/VZ13.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Error bar: phân tán và độ bất định",
+    "body": "Hai nhóm giao hàng có trung bình 10 và 12 phút. Chỉ hai điểm trung bình chưa cho biết các đơn phân tán ra sao hay trung bình được ước lượng chắc đến mức nào. Error bar có thể biểu diễn độ lệch chuẩn, khoảng phần trăm hoặc khoảng tin cậy; bạn cần ghi rõ mình đang vẽ loại nào.",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Hai nhóm giao hàng có trung bình 10 và 12 phút. Chỉ hai điểm trung bình chưa cho biết các đơn phân tán ra sao hay trung bình được ước lượng chắc đến mức nào. Error bar có thể biểu diễn độ lệch chuẩn, khoảng phần trăm hoặc khoảng tin cậy; bạn cần ghi rõ mình đang vẽ loại nào.\n\n![Biểu đồ](../visuals/VZ13-1.png)"
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Độ lệch chuẩn mô tả độ phân tán của quan sát. Sai số chuẩn của trung bình được tính bằng độ lệch chuẩn mẫu chia căn bậc hai số quan sát, trong mô hình lấy mẫu độc lập phù hợp. Nó không phải khoảng tin cậy 95% nếu bạn chỉ vẽ cộng trừ một sai số chuẩn. Khi mẫu nhỏ hoặc các quan sát phụ thuộc nhau, cần cân nhắc cách ước lượng khác.\n\n![Biểu đồ](../visuals/VZ13-2.png)"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Một dải quanh đường có thể dùng fill_between để vẽ cận dưới và cận trên đã được tính. Dải dưới đây là khoảng dự báo minh họa do người viết cung cấp, không phải kết quả suy luận từ ba điểm. Các khoảng chồng nhau hay không chồng nhau cũng không tự thay thế một phép kiểm định phù hợp.\n\n![Biểu đồ](../visuals/VZ13-3.png)"
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.errorbar([1, 2], [10, 12], yerr=[2, 3], fmt=\"o\", capsize=5)\nax.set(xticks=[1, 2], xticklabels=[\"A\", \"B\"], ylabel=\"Delivery (minutes)\", title=\"Means with supplied +/- standard deviations\")\nprint(10 - 2, 10 + 2)\nplt.show()",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 8 12"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 1.63 0.82"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: [4, 6, 4]"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "SD mẫu=6, n=9 quan sát độc lập. SE trung bình bằng bao nhiêu?",
+     "options": [
+      {
+       "text": "6",
+       "correct": false,
+       "detail": "6 là SD, chưa chia căn số quan sát."
+      },
+      {
+       "text": "0.667",
+       "correct": false,
+       "detail": "Đây là chia n, không chia sqrt(n)."
+      },
+      {
+       "text": "2",
+       "correct": true,
+       "detail": "Đúng: 6/sqrt(9)=2."
+      }
+     ],
+     "explanation": "SE của trung bình khác độ phân tán của từng quan sát."
+    },
+    {
+     "question": "Cộng trừ một độ lệch chuẩn có phải mặc định là khoảng tin cậy 95%?",
+     "options": [
+      {
+       "text": "Không. Độ lệch chuẩn nói về độ phân tán; khoảng tin cậy nói về độ bất định của một ước lượng theo phương pháp được chọn.",
+       "correct": true,
+       "detail": "Không. Độ lệch chuẩn nói về độ phân tán; khoảng tin cậy nói về độ bất định của một ước lượng theo phương pháp được chọn."
+      },
+      {
+       "text": "Có; mọi thanh sai số đều là CI 95%.",
+       "correct": false,
+       "detail": "Loại khoảng phụ thuộc cách tính và nhãn, không phải chỉ hình thanh."
+      },
+      {
+       "text": "Có nếu thanh sai số được vẽ màu xanh.",
+       "correct": false,
+       "detail": "Màu không quyết định ý nghĩa thống kê của khoảng."
+      }
+     ],
+     "explanation": "Không. Độ lệch chuẩn nói về độ phân tán; khoảng tin cậy nói về độ bất định của một ước lượng theo phương pháp được chọn."
+    },
+    {
+     "question": "Với SD=4 và n=16, sai số chuẩn trung bình bằng bao nhiêu?",
+     "options": [
+      {
+       "text": "SE=4 vì cỡ mẫu không ảnh hưởng.",
+       "correct": false,
+       "detail": "Giữ nguyên SD đã bỏ qua cỡ mẫu trong công thức SE."
+      },
+      {
+       "text": "SE=0.25 vì chia trực tiếp SD cho n.",
+       "correct": false,
+       "detail": "Chia thẳng cho n không đúng công thức đang được học."
+      },
+      {
+       "text": "SE=4/sqrt(16)=1, khi điều kiện lấy mẫu độc lập phù hợp.",
+       "correct": true,
+       "detail": "SE=4/sqrt(16)=1, khi điều kiện lấy mẫu độc lập phù hợp."
+      }
+     ],
+     "explanation": "SE=4/sqrt(16)=1, khi điều kiện lấy mẫu độc lập phù hợp."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Độ lệch chuẩn mẫu dùng ddof bằng mấy?"
+   },
+   "scaffold": {
+    "template": "sd = np.std(values, ddof={{slot1}})",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "1"
+     }
+    ],
+    "bank": [
+     {
+      "label": "1",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.values có ít nhất hai số độc lập theo giả định bài. Tính mean và SE=std(ddof=1)/sqrt(n); tạo errorbar ở x=1, đặt title=\"Mean +/- 1 SE\". Trả mean, se, bounds=[mean-se,mean+se] và title từ Axes. Đây không phải CI 95%. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "hai giá trị",
+      "value": "{'values': [2, 4]} → {'mean': 3.0, 'se': 1.0, 'bounds': [2.0, 4.0], 'title': 'Mean +/- 1 SE'}"
+     },
+     {
+      "label": "không phân tán",
+      "value": "{'values': [5, 5, 5]} → {'mean': 5.0, 'se': 0.0, 'bounds': [5.0, 5.0], 'title': 'Mean +/- 1 SE'}"
+     },
+     {
+      "label": "thang mới",
+      "value": "{'values': [10, 14]} → {'mean': 12.0, 'se': 2.0, 'bounds': [10.0, 14.0], 'title': 'Mean +/- 1 SE'}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     values = np.asarray(data['values'],dtype=float)\n     mean = float(values.mean())\n     se = float(values.std(ddof=1)/np.sqrt(len(values)))\n     fig, ax = plt.subplots()\n     ax.errorbar([1],[mean],yerr=[se],fmt='o')\n     ax.set_title('Mean +/- 1 SE')\n     result = {'mean':mean,'se':se,'bounds':[mean-se,mean+se],'title':ax.get_title()}\n     plt.close(fig)\n     return result\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Độ lệch chuẩn mẫu chia cho n-1, nên số bậc tự do trừ đi là 1."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Phân biệt SD với SE và dựng error bar có ý nghĩa rõ."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "hai giá trị",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [2, 4]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'mean': 3.0, 'se': 1.0, 'bounds': [2.0, 4.0], 'title': 'Mean +/- 1 SE'}"
+    },
+    {
+     "name": "không phân tán",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [5, 5, 5]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'mean': 5.0, 'se': 0.0, 'bounds': [5.0, 5.0], 'title': 'Mean +/- 1 SE'}"
+    },
+    {
+     "name": "thang mới",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [10, 14]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'mean': 12.0, 'se': 2.0, 'bounds': [10.0, 14.0], 'title': 'Mean +/- 1 SE'}"
+    }
+   ]
+  }
+ }
+}

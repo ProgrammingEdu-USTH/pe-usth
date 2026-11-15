@@ -1,10 +1,13 @@
 'use client';
 
 // S2 · Trắc nghiệm: một màn cho MỖI câu (scr.index trỏ vào step_2.mcq).
+import CodeBlock from '@/components/lesson-chrome/exercises/CodeBlock';
 import Mcq from '@/components/lesson-chrome/exercises/Mcq';
-import { correctIndex, letterKey, optionDetail, optionText } from '@/lib/studio-lesson';
+import { toCodeLines } from '@/lib/py-highlight';
+import { correctIndex, letterKey, optionDetail, optionText, tachDeVaCode } from '@/lib/studio-lesson';
 
-import { ScreenShell } from './chrome';
+import c from '../studio-chrome.module.css';
+import { paragraphs, ScreenShell } from './chrome';
 import type { LessonScreenProps } from './props';
 
 type Props = Pick<
@@ -25,8 +28,19 @@ export default function McqScreen({
   const i = scr.index ?? 0;
   const q = lesson.step_2?.mcq?.[i];
   if (!q) return null;
+  // 471/1032 câu của gói mang một đoạn code mà đề bài TRỎ TỚI; build gấp nó vào
+  // `question` và ở đây tách ra để dựng đúng loại. Nhồi chung vào tiêu đề thì
+  // code dồn thành một dòng — xem `tachDeVaCode`.
+  const { de, code } = tachDeVaCode(q.question);
   return (
-    <ScreenShell scr={scr} metaLabel={metaLabel} title={q.question} verdict={verdict}>
+    // `title` nhận ReactNode, nên câu hỏi phải đi qua `paragraphs` — 8 câu hỏi
+    // của bản dựng có backtick và trước đây hiện ra nguyên dấu.
+    <ScreenShell scr={scr} metaLabel={metaLabel} title={paragraphs(de)} verdict={verdict}>
+      {code ? (
+        <div className={c.readCode}>
+          <CodeBlock filename="python" langTag="đoạn code của câu hỏi" lines={toCodeLines(code)} />
+        </div>
+      ) : null}
       <Mcq
         options={q.options.map((o, oi) => ({
           key: letterKey(oi),

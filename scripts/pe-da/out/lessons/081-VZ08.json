@@ -1,0 +1,207 @@
+{
+ "lesson_code": "VZ08",
+ "sort_order": 81,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ08 · Heatmap: màu, ma trận và thang đo chung",
+ "subtitle": "Trung cấp · M4 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "VZ08 · Heatmap: màu, ma trận và thang đo chung",
+  "subtitle": "Trung cấp · M4 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/VZ08.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Heatmap: màu, ma trận và thang đo chung",
+    "body": "Một bảng đếm có hai cửa hàng và ba khung giờ. Heatmap biến mỗi ô thành một màu để bạn tìm giờ đông khách. imshow nhận array hai chiều; hàng và cột vẫn cần nhãn để biết ô màu đang nói về cửa hàng và giờ nào.",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một bảng đếm có hai cửa hàng và ba khung giờ. Heatmap biến mỗi ô thành một màu để bạn tìm giờ đông khách. imshow nhận array hai chiều; hàng và cột vẫn cần nhãn để biết ô màu đang nói về cửa hàng và giờ nào.\n\n![Biểu đồ](../visuals/VZ08-1.png)"
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Colorbar cho biết mỗi màu ứng với giá trị nào. Nếu hai heatmap tự chọn thang màu riêng, cùng một màu có thể đại diện cho hai con số khác nhau. Khi cần so sánh, giữ chung cmap, vmin, vmax và đơn vị. Với bảng ít ô, bạn có thể ghi thêm số vào từng ô như ví dụ tiếp theo. cmap chọn thang màu, còn vmin và vmax đặt giá trị ở hai đầu thang. orientation=\"horizontal\" đặt colorbar nằm ngang; \"vertical\" đặt nó đứng dọc. Muốn giữ từng ô thành một khối màu rõ, dùng imshow(..., interpolation=\"nearest\"). Màu trung gian do nội suy chỉ thay đổi cách hiển thị, không phải số đo mới.\n\n![Biểu đồ](../visuals/VZ08-2.png)"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "![Biểu đồ](../visuals/VZ08-3.png)"
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport numpy as np\ncounts = np.array([[2, 5, 3], [4, 1, 6]])\nim = ax.imshow(counts, cmap=\"viridis\", vmin=0, vmax=6, aspect=\"auto\")\nax.set_xticks([0, 1, 2], [\"Morning\", \"Noon\", \"Evening\"])\nax.set_yticks([0, 1], [\"Store A\", \"Store B\"])\nax.set_title(\"Orders by store and time\")\nfig.colorbar(im, ax=ax, label=\"Orders\")\nprint(counts.shape)\nplt.show()",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: (2, 3)"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 12"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: -2 3"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Hai heatmap tự chọn vmax khác nhau nhưng cùng có ô xanh đậm. Có chắc cùng số không?",
+     "options": [
+      {
+       "text": "Chỉ cần cùng số hàng",
+       "correct": false,
+       "detail": "Kích thước ma trận không quyết định thang màu."
+      },
+      {
+       "text": "Không, cần đọc thang màu chung",
+       "correct": true,
+       "detail": "Đúng: màu đậm nhất có thể gắn với hai cực đại khác nhau."
+      },
+      {
+       "text": "Có, cùng màu luôn cùng số",
+       "correct": false,
+       "detail": "Chỉ đúng khi dùng cùng phép ánh xạ màu và đơn vị."
+      }
+     ],
+     "explanation": "vmin/vmax cùng đơn vị giúp màu mang cùng ý nghĩa."
+    },
+    {
+     "question": "Heatmap 2 hàng và 3 cột có bao nhiêu ô dữ liệu?",
+     "options": [
+      {
+       "text": "Có 5 ô vì cộng hai kích thước.",
+       "correct": false,
+       "detail": "Cộng số hàng và cột không đếm được số cặp ô."
+      },
+      {
+       "text": "Có 7 ô vì tính cả colorbar.",
+       "correct": false,
+       "detail": "Colorbar giải thích màu, không thêm quan sát vào ma trận."
+      },
+      {
+       "text": "6 ô; colorbar và nhãn không phải ô dữ liệu.",
+       "correct": true,
+       "detail": "6 ô; colorbar và nhãn không phải ô dữ liệu."
+      }
+     ],
+     "explanation": "6 ô; colorbar và nhãn không phải ô dữ liệu."
+    },
+    {
+     "question": "Hai cửa hàng dùng cùng màu xanh đậm có chắc cùng số đơn không?",
+     "options": [
+      {
+       "text": "Có; đơn vị dữ liệu không ảnh hưởng cách đọc màu.",
+       "correct": false,
+       "detail": "Cùng màu nhưng khác đơn vị cũng không cho cùng lượng."
+      },
+      {
+       "text": "Chỉ khi cùng thang màu và cùng đơn vị. Cần đọc vmin, vmax hoặc colorbar.",
+       "correct": true,
+       "detail": "Chỉ khi cùng thang màu và cùng đơn vị. Cần đọc vmin, vmax hoặc colorbar."
+      },
+      {
+       "text": "Có; màu giống nhau luôn mang cùng một con số.",
+       "correct": false,
+       "detail": "Một màu có thể ứng với hai số khác nhau nếu thang tự giãn khác nhau."
+      }
+     ],
+     "explanation": "Chỉ khi cùng thang màu và cùng đơn vị. Cần đọc vmin, vmax hoặc colorbar."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Không nội suy màu giữa các ô."
+   },
+   "scaffold": {
+    "template": "image = ax.imshow(z, {{slot1}}=\"nearest\")",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "interpolation"
+     }
+    ],
+    "bank": [
+     {
+      "label": "interpolation",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.z là ma trận chữ nhật, data.maximum >0. Tạo imshow với vmin=0,vmax=maximum,interpolation=\"nearest\"; thêm colorbar nằm ngang. Trả shape từ image.get_array().shape, clim từ image.get_clim(), và orientation của colorbar. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "bảng 2x3",
+      "value": "{'z': [[1, 2, 3], [4, 5, 6]], 'maximum': 10} → {'shape': [2, 3], 'clim': [0.0, 10.0], 'orientation': 'horizontal'}"
+     },
+     {
+      "label": "một ô",
+      "value": "{'z': [[0]], 'maximum': 4} → {'shape': [1, 1], 'clim': [0.0, 4.0], 'orientation': 'horizontal'}"
+     },
+     {
+      "label": "bảng khác cực đại",
+      "value": "{'z': [[8, 2]], 'maximum': 20} → {'shape': [1, 2], 'clim': [0.0, 20.0], 'orientation': 'horizontal'}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     fig, ax = plt.subplots()\n     image = ax.imshow(data['z'],vmin=0,vmax=data['maximum'],interpolation='nearest')\n     colorbar = fig.colorbar(image,ax=ax,orientation='horizontal')\n     result = {'shape':list(image.get_array().shape),'clim':list(image.get_clim()),'orientation':colorbar.orientation}\n     plt.close(fig)\n     return result\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cần tránh làm mượt màu giữa những ô dữ liệu rời rạc."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Giữ cùng thang màu khi so các ma trận."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "bảng 2x3",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'z': [[1, 2, 3], [4, 5, 6]], 'maximum': 10}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'shape': [2, 3], 'clim': [0.0, 10.0], 'orientation': 'horizontal'}"
+    },
+    {
+     "name": "một ô",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'z': [[0]], 'maximum': 4}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'shape': [1, 1], 'clim': [0.0, 4.0], 'orientation': 'horizontal'}"
+    },
+    {
+     "name": "bảng khác cực đại",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'z': [[8, 2]], 'maximum': 20}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'shape': [1, 2], 'clim': [0.0, 20.0], 'orientation': 'horizontal'}"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,137 @@
+{
+ "lesson_code": "CT02",
+ "sort_order": 133,
+ "module": "M6 · Hệ điều hành, tiến trình và đa luồng",
+ "title": "CT02 · Tạo process: Windows, fork và exec",
+ "subtitle": "Nâng cao · M6 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "CT02 · Tạo process: Windows, fork và exec",
+  "subtitle": "Nâng cao · M6 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/CT02.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Tạo process: Windows, fork và exec",
+    "body": "Bạn muốn chương trình con chạy trong thư mục dữ liệu riêng và nhận một số biến môi trường. Trên Windows, API CreateProcess có các tham số cho dòng lệnh, môi trường, thư mục làm việc và việc kế thừa handle qua bInheritHandles. Handle là tham chiếu mà Windows dùng để nhận diện một tài nguyên. CreateProcess nạp chương trình vào process mới, tạo thread đầu tiên và trả thông tin nhận diện cùng handle của process và thread. WinExec là API cũ, được khuyến cáo thay bằng CreateProcess. Các tên này xuất hiện trong ví dụ WinAPI/C của slide; chúng không phải hàm Python có sẵn để gọi trực tiếp.",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn muốn chương trình con chạy trong thư mục dữ liệu riêng và nhận một số biến môi trường. Trên Windows, API CreateProcess có các tham số cho dòng lệnh, môi trường, thư mục làm việc và việc kế thừa handle qua bInheritHandles. Handle là tham chiếu mà Windows dùng để nhận diện một tài nguyên. CreateProcess nạp chương trình vào process mới, tạo thread đầu tiên và trả thông tin nhận diện cùng handle của process và thread. WinExec là API cũ, được khuyến cáo thay bằng CreateProcess. Các tên này xuất hiện trong ví dụ WinAPI/C của slide; chúng không phải hàm Python có sẵn để gọi trực tiếp.\n\nVí dụ vừa rồi mô phỏng giá trị trả về của fork trên UNIX: cha nhận PID con, con nhận 0. Trong C, fork trả -1 khi lỗi; os.fork của Python báo lỗi bằng ngoại lệ và không có trên Windows. Sau khi fork thành công, cha và con có PID khác nhau, cùng tiếp tục từ vị trí sau lời gọi, nhưng không có thứ tự chạy được đảm bảo. Hệ điều hành thường dùng copy-on-write: các trang nhớ chỉ cần được sao chép riêng khi có bên sửa chúng, thay vì sao chép vật lý toàn bộ bộ nhớ ngay lúc tạo con."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Dictionary này mô phỏng exec: chương trình \"shell\" được thay bằng \"analysis\" trong process 101, nên PID vẫn là 101. exec không tạo thêm process. Trong họ hàm exec, hậu tố l nhận từng đối số riêng, v nhận một dãy đối số argv, p tìm chương trình qua PATH và e cho phép truyền môi trường tường minh. Vì vậy, execl và execv khác cách nhận đối số; execlp và execvp có thêm bước tìm qua PATH; execle nhận cả môi trường. Trong ví dụ C của slide, argv gồm \"/bin/ps\", \"-ef\" và NULL đánh dấu kết thúc. Khi thực hành bằng subprocess, bạn truyền một list đối số Python thay vì chép nguyên chữ ký hàm C.\n\nCha có thể wait để thu trạng thái kết thúc của con. Trong ví dụ thật này, process con thoát với mã 3; wait và poll sau khi kết thúc đều cho mã đó. Trên UNIX, kết hợp fork/exec/wait là nền tảng của shell; bài Python sẽ dùng subprocess để thực hành trên cả Windows và UNIX."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "parent_pid, new_child_pid = 100, 101\nfork_returns = {\"parent\": new_child_pid, \"child\": 0}\nprint(fork_returns[\"parent\"], fork_returns[\"child\"])",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 101 0"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 101 analysis"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 3 ⏎ 3"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "exec thành công có làm tiến trình hiện tại đổi PID không?",
+     "options": [
+      {
+       "text": "Có; exec luôn chạy song song cả hai chương trình",
+       "correct": false,
+       "detail": "Sau exec thành công, code chương trình cũ không tiếp tục như một nhánh thứ hai."
+      },
+      {
+       "text": "Không; chương trình trong tiến trình được thay",
+       "correct": true,
+       "detail": "exec thay image chương trình; nó không phải lệnh tạo tiến trình con."
+      },
+      {
+       "text": "Có; exec luôn tạo PID mới",
+       "correct": false,
+       "detail": "Tạo process và thay chương trình là hai thao tác khác nhau."
+      }
+     ],
+     "explanation": "exec thay image chương trình; nó không phải lệnh tạo tiến trình con."
+    },
+    {
+     "question": "fork thành công trên POSIX trả gì ở process con?",
+     "options": [
+      {
+       "text": "-1 trong mọi trường hợp",
+       "correct": false,
+       "detail": "Chưa đúng. Cha nhận PID con, còn con nhận 0 để chương trình phân biệt hai nhánh."
+      },
+      {
+       "text": "0",
+       "correct": true,
+       "detail": "Cha nhận PID con, còn con nhận 0 để chương trình phân biệt hai nhánh."
+      },
+      {
+       "text": "PID của chính cha",
+       "correct": false,
+       "detail": "Chưa đúng. Cha nhận PID con, còn con nhận 0 để chương trình phân biệt hai nhánh."
+      }
+     ],
+     "explanation": "Cha nhận PID con, còn con nhận 0 để chương trình phân biệt hai nhánh."
+    },
+    {
+     "question": "exec thành công có tạo process mới với PID khác không?",
+     "options": [
+      {
+       "text": "Không; thay chương trình trong process hiện tại",
+       "correct": true,
+       "detail": "Exec thay image chương trình; PID của process hiện tại được giữ theo mô hình đang học."
+      },
+      {
+       "text": "Có; luôn tạo thêm một process thứ ba",
+       "correct": false,
+       "detail": "Chưa đúng. Exec thay image chương trình; PID của process hiện tại được giữ theo mô hình đang học."
+      },
+      {
+       "text": "Chỉ thay tên biến program trong Python",
+       "correct": false,
+       "detail": "Chưa đúng. Exec thay image chương trình; PID của process hiện tại được giữ theo mô hình đang học."
+      }
+     ],
+     "explanation": "Exec thay image chương trình; PID của process hiện tại được giữ theo mô hình đang học."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Vẽ luồng cha PID 900 tạo con PID 901; con exec chương trình tính tổng và kết thúc; cha wait rồi tiếp tục. Thêm ghi chú cách triển khai tương ứng trên Windows. Đây là sơ đồ ý nghĩa API, không yêu cầu chạy os.fork trên Windows."
+   },
+   "procedure": [
+    "Đánh dấu hai nhánh sau fork và giá trị trả về ở mỗi nhánh.",
+    "Giữ PID 901 trước/sau exec; đánh dấu đoạn code cũ của con bị thay.",
+    "Ghi Windows có CreateProcess; Python có subprocess để chạy chương trình theo cách portable.",
+    "Tự kiểm: Có đúng hai PID trong sơ đồ; exec không tạo PID thứ ba.",
+    "Tự kiểm: Cha nhận trạng thái kết thúc sau wait.",
+    "Tự kiểm: Không đặt os.fork là API chạy được trên mọi hệ điều hành."
+   ]
+  }
+ }
+}

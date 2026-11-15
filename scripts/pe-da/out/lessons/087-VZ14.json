@@ -1,0 +1,194 @@
+{
+ "lesson_code": "VZ14",
+ "sort_order": 87,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ14 · Xuất PNG/SVG, độ phân giải và vòng đời Figure",
+ "subtitle": "Trung cấp · M4 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "VZ14 · Xuất PNG/SVG, độ phân giải và vòng đời Figure",
+  "subtitle": "Trung cấp · M4 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/VZ14.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Xuất PNG/SVG, độ phân giải và vòng đời Figure",
+    "body": "Một hình nhìn rõ trong notebook vẫn có thể mờ khi đặt vào slide. figsize tính theo inch, còn dpi quyết định số pixel khi xuất ảnh raster. Hình rộng 6 inch ở 150 dpi có bề rộng 900 pixel nếu không cắt lại khung.",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một hình nhìn rõ trong notebook vẫn có thể mờ khi đặt vào slide. figsize tính theo inch, còn dpi quyết định số pixel khi xuất ảnh raster. Hình rộng 6 inch ở 150 dpi có bề rộng 900 pixel nếu không cắt lại khung.\n\n![Biểu đồ](../visuals/VZ14-1.png)"
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "PNG phù hợp cho ảnh chèn nhanh, SVG giữ nét vector cho đường và chữ khi phóng to. transparent=True cho nền trong suốt; hãy kiểm tra lại màu chữ trên nền nơi hình sẽ được đặt. bbox_inches=\"tight\" có thể thay đổi kích thước pixel vì nó cắt theo nội dung, nên không dùng công thức inch nhân dpi để khẳng định kích thước sau cắt.\n\n![Biểu đồ](../visuals/VZ14-2.png)"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "savefig lưu hình; show mở hình qua backend tương tác. Trong script, thường lưu trước khi show và đóng Figure sau khi dùng để không giữ nhiều hình trong bộ nhớ. cla xóa nội dung Axes hiện tại, clf xóa nội dung Figure hiện tại, close đóng Figure. Khi đã có ax và fig, dùng ax.clear() hoặc fig.clear() sẽ rõ đối tượng hơn các lệnh phụ thuộc trạng thái hiện tại.\n\n![Biểu đồ](../visuals/VZ14-3.png)"
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import matplotlib\nmatplotlib.use(\"Agg\")\nimport matplotlib.pyplot as plt\nfrom io import BytesIO\nfrom PIL import Image\nfig, ax = plt.subplots(figsize=(6, 3))\nax.plot([1, 2, 3], [8, 10, 7], marker=\"o\")\nax.set(xlabel=\"Day\", ylabel=\"Cups\", title=\"A 900 by 450 pixel PNG\")\nbuffer = BytesIO()\nfig.savefig(buffer, format=\"png\", dpi=150)\nbuffer.seek(0)\nprint(Image.open(buffer).size)\nfrom pathlib import Path\nfrom tempfile import gettempdir\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\nfig.savefig(out / \"VZ14-1.png\", dpi=130)\nplt.close(fig)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: (900, 450)"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: True"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 0 ⏎ 1"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Hình rộng 5 inch, dpi=120, không cắt khung: rộng bao nhiêu pixel?",
+     "options": [
+      {
+       "text": "24",
+       "correct": false,
+       "detail": "Không chia dpi cho inch."
+      },
+      {
+       "text": "600",
+       "correct": true,
+       "detail": "Đúng: 5×120=600 pixel."
+      },
+      {
+       "text": "125",
+       "correct": false,
+       "detail": "Không cộng inch với dpi."
+      }
+     ],
+     "explanation": "Công thức inch×dpi áp dụng khi không cắt hoặc đổi kích thước sau xuất."
+    },
+    {
+     "question": "Hình rộng 4 inch ở 200 dpi có bao nhiêu pixel trước khi cắt khung?",
+     "options": [
+      {
+       "text": "400 pixel.",
+       "correct": false,
+       "detail": "400 là mức có thể nhận khi dùng 100 dpi, không phải 200."
+      },
+      {
+       "text": "200 pixel.",
+       "correct": false,
+       "detail": "200 mới là mật độ trên mỗi inch, chưa phải tổng chiều rộng."
+      },
+      {
+       "text": "800 pixel. Điều này giả định không cắt hoặc thay đổi kích thước sau xuất.",
+       "correct": true,
+       "detail": "800 pixel. Điều này giả định không cắt hoặc thay đổi kích thước sau xuất."
+      }
+     ],
+     "explanation": "800 pixel. Điều này giả định không cắt hoặc thay đổi kích thước sau xuất."
+    },
+    {
+     "question": "Muốn đặt hình lên nền slide có màu, cân nhắc tham số nào?",
+     "options": [
+      {
+       "text": "Chỉ tăng linewidth mà không kiểm nền.",
+       "correct": false,
+       "detail": "Độ dày nét không thay cài đặt nền trong suốt."
+      },
+      {
+       "text": "transparent=True; sau đó kiểm tra tương phản trên nền slide thật.",
+       "correct": true,
+       "detail": "transparent=True; sau đó kiểm tra tương phản trên nền slide thật."
+      },
+      {
+       "text": "Chỉ giảm dpi xuống 1.",
+       "correct": false,
+       "detail": "Dpi rất thấp làm giảm độ rõ, không tạo nền trong suốt."
+      }
+     ],
+     "explanation": "transparent=True; sau đó kiểm tra tương phản trên nền slide thật."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Đóng đúng Figure vừa dùng."
+   },
+   "scaffold": {
+    "template": "plt.{{slot1}}(fig)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "close"
+     }
+    ],
+    "bank": [
+     {
+      "label": "close",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.width,data.height là số inch dương, data.dpi là số nguyên dương. Tạo Figure đúng figsize, vẽ một đường bất kỳ, xuất PNG vào BytesIO không dùng bbox_inches=\"tight\". Dùng PIL.Image.open đọc size, trả [width_px,height_px]. Đóng Figure. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "ảnh ngang mới",
+      "value": "{'width': 4, 'height': 2, 'dpi': 120} → [480, 240]"
+     },
+     {
+      "label": "ảnh vuông",
+      "value": "{'width': 3, 'height': 3, 'dpi': 100} → [300, 300]"
+     },
+     {
+      "label": "ảnh nhỏ",
+      "value": "{'width': 2, 'height': 1, 'dpi': 80} → [160, 80]"
+     }
+    ]
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Sau khi lưu, cần giải phóng Figure nếu không dùng tiếp."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Xuất ảnh với kích thước dự đoán được và đóng Figure."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ],
+   "procedure": [
+    "Bài này cần PIL, không có trong Pyodide nên chưa chấm tự động.",
+    "Đầu vào {'width': 4, 'height': 2, 'dpi': 120} — kết quả cần có [480, 240].",
+    "Đầu vào {'width': 3, 'height': 3, 'dpi': 100} — kết quả cần có [300, 300].",
+    "Đầu vào {'width': 2, 'height': 1, 'dpi': 80} — kết quả cần có [160, 80]."
+   ]
+  }
+ }
+}

@@ -57,8 +57,10 @@ const FKS = readdirSync(MIGRATIONS, { withFileTypes: true })
   .flatMap((d) => {
     const sql = readFileSync(join(MIGRATIONS, d.name, 'migration.sql'), 'utf8');
     return [
+      // \s+ chứ không phải dấu cách đơn: migration viết tay (vd learning_event_consents)
+      // xuống dòng giữa các mệnh đề, regex cũ bỏ sót nó và spec đạt vô nghĩa.
       ...sql.matchAll(
-        /ALTER TABLE "(\w+)" ADD CONSTRAINT "\w+" FOREIGN KEY \("(\w+)"\) REFERENCES "(\w+)"/g,
+        /ALTER\s+TABLE\s+"(\w+)"\s+ADD\s+CONSTRAINT\s+"\w+"\s+FOREIGN\s+KEY\s+\("(\w+)"\)\s+REFERENCES\s+"(\w+)"/g,
       ),
     ].map((m) => ({ from: `${m[1]}.${m[2]}`, to: m[3] }));
   });

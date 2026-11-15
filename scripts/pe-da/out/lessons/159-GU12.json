@@ -1,0 +1,165 @@
+{
+ "lesson_code": "GU12",
+ "sort_order": 159,
+ "module": "M8 · Tkinter: từ form nhỏ đến quản lý điểm",
+ "title": "GU12 · PW9: ứng dụng quản lý điểm bằng Tkinter",
+ "subtitle": "Nâng cao · M8 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "GU12 · PW9: ứng dụng quản lý điểm bằng Tkinter",
+  "subtitle": "Nâng cao · M8 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/GU12.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "PW9: ứng dụng quản lý điểm bằng Tkinter",
+    "body": "Bài thực hành cuối chuyển hệ thống quản lý điểm sang cửa sổ Tkinter và giữ các chức năng từ PW8. File projects/grade_app.py đi kèm có ba tab Sinh viên, Môn học, Điểm và GPA. Mã sinh viên và mã môn là khóa; điểm mỗi cặp sinh viên–môn chỉ có một giá trị.",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bài thực hành cuối chuyển hệ thống quản lý điểm sang cửa sổ Tkinter và giữ các chức năng từ PW8. File projects/grade_app.py đi kèm có ba tab Sinh viên, Môn học, Điểm và GPA. Mã sinh viên và mã môn là khóa; điểm mỗi cặp sinh viên–môn chỉ có một giá trị.\n\nVí dụ hạ điểm xuống một chữ số thập phân theo yêu cầu PW3, không làm tròn tới số gần nhất. Ứng dụng mẫu dùng thang 0–20 và tín chỉ nguyên dương; đây là quy ước minh họa ghi rõ trong form, vì slide không quy định toàn bộ thang điểm."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "GPA mẫu là trung bình có trọng số trên các môn đã có điểm. Môn có mã GUI chưa có điểm nên không góp vào mẫu số; điểm thiếu không được coi là 0. Sinh viên chưa có điểm nào được hiển thị dấu gạch thay vì GPA 0. Bạn có thể sắp danh sách GPA theo thứ tự giảm dần.\n\nKhi lưu, giao diện tạo một bản chụp dữ liệu nhất quán, gọi là snapshot, rồi giao cho worker. Worker ghi pickle nén gzip vào file tạm, thay thế file đích khi ghi xong và gửi kết quả qua queue. Giao diện dùng after để đọc kết quả. Chỉ nạp pickle từ nguồn mà ứng dụng và người dùng tin cậy, vì quá trình nạp có thể thực thi code."
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Chạy ứng dụng bằng python projects/grade_app.py --data duong-dan/grades.pkl.gz. Nếu file chưa tồn tại, ứng dụng bắt đầu với dữ liệu rỗng. Nếu file hỏng, ứng dụng báo lỗi và không tự ghi đè. Các bài kiểm tra đi kèm kiểm tra dữ liệu, GPA, việc lưu và nạp cùng một số callback. Để xem giao diện có dễ dùng và bố trí có vừa không, hãy chạy các bước thực hành bên dưới bằng chuột, bàn phím và cửa sổ thật."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "from decimal import Decimal, ROUND_FLOOR\nmarks=['14.29','16.00']\nnormalized=[float(Decimal(m).quantize(Decimal('0.1'),rounding=ROUND_FLOOR)) for m in marks]\nprint(normalized)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: [14.2, 16.0]"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 16.4"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: S01 ⏎ True"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Ứng dụng GUI dùng thang 0–20; điểm 20 có nên bị loại chỉ vì PW cũ dùng 0–10 không?",
+     "options": [
+      {
+       "text": "Có; mọi bài Python dùng một thang điểm",
+       "correct": false,
+       "detail": "Thang điểm là quy tắc nghiệp vụ của từng ứng dụng."
+      },
+      {
+       "text": "Không; vậy chấp nhận mọi số",
+       "correct": false,
+       "detail": "Vẫn cần giới hạn 0–20, số hữu hạn và dữ liệu đúng kiểu."
+      },
+      {
+       "text": "Không; kiểm theo hợp đồng của ứng dụng hiện tại",
+       "correct": true,
+       "detail": "GU12 quy định thang 0–20; cần đọc đúng dữ liệu và điều kiện của bài."
+      }
+     ],
+     "explanation": "GU12 quy định thang 0–20; cần đọc đúng dữ liệu và điều kiện của bài."
+    },
+    {
+     "question": "GUI hiện tại dùng điểm 0..20. Điểm 20 hợp lệ không?",
+     "options": [
+      {
+       "text": "Chỉ hợp lệ nếu tên môn là Python",
+       "correct": false,
+       "detail": "Chưa đúng. Quy tắc nghiệp vụ phải theo bài hiện tại; không trộn hai thang điểm."
+      },
+      {
+       "text": "Có theo hợp đồng GU12",
+       "correct": true,
+       "detail": "Quy tắc nghiệp vụ phải theo bài hiện tại; không trộn hai thang điểm."
+      },
+      {
+       "text": "Không vì PW cũ dùng thang 0..10",
+       "correct": false,
+       "detail": "Chưa đúng. Quy tắc nghiệp vụ phải theo bài hiện tại; không trộn hai thang điểm."
+      }
+     ],
+     "explanation": "Quy tắc nghiệp vụ phải theo bài hiện tại; không trộn hai thang điểm."
+    },
+    {
+     "question": "Một sinh viên chưa có điểm nào. Label GPA nên hiển thị gì theo bài?",
+     "options": [
+      {
+       "text": "Chưa có GPA",
+       "correct": true,
+       "detail": "Thiếu điểm không phải đã được chấm 0; cần tách trạng thái thiếu khỏi giá trị hợp lệ."
+      },
+      {
+       "text": "0 bắt buộc",
+       "correct": false,
+       "detail": "Chưa đúng. Thiếu điểm không phải đã được chấm 0; cần tách trạng thái thiếu khỏi giá trị hợp lệ."
+      },
+      {
+       "text": "20 để khuyến khích",
+       "correct": false,
+       "detail": "Chưa đúng. Thiếu điểm không phải đã được chấm 0; cần tách trạng thái thiếu khỏi giá trị hợp lệ."
+      }
+     ],
+     "explanation": "Thiếu điểm không phải đã được chấm 0; cần tách trạng thái thiếu khỏi giá trị hợp lệ."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Phân biệt chưa có GPA với GPA bằng 0."
+   },
+   "scaffold": {
+    "template": "text = \"Chưa có GPA\" if gpa {{slot1}} None else str(gpa)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "So với giá trị thiếu",
+      "answer": "is"
+     }
+    ],
+    "bank": [
+     {
+      "label": "is",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Xây bản GUI quản lý điểm gồm ba khu vực Students/Courses/Marks và hiển thị GPA. Dùng S5 Linh; DA 3 tín chỉ điểm 16.29, VI 1 tín chỉ điểm 12.99 trên thang 0–20. Floor một chữ số thành 16.2,12.9; GPA phần đã biết là 15.375. Có save nền và reload bằng tiến trình mới."
+   },
+   "procedure": [
+    "Giữ hàm validate, floor điểm, GPA và serializer riêng khỏi widget.",
+    "Form hỗ trợ thêm/sửa/xóa; khi xóa hồ sơ có điểm, công bố và thực hiện chính sách nhất quán.",
+    "Save dùng snapshot tách biệt, worker ghi xong/đóng file mới gửi saved; main poll Queue. Load kiểm version/cấu trúc trước khi thay trạng thái.",
+    "Tự kiểm: Điểm 20 hợp lệ, 20.1/âm/NaN/chuỗi sai bị từ chối; sửa lỗi không làm mất dữ liệu hợp lệ cũ.",
+    "Tự kiểm: GPA Linh đúng 15.375 trước định dạng; bỏ điểm một môn tính phần đã biết, không có điểm hiển thị chưa có GPA.",
+    "Tự kiểm: Trong lúc lưu UI vẫn phản hồi; đóng/mở tiến trình mới khôi phục đúng dữ liệu đã báo saved.",
+    "Tự kiểm: Thử bản sao snapshot hỏng: thông báo lỗi và giữ trạng thái tốt, không tự ghi đè file hỏng."
+   ]
+  }
+ }
+}

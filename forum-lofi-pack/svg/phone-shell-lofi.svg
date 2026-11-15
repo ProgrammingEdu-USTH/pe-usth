@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 820" width="420" height="820">
+  <defs>
+    <linearGradient id="pbody" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2c1f4f"/>
+      <stop offset="50%" stop-color="#191230"/>
+      <stop offset="100%" stop-color="#110b22"/>
+    </linearGradient>
+    <linearGradient id="prim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f6b86b" stop-opacity="0.7"/>
+      <stop offset="50%" stop-color="#a98cf5" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#e58cc8" stop-opacity="0.65"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="404" height="804" rx="54" fill="url(#pbody)" stroke="url(#prim)" stroke-width="3"/>
+  <rect x="22" y="24" width="376" height="772" rx="42" fill="#130d26" stroke="#ffffff" stroke-opacity="0.1"/>
+  <!-- Tai thỏ / Loa thoại -->
+  <rect x="156" y="34" width="108" height="22" rx="11" fill="#0b0718"/>
+  <circle cx="244" cy="45" r="4.5" fill="#3a2a68"/>
+  <rect x="180" y="42" width="44" height="5" rx="2.5" fill="#291d4a"/>
+  <!-- Thanh home dưới cùng -->
+  <rect x="148" y="778" width="124" height="5" rx="2.5" fill="#cfc3e8" opacity="0.45"/>
+</svg>

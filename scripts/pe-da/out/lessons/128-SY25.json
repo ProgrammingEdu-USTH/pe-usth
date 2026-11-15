@@ -1,0 +1,160 @@
+{
+ "lesson_code": "SY25",
+ "sort_order": 128,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY25 · PW1: quản lý sinh viên, môn học và điểm bằng collection",
+ "subtitle": "Trung cấp · M5 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "SY25 · PW1: quản lý sinh viên, môn học và điểm bằng collection",
+  "subtitle": "Trung cấp · M5 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/SY25.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "PW1: quản lý sinh viên, môn học và điểm bằng collection",
+    "body": "Lớp có nhiều sinh viên và nhiều môn. Mỗi điểm phải gắn cả mã sinh viên lẫn mã môn; một danh sách điểm rời sẽ khó biết điểm thuộc về ai. Bắt đầu bằng cấu trúc dễ tra cứu:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Lớp có nhiều sinh viên và nhiều môn. Mỗi điểm phải gắn cả mã sinh viên lẫn mã môn; một danh sách điểm rời sẽ khó biết điểm thuộc về ai. Bắt đầu bằng cấu trúc dễ tra cứu:\n\nDictionary giúp tra theo mã; tuple (student_id, course_id) làm khóa của một điểm. Ở PW1, bạn chỉ dùng collection và hàm để tổ chức dữ liệu, chưa cần class cho sinh viên hay môn học. Mỗi hồ sơ vẫn cần ngày sinh (DoB), dù trường này không tham gia công thức GPA."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Điểm 0 là dữ liệu hợp lệ, khác chưa có điểm. Khi liệt kê một môn, chọn đúng các cặp khóa của môn đó. Trong màn hình nhập, kiểm mã môn và mã sinh viên tồn tại trước khi nhận điểm.\n\nHàm read_student nhận một hàm ask để lấy dữ liệu. Trong ví dụ, lambda trả lần lượt các câu trả lời có sẵn nên bạn có thể chạy ngay mà không gõ bàn phím. Khi làm chương trình terminal, gọi `read_student(input)`. Bài hoàn chỉnh cần nhập số lượng rồi từng hồ sơ sinh viên, nhập số môn và mã/tên từng môn, chọn môn để nhập điểm, và liệt kê lại các danh sách. Các thao tác phải dùng chung bộ dữ liệu để hồ sơ và điểm luôn khớp nhau."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "students = {\"S01\": {\"name\": \"An\", \"dob\": \"2005-01-02\"}}\ncourses = {\"PY\": {\"name\": \"Python\"}}\nmarks = {(\"S01\", \"PY\"): 8.0}\nprint(students[\"S01\"][\"dob\"])\nprint(marks[(\"S01\", \"PY\")])",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 2005-01-02 ⏎ 8.0"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: [('S01', 'An', 8), ('S02', 'Binh', 0)]"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: S01 An 2005-01-02"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Điểm chưa được nhập nên lưu như 0 để tiện tính không?",
+     "options": [
+      {
+       "text": "Không; chưa có điểm khác điểm 0",
+       "correct": true,
+       "detail": "0 là điểm đã biết; thiếu điểm là trạng thái khác cần giữ riêng."
+      },
+      {
+       "text": "Có; cả hai đều không đạt",
+       "correct": false,
+       "detail": "Một điểm đã chấm 0 vẫn phải hiển thị và có thể tham gia phép tính."
+      },
+      {
+       "text": "Xóa sinh viên đó",
+       "correct": false,
+       "detail": "Thiếu điểm không làm hồ sơ sinh viên mất hiệu lực."
+      }
+     ],
+     "explanation": "0 là điểm đã biết; thiếu điểm là trạng thái khác cần giữ riêng."
+    },
+    {
+     "question": "Điểm một sinh viên trong một môn nên gắn với khóa nào?",
+     "options": [
+      {
+       "text": "Số thứ tự dòng in ra terminal",
+       "correct": false,
+       "detail": "Chưa đúng. Hai mã xác định quan hệ giữa hồ sơ sinh viên và môn học."
+      },
+      {
+       "text": "(student_id, course_id)",
+       "correct": true,
+       "detail": "Hai mã xác định quan hệ giữa hồ sơ sinh viên và môn học."
+      },
+      {
+       "text": "Chỉ tên sinh viên không duy nhất",
+       "correct": false,
+       "detail": "Chưa đúng. Hai mã xác định quan hệ giữa hồ sơ sinh viên và môn học."
+      }
+     ],
+     "explanation": "Hai mã xác định quan hệ giữa hồ sơ sinh viên và môn học."
+    },
+    {
+     "question": "Điểm 0 khác chưa có điểm ở chỗ nào?",
+     "options": [
+      {
+       "text": "0 là một giá trị đã được chấm",
+       "correct": true,
+       "detail": "Dữ liệu thiếu và một điểm hợp lệ bằng 0 cần được giữ riêng."
+      },
+      {
+       "text": "Hai trạng thái luôn giống nhau",
+       "correct": false,
+       "detail": "Chưa đúng. Dữ liệu thiếu và một điểm hợp lệ bằng 0 cần được giữ riêng."
+      },
+      {
+       "text": "0 luôn phải xóa khỏi registry",
+       "correct": false,
+       "detail": "Chưa đúng. Dữ liệu thiếu và một điểm hợp lệ bằng 0 cần được giữ riêng."
+      }
+     ],
+     "explanation": "Dữ liệu thiếu và một điểm hợp lệ bằng 0 cần được giữ riêng."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Đọc điểm mà vẫn phân biệt chưa nhập."
+   },
+   "scaffold": {
+    "template": "key = (student_id, course_id)\nmark = marks.{{slot1}}(key)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Đọc mặc định None",
+      "answer": "get"
+     }
+    ],
+    "bank": [
+     {
+      "label": "get",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Tạo PW1 bản quản lý trung tâm học thêm. Viết CLI nhập số sinh viên, số môn và số điểm; lưu dictionary theo ID. Dùng sinh viên S1 An, S2 Mai; môn PY Python, ST Statistics; điểm (S1,PY)=0 và (S2,ST)=8. Chưa cần class, GPA hay file."
+   },
+   "procedure": [
+    "Tách hàm nhập một hồ sơ, nhập điểm và in bảng.",
+    "Kiểm ID đã tồn tại trước khi nhận điểm; giữ điểm trong [0,10].",
+    "Sau nhập, in được hồ sơ theo ID và điểm theo cặp khóa; in \"chưa nhập\" cho cặp không có.",
+    "Tự kiểm: S1/PY hiển thị 0; S1/ST hiển thị chưa nhập.",
+    "Tự kiểm: Điểm -1, 11 hoặc ID không tồn tại bị từ chối, dữ liệu hợp lệ cũ vẫn còn.",
+    "Tự kiểm: Đổi thứ tự nhập hai sinh viên không làm điểm gắn nhầm người."
+   ]
+  }
+ }
+}

@@ -1,0 +1,168 @@
+{
+ "lesson_code": "SY14",
+ "sort_order": 117,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY14 · Curses: nhận phím và vẽ lại giao diện terminal",
+ "subtitle": "Trung cấp · M5 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "SY14 · Curses: nhận phím và vẽ lại giao diện terminal",
+  "subtitle": "Trung cấp · M5 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/SY14.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Curses: nhận phím và vẽ lại giao diện terminal",
+    "body": "Một menu quản lý điểm có thể chạy ngay trong terminal: người dùng nhấn phím để chọn, màn hình được cập nhật thay vì in liên tục xuống dưới. Module curses hỗ trợ loại giao diện này. Một số hàm hỗ trợ ký tự không cần mở màn hình:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một menu quản lý điểm có thể chạy ngay trong terminal: người dùng nhấn phím để chọn, màn hình được cập nhật thay vì in liên tục xuống dưới. Module curses hỗ trợ loại giao diện này. Một số hàm hỗ trợ ký tự không cần mở màn hình:\n\nKết quả / quan sát thủ công:"
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Phần tương tác cần terminal thật có hỗ trợ curses. Trên Windows, nhiều bản Python cần gói windows-curses; không chạy bài này trong ô output không nhận phím. `wrapper` chuẩn bị màn hình và khôi phục terminal khi hàm kết thúc.\n\nKết quả / quan sát thủ công:"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "`addstr` ghi text vào vị trí hàng/cột; `refresh` đưa thay đổi ra màn hình; `getkey` chờ một phím. Đặt việc tính GPA trong hàm nghiệp vụ, không trộn công thức vào các lệnh vẽ.\n\nKết quả / quan sát thủ công:"
+    },
+    {
+     "title": "Ý chính 4",
+     "body": "Ở PW4, các thao tác curses thuộc output.py; dữ liệu Student/Course/Mark thuộc domains. Terminal có kích thước giới hạn: khi làm tiếp, xử lý khi kích thước cửa sổ terminal thay đổi và không ghi vượt hàng/cột. Curses là UI terminal, khác Tkinter tạo cửa sổ đồ họa."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "from curses import ascii\nprint(ascii.ctrl(\"a\") == \"\\x01\")\nprint(ascii.isdigit(\"5\"))",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: (không in gì)"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: (không in gì)"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: (không in gì)"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Curses wrapper giúp gì khi main kết thúc hoặc lỗi?",
+     "options": [
+      {
+       "text": "Tính GPA tự động",
+       "correct": false,
+       "detail": "Curses quản lý giao diện; công thức vẫn cần hàm nghiệp vụ."
+      },
+      {
+       "text": "Tạo cửa sổ Tkinter",
+       "correct": false,
+       "detail": "Đây là giao diện trong terminal, không phải GUI Tkinter."
+      },
+      {
+       "text": "Khôi phục trạng thái terminal",
+       "correct": true,
+       "detail": "wrapper chuẩn bị màn hình và thu dọn khi rời hàm."
+      }
+     ],
+     "explanation": "wrapper chuẩn bị màn hình và thu dọn khi rời hàm."
+    },
+    {
+     "question": "Curses nên chạy ở môi trường nào để nhận phím?",
+     "options": [
+      {
+       "text": "Một biến dictionary chứa tên phím",
+       "correct": false,
+       "detail": "Chưa đúng. Phần giao diện cần terminal có khả năng nhận và hiển thị tương tác."
+      },
+      {
+       "text": "Terminal thật có hỗ trợ curses",
+       "correct": true,
+       "detail": "Phần giao diện cần terminal có khả năng nhận và hiển thị tương tác."
+      },
+      {
+       "text": "Ô output tĩnh không nhận bàn phím",
+       "correct": false,
+       "detail": "Chưa đúng. Phần giao diện cần terminal có khả năng nhận và hiển thị tương tác."
+      }
+     ],
+     "explanation": "Phần giao diện cần terminal có khả năng nhận và hiển thị tương tác."
+    },
+    {
+     "question": "wrapper giúp gì khi ứng dụng curses kết thúc?",
+     "options": [
+      {
+       "text": "Chuẩn bị rồi khôi phục trạng thái terminal",
+       "correct": true,
+       "detail": "wrapper quản lý vòng đời môi trường terminal quanh hàm ứng dụng."
+      },
+      {
+       "text": "Tự tính GPA",
+       "correct": false,
+       "detail": "Chưa đúng. wrapper quản lý vòng đời môi trường terminal quanh hàm ứng dụng."
+      },
+      {
+       "text": "Tự tạo cửa sổ Tkinter",
+       "correct": false,
+       "detail": "Chưa đúng. wrapper quản lý vòng đời môi trường terminal quanh hàm ứng dụng."
+      }
+     ],
+     "explanation": "wrapper quản lý vòng đời môi trường terminal quanh hàm ứng dụng."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Khởi chạy hàm main bằng cơ chế quản lý terminal của curses."
+   },
+   "scaffold": {
+    "template": "import curses\n# main(screen) đã được định nghĩa\ncurses.{{slot1}}(main)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Hàm bao vòng đời terminal",
+      "answer": "wrapper"
+     }
+    ],
+    "bank": [
+     {
+      "label": "wrapper",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Viết menu Kho hàng trong terminal với phím 1 xem Stock, 2 xem Orders, q thoát. Dữ liệu chỉ là hai danh sách nhỏ; chưa cần quản lý điểm."
+   },
+   "procedure": [
+    "Tạo main(screen), giữ lựa chọn hiện tại trong biến.",
+    "Mỗi lượt erase, addstr nội dung hiện tại, refresh rồi getkey.",
+    "Bỏ qua phím ngoài 1/2/q; khi q thì thoát vòng lặp.",
+    "Tự kiểm: Nhấn 1 và 2 đổi nội dung nhưng không tạo màn hình in dài liên tục.",
+    "Tự kiểm: Nhấn q trả terminal về trạng thái bình thường.",
+    "Tự kiểm: Thử cửa sổ terminal hẹp và ghi lại chỗ chữ bị cắt; không dùng output panel không nhận phím."
+   ]
+  }
+ }
+}

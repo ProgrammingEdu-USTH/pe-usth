@@ -1,0 +1,209 @@
+{
+ "lesson_code": "SY06",
+ "sort_order": 109,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY06 · Cho object cách hiển thị và so sánh",
+ "subtitle": "Trung cấp · M5 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "SY06 · Cho object cách hiển thị và so sánh",
+  "subtitle": "Trung cấp · M5 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/SY06.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Cho object cách hiển thị và so sánh",
+    "body": "Khi in một điểm số, bạn muốn thấy \"Diem 8\" thay vì mô tả mặc định của object. Python gọi __str__ để lấy chuỗi hiển thị:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Khi in một điểm số, bạn muốn thấy \"Diem 8\" thay vì mô tả mặc định của object. Python gọi __str__ để lấy chuỗi hiển thị:\n\n`__str__` phải trả chuỗi. Nếu chỉ print trong method rồi không return, Python không nhận được chuỗi đúng yêu cầu. Để so sánh hai Grade bằng dấu <, định nghĩa __lt__:"
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`sorted` tạo danh sách mới theo quy tắc so sánh. Ở đây quy tắc là giá trị điểm. `NotImplemented` cho biết method không xử lý loại object kia; nó khác việc tự nhận mọi trường hợp không biết là False.\n\nKhông phải hai object có thể in được thì cũng so sánh thứ tự được với nhau. Khi thiết kế báo cáo, chọn rõ thứ tự theo điểm, tên hay mã thay vì trông chờ thứ tự mặc định."
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Slide so sánh người theo tuổi. Quy tắc tương tự: trong class Person có age, `__lt__` trả `self.age < other.age`. Khi đó Person 18 tuổi nhỏ hơn Person 21 tuổi, dù tên được xếp chữ cái theo thứ tự nào. Bạn cần chọn đúng thuộc tính để phép so sánh mang nghĩa của bài toán."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "class Grade:\n    def __init__(self, value): self.value = value\n    def __str__(self): return f\"Diem {self.value}\"\nprint(Grade(8))",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: Diem 8"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: True ⏎ [5, 8]"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: Khong cung loai de so sanh"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Trong __str__, chỉ print(\"A\") rồi không return thì có đáp ứng yêu cầu không?",
+     "options": [
+      {
+       "text": "Có nếu class có __init__",
+       "correct": false,
+       "detail": "__init__ không thay quy tắc giá trị trả về của __str__."
+      },
+      {
+       "text": "Không, __str__ phải trả str",
+       "correct": true,
+       "detail": "Python dùng giá trị trả về của __str__, không dùng nội dung method tự in."
+      },
+      {
+       "text": "Có, vì người dùng vẫn nhìn thấy A",
+       "correct": false,
+       "detail": "Việc in và trả chuỗi là hai thao tác khác nhau."
+      }
+     ],
+     "explanation": "Python dùng giá trị trả về của __str__, không dùng nội dung method tự in."
+    },
+    {
+     "question": "print(Grade(8)) dùng method nào để lấy chuỗi mô tả?",
+     "options": [
+      {
+       "text": "__init__ phải tự print",
+       "correct": false,
+       "detail": "Chưa đúng. __str__ trả chuỗi cho việc hiển thị; __lt__ phục vụ phép so sánh nhỏ hơn."
+      },
+      {
+       "text": "__str__",
+       "correct": true,
+       "detail": "__str__ trả chuỗi cho việc hiển thị; __lt__ phục vụ phép so sánh nhỏ hơn."
+      },
+      {
+       "text": "__lt__",
+       "correct": false,
+       "detail": "Chưa đúng. __str__ trả chuỗi cho việc hiển thị; __lt__ phục vụ phép so sánh nhỏ hơn."
+      }
+     ],
+     "explanation": "__str__ trả chuỗi cho việc hiển thị; __lt__ phục vụ phép so sánh nhỏ hơn."
+    },
+    {
+     "question": "Person(\"Z\",18) phải đứng trước Person(\"A\",21) khi xếp theo tuổi. __lt__ cần so gì?",
+     "options": [
+      {
+       "text": "self.age với other.age",
+       "correct": true,
+       "detail": "Đại lượng so sánh phải đúng mục tiêu: tuổi, không phải thứ tự chữ cái của tên."
+      },
+      {
+       "text": "self.name với other.name",
+       "correct": false,
+       "detail": "Chưa đúng. Đại lượng so sánh phải đúng mục tiêu: tuổi, không phải thứ tự chữ cái của tên."
+      },
+      {
+       "text": "Tên class của hai object",
+       "correct": false,
+       "detail": "Chưa đúng. Đại lượng so sánh phải đúng mục tiêu: tuổi, không phải thứ tự chữ cái của tên."
+      }
+     ],
+     "explanation": "Đại lượng so sánh phải đúng mục tiêu: tuổi, không phải thứ tự chữ cái của tên."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "So Person theo tuổi thay vì tên."
+   },
+   "scaffold": {
+    "template": "def __lt__(self, other):\n    return self.{{slot1}} < other.{{slot2}}",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Thuộc tính ở self",
+      "answer": "age"
+     },
+     {
+      "n": 2,
+      "placeholder": "Thuộc tính ở other",
+      "answer": "age"
+     }
+    ],
+    "bank": [
+     {
+      "label": "age",
+      "slot": 1,
+      "trap": ""
+     },
+     {
+      "label": "age",
+      "slot": 2,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Tạo class Parcel(name, weight), __str__ trả name, __lt__ so weight. solve(data) tạo các Parcel rồi trả tên sau sorted tăng dần. Khi trọng lượng bằng nhau, giữ thứ tự đầu vào.",
+    "io": [
+     {
+      "label": "khác trọng lượng",
+      "value": "[{'name': 'Z', 'weight': 2}, {'name': 'A', 'weight': 1}] → ['A', 'Z']"
+     },
+     {
+      "label": "hòa giữ thứ tự",
+      "value": "[{'name': 'B', 'weight': 1}, {'name': 'A', 'weight': 1}] → ['B', 'A']"
+     },
+     {
+      "label": "không có kiện",
+      "value": "[] → []"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "class Parcel:\n    def __init__(self, name, weight): self.name, self.weight = name, weight\n    def __str__(self): return self.name\n    def __lt__(self, other):\n        if not isinstance(other, Parcel): return NotImplemented\n        return self.weight < other.weight\ndef solve(data):\n    return [str(p) for p in sorted([Parcel(row['name'], row['weight']) for row in data])]\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "tests": [
+    {
+     "name": "khác trọng lượng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([{'name': 'Z', 'weight': 2}, {'name': 'A', 'weight': 1}]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "['A', 'Z']"
+    },
+    {
+     "name": "hòa giữ thứ tự",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([{'name': 'B', 'weight': 1}, {'name': 'A', 'weight': 1}]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "['B', 'A']"
+    },
+    {
+     "name": "không có kiện",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[]"
+    }
+   ]
+  }
+ }
+}

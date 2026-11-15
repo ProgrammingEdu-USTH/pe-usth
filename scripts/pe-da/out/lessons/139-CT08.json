@@ -1,0 +1,182 @@
+{
+ "lesson_code": "CT08",
+ "sort_order": 139,
+ "module": "M6 · Hệ điều hành, tiến trình và đa luồng",
+ "title": "CT08 · Popen, communicate, pipeline và timeout",
+ "subtitle": "Nâng cao · M6 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "CT08 · Popen, communicate, pipeline và timeout",
+  "subtitle": "Nâng cao · M6 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/CT08.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Popen, communicate, pipeline và timeout",
+    "body": "Một chương trình con cần nhận văn bản đầu vào rồi trả kết quả. Popen cho phép tạo process trước, sau đó trao đổi dữ liệu bằng communicate:",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một chương trình con cần nhận văn bản đầu vào rồi trả kết quả. Popen cho phép tạo process trước, sau đó trao đổi dữ liệu bằng communicate:\n\nPopen trả về sau khi khởi tạo, không chờ toàn bộ công việc xong như run. Với text=True, communicate nhận chuỗi; ở chế độ nhị phân, nó nhận bytes. communicate giúp gửi đầu vào, đọc đầu ra và chờ kết thúc mà không tự viết các lần đọc/ghi dễ làm đầy pipe."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "stdout của process trước nối vào stdin của process sau: đó là pipeline. Cha đóng bản sao đầu đọc p1.stdout sau khi nối để không giữ pipe mở không cần thiết. Cần chờ cả hai process và kiểm tra mã thoát của từng bước, không chỉ bước cuối.\n\nKhi Popen.communicate báo TimeoutExpired, process con có thể vẫn đang chạy. Ví dụ gọi kill rồi communicate lần nữa để đọc phần đầu ra còn lại và chờ con kết thúc. terminate và kill kết thúc process theo cơ chế của nền tảng: trên POSIX, kill mạnh hơn; trên Windows, hai phương thức đều dùng cơ chế kết thúc process của Windows. Không nên trông đợi terminate luôn cho chương trình con chạy xong phần dọn dẹp. Khác với communicate, run(timeout=...) tự dừng và chờ con khi hết hạn."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import subprocess, sys\np = subprocess.Popen([sys.executable, \"-c\", \"import sys; print(sys.stdin.read().upper())\"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)\nout, err = p.communicate(\"hello\", timeout=5)\nprint(out.strip(), p.returncode)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: HELLO 0"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: ABC"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: stopped True"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Popen có stdin=PIPE, stdout=PIPE. Với lượng dữ liệu lớn, communicate giúp gì?",
+     "options": [
+      {
+       "text": "Tự giết mọi tiến trình nếu quá thời gian mà không cần xử lý",
+       "correct": false,
+       "detail": "Khi communicate timeout cần xử lý tiến trình và gọi lại để thu/dọn."
+      },
+      {
+       "text": "Gửi input và thu output để tránh tự chờ sai thứ tự",
+       "correct": true,
+       "detail": "communicate xử lý trao đổi với các pipe và chờ kết thúc."
+      },
+      {
+       "text": "Chỉ trả PID, không đọc output",
+       "correct": false,
+       "detail": "PID nằm ở thuộc tính pid; communicate trả output/error."
+      }
+     ],
+     "explanation": "communicate xử lý trao đổi với các pipe và chờ kết thúc."
+    },
+    {
+     "question": "Popen khác run ở điểm chờ nào?",
+     "options": [
+      {
+       "text": "run không bao giờ chờ con",
+       "correct": false,
+       "detail": "Chưa đúng. Sau Popen, có thể giao tiếp/chờ bằng communicate hoặc wait theo cách dùng."
+      },
+      {
+       "text": "Popen cho phép cha tiếp tục sau khi khởi tạo con",
+       "correct": true,
+       "detail": "Sau Popen, có thể giao tiếp/chờ bằng communicate hoặc wait theo cách dùng."
+      },
+      {
+       "text": "Popen luôn chờ toàn bộ con xong trước khi trả",
+       "correct": false,
+       "detail": "Chưa đúng. Sau Popen, có thể giao tiếp/chờ bằng communicate hoặc wait theo cách dùng."
+      }
+     ],
+     "explanation": "Sau Popen, có thể giao tiếp/chờ bằng communicate hoặc wait theo cách dùng."
+    },
+    {
+     "question": "Popen(text=True) nhận input cho communicate theo kiểu nào trong bài?",
+     "options": [
+      {
+       "text": "str",
+       "correct": true,
+       "detail": "Text mode xử lý chuỗi; binary mode dùng bytes."
+      },
+      {
+       "text": "Chỉ bytes",
+       "correct": false,
+       "detail": "Chưa đúng. Text mode xử lý chuỗi; binary mode dùng bytes."
+      },
+      {
+       "text": "Chỉ int",
+       "correct": false,
+       "detail": "Chưa đúng. Text mode xử lý chuỗi; binary mode dùng bytes."
+      }
+     ],
+     "explanation": "Text mode xử lý chuỗi; binary mode dùng bytes."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Gửi chuỗi vào tiến trình đã mở text=True."
+   },
+   "scaffold": {
+    "template": "output, errors = process.{{slot1}}(input=\"hello\", timeout=5)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phương thức trao đổi",
+      "answer": "communicate"
+     }
+    ],
+    "bank": [
+     {
+      "label": "communicate",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "solve(data) nhận một chuỗi ASCII. Mở Python con bằng Popen(text=True, stdin=PIPE, stdout=PIPE, stderr=PIPE); con đọc stdin và ghi upper() vào stdout. communicate có timeout=5; nếu timeout phải kill rồi communicate trước khi báo lại. Trả chuỗi output, giữ đúng newline đầu vào.",
+    "io": [
+     {
+      "label": "hai dòng",
+      "value": "'tea\\ncoffee\\n' → 'TEA\\nCOFFEE\\n'"
+     },
+     {
+      "label": "không newline",
+      "value": "'a1 b2' → 'A1 B2'"
+     },
+     {
+      "label": "rỗng",
+      "value": "'' → ''"
+     }
+    ]
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "procedure": [
+    "Bài này cần subprocess, không có trong Pyodide nên chưa chấm tự động.",
+    "Đầu vào 'tea\\ncoffee\\n' — kết quả cần có 'TEA\\nCOFFEE\\n'.",
+    "Đầu vào 'a1 b2' — kết quả cần có 'A1 B2'.",
+    "Đầu vào '' — kết quả cần có ''."
+   ]
+  }
+ }
+}

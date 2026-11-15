@@ -1,0 +1,195 @@
+{
+ "lesson_code": "SY08",
+ "sort_order": 111,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY08 · Đa kế thừa: method được tìm ở đâu?",
+ "subtitle": "Trung cấp · M5 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "SY08 · Đa kế thừa: method được tìm ở đâu?",
+  "subtitle": "Trung cấp · M5 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/SY08.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Đa kế thừa: method được tìm ở đâu?",
+    "body": "Hai class A và B đều có method label, nhưng trả nội dung khác nhau. Nếu C kế thừa cả A lẫn B thì `C().label()` sẽ dùng method nào? Hãy xem thứ tự Python tìm method:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Hai class A và B đều có method label, nhưng trả nội dung khác nhau. Nếu C kế thừa cả A lẫn B thì `C().label()` sẽ dùng method nào? Hãy xem thứ tự Python tìm method:\n\n`__mro__` cho biết thứ tự tìm method, viết đầy đủ là Method Resolution Order (MRO). Trong ví dụ, Python tìm label ở C rồi A trước B. Đổi thứ tự lớp cha có thể đổi kết quả; đừng coi super là cách gọi cố định một lớp cha bất kỳ."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "UpperMixin gọi method tiếp theo theo MRO rồi đổi kết quả thành chữ hoa. Nhờ super, phần mở rộng phối hợp được với Report mà không cần gọi đích danh Report.render. Một mixin là lớp bổ sung hành vi cho lớp khác qua kế thừa. Nó nên đảm nhiệm một phần hành vi nhỏ; nếu nhiều lớp cùng sửa một trạng thái, cần kiểm kỹ thứ tự gọi.\n\nKhi thứ tự kế thừa khó giải thích hoặc hai lớp cùng quản lý một trạng thái, để một object chứa hoặc sử dụng object khác, gọi là composition, có thể dễ đọc hơn. Đa kế thừa được hỗ trợ nhưng không cần dùng cho mọi báo cáo."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "class A:\n    def label(self): return \"A\"\nclass B:\n    def label(self): return \"B\"\nclass C(A, B): pass\nprint(C().label())\nprint([x.__name__ for x in C.__mro__])",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: A ⏎ ['C', 'A', 'B', 'object']"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: SALES"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: B"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "A và B đều có label, C(B, A) không ghi đè label. Python tìm thấy nhãn ở đâu trước?",
+     "options": [
+      {
+       "text": "A vì đứng đầu bảng chữ cái",
+       "correct": false,
+       "detail": "Python không chọn method theo tên chữ cái."
+      },
+      {
+       "text": "Chạy cả A và B rồi nối lại",
+       "correct": false,
+       "detail": "Một lời gọi không tự gọi mọi lớp cha."
+      },
+      {
+       "text": "B",
+       "correct": true,
+       "detail": "MRO của cấu trúc đơn giản này đặt B trước A."
+      }
+     ],
+     "explanation": "MRO của cấu trúc đơn giản này đặt B trước A."
+    },
+    {
+     "question": "A và B đều có label. C(A,B) không override label sẽ tìm lớp nào trước?",
+     "options": [
+      {
+       "text": "Ngẫu nhiên giữa A và B",
+       "correct": false,
+       "detail": "Chưa đúng. Trong ví dụ kế thừa đơn giản này, MRO tìm C rồi A trước B."
+      },
+      {
+       "text": "A",
+       "correct": true,
+       "detail": "Trong ví dụ kế thừa đơn giản này, MRO tìm C rồi A trước B."
+      },
+      {
+       "text": "B",
+       "correct": false,
+       "detail": "Chưa đúng. Trong ví dụ kế thừa đơn giản này, MRO tìm C rồi A trước B."
+      }
+     ],
+     "explanation": "Trong ví dụ kế thừa đơn giản này, MRO tìm C rồi A trước B."
+    },
+    {
+     "question": "Để xem chính xác thứ tự tìm method của class C, dùng gì?",
+     "options": [
+      {
+       "text": "C.__mro__",
+       "correct": true,
+       "detail": "__mro__ chứa các class theo thứ tự tra cứu method."
+      },
+      {
+       "text": "C.__dict__[\"random\"]",
+       "correct": false,
+       "detail": "Chưa đúng. __mro__ chứa các class theo thứ tự tra cứu method."
+      },
+      {
+       "text": "C.__name__ để suy đoán",
+       "correct": false,
+       "detail": "Chưa đúng. __mro__ chứa các class theo thứ tự tra cứu method."
+      }
+     ],
+     "explanation": "__mro__ chứa các class theo thứ tự tra cứu method."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Mixin thêm tiền tố rồi lấy nội dung tiếp theo."
+   },
+   "scaffold": {
+    "template": "class PrefixMixin:\n    def render(self):\n        return \"DA: \" + {{slot1}}().render()",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Cách tiếp tục MRO",
+      "answer": "super"
+     }
+    ],
+    "bank": [
+     {
+      "label": "super",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "Tạo Report(content) trả content qua render và UpperMixin.render() đổi kết quả super thành chữ hoa. Tạo LoudReport(UpperMixin, Report). solve(data) nhận list chuỗi, trả các nội dung viết hoa qua LoudReport.",
+    "io": [
+     {
+      "label": "chữ thường",
+      "value": "['daily sales'] → ['DAILY SALES']"
+     },
+     {
+      "label": "nhiều mẫu",
+      "value": "['a1', 'MiXeD'] → ['A1', 'MIXED']"
+     },
+     {
+      "label": "rỗng",
+      "value": "[] → []"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "class Report:\n    def __init__(self, content): self.content = content\n    def render(self): return self.content\nclass UpperMixin:\n    def render(self): return super().render().upper()\nclass LoudReport(UpperMixin, Report): pass\ndef solve(data): return [LoudReport(s).render() for s in data]\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "tests": [
+    {
+     "name": "chữ thường",
+     "call": "__import__('json').loads(__import__('json').dumps(solve(['daily sales']), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "['DAILY SALES']"
+    },
+    {
+     "name": "nhiều mẫu",
+     "call": "__import__('json').loads(__import__('json').dumps(solve(['a1', 'MiXeD']), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "['A1', 'MIXED']"
+    },
+    {
+     "name": "rỗng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[]"
+    }
+   ]
+  }
+ }
+}

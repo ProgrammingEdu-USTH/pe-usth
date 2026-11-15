@@ -1,0 +1,137 @@
+{
+ "lesson_code": "RC01",
+ "sort_order": 147,
+ "module": "M7 · Multiprocessing và shell thực hành",
+ "title": "RC01 · Đọc sơ đồ Apache và Chromium: process ở ngoài, thread ở trong",
+ "subtitle": "Trung cấp · M7 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "RC01 · Đọc sơ đồ Apache và Chromium: process ở ngoài, thread ở trong",
+  "subtitle": "Trung cấp · M7 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/RC01.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Đọc sơ đồ Apache và Chromium: process ở ngoài, thread ở trong",
+    "body": "Trong hình Apache Prefork ở trang 274, một process cha quản lý nhiều process con. Mỗi process con được nối với một yêu cầu HTTP từ phía người dùng web. Bạn có thể chép các ô đó thành một dictionary để đếm số process con mà không cần chạy web server:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Trong hình Apache Prefork ở trang 274, một process cha quản lý nhiều process con. Mỗi process con được nối với một yêu cầu HTTP từ phía người dùng web. Bạn có thể chép các ô đó thành một dictionary để đếm số process con mà không cần chạy web server:\n\nDictionary chỉ là bản chép đơn giản của sơ đồ. Nó không tạo process thật. Ở mô hình Prefork trong tài liệu, request được giao cho child process; các child có không gian địa chỉ riêng. Phải dùng cơ chế trao đổi dữ liệu nếu muốn chia sẻ kết quả."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Hình Apache Worker ở trang 275 có thêm các ô thread bên trong mỗi child process. Trong mô hình trên có hai child, mỗi child có hai thread. Hai thread trong P1 dùng chung heap của P1; một thread ở P2 không tự truy cập heap đó. Đây là cách kết hợp chia sẻ bên trong process với ranh giới bộ nhớ giữa các process.\n\nHình Chromium ở trang 276 đặt main thread và I/O thread trong browser process; renderer process có các thread của nó. Các đường từ browser sang renderer được ghi IPC (inter-process communication). Tách process có thể tăng cô lập, còn trao đổi giữa chúng cần giao thức và có chi phí. Ba ví dụ chỉ giúp đọc sơ đồ lịch sử của slide; chúng không khẳng định kiến trúc của mọi phiên bản Apache hoặc Chromium đang được dùng."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "prefork = {\"parent\": \"master\", \"children\": [\"P1\", \"P2\", \"P3\"]}\nprint(len(prefork[\"children\"]))\nprint(prefork[\"parent\"])",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 3 ⏎ master"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 2 ⏎ 4"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: ['IPC']"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Trong mô hình Apache Worker của slide, các thread cùng một child process có thể chia sẻ heap không?",
+     "options": [
+      {
+       "text": "Không; thread luôn có heap riêng",
+       "correct": false,
+       "detail": "Stack riêng không đồng nghĩa heap riêng."
+      },
+      {
+       "text": "Có; vậy mọi child process cũng chung heap",
+       "correct": false,
+       "detail": "Mỗi child process vẫn là một không gian địa chỉ riêng."
+      },
+      {
+       "text": "Có",
+       "correct": true,
+       "detail": "Chúng thuộc cùng process nên cùng không gian địa chỉ theo mô hình thread thông thường."
+      }
+     ],
+     "explanation": "Chúng thuộc cùng process nên cùng không gian địa chỉ theo mô hình thread thông thường."
+    },
+    {
+     "question": "Trong sơ đồ Prefork của slide, các child process có mặc định chung heap không?",
+     "options": [
+      {
+       "text": "Chỉ chung heap nếu tên giống nhau",
+       "correct": false,
+       "detail": "Chưa đúng. Quan hệ cha–con không xóa ranh giới không gian địa chỉ giữa các process."
+      },
+      {
+       "text": "Không; cần cơ chế trao đổi/chia sẻ rõ",
+       "correct": true,
+       "detail": "Quan hệ cha–con không xóa ranh giới không gian địa chỉ giữa các process."
+      },
+      {
+       "text": "Có; process có cùng cha thì cùng heap",
+       "correct": false,
+       "detail": "Chưa đúng. Quan hệ cha–con không xóa ranh giới không gian địa chỉ giữa các process."
+      }
+     ],
+     "explanation": "Quan hệ cha–con không xóa ranh giới không gian địa chỉ giữa các process."
+    },
+    {
+     "question": "Trong sơ đồ Worker, hai thread của cùng P1 có thể dùng chung gì?",
+     "options": [
+      {
+       "text": "Heap của P1",
+       "correct": true,
+       "detail": "Chia sẻ được xét trong ranh giới process, còn ngữ cảnh/stack của thread vẫn riêng."
+      },
+      {
+       "text": "Mọi heap của mọi process renderer",
+       "correct": false,
+       "detail": "Chưa đúng. Chia sẻ được xét trong ranh giới process, còn ngữ cảnh/stack của thread vẫn riêng."
+      },
+      {
+       "text": "Stack riêng của nhau trở thành cùng một stack",
+       "correct": false,
+       "detail": "Chưa đúng. Chia sẻ được xét trong ranh giới process, còn ngữ cảnh/stack của thread vẫn riêng."
+      }
+     ],
+     "explanation": "Chia sẻ được xét trong ranh giới process, còn ngữ cảnh/stack của thread vẫn riêng."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Vẽ mô hình dịch vụ ảnh với 2 worker process, mỗi process có 3 thread đọc file. Gắn heap và stack, rồi cho một thread trong worker1 gửi kết quả sang worker2. Đây là bài thiết kế mô hình, không cần cài Apache/Chromium."
+   },
+   "procedure": [
+    "Vẽ hai ranh giới process và sáu thread bên trong.",
+    "Gắn một heap theo process và một stack/context theo thread.",
+    "Vẽ IPC qua ranh giới process; ghi một chỗ cần Lock khi ba thread cùng sửa cache trong một worker.",
+    "Tự kiểm: Có 6 thread nhưng 2 vùng heap độc lập trong mô hình.",
+    "Tự kiểm: Không dùng một biến global thường để trao đổi trực tiếp giữa hai process.",
+    "Tự kiểm: Nêu rõ bài đang mô hình hóa tài nguyên và IPC, không đo hiệu năng kiến trúc thật."
+   ]
+  }
+ }
+}

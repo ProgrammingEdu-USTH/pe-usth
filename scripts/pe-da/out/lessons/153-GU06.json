@@ -1,0 +1,160 @@
+{
+ "lesson_code": "GU06",
+ "sort_order": 153,
+ "module": "M8 · Tkinter: từ form nhỏ đến quản lý điểm",
+ "title": "GU06 · Radiobutton và giá trị được chọn",
+ "subtitle": "Trung cấp · M8 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "GU06 · Radiobutton và giá trị được chọn",
+  "subtitle": "Trung cấp · M8 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/GU06.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Radiobutton và giá trị được chọn",
+    "body": "Người dùng chọn một hệ điểm 10 hoặc 20. Hai nút radio dùng chung một biến nên chỉ có một giá trị đang được chọn.",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Người dùng chọn một hệ điểm 10 hoặc 20. Hai nút radio dùng chung một biến nên chỉ có một giá trị đang được chọn.\n\nStringVar giữ giá trị mà các widget có thể cùng theo dõi. value là dữ liệu lưu khi chọn nút, còn text chỉ là nhãn hiển thị; chúng không cần giống nhau."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Ở đây người dùng nhìn Mien Nam nhưng chương trình nhận mã S. Dùng mã ổn định giúp phần xử lý không phụ thuộc việc bạn đổi nhãn sang ngôn ngữ khác.\n\nset cập nhật biến; các widget liên kết bằng textvariable phản ánh cùng biến khi giao diện xử lý sự kiện. Không dùng một StringVar chung cho những nhóm radio độc lập."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import tkinter as tk\nr=tk.Tk();r.withdraw()\nscale=tk.StringVar(r,value='20')\nsmall=tk.Radiobutton(r,text='He 10',variable=scale,value='10')\nlarge=tk.Radiobutton(r,text='He 20',variable=scale,value='20')\nprint(scale.get())\nsmall.invoke()\nprint(scale.get())\nr.destroy()",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 20 ⏎ 10"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: Mien Nam ⏎ S"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: S ⏎ True"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Radiobutton text=\"Giao nhanh\", value=\"express\" được chọn. StringVar.get() trả gì?",
+     "options": [
+      {
+       "text": "Giao nhanh",
+       "correct": false,
+       "detail": "Đó là text để người dùng đọc, không phải value đã cấu hình."
+      },
+      {
+       "text": "True",
+       "correct": false,
+       "detail": "Radio group trong ví dụ lưu chuỗi lựa chọn, không phải BooleanVar."
+      },
+      {
+       "text": "express",
+       "correct": true,
+       "detail": "text là nhãn nhìn thấy; value là dữ liệu gán vào biến chung."
+      }
+     ],
+     "explanation": "text là nhãn nhìn thấy; value là dữ liệu gán vào biến chung."
+    },
+    {
+     "question": "Các Radiobutton cùng một nhóm thường dùng chung gì?",
+     "options": [
+      {
+       "text": "Một giá trị value giống hệt nhau",
+       "correct": false,
+       "detail": "Chưa đúng. Biến chung lưu lựa chọn hiện tại; mỗi nút dùng value riêng để phân biệt."
+      },
+      {
+       "text": "Một biến trạng thái như StringVar",
+       "correct": true,
+       "detail": "Biến chung lưu lựa chọn hiện tại; mỗi nút dùng value riêng để phân biệt."
+      },
+      {
+       "text": "Một root riêng cho từng nút",
+       "correct": false,
+       "detail": "Chưa đúng. Biến chung lưu lựa chọn hiện tại; mỗi nút dùng value riêng để phân biệt."
+      }
+     ],
+     "explanation": "Biến chung lưu lựa chọn hiện tại; mỗi nút dùng value riêng để phân biệt."
+    },
+    {
+     "question": "Radiobutton có text=\"Nhanh\", value=\"express\". Khi chọn, biến giữ gì?",
+     "options": [
+      {
+       "text": "express",
+       "correct": true,
+       "detail": "text là nhãn hiển thị, value là dữ liệu được gán vào biến."
+      },
+      {
+       "text": "Nhanh",
+       "correct": false,
+       "detail": "Chưa đúng. text là nhãn hiển thị, value là dữ liệu được gán vào biến."
+      },
+      {
+       "text": "Tên class Radiobutton",
+       "correct": false,
+       "detail": "Chưa đúng. text là nhãn hiển thị, value là dữ liệu được gán vào biến."
+      }
+     ],
+     "explanation": "text là nhãn hiển thị, value là dữ liệu được gán vào biến."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Cho nút thứ hai thuộc cùng nhóm."
+   },
+   "scaffold": {
+    "template": "first = tk.Radiobutton(root, variable=choice, value=\"small\", text=\"Nhỏ\")\nsecond = tk.Radiobutton(root, variable={{slot1}}, value=\"large\", text=\"Lớn\")",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Biến chung",
+      "answer": "choice"
+     }
+    ],
+    "bank": [
+     {
+      "label": "choice",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Tạo chọn gói học: radio \"Tự học\" value=\"self\", \"Có hướng dẫn\" value=\"guided\", \"Nhóm\" value=\"team\". Mặc định self; nút \"Xác nhận\" hiển thị mã gói. Nút \"Về mặc định\" gọi set(\"self\")."
+   },
+   "procedure": [
+    "Tạo một StringVar dùng chung ba radio.",
+    "Dùng text tiếng Việt nhưng value mã ổn định.",
+    "Callback xác nhận đọc get; callback reset dùng set.",
+    "Tự kiểm: Chọn team bỏ chọn guided/self.",
+    "Tự kiểm: Xác nhận guided hiện đúng mã guided, không suy đoán từ nhãn.",
+    "Tự kiểm: Reset thay cả biến lẫn dấu chọn nhìn thấy."
+   ]
+  }
+ }
+}

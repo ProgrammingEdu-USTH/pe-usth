@@ -1,0 +1,207 @@
+{
+ "lesson_code": "VZ24",
+ "sort_order": 97,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ24 · Nhận ra biểu đồ gây hiểu lầm",
+ "subtitle": "Trung cấp · M4 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "VZ24 · Nhận ra biểu đồ gây hiểu lầm",
+  "subtitle": "Trung cấp · M4 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/VZ24.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Nhận ra biểu đồ gây hiểu lầm",
+    "body": "Cửa hàng A có 20 khiếu nại, B có 10. Chỉ đếm khiếu nại sẽ khiến A trông kém hơn, nhưng A phục vụ 1000 đơn còn B phục vụ 100 đơn. Mẫu số thay đổi kết luận: tỷ lệ tương ứng là 2% và 10%. Trước khi chọn hình, cần biết đang so sánh tổng hay tỷ lệ.",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Cửa hàng A có 20 khiếu nại, B có 10. Chỉ đếm khiếu nại sẽ khiến A trông kém hơn, nhưng A phục vụ 1000 đơn còn B phục vụ 100 đơn. Mẫu số thay đổi kết luận: tỷ lệ tương ứng là 2% và 10%. Trước khi chọn hình, cần biết đang so sánh tổng hay tỷ lệ.\n\n![Biểu đồ](../visuals/VZ24-1.png)"
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Hai trục y có thể đặt đại lượng khác đơn vị vào cùng một vùng vẽ. Điểm giao hoặc độ dốc nhìn giống nhau không có ý nghĩa so sánh khi thang khác nhau; đổi giới hạn một trục có thể đổi cảm nhận. Nếu chỉ cần xem hai xu hướng, hai subplot có chung trục thời gian thường dễ giải thích hơn. secondary_yaxis chỉ nên dùng cho hai cách biểu diễn cùng đại lượng qua một phép đổi đơn vị rõ, như độ C và độ F.\n\n![Biểu đồ](../visuals/VZ24-2.png)"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Một bộ dữ liệu chỉ gồm ba ngày hoặc một cửa hàng không đại diện cho cả năm hay toàn bộ thị trường. Chọn khoảng thời gian sau khi đã nhìn kết quả dễ tạo kết luận lệch. Ghi phạm vi, số quan sát và những giá trị thiếu; không thêm góc nhìn 3D vào cột vì phối cảnh khiến chiều cao khó so sánh.\n\n![Biểu đồ](../visuals/VZ24-3.png)"
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nrate = [20/1000*100, 10/100*100]\nbars = ax.bar([\"A\", \"B\"], rate)\nax.bar_label(bars, fmt=\"%.1f%%\")\nax.set(ylabel=\"Complaints (%)\", title=\"Use the relevant denominator\", ylim=(0, 12))\nprint(rate)\nplt.show()",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: [2.0, 10.0]"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 2"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: -10.0"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "A có 12 khiếu nại/600 đơn, B có 6/60 đơn. Nơi nào tỷ lệ cao hơn?",
+     "options": [
+      {
+       "text": "B:10%, A:2%",
+       "correct": true,
+       "detail": "Đúng: cần chia cho số đơn tương ứng."
+      },
+      {
+       "text": "A vì 12 lớn hơn 6",
+       "correct": false,
+       "detail": "Đó là so số đếm, chưa so tỷ lệ."
+      },
+      {
+       "text": "Bằng nhau vì đều chia được cho 6",
+       "correct": false,
+       "detail": "Tỷ lệ có hai mẫu số khác nhau."
+      }
+     ],
+     "explanation": "Đại lượng cần so sánh phải được xác định trước khi vẽ."
+    },
+    {
+     "question": "A:20/1000 và B:10/100, nơi nào có tỷ lệ khiếu nại cao hơn?",
+     "options": [
+      {
+       "text": "Hai nơi bằng nhau vì đều có khách phàn nàn.",
+       "correct": false,
+       "detail": "Cùng có khiếu nại không có nghĩa cùng tỷ lệ."
+      },
+      {
+       "text": "B:10%, trong khi A:2%. Cần so cùng một chỉ số và ghi mẫu số.",
+       "correct": true,
+       "detail": "B:10%, trong khi A:2%. Cần so cùng một chỉ số và ghi mẫu số."
+      },
+      {
+       "text": "A cao hơn vì 20 lớn hơn 10.",
+       "correct": false,
+       "detail": "Số 20 lớn hơn 10 nhưng mẫu số 1000 cũng khác 100."
+      }
+     ],
+     "explanation": "B:10%, trong khi A:2%. Cần so cùng một chỉ số và ghi mẫu số."
+    },
+    {
+     "question": "Hai đường giao nhau khi mỗi đường có một trục y riêng nói lên điều gì?",
+     "options": [
+      {
+       "text": "Không tự nói lên hai đại lượng bằng nhau; chúng có thang và có thể cả đơn vị khác nhau.",
+       "correct": true,
+       "detail": "Không tự nói lên hai đại lượng bằng nhau; chúng có thang và có thể cả đơn vị khác nhau."
+      },
+      {
+       "text": "Hai đại lượng chắc chắn bằng nhau ở điểm giao.",
+       "correct": false,
+       "detail": "Điểm giao của hai đường trên hai trục không buộc hai giá trị bằng nhau."
+      },
+      {
+       "text": "Hai đại lượng chắc chắn có cùng đơn vị.",
+       "correct": false,
+       "detail": "Hai trục y có thể biểu diễn hai loại đại lượng khác nhau."
+      }
+     ],
+     "explanation": "Không tự nói lên hai đại lượng bằng nhau; chúng có thang và có thể cả đơn vị khác nhau."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Đổi tỷ lệ 0..1 sang phần trăm."
+   },
+   "scaffold": {
+    "template": "rate = complaints / orders * {{slot1}}",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "100"
+     }
+    ],
+    "bank": [
+     {
+      "label": "100",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.names,complaints,orders có cùng độ dài, orders đều dương. Dựng bar chart của complaints/orders*100, ylabel=\"Complaints (%)\", trục y bắt đầu 0. Trả rates từ các bar và baseline là cận dưới get_ylim(). Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "mẫu số đổi kết luận",
+      "value": "{'names': ['A', 'B'], 'complaints': [12, 6], 'orders': [600, 60]} → {'rates': [2.0, 10.0], 'baseline': 0.0}"
+     },
+     {
+      "label": "không có khiếu nại",
+      "value": "{'names': ['X'], 'complaints': [0], 'orders': [20]} → {'rates': [0.0], 'baseline': 0.0}"
+     },
+     {
+      "label": "cùng số đếm khác số đơn",
+      "value": "{'names': ['E', 'W'], 'complaints': [3, 3], 'orders': [30, 300]} → {'rates': [10.0, 1.0], 'baseline': 0.0}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     rates = np.asarray(data['complaints']) / np.asarray(data['orders']) * 100\n     fig, ax = plt.subplots()\n     bars = ax.bar(data['names'],rates)\n     ax.set_ylabel('Complaints (%)')\n     ax.set_ylim(bottom=0)\n     result = {'rates':[float(bar.get_height()) for bar in bars],'baseline':float(ax.get_ylim()[0])}\n     plt.close(fig)\n     return result\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tỷ lệ được so theo mẫu số là tổng đơn của chính cửa hàng."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "So tỷ lệ với đúng mẫu số và giữ đơn vị trong hình."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "mẫu số đổi kết luận",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'names': ['A', 'B'], 'complaints': [12, 6], 'orders': [600, 60]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'rates': [2.0, 10.0], 'baseline': 0.0}"
+    },
+    {
+     "name": "không có khiếu nại",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'names': ['X'], 'complaints': [0], 'orders': [20]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'rates': [0.0], 'baseline': 0.0}"
+    },
+    {
+     "name": "cùng số đếm khác số đơn",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'names': ['E', 'W'], 'complaints': [3, 3], 'orders': [30, 300]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'rates': [10.0, 1.0], 'baseline': 0.0}"
+    }
+   ]
+  }
+ }
+}

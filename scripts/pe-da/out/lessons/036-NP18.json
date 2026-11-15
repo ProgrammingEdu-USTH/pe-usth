@@ -1,0 +1,206 @@
+{
+ "lesson_code": "NP18",
+ "sort_order": 36,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP18 · Broadcasting từ ví dụ giá bán",
+ "subtitle": "Trung cấp · M2 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "NP18 · Broadcasting từ ví dụ giá bán",
+  "subtitle": "Trung cấp · M2 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/NP18.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Broadcasting từ ví dụ giá bán",
+    "body": "Một cửa hàng có hai sản phẩm, giá 10 và 20 nghìn đồng. Đơn đầu mua lần lượt 2 và 1 sản phẩm; đơn sau mua 1 và 3 sản phẩm. Để tính tiền từng loại trong mỗi đơn:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một cửa hàng có hai sản phẩm, giá 10 và 20 nghìn đồng. Đơn đầu mua lần lượt 2 và 1 sản phẩm; đơn sau mua 1 và 3 sản phẩm. Để tính tiền từng loại trong mỗi đơn:\n\nMỗi hàng là một đơn, mỗi cột là một sản phẩm. NumPy áp giá 10 vào cột đầu, giá 20 vào cột thứ hai. Hàng đầu vì vậy thành `[2 × 10, 1 × 20]`, tức `[20, 20]`."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Cách kết hợp các array có hình dạng khác nhau này gọi là broadcasting. Bạn đã gặp trường hợp đơn giản ở `a * 2`: một số được dùng cho mọi phần tử. Ở đây, một dãy hai giá được dùng cho mỗi hàng.\n\nThêm một đơn hàng nữa, bảng giá vẫn có hai số:"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "`qty` có `shape` là `(3, 2)`, còn `price` có `shape` là `(2,)`. Khi xét từ bên phải, độ dài 2 khớp với 2; chiều còn thiếu của `price` được xem như có độ dài 1 và có thể áp cho ba hàng.\n\nQuy tắc chung là so các chiều từ phải sang trái: hai độ dài phải bằng nhau, hoặc một trong hai bằng 1. Dãy ba giá có `shape` là `(3,)` không khớp bảng `(3, 2)`, dù bảng có ba hàng."
+    },
+    {
+     "title": "Ý chính 4",
+     "body": "Một ứng dụng khác là trừ trung bình của từng cột:\n\nHai trung bình là 3 và 30. `keepdims=True` giữ chúng trong bảng có `shape` `(1, 2)` thay vì dãy `(2,)`; hàng trung bình này được áp vào cả hai hàng dữ liệu. Cột đầu sau phép trừ là -1 và 1, cột sau là -10 và 10."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import numpy as np\n\nqty = np.array([[2, 1], [1, 3]])\nprice = np.array([10, 20])\nprint(qty * price)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: [[20 20] ⏎  [10 60]]"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: [[20 20] ⏎  [ 0 60] ⏎  [40 40]]"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: [[ -1. -10.] ⏎  [  1.  10.]]"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "qty có shape (3,2), mỗi cột là một sản phẩm. Dãy giá phù hợp có shape nào?",
+     "options": [
+      {
+       "text": "(3,3)",
+       "correct": false,
+       "detail": "Chiều cuối 3 không khớp với 2 trong ví dụ này."
+      },
+      {
+       "text": "(2,)",
+       "correct": true,
+       "detail": "Đúng. Hai giá khớp chiều cuối gồm hai sản phẩm."
+      },
+      {
+       "text": "(3,)",
+       "correct": false,
+       "detail": "Ba là số đơn hàng, không phải số sản phẩm cần áp giá theo cột."
+      }
+     ],
+     "explanation": "Đúng. Hai giá khớp chiều cuối gồm hai sản phẩm."
+    },
+    {
+     "question": "Hai cửa hàng cùng dùng bảng giá. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "[[20, 20], [10, 60]]",
+       "correct": true,
+       "detail": "Mỗi hàng dùng lại dãy hai giá theo đúng hai cột."
+      },
+      {
+       "text": "[[20, 10], [20, 60]]",
+       "correct": false,
+       "detail": "Giá 10 và 20 gắn với cột, không lần lượt với hàng."
+      },
+      {
+       "text": "[40, 70]",
+       "correct": false,
+       "detail": "Đây là tiền từng loại, chưa cộng tổng đơn."
+      }
+     ],
+     "explanation": "Mỗi hàng dùng lại dãy hai giá theo đúng hai cột."
+    },
+    {
+     "question": "Ba đơn hàng có hai loại sản phẩm. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "[[10, 0], [5, 30], [20, 10]]",
+       "correct": true,
+       "detail": "Dãy shape (2,) được áp dụng lên từng hàng của bảng có hai cột."
+      },
+      {
+       "text": "[[10, 0], [10, 30], [20, 5]]",
+       "correct": false,
+       "detail": "Mỗi cột phải luôn dùng cùng giá của sản phẩm đó."
+      },
+      {
+       "text": "[10, 35, 30]",
+       "correct": false,
+       "detail": "Đó là các tổng hàng, chưa phải kết quả nhân từng ô."
+      }
+     ],
+     "explanation": "Dãy shape (2,) được áp dụng lên từng hàng của bảng có hai cột."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Điền tham số giữ một hàng trung bình để trừ khỏi mọi hàng."
+   },
+   "scaffold": {
+    "template": "means = a.mean(axis=0, {{slot1}}=True)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Giữ chiều dài 1",
+      "answer": "keepdims"
+     }
+    ],
+    "bank": [
+     {
+      "label": "keepdims",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận qty là bảng số lượng đơn hàng và price là dãy giá theo đúng thứ tự cột. Trả bảng tiền từng sản phẩm trong mỗi đơn, chưa cộng thành tổng đơn.",
+    "io": [
+     {
+      "label": "Hai sản phẩm",
+      "value": "{'qty': [[2, 1], [0, 3]], 'price': [5, 8]} → [[10, 8], [0, 24]]"
+     },
+     {
+      "label": "Ba sản phẩm",
+      "value": "{'qty': [[1, 2, 0]], 'price': [2, 3, 4]} → [[2, 6, 0]]"
+     },
+     {
+      "label": "Số lượng bằng không",
+      "value": "{'qty': [[0, 0], [0, 0]], 'price': [7, 9]} → [[0, 0], [0, 0]]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    qty = np.array(data[\"qty\"])\n    price = np.array(data[\"price\"])\n    return qty * price\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Mỗi cột là một sản phẩm nên giá phải ghép theo cột, không theo hàng."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Nhân bảng qty với dãy price; broadcasting áp lại cùng dãy giá cho các hàng."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "Hai sản phẩm",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'qty': [[2, 1], [0, 3]], 'price': [5, 8]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[[10, 8], [0, 24]]"
+    },
+    {
+     "name": "Ba sản phẩm",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'qty': [[1, 2, 0]], 'price': [2, 3, 4]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[[2, 6, 0]]"
+    },
+    {
+     "name": "Số lượng bằng không",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'qty': [[0, 0], [0, 0]], 'price': [7, 9]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[[0, 0], [0, 0]]"
+    }
+   ]
+  }
+ }
+}

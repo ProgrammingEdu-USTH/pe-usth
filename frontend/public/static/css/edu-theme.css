@@ -11,21 +11,49 @@
    working unchanged.
    ══════════════════════════════════════════════════════════════ */
 
-/* Phông không còn nạp bằng @import từ Google Fonts. Hai họ chữ của bản thiết
-   kế v2 (Be Vietnam Pro + JetBrains Mono) tự lưu trữ trong repo và khai
-   @font-face ở edu-fonts.css — file đó PageStyles tự thêm vào mọi trang, cùng
-   cách với edu-responsive.css. Lý do đầy đủ nằm ở đầu edu-fonts.css. */
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Montserrat:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* Be Vietnam Pro: họ chữ duy nhất cho chữ thường (bản thiết kế v2 §1.3).
-     Chuỗi dự phòng xếp theo thứ tự "giống nhất trước": `system-ui` là phông
-     giao diện của hệ điều hành (Segoe UI / SF Pro / Roboto) — đủ nét và CÓ
-     dấu tiếng Việt, nên phông chính hỏng thì bố cục không vỡ, chỉ đổi dáng. */
-  --edu-font: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  /* Code. Trước bản này 30 chỗ CSS gọi 'JetBrains Mono' mà không ai nạp nó;
-     nay nạp thật, và những chỗ đó nên đổi sang đọc token này. `ui-monospace`
-     là phông code của hệ điều hành, đứng trước các tên cụ thể. */
-  --edu-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+  /* MONTSERRAT, không phải Poppins. Đổi ngày 29/10/2026 sau đợt thử nghiệm.
+     Hai lý do, và lý do thứ hai mới là lý do thật:
+
+     1. Một người thử đề xuất đích danh: "dùng font poppins ak, rcm sang
+        montserrat hoặc helvetica nhé vì đấy là font siêu an toàn và dễ nhìn".
+
+     2. Ba trên bốn người trả lời khảo sát chọn "Nhiều chỗ chữ quá nhỏ, phải
+        phóng to mới đọc được", và một người viết riêng "nên để cỡ chữ to hơn".
+        Poppins có x-height THẤP so với chiều cao chữ hoa — cùng một
+        `font-size`, phần thân chữ thường của nó nhỏ hơn hẳn các font sans
+        khác, nên chữ TRÔNG nhỏ hơn con số px nói. Montserrat có x-height cao
+        hơn rõ rệt, nên nó đọc to hơn mà không phải nới một px nào.
+
+     Và nó khớp với "lỗi font chữ nha" / "Text chữ có vấn đề chữ cao chữ thấp"
+     mà hai người khác báo: Poppins là font hình học, chữ thường gần như tròn
+     đều nên dòng chữ thiếu mốc để mắt bám.
+
+     Helvetica (lựa chọn còn lại người thử nêu) không chọn vì nó không có trên
+     Windows — ở đó nó rơi về Arial, tức hai máy hiện hai font khác nhau.
+     Montserrat tải từ Google Fonts nên mọi máy thấy một thứ. */
+  --edu-font: 'Montserrat', system-ui, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  /* FONT TIÊU ĐỀ — lấy của bản thiết kế "Góc học" (--f-display ở đó cũng là
+     Baloo 2). Montserrat là font THÂN BÀI và PHẢI giữ: nó là bản sửa theo
+     phản hồi "chữ quá nhỏ" của người thử. Baloo 2 chỉ áp cho tiêu đề — chữ
+     tròn, nét dày, đó là thứ làm trang đọc ra "ấm" thay vì "bảng điều khiển". */
+  --edu-font-display: 'Baloo 2', 'Montserrat', system-ui, sans-serif;
+
+  /* Thanh cuộn và vệt bôi chọn: HAI bề mặt chrome vẽ trên MỌI trang nạp tệp
+     này, và tới 09/11/2026 cả hai vẫn mang bảng brand xanh–đỏ tiền-lofi.
+     Token RIÊNG chứ không tái dùng hai bậc chữ ấm t3 và t5 — chúng là token CHỮ, và
+     repo đã bốn lần hỏng vì tái dùng một token sai vai (--edu-card-bg trên thẻ
+     trắng, --edu-card-border trắng-trên-trắng).
+
+     MỘT giá trị cho cả hai chế độ, và đó là kết quả của phép đo chứ không phải
+     tiết kiệm: thanh cuộn là THÀNH PHẦN GIAO DIỆN nên WCAG 1.4.11 đòi 3:1 so
+     với nền, mà nền ngày là giấy kem #F4EEE3 còn nền đêm là #080C15. Chỉ hai
+     màu trong cả bảng ấm vượt 3:1 ở CẢ HAI: #7C6551 (4,74 / 3,57) và #806853
+     (4,52 / 3,75). Lấy cái có BIÊN NHỎ NHẤT cao hơn. Một giá trị thì không có
+     bản đêm để trôi khỏi bản ngày. */
+  --edu-scrollbar-thumb: #806853;
 
   /* accent — identical in light & dark */
   --edu-accent: #2563eb;
@@ -49,27 +77,71 @@
   --edu-brand-glow: 0 8px 22px rgba(37,99,235,.34), 0 2px 8px rgba(229,51,75,.22);
 
   /* lớp bóng của card: vệt sáng góc trên-trái + ám xanh/đỏ rất nhạt góc dưới-phải */
+  /* 04/11: hai radial xanh/đỏ ở đây là brand NHẠT, và brand nhạt vẫn là
+     brand — nó phủ lên 4 thẻ LỚN của trang khoá học (thẻ cao nhất 2 296px).
+     Giữ vệt sáng trắng góc trên-trái (nó tạo chiều sâu, không mang màu),
+     đổi hai radial sang nâu ấm cùng họ --edu-card-shadow. */
   --edu-sheen:
     linear-gradient(135deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 42%),
-    radial-gradient(90% 80% at 100% 100%, rgba(37,99,235,.06) 0%, rgba(37,99,235,0) 60%),
-    radial-gradient(60% 50% at 0% 100%, rgba(229,51,75,.04) 0%, rgba(229,51,75,0) 70%);
+    radial-gradient(90% 80% at 100% 100%, rgba(42,32,23,.05) 0%, rgba(42,32,23,0) 60%);
 
-  /* light theme (default) — mesh: quầng xanh dưới-trái, đỏ trên-phải, xanh nhạt giữa */
+  /* GIẤY LOFI, KHÔNG CÒN MESH XANH–ĐỎ. Bản cũ vẽ ba radial đè lên nền:
+     rgba(255,90,110,.20) đỏ góc trên-phải + rgba(79,141,255,.30) xanh góc
+     dưới-trái + một đốm xanh nhạt giữa. Đó là bảng xanh–đỏ của bố cục TRƯỚC
+     việc thiết kế (xem commit 070886a), không phải lofi chill — và vì nó là
+     bề mặt LỚN NHẤT trang nên nó quyết định trang đọc ra "cũ" hay không,
+     hơn mọi thẻ cộng lại. Đo trên production 04/11: chủ dự án nhìn ảnh chụp
+     và vẫn thấy hồng/tím sau khi viền thẻ đã sửa xong.
+     Giữ NGUYÊN hình dạng dốc 160deg để không đổi nhịp bố cục; chỉ bỏ ba
+     radial và đưa ba mốc về giấy trung tính. */
+  /* GIẤY ẤM (04/11/2026). Bản trước là #f7fafd → #eaeff6 → #e4eaf4 — trung
+     tính nhưng LẠNH (lệch kênh R−B chỉ +12 về phía xanh), nên trang vẫn đọc ra
+     "bảng điều khiển" chứ không phải "trang giấy". Chủ dự án nhìn ba vòng liền
+     và vẫn nói "chưa thấy một tí lofi chill nào".
+     Nay giấy kem: #F4EEE3 lệch **+17 về phía ĐỎ**. Mực #2A2018 trên nó đo được
+     14,85:1 — ĐÚNG BẰNG mức cũ, nên không mất một chút đọc được nào. Thẻ trắng
+     trên giấy này là 1,15:1, tức thẻ vẫn nổi lên khỏi nền. */
   --edu-bg-image:
-    radial-gradient(48% 42% at 92% 4%, rgba(255,90,110,.20) 0%, rgba(255,90,110,0) 66%),
-    radial-gradient(60% 52% at 4% 96%, rgba(79,141,255,.30) 0%, rgba(79,141,255,0) 68%),
-    radial-gradient(50% 40% at 52% 48%, rgba(190,214,255,.45) 0%, rgba(190,214,255,0) 72%),
-    linear-gradient(160deg, #f1f5fb 0%, #eaeff6 55%, #e4ecf8 100%);
-  --edu-bg-solid: #eaeff6;
-  --edu-t1: #0f1b33;
-  --edu-t2: #3a4a66;
-  --edu-t3: #5b6a85;
-  --edu-t4: #5a6883;
-  --edu-t5: #62718c;
-  --edu-t6: #4d5d7a;
+    linear-gradient(160deg, #FAF6EF 0%, #F4EEE3 55%, #EFE7DA 100%);
+  --edu-bg-solid: #F4EEE3;
+  --edu-t1: #2A2018;   /* mực nâu đen · 13,80:1 trên giấy, 15,93:1 trên thẻ */
+  --edu-t2: #4A3B2E;   /* 8,52:1 trên thẻ */
+  /* t3–t6 CŨNG phải ấm: đợt port trước dừng ở t2, nên một màn vẽ tiêu đề nâu
+     (#2A2018, 25 phần tử) ngay cạnh chữ phụ XANH LẠNH (#5b6a85 và #62718c, 4+4
+     phần tử) — đo trên màn "Đang tải bài học…" ngày 07/11/2026. Giá trị mới nằm
+     trên ĐÚNG đường ấm t1→t2 (delta +32,+27,+22 mỗi bậc), và mỗi bậc vượt mốc CŨ
+     trên cả hai mặt nó được vẽ lên: thẻ #FFFFFF và giấy kem #F4EEE3.
+     t5 là lỗi THẬT chứ không chỉ lệch bảng màu: #62718c chỉ 4,27:1 trên giấy —
+     DƯỚI AA 4,5 — còn #806853 là 4,52. Ban đêm KHÔNG đổi: cả sáu bậc ở đó lạnh
+     đồng nhất (t1 #e8eefb cũng lạnh) và đều vượt AA, nên warm riêng t3–t6 ban đêm
+     là TẠO ra đúng cái lệch vừa xoá. Sàn trong ds-contrast.test.mjs CHỈ ĐƯỢC NÂNG. */
+  --edu-t3: #7C6551;   /* 5,47:1 trên thẻ · 4,74:1 trên giấy (cũ 5,46 / 4,73) */
+  --edu-t4: #7A634F;   /* 5,64:1 trên thẻ · 4,88:1 trên giấy (cũ 5,61 / 4,86) */
+  --edu-t5: #806853;   /* 5,22:1 trên thẻ · 4,52:1 trên giấy (cũ 4,93 / 4,27 ✗AA) */
+  --edu-t6: #6D5846;   /* 6,70:1 trên thẻ · 5,80:1 trên giấy (cũ 6,64 / 5,75) */
   --edu-card-bg: rgba(255,255,255,.55);
   --edu-card-border: rgba(255,255,255,.85);
-  --edu-card-shadow: 0 10px 30px rgba(113,132,167,.10);
+  /* ĐƯỜNG KẺ của thẻ, KHÁC --edu-card-border ở trên.
+     --edu-card-border là viền SÁNG (trắng .85) có chủ đích trên nền
+     KHÔNG-trắng của các trang di sản. Trên thẻ bài học thì nền là
+     --edu-panel-bg rgba(255,255,255,.96), tức trắng-trên-trắng: viền
+     có vẽ ra cũng không ai thấy. Token này là --ds-line của bảng lofi,
+     và chú thích gốc của nó nói rõ 1,36:1 trên thẻ ⇒ TRANG TRÍ, KHÔNG
+     dùng làm viền của thứ bấm được (WCAG 1.4.11 đòi 3:1 cho cái đó). */
+  --edu-card-line: #E3D9C8;   /* đường kẻ ấm, hợp giấy kem */
+  /* Hổ phách của "Góc học" (#ffc97a) quá nhạt để làm CHỮ — đo được 1,51:1
+     trên trắng. Bản đậm đủ AA: 5,77:1 trên thẻ, 5,00:1 trên giấy. */
+  --edu-amber: #8F5A12;
+  --edu-amber-soft: #F6E8CE;
+  /* BÓNG ẤM, BÁM SÁT — lấy từ --ds-shadow-open của nhánh test (theme lofi
+     chill nhóm đã chốt). Bản cũ 0 10px 30px rgba(113,132,167,.10) là bóng
+     XANH LẠNH toả rộng: nó đẩy thẻ nổi hẳn lên khỏi trang như một hộp thoại.
+     Bóng nâu bám sát thì thẻ nằm TRÊN giấy, không lơ lửng — đó là khác biệt
+     giữa "giao diện phần mềm" và "trang giấy", và nó dùng ở 31 chỗ.
+     Đo trước khi đổi: bảng bề mặt của main và của --ds-* đã TRÙNG NHAU từng mã
+     màu (#eaeff6 · #0f1b33 · #3a4a66 · #ffffff), nên bóng là một trong ba thứ
+     còn lệch thật — hai thứ kia là bán kính (22 -> 16) và viền thẻ. */
+  --edu-card-shadow: 0 6px 22px rgba(42,32,23,.08);
   --edu-pill-bg: rgba(255,255,255,.55);
   --edu-pill-border: rgba(255,255,255,.85);
   --edu-panel-bg: rgba(255,255,255,.96);
@@ -80,11 +152,27 @@
      vào chữ thông báo. Test cô lập (tô panel màu đỏ 100%) xác nhận: hễ còn
      alpha<1 dù chỉ 4% là còn lộ trên nền tương phản cao. */
   --edu-panel-bg-solid: #ffffff;
-  --edu-panel-border: rgba(255,255,255,.9);
-  --edu-panel-shadow: 0 20px 50px rgba(83,102,137,.24);
+  /* ĐƯỢC ĐO 04/11: rgba(255,255,255,.9) phủ lên thẻ #ffffff ra ĐÚNG
+     #ffffff — tương phản 1,000:1, tức thẻ trang chủ và trang khoá học
+     không có cạnh, y hệt lỗi đã sửa ở ShellB. Dùng chung đường kẻ với
+     thẻ bài học thay vì nuôi một màu thứ hai sẽ lệch. */
+  --edu-panel-border: var(--edu-card-line);
+  /* Bóng của mặt NỔI (dropdown, thẻ hover). Giữ hình dạng 20/50 — đây là
+     mặt nổi, không phải thẻ nằm trên giấy — nhưng đổi sang nâu ấm cho
+     cùng bảng lofi. Alpha hạ theo đúng tỉ lệ lần đổi --edu-card-shadow
+     (.10 -> .08), vì nâu đọc nặng hơn xanh xám ở cùng alpha. */
+  --edu-panel-shadow: 0 20px 50px rgba(42,32,23,.19);
   --edu-track-bg: rgba(133,148,178,.2);
   --edu-sidebar-bg: rgba(255,255,255,.5);
   --edu-sidebar-border: rgba(152,165,188,.28);
+  /* Nền của `code nội tuyến`. KHÔNG tái dùng --edu-card-bg: nó là nền của một
+     THẺ (rgba(255,255,255,.55), cố ý nửa trong suốt để nổi trên nền KHÔNG-trắng
+     của các trang di sản). Đặt nó lên thẻ bài học TRẮNG thì đo được 1,003:1 —
+     chip không có nền gì cả, và viền --edu-sidebar-border chỉ 1,252:1, thấp hơn
+     cả mức 1,42 mà hai thanh sticky đã phải nâng lên. Lần thứ TƯ của họ lỗi
+     "trắng trên trắng" trong repo này. Chip nhỏ nên cần RÕ HƠN một đường kẻ.
+     Sàn chỉ được NÂNG — xem scripts/nguong-mot-chieu.json. */
+  --edu-code-inline-bg: #E8D9C0;   /* 1,381:1 trên thẻ · chữ --edu-t1 trên nó 11,47:1 */
   --edu-nav-bg: rgba(255,255,255,.72);
   --edu-accent-soft: rgba(63,125,240,.10);
   --edu-accent-soft-strong: rgba(63,125,240,.14);
@@ -179,11 +267,9 @@ body.dark {
     linear-gradient(135deg, rgba(255,255,255,.07) 0%, rgba(255,255,255,0) 42%),
     radial-gradient(90% 80% at 100% 100%, rgba(79,141,255,.08) 0%, rgba(79,141,255,0) 60%),
     radial-gradient(60% 50% at 0% 100%, rgba(255,90,110,.05) 0%, rgba(255,90,110,0) 70%);
+  /* Ban đêm cùng phép bỏ mesh. Dốc giữ nguyên ba mốc cũ, chỉ hạ ám xanh. */
   --edu-bg-image:
-    radial-gradient(48% 42% at 92% 4%, rgba(229,51,75,.20) 0%, rgba(229,51,75,0) 66%),
-    radial-gradient(60% 52% at 4% 96%, rgba(37,99,235,.30) 0%, rgba(37,99,235,0) 68%),
-    radial-gradient(50% 40% at 52% 50%, rgba(79,141,255,.10) 0%, rgba(79,141,255,0) 72%),
-    linear-gradient(160deg, #0a0f1c 0%, #080c15 55%, #070b14 100%);
+    linear-gradient(160deg, #0d1118 0%, #080c15 55%, #070b14 100%);
   --edu-bg-solid: #080c15;
   --edu-t1: #e8eefb;
   --edu-t2: #c4cad5;
@@ -193,16 +279,23 @@ body.dark {
   --edu-t6: #a5acba;
   --edu-card-bg: rgba(255,255,255,.045);
   --edu-card-border: rgba(255,255,255,.09);
-  --edu-card-shadow: 0 10px 30px rgba(0,0,0,.42);
+  /* Nâng #233049 -> #303c4e (1,195 -> 1,414 trên thẻ #1d232d): viền panel
+     ban đêm đang là rgba(255,255,255,.10) = 1,359, nên dùng chung token mà
+     giữ giá trị cũ là HẠ tương phản. Sàn chỉ được NÂNG. */
+  --edu-card-line: #303c4e;
+  /* Ban đêm giữ bóng đen (nâu trên nền tối thì không thấy gì), nhưng bám sát
+     theo cùng hình dạng để hai chế độ cùng một nhịp. */
+  --edu-card-shadow: 0 6px 22px rgba(0,0,0,.45);
   --edu-pill-bg: rgba(255,255,255,.045);
   --edu-pill-border: rgba(255,255,255,.09);
   --edu-panel-bg: rgba(29,35,45,.97);
   --edu-panel-bg-solid: #1d232d;
-  --edu-panel-border: rgba(255,255,255,.10);
+  --edu-panel-border: var(--edu-card-line);
   --edu-panel-shadow: 0 20px 50px rgba(0,0,0,.55);
   --edu-track-bg: rgba(255,255,255,.13);
   --edu-sidebar-bg: rgba(255,255,255,.03);
   --edu-sidebar-border: rgba(255,255,255,.09);
+  --edu-code-inline-bg: #4A392B;   /* 1,436:1 trên thẻ #1d232d · chữ --edu-t1 đêm 9,45:1 */
   --edu-nav-bg: rgba(16,19,25,.82);
   --edu-accent-soft: rgba(63,125,240,.14);
   --edu-accent-soft-strong: rgba(63,125,240,.18);
@@ -703,14 +796,28 @@ body.dark .edu-header-bar .chip-avatar { border-color: rgba(255,255,255,.22); }
    Hiệu ứng tự tắt khi hệ điều hành bật "giảm chuyển động".
    ══════════════════════════════════════════════════════════════ */
 
-::selection { background: rgba(37,99,235,.22); color: inherit; }
-body.dark ::selection { background: rgba(79,141,255,.34); }
+/* Vệt bôi chọn. Bản cũ là brand xanh rgba(37,99,235,.22) — trên giấy kem thì
+   một vệt xanh lạnh là thứ duy nhất còn lại của bảng xanh–đỏ trong lúc người
+   học đang đọc. Nay dùng --ds-mark-ochre #E0B062, token mang đúng vai "đánh
+   dấu". `color: inherit` nên chữ giữ nguyên màu: đo mực trên nền ĐÃ TRỘN —
+   ngày 11,15:1, đêm 9,09:1, cả hai trên mức AA 4,5 rất xa. Alpha ngày cao hơn
+   đêm vì ochre nhạt, trộn vào giấy kem thì nhoà, trộn vào nền đêm thì nổi. */
+::selection { background: rgba(224,176,98,.40); color: inherit; }
+body.dark ::selection { background: rgba(224,176,98,.30); }
 
-html { scrollbar-color: var(--edu-accent) transparent; }
+/* Thanh cuộn. Trước 09/11/2026 nó là bề mặt LỚN NHẤT còn mang brand: trang
+   khoá học cuộn 5 354px nên dải này chạy gần hết mép phải màn hình, và lõi của
+   nó là một gradient XANH → ĐỎ — đúng bảng mà năm vòng lofi đã gỡ khỏi nền
+   trang, quầng bám chuột, nút "Bắt đầu học" và viền thẻ.
+   Vì sao cổng lofi không thấy: `ds-contrast` kiểm danh sách DA_SANG_LOFI xem
+   tệp còn `var(--edu-accent)` không, mà `edu-theme.css` CỐ Ý nằm ngoài danh
+   sách ấy — nó là nơi ĐỊNH NGHĨA token, nên thêm vào là tự tạo cổng báo oan.
+   Một chỗ DÙNG nằm trong chính tệp định nghĩa thì vô hình với cổng. */
+html { scrollbar-color: var(--edu-scrollbar-thumb) transparent; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--edu-accent-3), var(--edu-red-2));
+  background: var(--edu-scrollbar-thumb);
   border-radius: 99px;
   border: 2px solid transparent;
   background-clip: padding-box;
@@ -727,32 +834,14 @@ html { scrollbar-color: var(--edu-accent) transparent; }
 }
 .sk-set, .un-card, .cp-modal, .streak-card { border-radius: 16px !important; }
 
-/* Đèn xanh/đỏ bám theo chuột — vẽ bằng pseudo-element của <html> (không chèn DOM,
-   tránh lỗi hydration). edu-fx.js chỉ cập nhật --ax --ay --bx --by. */
-html.edu-fx::before, html.edu-fx::after {
-  content: '';
-  position: fixed;
-  top: 0; left: 0;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: -1;
-  opacity: 0;
-  transition: opacity .5s ease;
-  will-change: transform;
-}
-html.edu-fx.edu-fx-on::before, html.edu-fx.edu-fx-on::after { opacity: 1; }
-html.edu-fx::before {
-  width: 440px; height: 440px;
-  background: radial-gradient(circle, rgba(37,99,235,.22) 0%, rgba(37,99,235,0) 68%);
-  transform: translate3d(calc(var(--ax, -999px) - 220px), calc(var(--ay, -999px) - 220px), 0);
-}
-html.edu-fx::after {
-  width: 300px; height: 300px;
-  background: radial-gradient(circle, rgba(229,51,75,.17) 0%, rgba(229,51,75,0) 68%);
-  transform: translate3d(calc(var(--bx, -999px) - 40px), calc(var(--by, -999px) - 30px), 0);
-}
-html.edu-fx:has(body.dark)::before { background: radial-gradient(circle, rgba(79,141,255,.26) 0%, rgba(79,141,255,0) 68%); }
-html.edu-fx:has(body.dark)::after { background: radial-gradient(circle, rgba(255,90,110,.20) 0%, rgba(255,90,110,0) 68%); }
+/* HAI QUẦNG XANH–ĐỎ BÁM CHUỘT ĐÃ XOÁ (04/11/2026). Chúng vẽ
+   rgba(37,99,235,.22) + rgba(229,51,75,.17) lên mọi trang — cùng bảng
+   xanh–đỏ với mesh nền vừa bỏ ở trên, và là nửa còn lại của cùng một lỗi:
+   sửa mỗi nền thì hai đốm brand vẫn chạy theo con trỏ, tức bản sửa trông
+   như xong mà vẫn không phải lofi. Tô lại bằng màu trung tính KHÔNG cứu
+   được: trên giấy sáng #EAEFF6 một quầng trung tính là một vệt mờ bẩn.
+   `edu-fx.js` vẫn nạp và vẫn chạy — nó còn làm đốm sáng cho THẺ (data-fx),
+   và nó chỉ ghi --ax/--ay/--bx/--by nên không có lời gọi nào hỏng. */
 
 /* Ô/card có data-fx hoặc nằm trong danh sách của edu-fx.js: đốm sáng bám con trỏ */
 .edu-fx-card { position: relative; }
@@ -792,7 +881,6 @@ html.edu-fx:has(body.dark)::after { background: radial-gradient(circle, rgba(255
 .edu-fx-btn:active { transform: translate(var(--mx, 0px), var(--my, 0px)) scale(.97); }
 
 @media (prefers-reduced-motion: reduce) {
-  html.edu-fx::before, html.edu-fx::after { display: none; }
   .edu-fx-tilt, .edu-fx-btn { transform: none !important; transition: none; }
   .edu-cd-progress-fill, .progress-fill, .dash-progress-fill, .cd-block, .cd-card { animation: none; }
 }

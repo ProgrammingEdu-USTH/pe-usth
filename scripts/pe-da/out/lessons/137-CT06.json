@@ -1,0 +1,137 @@
+{
+ "lesson_code": "CT06",
+ "sort_order": 137,
+ "module": "M6 · Hệ điều hành, tiến trình và đa luồng",
+ "title": "CT06 · Round Robin và time quantum",
+ "subtitle": "Nâng cao · M6 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "CT06 · Round Robin và time quantum",
+  "subtitle": "Nâng cao · M6 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/CT06.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Round Robin và time quantum",
+    "body": "Hai việc A và B cùng cần CPU. Bạn muốn mỗi việc có cơ hội chạy thay vì A giữ CPU đến hết. Round Robin cấp một quantum rồi đưa việc chưa xong về cuối hàng:",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Hai việc A và B cùng cần CPU. Bạn muốn mỗi việc có cơ hội chạy thay vì A giữ CPU đến hết. Round Robin cấp một quantum rồi đưa việc chưa xong về cuối hàng:\n\nQuantum bằng 1 nên A, B thay phiên. Khi B hết hai đơn vị CPU, nó không trở lại ready queue. Mô phỏng này chưa có chi phí chuyển ngữ cảnh hoặc việc đến giữa chừng."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Quantum bằng 2 giảm số lượt cấp CPU, nhưng B phải chờ A chạy lâu hơn trước lượt đầu. Đó là đánh đổi giữa đáp ứng và overhead, không phải quy tắc quantum càng nhỏ càng tốt.\n\nNếu mỗi lần chuyển tốn 0.1 đơn vị, bốn lần chuyển cộng thêm 0.4, còn hai lần chuyển cộng thêm 0.2. Quantum nhỏ cho việc phía sau có lượt sớm hơn, nhưng có thể làm tổng thời gian tăng vì chuyển ngữ cảnh nhiều hơn. Đây là tính toán trên số giả định để so sánh hai lựa chọn, không phải kết quả đo scheduler của máy đang chạy Python."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "from collections import deque\nready = deque([(\"A\", 3), (\"B\", 2)])\ntrace = []\nwhile ready:\n    name, remaining = ready.popleft()\n    used = min(1, remaining)\n    trace.append(name)\n    if remaining > used:\n        ready.append((name, remaining-used))\nprint(trace)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: ['A', 'B', 'A', 'B', 'A']"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: [('A', 2), ('B', 2), ('A', 1)]"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 5.4 ⏎ 5.2"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Round Robin quantum=2, A cần 3 và B cần 2, đều đến lúc 0 theo A/B. Sau A chạy 2 đơn vị, ai chạy?",
+     "options": [
+      {
+       "text": "B",
+       "correct": true,
+       "detail": "A chưa xong nên về cuối queue; B đang ở đầu."
+      },
+      {
+       "text": "A tiếp tục tới hết",
+       "correct": false,
+       "detail": "Điều đó bỏ qua quantum và lượt của B."
+      },
+      {
+       "text": "Cả A và B đồng thời trên một CPU",
+       "correct": false,
+       "detail": "Trong mô hình một CPU, chỉ một job thực thi ở mỗi thời điểm."
+      }
+     ],
+     "explanation": "A chưa xong nên về cuối queue; B đang ở đầu."
+    },
+    {
+     "question": "Một job dùng hết quantum mà vẫn còn CPU burst thì đi đâu trong Round Robin cơ bản?",
+     "options": [
+      {
+       "text": "Trạng thái terminated ngay",
+       "correct": false,
+       "detail": "Chưa đúng. Job chưa xong được xếp lại để các job khác có lượt."
+      },
+      {
+       "text": "Cuối ready queue",
+       "correct": true,
+       "detail": "Job chưa xong được xếp lại để các job khác có lượt."
+      },
+      {
+       "text": "Đầu queue vĩnh viễn",
+       "correct": false,
+       "detail": "Chưa đúng. Job chưa xong được xếp lại để các job khác có lượt."
+      }
+     ],
+     "explanation": "Job chưa xong được xếp lại để các job khác có lượt."
+    },
+    {
+     "question": "Burst còn 1 nhưng quantum=3. Job có bắt buộc chạy đủ 3 đơn vị không?",
+     "options": [
+      {
+       "text": "Không; nó kết thúc sau 1",
+       "correct": true,
+       "detail": "Quantum là mức cấp tối đa cho lượt, không phải lượng tính bắt buộc của job."
+      },
+      {
+       "text": "Có; luôn đợi hết quantum mới kết thúc",
+       "correct": false,
+       "detail": "Chưa đúng. Quantum là mức cấp tối đa cho lượt, không phải lượng tính bắt buộc của job."
+      },
+      {
+       "text": "Chỉ kết thúc nếu đứng cuối queue",
+       "correct": false,
+       "detail": "Chưa đúng. Quantum là mức cấp tối đa cho lượt, không phải lượng tính bắt buộc của job."
+      }
+     ],
+     "explanation": "Quantum là mức cấp tối đa cho lượt, không phải lượng tính bắt buộc của job."
+    }
+   ]
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Vẽ Round Robin cho A=5, B=3, C=1, đều arrival=0 theo A/B/C, quantum=2. Tính thời điểm hoàn tất và so với quantum=1. Đây là mô hình lịch; không yêu cầu ép time slice của OS bằng Python."
+   },
+   "procedure": [
+    "Ghi ready queue sau từng lượt, cả trường hợp job dùng ít hơn quantum.",
+    "Vẽ Gantt với quantum2; sau đó làm lại quantum1.",
+    "Đếm số đoạn chạy và ghi rằng context switch có chi phí chưa đưa vào mô hình này.",
+    "Tự kiểm: Quantum2: A 0–2, B 2–4, C 4–5, A 5–7, B 7–8, A 8–9.",
+    "Tự kiểm: Completion quantum2: C=5, B=8, A=9.",
+    "Tự kiểm: Quantum1 có C xong ở 3, B ở 7, A ở 9; không kết luận quantum nhỏ luôn nhanh hơn trên máy thật."
+   ]
+  }
+ }
+}

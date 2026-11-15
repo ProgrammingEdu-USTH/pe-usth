@@ -1,0 +1,199 @@
+{
+ "lesson_code": "PD29",
+ "sort_order": 70,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD29 · Đọc SQL thành DataFrame",
+ "subtitle": "Nâng cao · M3 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PD29 · Đọc SQL thành DataFrame",
+  "subtitle": "Nâng cao · M3 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PD29.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Đọc SQL thành DataFrame",
+    "body": "Dữ liệu bán hàng nằm trong cơ sở dữ liệu. Bạn có thể để SQL chọn các hàng cần thiết, rồi nhận kết quả thành DataFrame để tiếp tục phân tích.",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Dữ liệu bán hàng nằm trong cơ sở dữ liệu. Bạn có thể để SQL chọn các hàng cần thiết, rồi nhận kết quả thành DataFrame để tiếp tục phân tích.\n\nCơ sở dữ liệu :memory: chỉ tồn tại trong lần chạy này, nên ví dụ không cần máy chủ. to_sql tạo bảng; read_sql_query đưa kết quả truy vấn về DataFrame. Với hệ quản trị khác, pandas thường dùng kết nối hoặc engine SQLAlchemy và driver tương ứng."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Dấu `?` là chỗ để sqlite3 nhận giá trị qua `params`. Trong ví dụ, `params=(20,)` thay ngưỡng 20 vào điều kiện `amount > ?`. Truyền giá trị riêng như vậy thay vì ghép trực tiếp dữ liệu người dùng vào câu SQL bằng f-string. Ký hiệu này có thể khác giữa các driver và dùng cho giá trị, không dùng tùy ý để thay tên bảng hoặc tên cột.\n\nTổng hợp ở SQL có thể giảm số hàng cần truyền và giữ trong RAM. Cần đối chiếu kiểu cột, khóa và quy tắc thiếu sau khi đọc. Khối with bảo đảm giao dịch của sqlite3 được xử lý khi thoát; với kết nối sqlite thật lâu dài, còn cần quản lý đóng kết nối rõ ràng theo vòng đời ứng dụng."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import sqlite3\nimport pandas as pd\nwith sqlite3.connect(':memory:') as connection:\n    pd.DataFrame({'store': ['A', 'A', 'B'], 'amount': [10, 20, 40]}).to_sql('sales', connection, index=False)\n    df = pd.read_sql_query('SELECT store, amount FROM sales', connection)\n    print(df['amount'].sum())",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 70"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: [40]"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: [{'store': 'A', 'revenue': 30}, {'store': 'B', 'revenue': 40}]"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Ngưỡng từ người dùng nên đưa vào SQL qua đâu?",
+     "options": [
+      {
+       "text": "Đổi tên bảng thành ngưỡng",
+       "correct": false,
+       "detail": "Tên bảng không phải chỗ chứa giá trị lọc."
+      },
+      {
+       "text": "params và dấu ? của sqlite3",
+       "correct": true,
+       "detail": "Đúng: driver phân biệt giá trị với cú pháp lệnh."
+      },
+      {
+       "text": "Ghép bằng f-string vào câu SQL",
+       "correct": false,
+       "detail": "Dữ liệu nhập có thể bị hiểu là cú pháp SQL."
+      }
+     ],
+     "explanation": "Tham số hóa dành cho giá trị, không dùng tùy ý cho tên bảng hay cột."
+    },
+    {
+     "question": "read_sql_query trả dữ liệu ở dạng gì?",
+     "options": [
+      {
+       "text": "Luôn là một list chuỗi SQL.",
+       "correct": false,
+       "detail": "Chuỗi SQL là lệnh đầu vào, không phải kiểu bảng kết quả."
+      },
+      {
+       "text": "Một cursor cần tự biến thành DataFrame trong mọi trường hợp.",
+       "correct": false,
+       "detail": "pandas đã làm bước chuyển kết quả thành DataFrame hoặc iterator theo lô."
+      },
+      {
+       "text": "Một DataFrame, hoặc iterator các DataFrame nếu chọn chunksize.",
+       "correct": true,
+       "detail": "Một DataFrame, hoặc iterator các DataFrame nếu chọn chunksize."
+      }
+     ],
+     "explanation": "Một DataFrame, hoặc iterator các DataFrame nếu chọn chunksize."
+    },
+    {
+     "question": "Vì sao truyền ngưỡng bằng params thay vì nối chuỗi SQL?",
+     "options": [
+      {
+       "text": "Để xem dữ liệu nhập vào như tên cột SQL.",
+       "correct": false,
+       "detail": "Giá trị không nên bị hiểu thành tên cột hoặc một đoạn cú pháp SQL."
+      },
+      {
+       "text": "Để driver phân biệt giá trị với cú pháp SQL và tự xử lý dấu nháy, thay vì coi dữ liệu nhập vào là một phần câu lệnh. Cách này cũng ngăn việc chèn lệnh SQL qua các giá trị đó.",
+       "correct": true,
+       "detail": "Để driver phân biệt giá trị với cú pháp SQL và tự xử lý dấu nháy, thay vì coi dữ liệu nhập vào là một phần câu lệnh. Cách này cũng ngăn việc chèn lệnh SQL qua các giá trị đó."
+      },
+      {
+       "text": "Để tự động bỏ mọi điều kiện WHERE.",
+       "correct": false,
+       "detail": "Truyền params không xóa điều kiện WHERE."
+      }
+     ],
+     "explanation": "Để driver phân biệt giá trị với cú pháp SQL và tự xử lý dấu nháy, thay vì coi dữ liệu nhập vào là một phần câu lệnh. Cách này cũng ngăn việc chèn lệnh SQL qua các giá trị đó."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Truyền một tuple chứa ngưỡng."
+   },
+   "scaffold": {
+    "template": "result = pd.read_sql_query(sql, con, {{slot1}}=(threshold,))",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "params"
+     }
+    ],
+    "bank": [
+     {
+      "label": "params",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.amounts là list số tiền, data.threshold là ngưỡng. Dùng sqlite3 :memory:, ghi DataFrame vào bảng sales rồi dùng truy vấn có params để lấy amount > threshold theo thứ tự tăng. Trả list các số nhận được từ pandas, đóng kết nối khi xong.",
+    "io": [
+     {
+      "label": "lọc ngưỡng mới",
+      "value": "{'amounts': [9, 3, 20, 9], 'threshold': 8} → [9, 9, 20]"
+     },
+     {
+      "label": "không lấy biên bằng",
+      "value": "{'amounts': [4, 5], 'threshold': 5} → []"
+     },
+     {
+      "label": "số âm hợp lệ",
+      "value": "{'amounts': [-2, 0, 3], 'threshold': -1} → [0, 3]"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import sqlite3\nimport pandas as pd\n\ndef solve(data):\n     con = sqlite3.connect(':memory:')\n     try:\n         pd.DataFrame({'amount':data['amounts']}).to_sql('sales', con, index=False)\n         result = pd.read_sql_query('SELECT amount FROM sales WHERE amount > ? ORDER BY amount', con, params=(data['threshold'],))\n         return result['amount'].tolist()\n     finally:\n         con.close()\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Giá trị điều kiện đi riêng khỏi chuỗi SQL, dưới dạng tuple tham số."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Truyền ngưỡng qua params rồi đọc đúng các hàng SQL."
+    }
+   ],
+   "packages": [
+    "pandas",
+    "sqlite3"
+   ],
+   "tests": [
+    {
+     "name": "lọc ngưỡng mới",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'amounts': [9, 3, 20, 9], 'threshold': 8}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[9, 9, 20]"
+    },
+    {
+     "name": "không lấy biên bằng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'amounts': [4, 5], 'threshold': 5}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[]"
+    },
+    {
+     "name": "số âm hợp lệ",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'amounts': [-2, 0, 3], 'threshold': -1}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[0, 3]"
+    }
+   ]
+  }
+ }
+}

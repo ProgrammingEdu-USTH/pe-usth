@@ -1,4 +1,9 @@
 // Dịch từ màn Stitch "1. mcq — trắc nghiệm 1 lựa chọn".
+// Bản DÙNG CHUNG để bóc `code nội tuyến`, không chép lại một bản thứ hai — xem
+// `inline-code.test.mjs`. `lesson-chrome/exercises/` không được import ngược
+// vào `components/python-studio/`, nhưng `lib/inline-code` thì dùng chung được.
+import { withInlineCode } from '@/lib/inline-code';
+
 import styles from './exercises.module.css';
 
 export interface McqCodeLine {
@@ -59,18 +64,13 @@ export default function Mcq({
           const isRight = checked && correctKey === opt.key;
           const isWrong = checked && isSelected && correctKey !== opt.key;
 
-          // Sau khi chấm, phương án không liên quan lùi về sau bằng .optionDim
-          // (viền nhạt, bỏ đậm) chứ KHÔNG bằng `opacity: .55` như trước: chữ
-          // `ink` mờ 55% trên thẻ trắng còn ≈4,0:1, trượt AA.
           const cardClass = isRight
             ? styles.optionCorrect
             : isWrong
               ? styles.optionWrong
               : isSelected
                 ? styles.optionSelected
-                : checked
-                  ? styles.optionDim
-                  : styles.optionCard;
+                : styles.optionCard;
           const markClass = isRight
             ? styles.markCorrect
             : isWrong
@@ -87,10 +87,25 @@ export default function Mcq({
               onClick={() => onSelect(opt.key)}
               disabled={checked}
               aria-pressed={isSelected}
+              // Phương án KHÔNG được chọn và KHÔNG phải đáp án: mờ đi để hai ô
+              // kia nổi lên. Nhưng nếu nó mang lời giải thích thì chữ đó là thứ
+              // người học phải ĐỌC được — phản hồi có giải thích là d = 0,49,
+              // cao gấp gần 10 lần kiểu chỉ nói đúng/sai (Van der Kleij 2015),
+              // và 1 548/1 548 phương án của khoá 172 bài đều có `detail`. Mờ
+              // 0,8 thay vì 0,55: vẫn tụt hẳn so với hai ô kia, vẫn đọc được.
+              style={
+                checked && !isRight && !isWrong ? { opacity: opt.sub ? 0.8 : 0.55 } : undefined
+              }
             >
               <span className={styles.optionMain}>
-                <code>{opt.key}.</code> {opt.label}
-                {opt.sub && <span className={styles.optionSub}>{opt.sub}</span>}
+                {/* `withInlineCode` chứ không phải chuỗi trần: 5 nhãn phương án
+                    và 5 lời giải thích của bản dựng có backtick, nên trước đây
+                    người học đọc ra nguyên dấu. Cùng lỗi với ô tổng kết (lần
+                    hai) và ô bảng (lần ba). */}
+                <code>{opt.key}.</code> {withInlineCode(opt.label)}
+                {opt.sub && (
+                  <span className={styles.optionSub}>{withInlineCode(opt.sub)}</span>
+                )}
               </span>
               {/* Ô tròn/dấu ✓✕ là hình; kết quả chấm phải có bản chữ, nếu không
                   thì sau khi "Kiểm tra" người dùng trình đọc màn hình chỉ nghe

@@ -1,0 +1,195 @@
+{
+ "lesson_code": "CT10",
+ "sort_order": 141,
+ "module": "M6 · Hệ điều hành, tiến trình và đa luồng",
+ "title": "CT10 · Tạo thread bằng target, start và join",
+ "subtitle": "Nâng cao · M6 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "CT10 · Tạo thread bằng target, start và join",
+  "subtitle": "Nâng cao · M6 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/CT10.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Tạo thread bằng target, start và join",
+    "body": "Bạn muốn tính một kết quả ở thread nền rồi dùng kết quả sau khi nó hoàn thành. Truyền hàm vào target, gọi start để tạo luồng thực thi và join để chờ:",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn muốn tính một kết quả ở thread nền rồi dùng kết quả sau khi nó hoàn thành. Truyền hàm vào target, gọi start để tạo luồng thực thi và join để chờ:\n\n`target=double` truyền hàm, không gọi double ngay. `args=(4,)` là tuple một đối số. Nếu viết target=double(4), hàm sẽ chạy lúc dựng đối tượng và giá trị trả về bị truyền thay cho hàm."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Gọi trực tiếp run chỉ là gọi một method trên thread hiện tại, không tạo thread mới. start mới sắp xếp chạy run trên luồng mới. Mỗi đối tượng Thread chỉ được start một lần.\n\nsleep chặn thread đang gọi nó; không làm mọi thread ngủ. join ở đây bảo đảm khi in, worker đã xong. Nếu gọi join từ callback GUI, UI vẫn có thể bị chặn; bài event loop sẽ nhận kết quả qua queue thay vì chờ dài trong callback."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "from threading import Thread\nresult = []\ndef double(value): result.append(value * 2)\nt = Thread(target=double, args=(4,))\nt.start(); t.join()\nprint(result)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: [8]"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: True"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: False ['done']"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Thread(target=work()) khác target=work ở đâu?",
+     "options": [
+      {
+       "text": "Không khác nhau",
+       "correct": false,
+       "detail": "Dấu ngoặc tạo lời gọi ngay, thay đổi thời điểm và giá trị target."
+      },
+      {
+       "text": "work() luôn chạy nhanh hơn trong thread",
+       "correct": false,
+       "detail": "Ở đây chưa có thread nào được start khi biểu thức đối số chạy."
+      },
+      {
+       "text": "work() chạy ngay khi xây đối số",
+       "correct": true,
+       "detail": "target cần callable để thread gọi sau; target=work() truyền kết quả của lời gọi."
+      }
+     ],
+     "explanation": "target cần callable để thread gọi sau; target=work() truyền kết quả của lời gọi."
+    },
+    {
+     "question": "Trong Thread(target=work), work được truyền theo dạng nào?",
+     "options": [
+      {
+       "text": "Tên file work.py bắt buộc",
+       "correct": false,
+       "detail": "Chưa đúng. Truyền hàm không kèm ngoặc để chưa thực thi ngay trên thread hiện tại."
+      },
+      {
+       "text": "Callable để thread gọi sau",
+       "correct": true,
+       "detail": "Truyền hàm không kèm ngoặc để chưa thực thi ngay trên thread hiện tại."
+      },
+      {
+       "text": "Kết quả của work() đã chạy trước",
+       "correct": false,
+       "detail": "Chưa đúng. Truyền hàm không kèm ngoặc để chưa thực thi ngay trên thread hiện tại."
+      }
+     ],
+     "explanation": "Truyền hàm không kèm ngoặc để chưa thực thi ngay trên thread hiện tại."
+    },
+    {
+     "question": "args=(4,) khác args=(4) ở điểm gì?",
+     "options": [
+      {
+       "text": "(4,) là tuple một phần tử",
+       "correct": true,
+       "detail": "Dấu phẩy tạo tuple một phần tử để truyền đúng danh sách đối số."
+      },
+      {
+       "text": "(4) cũng là tuple một phần tử",
+       "correct": false,
+       "detail": "Chưa đúng. Dấu phẩy tạo tuple một phần tử để truyền đúng danh sách đối số."
+      },
+      {
+       "text": "Dấu phẩy khiến số 4 thành chuỗi",
+       "correct": false,
+       "detail": "Chưa đúng. Dấu phẩy tạo tuple một phần tử để truyền đúng danh sách đối số."
+      }
+     ],
+     "explanation": "Dấu phẩy tạo tuple một phần tử để truyền đúng danh sách đối số."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Truyền một đối số n bằng tuple."
+   },
+   "scaffold": {
+    "template": "thread = threading.Thread(target=work, args=({{slot1}},))",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Đối số gửi vào work",
+      "answer": "n"
+     }
+    ],
+    "bank": [
+     {
+      "label": "n",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "solve(data) nhận {\"values\": list số, \"factor\": số}. Tạo Thread(target=worker, args=(values,factor,result)); worker nhân từng số với factor rồi ghi vào result. Main start, join, trả result. Dùng một worker để thứ tự không phụ thuộc lịch chạy.",
+    "io": [
+     {
+      "label": "nhân ba",
+      "value": "{'values': [1, 4], 'factor': 3} → [3, 12]"
+     },
+     {
+      "label": "factor âm",
+      "value": "{'values': [2, -1], 'factor': -2} → [-4, 2]"
+     },
+     {
+      "label": "rỗng",
+      "value": "{'values': [], 'factor': 5} → []"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "import threading\ndef worker(values, factor, result):\n    for number in values: result.append(number * factor)\ndef solve(data):\n    result = []\n    thread = threading.Thread(target=worker, args=(data['values'], data['factor'], result))\n    thread.start()\n    thread.join()\n    return result\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "tests": [
+    {
+     "name": "nhân ba",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [1, 4], 'factor': 3}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[3, 12]"
+    },
+    {
+     "name": "factor âm",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [2, -1], 'factor': -2}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[-4, 2]"
+    },
+    {
+     "name": "rỗng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [], 'factor': 5}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[]"
+    }
+   ]
+  }
+ }
+}

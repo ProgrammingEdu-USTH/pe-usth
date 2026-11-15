@@ -1,0 +1,199 @@
+{
+ "lesson_code": "SY16",
+ "sort_order": 119,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY16 · Con trỏ file, dòng văn bản và bytes",
+ "subtitle": "Trung cấp · M5 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "SY16 · Con trỏ file, dòng văn bản và bytes",
+  "subtitle": "Trung cấp · M5 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/SY16.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Con trỏ file, dòng văn bản và bytes",
+    "body": "Bạn đọc hai ký tự đầu rồi đọc tiếp cùng file. Lần đọc sau bắt đầu ở vị trí hiện tại, không tự quay về đầu. Ở ví dụ này, StringIO giữ văn bản trong RAM và cho phép đọc như một file:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn đọc hai ký tự đầu rồi đọc tiếp cùng file. Lần đọc sau bắt đầu ở vị trí hiện tại, không tự quay về đầu. Ở ví dụ này, StringIO giữ văn bản trong RAM và cho phép đọc như một file:\n\nSau AB, con trỏ đứng trước newline; readline tiếp theo chỉ còn newline của dòng đó. `readlines` lấy các dòng còn lại thành list. Dòng cuối không bắt buộc có newline. Với text, read(size) đếm ký tự; với binary, nó đếm bytes."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "`seek(1)` trên dữ liệu nhị phân đưa con trỏ đến vị trí byte số 1, tính từ 0. Ghi Z thay byte B, không tự chèn thêm phần tử như list.insert. Khi dùng file thật với r+b, quy tắc này cũng áp dụng.\n\nMột ký tự Unicode có thể dùng nhiều byte UTF-8. Không cắt bytes tùy ý rồi mặc định phần còn lại decode được. Với text file, dùng seek(0) để quay đầu hoặc vị trí do tell trả lại; không coi mọi số ký tự là byte offset hợp lệ."
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Nếu chỉ cần lọc dòng, duyệt `for line in f` để xử lý lần lượt. `read()` không truyền size lấy toàn bộ phần còn lại, còn readlines tạo list các dòng còn lại; cả hai có thể dùng nhiều RAM với file lớn. `seek(0)` đưa vị trí về đầu để đọc lại."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "from io import StringIO\nwith StringIO(\"AB\\nCD\\n\") as f:\n    print(repr(f.read(2)))\n    print(repr(f.readline()))\n    print(f.readlines())",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 'AB' ⏎ '\\n' ⏎ ['CD\\n']"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: b'AZC'"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 6 ⏎ 8 ⏎ cà phê"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "StringIO(\"ABCD\") đã read(2). read() tiếp theo trả gì?",
+     "options": [
+      {
+       "text": "CD",
+       "correct": true,
+       "detail": "Lần đọc trước đã đưa con trỏ qua A và B."
+      },
+      {
+       "text": "ABCD",
+       "correct": false,
+       "detail": "read không tự quay lại đầu stream."
+      },
+      {
+       "text": "AB",
+       "correct": false,
+       "detail": "Hai ký tự này đã được lần đọc trước tiêu thụ."
+      }
+     ],
+     "explanation": "Lần đọc trước đã đưa con trỏ qua A và B."
+    },
+    {
+     "question": "Stream đã readline một dòng. read() tiếp lấy phần nào?",
+     "options": [
+      {
+       "text": "Chỉ dòng vừa đọc",
+       "correct": false,
+       "detail": "Chưa đúng. Các lần đọc dùng chung vị trí con trỏ, trừ khi bạn đặt lại bằng seek."
+      },
+      {
+       "text": "Phần còn lại từ vị trí hiện tại",
+       "correct": true,
+       "detail": "Các lần đọc dùng chung vị trí con trỏ, trừ khi bạn đặt lại bằng seek."
+      },
+      {
+       "text": "Tự đọc lại từ đầu",
+       "correct": false,
+       "detail": "Chưa đúng. Các lần đọc dùng chung vị trí con trỏ, trừ khi bạn đặt lại bằng seek."
+      }
+     ],
+     "explanation": "Các lần đọc dùng chung vị trí con trỏ, trừ khi bạn đặt lại bằng seek."
+    },
+    {
+     "question": "Để đọc lại từ đầu một BytesIO đã bị đọc một phần, gọi gì?",
+     "options": [
+      {
+       "text": "seek(0)",
+       "correct": true,
+       "detail": "seek đặt vị trí đọc/ghi; flush không tua lại stream."
+      },
+      {
+       "text": "close() rồi read() trên cùng object",
+       "correct": false,
+       "detail": "Chưa đúng. seek đặt vị trí đọc/ghi; flush không tua lại stream."
+      },
+      {
+       "text": "flush() để xóa vị trí",
+       "correct": false,
+       "detail": "Chưa đúng. seek đặt vị trí đọc/ghi; flush không tua lại stream."
+      }
+     ],
+     "explanation": "seek đặt vị trí đọc/ghi; flush không tua lại stream."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Đưa con trỏ BytesIO về đầu trước khi đọc lại."
+   },
+   "scaffold": {
+    "template": "from io import BytesIO\nf = BytesIO(b\"abc\")\nf.read(2)\nf.{{slot1}}(0)\nresult = f.read()",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phương thức đặt vị trí",
+      "answer": "seek"
+     }
+    ],
+    "bank": [
+     {
+      "label": "seek",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết rồi chạy Python",
+    "body": "solve(data) nhận văn bản gồm nhiều dòng đơn hàng. Dùng StringIO để đọc từng dòng; trả list dòng bắt đầu đúng \"PAID:\" và bỏ newline cuối dòng. Không giữ dòng UNPAID: hay khoảng trắng đầu dòng.",
+    "io": [
+     {
+      "label": "xen kẽ",
+      "value": "'PAID:12\\nUNPAID:13\\nPAID:14\\n' → ['PAID:12', 'PAID:14']"
+     },
+     {
+      "label": "dòng cuối không newline",
+      "value": "'PAID:cà phê' → ['PAID:cà phê']"
+     },
+     {
+      "label": "không khớp",
+      "value": "' PAID:2\\nUNPAID:3' → []"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
+   "solutionCode": "from io import StringIO\ndef solve(data):\n    with StringIO(data) as f:\n        return [line.rstrip('\\r\\n') for line in f if line.startswith('PAID:')]\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
+    }
+   ],
+   "tests": [
+    {
+     "name": "xen kẽ",
+     "call": "__import__('json').loads(__import__('json').dumps(solve('PAID:12\\nUNPAID:13\\nPAID:14\\n'), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "['PAID:12', 'PAID:14']"
+    },
+    {
+     "name": "dòng cuối không newline",
+     "call": "__import__('json').loads(__import__('json').dumps(solve('PAID:cà phê'), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "['PAID:cà phê']"
+    },
+    {
+     "name": "không khớp",
+     "call": "__import__('json').loads(__import__('json').dumps(solve(' PAID:2\\nUNPAID:3'), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[]"
+    }
+   ]
+  }
+ }
+}

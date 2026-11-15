@@ -1,0 +1,364 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   LOFI-THEME — vỏ bài học theo ngôn ngữ của trang chủ "Góc học":
+   phòng học ban đêm, tím tối, đèn hổ phách, mọi thứ đang thở rất khẽ.
+
+   Nạp bằng `import './lofi-theme.css'` trong LessonChrome.tsx (cùng cách
+   `scene.css` được nạp trong StudyRoom.tsx): tệp nằm trong `src/` nên đi qua
+   bundler, KHÔNG phải bump ASSET_VERSION.
+
+   ── BA PHẦN ──────────────────────────────────────────────────────────────
+   1. BẢNG TOKEN trên `[data-lofi]` (gốc của LessonChrome). Đây là CHỖ DUY NHẤT
+      được viết mã màu của theme này — mọi *.module.css vẫn bị
+      `npm run lint:tokens` cấm mã màu, nên chúng chỉ đọc biến.
+      Ghi đè CẢ ba họ biến mà bài học đang đọc:
+        --ds-*   bảng v2 (studio-tokens.css)
+        --st-*   bí danh của --ds-* — PHẢI khai lại ở đây. var() được thế giá trị
+                 ngay tại phần tử khai nó (chú thích dài ở studio-tokens.css), nên
+                 bí danh khai trên <body> vẫn mang màu NGÀY dù ta đổi --ds-* ở
+                 một phần tử con.
+        --edu-*  token cũ (chữ, viền, nền thẻ) — vẫn là họ được đọc nhiều nhất.
+      Vì sao KHÔNG dùng `body.dark`: nó là công tắc Ngày/Đêm của cả site (xanh
+      than, không tím), và công tắc ấy là lựa chọn của người dùng. Lofi là diện
+      mạo của màn bài học, không phụ thuộc lựa chọn đó.
+   2. NỀN (.lf-*): cảnh đêm cố định sau nội dung — ảnh, trăng, sao, dây đèn,
+      đèn bàn, chậu cây, vật nhỏ bay lên. LofiBackdrop.tsx dựng đúng các lớp này.
+   3. Vài tiện ích dùng chung cho thẻ kính.
+
+   ── HIỆU NĂNG ───────────────────────────────────────────────────────────
+   Trang chủ Góc học đã từng bận 98% luồng chính trên điện thoại giả lập khi
+   đứng yên (AGENTS.md). Nên ở đây: chỉ `transform`/`opacity` được chuyển động,
+   KHÔNG animate ảnh nền, KHÔNG backdrop-filter dưới lớp có chuyển động (thẻ và
+   thanh dùng nền đục-mờ thay vì làm nhoè), và vật trang trí ẩn bớt ở màn hẹp.
+
+   ── GIẢM CHUYỂN ĐỘNG ────────────────────────────────────────────────────
+   `giam-chuyen-dong.test.mjs` quét mọi .css trong src/: keyframe nào có
+   `transform` thì selector chạy nó phải bị tắt trong khối reduced-motion ở
+   cuối tệp này.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+[data-lofi] {
+  color-scheme: dark;
+
+  /* ── nguyên tử màu của căn phòng (chép từ scene.css :root) ─────────────── */
+  --lf-ground: #0d0b13;
+  --lf-night: #1d1533;
+  --lf-amber: #ffc97a;
+  --lf-amber-deep: #e8a24a;
+  --lf-sakura: #ff9db8;
+  --lf-lilac: #c9b3ff;
+  --lf-sky: #9ad8ff;
+  --lf-ok: #8be3a8;
+  /* Kính: nền tím đậm, ĐỤC hơn bản trang chủ vì ở đây có đoạn văn dài để đọc. */
+  --lf-glass: rgba(31, 22, 56, 0.86);
+  --lf-glass-hi: rgba(48, 36, 84, 0.9);
+  --lf-line: rgba(255, 236, 220, 0.14);
+  --lf-line-hi: rgba(255, 236, 220, 0.3);
+  --lf-glow-amber: 0 0 22px rgba(255, 201, 122, 0.38);
+  --lf-glow-lilac: 0 0 22px rgba(201, 179, 255, 0.32);
+  --lf-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ── --ds-* ─────────────────────────────────────────────────────────────── */
+  --ds-page: #150f26;
+  --ds-card: #231a3f;
+  --ds-paper: #1b1332;
+  --ds-tint: #33265c;
+  --ds-desk: #3b2d66;
+  --ds-line: #3d3060;
+  --ds-sketch: #b7a5de; /* viền thứ bấm được: ~7:1 trên thẻ */
+  --ds-ink: #fff6ee;
+  --ds-soft: #d9cde6;
+  --ds-on-ink-soft: #d9cde6;
+
+  --ds-violet: #c9b3ff; /* vị trí / lựa chọn: lilac */
+  --ds-violet-deep: #e9e0ff;
+  --ds-violet-tint: #33265c;
+  --ds-action: #ffc97a; /* nút chính: hổ phách như nút ▶ ở trang chủ */
+  --ds-on-action: #2a1a0e;
+  --ds-sanguine: #ff9db8; /* chú ý / chưa đúng: sakura */
+  --ds-sanguine-tint: #402139;
+  --ds-ochre: #8be3a8; /* đã có / đúng: xanh bạc hà */
+  --ds-ochre-tint: #183327;
+
+  --ds-code-bg: #121725; /* "màn hình laptop" của căn phòng */
+  --ds-code-line: #232c45;
+  --ds-code-fg: #d9e6ff;
+  --ds-code-meta: #a3b3d9;
+  --ds-code-num: #8190b3;
+  --ds-code-kw: #ff9db8;
+  --ds-code-str: #8be3a8;
+  --ds-mark-violet: #c9b3ff;
+  --ds-mark-sanguine: #ff9db8;
+  --ds-mark-ochre: #ffc97a;
+
+  --ds-shadow-open: 0 14px 44px rgba(8, 4, 20, 0.55), 0 0 0 1px rgba(255, 236, 220, 0.05);
+  --ds-halo: 0 0 0 8px rgba(201, 179, 255, 0.22);
+
+  /* ── --st-* : khai lại toàn bộ bí danh (xem đầu tệp) ───────────────────── */
+  --st-ok-bg: var(--ds-ochre-tint);
+  --st-ok-text: var(--ds-ochre);
+  --st-ok-line: var(--ds-ochre);
+  --st-err-bg: var(--ds-sanguine-tint);
+  --st-err-text: var(--ds-sanguine);
+  --st-err-line: var(--ds-sanguine);
+  --st-warn-bg: var(--ds-sanguine-tint);
+  --st-warn-text: var(--ds-sanguine);
+  --st-warn-line: var(--ds-sanguine);
+  --st-info-bg: var(--ds-violet-tint);
+  --st-info-text: var(--ds-violet-deep);
+  --st-info-line: var(--ds-violet);
+  --st-streak-bg: rgba(255, 201, 122, 0.14);
+  --st-code-bg: var(--ds-code-bg);
+  --st-code-radius: 14px;
+  --st-code-gutter: var(--ds-code-line);
+  --st-syn-keyword: var(--ds-code-kw);
+  --st-syn-string: var(--ds-code-str);
+  /* Số là hổ phách (như --code-num của trang chủ), tách khỏi từ khoá hồng. */
+  --st-syn-number: var(--ds-mark-ochre);
+  --st-syn-comment: var(--ds-code-num);
+  --st-syn-plain: var(--ds-code-fg);
+  --st-chip-bg: var(--ds-card);
+  --st-chip-border: var(--ds-sketch);
+  --st-slot-bg: var(--ds-violet-tint);
+  --st-slot-border: var(--ds-violet);
+  --st-drag-shadow: var(--ds-shadow-open);
+  --st-shadow-sm: var(--ds-shadow-open);
+  --st-shadow-md: var(--ds-shadow-open);
+  --st-card-radius: 20px;
+  --st-page-bg: transparent; /* nền do .lf-backdrop vẽ */
+  --st-track: rgba(255, 236, 220, 0.14);
+  --st-predict-bg: var(--ds-sanguine-tint);
+  --st-code-bar: var(--ds-code-line);
+  --st-code-meta: var(--ds-code-meta);
+  --st-reflect-bg: var(--ds-violet-tint);
+  --st-reflect-text: var(--ds-violet-deep);
+  --st-code-edge: var(--ds-code-line);
+
+  /* ── --edu-* ────────────────────────────────────────────────────────────── */
+  --edu-font: 'Be Vietnam Pro', 'Montserrat', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --edu-font-display: 'Be Vietnam Pro', 'Montserrat', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --edu-t1: #fff6ee;
+  --edu-t2: #e6dcef;
+  --edu-t3: #c4b7d6; /* chữ phụ: ~9:1 trên thẻ */
+  --edu-t4: #bcaed0;
+  --edu-t5: #c9bcdb;
+  --edu-t6: #d3c7e2;
+  --edu-card-bg: rgba(255, 255, 255, 0.055);
+  --edu-card-border: rgba(255, 236, 220, 0.14);
+  --edu-card-line: #3d3060;
+  --edu-card-shadow: var(--ds-shadow-open);
+  --edu-panel-bg: var(--lf-glass);
+  --edu-panel-bg-solid: #1f1638;
+  --edu-panel-border: var(--edu-card-line);
+  --edu-sidebar-border: rgba(255, 236, 220, 0.18);
+  --edu-code-inline-bg: #3d2f6b;
+  --edu-accent: #ffc97a;
+  --edu-accent-soft: rgba(255, 201, 122, 0.14);
+  --edu-accent-soft-strong: rgba(255, 201, 122, 0.2);
+  --edu-accent-text: #ffd493;
+  --edu-accent-grad: linear-gradient(100deg, #ffc97a 0%, #ffb08a 100%);
+  --edu-input-bg: rgba(255, 255, 255, 0.06);
+  --edu-input-border: rgba(255, 236, 220, 0.18);
+
+  position: relative;
+  isolation: isolate;
+  background: var(--lf-ground);
+  color: var(--edu-t1);
+}
+
+/* Không chớp trắng khi kéo quá mép hoặc lúc trang chưa vẽ xong. */
+html:has([data-lofi]),
+body:has([data-lofi]) {
+  background: #0d0b13;
+}
+html:has([data-lofi]) {
+  scrollbar-color: #4a3a7c transparent;
+}
+[data-lofi] ::selection {
+  background: rgba(255, 201, 122, 0.32);
+}
+
+/* ── 2 · NỀN ───────────────────────────────────────────────────────────────
+   Cố định theo khung nhìn, nằm DƯỚI mọi thứ (z-index 0; vỏ bài đưa nội dung lên
+   1 và hai thanh lên 50). pointer-events: none — không lớp nào bắt chuột. */
+.lf-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+.lf-photo {
+  position: absolute;
+  inset: 0;
+  background: #150f26 url(/lesson-lofi/scenes/night-desk-1600.webp) center / cover no-repeat;
+}
+@media (max-width: 720px) {
+  .lf-photo {
+    background-image: url(/lesson-lofi/scenes/night-desk-720.webp);
+  }
+}
+/* Tím phủ + tối dần xuống đáy: chữ đọc được ở mọi toạ độ của ảnh. */
+.lf-wash {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(120, 88, 196, 0.16), transparent 60%),
+    linear-gradient(180deg, rgba(21, 15, 38, 0.35), rgba(13, 11, 19, 0.7) 100%);
+}
+.lf-moon {
+  position: absolute;
+  top: 70px;
+  right: 7%;
+  width: 150px;
+  height: 150px;
+  background: url(/lesson-lofi/svg/moon.svg) center / contain no-repeat;
+  animation: lf-pulse 7s ease-in-out infinite;
+}
+/* Sao: chấm nhỏ nhấp nháy lệch pha. Toạ độ/cỡ/độ trễ do LofiBackdrop gán. */
+.lf-star {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff6ee 0 30%, rgba(255, 246, 238, 0) 72%);
+  opacity: 0.3;
+  animation: lf-tw 3.6s ease-in-out infinite;
+  animation-delay: var(--d);
+}
+.lf-lights {
+  position: absolute;
+  top: 56px; /* ngay dưới thanh trên (--st-chrome-h) */
+  left: 0;
+  width: 100%;
+  height: 72px;
+  background: url(/lesson-lofi/svg/string-lights.svg) top center / 100% 100% no-repeat;
+  opacity: 0.95;
+}
+.lf-lamp {
+  position: absolute;
+  left: -14px;
+  bottom: -8px;
+  width: 220px;
+  height: 340px;
+  background: url(/lesson-lofi/svg/lamp.svg) left bottom / contain no-repeat;
+  animation: lf-pulse 5.5s ease-in-out infinite;
+  display: none;
+}
+.lf-plant {
+  position: absolute;
+  right: 2%;
+  bottom: -6px;
+  width: 150px;
+  height: 220px;
+  background: url(/lesson-lofi/svg/plant.svg) center bottom / contain no-repeat;
+  transform-origin: 50% 100%;
+  animation: lf-sway 8s ease-in-out infinite alternate;
+  display: none;
+}
+@media (min-width: 1100px) {
+  .lf-lamp,
+  .lf-plant {
+    display: block;
+  }
+}
+/* Vật nhỏ (sprite props.webp, 8 ô × 64px, hiện 24px ⇒ nền 192×24): bay chậm từ
+   đáy lên đỉnh, lắc nhẹ, mờ dần hai đầu. `--c` là chỉ số ô. */
+.lf-mote {
+  position: absolute;
+  left: var(--x);
+  bottom: 0;
+  width: 24px;
+  height: 24px;
+  background: url(/lesson-lofi/sprites/props.webp) calc(var(--c) * -24px) 0 / 192px 24px no-repeat;
+  opacity: 0;
+  animation: lf-rise var(--t) linear infinite;
+  animation-delay: var(--d);
+  will-change: transform, opacity;
+}
+.lf-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(130% 100% at 50% 40%, transparent 55%, rgba(8, 5, 16, 0.55) 100%);
+}
+/* Màn hẹp: bỏ dây đèn, giảm sao và vật bay — vừa đỡ rối vừa đỡ tốn. */
+@media (max-width: 560px) {
+  .lf-lights,
+  .lf-moon {
+    display: none;
+  }
+  .lf-star:nth-child(n + 15) {
+    display: none;
+  }
+  .lf-mote:nth-child(n + 6) {
+    display: none;
+  }
+}
+
+@keyframes lf-tw {
+  0%,
+  100% {
+    opacity: 0.18;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+@keyframes lf-pulse {
+  0%,
+  100% {
+    opacity: 0.78;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes lf-sway {
+  from {
+    transform: rotate(-1.6deg);
+  }
+  to {
+    transform: rotate(2.2deg);
+  }
+}
+@keyframes lf-rise {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(0.8);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate3d(calc(var(--dx) * 0.5), -55vh, 0) rotate(calc(var(--r) * 0.5)) scale(1);
+  }
+  90% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate3d(var(--dx), -108vh, 0) rotate(var(--r)) scale(0.9);
+    opacity: 0;
+  }
+}
+
+/* ── GIẢM CHUYỂN ĐỘNG ────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .lf-plant {
+    animation: none;
+  }
+  /* Vật bay lên là chuyển động thuần trang trí: bỏ hẳn thay vì đứng yên giữa trời. */
+  .lf-mote {
+    animation: none;
+    display: none;
+  }
+  /* Chỉ-đổi-độ-mờ (không dịch chuyển) cho phép giữ, nhưng người chọn giảm chuyển
+     động thì cũng không muốn nhấp nháy: để sao đứng yên ở độ sáng vừa. */
+  .lf-star,
+  .lf-moon,
+  .lf-lamp {
+    animation: none;
+    opacity: 0.7;
+  }
+}

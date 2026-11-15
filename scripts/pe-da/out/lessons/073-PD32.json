@@ -1,0 +1,198 @@
+{
+ "lesson_code": "PD32",
+ "sort_order": 73,
+ "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
+ "title": "PD32 · Dự án nhỏ: báo cáo đơn hàng có thể đối chiếu",
+ "subtitle": "Nâng cao · M3 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "PD32 · Dự án nhỏ: báo cáo đơn hàng có thể đối chiếu",
+  "subtitle": "Nâng cao · M3 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/PD32.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Dự án nhỏ: báo cáo đơn hàng có thể đối chiếu",
+    "body": "Bạn nhận một CSV đơn hàng và một danh mục cửa hàng. Báo cáo cần doanh thu tháng theo khu vực, đồng thời cho biết có đơn nào chưa khớp danh mục. Ba đoạn dưới minh họa ba bước; mỗi đoạn tự tạo đủ dữ liệu để chạy riêng.",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn nhận một CSV đơn hàng và một danh mục cửa hàng. Báo cáo cần doanh thu tháng theo khu vực, đồng thời cho biết có đơn nào chưa khớp danh mục. Ba đoạn dưới minh họa ba bước; mỗi đoạn tự tạo đủ dữ liệu để chạy riêng.\n\nFile có bốn hàng nhưng một dòng O2 bị lặp toàn bộ, nên còn ba đơn với tổng 60. Ở dự án thật, chỉ bỏ dòng theo khóa đơn sau khi xác nhận mỗi đơn là một hàng; nếu đơn có nhiều sản phẩm, cần giữ các dòng sản phẩm hợp lệ."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "O3 vẫn được giữ dù cửa hàng C chưa có khu vực. Hai kiểm tra xác nhận phép nối không nhân dòng hoặc thay đổi tổng tiền. Bạn nên gửi danh sách mã chưa khớp để bổ sung danh mục, thay vì âm thầm bỏ các đơn đó.\n\nBáo cáo giữ nhóm Unknown để tổng vẫn đối chiếu được. Cột month, region, amount ở dạng dài sẵn sàng cho biểu đồ cột hoặc đường ở phần visualization. Khi giao báo cáo, ghi đơn vị tiền, khoảng ngày, định nghĩa doanh thu, cách bỏ trùng và số đơn chưa khớp; nhận xét nên bám vào dữ liệu, không tự suy ra nguyên nhân."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import pandas as pd\nfrom io import StringIO\nraw = 'order,store,date,amount\\nO1, a ,2026-01-01,10\\nO2,B,2026-01-02,20\\nO2,B,2026-01-02,20\\nO3,C,2026-02-01,30\\n'\ndf = pd.read_csv(StringIO(raw), dtype={'order': 'string', 'store': 'string'})\ndf['store'] = df['store'].str.strip().str.upper()\ndf['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d')\nclean = df.drop_duplicates()\nassert clean['order'].is_unique\nprint(len(df), len(clean), clean['amount'].sum())",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 4 3 60"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: ['O3'] ⏎ 60"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: month,region,amount ⏎ 2026-01,North,10 ⏎ 2026-01,South,20 ⏎ 2026-02,Unknown,30"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Đơn của cửa hàng chưa có vùng nên xử lý thế nào để tổng không mất?",
+     "options": [
+      {
+       "text": "Đổi amount của đơn thành 0",
+       "correct": false,
+       "detail": "Chưa có vùng không có nghĩa chưa có doanh thu."
+      },
+      {
+       "text": "Giữ đơn và ghi vùng Unknown để xem lại",
+       "correct": true,
+       "detail": "Đúng: báo cáo còn đối chiếu được doanh thu."
+      },
+      {
+       "text": "Bỏ đơn bằng inner merge",
+       "correct": false,
+       "detail": "Có thể làm mất doanh thu của đơn hợp lệ."
+      }
+     ],
+     "explanation": "Thiếu danh mục và thiếu doanh thu là hai vấn đề khác nhau."
+    },
+    {
+     "question": "Vì sao dự án kiểm tra tổng tiền trước và sau merge?",
+     "options": [
+      {
+       "text": "Để ép mọi hàng thành cùng một amount.",
+       "correct": false,
+       "detail": "Ép amount giống nhau làm thay dữ liệu thay vì đối chiếu."
+      },
+      {
+       "text": "Vì merge luôn tăng tổng và cần chấp nhận mức tăng đó.",
+       "correct": false,
+       "detail": "Tăng tổng sau merge có thể là lỗi nhân dòng cần phát hiện."
+      },
+      {
+       "text": "Để phát hiện việc nhân dòng hoặc làm mất đơn khi nối.",
+       "correct": true,
+       "detail": "Để phát hiện việc nhân dòng hoặc làm mất đơn khi nối."
+      }
+     ],
+     "explanation": "Để phát hiện việc nhân dòng hoặc làm mất đơn khi nối."
+    },
+    {
+     "question": "Tại sao giữ nhóm Unknown trong báo cáo mẫu?",
+     "options": [
+      {
+       "text": "Để bỏ các đơn chưa khớp ra khỏi tổng đối chiếu.",
+       "correct": false,
+       "detail": "Loại các đơn đó sẽ làm mất đóng góp của chúng khỏi báo cáo."
+      },
+      {
+       "text": "Để các đơn chưa khớp khu vực vẫn được thể hiện và tổng báo cáo còn khớp tổng đơn.",
+       "correct": true,
+       "detail": "Để các đơn chưa khớp khu vực vẫn được thể hiện và tổng báo cáo còn khớp tổng đơn."
+      },
+      {
+       "text": "Để tự coi các đơn chưa khớp là đã biết vùng.",
+       "correct": false,
+       "detail": "Unknown ghi rõ chưa xác định, không giả vờ đã biết vùng."
+      }
+     ],
+     "explanation": "Để các đơn chưa khớp khu vực vẫn được thể hiện và tổng báo cáo còn khớp tổng đơn."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Danh mục cửa hàng phải có một vùng cho mỗi mã."
+   },
+   "scaffold": {
+    "template": "joined = orders.merge(stores, on=\"store\", how=\"left\", validate=\"{{slot1}}\")",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "many_to_one"
+     }
+    ],
+    "bank": [
+     {
+      "label": "many_to_one",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.orders có order, store, date ISO, amount; các dòng có thể trùng toàn bộ. data.stores có store, region và mã duy nhất. Chuẩn hóa mã store của cả orders và stores bằng strip/upper, bỏ dòng giống hệt, nối trái với validate many_to_one, vùng vắng là Unknown, tổng hợp theo YYYY-MM và region. Trả {report:list bản ghi month,region,amount đã sắp; total:tổng amount của đơn sau bỏ trùng}. Dữ liệu không có hai phiên bản xung đột của cùng order.",
+    "io": [
+     {
+      "label": "trùng và chưa khớp",
+      "value": "{'orders': [{'order': '1', 'store': ' a ', 'date': '2026-03-01', 'amount': 5}, {'order': '1', 'store': ' a ', 'date': '2026-03-01', 'amount': 5}, {'order': '2', 'store': 'C', 'date': '2026-03-02', 'amount': 8}], 'stores': [{'store': ' a ', 'region': 'East'}]} → {'report': [{'month': '2026-03', 'region': 'East', 'amount': 5}, {'month': '2026-03', 'region': 'Unknown', 'amount': 8}], 'total': 13.0}"
+     },
+     {
+      "label": "hai tháng",
+      "value": "{'orders': [{'order': '3', 'store': 'B', 'date': '2026-01-02', 'amount': 2}, {'order': '4', 'store': 'B', 'date': '2026-02-02', 'amount': 7}], 'stores': [{'store': 'b ', 'region': 'West'}]} → {'report': [{'month': '2026-01', 'region': 'West', 'amount': 2}, {'month': '2026-02', 'region': 'West', 'amount': 7}], 'total': 9.0}"
+     },
+     {
+      "label": "đơn 0 vẫn còn",
+      "value": "{'orders': [{'order': '5', 'store': 'Z', 'date': '2026-04-01', 'amount': 0}], 'stores': [{'store': 'A', 'region': 'East'}]} → {'report': [{'month': '2026-04', 'region': 'Unknown', 'amount': 0}], 'total': 0.0}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import pandas as pd\n\ndef solve(data):\n     orders = pd.DataFrame(data['orders']).copy()\n     orders['store'] = orders['store'].str.strip().str.upper()\n     orders = orders.drop_duplicates()\n     stores = pd.DataFrame(data['stores']).copy()\n     stores['store'] = stores['store'].str.strip().str.upper()\n     joined = orders.merge(stores, on='store', how='left', validate='many_to_one')\n     joined['region'] = joined['region'].fillna('Unknown')\n     joined['month'] = pd.to_datetime(joined['date']).dt.to_period('M').astype(str)\n     report = joined.groupby(['month','region'], as_index=False)['amount'].sum().sort_values(['month','region'])\n     return {'report':report.to_dict('records'), 'total':float(orders['amount'].sum())}\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Một cửa hàng có nhiều đơn nhưng danh mục chỉ được có một hàng cho mỗi cửa hàng."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Báo cáo tổng tháng vẫn giữ đơn chưa khớp và đối chiếu được tổng."
+    }
+   ],
+   "packages": [
+    "pandas"
+   ],
+   "tests": [
+    {
+     "name": "trùng và chưa khớp",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'orders': [{'order': '1', 'store': ' a ', 'date': '2026-03-01', 'amount': 5}, {'order': '1', 'store': ' a ', 'date': '2026-03-01', 'amount': 5}, {'order': '2', 'store': 'C', 'date': '2026-03-02', 'amount': 8}], 'stores': [{'store': ' a ', 'region': 'East'}]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'report': [{'month': '2026-03', 'region': 'East', 'amount': 5}, {'month': '2026-03', 'region': 'Unknown', 'amount': 8}], 'total': 13.0}"
+    },
+    {
+     "name": "hai tháng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'orders': [{'order': '3', 'store': 'B', 'date': '2026-01-02', 'amount': 2}, {'order': '4', 'store': 'B', 'date': '2026-02-02', 'amount': 7}], 'stores': [{'store': 'b ', 'region': 'West'}]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'report': [{'month': '2026-01', 'region': 'West', 'amount': 2}, {'month': '2026-02', 'region': 'West', 'amount': 7}], 'total': 9.0}"
+    },
+    {
+     "name": "đơn 0 vẫn còn",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'orders': [{'order': '5', 'store': 'Z', 'date': '2026-04-01', 'amount': 0}], 'stores': [{'store': 'A', 'region': 'East'}]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'report': [{'month': '2026-04', 'region': 'Unknown', 'amount': 0}], 'total': 0.0}"
+    }
+   ]
+  }
+ }
+}

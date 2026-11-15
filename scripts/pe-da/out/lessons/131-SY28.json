@@ -1,0 +1,180 @@
+{
+ "lesson_code": "SY28",
+ "sort_order": 131,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY28 · PW6: lưu dữ liệu bằng pickle có nén",
+ "subtitle": "Trung cấp · M5 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "SY28 · PW6: lưu dữ liệu bằng pickle có nén",
+  "subtitle": "Trung cấp · M5 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/SY28.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "PW6: lưu dữ liệu bằng pickle có nén",
+    "body": "PW5 đã đọc được dữ liệu text. Ở PW6, bạn giữ chức năng chương trình nhưng thay cách lưu bằng pickle có nén. Bắt đầu từ bộ dữ liệu gồm cả thông tin định danh và phiên bản cấu trúc (version):",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "PW5 đã đọc được dữ liệu text. Ở PW6, bạn giữ chức năng chương trình nhưng thay cách lưu bằng pickle có nén. Bắt đầu từ bộ dữ liệu gồm cả thông tin định danh và phiên bản cấu trúc (version):\n\nPickle giữ được tuple làm khóa của marks, còn JSON không hỗ trợ trực tiếp kiểu khóa này. Nếu lưu instance như Student hay Course, đặt class ở module ổn định, chẳng hạn domains.student, để Python tìm lại đúng class khi đọc file. Gom toàn bộ dữ liệu trong một dict có trường version giúp bạn nhận biết phiên bản cấu trúc trước khi cập nhật Registry."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "gzip.open kết hợp mở file với nén dữ liệu; pickle.dump vẫn ghi dữ liệu nhị phân. Chỉ đọc file pickle do bạn tạo và tin cậy. Nếu version hoặc định nghĩa class không còn tương thích, báo rằng cần chuyển đổi dữ liệu sang phiên bản mới thay vì đoán cấu trúc.\n\nKiểm version chỉ là bước đầu; vẫn phải kiểm sinh viên/môn/điểm và tham chiếu như PW5. Đọc dữ liệu vào biến tạm, xác nhận hợp lệ rồi mới thay registry đang dùng. Bước tiếp theo của nguồn là PW8 đưa việc lưu này sang thread nền và PW9 dùng GUI; đổi cách lưu ở đây chưa tự có hai tính năng đó."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import gzip, pickle\nstate = {\"version\": 1, \"students\": {\"S01\": {\"name\": \"An\", \"dob\": \"2005-01-02\"}}, \"courses\": {\"PY\": {\"name\": \"Python\", \"credits\": 3}}, \"marks\": {(\"S01\", \"PY\"): 8.7}}\nblob = gzip.compress(pickle.dumps(state))\nloaded = pickle.loads(gzip.decompress(blob))\nprint(loaded == state)\nprint(loaded[\"marks\"][(\"S01\", \"PY\")])",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: True ⏎ 8.7"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: tuple ⏎ 1"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: Can chuyen doi du lieu ⏎ 1"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Snapshot đọc được nhưng sai version. Có nên gán ngay vào dữ liệu hiện tại rồi mới kiểm không?",
+     "options": [
+      {
+       "text": "Không; đọc vào biến tạm và kiểm trước",
+       "correct": true,
+       "detail": "Chỉ thay trạng thái đang dùng sau khi cấu trúc, version và dữ liệu đều hợp lệ."
+      },
+      {
+       "text": "Có; có thể kiểm sau khi đã mất dữ liệu cũ",
+       "correct": false,
+       "detail": "Gán sớm có thể thay trạng thái tốt bằng dữ liệu không dùng được."
+      },
+      {
+       "text": "Chỉ kiểm đuôi .dat là đủ",
+       "correct": false,
+       "detail": "Đuôi không xác nhận cấu trúc hay version snapshot."
+      }
+     ],
+     "explanation": "Chỉ thay trạng thái đang dùng sau khi cấu trúc, version và dữ liệu đều hợp lệ."
+    },
+    {
+     "question": "PW6 dùng gzip.open(...,\"wb\") cùng pickle.dump. Hai phần làm gì?",
+     "options": [
+      {
+       "text": "gzip thay thế luôn việc serialize object",
+       "correct": false,
+       "detail": "Chưa đúng. Serialize và nén là hai tầng xử lý với vai trò khác nhau."
+      },
+      {
+       "text": "Pickle tạo biểu diễn object, gzip nén dữ liệu ghi",
+       "correct": true,
+       "detail": "Serialize và nén là hai tầng xử lý với vai trò khác nhau."
+      },
+      {
+       "text": "Cả hai đều chỉ mã hóa mật khẩu",
+       "correct": false,
+       "detail": "Chưa đúng. Serialize và nén là hai tầng xử lý với vai trò khác nhau."
+      }
+     ],
+     "explanation": "Serialize và nén là hai tầng xử lý với vai trò khác nhau."
+    },
+    {
+     "question": "Vì sao snapshot có trường version?",
+     "options": [
+      {
+       "text": "Nhận biết cấu trúc cần đọc hoặc chuyển đổi",
+       "correct": true,
+       "detail": "Version giúp quyết định dữ liệu có tương thích, không thay việc kiểm các trường bên trong."
+      },
+      {
+       "text": "Để mọi file lạ tự an toàn",
+       "correct": false,
+       "detail": "Chưa đúng. Version giúp quyết định dữ liệu có tương thích, không thay việc kiểm các trường bên trong."
+      },
+      {
+       "text": "Để GPA tự cập nhật",
+       "correct": false,
+       "detail": "Chưa đúng. Version giúp quyết định dữ liệu có tương thích, không thay việc kiểm các trường bên trong."
+      }
+     ],
+     "explanation": "Version giúp quyết định dữ liệu có tương thích, không thay việc kiểm các trường bên trong."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Dùng gzip và pickle đúng mode."
+   },
+   "scaffold": {
+    "template": "with gzip.open(path, \"{{slot1}}\") as f:\n    candidate = pickle.{{slot2}}(f)",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Mode đọc bytes",
+      "answer": "rb"
+     },
+     {
+      "n": 2,
+      "placeholder": "Hàm đọc từ file",
+      "answer": "load"
+     }
+    ],
+    "bank": [
+     {
+      "label": "rb",
+      "slot": 1,
+      "trap": ""
+     },
+     {
+      "label": "load",
+      "slot": 1,
+      "trap": "rb nhận dữ liệu giải nén dưới dạng byte."
+     },
+     {
+      "label": "load",
+      "slot": 2,
+      "trap": ""
+     },
+     {
+      "label": "rb",
+      "slot": 2,
+      "trap": "pickle.load đọc từ stream mở."
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Thay lưu CSV/ZIP của PW5 bằng PW6 pickle+gzip và giữ các chức năng quản lý. Dùng snapshot {version:1, students, courses, marks}; các class nằm ở module ổn định. Tạo thêm S9 Vy, đóng chương trình, mở tiến trình mới và kiểm S9 vẫn còn."
+   },
+   "procedure": [
+    "Viết save_state và load_state riêng, không trộn prompt nhập liệu vào hàm lưu.",
+    "Load vào biến tạm, kiểm version và khóa; khi lỗi giữ trạng thái hiện tại.",
+    "Thử trong bản sao thư mục với file thiếu, file gzip lỗi và version=99; ghi lại kết quả từng trường hợp.",
+    "Tự kiểm: Tiến trình mới đọc lại đúng object, khóa điểm và tên Unicode.",
+    "Tự kiểm: Import module class không tự khởi chạy giao diện; pickle tìm được class ở cùng đường dẫn module.",
+    "Tự kiểm: File thiếu có thể khởi tạo mới theo chính sách; file lỗi/version lạ phải báo rõ và không tự ghi đè trạng thái tốt."
+   ]
+  }
+ }
+}

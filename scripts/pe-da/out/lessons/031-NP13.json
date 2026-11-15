@@ -1,0 +1,206 @@
+{
+ "lesson_code": "NP13",
+ "sort_order": 31,
+ "module": "M2 · NumPy từ dãy số đến bảng",
+ "title": "NP13 · So sánh tạo dãy True/False",
+ "subtitle": "Cơ bản · M2 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "NP13 · So sánh tạo dãy True/False",
+  "subtitle": "Cơ bản · M2 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/NP13.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "So sánh tạo dãy True/False",
+    "body": "Lượng mưa trong ba ngày là 0, 2.5 và 0 mm. Để biết ngày nào có mưa, bạn so sánh từng số với 0:",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Lượng mưa trong ba ngày là 0, 2.5 và 0 mm. Để biết ngày nào có mưa, bạn so sánh từng số với 0:\n\n`False` nghĩa là điều kiện không đúng; `True` nghĩa là điều kiện đúng. Ngày thứ hai có lượng mưa lớn hơn 0 nên được đánh dấu `True`. Hai ngày còn lại được đánh dấu `False`."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Array True/False dùng để đánh dấu các vị trí như vậy được gọi là mask. Mask giữ số vị trí và thứ tự giống dữ liệu mà bạn vừa so sánh.\n\nVí dụ, để đánh dấu những điểm từ 5 trở lên:"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Điểm 3 không đạt điều kiện, còn 5 và 8 đạt điều kiện. Dấu `>=` có nghĩa là lớn hơn hoặc bằng, nên điểm 5 cũng được đánh dấu `True`.\n\nMột điều kiện khác có thể dùng dấu `<`:"
+    },
+    {
+     "title": "Ý chính 4",
+     "body": "Chỉ có 20 nhỏ hơn 35. Số 35 bằng ngưỡng nên không thỏa điều kiện `< 35`. Các phép so sánh này mới tạo dãy đánh dấu; chúng chưa loại số nào khỏi array ban đầu."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import numpy as np\n\nrain = np.array([0., 2.5, 0.])\nprint(rain > 0)",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: [False  True False]"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: [False  True  True]"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: [ True False False]"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "temps=np.array([29,30,32]); temps > 30 cho gì?",
+     "options": [
+      {
+       "text": "[False,False,True]",
+       "correct": true,
+       "detail": "Đúng. Điều kiện > không nhận giá trị đúng bằng 30."
+      },
+      {
+       "text": "[False,True,True]",
+       "correct": false,
+       "detail": "Đây là kết quả của >=30."
+      },
+      {
+       "text": "[32]",
+       "correct": false,
+       "detail": "So sánh chỉ tạo mask; muốn lấy 32 phải dùng mask chọn array."
+      }
+     ],
+     "explanation": "Đúng. Điều kiện > không nhận giá trị đúng bằng 30."
+    },
+    {
+     "question": "Đánh dấu điểm từ 5 trở lên. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "[False, True, True]",
+       "correct": true,
+       "detail": "Mỗi vị trí được thay bằng kết quả đúng/sai của cùng điều kiện."
+      },
+      {
+       "text": "[False, False, True]",
+       "correct": false,
+       "detail": "Dấu >= nhận cả điểm bằng 5."
+      },
+      {
+       "text": "[5, 8]",
+       "correct": false,
+       "detail": "So sánh tạo mask, chưa lọc các điểm."
+      }
+     ],
+     "explanation": "Mỗi vị trí được thay bằng kết quả đúng/sai của cùng điều kiện."
+    },
+    {
+     "question": "Chỉ đánh dấu nhiệt độ vượt 30. Kết quả ở lệnh print cuối có giá trị nào?",
+     "options": [
+      {
+       "text": "[False, False, True]",
+       "correct": true,
+       "detail": "30 không lớn hơn chính nó, nên vị trí giữa là False."
+      },
+      {
+       "text": "[False, True, True]",
+       "correct": false,
+       "detail": "Đó là >=30, có nhận số bằng 30."
+      },
+      {
+       "text": "[32]",
+       "correct": false,
+       "detail": "Đây là kết quả lọc, chưa phải mask so sánh."
+      }
+     ],
+     "explanation": "30 không lớn hơn chính nó, nên vị trí giữa là False."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ phần cú pháp còn thiếu",
+    "body": "Ngưỡng được nhận khi bằng 30. Điền phép so sánh."
+   },
+   "scaffold": {
+    "template": "hot = temps {{slot1}} 30",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phép so sánh gồm cả ngưỡng",
+      "answer": ">="
+     }
+    ],
+    "bank": [
+     {
+      "label": ">=",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "Viết solve(data) nhận dãy nhiệt độ. Trả mask đánh dấu những số đo từ 30°C trở lên. Giữ đủ số vị trí và thứ tự đầu vào.",
+    "io": [
+     {
+      "label": "Có số ở ngưỡng",
+      "value": "[29, 30, 32] → [False, True, True]"
+     },
+     {
+      "label": "Mọi số dưới ngưỡng",
+      "value": "[0, 20] → [False, False]"
+     },
+     {
+      "label": "Chưa có số đo",
+      "value": "[] → []"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
+   "solutionCode": "import numpy as np\ndef solve(data):\n    return np.array(data) >= 30\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Bài chỉ cần dãy True/False, chưa lấy các nhiệt độ được chọn."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "So array với >= 30 để nhận cả giá trị đúng ngưỡng."
+    }
+   ],
+   "packages": [
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "Có số ở ngưỡng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([29, 30, 32]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[False, True, True]"
+    },
+    {
+     "name": "Mọi số dưới ngưỡng",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([0, 20]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[False, False]"
+    },
+    {
+     "name": "Chưa có số đo",
+     "call": "__import__('json').loads(__import__('json').dumps(solve([]), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "[]"
+    }
+   ]
+  }
+ }
+}

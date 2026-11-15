@@ -1,0 +1,170 @@
+{
+ "lesson_code": "GU09",
+ "sort_order": 156,
+ "module": "M8 · Tkinter: từ form nhỏ đến quản lý điểm",
+ "title": "GU09 · Place: vị trí tuyệt đối và tương đối",
+ "subtitle": "Trung cấp · M8 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "GU09 · Place: vị trí tuyệt đối và tương đối",
+  "subtitle": "Trung cấp · M8 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/GU09.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Place: vị trí tuyệt đối và tương đối",
+    "body": "Một nhãn trạng thái cần nằm ở góc của vùng xem trước. place cho bạn chỉ rõ tọa độ hoặc tỉ lệ của vùng cha, nhưng form nhiều chữ thường dễ bố trí hơn bằng grid.",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một nhãn trạng thái cần nằm ở góc của vùng xem trước. place cho bạn chỉ rõ tọa độ hoặc tỉ lệ của vùng cha, nhưng form nhiều chữ thường dễ bố trí hơn bằng grid.\n\nx, y là khoảng cách từ góc trên trái của parent; width, height ở place là kích thước theo khoảng cách màn hình, ở đây là pixel. Đừng nhầm với width theo ký tự của Label khi tạo widget."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "relx=0.5 và rely=0.5 định vị ở nửa chiều rộng, nửa chiều cao của parent. anchor=\"center\" đặt tâm của nhãn vào điểm đó. Không đặt anchor thì mặc định dùng góc trên trái của widget.\n\nrelwidth=0.8 cho chiều rộng bằng 80% parent; relheight=0.6 cho chiều cao 60%. Kích thước tương đối thay đổi theo cửa sổ, nhưng không tự bảo đảm chữ vừa hoặc các nút không chồng nhau. Bạn vẫn cần thử resize và font lớn."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import tkinter as tk\nr=tk.Tk();r.withdraw()\nlabel=tk.Label(r,text='Status')\nlabel.place(x=20,y=30,width=100,height=25)\ninfo=label.place_info()\nprint(info['x'],info['y'],info['width'],info['height'])\nr.destroy()",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 20 30 100 25"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: 0.5 0.5 center"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: 0.8 0.6"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "place(relx=0.5, rely=0.5, anchor=\"center\") đặt điểm nào của widget ở giữa parent?",
+     "options": [
+      {
+       "text": "Góc trên trái widget",
+       "correct": false,
+       "detail": "Điều đó xảy ra với anchor mặc định nw, không phải center."
+      },
+      {
+       "text": "Tâm toàn màn hình bất kể parent",
+       "correct": false,
+       "detail": "Tọa độ tương đối được tính theo parent của widget."
+      },
+      {
+       "text": "Tâm widget",
+       "correct": true,
+       "detail": "relx/rely chọn vị trí trong parent; anchor chọn điểm widget gắn vào đó."
+      }
+     ],
+     "explanation": "relx/rely chọn vị trí trong parent; anchor chọn điểm widget gắn vào đó."
+    },
+    {
+     "question": "place(x=20,y=10) dùng đơn vị vị trí nào trong bài?",
+     "options": [
+      {
+       "text": "Số phần tử của array",
+       "correct": false,
+       "detail": "Chưa đúng. x/y là tọa độ tuyệt đối; relx/rely là phần tương đối theo kích thước parent."
+      },
+      {
+       "text": "Pixel theo parent",
+       "correct": true,
+       "detail": "x/y là tọa độ tuyệt đối; relx/rely là phần tương đối theo kích thước parent."
+      },
+      {
+       "text": "Tỷ lệ từ 0 đến 1",
+       "correct": false,
+       "detail": "Chưa đúng. x/y là tọa độ tuyệt đối; relx/rely là phần tương đối theo kích thước parent."
+      }
+     ],
+     "explanation": "x/y là tọa độ tuyệt đối; relx/rely là phần tương đối theo kích thước parent."
+    },
+    {
+     "question": "relx=0.5 dựa theo chiều rộng của ai?",
+     "options": [
+      {
+       "text": "Parent của widget",
+       "correct": true,
+       "detail": "Tọa độ tương đối trong place được tính theo vùng chứa."
+      },
+      {
+       "text": "Luôn toàn màn hình vật lý",
+       "correct": false,
+       "detail": "Chưa đúng. Tọa độ tương đối trong place được tính theo vùng chứa."
+      },
+      {
+       "text": "Số ký tự trong text",
+       "correct": false,
+       "detail": "Chưa đúng. Tọa độ tương đối trong place được tính theo vùng chứa."
+      }
+     ],
+     "explanation": "Tọa độ tương đối trong place được tính theo vùng chứa."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Đặt tâm nhãn vào giữa parent."
+   },
+   "scaffold": {
+    "template": "label.place(relx={{slot1}}, rely={{slot2}}, anchor=\"center\")",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Vị trí ngang",
+      "answer": "0.5"
+     },
+     {
+      "n": 2,
+      "placeholder": "Vị trí dọc",
+      "answer": "0.5"
+     }
+    ],
+    "bank": [
+     {
+      "label": "0.5",
+      "slot": 1,
+      "trap": ""
+     },
+     {
+      "label": "0.5",
+      "slot": 2,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Tạo banner thông báo: Frame màu nền chiếm 80% chiều rộng và 40% chiều cao root, đặt ở chính giữa. Label \"Báo cáo tuần\" nằm giữa Frame. Dùng place và thử resize."
+   },
+   "procedure": [
+    "Tạo Frame là con của root; place relwidth=.8, relheight=.4, relx/rely=.5, anchor center.",
+    "Đặt Label trong Frame bằng tọa độ tương đối.",
+    "Đổi tiêu đề thành câu dài hơn để quan sát giới hạn của bố cục.",
+    "Tự kiểm: Banner giữ tỷ lệ và tâm khi thay kích thước root.",
+    "Tự kiểm: Label tính vị trí theo Frame chứ không theo toàn màn hình.",
+    "Tự kiểm: Ghi nhận khi câu dài bị cắt và điều chỉnh kích thước/cách xuống dòng, không kết luận tương đối luôn đủ."
+   ]
+  }
+ }
+}

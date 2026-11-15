@@ -1,12 +1,146 @@
 .card {
-  background: var(--ds-card);
-  /* Xem chú thích cùng chỗ ở ShellA.module.css: viết gộp cũ không hợp lệ. */
-  border: 1px solid var(--ds-line);
+  /* LOFI: kính tím tối (--edu-panel-bg = --lf-glass trong `[data-lofi]`). Bỏ
+     `backdrop-filter: blur(14px)` của bản trắng: nền phía sau nay có vật chuyển
+     động (sao, vật bay), và nhoè lại cả khung hình mỗi nhịp là thứ làm trang chủ
+     Góc học từng bận 98% luồng chính — xem lofi-theme.css, mục HIỆU NĂNG. Ảnh nền
+     vốn đã nhoè, nên nền đục 86% cho cùng cảm giác kính mờ mà gần như miễn phí. */
+  position: relative;
+  background: var(--edu-panel-bg);
+  /* TỪNG LÀ `border: var(--edu-card-border)`, và nó KHÔNG VẼ GÌ CẢ:
+     token đó là một MÀU, còn shorthand `border` thì đặt lại mọi longhand
+     bị bỏ về giá trị đầu — `border-style: none`. Đo trong Chrome:
+     border-top-width `0px`, border-top-style `none`. Nên vỏ của MỌI màn
+     bài học chỉ có bóng, không có cạnh. Phải ghi đủ width + style. */
+  border: 1px solid var(--edu-card-line);
   border-radius: var(--st-card-radius);
-  box-shadow: var(--ds-shadow-open);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  /* Bóng + một sợi sáng ở mép trên như ánh đèn bàn hắt vào cạnh kính. */
+  box-shadow: var(--edu-card-shadow), inset 0 1px 0 rgba(255, 236, 220, 0.1);
   padding: 32px;
+}
+
+/* ── LOFI · cảnh của thẻ ──────────────────────────────────────────────────
+   Thẻ là MẶT BÀN: vật đứng trên mép trên của nó (.scene), băng dính dán ở góc
+   (.tape), sách mở thì có dải đánh dấu trang (.bookmark). Chừa 80px phía trên
+   cho vật; vật cao 96px nên chồng 16px xuống thẻ — trông như đứng trên bàn
+   chứ không lơ lửng. Chỉ khi thẻ có `scene`, nên màn tải/lỗi giữ nguyên. */
+.cardScene {
+  margin-top: 80px;
+}
+.scene {
+  position: absolute;
+  right: 56px;
+  bottom: calc(100% - 14px);
+  width: 240px;
+  height: 96px;
+  background: center bottom / contain no-repeat;
+  pointer-events: none;
+  animation: sceneBob 6s ease-in-out infinite;
+}
+.scene[data-scene='theory'] {
+  background-image: url(/lesson-lofi/scenes/banner-theory.webp);
+}
+.scene[data-scene='example'] {
+  background-image: url(/lesson-lofi/scenes/banner-example.webp);
+}
+.scene[data-scene='predict'] {
+  background-image: url(/lesson-lofi/scenes/banner-predict.webp);
+}
+.scene[data-scene='quiz'] {
+  background-image: url(/lesson-lofi/scenes/banner-quiz.webp);
+}
+.scene[data-scene='recap'] {
+  background-image: url(/lesson-lofi/scenes/banner-recap.webp);
+}
+@keyframes sceneBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.tape {
+  position: absolute;
+  top: -13px;
+  left: -16px;
+  width: 84px;
+  height: 24px;
+  background: url(/lesson-lofi/svg/washi-tape.svg) center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+.bookmark {
+  position: absolute;
+  top: -6px;
+  right: 22px;
+  width: 22px;
+  height: 46px;
+  background: url(/lesson-lofi/svg/bookmark.svg) top center / 100% 100% no-repeat;
+  transform-origin: 50% 0;
+  animation: bookmarkSway 5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes bookmarkSway {
+  0%,
+  100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2.5deg);
+  }
+}
+
+/* Nhóm huy hiệu + nhãn loại màn ở đầu thẻ. */
+.lead {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.medal {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  background: center / contain no-repeat;
+  filter: drop-shadow(0 0 10px rgba(201, 179, 255, 0.35));
+}
+.medal[data-scene='theory'] {
+  background-image: url(/lesson-lofi/svg/badge-theory.svg);
+}
+.medal[data-scene='example'] {
+  background-image: url(/lesson-lofi/svg/badge-example.svg);
+}
+.medal[data-scene='predict'] {
+  background-image: url(/lesson-lofi/svg/badge-predict.svg);
+}
+.medal[data-scene='quiz'] {
+  background-image: url(/lesson-lofi/svg/badge-quiz.svg);
+}
+.medal[data-scene='recap'] {
+  background-image: url(/lesson-lofi/svg/badge-recap.svg);
+}
+
+@media (max-width: 560px) {
+  .cardScene {
+    margin-top: 64px;
+  }
+  .scene {
+    right: 16px;
+    width: 190px;
+    height: 76px;
+  }
+  .bookmark {
+    right: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene,
+  .bookmark {
+    animation: none;
+  }
 }
 
 .header {
@@ -27,11 +161,15 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  /* Tint ĐỤC của bảng lofi, KHÔNG phải --edu-accent-soft (10% alpha của chính
+     màu nhấn đặt dưới chữ cùng họ — khuôn đã làm hai chip trang chủ tụt còn
+     2,95–3,20:1). Chữ violet-deep trên violet-tint: 10,26:1 ngày, 9,21:1
+     đêm; bản cũ 5,93:1. Icon dùng currentColor nên đi theo. */
   background: var(--ds-violet-tint);
   color: var(--ds-violet-deep);
-  border-radius: var(--ds-r-pill);
+  border-radius: 999px;
   padding: 6px 14px;
-  font-size: var(--ds-fs-label);
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -41,23 +179,25 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: var(--ds-fs-label);
-  color: var(--ds-soft);
+  font-size: 13px;
+  color: var(--edu-t3);
   font-weight: 600;
 }
 .metaDot {
   width: 6px;
   height: 6px;
-  border-radius: var(--ds-r-round);
-  background: var(--ds-violet);
+  border-radius: 50%;
+  /* Chấm TRANG TRÍ cạnh tên bài (tên bài tự mang nghĩa) ⇒ nhấn ấm của
+     bảng lofi. 1,99:1 trên thẻ là đủ vì nó không chở thông tin nào. */
+  background: var(--ds-mark-ochre);
   flex-shrink: 0;
 }
 
-.title {
-  font-size: var(--ds-fs-h3);
+.title { font-family: var(--edu-font-display);
+  font-size: 22px;
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: var(--ds-ink);
+  color: var(--edu-t1);
   line-height: 1.4;
   margin: 0;
 }
@@ -66,10 +206,17 @@
   text-align: center;
 }
 
+/* ĐỀ BÀI của mọi màn đi qua đây — câu hỏi trắc nghiệm, đề luyện tập, yêu cầu
+   của màn thử thách. 14px + t3 là tổ hợp NHỎ NHẤT và NHẠT NHẤT trên màn hình,
+   mà nó lại đang gánh thứ người học phải đọc kỹ nhất. Nới lên 15px + t2 ngày
+   29/10/2026 sau đợt thử nghiệm (ba trên bốn người báo chữ quá nhỏ).
+
+   Không lên thẳng t1: t1 là màu của tiêu đề ngay trên nó, dùng chung thì hai
+   dòng dính thành một khối và mất thứ bậc. t2 = 8,93:1 trên nền trắng. */
 .description {
-  font-size: var(--ds-fs-body);
-  color: var(--ds-soft);
-  line-height: 1.6;
+  font-size: 15px;
+  color: var(--edu-t2);
+  line-height: 1.65;
   margin: 8px 0 0;
 }
 .descriptionCentered {
@@ -82,26 +229,34 @@
 }
 
 .hintToggle {
+  /* SÀN 44px. `ShellB` là vỏ của MỌI màn bài học, nên nút này hiện ở mọi bài
+     có gợi ý (143/179 bài khai `step_4.hints`). CHƯA ĐO trên thiết bị: lượt đi
+     09/11 qua 22 màn của NP06 không gặp nó, nên con số thật vẫn chưa có — đo
+     được thì phải mở màn có panel gợi ý. */
+  min-height: 44px;
   margin-top: 20px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  /* Nút bấm được thì viền phải >= 3:1 (WCAG 1.4.11): `line` chỉ 1,36:1 trên
-     thẻ, nên đổi sang `sketch` (4,21:1). */
-  border: 2px solid var(--ds-sketch);
-  background: var(--ds-card);
-  color: var(--ds-violet-deep);
-  border-radius: var(--ds-r-pill);
+  border: 1px solid var(--edu-sidebar-border);
+  background: var(--edu-panel-bg-solid);
+  color: var(--ds-violet);
+  border-radius: 999px;
   padding: 8px 16px;
   font: inherit;
-  font-size: var(--ds-fs-ui);
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
 }
-.hintToggle:hover {
-  background: var(--ds-violet-tint);
-  border-color: var(--st-slot-border);
+/* Guard con trỏ thật: trên màn cảm ứng `:hover` DÍNH LẠI sau cú chạm nên
+   phần tử kẹt ở trạng thái "đang trỏ vào" — đo 10/11/2026. Lý lẽ và số đo
+   đầy đủ ở `.start` trong `components/code-visualizer/CodeVisualizer.module.css`. */
+@media (hover: hover) and (pointer: fine) {
+  .hintToggle:hover {
+    background: var(--ds-violet-tint);
+    border-color: var(--st-slot-border);
+  }
 }
 .hintToggle:active {
   transform: translateY(1px);
@@ -123,8 +278,8 @@
   display: flex;
   gap: 12px;
   align-items: flex-start;
-  background: var(--ds-tint);
-  border-radius: var(--ds-r-md);
+  background: var(--edu-card-bg);
+  border-radius: 12px;
   padding: 14px 16px;
   animation: hintIn 0.24s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
@@ -147,7 +302,7 @@
   flex-shrink: 0;
   width: 28px;
   height: 28px;
-  border-radius: var(--ds-r-round);
+  border-radius: 50%;
   background: var(--ds-violet-tint);
   color: var(--ds-violet-deep);
   display: flex;
@@ -155,19 +310,19 @@
   justify-content: center;
 }
 .hintLabel {
-  font-size: var(--ds-fs-label);
+  font-size: 13px;
   font-weight: 700;
-  color: var(--ds-ink);
+  color: var(--edu-t1);
   margin-bottom: 2px;
 }
 .hintText {
-  font-size: var(--ds-fs-body);
-  color: var(--ds-soft);
+  font-size: 13px;
+  color: var(--edu-t2);
   line-height: 1.6;
 }
 .hintText code {
   font-family: 'JetBrains Mono', Consolas, monospace;
-  color: var(--ds-violet-deep);
+  color: var(--ds-violet);
 }
 
 @media (max-width: 560px) {
@@ -176,6 +331,6 @@
   }
   .title,
   .titleCentered {
-    font-size: var(--ds-fs-lead);
+    font-size: 19px;
   }
 }

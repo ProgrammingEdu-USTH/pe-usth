@@ -1,0 +1,207 @@
+{
+ "lesson_code": "VZ02",
+ "sort_order": 75,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ02 · Figure, Axes và biểu đồ đầu tiên",
+ "subtitle": "Cơ bản · M4 · 25 phút",
+ "estimated_minutes": 25,
+ "xp_reward": 10,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "VZ02 · Figure, Axes và biểu đồ đầu tiên",
+  "subtitle": "Cơ bản · M4 · 25 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/VZ02.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Figure, Axes và biểu đồ đầu tiên",
+    "body": "Bạn cần một hình có tiêu đề, trục và đường bán hàng. plt.subplots() trả về hai đối tượng: Figure là toàn bộ hình, Axes là vùng vẽ bên trong. Dùng fig để lưu hình và ax để thêm dữ liệu hoặc đổi nhãn sẽ giúp bạn biết mình đang sửa phần nào.",
+    "level": "Cơ bản"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Bạn cần một hình có tiêu đề, trục và đường bán hàng. plt.subplots() trả về hai đối tượng: Figure là toàn bộ hình, Axes là vùng vẽ bên trong. Dùng fig để lưu hình và ax để thêm dữ liệu hoặc đổi nhãn sẽ giúp bạn biết mình đang sửa phần nào.\n\n![Biểu đồ](../visuals/VZ02-1.png)"
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Ở ví dụ đầu, fig có một vùng vẽ ax và ax có một đường. Bạn cũng có thể tạo Figure trước rồi thêm vùng vẽ bằng add_subplot(111). Ba chữ số lần lượt chỉ số hàng, số cột và vị trí: 111 nghĩa là một hàng, một cột, ô thứ nhất. Nếu cần đặt vị trí cụ thể, add_axes([left, bottom, width, height]) nhận bốn tỷ lệ so với Figure. Ví dụ [0.15, 0.2, 0.8, 0.65] đặt mép trái ở 15%, mép dưới ở 20%, chiều rộng 80% và chiều cao 65% của Figure. Khi dùng pyplot, plt.plot(...) vẽ vào vùng hiện tại; ax.plot(...) chỉ rõ vùng cần vẽ. Vì vậy, khi có nhiều Axes, dùng ax giúp tránh vẽ nhầm. Bạn thường chuẩn bị dữ liệu, tạo Figure và Axes, vẽ, chỉnh nhãn và bố trí, rồi lưu nếu cần trước khi gọi show.\n\n![Biểu đồ](../visuals/VZ02-2.png)"
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "![Biểu đồ](../visuals/VZ02-3.png)"
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.plot([1, 2, 3], [12, 15, 9], marker=\"o\", label=\"Coffee\")\nax.set(xlabel=\"Day\", ylabel=\"Cups\", title=\"Daily sales\")\nax.legend()\nprint(len(fig.axes), len(ax.lines))\nplt.show()",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 1 1"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: (1, 1, 0, 0)"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: [0.15, 0.2, 0.8, 0.65]"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Có left và right là hai Axes. Muốn chắc đường nằm bên phải, dùng gì?",
+     "options": [
+      {
+       "text": "fig.plot(x,y)",
+       "correct": false,
+       "detail": "Figure không có plot giống Axes trong cách dùng này."
+      },
+      {
+       "text": "right.plot(x,y)",
+       "correct": true,
+       "detail": "Đúng: lời gọi chỉ rõ Axes đích."
+      },
+      {
+       "text": "plt.plot(x,y) luôn vào bên phải",
+       "correct": false,
+       "detail": "pyplot phụ thuộc Axes hiện tại, không luôn là bên phải."
+      }
+     ],
+     "explanation": "Figure chứa các vùng vẽ; Axes mới nhận lệnh plot trực tiếp."
+    },
+    {
+     "question": "Muốn lưu toàn bộ hình thì dùng đối tượng nào?",
+     "options": [
+      {
+       "text": "Dùng ax.savefig vì Figure chỉ giữ tên hình.",
+       "correct": false,
+       "detail": "savefig là phương thức của Figure, không phải Axes."
+      },
+      {
+       "text": "Dùng ax.plot vì plot tự lưu mọi hình ra file.",
+       "correct": false,
+       "detail": "plot tạo đường trong Axes; nó không tự lưu toàn hình."
+      },
+      {
+       "text": "Dùng fig.savefig(...). Axes dùng để vẽ và sửa vùng dữ liệu.",
+       "correct": true,
+       "detail": "Dùng fig.savefig(...). Axes dùng để vẽ và sửa vùng dữ liệu."
+      }
+     ],
+     "explanation": "Dùng fig.savefig(...). Axes dùng để vẽ và sửa vùng dữ liệu."
+    },
+    {
+     "question": "add_subplot(221) mô tả vị trí nào?",
+     "options": [
+      {
+       "text": "Hai hàng, một cột, ô thứ hai.",
+       "correct": false,
+       "detail": "Chuỗi 221 mô tả hai cột, không phải một cột."
+      },
+      {
+       "text": "Hai hàng, hai cột, ô thứ nhất; vị trí được đếm từ 1, từ trái qua phải rồi xuống hàng.",
+       "correct": true,
+       "detail": "Hai hàng, hai cột, ô thứ nhất; vị trí được đếm từ 1, từ trái qua phải rồi xuống hàng."
+      },
+      {
+       "text": "Hai hàng, hai cột, ô số 0.",
+       "correct": false,
+       "detail": "Vị trí ô của subplot được đếm từ 1."
+      }
+     ],
+     "explanation": "Hai hàng, hai cột, ô thứ nhất; vị trí được đếm từ 1, từ trái qua phải rồi xuống hàng."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Lưu toàn bộ hình."
+   },
+   "scaffold": {
+    "template": "{{slot1}}.savefig(\"report.png\")",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "fig"
+     }
+    ],
+    "bank": [
+     {
+      "label": "fig",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.left và data.right là hai dãy số, mỗi dãy ít nhất một phần tử. Tạo Figure với hai Axes cạnh nhau bằng add_subplot(121), add_subplot(122), vẽ một đường trên mỗi Axes. Trả axes là số Axes và lines là list số đường của trái/phải. fig.axes và ax.lines là các danh sách đối tượng để đối chiếu, không phải số quan sát. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve. Trả thêm leftY và rightY: list giá trị y đọc từ đường trong từng Axes (line.get_ydata()).",
+    "io": [
+     {
+      "label": "hai dãy khác độ dài",
+      "value": "{'left': [1, 4, 2], 'right': [5, 8]} → {'axes': 2, 'lines': [1, 1], 'leftY': [1, 4, 2], 'rightY': [5, 8]}"
+     },
+     {
+      "label": "một điểm mỗi hình",
+      "value": "{'left': [0], 'right': [7]} → {'axes': 2, 'lines': [1, 1], 'leftY': [0], 'rightY': [7]}"
+     },
+     {
+      "label": "dãy mới",
+      "value": "{'left': [10, 8], 'right': [3, 3, 4, 5]} → {'axes': 2, 'lines': [1, 1], 'leftY': [10, 8], 'rightY': [3, 3, 4, 5]}"
+     }
+    ]
+   },
+   "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
+   "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     fig = plt.figure()\n     left = fig.add_subplot(121)\n     right = fig.add_subplot(122)\n     left.plot(data['left'])\n     right.plot(data['right'])\n     result = {'axes':len(fig.axes), 'lines':[len(left.lines),len(right.lines)],'leftY':list(left.lines[0].get_ydata()),'rightY':list(right.lines[0].get_ydata())}\n     plt.close(fig)\n     return result\n",
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Cần lưu cả Figure, không chỉ một Axes riêng lẻ."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Tạo Figure có Axes riêng và vẽ đúng vào Axes được chọn."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "packages": [
+    "matplotlib",
+    "numpy"
+   ],
+   "tests": [
+    {
+     "name": "hai dãy khác độ dài",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'left': [1, 4, 2], 'right': [5, 8]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'axes': 2, 'lines': [1, 1], 'leftY': [1, 4, 2], 'rightY': [5, 8]}"
+    },
+    {
+     "name": "một điểm mỗi hình",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'left': [0], 'right': [7]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'axes': 2, 'lines': [1, 1], 'leftY': [0], 'rightY': [7]}"
+    },
+    {
+     "name": "dãy mới",
+     "call": "__import__('json').loads(__import__('json').dumps(solve({'left': [10, 8], 'right': [3, 3, 4, 5]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
+     "expect": "{'axes': 2, 'lines': [1, 1], 'leftY': [10, 8], 'rightY': [3, 3, 4, 5]}"
+    }
+   ]
+  }
+ }
+}

@@ -8,14 +8,13 @@
 // bản nháp.
 import { useCallback, useEffect, useState } from 'react';
 
+import { khoaNhap } from '@/lib/nhap-bai';
 import {
   EMPTY_SCORE,
   initialLessonDraft,
   type LessonDraft,
   type StudioLesson as Lesson,
 } from '@/lib/studio-lesson';
-
-const PREFIX = 'pe-studio-lesson-v1';
 
 export type LessonDraftState = {
   draft: LessonDraft;
@@ -39,7 +38,7 @@ export function useLessonDraft({
   // Chủ của bản nháp. Chỉ có giá trị sau `restore()`, nên nó cũng là cờ "bài đã
   // nạp xong" — chưa nạp thì KHÔNG tự lưu, kẻo ghi đè nháp cũ bằng nháp rỗng.
   const [owner, setOwner] = useState<number | null>(null);
-  const key = owner ? `${PREFIX}:${owner}:${courseId}:${lessonNo}` : null;
+  const key = owner ? khoaNhap(owner, courseId, lessonNo) : null;
 
   const update = useCallback(
     (changes: Partial<LessonDraft>) => setDraft((prev) => ({ ...prev, ...changes })),
@@ -51,7 +50,7 @@ export function useLessonDraft({
       let restored = initialLessonDraft(lesson);
       try {
         const stored = JSON.parse(
-          localStorage.getItem(`${PREFIX}:${user}:${courseId}:${lessonNo}`) || 'null',
+          localStorage.getItem(khoaNhap(user, courseId, lessonNo)) || 'null',
         );
         if (stored && typeof stored.code === 'string') {
           restored = {

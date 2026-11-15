@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 140" width="180" height="140">
+  <rect x="14" y="20" width="152" height="100" rx="22" fill="#21173f" stroke="#a98cf5" stroke-opacity="0.35" stroke-width="2"/>
+  <circle cx="136" cy="44" r="12" fill="#ffd599" opacity="0.85"/>
+  <circle cx="141" cy="40" r="10" fill="#21173f"/>
+  <!-- Chú mèo lofi ngủ trên chồng sách -->
+  <rect x="36" y="86" width="108" height="14" rx="5" fill="#463175"/>
+  <ellipse cx="86" cy="78" rx="28" ry="14" fill="#e58cc8"/>
+  <circle cx="64" cy="74" r="11" fill="#e58cc8"/>
+  <path d="M56 66l3-8 6 5M68 65l5-7 2 8" fill="#e58cc8"/>
+  <path d="M59 74c2 2 5 2 7 0" fill="none" stroke="#231438" stroke-width="2" stroke-linecap="round"/>
+  <text x="98" y="54" fill="#ffd599" font-family="monospace" font-size="13" font-weight="bold">zZz…</text>
+</svg>

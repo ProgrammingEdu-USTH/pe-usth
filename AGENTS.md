@@ -35,9 +35,9 @@ mức này:
 
 | Hạng mục | Mốc | Đo ngày |
 |---|---|---|
-| Backend typecheck | sạch | 02/11/2026 |
-| Backend test | 37 bộ, 438 ca, tất cả đạt | 12/11/2026 |
-| Backend lint | 155 lỗi, 2 cảnh báo — **mốc trần trong CI là 170, chỉ được hạ** | 02/11/2026 |
+| Backend typecheck | sạch | 15/11/2026 |
+| Backend test | 38 bộ, 450 ca, tất cả đạt | 15/11/2026 |
+| Backend lint | 155 lỗi, 2 cảnh báo — **mốc trần trong CI là 170, chỉ được hạ** | 15/11/2026 |
 | Frontend typecheck | sạch | 15/10/2026 |
 | Frontend lint | 0 lỗi, 118 cảnh báo | 19/10/2026 |
 | Frontend unit test | `cd frontend && npm run test:unit` → 534 ca, 529 đạt; 5 ca trượt có sẵn từ `cd206ad` (đều chỉ vào trang `/demo-minigame`) | 19/10/2026 |
@@ -270,6 +270,76 @@ npx ts-node scripts/cleanup-guest-accounts.ts --apply --backup=guests-bak.json -
 ```
 
 Luật chọn và thứ tự xoá nằm ở `src/auth/guest-cleanup.ts` (có test Jest).
+
+## Quy ước migration và môi trường DB
+
+**Ba môi trường, ba cặp biến.** Không ghi link kết nối vào repo, vào chat hay vào `.env.example`.
+
+| Môi trường | Dùng để | `DATABASE_URL` (app) | `DIRECT_URL` (Prisma CLI) |
+|---|---|---|---|
+| Thật (nhánh production trên Neon, dùng chung bản deploy của `main`) | chỉ áp migration đã qua thử | host CÓ `-pooler` | host KHÔNG có `-pooler` |
+| Thử (branch Neon con của production) | làm và kiểm mọi thay đổi DB trước | như trên, của branch | như trên, của branch |
+| Máy cá nhân | `npm run start:dev` | trỏ vào branch thử, không trỏ vào DB thật | |
+
+`DIRECT_URL` mà có `-pooler` (qua PgBouncer) thì `prisma migrate` có thể treo vì khoá advisory.
+Đã gặp: `.env` đặt cả hai biến cùng một host có `-pooler`. Khi chạy tạm, bỏ `-pooler` khỏi
+host trong biến shell, đừng sửa lệnh. Trước khi chạy bất kỳ lệnh ghi nào, kiểm `DATABASE_URL`
+đang trỏ đúng branch thử (script tạm nên tự dừng nếu host không khớp).
+
+**Làm một thay đổi DB:**
+1. Sửa `prisma/schema.prisma`, rồi `npx prisma validate`.
+2. Xem SQL sẽ chạy mà không cần shadow DB: `npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --script`
+   (Prisma 7 đã bỏ `--from-url`). Đọc nó: có `DROP`/`RENAME`/`ALTER COLUMN … TYPE` là phải dừng,
+   trừ ngoại lệ có lý do ghi trong đầu `migration.sql` (xem migration bỏ chỉ mục GIN).
+3. Tạo `prisma/migrations/<YYYYMMDDHHMMSS>_<tên>/migration.sql` (mốc thời gian SAU migration cuối).
+   Đầu file ghi VÌ SAO, số đo, và cách hoàn tác. Dùng `IF NOT EXISTS` / `IF EXISTS`.
+4. `npx prisma migrate deploy`, rồi chạy lại lệnh ở bước 2: phải ra `-- This is an empty migration.`
+5. `npx prisma generate`, `npm run typecheck`, `npx jest --ci`.
+
+**Luật cho bảng/cột mới** (DB còn dùng chung bản Django, nên chỉ THÊM):
+- Bảng mới: khoá chính `BIGINT` hoặc `UUID`; thời gian `timestamptz`; mọi khoá ngoại có chỉ mục
+  (Postgres không tự tạo); `CHECK` cho giá trị hợp lệ (progress 0–100, XP ≥ 0).
+- Cột mới trên bảng cũ: nullable hoặc có default, để không viết lại bảng.
+- Không `CREATE INDEX CONCURRENTLY` trong migration (Prisma bọc cả file trong một transaction).
+- Thêm bảng trỏ vào `users` ⇒ thêm vào `src/auth/guest-cleanup.ts` (spec đỏ nếu quên).
+- Không viết truy vấn lọc theo NỘI DUNG JSONB của `lessons.content_json` (path, `@>`, `->`).
+  Chỉ mục GIN của nó đã bị bỏ (idx_scan = 0, 3,5 MB); cần lọc thì thêm cột riêng.
+- `lesson_progress.course_id` lặp thông tin của `lessons.course_id` mà DB không bắt được lệch.
+  Giữ cột, đừng xoá (đang có chỉ mục phục vụ tiến độ).
+
+**Thời hạn giữ `learning_events`** (chính sách ghi 15/11/2026; chạy bằng
+`npx ts-node scripts/learning-events/rollup-heartbeats.ts`, mặc định chạy thử, `--apply` mới ghi):
+- `X-Lesson.Heartbeat` (một hàng mỗi 30 giây, 52% bảng) chỉ giữ **7 ngày**, sau đó gộp thành số phút
+  trong `learning_time_daily` (một dòng mỗi người, ngày, bài) rồi xoá hàng thô, bằng MỘT câu SQL nên
+  không thể xoá mà không gộp; job tự kiểm số heartbeat gộp = số xoá, lệch là huỷ cả lần.
+- Mọi loại khác và bảng tóm tắt giữ **90 ngày** = `HAN_LUU_NGAY` (frontend/src/lib/learning-event-kinds.ts),
+  không giữ lâu hơn điều đã hứa với người học. Đổi một nơi thì đổi cả `DEFAULT_KEEP_DAYS`
+  (src/learning-events/event-retention.ts). Không rút các loại khác xuống 30 ngày: `truy-van.sql` đọc payload
+  của Run.Test/Submit/Abandon (ca trượt, exception, màn bỏ dở) mà bảng tóm tắt không giữ.
+- Không câu nào trong `truy-van.sql` dùng Heartbeat, nên gộp nó không làm mất kết quả đang có.
+- Mốc cắt theo NGÀY UTC để mỗi (user, ngày) được gộp trọn một lần; chạy lại ngay sau đó là no-op.
+
+**Hai bẫy đã gặp khi làm việc này:**
+- **DB thật không có cùng giáo trình với gói trong repo.** `python_advanced` trong DB có 179 bài
+  (mã `PY01…TH07`, bài 47 là `PD06`), còn `scripts/pe-v4/out-advanced/` có 48 bài (`P01…DA02`, bài 47
+  là `DA01`). `update-lesson-content.ts` khớp theo `(sort_order, lesson_code)` nên không nạp được gói
+  này vào DB thật, và `seed-python-advanced-v4.ts --apply` sẽ xoá cả 179 bài lẫn tiến độ.
+  Giáo trình của DB là gói `scripts/pe-da/out/lessons.json` (172 bài `PY01…RD05`, **chưa commit**, và là
+  bản dựng thô chưa qua `build_advanced.py` nên validator của `update-lesson-content.ts` từ chối).
+  Bảy bài `TH01…TH07` (sort_order 173–179) **chỉ có trong DB**, không có file nguồn nào trong repo:
+  mất DB là mất chúng. Sao lưu nội dung bài: xuất bảng `lessons` ra `backups/` (đã ignore) trước mỗi
+  lần sửa lớn, và commit `scripts/pe-da/` cùng nguồn của module 11.
+  `courses.lessons` phải bằng số bài thật, không thì `POST /lessons/:n/complete` trả 400 cho bài
+  vượt số khai và `enrollments.progress` không bao giờ tính tới chúng. Nhật ký: 15/11/2026 sửa
+  172 → 179 trên branch Neon `test` (lý do: bảng `lessons` có 179 bài, `courses.lessons` ghi 172;
+  sao lưu hàng cũ ở `backups/`, không commit). **DB production CHƯA sửa** — cần Nhân duyệt rồi
+  mới ghi, theo đúng thứ tự: sao lưu → UPDATE trong transaction → `check-db-invariants.ts`.
+- **Kiểm bất biến DB sau mỗi lần sửa:** `npx ts-node scripts/check-db-invariants.ts` (chỉ đọc, thoát
+  mã 1 nếu trượt): `courses.lessons` = số bài thật, không bài trùng, `lesson_progress.course_id` khớp
+  `lessons.course_id`, `enrollments.progress` khớp công thức, mọi khoá ngoại có chỉ mục dẫn đầu.
+- **Nhánh git lệch migration với DB.** Khi nhánh thiếu migration mà DB đã áp, `prisma migrate dev`
+  coi đó là drift và có thể đề nghị RESET. Gộp migration của `main` vào trước, rồi `migrate status`
+  phải sạch, rồi mới chạy lệnh nào khác.
 
 ## Quy ước khi sửa
 

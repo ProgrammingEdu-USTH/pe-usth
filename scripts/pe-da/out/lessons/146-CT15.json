@@ -1,0 +1,164 @@
+{
+ "lesson_code": "CT15",
+ "sort_order": 146,
+ "module": "M7 · Multiprocessing và shell thực hành",
+ "title": "CT15 · PW7: shell có chuyển hướng và pipe",
+ "subtitle": "Nâng cao · M7 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "CT15 · PW7: shell có chuyển hướng và pipe",
+  "subtitle": "Nâng cao · M7 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/CT15.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "PW7: shell có chuyển hướng và pipe",
+    "body": "Một shell nhận lệnh, chạy chương trình và hiển thị kết quả. Khi có dấu >, output đi vào file; dấu < lấy input từ file; dấu | nối hai chương trình. Trước hết xem việc ghi output vào file mà không nhờ shell hệ điều hành:",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một shell nhận lệnh, chạy chương trình và hiển thị kết quả. Khi có dấu >, output đi vào file; dấu < lấy input từ file; dấu | nối hai chương trình. Trước hết xem việc ghi output vào file mà không nhờ shell hệ điều hành:\n\nstdout nhận file đã mở nên bạn không thêm dấu > vào list đối số truyền cho chương trình. Trong shell thực hành, phần phân tích lệnh, gọi là parser, sẽ nhận ra dấu >, mở file đích rồi nối file đó với stdout trước khi chạy chương trình."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Input đến từ file thay cho bàn phím. Ví dụ dùng chương trình Python con để chạy được trên nhiều nền tảng. Trong bài gốc, ls, bc, ps và grep là các công cụ UNIX cần có trong môi trường lab tương ứng.\n\nshlex giữ \"two words\" thành một đối số, dù bên trong có khoảng trắng. Parser sau đó dùng dấu | để tách các bước của pipeline và dùng <, > để nhận ra chuyển hướng. File projects/shell_lab.py đi kèm có vòng nhập lệnh, cách tách đối số, chuyển hướng và chạy pipeline. Chương trình tự xử lý những ký hiệu này thay vì giao cả chuỗi cho shell của hệ điều hành bằng shell=True."
+    },
+    {
+     "title": "Ý chính 3",
+     "body": "Khi thử lab, chạy `python projects/shell_lab.py` từ thư mục bộ học. Dùng đường dẫn/đối số có dấu nháy khi chứa khoảng trắng. Với pipeline, kiểm mã thoát của mọi stage; với lỗi cú pháp hoặc thiếu chương trình, báo lỗi rồi quay lại vòng nhập. Các cấu trúc shell khác như >>, biến môi trường hay wildcard không thuộc parser này."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import subprocess, sys, tempfile\nfrom pathlib import Path\nwith tempfile.TemporaryDirectory() as folder:\n    path = Path(folder) / \"out.txt\"\n    with path.open(\"w\", encoding=\"utf-8\") as file:\n        subprocess.run([sys.executable, \"-c\", \"print(42)\"], stdout=file, check=True)\n    print(path.read_text(encoding=\"utf-8\").strip())",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: 42"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: ABC"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: ['tool', 'two words', '<', 'in.txt', '|', 'other', '>', 'out.txt']"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Lệnh chứa đối số \"two words\" có thể tách đúng bằng str.split() trong mọi trường hợp không?",
+     "options": [
+      {
+       "text": "Không; split không hiểu dấu nháy của lệnh",
+       "correct": true,
+       "detail": "shlex.split giúp phân nhóm từ có quote theo quy tắc đã chọn."
+      },
+      {
+       "text": "Có; khoảng trắng luôn tách đối số",
+       "correct": false,
+       "detail": "Khoảng trắng trong quote phải được giữ trong một đối số."
+      },
+      {
+       "text": "Không; phải dùng eval lệnh người nhập",
+       "correct": false,
+       "detail": "eval không phải bộ tách lệnh và không cần để chạy chương trình con."
+      }
+     ],
+     "explanation": "shlex.split giúp phân nhóm từ có quote theo quy tắc đã chọn."
+    },
+    {
+     "question": "Trong shell thực hành, dấu > nên được xử lý ở đâu?",
+     "options": [
+      {
+       "text": "Bỏ qua vì Python không có print",
+       "correct": false,
+       "detail": "Chưa đúng. Chuyển hướng là trách nhiệm shell; chương trình con nhận luồng đã được cấu hình."
+      },
+      {
+       "text": "Parser/executor mở file và nối stdout",
+       "correct": true,
+       "detail": "Chuyển hướng là trách nhiệm shell; chương trình con nhận luồng đã được cấu hình."
+      },
+      {
+       "text": "Truyền nguyên dấu > như đối số cho mọi chương trình",
+       "correct": false,
+       "detail": "Chưa đúng. Chuyển hướng là trách nhiệm shell; chương trình con nhận luồng đã được cấu hình."
+      }
+     ],
+     "explanation": "Chuyển hướng là trách nhiệm shell; chương trình con nhận luồng đã được cấu hình."
+    },
+    {
+     "question": "Dấu < thay đổi nguồn của luồng nào?",
+     "options": [
+      {
+       "text": "stdin",
+       "correct": true,
+       "detail": "Chuyển hướng đầu vào lấy nội dung file thay cho nguồn nhập thường."
+      },
+      {
+       "text": "stderr luôn",
+       "correct": false,
+       "detail": "Chưa đúng. Chuyển hướng đầu vào lấy nội dung file thay cho nguồn nhập thường."
+      },
+      {
+       "text": "Mã thoát",
+       "correct": false,
+       "detail": "Chưa đúng. Chuyển hướng đầu vào lấy nội dung file thay cho nguồn nhập thường."
+      }
+     ],
+     "explanation": "Chuyển hướng đầu vào lấy nội dung file thay cho nguồn nhập thường."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Nối stdout của p1 vào stdin của p2, rồi bỏ bản đầu đọc thừa ở cha."
+   },
+   "scaffold": {
+    "template": "p2 = subprocess.Popen(args2, stdin=p1.stdout, stdout=subprocess.PIPE)\np1.stdout.{{slot1}}()",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Thao tác với bản pipe ở cha",
+      "answer": "close"
+     }
+    ],
+    "bank": [
+     {
+      "label": "close",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Viết mini shell PW7 hỗ trợ lệnh đơn, <, > và một pipeline |. Tạo producer.py in tea/coffee/tea, filter_tea.py chỉ giữ tea. Thử pipeline portable bằng Python executable của môi trường thay cho các lệnh UNIX có thể không có trên Windows."
+   },
+   "procedure": [
+    "Định nghĩa rõ grammar được hỗ trợ; dùng shlex cho quote, từ chối cú pháp thiếu lệnh hoặc thiếu tên file.",
+    "Executor chạy danh sách args, quản lý stdin/stdout file hoặc pipe; đóng file bằng with/finally.",
+    "Sau lệnh sai hoặc executable không tồn tại, báo lỗi rồi nhận lệnh mới; exit kết thúc shell.",
+    "Tự kiểm: producer | filter tạo hai dòng tea; > result.txt lưu đúng hai dòng và không lẫn thông báo prompt.",
+    "Tự kiểm: filter đọc được < input.txt; đường dẫn có khoảng trắng đi qua quote đúng.",
+    "Tự kiểm: Kiểm mã thoát cả hai con, thu dọn khi lỗi; lệnh kế tiếp vẫn chạy được."
+   ]
+  }
+ }
+}

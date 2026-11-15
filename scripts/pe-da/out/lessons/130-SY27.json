@@ -1,0 +1,160 @@
+{
+ "lesson_code": "SY27",
+ "sort_order": 130,
+ "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
+ "title": "SY27 · PW5: lưu ba file, nén và nạp lại",
+ "subtitle": "Trung cấp · M5 · 30 phút",
+ "estimated_minutes": 30,
+ "xp_reward": 15,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "SY27 · PW5: lưu ba file, nén và nạp lại",
+  "subtitle": "Trung cấp · M5 · 30 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/SY27.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "PW5: lưu ba file, nén và nạp lại",
+    "body": "Sau khi nhập xong, chương trình phải mở lại được dữ liệu ở lần chạy khác. PW5 yêu cầu ba file riêng: students.txt, courses.txt, marks.txt. Dùng CSV làm định dạng text giúp tên có dấu phẩy vẫn đọc đúng:",
+    "level": "Trung cấp"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Sau khi nhập xong, chương trình phải mở lại được dữ liệu ở lần chạy khác. PW5 yêu cầu ba file riêng: students.txt, courses.txt, marks.txt. Dùng CSV làm định dạng text giúp tên có dấu phẩy vẫn đọc đúng:\n\nKhông dùng split(\",\") để đọc CSV có trường được bao trong dấu nháy. Courses cần id/name và credits để phục vụ GPA của PW3; marks cần student_id/course_id/score. Sau mỗi nhóm nhập, ghi đúng file tương ứng, không đợi đến lúc chương trình lỗi mới bắt đầu lưu."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "Khi kết thúc chương trình, lưu gói nén dưới tên students.dat. Tên .dat chỉ là tên do đề chọn; bên trong ví dụ này vẫn là ZIP. Khi khởi động lại, kiểm file tồn tại rồi đọc đủ ba thành viên trước khi đưa dữ liệu vào chương trình.\n\nVí dụ cuối chỉ minh họa việc phát hiện và đọc archive trên đĩa; bài PW5 hoàn chỉnh vẫn phải có đủ ba file như ví dụ trước. Thiếu file lần đầu có thể tạo registry rỗng. File đã có nhưng hỏng phải báo lỗi và giữ nguyên file, không tự ghi đè bằng state rỗng."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import csv\nfrom io import StringIO\nbuffer = StringIO(newline=\"\")\nwriter = csv.writer(buffer)\nwriter.writerow([\"id\", \"name\", \"dob\"])\nwriter.writerow([\"S01\", \"An, Nguyen\", \"2005-01-02\"])\nbuffer.seek(0)\nprint(list(csv.DictReader(buffer))[0])",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: {'id': 'S01', 'name': 'An, Nguyen', 'dob': '2005-01-02'}"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: True"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: False ⏎ S01,An,2005-01-02"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Tên sinh viên \"Mai, Anh\" được ghi CSV đúng cách như thế nào?",
+     "options": [
+      {
+       "text": "Bỏ mọi dấu phẩy trong tên",
+       "correct": false,
+       "detail": "Việc lưu không được tự ý đổi dữ liệu hợp lệ của người dùng."
+      },
+      {
+       "text": "Dùng csv.writer để xử lý dấu phẩy trong một trường",
+       "correct": true,
+       "detail": "CSV writer quote trường khi cần để reader không tách nhầm tên thành hai cột."
+      },
+      {
+       "text": "Nối các trường bằng dấu phẩy là luôn đủ",
+       "correct": false,
+       "detail": "Dấu phẩy nằm trong tên sẽ bị hiểu nhầm thành phân cách cột."
+      }
+     ],
+     "explanation": "CSV writer quote trường khi cần để reader không tách nhầm tên thành hai cột."
+    },
+    {
+     "question": "Tên môn chứa dấu phẩy. Vì sao không đọc CSV bằng split(\",\") đơn giản?",
+     "options": [
+      {
+       "text": "Vì split luôn xóa mọi chữ số",
+       "correct": false,
+       "detail": "Chưa đúng. CSV có quy tắc quote/escape; dùng csv reader để giữ trường có dấu phẩy."
+      },
+      {
+       "text": "Dấu phẩy trong trường có quote không phải ranh giới cột",
+       "correct": true,
+       "detail": "CSV có quy tắc quote/escape; dùng csv reader để giữ trường có dấu phẩy."
+      },
+      {
+       "text": "Vì CSV không bao giờ chứa chữ",
+       "correct": false,
+       "detail": "Chưa đúng. CSV có quy tắc quote/escape; dùng csv reader để giữ trường có dấu phẩy."
+      }
+     ],
+     "explanation": "CSV có quy tắc quote/escape; dùng csv reader để giữ trường có dấu phẩy."
+    },
+    {
+     "question": "PW5 cần giữ những thành viên nào trong gói dữ liệu?",
+     "options": [
+      {
+       "text": "students.txt, courses.txt và marks.txt",
+       "correct": true,
+       "detail": "Danh mục và điểm cùng cần được lưu để khôi phục quan hệ giữa các mã."
+      },
+      {
+       "text": "Chỉ marks.txt là đủ cho mọi tham chiếu",
+       "correct": false,
+       "detail": "Chưa đúng. Danh mục và điểm cùng cần được lưu để khôi phục quan hệ giữa các mã."
+      },
+      {
+       "text": "Chỉ ảnh chụp terminal",
+       "correct": false,
+       "detail": "Chưa đúng. Danh mục và điểm cùng cần được lưu để khôi phục quan hệ giữa các mã."
+      }
+     ],
+     "explanation": "Danh mục và điểm cùng cần được lưu để khôi phục quan hệ giữa các mã."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Viết phần còn thiếu",
+    "body": "Ghi CSV bằng writer thay vì tự nối dấu phẩy."
+   },
+   "scaffold": {
+    "template": "import csv\nwith open(path, \"w\", encoding=\"utf-8\", newline=\"\") as f:\n    writer = csv.{{slot1}}(f)\n    writer.writerow([\"S3\", \"Mai, Anh\"])",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Hàm tạo bộ ghi",
+      "answer": "writer"
+     }
+    ],
+    "bank": [
+     {
+      "label": "writer",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự làm trong terminal",
+    "body": "Mở rộng PW4 thành PW5: students.csv, courses.csv, marks.csv được lưu sau từng nhóm nhập và đóng vào ZIP tên students.dat khi thoát. Dùng tên \"Mai, Anh\" cùng điểm 0 và một cặp chưa nhập. Khởi động một tiến trình Python mới để đọc archive và xem lại dữ liệu."
+   },
+   "procedure": [
+    "Định nghĩa cột và kiểu cần chuyển lại khi đọc từng CSV.",
+    "Viết hàm export/import riêng; archive chứa đúng ba bảng, không phụ thuộc file .csv còn sót bên ngoài.",
+    "Nếu archive lỗi, báo rõ và giữ nguyên file để kiểm; không ghi đè bằng dữ liệu rỗng ngay khi khởi động.",
+    "Tự kiểm: Sau lần chạy thứ hai, tên có dấu phẩy vẫn là một trường, điểm 0 vẫn là 0.",
+    "Tự kiểm: Xóa bản CSV ngoài archive trong bản sao thư mục bài tập: chương trình vẫn đọc được ba thành viên từ ZIP.",
+    "Tự kiểm: Thử một bản sao archive hỏng: có thông báo đọc lỗi và file bản sao không bị tự ghi đè."
+   ]
+  }
+ }
+}

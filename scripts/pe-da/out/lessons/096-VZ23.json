@@ -1,0 +1,186 @@
+{
+ "lesson_code": "VZ23",
+ "sort_order": 96,
+ "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
+ "title": "VZ23 · Dashboard đầu tiên: hàm dữ liệu, widget và callback",
+ "subtitle": "Nâng cao · M4 · 40 phút",
+ "estimated_minutes": 40,
+ "xp_reward": 20,
+ "content_json": {
+  "schema": "studio-lesson/v1",
+  "title": "VZ23 · Dashboard đầu tiên: hàm dữ liệu, widget và callback",
+  "subtitle": "Nâng cao · M4 · 40 phút",
+  "source": {
+   "kind": "pe-da",
+   "filename": "lessons/VZ23.md",
+   "parser": "pe-da/build"
+  },
+  "step_1": {
+   "context": {
+    "title": "Dashboard đầu tiên: hàm dữ liệu, widget và callback",
+    "body": "Một dashboard nhỏ cần bộ chọn cửa hàng và các chỉ số thay đổi cùng bộ chọn. Hãy viết hàm lọc trước rồi mới gắn giao diện vào nó. Hàm độc lập dễ kiểm tra bằng dữ liệu nhỏ và có thể dùng lại trong notebook hoặc một ứng dụng web.",
+    "level": "Nâng cao"
+   },
+   "theory": [
+    {
+     "title": "Tình huống",
+     "body": "Một dashboard nhỏ cần bộ chọn cửa hàng và các chỉ số thay đổi cùng bộ chọn. Hãy viết hàm lọc trước rồi mới gắn giao diện vào nó. Hàm độc lập dễ kiểm tra bằng dữ liệu nhỏ và có thể dùng lại trong notebook hoặc một ứng dụng web.\n\nipywidgets.Dropdown giữ lựa chọn hiện tại trong value. Trong Jupyter có hỗ trợ widget, gọi display(control) để hiện bộ chọn. Tạo cùng đối tượng trong một script Python thường không tự mở giao diện hay trang web. Ví dụ dưới đặt value thành \"A\" rồi đọc lại, nên bạn có thể xem cách lưu lựa chọn trước khi thử nó trong notebook."
+    },
+    {
+     "title": "Ý chính 2",
+     "body": "observe gọi hàm khi một thuộc tính thay đổi. Callback nhận change, trong đó new là giá trị mới; đây cũng là cách nghĩ bạn sẽ gặp ở GUI. Khi làm dashboard thật, callback cập nhật cả KPI lẫn biểu đồ từ cùng một tập dữ liệu đã lọc, xử lý trường hợp rỗng và giữ thông tin về kỳ dữ liệu. interact hoặc Output có thể hiện kết quả ngay trong notebook; Streamlit và Dash là lựa chọn khi cần một ứng dụng phục vụ qua web, với bước triển khai riêng."
+    }
+   ],
+   "code": {
+    "filename": "vi_du.py",
+    "version": "Python 3.12",
+    "source": "import pandas as pd\ndata = pd.DataFrame({\"store\":[\"A\", \"A\", \"B\"], \"cups\":[8, 10, 5]})\ndef summarize(store):\n    chosen = data if store == \"All\" else data.loc[data[\"store\"].eq(store)]\n    return int(chosen[\"cups\"].sum()), len(chosen)\nprint(summarize(\"A\"))\nprint(summarize(\"All\"))",
+    "kind": "demo"
+   },
+   "explain": [
+    {
+     "n": 1,
+     "body": "Ví dụ 1 in ra: (18, 2) ⏎ (23, 3)"
+    },
+    {
+     "n": 2,
+     "body": "Ví dụ 2 in ra: A"
+    },
+    {
+     "n": 3,
+     "body": "Ví dụ 3 in ra: {'store': 'B', 'cups': 5}"
+    }
+   ]
+  },
+  "step_2": {
+   "mcq": [
+    {
+     "question": "Đổi dropdown sang B nhưng KPI vẫn là tổng All. Lỗi chính ở đâu?",
+     "options": [
+      {
+       "text": "Chỉ cần ẩn lựa chọn All",
+       "correct": false,
+       "detail": "Ẩn lựa chọn không làm callback tính đúng."
+      },
+      {
+       "text": "Callback chưa tính lại KPI theo lựa chọn mới",
+       "correct": true,
+       "detail": "Đúng: các phần giao diện cần dùng cùng trạng thái lọc."
+      },
+      {
+       "text": "Phải đổi màu chữ KPI",
+       "correct": false,
+       "detail": "Đổi màu không sửa phép tính."
+      }
+     ],
+     "explanation": "Kiểm hàm dữ liệu độc lập rồi gắn thay đổi widget vào cùng quy tắc."
+    },
+    {
+     "question": "Vì sao viết hàm summarize trước khi làm widget?",
+     "options": [
+      {
+       "text": "Để widget tự quyết định công thức tính KPI.",
+       "correct": false,
+       "detail": "Widget không tự xác định công thức nghiệp vụ đúng."
+      },
+      {
+       "text": "Để mọi lỗi dữ liệu chỉ xuất hiện sau khi đã dựng giao diện.",
+       "correct": false,
+       "detail": "Kiểm hàm độc lập giúp phát hiện lỗi dữ liệu sớm hơn giao diện."
+      },
+      {
+       "text": "Để kiểm tra quy tắc lọc và chỉ số bằng code độc lập, tránh lỗi giao diện che lỗi tính toán.",
+       "correct": true,
+       "detail": "Để kiểm tra quy tắc lọc và chỉ số bằng code độc lập, tránh lỗi giao diện che lỗi tính toán."
+      }
+     ],
+     "explanation": "Để kiểm tra quy tắc lọc và chỉ số bằng code độc lập, tránh lỗi giao diện che lỗi tính toán."
+    },
+    {
+     "question": "Widget được tạo trong script có tự biến thành website không?",
+     "options": [
+      {
+       "text": "Có; ipywidgets tự triển khai máy chủ khi được import.",
+       "correct": false,
+       "detail": "Import thư viện không đồng nghĩa triển khai máy chủ ứng dụng."
+      },
+      {
+       "text": "Không. Hiển thị tương tác cần môi trường hỗ trợ như Jupyter; ứng dụng web cần framework và máy chủ phù hợp.",
+       "correct": true,
+       "detail": "Không. Hiển thị tương tác cần môi trường hỗ trợ như Jupyter; ứng dụng web cần framework và máy chủ phù hợp."
+      },
+      {
+       "text": "Có; tạo Dropdown trong file .py tự tạo website công khai.",
+       "correct": false,
+       "detail": "Tạo Dropdown không tự công bố một website."
+      }
+     ],
+     "explanation": "Không. Hiển thị tương tác cần môi trường hỗ trợ như Jupyter; ứng dụng web cần framework và máy chủ phù hợp."
+    }
+   ]
+  },
+  "step_3": {
+   "task": {
+    "title": "Tự nhớ một phần cú pháp",
+    "body": "Đọc giá trị mới trong thông điệp thay đổi."
+   },
+   "scaffold": {
+    "template": "def update(change):\n    state[\"store\"] = change[\"{{slot1}}\"]",
+    "slots": [
+     {
+      "n": 1,
+      "placeholder": "Phần còn thiếu",
+      "answer": "new"
+     }
+    ],
+    "bank": [
+     {
+      "label": "new",
+      "slot": 1,
+      "trap": ""
+     }
+    ]
+   }
+  },
+  "step_4": {
+   "task": {
+    "title": "Tự viết và chạy trong terminal",
+    "body": "data.totals là dictionary tên cửa hàng→số cốc, có khóa All; data.pick là một khóa hợp lệ khác All. Tạo Dropdown(options=list(totals),value=\"All\"), state ban đầu là {store:\"All\",cups:totals[\"All\"]}. Đăng ký observe để mỗi lần value đổi cập nhật cả store và cups; gán value=pick, trả state. Unobserve và close khi xong. Đây kiểm callback thật; xem widget vẫn cần Jupyter. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
+    "io": [
+     {
+      "label": "chọn cửa hàng mới",
+      "value": "{'totals': {'All': 30, 'X': 8, 'Y': 22}, 'pick': 'Y'} → {'store': 'Y', 'cups': 22}"
+     },
+     {
+      "label": "cửa hàng 0 vẫn hợp lệ",
+      "value": "{'totals': {'All': 4, 'A': 4, 'B': 0}, 'pick': 'B'} → {'store': 'B', 'cups': 0}"
+     },
+     {
+      "label": "hai cửa hàng cùng số",
+      "value": "{'totals': {'All': 12, 'East': 6, 'West': 6}, 'pick': 'West'} → {'store': 'West', 'cups': 6}"
+     }
+    ]
+   },
+   "hints": [
+    {
+     "title": "Gợi ý 1",
+     "body": "Callback cần lấy giá trị sau thay đổi, không lấy giá trị cũ."
+    },
+    {
+     "title": "Gợi ý 2",
+     "body": "Để callback cập nhật chỉ số từ cùng lựa chọn của widget."
+    },
+    {
+     "title": "Gợi ý 3",
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+    }
+   ],
+   "procedure": [
+    "Bài này cần ipywidgets, không có trong Pyodide nên chưa chấm tự động.",
+    "Đầu vào {'totals': {'All': 30, 'X': 8, 'Y': 22}, 'pick': 'Y'} — kết quả cần có {'store': 'Y', 'cups': 22}.",
+    "Đầu vào {'totals': {'All': 4, 'A': 4, 'B': 0}, 'pick': 'B'} — kết quả cần có {'store': 'B', 'cups': 0}.",
+    "Đầu vào {'totals': {'All': 12, 'East': 6, 'West': 6}, 'pick': 'West'} — kết quả cần có {'store': 'West', 'cups': 6}."
+   ]
+  }
+ }
+}

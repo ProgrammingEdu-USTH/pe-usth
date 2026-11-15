@@ -245,7 +245,74 @@ button.segment::after {
   background: color-mix(in srgb, var(--ds-violet) 75%, var(--ds-card));
 }
 
-.stepLabel {
+/* GIAO DIỆN "ĐÀI THIÊN VĂN": THƯỚC ĐỒNG. Thanh tiến độ là một cây thước:
+   mỗi màn là một khoảng, mỗi ranh giới là một vạch chia, và con trượt hình thoi
+   chạy theo màn đang mở.
+   · Vạch chia nằm ở ::before của đoạn (::after đã dành cho vùng chạm 44px dọc —
+     KHÔNG đụng nó, đích bấm giữ nguyên). Vạch ngày dùng --tv-brass #8A6D1E
+     (3,43:1 trên rãnh --ds-desk; bản design ghi #C9A646 chỉ 2,05:1 — dưới 3:1
+     của WCAG 1.4.11). Đêm --tv-brass là #C9A646, 5,45:1 trên rãnh đêm.
+   · Mọi đoạn BẰNG nhau: ranh giới giữa ba phần của bài (.segmentDauPhan) ở theme
+     này là vạch DÀI HƠN chứ không phải khe margin 6px — khe làm bề rộng đoạn
+     lệch nhau và con trượt (đi theo phần trăm đều) sẽ lệch khỏi vạch.
+   · Con trượt chuyển bằng transform ≤ 420 ms (KHÔNG animate left/width), và tắt
+     dưới prefers-reduced-motion. pointer-events: none nên không ăn mất cú chạm. */
+.thuoc,
+.thuocHinh {
+  display: none;
+}
+:global(html[data-theme="thien-van"]) .track {
+  position: relative;
+}
+:global(html[data-theme="thien-van"]) .segment {
+  position: relative;
+  margin-left: 0;
+}
+:global(html[data-theme="thien-van"]) .segment::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 1px;
+  height: 12px;
+  transform: translateY(-50%);
+  background: var(--tv-brass);
+  pointer-events: none;
+}
+:global(html[data-theme="thien-van"]) .segmentDauPhan,
+:global(html[data-theme="thien-van"]) .segment:has(+ .segmentDauPhan) {
+  border-radius: 0;
+}
+:global(html[data-theme="thien-van"]) .segment:has(+ .segmentDauPhan)::before {
+  height: 20px;
+}
+:global(html[data-theme="thien-van"]) .segment:last-child::before {
+  display: none;
+}
+:global(html[data-theme="thien-van"]) .thuoc {
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: calc(100% / var(--tv-n, 1));
+  height: 0;
+  transform: translateX(calc(var(--tv-pos, 0) * 100%));
+  transition: transform 0.42s var(--tv-ease);
+  pointer-events: none;
+}
+:global(html[data-theme="thien-van"]) .thuocHinh {
+  display: block;
+  width: 11px;
+  height: 11px;
+  margin: -5px auto 0;
+  transform: rotate(45deg);
+  background: var(--tv-brass);
+  /* viền màu thẻ để con trượt vẫn đọc ra khi đè lên phần fill violet */
+  border: 2px solid var(--ds-card);
+  box-sizing: border-box;
+}
+
+.stepLabel {.stepLabel {
   margin-left: 1px;
   min-width: 56px;
   font-size: 14px;
@@ -683,6 +750,9 @@ button.segment:focus-visible,
   :global(html[data-theme="thien-van"]) .stepEnter,
   :global(html[data-theme="thien-van"]) .stepEnter[data-huong="lui"] {
     animation: none;
+  }
+  :global(html[data-theme="thien-van"]) .thuoc {
+    transition: none;
   }
   :global(html[data-theme="thien-van"]) .chrome::before {
     animation: none;

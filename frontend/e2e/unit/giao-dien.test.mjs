@@ -391,6 +391,29 @@ test('thẻ vellum (ShellB .card): nền --ds-card đục, cạnh --tv-rule ≥ 
   assert.ok(eb && !/--tv-brass/.test(eb.than), 'eyebrow không được dùng --tv-brass: đồng #8A6D1E chỉ 3,95–4,50:1 ở cỡ 12px');
 });
 
+test('thước đồng (thanh tiến độ): vạch chia + con trượt ≥ 3:1 trên rãnh/thanh (ngày + đêm), dùng --tv-brass, KHÔNG đụng ::after vùng chạm', () => {
+  const css = boChuThich(doc('src/components/lesson-chrome/LessonChrome.module.css'));
+  const rules = moiRule(css);
+  const T = (s) => rules.find((r) => r.sels.some((x) => x.includes('html[data-theme="' + TV + '"]') && x.endsWith(s)));
+  const vach = T('.segment::before');
+  assert.ok(vach, 'không có vạch chia .segment::before dưới theme');
+  assert.match(vach.than, /background:\s*var\(--tv-brass\)/, 'vạch phải dùng --tv-brass (ngày #8A6D1E 3,43:1; #C9A646 ngày chỉ 2,05:1)');
+  const hinh = T('.thuocHinh');
+  assert.ok(hinh && /background:\s*var\(--tv-brass\)/.test(hinh.than), 'con trượt phải dùng --tv-brass');
+  assert.ok(!/#[0-9a-fA-F]{3,8}\b/.test(vach.than + hinh.than), 'thước không được ghi mã màu — dùng token');
+  for (const che of ['ngay', 'dem']) {
+    const dong = mau('--tv-brass', che);
+    const rai = tuongPhan(dong, mau('--ds-desk', che));
+    assert.ok(rai >= 3, che + ': vạch trên rãnh ' + rai.toFixed(2) + ':1 < 3 (WCAG 1.4.11)');
+    const thanh = tuongPhan(dong, mau('--edu-panel-bg-solid', che));
+    assert.ok(thanh >= 3, che + ': con trượt trên thanh ' + thanh.toFixed(2) + ':1 < 3');
+  }
+  // vùng chạm dọc của đoạn là việc của ::after — thước không được thay nó bằng ::before
+  assert.match(css, /button\.segment::after\s*\{[^}]*inset:\s*-9px 0/, 'button.segment::after (nới vùng chạm dọc) bị đổi');
+  // đoạn phải BẰNG nhau thì con trượt (phần trăm đều) mới trùng vạch: theme gỡ margin của .segmentDauPhan
+  assert.match(T('.segment').than, /margin-left:\s*0/, 'đoạn dưới theme còn khe margin: con trượt sẽ lệch vạch');
+});
+
 // ── RÀO AN TOÀN của giao diện thử nghiệm (#278) ─────────────────────────────
 
 // (a) KHỐI CODE trên thẻ: đêm chỉ 1,11:1 nếu không có cạnh.

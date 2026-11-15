@@ -8,7 +8,7 @@
 // components/python-studio; ăn theo token --edu-*/--st-* đã gom ở
 // edu-theme.css + studio-tokens.css (--st-chrome-h/--st-action-h/--st-col/
 // --st-card-radius được tạo sẵn từ trước, dùng ở đây).
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 
 import ThemePicker from '@/components/ThemePicker';
 
@@ -126,7 +126,16 @@ export default function LessonChrome({
 
           <div className={styles.lessonContext} title={courseLabel}>{courseLabel}</div>
 
-          <div className={styles.track} title={`Tiến độ bài học: ${step}/${totalSteps}`}>
+          <div
+            className={styles.track}
+            title={`Tiến độ bài học: ${step}/${totalSteps}`}
+            // Biến cho THƯỚC ĐỒNG của theme Đài thiên văn: vị trí con trượt (đếm từ 0)
+            // và số màn. Hai số này là dữ liệu, còn hình dạng/chuyển động ở CSS.
+            style={{ '--tv-pos': step - 1, '--tv-n': totalSteps } as CSSProperties}
+          >
+            <span className={styles.thuoc} aria-hidden="true">
+              <span className={styles.thuocHinh} />
+            </span>
             {Array.from({ length: totalSteps }, (_, i) => {
               const idx = i + 1;
               const current = idx === step;

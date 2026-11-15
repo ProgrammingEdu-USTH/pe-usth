@@ -140,6 +140,19 @@ test('chuyển động theme: chỉ opacity/transform, không fill both/forwards
   }
 });
 
+test('thước đồng: con trượt chạy bằng transform ≤ 420 ms (không animate left/width), và tắt dưới reduced-motion', () => {
+  const tep = 'src/components/lesson-chrome/LessonChrome.module.css';
+  const rules = moiRule(readFileSync(join(GOC, tep), 'utf8'));
+  const r = rules.find((x) => x.media === null && x.sels.some((s) => s.includes(TIEN_TO) && s.endsWith('.thuoc')));
+  assert.ok(r, 'không có .thuoc dưới theme');
+  const tr = /transition\s*:\s*([^;]+)/.exec(r.than)?.[1] ?? '';
+  assert.match(tr, /^transform\b/, 'con trượt chỉ được chuyển transform, đang là: ' + tr);
+  assert.ok(thoiLuongMs(tr) <= 420, 'con trượt ' + thoiLuongMs(tr) + ' ms > 420');
+  assert.ok(!/\b(?:left|width)\b/.test(tr), 'không animate left/width (kích hoạt layout)');
+  const tat = rules.some((x) => x.media && /prefers-reduced-motion/.test(x.media) && x.sels.some((s) => s.includes(TIEN_TO) && s.endsWith('.thuoc')) && /transition\s*:\s*none/.test(x.than));
+  assert.ok(tat, 'con trượt không tắt (transition: none) dưới prefers-reduced-motion');
+});
+
 test('chuyển động theme: MỌI hoạt ảnh tắt được dưới prefers-reduced-motion (kể cả chỉ-opacity)', () => {
   const ho = [];
   for (const a of TAT_ANIM) {

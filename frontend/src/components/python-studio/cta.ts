@@ -35,6 +35,8 @@ export type Cta = {
   label: string;
   tone: 'accent' | 'ok' | 'err';
   disabled?: boolean;
+  /** Đang chờ một lượt chấm/chạy — chuyển thành `aria-busy` ở nút chính (xem LessonChrome). */
+  busy?: boolean;
   action: Action;
 };
 
@@ -116,13 +118,14 @@ export function primaryCta(ctx: CtaContext): Cta {
       label: running ? 'Đang chấm…' : 'Nộp & Chấm điểm',
       tone: result && result.tests.some((t) => !t.passed) ? 'err' : 'accent',
       disabled: running || busy,
+      busy: running || busy,
       action: 'submit',
     };
   }
 
   if (isGraded(scr.kind)) {
     if (isRunnableGame(game) && running)
-      return { label: 'Đang chạy code…', tone: 'accent', disabled: true, action: 'check' };
+      return { label: 'Đang chạy code…', tone: 'accent', disabled: true, busy: true, action: 'check' };
     if (!checked)
       return {
         label: isRunnableGame(game) ? '▶ Chạy & kiểm tra' : 'Kiểm tra',

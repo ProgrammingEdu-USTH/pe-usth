@@ -25,6 +25,12 @@ export interface LessonChromeProps {
   primaryLabel: string;
   onPrimaryClick?: () => void;
   primaryDisabled?: boolean;
+  /**
+   * Nút chính đang chờ một việc chạy xong (đang chấm, đang chạy code, đang tải). `disabled` một
+   * mình chỉ nói "không bấm được" — người dùng trình đọc màn hình nghe "mờ" mà không biết VÌ SAO
+   * nút im; `aria-busy` nói thẳng "đang làm", và nhãn ("Đang chấm…") là tên của trạng thái đó.
+   */
+  primaryBusy?: boolean;
   /** Đổi màu nút chính theo kết quả chấm bài. */
   primaryTone?: 'accent' | 'ok' | 'err';
   /** Nút phụ bên trái nút chính (ví dụ "Gợi ý"). */
@@ -81,6 +87,7 @@ export default function LessonChrome({
   primaryLabel,
   onPrimaryClick,
   primaryDisabled,
+  primaryBusy,
   primaryTone = 'accent',
   secondaryLabel,
   onSecondaryClick,
@@ -233,6 +240,7 @@ export default function LessonChrome({
             className={primaryClass}
             onClick={onPrimaryClick}
             disabled={primaryDisabled}
+            aria-busy={primaryBusy || undefined}
             data-cta="primary"
           >
             {primaryLabel}

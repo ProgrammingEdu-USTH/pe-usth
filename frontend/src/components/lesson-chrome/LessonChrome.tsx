@@ -208,7 +208,9 @@ export default function LessonChrome({
         </div>
       </main>
 
-      <footer className={styles.bottomBar}>
+      {/* `data-thanh-duoi`: mép TRÊN của thanh này là đáy phần màn người học thấy được — màn bài
+          tập chấm đo nó để biết ô kết quả vừa về có nằm sau thanh không (SandboxEditor). */}
+      <footer className={styles.bottomBar} data-thanh-duoi="">
         {/* data-co-nut-phu: có nút phụ (Gợi ý / Chọn lại) thì ở khổ điện thoại nhãn
             "Tiến độ tự lưu" nhường chỗ — xem `.bottomBarInner[data-co-nut-phu]`. */}
         <div className={styles.bottomBarInner} data-co-nut-phu={secondaryLabel ? '1' : undefined}>

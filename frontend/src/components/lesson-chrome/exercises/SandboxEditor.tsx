@@ -4,8 +4,9 @@
 // code — thanh chạy — console — bảng kiểm thử) nhưng code là ô soạn thảo được
 // và kết quả đến từ Pyodide trong Web Worker, không phải dữ liệu soạn sẵn.
 // Sandbox.tsx giữ nguyên cho trang xem trước; bài học thật dùng file này.
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 
+import { doCuonKetQua } from '@/lib/ide-output-scroll';
 import { NHAN_KET_QUA_CU } from '@/lib/run-freshness';
 
 import styles from './exercises.module.css';
@@ -96,6 +97,27 @@ export default function SandboxEditor({
   // Tab đi tiếp như bình thường. Shift+Tab luôn nhường cho trình duyệt nên lúc
   // nào cũng còn một đường lùi ra khỏi ô, kể cả khi chưa biết mẹo Escape.
   const [tabEscapes, setTabEscapes] = useState(false);
+
+  // KẾT QUẢ VỪA VỀ PHẢI NẰM TRONG MÀN. Ở 390×844 ô "KẾT QUẢ CHẠY" hiện ra ở y = 780–918 trong khi
+  // thanh dưới dính che từ y 755: bấm "Chạy thử" xong, ảnh chụp GIỐNG HỆT trước khi bấm (đo 16/11,
+  // hai bài; cùng lỗi đã sửa cho /ide ở 04/11, `lib/ide-output-scroll.ts`). Cuộn khi `running` đi từ
+  // true → false chứ không lúc bấm: trong lúc chạy nút "■ Dừng" phải còn trong tầm tay.
+  const ketQuaRef = useRef<HTMLDivElement>(null);
+  const dangChayRef = useRef(false);
+  useEffect(() => {
+    const vuaXong = dangChayRef.current && !running;
+    dangChayRef.current = running;
+    if (!vuaXong) return;
+    const el = ketQuaRef.current;
+    if (!el) return;
+    const thanhDuoi = document.querySelector('[data-thanh-duoi]');
+    const caoThay = thanhDuoi ? thanhDuoi.getBoundingClientRect().top : window.innerHeight;
+    const r = el.getBoundingClientRect();
+    const delta = doCuonKetQua(r.top, r.bottom, caoThay);
+    if (delta <= 0) return;
+    const giamChuyenDong = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollBy({ top: delta, behavior: giamChuyenDong ? 'auto' : 'smooth' });
+  }, [running]);
 
   return (
     <div>
@@ -218,7 +240,7 @@ export default function SandboxEditor({
         </p>
       )}
 
-      <div className={stale ? styles.staleResult : undefined}>
+      <div ref={ketQuaRef} className={stale ? styles.staleResult : undefined}>
         <Console
           title="KẾT QUẢ CHẠY"
           meta={consoleMeta}

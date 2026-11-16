@@ -146,7 +146,7 @@
   "step_4": {
    "task": {
     "title": "Chạy trên máy của bạn",
-    "body": "Bài này không chạy được trong trình duyệt: WASM không fork được tiến trình. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
+    "body": "Bài này không chạy được trong trình duyệt: trình duyệt không tạo được tiến trình mới. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
    },
    "procedure": [
     "Mở terminal tại thư mục làm việc của bạn.",

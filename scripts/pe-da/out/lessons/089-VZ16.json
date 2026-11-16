@@ -151,7 +151,7 @@
   "step_4": {
    "task": {
     "title": "Chạy trên máy của bạn",
-    "body": "Bài này không chạy được trong trình duyệt: seaborn chưa có wheel trong /pyodide/v314.0.7/. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
+    "body": "Bài này không chạy được trong trình duyệt: seaborn chưa được cài sẵn trong trình duyệt của khoá này. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
    },
    "procedure": [
     "Mở terminal tại thư mục làm việc của bạn.",

@@ -76,6 +76,7 @@ def main() -> int:
     kiem_thu_trong_ide(bai)
     kiem_du_lieu(bai)
     kiem_sandbox(bai)
+    kiem_chu_nguoi_dung_he_thong(bai)
     kiem_trac_nghiem(bai)
     kiem_ky_tu_db(bai)
     kiem_curricula(bai)
@@ -718,6 +719,22 @@ def _noi_nhu_build(codes: list[str]) -> str:
         return codes[0].rstrip() + '\n'
     phan = [f'# ── Đoạn {i} ──\n{code.rstrip()}' for i, code in enumerate(codes, 1)]
     return '\n\n'.join(phan) + '\n'
+
+
+def kiem_chu_nguoi_dung_he_thong(bai: list[dict]) -> None:
+    """Đề bài và câu giải thích môi trường KHÔNG được mang chữ của người dựng.
+
+    "wheel", "WASM" và đường dẫn `/pyodide/…` là tiếng của khâu dựng; người mới đọc đề thấy chúng
+    mà không có cách nào biết chúng nghĩa là gì (17 bài trước 16/11, #284). Lý do kỹ thuật vẫn nằm
+    trong các bảng của build.py; hàm `ly_do_cho_nguoi_hoc` dịch chúng khi dựng câu cho người học.
+    """
+    for b in bai:
+        s4 = b['content_json'].get('step_4') or {}
+        for ten, van in (('task.body', (s4.get('task') or {}).get('body')), ('env', s4.get('env'))):
+            ma_loi = re.search(r'\bwheel\b|\bWASM\b|/pyodide/', str(van or ''))
+            if ma_loi:
+                loi(f'{b["lesson_code"]}: step_4.{ten} còn chữ của người dựng "{ma_loi.group(0)}" — '
+                    'dịch bằng ly_do_cho_nguoi_hoc() của build.py')
 
 
 def kiem_sandbox(bai: list[dict]) -> None:

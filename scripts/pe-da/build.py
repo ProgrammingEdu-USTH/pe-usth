@@ -617,6 +617,28 @@ DUOC_MO_PHONG = {'threading', 'subprocess', 'multiprocessing', 'concurrent',
                  'signal', 'select', 'queue'}
 
 
+# LÝ DO "không chạy được trong trình duyệt" là chữ NGƯỜI HỌC đọc — và nó từng là chữ của người dựng.
+#
+# Các bảng WASM_KHONG_CO / THIEU_WHEEL / THUOC_TINH_MAY ghi lý do bằng tiếng của KHÂU DỰNG ("openpyxl
+# chưa có wheel trong /pyodide/v314.0.7/", "WASM không gọi được chương trình ngoài"): đúng với người
+# bảo trì, vô nghĩa với người mới — "wheel", "WASM" và một đường dẫn thư mục của nền tảng nằm ngay
+# trong đề bài của 17 bài (đo 16/11/2026, #284). Bảng giữ NGUYÊN (nó là sự thật kỹ thuật, và nhiều
+# chỗ so lý do với nó); chỉ khi DỰNG câu cho người học mới đi qua hàm này.
+LY_DO_NGUOI_HOC = {
+    'WASM không gọi được chương trình ngoài': 'trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành)',
+    'WASM không fork được tiến trình': 'trình duyệt không tạo được tiến trình mới',
+}
+
+
+def ly_do_cho_nguoi_hoc(ly_do: str) -> str:
+    if ly_do in LY_DO_NGUOI_HOC:
+        return LY_DO_NGUOI_HOC[ly_do]
+    m = re.match(r'^(\S+) chưa có wheel trong /pyodide/\S+$', ly_do)
+    if m:
+        return f'{m.group(1)} chưa được cài sẵn trong trình duyệt của khoá này'
+    return ly_do.replace('WASM', 'trình duyệt')
+
+
 def phan_loai_khoi(code: str, cho_mo_phong: bool = False) -> tuple[bool, str]:
     """(chạy được trong Pyodide, lý do nếu không).
 
@@ -1141,7 +1163,7 @@ def bai_tap_cua(bai_tap: dict, mode: str = 'pyodide',
         # bằng bài tập là hướng dẫn đó MẤT HẲN, và học viên không còn chỗ nào
         # biết phải làm gì với code trong bài. `check.py` chặn đúng chỗ này.
         ra['env'] = (f'Bài tập dưới đây chấm được ngay trong trình duyệt. Nhưng code '
-                     f'trong phần bài đọc thì không: {ly_do_doc}. Muốn chạy lại các '
+                     f'trong phần bài đọc thì không: {ly_do_cho_nguoi_hoc(ly_do_doc)}. Muốn chạy lại các '
                      f'đoạn đó thì mở Python trên máy.')
     return ra, ''
 
@@ -1748,7 +1770,7 @@ def dung_sandbox(mode: str, ly_do: str, chay_duoc: list[str],
         return {
             'task': {
                 'title': 'Chạy trên máy của bạn',
-                'body': f'Bài này không chạy được trong trình duyệt: {ly_do}. '
+                'body': f'Bài này không chạy được trong trình duyệt: {ly_do_cho_nguoi_hoc(ly_do)}. '
                         'Mở Python trên máy rồi gõ lại các đoạn code ở trên.',
             },
             # Có `procedure` mà không có starterCode/tests thì showEditorOf() ẩn
@@ -1764,7 +1786,7 @@ def dung_sandbox(mode: str, ly_do: str, chay_duoc: list[str],
     than = ('Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — '
             'sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào.')
     if mode == 'mixed':
-        than += (f' {len(chan)} đoạn trong bài không chạy được ở đây ({chan[0][1]}) '
+        than += (f' {len(chan)} đoạn trong bài không chạy được ở đây ({ly_do_cho_nguoi_hoc(chan[0][1])}) '
                  'nên không nằm trong ô này.')
     ra: dict = {
         'task': {'title': 'Chạy thử', 'body': than},
@@ -1774,7 +1796,7 @@ def dung_sandbox(mode: str, ly_do: str, chay_duoc: list[str],
     if goi:
         ra['packages'] = goi
     if mode == 'mixed':
-        ra['env'] = f'{len(chan)} đoạn phải chạy bằng Python trên máy: {chan[0][1]}.'
+        ra['env'] = f'{len(chan)} đoạn phải chạy bằng Python trên máy: {ly_do_cho_nguoi_hoc(chan[0][1])}.'
     return ra
 
 

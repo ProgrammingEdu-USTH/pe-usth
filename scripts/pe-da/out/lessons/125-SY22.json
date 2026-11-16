@@ -228,7 +228,7 @@
    "packages": [
     "pandas"
    ],
-   "env": "Bài tập dưới đây chấm được ngay trong trình duyệt. Nhưng code trong phần bài đọc thì không: sas7bdat chưa có wheel trong /pyodide/v314.0.7/. Muốn chạy lại các đoạn đó thì mở Python trên máy."
+   "env": "Bài tập dưới đây chấm được ngay trong trình duyệt. Nhưng code trong phần bài đọc thì không: sas7bdat chưa được cài sẵn trong trình duyệt của khoá này. Muốn chạy lại các đoạn đó thì mở Python trên máy."
   }
  },
  "_mode": "mixed",

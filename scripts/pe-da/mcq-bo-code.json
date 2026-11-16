@@ -1,0 +1,21 @@
+{
+  "_ghiChu": "Câu trắc nghiệm mà đoạn `code` của GÓI NGUỒN gắn kèm KHÔNG ăn nhập với đề — bỏ code khỏi đề khi dựng (#283). Khoá = `id` của câu trong source/practice.json (không phải vị trí, vì vị trí đổi khi gói đổi). Gói nguồn KHÔNG bị sửa: nó là của người soạn giáo trình và còn được giao lại. Chỉ nhắm câu mà code MÂU THUẪN hoặc ĐỔI ĐỀ (số liệu, tham số khác hẳn đề), không nhắm câu mà code chỉ minh hoạ gần. Mỗi mục kèm lý do cụ thể; check.py đòi: id có thật và nguồn có code, đề KHÔNG có từ chỉ vào code (bỏ code mà đề còn trỏ tới nó là câu không trả lời được), và phép loại tự động `code_khong_lien_quan` KHÔNG tự bắt được câu đó (nếu bắt được thì mục này thừa).",
+  "cau": {
+    "PD02-predict-v2": "Đề hỏi shape (100, 4) nhưng code in shape của một bảng 2 hàng 2 cột.",
+    "PD02-predict-v3": "Đề hỏi sales.info() mà code in type của cột cups, không có info nào.",
+    "PD03-predict-v2": "Đề nói bảng có nhãn hàng [10, 20] mà code dùng nhãn C01–C03.",
+    "PD05-predict-v2": "Đề cho mask [True, False, True] (giữ vị trí 0 và 2) nhưng code tạo mask [False, True, True] — mâu thuẫn đáp án.",
+    "PD07-predict-v3": "Đề hỏi kiểu Int64 cho cột có ô thiếu, code lại dùng to_numeric errors='coerce' và không có Int64.",
+    "PD14-predict-v3": "Đề hỏi nhóm có một amount thiếu, code không có ô thiếu nào nên size và count ra bằng nhau.",
+    "PD15-predict-v3": "Đề hỏi phải sắp theo ngày trước cumcount, code không có cột ngày.",
+    "PD18-predict-v3": "Đề hỏi concat axis=1 căn theo index hay vị trí, code chỉ gọi concat theo axis mặc định.",
+    "PD23-predict-v3": "Đề hỏi 23:00 UTC ngày 1/1 ở Việt Nam là ngày nào, code đi chiều ngược: 07:00 giờ VN đổi sang UTC.",
+    "PD25-predict-v3": "Đề hỏi apply với axis=1 đưa hàng hay cột, code không gọi apply.",
+    "PD26-predict-v3": "Đề hỏi bins=[0,10,50] với giá trị 10, code dùng bins khác và không có giá trị 10.",
+    "VZ02-predict-v3": "Đề hỏi add_subplot(221) mà code dùng add_subplot(111).",
+    "VZ03-predict-v2": "Đề nói dữ liệu ngày 3, 1, 2 chưa sắp mà code đã sắp sẵn 1, 2, 3.",
+    "VZ12-predict-v3": "Đề hỏi add_subplot(212) mà code dùng 121 và 122 (một hàng hai cột).",
+    "VZ14-predict-v2": "Đề hỏi hình rộng 4 inch ở 200 dpi, code dùng figsize rộng 6 inch và dpi 150.",
+    "VZ22-predict-v3": "Đề hỏi ẩn email trong hover, code không có email hay hover nào."
+  }
+}

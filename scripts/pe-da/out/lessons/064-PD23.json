@@ -106,7 +106,7 @@
      "explanation": "tz_localize gắn múi giờ cho giờ chưa có múi giờ; tz_convert chuyển cách hiển thị một thời điểm đã có múi giờ."
     },
     {
-     "question": "23:00 UTC ngày 1/1 ở Việt Nam thuộc ngày nào?\n\nimport pandas as pd\nwall_time = pd.DatetimeIndex(['2026-01-01 07:00'])\nlocal = wall_time.tz_localize('Asia/Ho_Chi_Minh')\nprint(local.tz_convert('UTC').strftime('%Y-%m-%d %H:%M %z').tolist())",
+     "question": "23:00 UTC ngày 1/1 ở Việt Nam thuộc ngày nào?",
      "options": [
       {
        "text": "Vẫn là ngày 1/1 lúc 23:00.",

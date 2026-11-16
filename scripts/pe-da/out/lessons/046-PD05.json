@@ -87,7 +87,7 @@
      "explanation": "& yêu cầu từng hàng thỏa cả hai phép so sánh có ngoặc."
     },
     {
-     "question": "Mask [True, False, True] giữ các hàng vị trí nào?\n\nimport pandas as pd\ndf = pd.DataFrame({'order': ['A', 'B', 'C'], 'amount': [80, 150, 120]})\nmask = df['amount'] >= 100\nprint(mask.tolist())\nprint(df.loc[mask, 'order'].tolist())",
+     "question": "Mask [True, False, True] giữ các hàng vị trí nào?",
      "options": [
       {
        "text": "Chỉ vị trí 1.",

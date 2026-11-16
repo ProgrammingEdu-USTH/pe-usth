@@ -97,7 +97,7 @@ const boQua = { skip: coDung ? false : 'chưa dựng — chạy `py scripts/pe-d
 
 const cauCua = (b) => (b.content_json?.step_2?.mcq ?? []);
 
-test('bản dựng: 177/537 câu mang đoạn code (219 trừ 42 câu bị bỏ code trang trí), và mọi đoạn tách lại được', boQua, () => {
+test('bản dựng: 161/537 câu mang đoạn code (219 trừ 42 bỏ tự động, trừ 16 khai tay), và mọi đoạn tách lại được', boQua, () => {
   let tong = 0;
   let coCode = 0;
   for (const b of bai) {
@@ -112,8 +112,32 @@ test('bản dựng: 177/537 câu mang đoạn code (219 trừ 42 câu bị bỏ 
   }
   assert.equal(tong, 537);
   // 219 câu của nguồn mang `code`; 42 câu trong số đó bị BỎ code vì đoạn ấy không liên quan tới đề
-  // (xem `code_khong_lien_quan` ở scripts/pe-da/build.py). Đổi con số này thì phải biết VÌ SAO.
-  assert.equal(coCode, 177);
+  // (xem `code_khong_lien_quan` ở scripts/pe-da/build.py), và thêm 16 câu bị bỏ theo danh sách
+  // khai tay `scripts/pe-da/mcq-bo-code.json` (#283, 17/11/2026: code mâu thuẫn hoặc đổi đề).
+  // Đổi con số này thì phải biết VÌ SAO.
+  assert.equal(coCode, 161);
+});
+
+test('bản dựng: mọi câu khai trong mcq-bo-code.json đã MẤT đoạn code, và đề vẫn nguyên vẹn', boQua, () => {
+  // Hàng rào của phần khai tay: `check.py` so bản dựng với nguồn, còn ca này đứng ở phía người học —
+  // câu khai bỏ code mà bản dựng vẫn gắn code là đúng lỗi nó ra đời để chữa (code mâu thuẫn đáp án,
+  // vd. PD05: đề cho mask [True, False, True], code tạo mask [False, True, True]).
+  const khai = JSON.parse(readFileSync(new URL('../../../scripts/pe-da/mcq-bo-code.json', import.meta.url), 'utf8')).cau;
+  const nguon = JSON.parse(readFileSync(new URL('../../../scripts/pe-da/source/practice.json', import.meta.url), 'utf8'));
+  const dePhatRa = new Map();
+  for (const b of bai) for (const q of cauCua(b)) dePhatRa.set(b.lesson_code + '|' + q.question.trim(), q);
+  const ids = Object.keys(khai);
+  assert.ok(ids.length >= 10, 'danh sách khai tay phải còn ít nhất 10 mục — rỗng thì ca này không chứng minh gì');
+  for (const id of ids) {
+    const l = nguon.lessons.find((x) => id.startsWith(x.id + '-'));
+    assert.ok(l, `${id}: không tìm được bài trong gói nguồn`);
+    const q0 = l.mcq[0];
+    const goc = [q0, ...(q0.variants ?? [])].find((q) => q.id === id);
+    assert.ok(goc && goc.code, `${id}: nguồn không có câu hoặc không có code`);
+    const q = dePhatRa.get(l.id + '|' + goc.prompt.trim());
+    assert.ok(q, `${id}: bản dựng không có câu nào có ĐÚNG đề của nguồn (code vẫn còn gắn, hoặc câu không được phát)`);
+    assert.equal(tachDeVaCode(q.question).code, undefined, `${id}: bản dựng vẫn mang code`);
+  }
 });
 
 test('bản dựng: câu còn mang code không phải loại "code trang trí" (không định danh nào chung với đề)', boQua, () => {

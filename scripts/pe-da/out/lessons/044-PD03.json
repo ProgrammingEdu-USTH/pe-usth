@@ -154,7 +154,7 @@
      "explanation": "iloc đếm vị trí từ 0, dù nhãn hàng là số."
     },
     {
-     "question": "Một bảng có nhãn hàng [10, 20]. iloc[0] lấy nhãn nào?\n\nimport pandas as pd\ndf = pd.DataFrame({'name': ['An', 'Binh', 'Chi'], 'orders': [2, 4, 1]}, index=['C01', 'C02', 'C03'])\nprint(df.loc['C02', 'name'])\nprint(df.iloc[1, 0])",
+     "question": "Một bảng có nhãn hàng [10, 20]. iloc[0] lấy nhãn nào?",
      "options": [
       {
        "text": "Nhãn 0.",

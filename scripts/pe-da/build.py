@@ -44,6 +44,7 @@ PRACTICE = HERE / 'source' / 'practice.json'
 # chạy tracer thì hai môi trường ra hai bản dựng và CI đỏ mãi. Đúng khuôn mà
 # `chep_anh()` đã dùng cho 80 ảnh biểu đồ. Xem đầu gen_traces.py.
 TRACES = HERE / 'traces.json'
+MCQ_BO_CODE = HERE / 'mcq-bo-code.json'
 OUT = HERE / 'out'
 
 COURSE_ID = 'python_advanced'
@@ -690,7 +691,10 @@ NOI_DE_CODE = '\n\n'
 # hiện trong code, (3) đề KHÔNG có từ chỉ vào code ("đoạn", "lệnh", "print", "ở trên"…). Đo trên
 # bản dựng 179 bài: 44 câu / 33 bài, và đọc từng đề thì đều tự đủ ý (số liệu nằm ngay trong
 # đề hoặc là câu khái niệm). Ca YẾU hơn (có trùng một vài định danh nhưng vẫn lệch ý, vd. PD14
-# câu 3 hỏi ô thiếu mà code không có ô thiếu) CHƯA được xử lý — cần người đọc từng câu.
+# câu 3 hỏi ô thiếu mà code không có ô thiếu) không có phép đo tự động tách được khỏi code chỉ minh
+# hoạ gần, nên 17/11/2026 đã có người đọc từng câu trong 177 câu còn mang code và khai tường minh
+# 16 câu mà code MÂU THUẪN hoặc ĐỔI đề (số liệu, tham số khác hẳn) vào `mcq-bo-code.json` — xem
+# `mcq_bo_code()`. Phần còn lại giữ code vì nó minh hoạ đúng khái niệm đề hỏi.
 #
 # `check.py` giữ BẢN CHÉP của đúng phép này (`_code_khong_lien_quan`): import thì lỗi ở build
 # cũng thành "đúng" ở check, và luật không chứng minh gì.
@@ -699,6 +703,20 @@ _TU_CHI_VAO_CODE = re.compile(
     r'code|đoạn|lệnh|biến|ở trên|bên trên|dưới đây|in ra|print|đầu ra|output'
     r'|dòng (?:cuối|đầu|thứ|số|\d)'
 )
+
+
+def mcq_bo_code() -> dict[str, str]:
+    """Danh sách KHAI TƯỜNG MINH các câu bị bỏ code (`mcq-bo-code.json`): id câu -> lý do.
+
+    Phép loại tự động ngay dưới chỉ nhắm câu mà đề và code KHÔNG chung định danh nào. Ca YẾU hơn —
+    code có trùng vài định danh nhưng số liệu / tham số khác hẳn đề (đề hỏi `add_subplot(221)`, code
+    dùng `111`; đề cho mask [True, False, True], code tạo mask ngược lại) — không có phép đo tự động
+    nào tách được khỏi code chỉ MINH HOẠ GẦN, nên người đọc từng câu và khai vào tệp này (#283).
+    Khoá là `id` của câu trong gói nguồn, không phải vị trí: vị trí đổi khi gói được giao lại.
+    """
+    if not MCQ_BO_CODE.is_file():
+        return {}
+    return dict(json.loads(MCQ_BO_CODE.read_text(encoding='utf-8')).get('cau') or {})
 
 
 def code_khong_lien_quan(de: str, code: str) -> bool:
@@ -905,6 +923,7 @@ def cau_trac_nghiem(mcq: dict, ma_bai: str = '', so_cau: int = SO_CAU_MCQ) -> li
     chon = tron_vi_tri_dap_an(ma_bai, chon)
     ra: list[dict] = []
     de_cua_bai = [(x.get('prompt') or '').rstrip() for x in chon]
+    bo_code_khai = mcq_bo_code()
     for q in chon:
         lua_chon = q.get('options') or []
         dung = q.get('correctOption')
@@ -938,7 +957,8 @@ def cau_trac_nghiem(mcq: dict, ma_bai: str = '', so_cau: int = SO_CAU_MCQ) -> li
         code = (q.get('code') or '').strip()
         # Không bỏ code nếu việc đó làm đề TRÙNG NGUYÊN VĂN một câu khác của cùng bài: VZ20 từng có
         # HAI câu giống từng ký tự vì thứ duy nhất phân biệt chúng là `code`.
-        if code and not (code_khong_lien_quan(de, code) and de_cua_bai.count(de) == 1):
+        if code and not ((q.get('id') in bo_code_khai or code_khong_lien_quan(de, code))
+                         and de_cua_bai.count(de) == 1):
             de = f'{de}{NOI_DE_CODE}{code}'
         ra.append({
             'question': de,

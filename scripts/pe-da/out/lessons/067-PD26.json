@@ -106,7 +106,7 @@
      "explanation": "cut dùng các mốc được chỉ định hoặc khoảng giá trị; qcut dựa trên phân vị dữ liệu."
     },
     {
-     "question": "Với bins=[0,10,50], giá trị 10 mặc định thuộc khoảng nào?\n\nimport pandas as pd\namount = pd.Series([5, 20, 60])\nbands = pd.cut(amount, bins=[0, 10, 50, 100], labels=['small', 'medium', 'large'])\nprint(bands.tolist())",
+     "question": "Với bins=[0,10,50], giá trị 10 mặc định thuộc khoảng nào?",
      "options": [
       {
        "text": "(0,10], vì khoảng mặc định đóng bên phải.",

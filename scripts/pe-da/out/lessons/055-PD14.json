@@ -106,7 +106,7 @@
      "explanation": "Không nhất thiết; tổng hợp thường trả một hàng cho mỗi nhóm."
     },
     {
-     "question": "Trong nhóm hai hàng có một amount thiếu, size và count lần lượt là gì?\n\nimport pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'amount': [10, 20, 40]})\nreport = df.groupby('store', as_index=False).agg(revenue=('amount', 'sum'), orders=('amount', 'size'))\nprint(report.to_dict('records'))",
+     "question": "Trong nhóm hai hàng có một amount thiếu, size và count lần lượt là gì?",
      "options": [
       {
        "text": "Cả hai bằng 2 dù amount thiếu.",

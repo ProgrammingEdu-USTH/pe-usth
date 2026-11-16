@@ -106,7 +106,7 @@
      "explanation": "Không; nó chỉ tạo lại nhãn index."
     },
     {
-     "question": "concat axis=1 căn hàng theo vị trí hay index?\n\nimport pandas as pd\na = pd.DataFrame({'amount': [10], 'note': ['ok']})\nb = pd.DataFrame({'amount': [20], 'city': ['HN']})\nouter = pd.concat([a, b], ignore_index=True)\ninner = pd.concat([a, b], ignore_index=True, join='inner')\nprint(outer.columns.tolist())\nprint(inner.columns.tolist())",
+     "question": "concat axis=1 căn hàng theo vị trí hay index?",
      "options": [
       {
        "text": "Theo index.",

@@ -25,6 +25,7 @@ HERE = Path(__file__).resolve().parent
 OUT = HERE / 'out'
 SOURCE = HERE / 'source' / 'course.json'
 PRACTICE = HERE / 'source' / 'practice.json'
+MCQ_BO_CODE = HERE / 'mcq-bo-code.json'
 ANH = HERE.parent.parent / 'frontend' / 'public' / 'static' / 'da'
 # Bộ dữ liệu quán, phục vụ ở cùng origin — xem kiem_du_lieu().
 DU_LIEU = HERE.parent.parent / 'frontend' / 'public' / 'static' / 'da-dulieu'
@@ -1042,6 +1043,16 @@ _TU_CHI_VAO_CODE = re.compile(
 )
 
 
+# Từ chỉ vào code RÕ RÀNG — dùng cho danh sách bỏ code đã được NGƯỜI đọc (`mcq-bo-code.json`).
+# Hẹp hơn `_TU_CHI_VAO_CODE` có chủ đích: bộ rộng coi `print` hay `lệnh` là chỉ vào code, nên báo
+# oan đề khái niệm chỉ NHẮC tên hàm (PD02: "Có cần viết print(sales.info()) không?" — bản thân đề
+# nêu `print`, không trỏ tới đoạn nào bên dưới). Ở đây chỉ bắt cụm mà bỏ code đi là đề mất chỗ dựa.
+_TRO_RO_VAO_CODE = re.compile(
+    r'đoạn|ở trên|bên trên|dưới đây|đầu ra|output|in ra|dòng (?:cuối|đầu|thứ|số|\d)'
+    r'|ví dụ (?:đầu|trên|dưới)|code (?:trên|dưới)|lệnh \w+ cuối'
+)
+
+
 def _code_khong_lien_quan(de: str, code: str) -> bool:
     a = {t.lower() for t in _DINH_DANH.findall(de)}
     if len(a) < 2:
@@ -1076,6 +1087,33 @@ def kiem_trac_nghiem(bai: list[dict]) -> None:
             # Phẳng: câu gốc rồi các biến thể, đúng thứ tự build.py lấy.
             mcq_nguon[l['id']] = [a] + list(a.get('variants') or [])
             break
+
+    # DANH SÁCH BỎ CODE KHAI TƯỜNG MINH (`mcq-bo-code.json`, #283). Kiểm HAI chiều, vì một danh sách
+    # khai tay mà không ai canh thì chỉ dài ra: mục nào cũng phải (1) trỏ tới một câu CÓ THẬT có
+    # `code`, (2) có lý do cụ thể, (3) KHÔNG làm đề mất chỗ dựa — đề còn từ chỉ vào code thì bỏ code
+    # là làm câu không trả lời được (bài học 90 câu ở `cau_trac_nghiem`), (4) KHÔNG thừa — phép loại
+    # tự động đã bắt được câu đó thì mục khai là nợ giả — và (5) thật sự được dùng khi dựng.
+    bo_khai: dict[str, str] = {}
+    if MCQ_BO_CODE.is_file():
+        bo_khai = dict(json.loads(MCQ_BO_CODE.read_text(encoding='utf-8')).get('cau') or {})
+    theo_id = {q.get('id'): (ma, q) for ma, ds in mcq_nguon.items() for q in ds}
+    for id_cau, ly_do in bo_khai.items():
+        if id_cau not in theo_id:
+            loi(f'mcq-bo-code.json: {id_cau} không có trong source/practice.json')
+            continue
+        q_khai = theo_id[id_cau][1]
+        code_khai = (q_khai.get('code') or '').strip()
+        de_khai = (q_khai.get('prompt') or '').rstrip()
+        if not code_khai:
+            loi(f'mcq-bo-code.json: {id_cau} không có `code` để bỏ — mục khai thừa')
+        elif _TRO_RO_VAO_CODE.search(de_khai.lower()):
+            loi(f'mcq-bo-code.json: {id_cau} — đề còn từ chỉ vào code ({de_khai[:60]!r}); '
+                'bỏ code thì câu không trả lời được')
+        elif _code_khong_lien_quan(de_khai, code_khai):
+            loi(f'mcq-bo-code.json: {id_cau} — phép loại tự động đã bắt câu này, mục khai THỪA')
+        if len((ly_do or '').strip()) < 40:
+            loi(f'mcq-bo-code.json: {id_cau} — lý do quá ngắn ({len((ly_do or "").strip())} ký tự < 40)')
+    da_dung_bo: set[str] = set()
 
     tong = 0
     for b in bai:
@@ -1113,8 +1151,14 @@ def kiem_trac_nghiem(bai: list[dict]) -> None:
             # Phép loại code KHÔNG liên quan: BẢN CHÉP của `code_khong_lien_quan` ở build.py
             # (xem chú thích tại đó). Cố ý chép chứ không import.
             de_cua_bai = [(x.get('prompt') or '').rstrip() for x in goc[:len(dung)]]
-            if code_nguon and not (_code_khong_lien_quan(de_can, code_nguon) and de_cua_bai.count(de_can) == 1):
+            khai_bo = g.get('id') in bo_khai
+            if khai_bo and de_cua_bai.count(de_can) != 1:
+                loi(f'{ma} câu {i}: bỏ code theo mcq-bo-code.json sẽ làm đề TRÙNG một câu khác của bài')
+            if code_nguon and not ((khai_bo or _code_khong_lien_quan(de_can, code_nguon))
+                                   and de_cua_bai.count(de_can) == 1):
                 de_can = f'{de_can}\n\n{code_nguon}'
+            elif khai_bo:
+                da_dung_bo.add(g.get('id'))
             if q.get('question') != de_can:
                 loi(f'{ma} câu {i}: `question` không khớp nguồn '
                     f'({"prompt + code" if code_nguon else "prompt"})')
@@ -1208,6 +1252,11 @@ def kiem_trac_nghiem(bai: list[dict]) -> None:
                 'đủ MIN_POOL=5 của kho quiz')
     if tong and tong != 3 * len(bai):
         canh_bao(f'tổng câu trắc nghiệm là {tong}, không phải 3 × {len(bai)} bài')
+    # Mục khai bỏ code mà KHÔNG câu nào được phát (id nằm ngoài 3 câu đầu của bài, hoặc câu bị lọc
+    # vì hỏng) là mục chết — nó chỉ làm danh sách trông dài hơn thực tế.
+    for id_cau in sorted(set(bo_khai) - da_dung_bo):
+        if id_cau in theo_id:
+            loi(f'mcq-bo-code.json: {id_cau} không được phát ở bản dựng nào — mục khai CHẾT')
 
     kiem_vi_tri_dap_an(bai)
     kiem_phuong_an(bai)

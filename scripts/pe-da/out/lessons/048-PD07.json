@@ -106,7 +106,7 @@
      "explanation": "Vì 001 là mã định danh; chuyển thành số sẽ mất số 0 đầu."
     },
     {
-     "question": "Kiểu số nguyên `Int64` của pandas giúp xử lý cột có ô thiếu như thế nào?\n\nimport pandas as pd\nraw = pd.Series(['12', 'bad', '8'])\nnumbers = pd.to_numeric(raw, errors='coerce')\nprint(numbers.isna().tolist())\nprint(numbers.dropna().tolist())",
+     "question": "Kiểu số nguyên `Int64` của pandas giúp xử lý cột có ô thiếu như thế nào?",
      "options": [
       {
        "text": "Tự thay mọi ô thiếu bằng 0.",

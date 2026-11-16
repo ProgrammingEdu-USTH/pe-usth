@@ -118,6 +118,9 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  /* 44px là SÀN, không phải chiều cao: hàng do số dòng của câu quyết (phương án nhiều dòng vẫn cao
+     hơn), nên `min-height` chỉ nâng đúng trường hợp một dòng — 10+21+10+2 viền = 43px, thiếu 1px. */
+  min-height: 44px;
   padding: 10px 12px;
   border: 1px solid var(--edu-sidebar-border);
   border-radius: 10px;

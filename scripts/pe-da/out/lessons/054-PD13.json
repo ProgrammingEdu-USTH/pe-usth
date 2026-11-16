@@ -158,13 +158,13 @@
   "step_4": {
    "task": {
     "title": "Chạy thử",
-    "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 2 đoạn trong bài không chạy được ở đây (openpyxl chưa có wheel trong /pyodide/v314.0.7/) nên không nằm trong ô này."
+    "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 2 đoạn trong bài không chạy được ở đây (openpyxl chưa được cài sẵn trong trình duyệt của khoá này) nên không nằm trong ô này."
    },
    "starterCode": "# ── Đoạn 1 ──\nimport pandas as pd\nfrom io import StringIO\ntext = '[{\"order\":\"A\",\"amount\":10},{\"order\":\"B\",\"amount\":20}]'\ndf = pd.read_json(StringIO(text), orient='records')\nprint(df['amount'].sum())\nprint(df.to_json(orient='records'))\n\n# ── Đoạn 2 ──\nimport pandas as pd\n\nmon = pd.read_csv('mon.csv')\nquay = pd.read_csv('quay.csv')\nprint(mon.shape, quay.shape)\nprint(list(mon.columns))\nprint(mon.groupby('nhom')['gia_niem_yet'].mean().astype(int).to_dict())\nprint(quay.loc[0, 'ten'])\n",
    "packages": [
     "pandas"
    ],
-   "env": "2 đoạn phải chạy bằng Python trên máy: openpyxl chưa có wheel trong /pyodide/v314.0.7/.",
+   "env": "2 đoạn phải chạy bằng Python trên máy: openpyxl chưa được cài sẵn trong trình duyệt của khoá này.",
    "dataFiles": [
     "mon.csv",
     "quay.csv"

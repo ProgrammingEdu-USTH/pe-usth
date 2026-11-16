@@ -184,10 +184,10 @@
   "step_4": {
    "task": {
     "title": "Chạy thử",
-    "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 2 đoạn trong bài không chạy được ở đây (WASM không gọi được chương trình ngoài) nên không nằm trong ô này."
+    "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 2 đoạn trong bài không chạy được ở đây (trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành)) nên không nằm trong ô này."
    },
    "starterCode": "from pathlib import PurePosixPath\nfiles = [\"domains/__init__.py\", \"domains/pricing.py\", \"domains/reports/__init__.py\", \"domains/reports/summary.py\", \"main.py\"]\nprint(PurePosixPath(files[3]).parent)\nprint(files[0].endswith(\"__init__.py\"))\n",
-   "env": "2 đoạn phải chạy bằng Python trên máy: WASM không gọi được chương trình ngoài."
+   "env": "2 đoạn phải chạy bằng Python trên máy: trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành)."
   }
  },
  "_mode": "mixed",

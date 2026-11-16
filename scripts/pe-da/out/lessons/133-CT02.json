@@ -284,10 +284,10 @@
   "step_4": {
    "task": {
     "title": "Chạy thử",
-    "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 1 đoạn trong bài không chạy được ở đây (WASM không gọi được chương trình ngoài) nên không nằm trong ô này."
+    "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 1 đoạn trong bài không chạy được ở đây (trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành)) nên không nằm trong ô này."
    },
    "starterCode": "# ── Đoạn 1 ──\nparent_pid, new_child_pid = 100, 101\nfork_returns = {\"parent\": new_child_pid, \"child\": 0}\nprint(fork_returns[\"parent\"], fork_returns[\"child\"])\n\n# ── Đoạn 2 ──\nprocess = {\"pid\": 101, \"program\": \"shell\"}\nprocess[\"program\"] = \"analysis\"\nprint(process[\"pid\"], process[\"program\"])\n",
-   "env": "1 đoạn phải chạy bằng Python trên máy: WASM không gọi được chương trình ngoài."
+   "env": "1 đoạn phải chạy bằng Python trên máy: trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành)."
   }
  },
  "_mode": "mixed",

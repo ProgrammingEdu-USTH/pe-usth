@@ -13272,13 +13272,13 @@
     "step_4": {
      "task": {
       "title": "Chạy thử",
-      "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 2 đoạn trong bài không chạy được ở đây (openpyxl chưa có wheel trong /pyodide/v314.0.7/) nên không nằm trong ô này."
+      "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 2 đoạn trong bài không chạy được ở đây (openpyxl chưa được cài sẵn trong trình duyệt của khoá này) nên không nằm trong ô này."
      },
      "starterCode": "# ── Đoạn 1 ──\nimport pandas as pd\nfrom io import StringIO\ntext = '[{\"order\":\"A\",\"amount\":10},{\"order\":\"B\",\"amount\":20}]'\ndf = pd.read_json(StringIO(text), orient='records')\nprint(df['amount'].sum())\nprint(df.to_json(orient='records'))\n\n# ── Đoạn 2 ──\nimport pandas as pd\n\nmon = pd.read_csv('mon.csv')\nquay = pd.read_csv('quay.csv')\nprint(mon.shape, quay.shape)\nprint(list(mon.columns))\nprint(mon.groupby('nhom')['gia_niem_yet'].mean().astype(int).to_dict())\nprint(quay.loc[0, 'ten'])\n",
      "packages": [
       "pandas"
      ],
-     "env": "2 đoạn phải chạy bằng Python trên máy: openpyxl chưa có wheel trong /pyodide/v314.0.7/.",
+     "env": "2 đoạn phải chạy bằng Python trên máy: openpyxl chưa được cài sẵn trong trình duyệt của khoá này.",
      "dataFiles": [
       "mon.csv",
       "quay.csv"
@@ -22793,7 +22793,7 @@
     "step_4": {
      "task": {
       "title": "Chạy trên máy của bạn",
-      "body": "Bài này không chạy được trong trình duyệt: seaborn chưa có wheel trong /pyodide/v314.0.7/. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
+      "body": "Bài này không chạy được trong trình duyệt: seaborn chưa được cài sẵn trong trình duyệt của khoá này. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
      },
      "procedure": [
       "Mở terminal tại thư mục làm việc của bạn.",
@@ -22974,7 +22974,7 @@
     "step_4": {
      "task": {
       "title": "Chạy trên máy của bạn",
-      "body": "Bài này không chạy được trong trình duyệt: seaborn chưa có wheel trong /pyodide/v314.0.7/. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
+      "body": "Bài này không chạy được trong trình duyệt: seaborn chưa được cài sẵn trong trình duyệt của khoá này. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
      },
      "procedure": [
       "Mở terminal tại thư mục làm việc của bạn.",
@@ -23161,7 +23161,7 @@
     "step_4": {
      "task": {
       "title": "Chạy trên máy của bạn",
-      "body": "Bài này không chạy được trong trình duyệt: seaborn chưa có wheel trong /pyodide/v314.0.7/. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
+      "body": "Bài này không chạy được trong trình duyệt: seaborn chưa được cài sẵn trong trình duyệt của khoá này. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
      },
      "procedure": [
       "Mở terminal tại thư mục làm việc của bạn.",
@@ -23342,7 +23342,7 @@
     "step_4": {
      "task": {
       "title": "Chạy trên máy của bạn",
-      "body": "Bài này không chạy được trong trình duyệt: seaborn chưa có wheel trong /pyodide/v314.0.7/. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
+      "body": "Bài này không chạy được trong trình duyệt: seaborn chưa được cài sẵn trong trình duyệt của khoá này. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
      },
      "procedure": [
       "Mở terminal tại thư mục làm việc của bạn.",
@@ -23832,7 +23832,7 @@
     "step_4": {
      "task": {
       "title": "Chạy trên máy của bạn",
-      "body": "Bài này không chạy được trong trình duyệt: plotly chưa có wheel trong /pyodide/v314.0.7/. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
+      "body": "Bài này không chạy được trong trình duyệt: plotly chưa được cài sẵn trong trình duyệt của khoá này. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
      },
      "procedure": [
       "Mở terminal tại thư mục làm việc của bạn.",
@@ -24123,13 +24123,13 @@
     "step_4": {
      "task": {
       "title": "Chạy thử",
-      "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 2 đoạn trong bài không chạy được ở đây (ipywidgets chưa có wheel trong /pyodide/v314.0.7/) nên không nằm trong ô này."
+      "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 2 đoạn trong bài không chạy được ở đây (ipywidgets chưa được cài sẵn trong trình duyệt của khoá này) nên không nằm trong ô này."
      },
      "starterCode": "import pandas as pd\ndata = pd.DataFrame({\"store\":[\"A\", \"A\", \"B\"], \"cups\":[8, 10, 5]})\ndef summarize(store):\n    chosen = data if store == \"All\" else data.loc[data[\"store\"].eq(store)]\n    return int(chosen[\"cups\"].sum()), len(chosen)\nprint(summarize(\"A\"))\nprint(summarize(\"All\"))\n",
      "packages": [
       "pandas"
      ],
-     "env": "2 đoạn phải chạy bằng Python trên máy: ipywidgets chưa có wheel trong /pyodide/v314.0.7/."
+     "env": "2 đoạn phải chạy bằng Python trên máy: ipywidgets chưa được cài sẵn trong trình duyệt của khoá này."
     }
    },
    "_mode": "mixed",
@@ -30945,10 +30945,10 @@
     "step_4": {
      "task": {
       "title": "Chạy thử",
-      "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 2 đoạn trong bài không chạy được ở đây (WASM không gọi được chương trình ngoài) nên không nằm trong ô này."
+      "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 2 đoạn trong bài không chạy được ở đây (trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành)) nên không nằm trong ô này."
      },
      "starterCode": "from pathlib import PurePosixPath\nfiles = [\"domains/__init__.py\", \"domains/pricing.py\", \"domains/reports/__init__.py\", \"domains/reports/summary.py\", \"main.py\"]\nprint(PurePosixPath(files[3]).parent)\nprint(files[0].endswith(\"__init__.py\"))\n",
-     "env": "2 đoạn phải chạy bằng Python trên máy: WASM không gọi được chương trình ngoài."
+     "env": "2 đoạn phải chạy bằng Python trên máy: trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành)."
     }
    },
    "_mode": "mixed",
@@ -33821,7 +33821,7 @@
      "packages": [
       "pandas"
      ],
-     "env": "Bài tập dưới đây chấm được ngay trong trình duyệt. Nhưng code trong phần bài đọc thì không: sas7bdat chưa có wheel trong /pyodide/v314.0.7/. Muốn chạy lại các đoạn đó thì mở Python trên máy."
+     "env": "Bài tập dưới đây chấm được ngay trong trình duyệt. Nhưng code trong phần bài đọc thì không: sas7bdat chưa được cài sẵn trong trình duyệt của khoá này. Muốn chạy lại các đoạn đó thì mở Python trên máy."
     }
    },
    "_mode": "mixed",
@@ -34021,7 +34021,7 @@
     "step_4": {
      "task": {
       "title": "Chạy trên máy của bạn",
-      "body": "Bài này không chạy được trong trình duyệt: h5py chưa có wheel trong /pyodide/v314.0.7/. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
+      "body": "Bài này không chạy được trong trình duyệt: h5py chưa được cài sẵn trong trình duyệt của khoá này. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
      },
      "procedure": [
       "Mở terminal tại thư mục làm việc của bạn.",
@@ -37033,10 +37033,10 @@
     "step_4": {
      "task": {
       "title": "Chạy thử",
-      "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 2 đoạn trong bài không chạy được ở đây (WASM không gọi được chương trình ngoài) nên không nằm trong ô này."
+      "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 2 đoạn trong bài không chạy được ở đây (trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành)) nên không nằm trong ô này."
      },
      "starterCode": "transitions = {(\"new\", \"admitted\"): \"ready\", (\"ready\", \"scheduled\"): \"running\", (\"running\", \"io_wait\"): \"waiting\", (\"waiting\", \"io_done\"): \"ready\", (\"running\", \"exit\"): \"terminated\"}\nprint(transitions[(\"running\", \"io_wait\")])\nprint(transitions[(\"waiting\", \"io_done\")])\n",
-     "env": "2 đoạn phải chạy bằng Python trên máy: WASM không gọi được chương trình ngoài."
+     "env": "2 đoạn phải chạy bằng Python trên máy: trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành)."
     }
    },
    "_mode": "mixed",
@@ -37345,10 +37345,10 @@
     "step_4": {
      "task": {
       "title": "Chạy thử",
-      "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 1 đoạn trong bài không chạy được ở đây (WASM không gọi được chương trình ngoài) nên không nằm trong ô này."
+      "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 1 đoạn trong bài không chạy được ở đây (trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành)) nên không nằm trong ô này."
      },
      "starterCode": "# ── Đoạn 1 ──\nparent_pid, new_child_pid = 100, 101\nfork_returns = {\"parent\": new_child_pid, \"child\": 0}\nprint(fork_returns[\"parent\"], fork_returns[\"child\"])\n\n# ── Đoạn 2 ──\nprocess = {\"pid\": 101, \"program\": \"shell\"}\nprocess[\"program\"] = \"analysis\"\nprint(process[\"pid\"], process[\"program\"])\n",
-     "env": "1 đoạn phải chạy bằng Python trên máy: WASM không gọi được chương trình ngoài."
+     "env": "1 đoạn phải chạy bằng Python trên máy: trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành)."
     }
    },
    "_mode": "mixed",
@@ -39375,7 +39375,7 @@
     "step_4": {
      "task": {
       "title": "Chạy trên máy của bạn",
-      "body": "Bài này không chạy được trong trình duyệt: WASM không gọi được chương trình ngoài. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
+      "body": "Bài này không chạy được trong trình duyệt: trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành). Mở Python trên máy rồi gõ lại các đoạn code ở trên."
      },
      "procedure": [
       "Mở terminal tại thư mục làm việc của bạn.",
@@ -39567,7 +39567,7 @@
     "step_4": {
      "task": {
       "title": "Chạy trên máy của bạn",
-      "body": "Bài này không chạy được trong trình duyệt: WASM không gọi được chương trình ngoài. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
+      "body": "Bài này không chạy được trong trình duyệt: trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành). Mở Python trên máy rồi gõ lại các đoạn code ở trên."
      },
      "procedure": [
       "Mở terminal tại thư mục làm việc của bạn.",
@@ -41064,7 +41064,7 @@
     "step_4": {
      "task": {
       "title": "Chạy trên máy của bạn",
-      "body": "Bài này không chạy được trong trình duyệt: WASM không fork được tiến trình. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
+      "body": "Bài này không chạy được trong trình duyệt: trình duyệt không tạo được tiến trình mới. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
      },
      "procedure": [
       "Mở terminal tại thư mục làm việc của bạn.",
@@ -41272,10 +41272,10 @@
     "step_4": {
      "task": {
       "title": "Chạy thử",
-      "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 2 đoạn trong bài không chạy được ở đây (WASM không gọi được chương trình ngoài) nên không nằm trong ô này."
+      "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 2 đoạn trong bài không chạy được ở đây (trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành)) nên không nằm trong ô này."
      },
      "starterCode": "import shlex\nlexer = shlex.shlex('tool \"two words\" < in.txt | other > out.txt', posix=True, punctuation_chars=\"|<>\")\nprint(list(lexer))\n",
-     "env": "2 đoạn phải chạy bằng Python trên máy: WASM không gọi được chương trình ngoài."
+     "env": "2 đoạn phải chạy bằng Python trên máy: trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành)."
     }
    },
    "_mode": "mixed",
@@ -45211,10 +45211,10 @@
     "step_4": {
      "task": {
       "title": "Chạy thử",
-      "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 1 đoạn trong bài không chạy được ở đây (WASM không gọi được chương trình ngoài) nên không nằm trong ô này."
+      "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 1 đoạn trong bài không chạy được ở đây (trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành)) nên không nằm trong ô này."
      },
      "starterCode": "# ── Đoạn 1 ──\nprocesses = {100:{\"parent\":None, \"name\":\"main\"}, 101:{\"parent\":100, \"name\":\"worker\"}, 102:{\"parent\":101, \"name\":\"export\"}}\nprint(processes[102][\"parent\"])\nprint(processes[processes[102][\"parent\"]][\"parent\"])\n\n# ── Đoạn 2 ──\nfamily = {\"execl\":(\"list\", False, False), \"execle\":(\"list\", False, True), \"execlp\":(\"list\", True, False), \"execv\":(\"vector\", False, False), \"execvp\":(\"vector\", True, False)}\nprint(family[\"execvp\"])\nprint(family[\"execle\"])\n",
-     "env": "1 đoạn phải chạy bằng Python trên máy: WASM không gọi được chương trình ngoài."
+     "env": "1 đoạn phải chạy bằng Python trên máy: trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành)."
     }
    },
    "_mode": "mixed",

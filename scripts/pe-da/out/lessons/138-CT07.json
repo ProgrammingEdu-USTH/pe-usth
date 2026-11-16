@@ -158,7 +158,7 @@
   "step_4": {
    "task": {
     "title": "Chạy trên máy của bạn",
-    "body": "Bài này không chạy được trong trình duyệt: WASM không gọi được chương trình ngoài. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
+    "body": "Bài này không chạy được trong trình duyệt: trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành). Mở Python trên máy rồi gõ lại các đoạn code ở trên."
    },
    "procedure": [
     "Mở terminal tại thư mục làm việc của bạn.",

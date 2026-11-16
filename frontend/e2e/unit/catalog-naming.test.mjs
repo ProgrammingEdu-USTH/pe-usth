@@ -29,7 +29,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -121,3 +121,29 @@ test('seed dùng cùng một tên khoá với catalog.ts', () => {
  * 'Python cho Data Analyst' ⇒ ca 1 và ca 3 trượt (2 ca) — đúng cảnh lệch mà
  * test này sinh ra để bắt.
  */
+
+/**
+ * Trang BÀI HỌC và trang chủ phải gọi khoá bằng tên ĐANG hiển thị ở danh mục. #274: trang bài học
+ * còn `courseName="Python Advanced"` — chữ "Advanced" là thứ khiến người mới bỏ qua khoá, và là lý do
+ * tên đổi ngày 24/10 — cộng "172 bài" khi khoá đã 179. `courseName` đi vào tiêu đề tab và nhãn
+ * "<khoá> Studio", tức nó là chữ người học đọc.
+ */
+test('src/app: không chuỗi hiển thị nào còn "Python Advanced" hoặc "172 bài"; trang bài học lấy tên khoá từ catalog', () => {
+  const cacTep = [];
+  const duyet = (thuMuc) => {
+    for (const m of readdirSync(join(ROOT, 'frontend', 'src', 'app', ...thuMuc), { withFileTypes: true })) {
+      if (m.isDirectory()) duyet([...thuMuc, m.name]);
+      else if (/\.tsx?$/.test(m.name)) cacTep.push([...thuMuc, m.name]);
+    }
+  };
+  duyet([]);
+  assert.ok(cacTep.length >= 8, `chỉ duyệt được ${cacTep.length} tệp trong src/app — phép duyệt trượt?`);
+  const loi = [];
+  for (const p of cacTep) {
+    const ma = codeOnly(read('frontend', 'src', 'app', ...p));
+    if (/Python Advanced|172 bài|Python nâng cao/.test(ma)) loi.push(p.join('/'));
+  }
+  assert.deepEqual(loi, [], `chuỗi hiển thị còn tên/số cũ: ${loi.join(', ')}`);
+  const bai = read('frontend', 'src', 'app', '(standalone)', 'lesson', 'python_advanced', 'page.tsx');
+  assert.match(codeOnly(bai), /courseName=\{findCourse\('python_advanced'\)\?\.title/, 'courseName phải lấy từ findCourse()');
+});

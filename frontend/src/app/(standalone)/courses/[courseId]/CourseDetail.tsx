@@ -30,6 +30,7 @@
 
 import { useEffect, useState } from 'react';
 
+import DanhThucMayChu from '@/components/DanhThucMayChu';
 import PageStyles from '@/components/PageStyles';
 import SiteHeader from '@/components/SiteHeader';
 import { apiFetch, asList, findEnrollment } from '@/lib/api';
@@ -371,6 +372,7 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
           KHÔNG thắng ở bất kỳ khối nào của trang này — chúng chỉ tô `body`,
           mà `.page` dưới đây phủ kín khung nhìn nên nền body không còn lộ. */}
       <PageStyles hrefs={['/static/css/edu-theme.css']} />
+      <DanhThucMayChu />
 
       <div className={styles.page}>
         <div className={styles.shell}>

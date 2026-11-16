@@ -21,6 +21,9 @@ function origin(): string {
   return w.__PE_API_ORIGIN || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 }
 
+/** Origin API cho nơi cần gọi KHÔNG qua `apiFetch` (đánh thức máy chủ: `lib/danh-thuc-may-chu.ts`). */
+export { origin as apiOrigin };
+
 function ls(key: string): string | null {
   try {
     return localStorage.getItem(key);

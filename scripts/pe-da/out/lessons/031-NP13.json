@@ -156,7 +156,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận dãy số cốc bán được. Trả mask đánh dấu những món bán từ 30 cốc trở lên. Giữ đủ số vị trí và thứ tự đầu vào.",
     "io": [
      {

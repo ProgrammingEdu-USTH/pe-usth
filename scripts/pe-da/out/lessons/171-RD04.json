@@ -142,7 +142,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận ma trận A vuông không suy biến và dãy b cùng kích thước. Trả nghiệm của A @ x = b bằng np.linalg.solve. Các bài kiểm đều có nghiệm duy nhất.",
     "io": [
      {

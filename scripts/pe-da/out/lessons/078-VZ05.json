@@ -147,7 +147,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.x, data.y, data.sizes cùng độ dài. Tạo scatter với s=data.sizes và alpha=0.5. Trả positions=get_offsets().tolist(), sizes=get_sizes().tolist() và alpha=get_alpha() của đối tượng scatter. Các getter chỉ dùng để đọc cấu hình và dữ liệu vừa vẽ. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
     "io": [
      {

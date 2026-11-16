@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.orders là list mã id của đơn; data.catalog là list mã trong danh mục. Trả {valid:False,missing:[]} nếu danh mục trùng khóa; nếu hợp lệ, nối trái có validate và indicator rồi trả valid=True và list mã chưa khớp theo thứ tự đơn, giữ cả lần lặp.",
     "io": [
      {

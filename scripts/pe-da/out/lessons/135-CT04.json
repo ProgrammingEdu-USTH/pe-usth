@@ -429,7 +429,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận dict có jobs là list [tên, burst]. Trả dict có fcfs và sjf: thời gian CHỜ trung bình khi chạy theo thứ tự đến (FCFS) và khi chạy việc ngắn trước (SJF), mỗi số làm tròn 2 chữ số.",
     "io": [
      {

@@ -196,7 +196,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Hệ thống cung cấp quantity là số sản phẩm trong một gói. Mỗi sản phẩm giá 12, phí giao mỗi gói là 3. Gán tổng tiền vào total, kể cả gói có quantity bằng 0 vẫn có phí giao.",
     "io": [
      {

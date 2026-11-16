@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.utc là list chuỗi thời điểm UTC có Z. Đọc với utc=True rồi chuyển Asia/Ho_Chi_Minh. Trả list chuỗi YYYY-MM-DD HH:MM theo giờ Việt Nam, giữ thứ tự sự kiện.",
     "io": [
      {

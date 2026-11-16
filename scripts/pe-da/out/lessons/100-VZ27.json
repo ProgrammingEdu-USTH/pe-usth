@@ -153,7 +153,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.names và data.values là các phần của cùng tổng dương, giá trị không âm. Vẽ pie với labels và autopct=\"%.0f%%\". Trả names là chữ của labels và percentages là chữ phần trăm của kết quả ax.pie. Không tự đổi dữ liệu sang phần của hai tổng khác nhau. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
     "io": [
      {

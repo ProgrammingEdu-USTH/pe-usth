@@ -160,7 +160,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Hệ thống cung cấp raw là chuỗi giá hợp lệ, có thể có khoảng trắng hai đầu. Gán vào message giá đã đổi sang số và hiển thị đúng hai chữ số sau dấu thập phân.",
     "io": [
      {

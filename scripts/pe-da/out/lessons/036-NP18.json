@@ -158,7 +158,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận so_coc là bảng số lượng đơn hàng và price là dãy giá theo đúng thứ tự cột. Trả bảng tiền từng sản phẩm trong mỗi đơn, chưa cộng thành tổng đơn.",
     "io": [
      {

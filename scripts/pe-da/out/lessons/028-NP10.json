@@ -148,7 +148,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận bảng số lượng kiện ở các khu kho. Trả tổng số kiện của mọi khu và mọi ca, không tách hàng hoặc cột.",
     "io": [
      {

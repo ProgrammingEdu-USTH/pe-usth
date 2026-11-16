@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.rows có store, month, revenue, mỗi cặp store–month duy nhất. data.store và data.month xác định ô có trong dữ liệu. Pivot rồi trả giá trị của ô đó dưới dạng số.",
     "io": [
      {

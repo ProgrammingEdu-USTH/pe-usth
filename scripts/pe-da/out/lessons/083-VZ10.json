@@ -157,7 +157,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.values là dãy số. Vẽ một đường rồi dùng plt.setp để marker=\"s\",linestyle=\"--\",linewidth=2,alpha=0.5,color=\"black\". Trả marker, linestyle và width đọc từ Line2D. Các getter lần lượt là get_marker(),get_linestyle(),get_linewidth(). Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve. Trả thêm values bằng list(line.get_ydata()), alpha bằng line.get_alpha() và color bằng line.get_color().",
     "io": [
      {

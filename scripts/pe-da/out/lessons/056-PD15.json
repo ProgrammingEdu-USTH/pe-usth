@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.rows gồm group và value; mỗi nhóm có tổng dương. Trả list tỷ trọng value/tổng nhóm theo đúng thứ tự gốc. Không trả bảng đã gộp mất giao dịch.",
     "io": [
      {

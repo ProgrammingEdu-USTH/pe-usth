@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.names có chuỗi hoặc None; data.query là đoạn chữ thường cần tìm theo nghĩa đen. Chuẩn hóa strip/lower, thay ô thiếu bằng \"unknown\". Trả clean và matched là các tên đã chuẩn hóa chứa query; giữ thứ tự.",
     "io": [
      {

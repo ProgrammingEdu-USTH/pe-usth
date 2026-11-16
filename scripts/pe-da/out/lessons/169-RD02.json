@@ -142,7 +142,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận first và second là hai lô bảng có cùng số cột. Ghép theo hàng rồi chuyển vị kết quả để mỗi cột cũ trở thành một hàng. Trả array đó.",
     "io": [
      {

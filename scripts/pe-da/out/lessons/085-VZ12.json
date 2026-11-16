@@ -254,7 +254,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.a,data.b là hai dãy và data.maximum >0 là giới hạn chung. Tạo subplots(1,2,sharey=True), vẽ mỗi dãy vào một Axes, đặt ylim=(0,maximum) trên Axes trái. Trả axes=len(fig.axes) và limits là get_ylim của cả hai Axes; giới hạn phải giống nhau. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
     "io": [
      {

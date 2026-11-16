@@ -156,7 +156,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận dictionary values là số đo và weights là số lần đại diện cho từng số đo. Trả trung bình có trọng số. Các dãy không rỗng, cùng độ dài; trọng số không âm và có tổng dương.",
     "io": [
      {

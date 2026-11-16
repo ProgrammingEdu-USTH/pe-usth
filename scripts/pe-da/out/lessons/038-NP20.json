@@ -158,7 +158,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận parts là dãy số và expected là tổng dự kiến. Trả kết quả np.isclose của tổng parts với expected, dùng atol=0.000001 và rtol=0.",
     "io": [
      {

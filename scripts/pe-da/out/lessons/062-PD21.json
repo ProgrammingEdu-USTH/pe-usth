@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.ordered và data.delivered là hai list chuỗi %d/%m/%Y hoặc chuỗi sai. Chuyển với errors=\"coerce\", trừ ngày giao cho ngày đặt. Trả list số ngày trọn; cặp chứa ngày sai trả None. Không tự cộng thêm ngày đầu.",
     "io": [
      {

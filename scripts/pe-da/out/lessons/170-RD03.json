@@ -142,7 +142,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận names và amounts cùng độ dài. Trả names và amounts đã xếp tăng theo amounts; hai giá trị bằng nhau giữ thứ tự ban đầu. Không tách tên khỏi số tiền.",
     "io": [
      {

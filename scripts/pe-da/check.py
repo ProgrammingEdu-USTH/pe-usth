@@ -784,6 +784,13 @@ def kiem_bai_tap(ma: str, bon: dict, mode: str) -> None:
         loi(f'{ma}: vừa có ca chấm vừa có procedure — ô soạn mã sẽ bị ẩn')
     if not (bon.get('task') or {}).get('body', '').strip():
         loi(f'{ma}: bài tập không có đề — học viên không biết phải viết gì')
+    # Ô soạn mã của bài ĐƯỢC CHẤM là một khung trong trình duyệt, không phải terminal: tiêu đề
+    # nói "chạy trong terminal" làm người mới đi tìm một cửa sổ không có (108/143 bài trước
+    # 16/11, #284). Chữ này đến từ gói practice; build.py thay nó (TIEU_DE_BAI_TAP_THAY).
+    tieu_de = str((bon.get('task') or {}).get('title') or '')
+    if 'terminal' in tieu_de.lower():
+        loi(f'{ma}: tiêu đề bài tập "{tieu_de}" nhắc terminal nhưng ô soạn là trình duyệt — '
+            'thêm chữ gói practice vào TIEU_DE_BAI_TAP_THAY trong build.py')
 
     giai = bon.get('solutionCode') or ''
     if not giai.strip():

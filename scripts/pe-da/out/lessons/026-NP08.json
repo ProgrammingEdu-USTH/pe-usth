@@ -178,7 +178,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận dictionary có values là dãy số và columns là số cột. Các dãy đều chia vừa. Trả bảng xếp lần lượt theo hàng với đúng số cột được yêu cầu.",
     "io": [
      {

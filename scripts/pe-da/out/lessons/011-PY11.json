@@ -164,7 +164,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Hệ thống cung cấp coordinates là một cặp [x, y]. Tạo swapped là tuple (y, x). Bạn không cần sửa từng phần tử của cặp đầu vào.",
     "io": [
      {

@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.rows có so_coc, don_gia, giam_gia (0..1). Trả list tiền sau giảm giá so_coc*don_gia*(1-giam_gia), theo thứ tự. Dùng các cột trực tiếp, không phải apply cho phép nhân đơn giản này.",
     "io": [
      {

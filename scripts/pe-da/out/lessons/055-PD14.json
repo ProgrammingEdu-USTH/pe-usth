@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.rows có quay và so_coc. Quy ước quay thiếu được ghi là \"Unknown\". Trả dictionary quay→tổng so_coc, gồm cả nhóm Unknown; so_coc đều là số.",
     "io": [
      {

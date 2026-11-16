@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.values chứa số hoặc None. Tạo Series kiểu Float64. Trả known là các số không thiếu, missing là số ô thiếu, mean là trung bình hoặc None nếu chưa có số nào.",
     "io": [
      {

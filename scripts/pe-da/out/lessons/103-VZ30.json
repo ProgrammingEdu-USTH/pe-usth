@@ -323,7 +323,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.events là list {inside:bool,x:số hoặc None,y:số hoặc None}. Tạo Figure/Axes và callback như bài: chỉ khi inside=True, x và y đều có số thì cập nhật state.point thành [x,y]. Có thể dùng SimpleNamespace giả lập đối tượng event để kiểm callback; nối mpl_connect rồi ngắt sau các sự kiện. Trả point cuối hoặc None nếu chưa có sự kiện hợp lệ. Đây không chứng minh đã thao tác chuột thật. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
     "io": [
      {

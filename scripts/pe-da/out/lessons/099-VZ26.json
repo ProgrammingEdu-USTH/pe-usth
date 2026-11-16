@@ -147,7 +147,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.rows chứa category,so_coc,price. Quy tắc mẫu: bỏ dòng so_coc<0 hoặc price<0; các hàng còn lại tính revenue=so_coc*price. Có ít nhất một hàng hợp lệ. Tổng hợp category, sắp tăng theo tên rồi vẽ cột. Trả totals là dictionary category→doanh thu, drawnTotal là tổng chiều cao các cột, rejected là số dòng bị loại. Không gọi số đó là lợi nhuận. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
     "io": [
      {

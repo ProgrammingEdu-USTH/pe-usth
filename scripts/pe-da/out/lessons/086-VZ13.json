@@ -153,7 +153,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.values có ít nhất hai số độc lập theo giả định bài. Tính mean và SE=std(ddof=1)/sqrt(n); tạo errorbar ở x=1, đặt title=\"Mean +/- 1 SE\". Trả mean, se, bounds=[mean-se,mean+se] và title từ Axes. Đây không phải CI 95%. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
     "io": [
      {

@@ -154,7 +154,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận dãy điểm. Bỏ điểm ngoài 0–10, cộng thưởng 1 cho điểm hợp lệ rồi giới hạn kết quả ở 10. Trả array điểm cuối, giữ thứ tự.",
     "io": [
      {

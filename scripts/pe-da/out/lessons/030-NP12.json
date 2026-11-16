@@ -158,7 +158,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận bảng số gói, mỗi hàng là một tuyến giao hàng, mỗi cột là một điểm dừng. Trả tổng số gói của từng tuyến.",
     "io": [
      {

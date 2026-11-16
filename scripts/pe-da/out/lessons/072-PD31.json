@@ -205,7 +205,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.rows là các đơn với channel và amount (đã biết, mỗi hàng là một đơn). Trả dictionary mỗi channel chứa count, mean, median. Cần có số quan sát bên cạnh các số tóm tắt, không suy ra nhân quả.",
     "io": [
      {

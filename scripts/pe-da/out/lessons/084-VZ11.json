@@ -178,7 +178,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.values đều dương. Vẽ một đường, đặt yscale=\"log\", ẩn spine top. Trả scale=get_yscale(), topVisible=get_visible() của viền trên, values đọc từ đường. Việc đổi thang không được log-transform dãy trước khi truyền plot. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
     "io": [
      {

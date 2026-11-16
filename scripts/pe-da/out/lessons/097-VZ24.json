@@ -153,7 +153,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.names,complaints,orders có cùng độ dài, orders đều dương. Dựng bar chart của complaints/orders*100, ylabel=\"Complaints (%)\", trục y bắt đầu 0. Trả rates từ các bar và baseline là cận dưới get_ylim(). Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
     "io": [
      {

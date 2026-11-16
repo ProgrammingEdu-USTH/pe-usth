@@ -156,7 +156,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận dict có price (giá một cốc, số thực) và cups (số cốc). Quán tính tiền làm tròn XUỐNG tới 1 chữ số thập phân bằng floor của module math, như ở màn đọc. Trả tổng tiền đã làm tròn xuống.",
     "io": [
      {

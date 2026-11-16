@@ -153,7 +153,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Một thư viện báo số sách theo quầy. data.names và data.counts có cùng độ dài, ít nhất một nhóm. Tạo Figure/Axes và bar chart; đặt ylabel=\"Books\". Trả heights là list chiều cao đọc từ các bar và ylabel. get_height() đọc chiều cao cột, get_ylabel() đọc nhãn trục. Đóng Figure sau khi đọc. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
     "io": [
      {

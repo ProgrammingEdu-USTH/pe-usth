@@ -158,7 +158,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận bảng giá không rỗng. Tạo array original, lấy tối đa hai giá đầu thành trial riêng rồi nhân đôi trial tại chỗ. Trả dictionary original và trial để chứng minh bản gốc còn nguyên.",
     "io": [
      {

@@ -146,7 +146,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Hệ thống cung cấp serial là chuỗi mã kiện hàng. Gán tối đa bốn ký tự cuối vào suffix. Với mã ngắn hơn bốn ký tự, giữ cả mã.",
     "io": [
      {

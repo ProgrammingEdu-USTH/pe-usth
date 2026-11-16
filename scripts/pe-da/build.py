@@ -942,6 +942,17 @@ def cau_trac_nghiem(mcq: dict, ma_bai: str = '', so_cau: int = SO_CAU_MCQ) -> li
 # KHÔNG có ô ví dụ (vẫn chấm được như cũ) và `check.py` nói ra bài nào.
 IO_MAX_KY_TU = 320
 
+# TIÊU ĐỀ của màn bài tập được chấm phải nói đúng nơi người học VIẾT code.
+#
+# Gói practice đặt tiêu đề "Tự viết và chạy trong terminal" cho 108/143 bài tập được chấm
+# (đo 16/11/2026), trong khi ô soạn mã là một khung trong trình duyệt và bộ chấm chạy bằng
+# Pyodide: người mới đọc đề, đi tìm một cửa sổ terminal không tồn tại. Chính gói đã có tiêu đề
+# đúng cho cùng loại việc ("Tự viết rồi chạy Python", 29 bài), nên phép thay dùng chữ của người
+# soạn chứ không bịa chữ mới; gói nguồn KHÔNG bị sửa (nó là của người soạn giáo trình và còn
+# được giao lại), và `check.py` đòi bản dựng không còn chữ "terminal" ở tiêu đề bài có ca chấm.
+# #284.
+TIEU_DE_BAI_TAP_THAY = {'Tự viết và chạy trong terminal': 'Tự viết rồi chạy Python'}
+
 
 def vi_du_io(bai_tap: dict, hop_dong: dict) -> tuple[list[dict] | None, str]:
     """Ô "đầu vào → kết quả" của bài tập, dựng từ CA CHẤM ĐẦU TIÊN.
@@ -1069,7 +1080,8 @@ def bai_tap_cua(bai_tap: dict, mode: str = 'pyodide',
     vi_du, ly_do_io = vi_du_io(bai_tap, hop_dong)
     ra: dict = {
         'task': {
-            'title': bai_tap.get('title') or 'Thử thách độc lập',
+            'title': (TIEU_DE_BAI_TAP_THAY.get(bai_tap.get('title'), bai_tap.get('title'))
+                      or 'Thử thách độc lập'),
             'body': bai_tap.get('prompt') or '',
             # Chỉ phát khi dựng được: `io` rỗng thì renderer không dựng `<dl>`
             # nào, nhưng một khoá rỗng trong content_json làm người đọc gói

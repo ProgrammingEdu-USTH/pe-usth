@@ -197,7 +197,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.text là CSV cột id;amount, ký hiệu missing là thiếu. Đọc với sep=\";\", id kiểu string. Trả ids giữ số 0 đầu và amounts, đổi ô thiếu thành None. Không viết hàm tách chuỗi CSV bằng tay.",
     "io": [
      {

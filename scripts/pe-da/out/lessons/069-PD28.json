@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.text là CSV một cột x với ít nhất một số, có thể có NA; data.chunksize >0. Đọc theo lô, cộng tổng và count giá trị không thiếu. Trả total, count và mean. Kết quả phải không phụ thuộc cách chia lô.",
     "io": [
      {

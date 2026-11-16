@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.values là các số. Chia theo bins=[0,10,20], labels=[\"low\",\"high\"], include_lowest=True. Trả list nhãn, giá trị ngoài 0..20 thành None.",
     "io": [
      {

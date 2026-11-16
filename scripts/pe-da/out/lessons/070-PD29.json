@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.amounts là list số tiền, data.threshold là ngưỡng. Dùng sqlite3 :memory:, ghi DataFrame vào bảng sales rồi dùng truy vấn có params để lấy amount > threshold theo thứ tự tăng. Trả list các số nhận được từ pandas, đóng kết nối khi xong.",
     "io": [
      {

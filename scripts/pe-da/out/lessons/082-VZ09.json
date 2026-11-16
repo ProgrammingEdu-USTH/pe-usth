@@ -157,7 +157,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.target là mục tiêu, data.unit là nhãn trục y cần ghi. Tạo Figure, vẽ axhline(target,label=\"Target\"), đặt ylabel=unit. Trả target đọc từ line.get_ydata()[0], label từ line.get_label(), và ylabel từ Axes. Không thêm mục tiêu vào dãy quan sát. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
     "io": [
      {

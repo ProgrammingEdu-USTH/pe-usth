@@ -155,7 +155,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.orders chứa product_id và so_coc; data.products chứa product_id và name, mã danh mục là duy nhất. Nối trái theo product_id, trả list tên theo thứ tự đơn; tên chưa khớp là \"Unknown\".",
     "io": [
      {

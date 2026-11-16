@@ -125,13 +125,6 @@ const CHUA_DO = {
   // chuỗi, nên vòng sau phải đi tìm lại từ đầu "nút này ở màn nào". Mỗi mục nay
   // mang tệp dựng nó và VÌ SAO một lượt đi qua bài học không gặp nó — đó là
   // thứ biến một danh sách nợ thành một việc làm được.
-  '.toast button':
-    'LessonOverlays.tsx — overlay thoáng qua (hiện rồi tự tắt), nên một lượt đi '
-    + 'qua màn không chắc gặp. Cần ép nó hiện mới đo được.',
-  '.awards button':
-    'LessonOverlays.tsx — bảng giải thưởng, cùng lý do như toast: nó là overlay '
-    + 'nên chỉ hiện sau một mốc (đạt huy hiệu) chứ không nằm trên đường đi thẳng '
-    + 'của màn, và một lượt đi qua bài học không kích được nó.',
   '.resetLink':
     'AdminAnswerKey.tsx — bề mặt QUẢN TRỊ, không nằm trên đường nào của người '
     + 'học. Sàn 44px vẫn nên áp (chuột hay ngón tay thì cũng là đích bấm) nhưng '
@@ -508,6 +501,11 @@ test('đích bấm: năm nút đã đo không quay về dưới sàn', () => {
     // ra thì nay rơi xuống 42, không phải 38.
     '.ctrl': [36, 4], '.start': [38, 4], '.scrub': [16, 4],
     '.detail summary': [16, 4],
+    // 16/11/2026 — overlay của LessonOverlays.tsx (TEP[1]). Cả hai là overlay chỉ hiện sau một
+    // mốc nên KHÔNG đo trên màn: số cũ suy từ khai báo (`.toast button` chỉ là dấu × 18px, không
+    // min-width; `.awards button` padding 10px + chữ ≈ 39px). Chuyển từ CHUA_DO sang đây vì sàn
+    // đã khai ở CSS — cổng kiểm được khai báo, không cần ép overlay hiện.
+    '.toast button': [18, 1], '.awards button': [39, 1],
   };
   for (const [sel, [cu, i]] of Object.entries(CU)) {
     const tep = TEP[i];
@@ -518,5 +516,19 @@ test('đích bấm: năm nút đã đo không quay về dưới sàn', () => {
       `\`${sel}\` nay khai cao ${cao ?? 'KHÔNG GÌ'} — đo trên production nó cao `
       + `${cu}px khi chưa có sàn. Đừng gỡ \`min-height: 44px\`.`,
     );
+  }
+});
+
+// Nút × của hộp thông báo là ĐÍCH HẸP THEO TRỤC NGANG (chỉ rộng bằng dấu ×, ~11px), mà cổng
+// chung chỉ đòi trục dọc ở module studio (chấp nhận số đo cho trục ngang) — và overlay này không
+// đo được trên màn. Nên trục ngang của nó phải được canh RIÊNG: gỡ `min-width` thì cổng chung vẫn
+// xanh (đã ablate: 0 đỏ) trong khi nút lại hẹp 11px.
+test('hộp thông báo: nút × khai CẢ min-width lẫn min-height ≥ 44px', () => {
+  const css = readFileSync(join(GOC, 'src/components/python-studio/studio-chrome.module.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const r = moiRule(css).find((x) => x.media === null && x.sels.includes('.toast button'));
+  assert.ok(r, 'không tìm thấy rule `.toast button`');
+  for (const k of ['min-width', 'min-height']) {
+    const m = new RegExp(String.raw`(?:^|[;\s])${k}\s*:\s*(\d+)px`).exec(r.than);
+    assert.ok(m && Number(m[1]) >= 44, `\`.toast button\` thiếu ${k} ≥ 44px — dấu × chỉ rộng ~11px nếu không có`);
   }
 });

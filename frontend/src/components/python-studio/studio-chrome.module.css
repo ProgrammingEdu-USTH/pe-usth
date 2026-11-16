@@ -36,7 +36,13 @@
   flex: 1;
 }
 
+/* Nút × đóng thông báo: 44×44 (sàn đích bấm của repo; trước đây chỉ rộng bằng cái dấu × ~11px).
+   Margin ÂM đúng bằng padding của `.toast` để vùng bấm to ra mà thanh thông báo KHÔNG cao thêm —
+   hộp vẫn 44px khi chỉ có một dòng chữ. */
 .toast button {
+  min-width: 44px;
+  min-height: 44px;
+  margin: -12px -8px -12px 0;
   border: 0;
   background: transparent;
   color: var(--edu-t3);
@@ -606,6 +612,8 @@
 
 .awards button {
   margin-top: 8px;
+  min-height: 44px;
+  min-width: 44px;
   border: 0;
   border-radius: 999px;
   padding: 10px 24px;

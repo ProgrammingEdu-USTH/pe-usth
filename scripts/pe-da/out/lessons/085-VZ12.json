@@ -210,7 +210,7 @@
      "explanation": "Hai Axes chia sẻ thang y. Một đơn vị được biểu diễn theo cùng thang đứng."
     },
     {
-     "question": "Hai chữ số đầu trong add_subplot(212) có nghĩa gì?\n\nimport matplotlib.pyplot as plt\nfig = plt.figure(figsize=(7, 3))\nleft = fig.add_subplot(121)\nright = fig.add_subplot(122)\nleft.bar([\"A\", \"B\"], [8, 10])\nright.hist([1, 2, 2, 4], bins=[0, 3, 6])\nleft.set(title=\"Sales\", ylabel=\"Cups\")\nright.set(title=\"Wait\", xlabel=\"Minutes\", ylabel=\"Orders\")\nfig.subplots_adjust(wspace=0.55, bottom=0.2)\nprint(left.get_subplotspec().num1, right.get_subplotspec().num1)\nplt.show()",
+     "question": "Hai chữ số đầu trong add_subplot(212) có nghĩa gì?",
      "options": [
       {
        "text": "Hai cột và một hàng.",

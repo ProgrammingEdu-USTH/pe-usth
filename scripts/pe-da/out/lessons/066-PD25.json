@@ -106,7 +106,7 @@
      "explanation": "Giá trị đó thành thiếu."
     },
     {
-     "question": "axis=1 trong DataFrame.apply đưa hàng hay cột cho hàm?\n\nimport pandas as pd\ndf = pd.DataFrame({'qty': [2, 3], 'price': [10, 20], 'discount': [0.1, 0.0]})\ndf['net'] = df['qty'] * df['price'] * (1 - df['discount'])\nprint(df['net'].tolist())\nprint(df['net'].where(df['net'] >= 20, 0).tolist())",
+     "question": "axis=1 trong DataFrame.apply đưa hàng hay cột cho hàm?",
      "options": [
       {
        "text": "Từng cột.",

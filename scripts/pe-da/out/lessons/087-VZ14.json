@@ -98,7 +98,7 @@
      "explanation": "Công thức inch×dpi áp dụng khi không cắt hoặc đổi kích thước sau xuất."
     },
     {
-     "question": "Hình rộng 4 inch ở 200 dpi có bao nhiêu pixel trước khi cắt khung?\n\nimport matplotlib\nmatplotlib.use(\"Agg\")\nimport matplotlib.pyplot as plt\nfrom io import BytesIO\nfrom PIL import Image\nfig, ax = plt.subplots(figsize=(6, 3))\nax.plot([1, 2, 3], [8, 10, 7], marker=\"o\")\nax.set(xlabel=\"Day\", ylabel=\"Cups\", title=\"A 900 by 450 pixel PNG\")\nbuffer = BytesIO()\nfig.savefig(buffer, format=\"png\", dpi=150)\nbuffer.seek(0)\nprint(Image.open(buffer).size)\nfrom pathlib import Path\nfrom tempfile import gettempdir\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\nfig.savefig(out / \"VZ14-1.png\", dpi=130)\nplt.close(fig)",
+     "question": "Hình rộng 4 inch ở 200 dpi có bao nhiêu pixel trước khi cắt khung?",
      "options": [
       {
        "text": "400 pixel.",

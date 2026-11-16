@@ -10279,7 +10279,7 @@
        "explanation": "shape mô tả hai chiều của bảng, không phải tổng số ô."
       },
       {
-       "question": "shape bằng (100, 4) có nghĩa gì?\n\nimport pandas as pd\nsales = pd.DataFrame({'drink': ['coffee', 'tea'], 'cups': [12, 8]})\nprint(sales.shape)\nprint(sales.columns.tolist())",
+       "question": "shape bằng (100, 4) có nghĩa gì?",
        "options": [
         {
          "text": "Bảng có 100 hàng và 4 cột.",
@@ -10298,7 +10298,7 @@
        "explanation": "Bảng có 100 hàng và 4 cột."
       },
       {
-       "question": "sales.info() cho biết điều gì về các cột? Có cần viết print(sales.info()) không?\n\nimport pandas as pd\nsales = pd.DataFrame({'drink': ['coffee', 'tea'], 'cups': [12, 8]})\nprint(type(sales['cups']).__name__)\nprint(type(sales[['cups']]).__name__)\nprint(sales['cups'].tolist())",
+       "question": "sales.info() cho biết điều gì về các cột? Có cần viết print(sales.info()) không?",
        "options": [
         {
          "text": "Chỉ in các giá trị của hàng đầu.",
@@ -10630,7 +10630,7 @@
        "explanation": "iloc đếm vị trí từ 0, dù nhãn hàng là số."
       },
       {
-       "question": "Một bảng có nhãn hàng [10, 20]. iloc[0] lấy nhãn nào?\n\nimport pandas as pd\ndf = pd.DataFrame({'name': ['An', 'Binh', 'Chi'], 'orders': [2, 4, 1]}, index=['C01', 'C02', 'C03'])\nprint(df.loc['C02', 'name'])\nprint(df.iloc[1, 0])",
+       "question": "Một bảng có nhãn hàng [10, 20]. iloc[0] lấy nhãn nào?",
        "options": [
         {
          "text": "Nhãn 0.",
@@ -11118,7 +11118,7 @@
        "explanation": "& yêu cầu từng hàng thỏa cả hai phép so sánh có ngoặc."
       },
       {
-       "question": "Mask [True, False, True] giữ các hàng vị trí nào?\n\nimport pandas as pd\ndf = pd.DataFrame({'order': ['A', 'B', 'C'], 'amount': [80, 150, 120]})\nmask = df['amount'] >= 100\nprint(mask.tolist())\nprint(df.loc[mask, 'order'].tolist())",
+       "question": "Mask [True, False, True] giữ các hàng vị trí nào?",
        "options": [
         {
          "text": "Chỉ vị trí 1.",
@@ -11651,7 +11651,7 @@
        "explanation": "Vì 001 là mã định danh; chuyển thành số sẽ mất số 0 đầu."
       },
       {
-       "question": "Kiểu số nguyên `Int64` của pandas giúp xử lý cột có ô thiếu như thế nào?\n\nimport pandas as pd\nraw = pd.Series(['12', 'bad', '8'])\nnumbers = pd.to_numeric(raw, errors='coerce')\nprint(numbers.isna().tolist())\nprint(numbers.dropna().tolist())",
+       "question": "Kiểu số nguyên `Int64` của pandas giúp xử lý cột có ô thiếu như thế nào?",
        "options": [
         {
          "text": "Tự thay mọi ô thiếu bằng 0.",
@@ -13410,7 +13410,7 @@
        "explanation": "Không nhất thiết; tổng hợp thường trả một hàng cho mỗi nhóm."
       },
       {
-       "question": "Trong nhóm hai hàng có một amount thiếu, size và count lần lượt là gì?\n\nimport pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'amount': [10, 20, 40]})\nreport = df.groupby('store', as_index=False).agg(revenue=('amount', 'sum'), orders=('amount', 'size'))\nprint(report.to_dict('records'))",
+       "question": "Trong nhóm hai hàng có một amount thiếu, size và count lần lượt là gì?",
        "options": [
         {
          "text": "Cả hai bằng 2 dù amount thiếu.",
@@ -13666,7 +13666,7 @@
        "explanation": "Vì kết quả giữ các hàng và index tương ứng với bảng đầu vào."
       },
       {
-       "question": "Cần làm gì trước cumcount nếu muốn đánh số đơn theo ngày?\n\nimport pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'amount': [10, 30, 20]})\nprint(df.groupby('store')['amount'].rank(ascending=False, method='dense').tolist())\nprint((df.groupby('store').cumcount() + 1).tolist())",
+       "question": "Cần làm gì trước cumcount nếu muốn đánh số đơn theo ngày?",
        "options": [
         {
          "text": "Bỏ cột ngày vì cumcount tự lấy lịch máy.",
@@ -14442,7 +14442,7 @@
        "explanation": "Không; nó chỉ tạo lại nhãn index."
       },
       {
-       "question": "concat axis=1 căn hàng theo vị trí hay index?\n\nimport pandas as pd\na = pd.DataFrame({'amount': [10], 'note': ['ok']})\nb = pd.DataFrame({'amount': [20], 'city': ['HN']})\nouter = pd.concat([a, b], ignore_index=True)\ninner = pd.concat([a, b], ignore_index=True, join='inner')\nprint(outer.columns.tolist())\nprint(inner.columns.tolist())",
+       "question": "concat axis=1 căn hàng theo vị trí hay index?",
        "options": [
         {
          "text": "Theo index.",
@@ -15719,7 +15719,7 @@
        "explanation": "tz_localize gắn múi giờ cho giờ chưa có múi giờ; tz_convert chuyển cách hiển thị một thời điểm đã có múi giờ."
       },
       {
-       "question": "23:00 UTC ngày 1/1 ở Việt Nam thuộc ngày nào?\n\nimport pandas as pd\nwall_time = pd.DatetimeIndex(['2026-01-01 07:00'])\nlocal = wall_time.tz_localize('Asia/Ho_Chi_Minh')\nprint(local.tz_convert('UTC').strftime('%Y-%m-%d %H:%M %z').tolist())",
+       "question": "23:00 UTC ngày 1/1 ở Việt Nam thuộc ngày nào?",
        "options": [
         {
          "text": "Vẫn là ngày 1/1 lúc 23:00.",
@@ -16181,7 +16181,7 @@
        "explanation": "Giá trị đó thành thiếu."
       },
       {
-       "question": "axis=1 trong DataFrame.apply đưa hàng hay cột cho hàm?\n\nimport pandas as pd\ndf = pd.DataFrame({'qty': [2, 3], 'price': [10, 20], 'discount': [0.1, 0.0]})\ndf['net'] = df['qty'] * df['price'] * (1 - df['discount'])\nprint(df['net'].tolist())\nprint(df['net'].where(df['net'] >= 20, 0).tolist())",
+       "question": "axis=1 trong DataFrame.apply đưa hàng hay cột cho hàm?",
        "options": [
         {
          "text": "Từng cột.",
@@ -16421,7 +16421,7 @@
        "explanation": "cut dùng các mốc được chỉ định hoặc khoảng giá trị; qcut dựa trên phân vị dữ liệu."
       },
       {
-       "question": "Với bins=[0,10,50], giá trị 10 mặc định thuộc khoảng nào?\n\nimport pandas as pd\namount = pd.Series([5, 20, 60])\nbands = pd.cut(amount, bins=[0, 10, 50, 100], labels=['small', 'medium', 'large'])\nprint(bands.tolist())",
+       "question": "Với bins=[0,10,50], giá trị 10 mặc định thuộc khoảng nào?",
        "options": [
         {
          "text": "(0,10], vì khoảng mặc định đóng bên phải.",
@@ -18577,7 +18577,7 @@
        "explanation": "Dùng fig.savefig(...). Axes dùng để vẽ và sửa vùng dữ liệu."
       },
       {
-       "question": "add_subplot(221) mô tả vị trí nào?\n\nimport matplotlib.pyplot as plt\nfig = plt.figure(figsize=(6, 3.5))\nax = fig.add_subplot(111)\nax.bar([\"Coffee\", \"Tea\"], [36, 24])\nax.set(ylabel=\"Cups\", title=\"A subplot inside a Figure\")\nprint(ax.get_subplotspec().get_geometry())\nplt.show()",
+       "question": "add_subplot(221) mô tả vị trí nào?",
        "options": [
         {
          "text": "Hai hàng, hai cột, ô thứ nhất; vị trí được đếm từ 1, từ trái qua phải rồi xuống hàng.",
@@ -18896,7 +18896,7 @@
        "explanation": "plot nối theo thứ tự đầu vào; cần sắp cả cặp dữ liệu."
       },
       {
-       "question": "Dữ liệu ngày 3, ngày 1, ngày 2 cần xử lý gì trước khi vẽ?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nfrom datetime import date\ndays = [date(2026, 1, 1), date(2026, 1, 2), date(2026, 1, 3)]\nsales = [8, 10, 7]\nax.plot(days, sales, marker=\"o\")\nax.set(xlabel=\"Date\", ylabel=\"Sales (million VND)\", title=\"Three daily observations\")\nfig.autofmt_xdate()\nprint(max(sales))\nplt.show()",
+       "question": "Dữ liệu ngày 3, ngày 1, ngày 2 cần xử lý gì trước khi vẽ?",
        "options": [
         {
          "text": "Sắp theo ngày và giữ đúng cặp ngày–giá trị. plot nối theo thứ tự đầu vào.",
@@ -21683,7 +21683,7 @@
        "explanation": "Hai Axes chia sẻ thang y. Một đơn vị được biểu diễn theo cùng thang đứng."
       },
       {
-       "question": "Hai chữ số đầu trong add_subplot(212) có nghĩa gì?\n\nimport matplotlib.pyplot as plt\nfig = plt.figure(figsize=(7, 3))\nleft = fig.add_subplot(121)\nright = fig.add_subplot(122)\nleft.bar([\"A\", \"B\"], [8, 10])\nright.hist([1, 2, 2, 4], bins=[0, 3, 6])\nleft.set(title=\"Sales\", ylabel=\"Cups\")\nright.set(title=\"Wait\", xlabel=\"Minutes\", ylabel=\"Orders\")\nfig.subplots_adjust(wspace=0.55, bottom=0.2)\nprint(left.get_subplotspec().num1, right.get_subplotspec().num1)\nplt.show()",
+       "question": "Hai chữ số đầu trong add_subplot(212) có nghĩa gì?",
        "options": [
         {
          "text": "Hai cột và một hàng.",
@@ -22212,7 +22212,7 @@
        "explanation": "Công thức inch×dpi áp dụng khi không cắt hoặc đổi kích thước sau xuất."
       },
       {
-       "question": "Hình rộng 4 inch ở 200 dpi có bao nhiêu pixel trước khi cắt khung?\n\nimport matplotlib\nmatplotlib.use(\"Agg\")\nimport matplotlib.pyplot as plt\nfrom io import BytesIO\nfrom PIL import Image\nfig, ax = plt.subplots(figsize=(6, 3))\nax.plot([1, 2, 3], [8, 10, 7], marker=\"o\")\nax.set(xlabel=\"Day\", ylabel=\"Cups\", title=\"A 900 by 450 pixel PNG\")\nbuffer = BytesIO()\nfig.savefig(buffer, format=\"png\", dpi=150)\nbuffer.seek(0)\nprint(Image.open(buffer).size)\nfrom pathlib import Path\nfrom tempfile import gettempdir\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\nfig.savefig(out / \"VZ14-1.png\", dpi=130)\nplt.close(fig)",
+       "question": "Hình rộng 4 inch ở 200 dpi có bao nhiêu pixel trước khi cắt khung?",
        "options": [
         {
          "text": "400 pixel.",
@@ -23783,7 +23783,7 @@
        "explanation": "True để nhúng thư viện. Cũng cần chắc rằng dữ liệu và tài nguyên khác không lấy từ mạng."
       },
       {
-       "question": "Ẩn email trong hover có bảo đảm email không còn trong Figure không?\n\nimport plotly.graph_objects as go\nfig = go.Figure(go.Scatter(x=[1, 2], y=[8, 10], mode=\"lines+markers\"))\nfig.update_layout(title=\"A fragment for an existing page\", xaxis_title=\"Day\", yaxis_title=\"Cups\")\nfragment = fig.to_html(include_plotlyjs=False, full_html=False)\nprint(\"<html>\" in fragment, \"Plotly.newPlot\" in fragment)\nfrom pathlib import Path\nfrom tempfile import gettempdir\nout = Path(gettempdir()) / \"python-da-viz\"\nout.mkdir(exist_ok=True)\nfig.write_html(out / \"VZ22-2.html\", include_plotlyjs=True, auto_open=False)",
+       "question": "Ẩn email trong hover có bảo đảm email không còn trong Figure không?",
        "options": [
         {
          "text": "Có; trace ẩn không được ghi vào HTML.",

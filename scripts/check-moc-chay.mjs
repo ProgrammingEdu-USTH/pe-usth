@@ -198,7 +198,8 @@ const KIEM = {
   },
   practice: {
     nhan: 'ca chấm bài tập pe-da',
-    lenh: 'node scripts/pe-da/check-practice.mjs',
+    // --experimental-strip-types: pha 5 import frontend/src/lib/loi-python.ts; Node 22 (CI) cần cờ này ở các bản <22.18, Node 24 coi nó là no-op.
+    lenh: 'node --experimental-strip-types scripts/pe-da/check-practice.mjs',
     cwd: '.',
     bang: () => {
       const m = MD.match(

@@ -20,7 +20,7 @@
 // nó được gắn lên CẢ HAI (6 chỗ `<div>`, 1 chỗ `<pre>`, 1 chỗ `<textarea>`),
 // nên sàn phải viết là `textarea.codeBody` chứ không `.codeBody`.
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import test from 'node:test';
 
@@ -182,5 +182,154 @@ test('ô gõ: hai ô dưới 16px còn lại được KHAI, kèm lý do', () => 
       px !== null && px < 16,
       `\`.${lop}\` nay là ${px}px — đã đạt sàn, nên gỡ nó khỏi lời khai GIU_DU_CHET.`,
     );
+  }
+});
+
+// ---------------------------------------------------------------------------
+// STYLE NỘI TUYẾN THẮNG CSS — sàn 16px chỉ có nghĩa khi thẻ KHÔNG tự ghi fontSize
+// ---------------------------------------------------------------------------
+//
+// Đo 16/11/2026 (bản dựng, 390×844, bài PD14, màn bài tập chấm): `textarea.codeBody`
+// tính ra **13px** dù `exercises.module.css` có `textarea.codeBody { font-size: 16px }`
+// trong @media điện thoại — vì `SandboxEditor.tsx` ghi `fontSize: 13` trong `style={{…}}`
+// của chính thẻ, và style nội tuyến thắng mọi quy tắc CSS không `!important`. Sàn 16px
+// của #155 đã vô hiệu từ đó, và cả bốn ca ở trên vẫn XANH vì chúng chỉ đọc CSS tĩnh.
+
+/** Thân thẻ mở chứa `className={styles.<lop>}` — quét có đếm ngoặc nhọn để `=>` trong onChange không cắt sớm. */
+function theMoCua(tsx, lop) {
+  // Mô-đun CSS được import dưới nhiều tên (`styles`, `c`…) — khớp `<tên>.<lớp>`.
+  // MỌI lần xuất hiện, không chỉ lần đầu: `tracePredictInput` nằm ở HAI thẻ của
+  // ReadScreen.tsx, và chỉ quét lần đầu thì thẻ thứ hai ghi fontSize cũng lọt.
+  const ra = [];
+  for (const kh of tsx.matchAll(new RegExp(String.raw`\b[A-Za-z_$][\w$]*\.${lop}\b`, 'g'))) {
+    const i = kh.index;
+    const dau = tsx.lastIndexOf('<', i);
+    let sau = i, sau_ngoac = 0;
+    for (; sau < tsx.length; sau++) {
+      const c = tsx[sau];
+      if (c === '{') sau_ngoac++;
+      else if (c === '}') sau_ngoac--;
+      else if (c === '>' && sau_ngoac === 0 && tsx[sau - 1] !== '=') break;
+    }
+    ra.push(tsx.slice(dau, sau + 1));
+  }
+  return ra;
+}
+
+// ---------------------------------------------------------------------------
+// ĐỘ PHỦ: MỌI ô gõ trong `src` phải được khai — danh sách tay thì gõ thiếu im lặng
+// ---------------------------------------------------------------------------
+//
+// `O_GO` ở trên là danh sách viết tay và nó đã bỏ sót HAI ô có người dùng thật: ô
+// hồi tưởng ở màn tổng kết của MỌI bài (`Recap.tsx`, `fontSize: 14` nội tuyến) và
+// `<select>` "Ví dụ test…" của `/ide` (14px). Cả hai làm iOS phóng trang khi focus.
+// Nên cổng đếm LẠI từ cây mã: mỗi tệp `.tsx` có `<textarea>`/`<select>`/`<input>` gõ
+// được phải nằm trong DA_PHU (đã canh) hoặc NGOAI_TAM (kèm lý do), và SỐ ô mỗi tệp
+// phải khớp — thêm một ô vào tệp đã khai cũng đỏ, để người thêm phải nhìn tới sàn 16px.
+
+const KIEU_KHONG_GO = new Set(['radio', 'checkbox', 'range', 'file', 'hidden', 'submit', 'button', 'reset', 'image', 'color']);
+
+function lietTsx(d, ra = []) {
+  for (const m of readdirSync(join(GOC, d))) {
+    const rel = `${d}/${m}`;
+    if (statSync(join(GOC, rel)).isDirectory()) lietTsx(rel, ra);
+    else if (rel.endsWith('.tsx')) ra.push(rel);
+  }
+  return ra;
+}
+
+/** Mọi ô gõ được trong một tệp TSX (đã bỏ chú thích): { loai, kieu, the }. */
+function cacDieuKhien(tsx) {
+  const ra = [];
+  for (const kh of tsx.matchAll(/<(textarea|select|input)\b/g)) {
+    let i = kh.index + kh[0].length, ngoac = 0;
+    for (; i < tsx.length; i++) {
+      const c = tsx[i];
+      if (c === '{') ngoac++;
+      else if (c === '}') ngoac--;
+      else if (c === '>' && ngoac === 0 && tsx[i - 1] !== '=') break;
+    }
+    const the = tsx.slice(kh.index, i + 1);
+    const ty = /\btype=(?:"([\w-]+)"|\{?'([\w-]+)'\}?)/.exec(the);
+    const kieu = ty ? (ty[1] ?? ty[2]) : null;
+    if (kh[1] === 'input' && kieu && KIEU_KHONG_GO.has(kieu)) continue;
+    ra.push({ loai: kh[1], kieu, the });
+  }
+  return ra;
+}
+
+const boCtDong = (s) => s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+
+/** Tệp -> số ô gõ, và sàn 16px được canh ở đâu. */
+const DA_PHU = {
+  'src/app/ide/IdeClient.tsx': 2, // `.select` + `.fallbackInput`, cả hai ở ide.module.css
+  'src/components/lesson-chrome/exercises/Recap.tsx': 1, // fontSize NỘI TUYẾN 16 (ca bên dưới đọc con số)
+  'src/components/lesson-chrome/exercises/SandboxEditor.tsx': 1,
+  'src/components/python-studio/screens/PracticeScreen.tsx': 1,
+  'src/components/python-studio/screens/ReadScreen.tsx': 2,
+  'src/components/python-studio/screens/StepTrace.tsx': 1, // dùng chung `.tracePredictInput`
+};
+
+/** Ô gõ KHÔNG có đường tới khoá đang xuất bản — mỗi mục kèm VÌ SAO. */
+const NGOAI_TAM_GO = {
+  'src/components/Chatbot.tsx': [1, 'chỉ được dựng ở `lesson/java` và `lesson/htmlcss` — hai trang minigame di sản ngoài phạm vi (quyết định 13/10), khoá python_advanced không có chatbot.'],
+  'src/components/LessonDbDesign.tsx': [1, '`<select>` ngôn ngữ của trang `db_design*` di sản — khoá 179 bài không mount nó, và hướng DB mới (b) sẽ dựng lại màn bằng sqlite3 chứ không dùng tệp này.'],
+  'src/components/lesson-chrome/exercises/SelfExplain.tsx': [1, 'màn `selfExplain` do mini-game của pe-v4 dựng — 0/179 bài pe-da có màn đó; đã có `fontSize` nội tuyến 13 nên ngày bật lại phải sửa cùng lúc.'],
+  'src/components/lesson-chrome/exercises/TraceTable.tsx': [1, 'màn `traceTable` của mini-game pe-v4 — 0/179 bài pe-da; ô nhập 48px chỉ dùng trong bảng vết viết tay (`step_3.trace`, 0/179).'],
+  'src/components/python-studio/PythonStudio.tsx': [2, 'component CHẾT-MÀ-GIỮ (xem `GIU_DU_CHET` ở check-tai-nguyen-chet và `NGOAI_TAM` của o-go-16px): hai ô `.explanationInput`/`.codeInput` dưới 16px đã khai ở việc (4).'],
+};
+
+test('ô gõ: MỌI tệp TSX có ô gõ được đều đã khai (DA_PHU hoặc NGOAI_TAM_GO), đúng số ô', () => {
+  const thay = {};
+  for (const p of lietTsx('src')) {
+    const ds = cacDieuKhien(boCtDong(readFileSync(join(GOC, p), 'utf8')));
+    if (ds.length) thay[p] = ds.length;
+  }
+  // Tự kiểm: phép quét trượt thì mọi so sánh dưới đạt RỖNG.
+  assert.ok(Object.keys(thay).length >= 8, `phép quét chỉ thấy ${Object.keys(thay).length} tệp có ô gõ — đọc trượt?`);
+  const khai = { ...DA_PHU, ...Object.fromEntries(Object.entries(NGOAI_TAM_GO).map(([k, v]) => [k, v[0]])) };
+  for (const [p, n] of Object.entries(thay)) {
+    assert.ok(p in khai, `${p} có ${n} ô gõ mà chưa khai — iOS phóng trang khi focus ô < 16px. `
+      + 'Thêm vào DA_PHU (kèm sàn 16px) hoặc NGOAI_TAM_GO (kèm lý do không có đường tới).');
+    assert.equal(n, khai[p], `${p} nay có ${n} ô gõ, đã khai ${khai[p]} — ô mới phải được xem sàn 16px.`);
+  }
+  for (const p of Object.keys(khai)) {
+    assert.ok(p in thay, `${p} đã khai nhưng không còn ô gõ nào — mục khai đã lỗi thời, gỡ đi.`);
+  }
+  for (const [p, [, vi]] of Object.entries(NGOAI_TAM_GO)) {
+    assert.ok(vi.length >= 60, `${p}: lý do quá ngắn — danh sách ngoại lệ không kèm lý do là danh sách không ai dám dọn.`);
+  }
+  // Hai danh sách không được chồng nhau (tệp vừa canh vừa miễn là tệp bị hấp thụ).
+  for (const p of Object.keys(DA_PHU)) assert.ok(!(p in NGOAI_TAM_GO), `${p} nằm trong CẢ HAI danh sách`);
+});
+
+test('ô gõ đã canh: fontSize NỘI TUYẾN (nếu có) phải ≥ 16 — Recap.tsx ghi 16 chứ không 14', () => {
+  for (const p of Object.keys(DA_PHU)) {
+    for (const d of cacDieuKhien(boCtDong(readFileSync(join(GOC, p), 'utf8')))) {
+      const m = /\bfontSize\s*:\s*([\d.]+)/.exec(d.the);
+      if (m) assert.ok(parseFloat(m[1]) >= 16, `${p}: <${d.loai}> ghi fontSize ${m[1]} nội tuyến — dưới 16 thì iOS phóng trang.`);
+    }
+  }
+  // Recap là ca CÓ fontSize nội tuyến thật; nếu nó thôi ghi (chuyển sang CSS) thì ca này vẫn đạt, nhưng
+  // ô phải còn đó — kiểm bằng ca đếm ở trên.
+});
+
+test('/ide: `.select` có sàn 16px ở khổ điện thoại (select cũng làm iOS phóng trang)', () => {
+  const c = coChu(doc('src/app/ide/ide.module.css'), '.select');
+  assert.ok(c.mobile !== null && c.mobile >= 16, `.select ở /ide: mobile ${c.mobile}px, thường ${c.thuong}px — thiếu sàn 16px trong @media`);
+});
+
+test('ô gõ: thẻ KHÔNG ghi fontSize nội tuyến (nó thắng sàn 16px trong CSS)', () => {
+  for (const o of O_GO) {
+    const tsx = doc(o.tsx).replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+    const cac = theMoCua(tsx, o.lop);
+    assert.ok(cac.length >= 1 && cac.every((x) => x.length > 20), `không bóc được thẻ mở của \`${o.lop}\` trong ${o.tsx}`);
+    for (const the of cac) {
+      assert.ok(
+        !/\bfontSize\b/.test(the),
+        `\`${o.lop}\` ghi fontSize NỘI TUYẾN trong ${o.tsx} — style nội tuyến thắng quy tắc CSS không `
+        + '`!important`, nên sàn 16px ở @media vô hiệu và iOS vẫn phóng trang khi focus ô này.',
+      );
+    }
   }
 });

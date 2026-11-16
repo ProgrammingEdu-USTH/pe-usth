@@ -86,7 +86,11 @@ function OHoiTuong({ onNop }: { onNop: (chu: string) => void }) {
           width: '100%',
           resize: 'vertical',
           fontFamily: 'inherit',
-          fontSize: 14,
+          // 16, không 14: ô này nằm ở màn tổng kết của MỌI bài, và Safari iOS tự phóng
+          // trang khi một form control < 16px nhận focus rồi không phóng lại ra
+          // (xem `o-go-16px.test.mjs`). Style nội tuyến thắng CSS nên không có @media
+          // nào hạ/nâng nó được — con số phải đúng ngay ở đây.
+          fontSize: 16,
           lineHeight: 1.6,
           padding: '10px 12px',
           borderRadius: 10,

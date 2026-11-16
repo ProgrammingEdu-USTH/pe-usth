@@ -428,6 +428,8 @@
  * giá phải trả ghi ở `exercises.module.css`. `o-go-16px.test.mjs` canh sàn này. */
 @media (max-width: 1023.98px) {
   .fallbackInput { font-size: 16px; }
+  /* `<select>` cũng làm iOS phóng trang khi focus nếu < 16px; `.select` là 14px. */
+  .select { font-size: 16px; }
 
   /* SÀN 44px CHO ĐÍCH BẤM. Luật của chính repo (xem `not-found.module.css`),
    * và nó chưa bao giờ được áp ở trang này. Đo trên production 390×844

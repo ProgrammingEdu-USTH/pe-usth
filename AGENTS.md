@@ -87,7 +87,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
-| Frontend unit test | `cd frontend && npm run test:unit` → **721 ca** / 66 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **725 ca** / 66 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -107,7 +107,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **51 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 721 · backend 35 bộ/523 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/365 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 725 · backend 35 bộ/523 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/365 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -136,11 +136,11 @@ ide-brief-code 12 · ide-handoff 6 · ide-output-scroll 6 · ide-partial-output 
 ide-stop-autosave 27 · ide-thanh-cong-cu 4 · ide-trace 38 · inline-code 7 · insert-gate-sync 2 ·
 khoa-roi-giao-trinh 5 · label-version 3 · learning-events 48 · lesson-back 17 ·
 lesson-chrome-sticky 4 · lesson-load 7 · lien-ket-noi-bo 3 · mcq-code 11 ·
-mcq-next-after-wrong 23 · o-go-16px 5 · o-nhap-nhieu-dong 2 · phan-bai 8 · practice-contract 15 ·
+mcq-next-after-wrong 23 · o-go-16px 9 · o-nhap-nhieu-dong 2 · phan-bai 8 · practice-contract 15 ·
 practice-run 9 · prewarm-gate 5 · read-diagram 12 · read-guess 19 · read-trace 16 ·
 read-try-it 23 · recap-recall 7 · review-quiz 34 · run-stale 15 · session-marker 5 ·
 spaced-review 18 · studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 · trang-404 6 ·
-trang-loi 12 · trap-leak 3 · worker-csp 7 = 721.
+trang-loi 12 · trap-leak 3 · worker-csp 7 = 725.
 Mốc trước là 687; thêm giao-dien +7 (RÀO AN TOÀN của theme chiêm tinh: khoá phiên bản pe-giao-dien-v trong script trước-paint, nhãn "Thử nghiệm" + đường về lofi, EB Garamond tự lưu trữ một bậc 600, cạnh khối code ban đêm) và giao-dien-chuyen-dong +2 (tvSlip ≤ 320 ms, 12px, 0,4°; "Quay lại" chỉ mờ ≤ 120 ms) — 16/11/2026.
 Mốc trước là 682; thêm goc-hoc-escape 5 (ESC TRONG Ô GÕ của cảnh Góc học: `#hintIn` và `#tenIn` từng bị `back()`/`finishIntro()` đá khỏi màn đang nhập dở; cổng CHẠY THẬT `onEscape` bóc khỏi engine.js — vá lấy từ nhánh `test` 33834e6, nhưng BỎ nhánh `app.contains(target)` của họ vì Esc lúc không focus gì có target là `body`, nằm NGOÀI `#app`, nên nó sẽ vô hiệu hoá Esc hoàn toàn).
 Trước đó 681; mcq-code 9 → 10 (KHỐI CODE CỦA ĐỀ TRẮC NGHIỆM dính liền phương án A: McqScreen mượn `.readCode`, mà `.readCode > div` đặt `margin-bottom: 0` — đo 0px ở 471/1032 câu).
@@ -5816,6 +5816,11 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   ở 390×844 — `scrollWidth` = 390 ở cả bốn màn đi qua, 0 phần tử ngoài mép, 0 khối (`pre`/
   `table`/`img`/`figure`) tràn nội bộ. Lề nội dung là 16px (container) + 20px (padding thẻ) =
   36px mỗi bên: đó là THIẾT KẾ (thẻ cần padding), không phải vi phạm luật 16px của repo.
+  **ĐÍNH CHÍNH 16/11/2026 — SÀN 16px CỦA Ô SOẠN MÃ CHƯA TỪNG CÓ HIỆU LỰC, và câu "giá trị tính ra nay 16px ở khổ 390" ở trên là SAI.**
+  Đo bản dựng 390×844 (bài PD14, màn bài tập chấm): `textarea.codeBody` tính ra **13px**, vì `SandboxEditor.tsx` ghi `fontSize: 13` trong `style={{…}}` của chính thẻ — style nội tuyến thắng mọi quy tắc CSS không `!important`, kể cả `textarea.codeBody { font-size: 16px }` trong @media. iOS vẫn phóng trang khi focus ô của 143 bài chấm. Cả bốn ca của `o-go-16px.test.mjs` XANH suốt vì chúng chỉ đọc CSS TĨNH; chữ "giá trị tính ra" của #155 nói về hai ô còn lại, không phải ô này.
+  Nay `fontSize` bỏ khỏi style nội tuyến (cỡ chữ do `.codeBody` 13px và `textarea.codeBody` 16px quyết), và ca thứ sáu của tệp bóc THẺ MỞ chứa `<mô-đun>.<lớp>` (mọi lần xuất hiện) rồi cấm `fontSize` trong đó. Đo lại: 390px → **16px**, 1280px → 13px, scrollWidth 390. Ablate: trả SandboxEditor về HEAD → 1 đỏ · `fontSize` nội tuyến vào `practiceInput` → 1 · vào thẻ THỨ HAI của `tracePredictInput` → 1 (bản đầu chỉ quét lần xuất hiện đầu và gieo này lọt). **Luật: một sàn viết ở CSS chỉ là lời khai cho tới khi ai đó đo GIÁ TRỊ TÍNH RA — và cổng canh sàn phải kiểm cả chỗ khác có thể GHI ĐÈ nó.**
+  **VÀ DANH SÁCH TAY `O_GO` ĐÃ BỎ SÓT HAI Ô CÓ NGƯỜI DÙNG THẬT — đếm lại từ cây mã mới thấy.** Quét mọi `.tsx` trong `src` tìm `<textarea>`/`<select>`/`<input>` gõ được: **11 tệp, 16 ô**; danh sách tay chỉ biết 4. Hai ô ngoài danh sách đều dưới 16px: ô hồi tưởng ở màn tổng kết của MỌI bài (`Recap.tsx`, `fontSize: 14` nội tuyến) và `<select>` "Ví dụ test…" của `/ide` (14px; `select` cũng làm iOS phóng trang). Nay `Recap` ghi 16, `.select` có sàn 16px trong @media; đo thật ở 390: ô hồi tưởng **16px** (rộng 358), `/ide` select **16px** (rộng 257), cả hai scrollWidth 390.
+  Cổng đếm LẠI: ba ca mới của `o-go-16px.test.mjs` (6 → 9) — mọi tệp có ô gõ phải nằm trong `DA_PHU` (canh sàn, đúng SỐ ô) hoặc `NGOAI_TAM_GO` (kèm lý do không có đường tới khoá đang xuất bản: Chatbot, LessonDbDesign, SelfExplain, TraceTable, PythonStudio); ô nào đã canh mà ghi `fontSize` nội tuyến < 16 là lỗi; `.select` phải có sàn mobile. Ablate 5 chiều, mỗi chiều 1 đỏ: Recap 16 → 14 · gỡ sàn `.select` · ô gõ MỚI ở tệp chưa khai · ô thứ hai ở tệp đã khai · tệp đã khai thôi có ô gõ. Còn lại có chủ đích: các ô của game pe-v4 và trang di sản vẫn dưới 16px (0/179 bài tới được).
 
 - **LUẬT 44px CHO ĐÍCH BẤM LÀ LUẬT CỦA CHÍNH REPO, VÀ KHÔNG GÌ CANH NÓ — 21 rule
   `cursor: pointer`, 0 rule khai `min-height`.** Luật nằm trong `not-found.module.css` và

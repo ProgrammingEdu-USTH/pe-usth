@@ -129,7 +129,11 @@ export default function SandboxEditor({
             color: 'var(--st-syn-plain)',
             background: 'transparent',
             fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
-            fontSize: 13,
+            // KHÔNG đặt fontSize ở đây. Cỡ chữ của ô này nằm ở `.codeBody` (13px) và
+            // `textarea.codeBody` trong @media điện thoại (16px — sàn của iOS Safari,
+            // xem `o-go-16px.test.mjs`). Bản trước ghi `fontSize: 13` ở đây, mà style
+            // nội tuyến thắng mọi quy tắc CSS không `!important`: sàn 16px của #155 bị
+            // vô hiệu, ô vẫn 13px trên điện thoại (đo 16/11/2026, 390×844).
             lineHeight: 1.7,
             // Tab thay vì nhảy focus: đang gõ code thụt lề là chuyện thường.
             tabSize: 4,

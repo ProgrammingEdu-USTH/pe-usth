@@ -106,7 +106,13 @@ test('ý chính ở màn tổng kết là MỘT flex item: withInlineCode nằm 
   const sach = RECAP.replace(/\{\/\*[\s\S]*?\*\/\}/g, '');
   const li = sach.slice(sach.indexOf('facts.map'), sach.indexOf('</li>', sach.indexOf('facts.map')));
   assert.ok(li.length > 0, 'không tìm thấy khối <li> của facts.map — đổi cấu trúc thì sửa ca này.');
-  assert.match(li, /display: 'flex'/, '<li> thôi là flex thì ca này hết lý do — xem lại.');
+  // B8a (16/11): <li> nay mang lớp `recapFact`, và `display: flex` nằm ở CSS chứ không nội tuyến.
+  const lop = /className=\{styles\.(\w+)\}/.exec(li);
+  assert.ok(lop, '<li> của facts.map không còn gắn một lớp CSS — đổi cấu trúc thì sửa ca này.');
+  const css = doc(join(FE, 'src', 'components', 'lesson-chrome', 'exercises', 'exercises.module.css'));
+  const rule = new RegExp(`\\.${lop[1]}\\s*\\{([^}]*)\\}`).exec(css);
+  assert.ok(rule, `không tìm thấy rule .${lop[1]} trong exercises.module.css`);
+  assert.match(rule[1], /display:\s*flex/, '<li> thôi là flex thì ca này hết lý do — xem lại.');
   assert.match(
     li,
     /<span>\{withInlineCode\(f\)\}<\/span>/,

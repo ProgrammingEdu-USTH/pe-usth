@@ -28,6 +28,8 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { loadPyodide } from 'pyodide';
 
+import { BANG_LOI, giaiThichLoi } from '../../frontend/src/lib/loi-python.ts';
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..');
 // Cùng biến môi trường với hai bộ chấm kia: thử một bản Pyodide khác TRƯỚC khi
@@ -904,7 +906,56 @@ if (cuaPhanHoi.length) {
   if (cuaPhanHoi.length > 20) console.log(`  … còn ${cuaPhanHoi.length - 20}`);
 }
 
-const tongVanDe = hong.length + choPhepSai.length + cuaDuLieu.length + cuaPhanHoi.length;
+/* ------------------------------------------------------------------ PHA 5
+ *
+ * BẢNG LỖI TIẾNG VIỆT PHẢI KHỚP TRACEBACK THẬT CỦA BỘ CHẤM (#297c).
+ *
+ * `lib/loi-python.ts` đọc `RunResult.error` bằng regex trên dòng cuối và dòng `line N`. Thứ nó
+ * bám vào là KHUÔN do `_format_exc` của studio-harness.py dựng — và harness đổi khuôn (hoặc
+ * Pyodide đổi cách in SyntaxError) thì bảng im lặng thôi giải thích, không lỗi nào ném. Test
+ * đơn vị chỉ chấm trên chuỗi viết tay; pha này chạy một chương trình THẬT cho mỗi lỗi trong bảng
+ * và đòi `giaiThichLoi` ra đúng tên, đúng dòng, đúng câu. Hai chiều: bảng có lỗi mà không có
+ * chương trình gây ra nó là LỖI (bảng đã khai mà chưa ai thử), và ngược lại.
+ */
+const GAY_LOI = {
+  NameError: ['x = 1\ny = zz\n', 2],
+  TypeError: ['a = 1\nb = a + "x"\n', 2],
+  ValueError: ['n = int("abc")\n', 1],
+  KeyError: ['d = {}\nv = d["k"]\n', 2],
+  IndexError: ['a = []\nv = a[3]\n', 2],
+  ZeroDivisionError: ['v = 1 / 0\n', 1],
+  AttributeError: ['v = (1).foo\n', 1],
+  FileNotFoundError: ['f = open("khong-co-tep.txt")\n', 1],
+  SyntaxError: ['if 1 == 1\n    pass\n', 1],
+  IndentationError: ['if True:\npass\n', 2],
+  TabError: ['if True:\n        x = 1\n\ty = 2\n', 3],
+};
+const cuaBangLoi = [];
+for (const ten of Object.keys(BANG_LOI)) {
+  if (!GAY_LOI[ten]) cuaBangLoi.push(`BANG_LOI có ${ten} mà pha 5 không có chương trình gây ra nó — bảng khai mà chưa ai thử.`);
+}
+for (const ten of Object.keys(GAY_LOI)) {
+  if (!BANG_LOI[ten]) cuaBangLoi.push(`pha 5 gây ${ten} nhưng BANG_LOI không có nó — mục thử mồ côi.`);
+}
+let soLoiDat = 0;
+for (const [ten, [code, dong]] of Object.entries(GAY_LOI)) {
+  let res;
+  try {
+    res = JSON.parse(grade(code, '[]', '{}', '[]', 'null', '{}'));
+  } catch (e) {
+    cuaBangLoi.push(`${ten}: bộ chấm NỔ thay vì trả RunResult — ${String(e).slice(0, 100)}`);
+    continue;
+  }
+  const g = giaiThichLoi(res.error);
+  if (!g) cuaBangLoi.push(`${ten}: giaiThichLoi trả null trên traceback thật — khuôn có thể đã đổi. error=${JSON.stringify(String(res.error).slice(0, 140))}`);
+  else if (g.ten !== ten) cuaBangLoi.push(`${ten}: đọc ra ${g.ten} — error=${JSON.stringify(String(res.error).slice(0, 140))}`);
+  else if (g.dong !== dong) cuaBangLoi.push(`${ten}: dòng ${g.dong}, mong đợi ${dong} — error=${JSON.stringify(String(res.error).slice(0, 140))}`);
+  else soLoiDat += 1;
+}
+console.log(`\npha 5 — bảng lỗi tiếng Việt: ${soLoiDat}/${Object.keys(BANG_LOI).length} lỗi khớp traceback thật (tên + dòng)`);
+for (const c of cuaBangLoi) console.log(`  ${c}`);
+
+const tongVanDe = hong.length + choPhepSai.length + cuaDuLieu.length + cuaPhanHoi.length + cuaBangLoi.length;
 if (tongVanDe) {
   console.log(`\n✗ ${tongVanDe} vấn đề phải sửa.`);
   process.exit(1);

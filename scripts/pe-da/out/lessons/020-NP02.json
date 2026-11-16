@@ -189,7 +189,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận list giá không rỗng. Tạo array rồi trả giá cuối cùng. Đừng cố định một chỉ số dương vì các list có độ dài khác nhau.",
     "io": [
      {

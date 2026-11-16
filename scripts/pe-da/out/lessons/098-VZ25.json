@@ -153,7 +153,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.x,data.y cùng độ dài; data.frame là chỉ số hợp lệ. Tạo Line2D rỗng một lần, viết update(frame) dùng set_data hiện từ đầu tới frame (gồm frame), gọi update với frame đã cho. Trả shownY đọc từ line và lineCount=len(ax.lines). Không tạo line mới bên trong update. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
     "io": [
      {

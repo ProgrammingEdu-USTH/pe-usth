@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Một quán ghi số cốc bán theo ca. data gồm values, labels và pick; nhãn là duy nhất và pick có trong labels. Tạo Series và trả dictionary có selected (số cốc của nhãn pick), total (tổng cốc), count (số ca).",
     "io": [
      {

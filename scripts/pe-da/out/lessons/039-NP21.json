@@ -160,7 +160,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận chuỗi CSV có một dòng tên cột, ít nhất hai dòng số và hai cột. Ô rỗng nghĩa là thiếu. Trả array số ô thiếu của từng cột, giữ thứ tự cột.",
     "io": [
      {

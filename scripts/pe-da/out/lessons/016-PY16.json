@@ -146,7 +146,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận list thời gian chờ. Trả trung bình nếu có số đo; trả None nếu list rỗng. Đừng chỉ print kết quả.",
     "io": [
      {

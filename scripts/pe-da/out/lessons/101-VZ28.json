@@ -268,7 +268,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.z là ma trận, xEdges và yEdges có đúng số biên cho shading=\"flat\". Vẽ pcolormesh với vmin=0,vmax=data.maximum rồi thêm colorbar label=\"Temperature\". Trả shape từ mesh.get_array().shape, clim từ get_clim(), colorbarLabel từ colorbar.ax.get_ylabel(). Không coi các ô là điểm x/y riêng lẻ. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
     "io": [
      {

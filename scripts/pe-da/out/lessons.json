@@ -175,7 +175,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Hệ thống cung cấp cups là số cốc quán bán được trong một ngày. Mỗi cốc giá 15 nghìn đồng. Gán doanh thu của ngày đó, tính bằng nghìn đồng, vào revenue.",
       "io": [
        {
@@ -778,7 +778,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Hệ thống cung cấp raw là giá một cốc dưới dạng chuỗi, ví dụ \"7.5\". Gán tiền hai cốc vào total; đầu vào là chuỗi số hợp lệ, không âm.",
       "io": [
        {
@@ -1041,7 +1041,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Hệ thống cung cấp quantity là số sản phẩm trong một gói. Mỗi sản phẩm giá 12, phí giao mỗi gói là 3. Gán tổng tiền vào total, kể cả gói có quantity bằng 0 vẫn có phí giao.",
       "io": [
        {
@@ -1255,7 +1255,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Hệ thống cung cấp city là tên địa điểm. Tạo report gồm dòng đầu \"Bao cao \" nối city, dòng sau đúng ba dấu gạch ngang. Giữ nguyên dấu và chữ hoa của city.",
       "io": [
        {
@@ -1463,7 +1463,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Hệ thống cung cấp serial là chuỗi mã kiện hàng. Gán tối đa bốn ký tự cuối vào suffix. Với mã ngắn hơn bốn ký tự, giữ cả mã.",
       "io": [
        {
@@ -1690,7 +1690,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Hệ thống cung cấp raw là chuỗi giá hợp lệ, có thể có khoảng trắng hai đầu. Gán vào message giá đã đổi sang số và hiển thị đúng hai chữ số sau dấu thập phân.",
       "io": [
        {
@@ -1931,7 +1931,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Hệ thống cung cấp score trong khoảng 0–10. Gán label bằng \"high\" nếu score từ 8, \"ready\" nếu từ 5 đến dưới 8, còn lại \"retry\".",
       "io": [
        {
@@ -2166,7 +2166,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Hệ thống cung cấp readings là list các số đo. Tạo ordered là bản sắp tăng; không sắp trực tiếp readings vì còn cần giữ thứ tự thu thập. Cuối cùng gán result = [readings, ordered] để đối chiếu bản gốc và bản đã xếp.",
       "io": [
        {
@@ -2425,7 +2425,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Hệ thống cung cấp coordinates là một cặp [x, y]. Tạo swapped là tuple (y, x). Bạn không cần sửa từng phần tử của cặp đầu vào.",
       "io": [
        {
@@ -2666,7 +2666,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Hệ thống cung cấp stock là dictionary tồn kho theo mã sản phẩm. Gán amount bằng số lượng của P02, hoặc None nếu chưa có mã P02. Số lượng 0 phải được giữ nguyên.",
       "io": [
        {
@@ -2899,7 +2899,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Hệ thống cung cấp codes là list mã phiếu, có thể bị lặp. Tạo unique_codes là list mã khác nhau đã xếp tăng theo tên.",
       "io": [
        {
@@ -3141,7 +3141,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Hệ thống cung cấp weights là list khối lượng kiện hàng. Chỉ những kiện từ 3 kg trở lên được đưa vào chuyến lớn. Gán tổng khối lượng các kiện đó vào total; list rỗng có tổng 0.",
       "io": [
        {
@@ -3373,7 +3373,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Hệ thống cung cấp quantities là dãy số đọc theo thứ tự. Số 0 báo hết phiên; số âm là lần nhập hỏng cần bỏ. Gán tổng các số dương trước số 0 đầu tiên vào total.",
       "io": [
        {
@@ -3607,7 +3607,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận list thời gian chờ. Trả trung bình nếu có số đo; trả None nếu list rỗng. Đừng chỉ print kết quả.",
       "io": [
        {
@@ -3833,7 +3833,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận một số. Bên trong, định nghĩa hàm add_one trả data + 1, gán chính hàm đó cho callback rồi trả kết quả callback(). Đây là lần thử quy tắc truyền hàm trước khi dùng nút bấm.",
       "io": [
        {
@@ -4049,7 +4049,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận list chuỗi số. Trả list cùng độ dài, đổi từng chuỗi hợp lệ bằng float và thay chuỗi không chuyển được bằng None. Đầu vào không chứa chuỗi NaN hoặc vô cực.",
       "io": [
        {
@@ -4285,7 +4285,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận list số sách trả theo ngày. Trả một NumPy array chứa đúng các số theo thứ tự đó. Chưa cần cộng, sắp xếp hoặc đổi kiểu.",
       "io": [
        {
@@ -4552,7 +4552,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận list giá không rỗng. Tạo array rồi trả giá cuối cùng. Đừng cố định một chỉ số dương vì các list có độ dài khác nhau.",
       "io": [
        {
@@ -4783,7 +4783,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận list giá gồm số nguyên hoặc số thực. Tạo array với dtype=float rồi trả dictionary gồm values là array đó và dtype là str(array.dtype). Giữ nguyên các phần thập phân.",
       "io": [
        {
@@ -5031,7 +5031,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận list độ dài tính bằng mét. Trả array độ dài tính bằng centimet, dùng 1 m = 100 cm. Dữ liệu gốc không cần thay đổi.",
       "io": [
        {
@@ -5273,7 +5273,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận số nguyên n không âm. Trả array các số ghế chẵn từ 2 đến 2*n. Với n=0, trả dãy rỗng.",
       "io": [
        {
@@ -5507,7 +5507,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận list các hàng số liệu có cùng số cột. Trả array hai chiều giữ nguyên thứ tự hàng và cột. Mỗi hàng là một trạm đo.",
       "io": [
        {
@@ -5767,7 +5767,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận bảng số không rỗng. Trả dictionary có shape, ndim và size của array được tạo từ bảng. Bạn có thể trả tuple ở shape; hệ thống sẽ hiển thị thành dãy.",
       "io": [
        {
@@ -6052,7 +6052,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận dictionary có values là dãy số và columns là số cột. Các dãy đều chia vừa. Trả bảng xếp lần lượt theo hàng với đúng số cột được yêu cầu.",
       "io": [
        {
@@ -6320,7 +6320,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận bảng số không rỗng. Mỗi hàng là một trạm, cột cuối là mốc đo mới nhất. Trả array số đo mới nhất của mọi trạm.",
       "io": [
        {
@@ -6566,7 +6566,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận bảng số lượng kiện ở các khu kho. Trả tổng số kiện của mọi khu và mọi ca, không tách hàng hoặc cột.",
       "io": [
        {
@@ -6817,7 +6817,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận bảng, mỗi hàng là một khu kho và mỗi cột là một ca. Trả tổng số kiện từng ca, giữ thứ tự cột.",
       "io": [
        {
@@ -7077,7 +7077,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận bảng số gói, mỗi hàng là một tuyến giao hàng, mỗi cột là một điểm dừng. Trả tổng số gói của từng tuyến.",
       "io": [
        {
@@ -7334,7 +7334,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận dãy số cốc bán được. Trả mask đánh dấu những món bán từ 30 cốc trở lên. Giữ đủ số vị trí và thứ tự đầu vào.",
       "io": [
        {
@@ -7578,7 +7578,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận dãy số cốc bán được. Trả array các số từ 20 đến 35 cốc, nhận cả hai biên và giữ nguyên thứ tự.",
       "io": [
        {
@@ -7829,7 +7829,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận dãy điểm. Bỏ điểm ngoài 0–10, cộng thưởng 1 cho điểm hợp lệ rồi giới hạn kết quả ở 10. Trả array điểm cuối, giữ thứ tự.",
       "io": [
        {
@@ -8075,7 +8075,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận dictionary values là số đo và weights là số lần đại diện cho từng số đo. Trả trung bình có trọng số. Các dãy không rỗng, cùng độ dài; trọng số không âm và có tổng dương.",
       "io": [
        {
@@ -8323,7 +8323,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận list số đo; JSON dùng None để chỉ ô chưa biết. Tạo array dtype=float, bỏ NaN khi tính trung bình. Nếu không có số đo nào đã biết, trả None thay vì coi trung bình bằng 0.",
       "io": [
        {
@@ -8562,7 +8562,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận so_coc là bảng số lượng đơn hàng và price là dãy giá theo đúng thứ tự cột. Trả bảng tiền từng sản phẩm trong mỗi đơn, chưa cộng thành tổng đơn.",
       "io": [
        {
@@ -8850,7 +8850,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận bảng giá không rỗng. Tạo array original, lấy tối đa hai giá đầu thành trial riêng rồi nhân đôi trial tại chỗ. Trả dictionary original và trial để chứng minh bản gốc còn nguyên.",
       "io": [
        {
@@ -9108,7 +9108,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận parts là dãy số và expected là tổng dự kiến. Trả kết quả np.isclose của tổng parts với expected, dùng atol=0.000001 và rtol=0.",
       "io": [
        {
@@ -9360,7 +9360,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận chuỗi CSV có một dòng tên cột, ít nhất hai dòng số và hai cột. Ô rỗng nghĩa là thiếu. Trả array số ô thiếu của từng cột, giữ thứ tự cột.",
       "io": [
        {
@@ -9592,7 +9592,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận seed và n không âm. Tạo hai bộ sinh riêng cùng seed, mỗi bộ sinh n số bằng integers(1,7,size=n). Trả dictionary count là số phần tử của dãy thứ nhất và same cho biết hai dãy có bằng nhau hay không.",
       "io": [
        {
@@ -9835,7 +9835,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận bảng khoản chi; mỗi hàng là một nhóm, các cột là khoản chi không thiếu. Trả totals là tổng từng nhóm và labels bằng \"within\" nếu tổng không quá 10, còn lại \"over\".",
       "io": [
        {
@@ -10096,7 +10096,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Một quán ghi số cốc bán theo ca. data gồm values, labels và pick; nhãn là duy nhất và pick có trong labels. Tạo Series và trả dictionary có selected (số cốc của nhãn pick), total (tổng cốc), count (số ca).",
       "io": [
        {
@@ -10356,7 +10356,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.rows là list các dictionary có item và units, có ít nhất một hàng. Tạo DataFrame, trả shape dưới dạng list hai số, first là dictionary hàng đầu và last là dictionary hàng cuối.",
       "io": [
        {
@@ -10699,7 +10699,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data có values, labels, label và position. labels duy nhất, label có trong labels, position hợp lệ. Tạo Series; trả [giá trị theo label, giá trị theo position].",
       "io": [
        {
@@ -10949,7 +10949,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.revenue và data.cost là dictionary nhãn cửa hàng → số. Trừ hai Series theo nhãn. Trả dictionary lợi nhuận; nhãn chỉ có ở một bên phải có giá trị None, không tự điền 0.",
       "io": [
        {
@@ -11187,7 +11187,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.rows chứa order, city, amount; data.city và data.minimum là yêu cầu mới. Trả list mã order có city đúng và amount >= minimum, giữ thứ tự gốc.",
       "io": [
        {
@@ -11457,7 +11457,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.rows có so_coc, don_gia; data.cap là doanh thu áp dụng cố định cho mọi hàng so_coc>=3. Tạo tong_tien=so_coc*don_gia, sửa tong_tien ở đúng các hàng đó bằng loc. Trả list tong_tien theo thứ tự hàng.",
       "io": [
        {
@@ -11701,7 +11701,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.codes là list mã dạng chữ; data.so_coc chứa số nguyên viết bằng chữ, None hoặc chuỗi lỗi. Giữ codes bằng dtype string; chuyển so_coc qua to_numeric(errors=\"coerce\") rồi Int64. Trả codes, so_coc (ô thiếu thành None) và dtype của so_coc.",
       "io": [
        {
@@ -11958,7 +11958,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.values chứa số hoặc None. Tạo Series kiểu Float64. Trả known là các số không thiếu, missing là số ô thiếu, mean là trung bình hoặc None nếu chưa có số nào.",
       "io": [
        {
@@ -12197,7 +12197,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.names có chuỗi hoặc None; data.query là đoạn chữ thường cần tìm theo nghĩa đen. Chuẩn hóa strip/lower, thay ô thiếu bằng \"unknown\". Trả clean và matched là các tên đã chuẩn hóa chứa query; giữ thứ tự.",
       "io": [
        {
@@ -12446,7 +12446,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Mỗi data.rows có order, version, amount. Mỗi order có các version khác nhau. Trả list bản ghi mới nhất của mỗi order, xếp order tăng dần; không cộng hai phiên bản thành hai giao dịch.",
       "io": [
        {
@@ -12734,7 +12734,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.values có số hoặc None, có ít nhất một số. Trả count, size, mean, median từ một Series. Dùng các đại lượng này để thấy số rất lớn có thể kéo mean khác median.",
       "io": [
        {
@@ -13023,7 +13023,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.text là CSV cột id;amount, ký hiệu missing là thiếu. Đọc với sep=\";\", id kiểu string. Trả ids giữ số 0 đầu và amounts, đổi ô thiếu thành None. Không viết hàm tách chuỗi CSV bằng tay.",
       "io": [
        {
@@ -13460,7 +13460,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.rows có quay và so_coc. Quy ước quay thiếu được ghi là \"Unknown\". Trả dictionary quay→tổng so_coc, gồm cả nhóm Unknown; so_coc đều là số.",
       "io": [
        {
@@ -13716,7 +13716,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.rows gồm group và value; mỗi nhóm có tổng dương. Trả list tỷ trọng value/tổng nhóm theo đúng thứ tự gốc. Không trả bảng đã gộp mất giao dịch.",
       "io": [
        {
@@ -13973,7 +13973,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.orders chứa product_id và so_coc; data.products chứa product_id và name, mã danh mục là duy nhất. Nối trái theo product_id, trả list tên theo thứ tự đơn; tên chưa khớp là \"Unknown\".",
       "io": [
        {
@@ -14247,7 +14247,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.orders là list mã id của đơn; data.catalog là list mã trong danh mục. Trả {valid:False,missing:[]} nếu danh mục trùng khóa; nếu hợp lệ, nối trái có validate và indicator rồi trả valid=True và list mã chưa khớp theo thứ tự đơn, giữ cả lần lặp.",
       "io": [
        {
@@ -14492,7 +14492,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.batches là list các lô; mỗi lô là list số lượng. Có ít nhất một lô không rỗng. Tạo một DataFrame mỗi lô, concat một lần theo hàng với ignore_index=True. Trả values và index thành hai list; giữ mọi số kể cả số lặp.",
       "io": [
        {
@@ -14752,7 +14752,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.rows có store, month, revenue, mỗi cặp store–month duy nhất. data.store và data.month xác định ô có trong dữ liệu. Pivot rồi trả giá trị của ô đó dưới dạng số.",
       "io": [
        {
@@ -15016,7 +15016,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.rows là giao dịch store, month, amount. Tháng và cửa hàng được hỏi đều xuất hiện trong bảng; giao dịch của cặp đó có thể vắng và được quy ước là 0. Pivot_table với sum, fill_value=0 rồi trả tổng cho data.store và data.month.",
       "io": [
        {
@@ -15285,7 +15285,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.ordered và data.delivered là hai list chuỗi %d/%m/%Y hoặc chuỗi sai. Chuyển với errors=\"coerce\", trừ ngày giao cho ngày đặt. Trả list số ngày trọn; cặp chứa ngày sai trả None. Không tự cộng thêm ngày đầu.",
       "io": [
        {
@@ -15519,7 +15519,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.rows có date dạng ISO và amount, ít nhất một hàng. Gom tổng theo mốc đầu tháng bằng resample(\"MS\").sum(). Trả dictionary nhãn YYYY-MM → tổng, kể cả tháng ở giữa không có giao dịch (tổng mặc định 0).",
       "io": [
        {
@@ -15769,7 +15769,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.utc là list chuỗi thời điểm UTC có Z. Đọc với utc=True rồi chuyển Asia/Ho_Chi_Minh. Trả list chuỗi YYYY-MM-DD HH:MM theo giờ Việt Nam, giữ thứ tự sự kiện.",
       "io": [
        {
@@ -15994,7 +15994,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.values là số; data.window là số hàng cửa sổ dương. Tính rolling mean khi đủ window giá trị rồi shift(1). Trả list cùng độ dài, ô chưa đủ dữ liệu là None. Giá trị tại hàng t không được dùng trong đặc trưng cho chính t.",
       "io": [
        {
@@ -16231,7 +16231,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.rows có so_coc, don_gia, giam_gia (0..1). Trả list tiền sau giảm giá so_coc*don_gia*(1-giam_gia), theo thứ tự. Dùng các cột trực tiếp, không phải apply cho phép nhân đơn giản này.",
       "io": [
        {
@@ -16471,7 +16471,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.values là các số. Chia theo bins=[0,10,20], labels=[\"low\",\"high\"], include_lowest=True. Trả list nhãn, giá trị ngoài 0..20 thành None.",
       "io": [
        {
@@ -16703,7 +16703,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.rows có city, year, value; mỗi cặp city–year duy nhất. Đặt hai cột đó làm MultiIndex, sắp index rồi lấy data.city và data.year, trả value của cặp có thật đó.",
       "io": [
        {
@@ -16967,7 +16967,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.text là CSV một cột x với ít nhất một số, có thể có NA; data.chunksize >0. Đọc theo lô, cộng tổng và count giá trị không thiếu. Trả total, count và mean. Kết quả phải không phụ thuộc cách chia lô.",
       "io": [
        {
@@ -17192,7 +17192,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.amounts là list số tiền, data.threshold là ngưỡng. Dùng sqlite3 :memory:, ghi DataFrame vào bảng sales rồi dùng truy vấn có params để lấy amount > threshold theo thứ tự tăng. Trả list các số nhận được từ pandas, đóng kết nối khi xong.",
       "io": [
        {
@@ -17438,7 +17438,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.rows chứa store và amount dạng chữ. Chuẩn hóa store bằng strip/upper và amount bằng to_numeric(coerce), không tự bỏ hàng lỗi. Trả records (ô amount thiếu là None), invalid là số amount thiếu. Không sửa data đầu vào.",
       "io": [
        {
@@ -17756,7 +17756,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.rows là các đơn với channel và amount (đã biết, mỗi hàng là một đơn). Trả dictionary mỗi channel chứa count, mean, median. Cần có số quan sát bên cạnh các số tóm tắt, không suy ra nhân quả.",
       "io": [
        {
@@ -18055,7 +18055,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.don có ma_don, quay, ngay ISO, tong_tien; các dòng có thể trùng toàn bộ. data.danh_muc_quay có quay, khu_vuc và mã duy nhất. Chuẩn hóa mã quay của cả don và danh_muc_quay bằng strip/upper, bỏ dòng giống hệt, nối trái với validate many_to_one, khu vực vắng là Unknown, tổng hợp theo YYYY-MM và khu_vuc. Trả {report:list bản ghi thang,khu_vuc,tong_tien đã sắp; total:tổng tong_tien của đơn sau bỏ trùng}. Dữ liệu không có hai phiên bản xung đột của cùng ma_don.",
       "io": [
        {
@@ -18368,7 +18368,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Một thư viện báo số sách theo quầy. data.names và data.counts có cùng độ dài, ít nhất một nhóm. Tạo Figure/Axes và bar chart; đặt ylabel=\"Books\". Trả heights là list chiều cao đọc từ các bar và ylabel. get_height() đọc chiều cao cột, get_ylabel() đọc nhãn trục. Đóng Figure sau khi đọc. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -18629,7 +18629,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.left và data.right là hai dãy số, mỗi dãy ít nhất một phần tử. Tạo Figure với hai Axes cạnh nhau bằng add_subplot(121), add_subplot(122), vẽ một đường trên mỗi Axes. Trả axes là số Axes và lines là list số đường của trái/phải. fig.axes và ax.lines là các danh sách đối tượng để đối chiếu, không phải số quan sát. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve. Trả thêm leftY và rightY: list giá trị y đọc từ đường trong từng Axes (line.get_ydata()).",
       "io": [
        {
@@ -18963,7 +18963,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.days là số ngày khác nhau, data.sales là số hoặc None theo cùng vị trí. Sắp cặp theo ngày, dùng np.nan cho None, vẽ line chart. Trả x và y đọc từ line.get_xdata()/get_ydata(); trong kết quả JSON đổi NaN trở lại None. Giữ nguyên ngày chưa đo, không nối bằng cách xóa hàng. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -19359,7 +19359,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.rows là list [name,count], count không âm, ít nhất một nhóm và không có hai count bằng nhau. Sắp tăng theo count rồi barh. Trả names theo thứ tự đã vẽ và widths đọc bằng get_width() của từng bar. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -19631,7 +19631,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.x, data.y, data.sizes cùng độ dài. Tạo scatter với s=data.sizes và alpha=0.5. Trả positions=get_offsets().tolist(), sizes=get_sizes().tolist() và alpha=get_alpha() của đối tượng scatter. Các getter chỉ dùng để đọc cấu hình và dữ liệu vừa vẽ. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -19922,7 +19922,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.values có ít nhất một số nằm trong miền data.bins, các bins tăng dần. Dựng histogram density=True. Trả density là các chiều cao, area là tổng density*np.diff(edges). Đóng Figure. Với bins không đều, area vẫn bằng 1. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -20193,7 +20193,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.values có ít nhất ba số. Vẽ boxplot mặc định. Hàm boxplot trả dictionary parts: đường trung vị ở parts[\"medians\"][0], các điểm ngoài râu ở parts[\"fliers\"][0]. Dùng get_ydata() đọc chúng, trả {median:số, fliers:list}. Không xóa điểm ngoài râu khỏi dữ liệu. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -20570,7 +20570,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.z là ma trận chữ nhật, data.maximum >0. Tạo imshow với vmin=0,vmax=maximum,interpolation=\"nearest\"; thêm colorbar nằm ngang. Trả shape từ image.get_array().shape, clim từ image.get_clim(), và orientation của colorbar. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -20851,7 +20851,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.target là mục tiêu, data.unit là nhãn trục y cần ghi. Tạo Figure, vẽ axhline(target,label=\"Target\"), đặt ylabel=unit. Trả target đọc từ line.get_ydata()[0], label từ line.get_label(), và ylabel từ Axes. Không thêm mục tiêu vào dãy quan sát. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -21094,7 +21094,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.values là dãy số. Vẽ một đường rồi dùng plt.setp để marker=\"s\",linestyle=\"--\",linewidth=2,alpha=0.5,color=\"black\". Trả marker, linestyle và width đọc từ Line2D. Các getter lần lượt là get_marker(),get_linestyle(),get_linewidth(). Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve. Trả thêm values bằng list(line.get_ydata()), alpha bằng line.get_alpha() và color bằng line.get_color().",
       "io": [
        {
@@ -21382,7 +21382,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.values đều dương. Vẽ một đường, đặt yscale=\"log\", ẩn spine top. Trả scale=get_yscale(), topVisible=get_visible() của viền trên, values đọc từ đường. Việc đổi thang không được log-transform dãy trước khi truyền plot. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -21739,7 +21739,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.a,data.b là hai dãy và data.maximum >0 là giới hạn chung. Tạo subplots(1,2,sharey=True), vẽ mỗi dãy vào một Axes, đặt ylim=(0,maximum) trên Axes trái. Trả axes=len(fig.axes) và limits là get_ylim của cả hai Axes; giới hạn phải giống nhau. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -22021,7 +22021,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.values có ít nhất hai số độc lập theo giả định bài. Tính mean và SE=std(ddof=1)/sqrt(n); tạo errorbar ở x=1, đặt title=\"Mean +/- 1 SE\". Trả mean, se, bounds=[mean-se,mean+se] và title từ Axes. Đây không phải CI 95%. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -22279,7 +22279,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.width,data.height là số inch dương, data.dpi là số nguyên dương. Tạo Figure đúng figsize, vẽ một đường bất kỳ, xuất PNG vào BytesIO không dùng bbox_inches=\"tight\". Dùng PIL.Image.open đọc size, trả [width_px,height_px]. Đóng Figure. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -22518,7 +22518,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.rows có category và revenue. groupby/sum theo category, sắp tên tăng, dùng Series.plot.bar(ax=ax). Trả names là các tên đã vẽ và heights từ ax.patches (mỗi patch là một bar), giữ đúng cặp tên–tổng. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -24307,7 +24307,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.names,complaints,orders có cùng độ dài, orders đều dương. Dựng bar chart của complaints/orders*100, ylabel=\"Complaints (%)\", trục y bắt đầu 0. Trả rates từ các bar và baseline là cận dưới get_ylim(). Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -24579,7 +24579,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.x,data.y cùng độ dài; data.frame là chỉ số hợp lệ. Tạo Line2D rỗng một lần, viết update(frame) dùng set_data hiện từ đầu tới frame (gồm frame), gọi update với frame đã cho. Trả shownY đọc từ line và lineCount=len(ax.lines). Không tạo line mới bên trong update. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -24845,7 +24845,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.rows chứa category,so_coc,price. Quy tắc mẫu: bỏ dòng so_coc<0 hoặc price<0; các hàng còn lại tính revenue=so_coc*price. Có ít nhất một hàng hợp lệ. Tổng hợp category, sắp tăng theo tên rồi vẽ cột. Trả totals là dictionary category→doanh thu, drawnTotal là tổng chiều cao các cột, rejected là số dòng bị loại. Không gọi số đó là lợi nhuận. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -25127,7 +25127,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.names và data.values là các phần của cùng tổng dương, giá trị không âm. Vẽ pie với labels và autopct=\"%.0f%%\". Trả names là chữ của labels và percentages là chữ phần trăm của kết quả ax.pie. Không tự đổi dữ liệu sang phần của hai tổng khác nhau. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -25510,7 +25510,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.z là ma trận, xEdges và yEdges có đúng số biên cho shading=\"flat\". Vẽ pcolormesh với vmin=0,vmax=data.maximum rồi thêm colorbar label=\"Temperature\". Trả shape từ mesh.get_array().shape, clim từ get_clim(), colorbarLabel từ colorbar.ax.get_ylabel(). Không coi các ô là điểm x/y riêng lẻ. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -25819,7 +25819,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.x,data.y là hai dãy vị trí lưới. Tạo X,Y bằng meshgrid, đặt U=-Y,V=X, vẽ quiver với angles=\"xy\",scale_units=\"xy\",scale=1 và aspect equal. Trả u,v đọc từ vectors.U/vectors.V (đã trải phẳng theo hàng), shape ban đầu của U. Không trả X,Y thay cho U,V. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -26272,7 +26272,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "data.events là list {inside:bool,x:số hoặc None,y:số hoặc None}. Tạo Figure/Axes và callback như bài: chỉ khi inside=True, x và y đều có số thì cập nhật state.point thành [x,y]. Có thể dùng SimpleNamespace giả lập đối tượng event để kiểm callback; nối mpl_connect rồi ngắt sau các sự kiện. Trả point cuối hoặc None nếu chưa có sự kiện hợp lệ. Đây không chứng minh đã thao tác chuột thật. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
       "io": [
        {
@@ -30687,7 +30687,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận dict có price (giá một cốc, số thực) và cups (số cốc). Quán tính tiền làm tròn XUỐNG tới 1 chữ số thập phân bằng floor của module math, như ở màn đọc. Trả tổng tiền đã làm tròn xuống.",
       "io": [
        {
@@ -34766,7 +34766,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận dict có items (dict mã→dict có name) và recipe (list [mã món, mã nguyên liệu, định lượng]) và ingredient_id. Trả list [mã món, tên món, định lượng] của những món DÙNG nguyên liệu đó, xếp theo mã món tăng dần.",
       "io": [
        {
@@ -35875,7 +35875,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận dict có lines là list [mã món, định lượng]. Trả dict có amounts (list định lượng làm tròn 1 chữ số, giữ thứ tự) và mean (trung bình các định lượng ĐÃ làm tròn, làm tròn 2 chữ số). Lines rỗng thì amounts là [] và mean là None — trung bình của không số đo nào thì không có, đừng trả 0.",
       "io": [
        {
@@ -36321,7 +36321,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận dict có csv_text (dòng đầu là tên cột). Trả list dict, mỗi dòng dữ liệu một dict. Giữ nguyên dấu phẩy nằm trong ô được bọc bởi dấu nháy kép. Trả [] nếu chỉ có dòng tiêu đề.",
       "io": [
        {
@@ -36730,7 +36730,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận dict có state. Nếu state là dict và state[\"version\"] bằng 1 thì trả dict có ok là True và items là SỐ món trong state[\"items\"]. Ngược lại trả dict có ok là False và reason là \"Can chuyen doi du lieu\".",
       "io": [
        {
@@ -37610,7 +37610,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận dict có useful, switches, switch_cost. Trả tỉ lệ thời gian chạy hữu ích useful/(useful + switches*switch_cost), làm tròn 3 chữ số. Trả None nếu useful bằng 0.",
       "io": [
        {
@@ -38120,7 +38120,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận dict có jobs là list [tên, burst]. Trả dict có fcfs và sjf: thời gian CHỜ trung bình khi chạy theo thứ tự đến (FCFS) và khi chạy việc ngắn trước (SJF), mỗi số làm tròn 2 chữ số.",
       "io": [
        {
@@ -38429,7 +38429,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận dict có jobs (list dict có name, burst, deadline) và policy là \"sjf\" hoặc \"edf\". Trả TÊN việc được chọn: sjf chọn burst nhỏ nhất, edf chọn deadline sớm nhất. Hoà thì lấy việc đứng trước.",
       "io": [
        {
@@ -39078,7 +39078,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận dict có ready là list [tên, burst] và quantum. Mô phỏng Round Robin: mỗi lượt chạy tối đa quantum đơn vị rồi xếp lại cuối hàng nếu còn. Trả list [tên, số đơn vị đã chạy] theo đúng thứ tự.",
       "io": [
        {
@@ -41619,7 +41619,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận dict mô tả mô hình Worker: khoá là tên child process, giá trị là list tên các thread vẽ bên trong process đó. Trả dict {\"processes\": số child process, \"threads\": tổng số thread} — đúng phép đếm ở màn đọc. Các process có thể có số thread khác nhau.",
       "io": [
        {
@@ -44333,7 +44333,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận dict có luong (tên nguyên liệu → số gam mỗi cốc, CHỈ gồm nguyên liệu đã khai định lượng) và so_coc (tên nguyên liệu → số cốc; có thể có thêm nguyên liệu chưa khai). Trả lượng trung bình có trọng số theo số cốc, chỉ tính trên các nguyên liệu có trong luong, làm tròn 2 chữ số. Nếu luong rỗng — món chưa khai nguyên liệu nào — trả None, không phải 0.",
       "io": [
        {
@@ -46721,7 +46721,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận day, revenue và labelPosition=[u,v]. Tạo Figure/Axes và annotation có mũi tên chỉ (day,revenue) theo dữ liệu; chữ ở labelPosition theo axes fraction. Trả target là note.xy, labelPosition là note.get_position(), targetCoordinates là note.xycoords và labelCoordinates là note.get_anncoords(), rồi đóng Figure. Hai thuộc tính cuối giúp kiểm hệ tọa độ thật của chú thích; không cần học thuộc tên getter. Bài kiểm cấu hình; hãy mở hình một lần trong môi trường có cửa sổ để tự xem.",
       "io": [
        {
@@ -46980,7 +46980,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận first và second là hai lô bảng có cùng số cột. Ghép theo hàng rồi chuyển vị kết quả để mỗi cột cũ trở thành một hàng. Trả array đó.",
       "io": [
        {
@@ -47257,7 +47257,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận names và amounts cùng độ dài. Trả names và amounts đã xếp tăng theo amounts; hai giá trị bằng nhau giữ thứ tự ban đầu. Không tách tên khỏi số tiền.",
       "io": [
        {
@@ -47535,7 +47535,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận ma trận A vuông không suy biến và dãy b cùng kích thước. Trả nghiệm của A @ x = b bằng np.linalg.solve. Các bài kiểm đều có nghiệm duy nhất.",
       "io": [
        {
@@ -47793,7 +47793,7 @@
     },
     "step_4": {
      "task": {
-      "title": "Tự viết và chạy trong terminal",
+      "title": "Tự viết rồi chạy Python",
       "body": "Viết solve(data) nhận bảng các mẫu bootstrap đã lấy, mỗi hàng là một mẫu thời gian giao hàng. Trả means là trung bình mỗi hàng và interval là hai phân vị 2.5%,97.5% của các trung bình. Các hàng đều có cùng số cột và không thiếu dữ liệu.",
       "io": [
        {

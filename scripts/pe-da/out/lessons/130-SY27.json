@@ -322,7 +322,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận dict có csv_text (dòng đầu là tên cột). Trả list dict, mỗi dòng dữ liệu một dict. Giữ nguyên dấu phẩy nằm trong ô được bọc bởi dấu nháy kép. Trả [] nếu chỉ có dòng tiêu đề.",
     "io": [
      {

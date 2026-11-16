@@ -148,7 +148,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận bảng các mẫu bootstrap đã lấy, mỗi hàng là một mẫu thời gian giao hàng. Trả means là trung bình mỗi hàng và interval là hai phân vị 2.5%,97.5% của các trung bình. Các hàng đều có cùng số cột và không thiếu dữ liệu.",
     "io": [
      {

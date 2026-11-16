@@ -158,7 +158,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận list độ dài tính bằng mét. Trả array độ dài tính bằng centimet, dùng 1 m = 100 cm. Dữ liệu gốc không cần thay đổi.",
     "io": [
      {

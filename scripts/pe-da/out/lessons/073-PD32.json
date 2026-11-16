@@ -179,7 +179,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.don có ma_don, quay, ngay ISO, tong_tien; các dòng có thể trùng toàn bộ. data.danh_muc_quay có quay, khu_vuc và mã duy nhất. Chuẩn hóa mã quay của cả don và danh_muc_quay bằng strip/upper, bỏ dòng giống hệt, nối trái với validate many_to_one, khu vực vắng là Unknown, tổng hợp theo YYYY-MM và khu_vuc. Trả {report:list bản ghi thang,khu_vuc,tong_tien đã sắp; total:tổng tong_tien của đơn sau bỏ trùng}. Dữ liệu không có hai phiên bản xung đột của cùng ma_don.",
     "io": [
      {

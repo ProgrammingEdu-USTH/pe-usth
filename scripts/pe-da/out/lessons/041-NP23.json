@@ -162,7 +162,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận bảng khoản chi; mỗi hàng là một nhóm, các cột là khoản chi không thiếu. Trả totals là tổng từng nhóm và labels bằng \"within\" nếu tổng không quá 10, còn lại \"over\".",
     "io": [
      {

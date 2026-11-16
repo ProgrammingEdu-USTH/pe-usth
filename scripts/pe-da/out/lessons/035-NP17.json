@@ -158,7 +158,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận list số đo; JSON dùng None để chỉ ô chưa biết. Tạo array dtype=float, bỏ NaN khi tính trung bình. Nếu không có số đo nào đã biết, trả None thay vì coi trung bình bằng 0.",
     "io": [
      {

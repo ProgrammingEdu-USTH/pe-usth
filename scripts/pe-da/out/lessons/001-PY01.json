@@ -172,7 +172,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Hệ thống cung cấp cups là số cốc quán bán được trong một ngày. Mỗi cốc giá 15 nghìn đồng. Gán doanh thu của ngày đó, tính bằng nghìn đồng, vào revenue.",
     "io": [
      {

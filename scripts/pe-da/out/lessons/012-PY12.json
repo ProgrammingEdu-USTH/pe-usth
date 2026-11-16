@@ -160,7 +160,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Hệ thống cung cấp stock là dictionary tồn kho theo mã sản phẩm. Gán amount bằng số lượng của P02, hoặc None nếu chưa có mã P02. Số lượng 0 phải được giữ nguyên.",
     "io": [
      {

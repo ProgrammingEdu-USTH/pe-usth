@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.rows có date dạng ISO và amount, ít nhất một hàng. Gom tổng theo mốc đầu tháng bằng resample(\"MS\").sum(). Trả dictionary nhãn YYYY-MM → tổng, kể cả tháng ở giữa không có giao dịch (tổng mặc định 0).",
     "io": [
      {

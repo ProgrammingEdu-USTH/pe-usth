@@ -156,7 +156,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận list chuỗi số. Trả list cùng độ dài, đổi từng chuỗi hợp lệ bằng float và thay chuỗi không chuyển được bằng None. Đầu vào không chứa chuỗi NaN hoặc vô cực.",
     "io": [
      {

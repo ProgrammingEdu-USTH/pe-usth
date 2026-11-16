@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.rows chứa store và amount dạng chữ. Chuẩn hóa store bằng strip/upper và amount bằng to_numeric(coerce), không tự bỏ hàng lỗi. Trả records (ô amount thiếu là None), invalid là số amount thiếu. Không sửa data đầu vào.",
     "io": [
      {

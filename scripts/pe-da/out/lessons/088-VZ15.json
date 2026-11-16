@@ -153,7 +153,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.rows có category và revenue. groupby/sum theo category, sắp tên tăng, dùng Series.plot.bar(ax=ax). Trả names là các tên đã vẽ và heights từ ax.patches (mỗi patch là một bar), giữ đúng cặp tên–tổng. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
     "io": [
      {

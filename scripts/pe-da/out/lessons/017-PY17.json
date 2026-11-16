@@ -152,7 +152,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận một số. Bên trong, định nghĩa hàm add_one trả data + 1, gán chính hàm đó cho callback rồi trả kết quả callback(). Đây là lần thử quy tắc truyền hàm trước khi dùng nút bấm.",
     "io": [
      {

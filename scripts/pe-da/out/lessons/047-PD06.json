@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.rows có so_coc, don_gia; data.cap là doanh thu áp dụng cố định cho mọi hàng so_coc>=3. Tạo tong_tien=so_coc*don_gia, sửa tong_tien ở đúng các hàng đó bằng loc. Trả list tong_tien theo thứ tự hàng.",
     "io": [
      {

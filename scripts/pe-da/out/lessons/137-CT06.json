@@ -547,7 +547,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận dict có ready là list [tên, burst] và quantum. Mô phỏng Round Robin: mỗi lượt chạy tối đa quantum đơn vị rồi xếp lại cuối hàng nếu còn. Trả list [tên, số đơn vị đã chạy] theo đúng thứ tự.",
     "io": [
      {

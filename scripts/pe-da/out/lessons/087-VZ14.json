@@ -153,7 +153,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.width,data.height là số inch dương, data.dpi là số nguyên dương. Tạo Figure đúng figsize, vẽ một đường bất kỳ, xuất PNG vào BytesIO không dùng bbox_inches=\"tight\". Dùng PIL.Image.open đọc size, trả [width_px,height_px]. Đóng Figure. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
     "io": [
      {

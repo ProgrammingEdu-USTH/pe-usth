@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.revenue và data.cost là dictionary nhãn cửa hàng → số. Trừ hai Series theo nhãn. Trả dictionary lợi nhuận; nhãn chỉ có ở một bên phải có giá trị None, không tự điền 0.",
     "io": [
      {

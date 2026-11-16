@@ -157,7 +157,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận day, revenue và labelPosition=[u,v]. Tạo Figure/Axes và annotation có mũi tên chỉ (day,revenue) theo dữ liệu; chữ ở labelPosition theo axes fraction. Trả target là note.xy, labelPosition là note.get_position(), targetCoordinates là note.xycoords và labelCoordinates là note.get_anncoords(), rồi đóng Figure. Hai thuộc tính cuối giúp kiểm hệ tọa độ thật của chú thích; không cần học thuộc tên getter. Bài kiểm cấu hình; hãy mở hình một lần trong môi trường có cửa sổ để tự xem.",
     "io": [
      {

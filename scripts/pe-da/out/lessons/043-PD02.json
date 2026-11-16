@@ -158,7 +158,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.rows là list các dictionary có item và units, có ít nhất một hàng. Tạo DataFrame, trả shape dưới dạng list hai số, first là dictionary hàng đầu và last là dictionary hàng cuối.",
     "io": [
      {

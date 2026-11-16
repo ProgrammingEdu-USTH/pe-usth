@@ -156,7 +156,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Hệ thống cung cấp weights là list khối lượng kiện hàng. Chỉ những kiện từ 3 kg trở lên được đưa vào chuyến lớn. Gán tổng khối lượng các kiện đó vào total; list rỗng có tổng 0.",
     "io": [
      {

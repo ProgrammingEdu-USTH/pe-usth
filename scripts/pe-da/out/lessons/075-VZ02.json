@@ -151,7 +151,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.left và data.right là hai dãy số, mỗi dãy ít nhất một phần tử. Tạo Figure với hai Axes cạnh nhau bằng add_subplot(121), add_subplot(122), vẽ một đường trên mỗi Axes. Trả axes là số Axes và lines là list số đường của trái/phải. fig.axes và ax.lines là các danh sách đối tượng để đối chiếu, không phải số quan sát. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve. Trả thêm leftY và rightY: list giá trị y đọc từ đường trong từng Axes (line.get_ydata()).",
     "io": [
      {

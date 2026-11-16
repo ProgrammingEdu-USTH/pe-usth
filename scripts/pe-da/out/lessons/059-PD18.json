@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.batches là list các lô; mỗi lô là list số lượng. Có ít nhất một lô không rỗng. Tạo một DataFrame mỗi lô, concat một lần theo hàng với ignore_index=True. Trả values và index thành hai list; giữ mọi số kể cả số lặp.",
     "io": [
      {

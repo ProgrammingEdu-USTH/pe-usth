@@ -198,7 +198,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.days là số ngày khác nhau, data.sales là số hoặc None theo cùng vị trí. Sắp cặp theo ngày, dùng np.nan cho None, vẽ line chart. Trả x và y đọc từ line.get_xdata()/get_ydata(); trong kết quả JSON đổi NaN trở lại None. Giữ nguyên ngày chưa đo, không nối bằng cách xóa hàng. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
     "io": [
      {

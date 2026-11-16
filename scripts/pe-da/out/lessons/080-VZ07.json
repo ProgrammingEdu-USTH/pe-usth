@@ -157,7 +157,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.values có ít nhất ba số. Vẽ boxplot mặc định. Hàm boxplot trả dictionary parts: đường trung vị ở parts[\"medians\"][0], các điểm ngoài râu ở parts[\"fliers\"][0]. Dùng get_ydata() đọc chúng, trả {median:số, fliers:list}. Không xóa điểm ngoài râu khỏi dữ liệu. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
     "io": [
      {

@@ -168,7 +168,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Hệ thống cung cấp raw là giá một cốc dưới dạng chuỗi, ví dụ \"7.5\". Gán tiền hai cốc vào total; đầu vào là chuỗi số hợp lệ, không âm.",
     "io": [
      {

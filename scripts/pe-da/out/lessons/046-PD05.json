@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.rows chứa order, city, amount; data.city và data.minimum là yêu cầu mới. Trả list mã order có city đúng và amount >= minimum, giữ thứ tự gốc.",
     "io": [
      {

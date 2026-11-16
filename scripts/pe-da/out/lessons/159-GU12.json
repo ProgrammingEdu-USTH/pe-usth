@@ -475,7 +475,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận dict có luong (tên nguyên liệu → số gam mỗi cốc, CHỈ gồm nguyên liệu đã khai định lượng) và so_coc (tên nguyên liệu → số cốc; có thể có thêm nguyên liệu chưa khai). Trả lượng trung bình có trọng số theo số cốc, chỉ tính trên các nguyên liệu có trong luong, làm tròn 2 chữ số. Nếu luong rỗng — món chưa khai nguyên liệu nào — trả None, không phải 0.",
     "io": [
      {

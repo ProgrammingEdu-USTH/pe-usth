@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Mỗi data.rows có order, version, amount. Mỗi order có các version khác nhau. Trả list bản ghi mới nhất của mỗi order, xếp order tăng dần; không cộng hai phiên bản thành hai giao dịch.",
     "io": [
      {

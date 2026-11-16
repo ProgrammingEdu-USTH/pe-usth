@@ -211,7 +211,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data có values, labels, label và position. labels duy nhất, label có trong labels, position hợp lệ. Tạo Series; trả [giá trị theo label, giá trị theo position].",
     "io": [
      {

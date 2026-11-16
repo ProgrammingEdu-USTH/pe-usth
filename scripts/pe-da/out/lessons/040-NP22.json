@@ -160,7 +160,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận seed và n không âm. Tạo hai bộ sinh riêng cùng seed, mỗi bộ sinh n số bằng integers(1,7,size=n). Trả dictionary count là số phần tử của dãy thứ nhất và same cho biết hai dãy có bằng nhau hay không.",
     "io": [
      {

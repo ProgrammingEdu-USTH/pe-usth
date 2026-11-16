@@ -144,7 +144,7 @@
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.values là số; data.window là số hàng cửa sổ dương. Tính rolling mean khi đủ window giá trị rồi shift(1). Trả list cùng độ dài, ô chưa đủ dữ liệu là None. Giá trị tại hàng t không được dùng trong đặc trưng cho chính t.",
     "io": [
      {

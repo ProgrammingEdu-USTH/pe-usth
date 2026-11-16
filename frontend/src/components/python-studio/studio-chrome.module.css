@@ -53,6 +53,12 @@
 
 .resetLink {
   margin-top: 10px;
+  /* Bề mặt quản trị, nhưng chuột hay ngón tay thì đều là đích bấm: sàn 44px, và `inline-flex` để
+     chữ vẫn nằm giữa hộp cao 44px thay vì dính mép trên. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  min-width: 44px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -176,6 +182,7 @@
 
 .answerKeyHead {
   width: 100%;
+  min-height: 44px;
   display: flex;
   align-items: center;
   gap: 8px;

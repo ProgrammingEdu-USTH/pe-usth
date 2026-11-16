@@ -173,3 +173,21 @@ test('hover cảm ứng: mỗi lý do NGOÀI TẦM phải nói ra số rule và 
     assert.match(vi, /\d/, `lý do cho \`${p}\` không mang một con số nào`);
   }
 });
+
+test('hover cảm ứng: `a:hover` TOÀN CỤC của edu-theme.css nằm trong guard — nó ghi đè màu chữ MỌI liên kết có class', () => {
+  // Cổng trên chỉ quét `src/`; `public/static/css/edu-theme.css` (nạp ở mọi trang) có rule
+  // `a:hover { color }` đặc hiệu (0,1,1), THẮNG mọi `.lớp { color }` (0,1,0). Trên màn cảm ứng `:hover`
+  // dính lại sau cú chạm, nên chữ của nút "Thử ngay trong IDE" (violet-deep trên violet-tint) thành xanh
+  // action: 4,30:1 ngày / 2,01:1 đêm — backtest 16/11 (bài #21, 390px, cả hai giao diện).
+  // Chỉ canh ĐÚNG rule này: tệp còn ~18 `:hover` khác của JS di sản, mỗi cái cần xem trang nào nạp nó.
+  const rs = moiRule(readFileSync(join(GOC, 'public/static/css/edu-theme.css'), 'utf8'))
+    .filter((r) => r.sels.includes('a:hover'));
+  assert.ok(rs.length >= 1, 'không tìm thấy rule `a:hover` trong edu-theme.css — đổi tên thì sửa ca này, đừng gỡ nó');
+  for (const r of rs) {
+    assert.ok(
+      laGuard(r.media),
+      '`a:hover` toàn cục phải nằm trong `@media (hover: hover) and (pointer: fine)`: trên cảm ứng nó '
+      + 'dính lại và ghi đè màu chữ của mọi liên kết có class (nút Thử ngay trong IDE: 2,01:1 ban đêm).',
+    );
+  }
+});

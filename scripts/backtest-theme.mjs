@@ -97,6 +97,8 @@ function kiemTuongPhan() {
     if (t < nguong) {
       loi.push({
         t: Math.round(t * 100) / 100, nguong, px, chu: el.textContent.trim().slice(0, 40),
+        // màu ĐÃ HỢP THÀNH — để đọc ra ngay "chữ nào trên nền nào" mà không phải dựng lại phép đo
+        fg: `rgb(${Math.round(f.r)},${Math.round(f.g)},${Math.round(f.b)})`, nen: `rgb(${Math.round(nen.r)},${Math.round(nen.g)},${Math.round(nen.b)})`,
         lop: String(el.className || el.tagName).slice(0, 50),
       });
     }
@@ -128,6 +130,27 @@ const lang = (page) => page.waitForFunction(
   null, { timeout: 8000 },
 ).catch(() => {});
 
+// MỞ các khối đang đóng sau cổng dự đoán: bảng từng bước ("Xem từng bước" → gõ dự đoán → "Mở bảng") và
+// hình ("Mở hình"). Cả ba cổng dùng chung bộ class `tracePredict*`. Không mở thì nội dung nằm sau cổng —
+// bảng từng bước, hình PNG, ô "Kết quả" — chưa bao giờ được đo tương phản.
+const moKhoiDong = async (page) => {
+  for (let vong = 0; vong < 4; vong++) {
+    await page.evaluate(() => { for (const b of document.querySelectorAll('button[class*=traceOpen]')) b.click(); }).catch(() => {});
+    const o = page.locator('[class*=tracePredictInput]');
+    const n = await o.count();
+    for (let i = 0; i < n; i++) {
+      const el = o.nth(i);
+      if (await el.isVisible().catch(() => false)) await el.fill('x').catch(() => {});
+    }
+    const go = page.locator('button[class*=tracePredictGo]:not([disabled])');
+    const m = await go.count();
+    if (m === 0 && n === 0) break;
+    for (let i = 0; i < m; i++) await go.nth(0).click({ force: true }).catch(() => {});
+    await page.waitForTimeout(250);
+  }
+  await lang(page);
+};
+
 const browser = await chromium.launch();
 const ket = [];
 for (const th of TO_HOP) {
@@ -137,7 +160,11 @@ for (const th of TO_HOP) {
       try {
         if (gd === 'thien-van') localStorage.setItem('pe-giao-dien', 'thien-van'); else localStorage.removeItem('pe-giao-dien');
         localStorage.setItem('theme', che === 'dem' ? 'dark' : 'light');
-        localStorage.setItem('__fx_done', JSON.stringify([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]));
+        // MỌI bài đã hoàn thành: thanh tiến độ chỉ dựng đoạn thành <button> cho màn ĐÃ ĐI QUA hoặc bài
+        // đã xong — bài chưa xong thì chỉ có đoạn đầu bấm được, và phép đi "mọi màn" im lặng dừng ở
+        // màn 1. (Bản đầu của backtest chỉ đánh dấu bài 1–12 nên 9/12 bài của `--rong` chỉ được đo màn
+        // đầu — lộ ra khi PD03 báo "1 đoạn".)
+        localStorage.setItem('__fx_done', JSON.stringify(Array.from({ length: 179 }, (_, i) => i + 1)));
         localStorage.setItem('pe_access', 'fx');
         document.cookie = 'pe_has_session=1; path=/';
       } catch (e) { /* nhóm lưu trữ bị chặn */ }
@@ -162,6 +189,7 @@ for (const th of TO_HOP) {
             await page.locator('button[class*=segment]').nth(i).click({ force: true }).catch(() => {});
             await page.waitForTimeout(500);
             await lang(page);
+            await moKhoiDong(page);
           }
           const r = await page.evaluate(kiemTuongPhan);
           const sw = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
@@ -169,7 +197,7 @@ for (const th of TO_HOP) {
           chu += r.chu; nenAnh += r.nenAnh; boQua += r.boQua;
           for (const l of r.loi) loi.push({ ...l, man: i === null ? undefined : i + 1 });
         }
-        ket.push({ nhan, tran, chu, nenAnh, boQua, loi });
+        ket.push({ nhan, tran, chu, nenAnh, boQua, loi, man: tr.man ? manList.length : 1 });
       } catch (e) {
         ket.push({ nhan, loiTrang: String(e).slice(0, 120), tran: 0, chu: 0, nenAnh: 0, loi: [] });
       }
@@ -187,9 +215,9 @@ if (JSON_OUT) {
     const gop = new Map();
     for (const l of k.loi) { const kk = `${l.lop}|${l.t}`; gop.set(kk, { ...l, n: (gop.get(kk)?.n ?? 0) + 1 }); }
     tongLoi += k.loi.length; tongTran += k.tran > 0 ? 1 : 0; tongTrang += k.loiTrang ? 1 : 0;
-    console.log(`${k.loiTrang ? '✗' : k.loi.length || k.tran ? '!' : '✓'} ${k.nhan}  · ${k.chu} chữ · nền ảnh ${k.nenAnh} · bỏ qua (vô hiệu/aria-hidden) ${k.boQua} · tràn ${k.tran}px · ${k.loi.length} chữ dưới ngưỡng${k.loiTrang ? ' · LỖI TRANG ' + k.loiTrang : ''}`);
+    console.log(`${k.loiTrang ? '✗' : k.loi.length || k.tran ? '!' : '✓'} ${k.nhan}  · ${k.man ?? 1} màn · ${k.chu} chữ · nền ảnh ${k.nenAnh} · bỏ qua (vô hiệu/aria-hidden) ${k.boQua} · tràn ${k.tran}px · ${k.loi.length} chữ dưới ngưỡng${k.loiTrang ? ' · LỖI TRANG ' + k.loiTrang : ''}`);
     for (const l of [...gop.values()].sort((a, b) => a.t - b.t).slice(0, 6)) {
-      console.log(`      ${l.t}:1 (cần ${l.nguong}) ${l.px}px ×${l.n} "${l.chu}" .${l.lop}`);
+      console.log(`      ${l.t}:1 (cần ${l.nguong}) ${l.px}px ×${l.n} "${l.chu}" .${l.lop} · ${l.fg} trên ${l.nen}${l.man ? ` · màn ${l.man}` : ''}`);
     }
   }
   console.log(`\nTỔNG: ${ket.length} ô · ${tongLoi} chữ dưới ngưỡng · ${tongTran} ô tràn ngang · ${tongTrang} ô lỗi trang`);

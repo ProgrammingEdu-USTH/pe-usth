@@ -342,7 +342,15 @@ body {
 }
 body.dark { background: var(--edu-bg-solid); background-image: var(--edu-bg-image); }
 a { color: var(--edu-accent); }
-a:hover { color: var(--edu-accent-2); }
+/* Guard con trỏ thật. `a:hover` đặc hiệu (0,1,1) THẮNG mọi `.lớp { color }` (0,1,0), nên trên màn cảm ứng — nơi
+   `:hover` DÍNH LẠI sau cú chạm — nó ghi đè màu chữ của MỌI liên kết có class: nút "Thử ngay trong IDE"
+   (violet-deep trên violet-tint) thành xanh action `#1F5FE0` = 4,30:1 ban ngày, 2,01:1 ban đêm. Backtest
+   16/11 đo đúng hai số đó ở bài #21, 390px, CẢ HAI giao diện (lofi và chiêm tinh): sau khi chạm "Mở bảng"
+   màn đổi bố cục và nút nằm dưới đúng điểm vừa chạm. Cổng `hover-cam-ung` chỉ quét `src/`, không quét
+   `public/static/css`, nên rule này chưa từng bị canh. */
+@media (hover: hover) and (pointer: fine) {
+  a:hover { color: var(--edu-accent-2); }
+}
 
 /* ══════════════════════════════════════════════════════════════
    SIDEBAR — .topbar is repurposed from a fixed 50px top strip into

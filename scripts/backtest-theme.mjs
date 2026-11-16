@@ -8,7 +8,7 @@
 //
 // Cần máy chủ đã chạy sẵn: `cd frontend && npm run build && npx next start -p 3100`, và fixture
 // `frontend/public/__fx/` (API giả, không ghi gì lên production — xem memory xem-390-bang-emulate).
-//   node scripts/backtest-theme.mjs [--cong 3100] [--chi lofi|thien-van] [--json]
+//   node scripts/backtest-theme.mjs [--cong 3100] [--chi lofi|thien-van] [--bai 0,4,..|--rong] [--json]
 //
 // Giới hạn phải nói ra: đây là phép đo trên PHẦN TỬ CÓ CHỮ, không phải trên ảnh chụp — nó không thấy
 // chữ vẽ trong PNG, không thấy chồng lấn, và bỏ qua nền gradient/ảnh (đếm ở cột "nền ảnh").
@@ -104,14 +104,29 @@ function kiemTuongPhan() {
   return { chu, loi, nenAnh, boQua };
 }
 
+// --bai 0,4,8,...: chỉ số bài (đếm từ 0) cần đi qua MỌI màn. Mặc định: PY01 · PY05 (sơ đồ). Bộ MỞ RỘNG
+// `--rong` trải qua mọi chặng và có đủ các loại khối: PY09 (bảng), PD03 (bảng từng bước), VZ01 (hình sau
+// cổng dự đoán), cộng bài ở giữa/cuối từng chặng — chạy lâu hơn nhiều (chạy nền).
+const BAI_RONG = [0, 4, 8, 20, 43, 60, 73, 90, 110, 140, 165, 178];
+const baiArg = arg('--bai', null);
+const dsBai = baiArg ? baiArg.split(',').map(Number) : process.argv.includes('--rong') ? BAI_RONG : [0, 4];
 const TRANG = [
   { ten: 'trang chủ', url: '/', man: false },
   { ten: 'trang khoá', url: '/courses/python_advanced', man: false },
-  { ten: 'bài học PY01', url: '/lesson/python_advanced?lesson=0', man: true },
-  { ten: 'bài có sơ đồ PY05', url: '/lesson/python_advanced?lesson=4', man: true },
+  ...dsBai.map((i) => ({ ten: `bài #${i + 1}`, url: `/lesson/python_advanced?lesson=${i}`, man: true })),
   { ten: '/ide', url: '/ide', man: false },
   { ten: '404', url: '/khong-co-trang-nay', man: false },
 ];
+
+// ĐỢI mọi hoạt ảnh/transition HỮU HẠN chạy xong rồi mới đo. Đo giữa lúc một phần tử đang mờ dần vào
+// (trang chủ: nút hồ sơ `#profile` ở opacity 0 → 1 suốt ~3 s của pha `.intro`) cho chữ ở alpha giữa chừng
+// trên nền tối ⇒ 1,41:1 và 1,65:1 — số của KHOẢNH KHẮC chứ không của trang (lần chạy mở rộng 16/11
+// báo oan hai chữ này, mà lúc ổn định chúng ở opacity 1). Hoạt ảnh VÔ HẠN (nền sống) bị loại khỏi điều
+// kiện đợi — chúng không bao giờ dừng. Quá hạn thì đo luôn: một cổng treo là một cổng bị gỡ.
+const lang = (page) => page.waitForFunction(
+  () => !document.getAnimations().some((a) => a.playState === 'running' && a.effect && a.effect.getComputedTiming().iterations !== Infinity),
+  null, { timeout: 8000 },
+).catch(() => {});
 
 const browser = await chromium.launch();
 const ket = [];
@@ -134,6 +149,7 @@ for (const th of TO_HOP) {
       try {
         await page.goto(GOC + tr.url, { waitUntil: 'domcontentloaded', timeout: 20000 });
         await page.waitForTimeout(tr.url.startsWith('/ide') ? 5000 : 2500);
+        await lang(page);
         const manList = [];
         if (tr.man) {
           const n = await page.locator('button[class*=segment]').count();
@@ -145,6 +161,7 @@ for (const th of TO_HOP) {
           if (i !== null) {
             await page.locator('button[class*=segment]').nth(i).click({ force: true }).catch(() => {});
             await page.waitForTimeout(500);
+            await lang(page);
           }
           const r = await page.evaluate(kiemTuongPhan);
           const sw = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);

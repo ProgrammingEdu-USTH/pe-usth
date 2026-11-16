@@ -933,8 +933,10 @@ test('fixture bài đọc: bản dựng pe-da đúng hình dạng ReadBlock/Prac
   // SAU đoạn văn: đo được nếu THAY đoạn bằng bảng thì màn đọc tụt 567 -> 565,
   // tức xoá đúng hai ranh giới màn. Đo sau khi chuyển: L3 29 → 27 lỗi, L2 cảnh
   // báo 15 → 13, không luật nào tăng.
+  // 17/11/2026 (#285): paragraph 820 -> 817. PY02 viết gọn còn ~230 chữ (-1 đoạn) và
+  // PY03 ~240 chữ (-2 đoạn); code/terminal/figure/table KHÔNG đổi một khối nào.
   assert.deepEqual(count, {
-    paragraph: 820,
+    paragraph: 817,
     code: 508,
     terminal: 17,
     figure: 80,

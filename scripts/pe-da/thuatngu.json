@@ -241,7 +241,7 @@
       "thuatNgu": "conda",
       "nhom": "A",
       "nguCanh": "lenh-cong-cu",
-      "baiDauTien": "PY02"
+      "baiDauTien": "EX03"
     },
     {
       "thuatNgu": "exec",
@@ -850,7 +850,7 @@
       "nhom": "C",
       "nguCanh": "trang-trinh-bay-bai-giang-goc",
       "chuGiai": "**Slide** ở đây là trang trình bày của bài giảng gốc mà giáo trình này dựa vào.",
-      "baiDauTien": "PY02",
+      "baiDauTien": "PD02",
       "ghiChu": "Thuật ngữ tham chiếu NGUỒN, không phải thuật ngữ lập trình. Nó xuất hiện 30 lần trong phần giảng, đúng loại rò ghi-chú-cho-dev mà §7 nói tới."
     },
     {

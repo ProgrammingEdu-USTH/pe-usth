@@ -46,6 +46,7 @@ node scripts/check-nguong.mjs           # NGƯỠNG một chiều có ai nới n
 node scripts/check-wheel.mjs            # WHEEL vendored: thừa megabyte chết / thiếu gói bài cần
 node scripts/backtest-theme.mjs        # BACKTEST giao diện: lofi/chiêm tinh × ngày/đêm × 1280/390 trên Chromium thật — tràn ngang + tương phản chữ (hợp thành alpha); cần máy chủ đang chạy + fixture public/__fx (xem script)
 npx ts-node scripts/pheu-tien-do.ts    # PHỄU tiến độ theo sort_order (CHỈ ĐỌC, cần DATABASE_URL)
+npx ts-node scripts/giu-chan.ts        # GIỮ CHÂN D1/D7/D30 (CHỈ ĐỌC, cần DATABASE_URL; chưa chạy với dữ liệu thật)
 node scripts/check-da-deploy.mjs       # bản trên main ĐÃ LÊN production chưa (cần mạng)
 node scripts/ablate.mjs --tep <t> --ve-head --lenh "<lệnh>"   # GIEO khiếm khuyết rồi
                                        # đếm ca đỏ; nó TỪ CHỐI in một con số khi không
@@ -84,7 +85,7 @@ học nó.
 | Hạng mục | Mốc |
 |---|---|
 | Backend typecheck | sạch — nay phủ **cả `scripts/**/*.ts`** (10 script, 0 lỗi) |
-| Backend test | **35 bộ, 523 ca**, tất cả đạt (chạy RIÊNG — xem bẫy tranh CPU) |
+| Backend test | **36 bộ, 532 ca**, tất cả đạt (chạy RIÊNG — xem bẫy tranh CPU) |
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
@@ -108,7 +109,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **47 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 736 · backend 35 bộ/523 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/365 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 736 · backend 36 bộ/532 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/365 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 

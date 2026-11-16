@@ -45,6 +45,12 @@ test('đọc traceback thật: tên lỗi, câu, và số dòng của khung CU�
   const sx = giaiThichLoi('  File "main.py", line 3\n    if x == 1\n             ^\nSyntaxError: expected \':\'\n');
   assert.equal(sx?.ten, 'SyntaxError');
   assert.equal(sx?.dong, 3);
+  // Thông điệp của IndentationError tự nhắc "line 1" ở dòng cuối: số dòng phải lấy từ KHUNG (File ..., line 2),
+  // không từ chữ "line N" bất kỳ — đúng khuôn traceback THẬT mà pha 5 của check-practice đã bắt được.
+  const ind = giaiThichLoi(
+    ['  File "main.py", line 2', '    pass', '    ^^^^', "IndentationError: expected an indented block after 'if' statement on line 1", ''].join('\n'),
+  );
+  assert.equal(ind?.dong, 2);
   // Chỉ có dòng cuối (không khung nào): vẫn trả câu, không dòng.
   const ch = giaiThichLoi('ZeroDivisionError: division by zero');
   assert.equal(ch?.ten, 'ZeroDivisionError');

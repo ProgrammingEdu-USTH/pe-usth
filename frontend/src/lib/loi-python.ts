@@ -63,7 +63,10 @@ export function giaiThichLoi(error: string | undefined | null): LoiGiaiThich | n
     }
   }
   if (!ten || !Object.prototype.hasOwnProperty.call(BANG_LOI, ten)) return null;
-  const dongs = [...error.matchAll(/\bline (\d+)\b/g)];
+  // CHỈ lấy `line N` của KHUNG (`File "main.py", line N`), không lấy `line N` bất kỳ: thông điệp của
+  // IndentationError tự nó nói "…on line 1" ở dòng cuối, và bản đầu của hàm này đọc nhầm số đó
+  // (dòng 1 thay vì 2) — chỉ lộ ra khi pha 5 của check-practice chạy traceback THẬT.
+  const dongs = [...error.matchAll(/File "[^"]*", line (\d+)/g)];
   const dong = dongs.length ? Number(dongs[dongs.length - 1][1]) : null;
   return { ten, dong, cau: BANG_LOI[ten] };
 }

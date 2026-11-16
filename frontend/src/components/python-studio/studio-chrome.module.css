@@ -1165,6 +1165,21 @@
    ra "dòng này nằm trong vòng lặp". Cuộn ngang giữ được cả hai. */
 .traceTable {
   overflow-x: auto;
+  /* Để `.traceCaptionText` đo được bề rộng KHUNG nhìn (cqw) chứ không bề rộng bảng. */
+  container-type: inline-size;
+}
+
+/* CHÚ THÍCH BẢNG BỊ CẮT MẤT ĐUÔI Ở ĐIỆN THOẠI. <caption> rộng bằng cả bảng (đo 616–625px ở 390),
+   mà bảng nằm trong khung cuộn ngang 287px — nên câu "Từng bước chạy của đoạn code trên: dòng nào
+   vừa chạy, biến nào đổi, và chương trình in ra gì." đứt ở chữ "vì" rồi muốn đọc nốt phải cuộn
+   ngang. Câu này là phần GIẢI THÍCH của bảng, nên nó phải đọc được mà không cuộn: ghim nó vào mép
+   trái khung (`sticky`) và giới hạn bề rộng bằng khung (`100cqw`) để chữ tự xuống dòng. Trình duyệt
+   chưa hiểu `cqw` thì giữ nguyên hành vi cũ, không tệ đi. */
+.traceCaptionText {
+  display: block;
+  position: sticky;
+  left: 0;
+  max-width: 100cqw;
 }
 
 .traceTable table {

@@ -127,8 +127,10 @@ export default function StepTrace({ trace, code }: { trace: ReadTrace; code: str
           <div className={c.traceTable}>
             <table>
               <caption>
-                Từng bước chạy của đoạn code trên: dòng nào vừa chạy, biến nào đổi,
-                và chương trình in ra gì.
+                <span className={c.traceCaptionText}>
+                  Từng bước chạy của đoạn code trên: dòng nào vừa chạy, biến nào đổi,
+                  và chương trình in ra gì.
+                </span>
               </caption>
               <thead>
                 <tr>

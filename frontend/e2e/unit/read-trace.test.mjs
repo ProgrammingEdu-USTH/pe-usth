@@ -299,3 +299,24 @@ test('cột "Sau đó" không bị bóp: ô mang .traceSau và .traceSau có min
   assert.ok(w && Number(w[1]) >= 10,
     `.traceSau min-width ${w ? w[1] + 'em' : 'không khai'} — dưới 10em thì giá trị biến lại gãy thành cột hẹp.`);
 });
+
+// ---------------------------------------------------------------------------
+// CHÚ THÍCH BẢNG PHẢI ĐỌC ĐƯỢC KHÔNG CẦN CUỘN NGANG (điện thoại)
+// ---------------------------------------------------------------------------
+//
+// `<caption>` rộng bằng cả bảng (616–625px ở 390) mà bảng nằm trong khung cuộn ngang 287px, nên
+// câu giải thích của bảng đứt ngay giữa chữ và muốn đọc nốt phải cuộn. Cách sửa giữ nguyên
+// `<caption>` (tên của bảng cho trình đọc màn hình) nhưng bọc chữ trong một khối sticky có bề rộng
+// = KHUNG (cqw). Ba mảnh phải đi cùng nhau: thiếu `container-type` thì `cqw` đo theo khung gốc,
+// thiếu `sticky` thì chữ trôi theo cú cuộn, thiếu `max-width` thì chữ lại rộng bằng bảng.
+test('chú thích bảng từng bước: chữ bọc trong khối sticky rộng bằng khung nhìn', () => {
+  assert.match(TRACE, /<caption>\s*<span className=\{c\.traceCaptionText\}>/, '<caption> phải bọc chữ trong .traceCaptionText');
+  const khung = /\.traceTable\s*\{([^}]*)\}/.exec(CSS.replace(/\/\*[\s\S]*?\*\//g, ''));
+  assert.ok(khung && /container-type\s*:\s*inline-size/.test(khung[1]), '.traceTable phải là container (cqw đo theo khung cuộn)');
+  const chu = /\.traceCaptionText\s*\{([^}]*)\}/.exec(CSS.replace(/\/\*[\s\S]*?\*\//g, ''));
+  assert.ok(chu, 'thiếu rule .traceCaptionText');
+  assert.match(chu[1], /display\s*:\s*block/);
+  assert.match(chu[1], /position\s*:\s*sticky/);
+  assert.match(chu[1], /left\s*:\s*0/);
+  assert.match(chu[1], /max-width\s*:\s*100cqw/);
+});

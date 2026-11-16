@@ -747,3 +747,24 @@ test('thanh cuộn và vệt bôi chọn không còn mang bảng brand xanh–đ
 
   assert.deepEqual(loi, [], loi.join(" | "));
 });
+
+/**
+ * SỐ DÒNG CỦA KHỐI CODE phải ĐỌC ĐƯỢC. `.lineNum` từng tô chữ bằng `--st-code-gutter` — token
+ * ĐƯỜNG KẺ (`--ds-code-line`), 1,36:1 trên nền code — vì tên "gutter" nghe như "lề đánh số". Backtest
+ * Chromium 16/11 (`scripts/backtest-theme.mjs`) đo đúng con số ấy ở MỌI ô (lofi/chiêm tinh × ngày/đêm ×
+ * 1280/390). Số dòng là chữ người học đối chiếu ("dòng 2" ở bảng từng bước và ở câu báo lỗi), nên
+ * ngưỡng là AA 4,5:1, không phải ngưỡng của đường trang trí.
+ */
+test('số dòng khối code: dùng token CHỮ (không phải token đường kẻ) và ≥ 4,5:1 trên nền code, cả hai chế độ', () => {
+  const css = readFileSync(join(__dirname, '..', '..', 'src', 'components', 'lesson-chrome', 'exercises', 'exercises.module.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const m = /\.lineNum\s*\{([^}]*)\}/.exec(css);
+  assert.ok(m, 'không tìm thấy .lineNum');
+  const mau = /color\s*:\s*var\((--[\w-]+)\)/.exec(m[1]);
+  assert.ok(mau, '.lineNum phải tô chữ bằng một token (var(--…))');
+  assert.ok(!/gutter|line\b/.test(mau[1]), `.lineNum tô chữ bằng ${mau[1]} — đó là token ĐƯỜNG KẺ, 1,36:1 khi dùng làm chữ`);
+  for (const che of [':root', 'body.dark']) {
+    const chu = token(che, mau[1]) ?? token(':root', mau[1]);
+    const nen = token(che, '--st-code-bg') ?? token(':root', '--st-code-bg');
+    assert.ok(tiSo(chu, nen) >= 4.5, `${che}: số dòng ${chu} trên nền code ${nen} chỉ ${tiSo(chu, nen).toFixed(2)}:1`);
+  }
+});

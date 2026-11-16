@@ -114,7 +114,12 @@
   width: 18px;
   flex-shrink: 0;
   text-align: right;
-  color: var(--st-code-gutter);
+  /* `--st-syn-comment` (= --ds-code-num, "số dòng, chú thích": 6,04:1 trên nền code), KHÔNG
+     `--st-code-gutter`: token đó là ĐƯỜNG KẺ của khối code (--ds-code-line) và chỉ 1,36:1 khi dùng
+     làm màu chữ — backtest 16/11 đo đúng con số đó ở 48/48 ô giao diện × khổ × chế độ. Số dòng là
+     chữ người học cần đọc (bảng từng bước và câu báo lỗi đều nói "dòng N"), không phải trang trí.
+     Lỗi họ "token sai vai": một màu đường kẻ đem tô chữ. */
+  color: var(--st-syn-comment);
   user-select: none;
 }
 .codeText {

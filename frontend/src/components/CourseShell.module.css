@@ -266,6 +266,24 @@
 }
 .blockBody { padding: 22px 26px; }
 
+/* Thanh tiến độ khoá (CourseDetail). Nền = `--ds-line` (đường kẻ của bảng lofi), phần đã xong =
+   `--ds-ochre` — cùng họ "đã có" với `.lessonDone` bên dưới nên hai chỗ nói cùng một nghĩa.
+   KHÔNG dùng token brand xanh/gradient (ds-contrast canh) và KHÔNG hoạt ảnh: thanh chỉ đổi khi
+   người học quay lại trang, không có "sự kiện" nào để chuyển động. */
+.tienDoKhoa {
+  height: 6px;
+  margin: 0 26px;
+  border-radius: 999px;
+  background: var(--ds-line);
+  overflow: hidden;
+}
+.tienDoKhoa > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ds-ochre);
+}
+
 /* ── Danh sách chặng / bài ───────────────────────────────── */
 .module { border-bottom: var(--ds-bw-1) solid var(--ds-line); }
 .module:last-child { border-bottom: none; }

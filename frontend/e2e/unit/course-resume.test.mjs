@@ -219,3 +219,29 @@ test('trang khoá IN hai chỉ số từ stats, không ghi cứng, và bỏ cả
     'CourseDetail đang ghi cứng đúng con số của bản dựng — số tay thì sẽ trôi',
   );
 });
+
+// ---------------------------------------------------------------------------
+// THANH TIẾN ĐỘ KHOÁ (A1) — "còn bao xa" nhìn một cái, không thêm lời gọi API
+// ---------------------------------------------------------------------------
+
+test('thanh tiến độ khoá: chỉ khi biết tiến độ, đủ aria của progressbar, số lấy từ plan', () => {
+  const tsx = doc(join(FE, 'src', 'app', '(standalone)', 'courses', '[courseId]', 'CourseDetail.tsx'));
+  const i = tsx.indexOf('data-tien-do-khoa');
+  assert.ok(i > 0, 'CourseDetail không còn thanh tiến độ khoá');
+  const the = tsx.slice(tsx.lastIndexOf('{plan.completedCount > 0 && (', i), tsx.indexOf('</div>', i));
+  assert.ok(the.startsWith('{plan.completedCount > 0 && ('), 'thanh phải nằm sau điều kiện completedCount > 0 — khách vãng lai không thấy thanh rỗng "0%"');
+  for (const dau of ['role="progressbar"', 'aria-valuemin={0}', 'aria-valuemax={total}', 'aria-valuenow={plan.completedCount}', 'aria-valuetext=', 'aria-label=']) {
+    assert.ok(the.includes(dau), `thanh tiến độ thiếu ${dau}`);
+  }
+  assert.match(the, /Math\.min\(100,\s*Math\.round\(\(plan\.completedCount \/ total\) \* 100\)\)/, 'bề rộng phải kẹp ≤ 100% và tính từ plan.completedCount / total');
+});
+
+test('thanh tiến độ khoá: CSS dùng token lofi (line + ochre), không brand xanh, không hoạt ảnh', () => {
+  const css = doc(join(FE, 'src', 'components', 'CourseShell.module.css')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const nen = /\.tienDoKhoa\s*\{([^}]*)\}/.exec(css);
+  const day = /\.tienDoKhoa\s*>\s*span\s*\{([^}]*)\}/.exec(css);
+  assert.ok(nen && day, 'thiếu rule .tienDoKhoa');
+  assert.match(nen[1], /background:\s*var\(--ds-line\)/);
+  assert.match(day[1], /background:\s*var\(--ds-ochre\)/);
+  assert.ok(!/--edu-accent|gradient|animation|transition/.test(nen[1] + day[1]), 'thanh không dùng brand xanh/gradient và không chuyển động');
+});

@@ -245,13 +245,13 @@
    "sort_order": 2,
    "module": "M1 · Python nền tảng",
    "title": "PY02 · Chọn đúng Python và tách môi trường học",
-   "subtitle": "Cơ bản · M1 · 16 phút",
-   "estimated_minutes": 16,
-   "xp_reward": 10,
+   "subtitle": "Cơ bản · M1 · 14 phút",
+   "estimated_minutes": 14,
+   "xp_reward": 8,
    "content_json": {
     "schema": "studio-lesson/v2",
     "title": "PY02 · Chọn đúng Python và tách môi trường học",
-    "subtitle": "Cơ bản · M1 · 16 phút",
+    "subtitle": "Cơ bản · M1 · 14 phút",
     "source": {
      "kind": "python-da",
      "filename": "course.json#PY02",
@@ -264,7 +264,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Ở bài trước bạn vừa tính doanh thu ngày đầu bằng mấy dòng code. Sổ sách của quán sẽ lớn dần, nên trước khi viết thêm, hãy dọn cho nó một góc riêng. Giả sử bạn có hai dự án: sổ bán hàng của quán và một bài tập cũ. Nếu cài mọi thứ vào cùng một Python, một lần nâng cấp cho quán có thể làm bài tập cũ đổi kết quả. Trước hết, hãy biết mình đang chạy Python nào:"
+        "text": "Ở bài trước bạn vừa tính doanh thu ngày đầu bằng mấy dòng code. Sổ sách sẽ lớn dần, nên hãy dọn cho nó một góc riêng. Cài chung mọi thứ vào một Python thì một lần nâng cấp cho quán có thể làm bài tập cũ đổi kết quả. Trước hết, hãy biết mình đang chạy Python nào:"
        },
        {
         "type": "code",
@@ -276,11 +276,11 @@
       [
        {
         "type": "paragraph",
-        "text": "Số 3 cho biết đang dùng Python 3. `sys` là một module (file Python nạp được vào file khác) có sẵn của Python, và `import sys` cho bạn đọc thông tin môi trường. Khi cần xem đường dẫn Python đang chạy, gõ `print(sys.executable)`. Đường dẫn trên máy bạn sẽ khác máy người khác."
+        "text": "Số 3 cho biết đang dùng Python 3. `sys` là một module (file Python nạp được vào file khác) có sẵn của Python, và `print(sys.executable)` cho đường dẫn của đúng Python đang chạy."
        },
        {
         "type": "paragraph",
-        "text": "Môi trường ảo giữ thư viện của từng dự án riêng nhau. Một lần cài cho dự án khác sẽ không làm đổi sổ của quán. Mở terminal (cửa sổ bạn gõ câu lệnh vào) trong thư mục dự án rồi chạy lệnh sau. Đây là lệnh terminal, không phải code để dán vào một ô code:"
+        "text": "Môi trường ảo giữ thư viện của từng dự án riêng nhau. Mở terminal (cửa sổ bạn gõ câu lệnh vào) trong thư mục dự án rồi chạy lệnh sau. Đây là lệnh gõ trong cửa sổ đó, không phải code để dán vào một ô code:"
        },
        {
         "type": "terminal",
@@ -291,7 +291,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Tên `.venv` là thư mục bạn chọn để chứa môi trường của quán. Bước này chỉ tạo môi trường, chưa cài NumPy (thư viện tính toán trên cả dãy số một lượt). Bạn sẽ cần tới nó khi sổ bán hàng dài hàng nghìn dòng. Trên Windows, kiểm tra `pip` của môi trường vừa tạo bằng:"
+        "text": "Tên `.venv` là thư mục chứa môi trường của quán. Trên Windows, kiểm tra `pip` của môi trường vừa tạo bằng:"
        },
        {
         "type": "terminal",
@@ -302,15 +302,11 @@
       [
        {
         "type": "paragraph",
-        "text": "Trên Linux/macOS, lệnh tương ứng là `.venv/bin/python -m pip --version`. Gọi `pip` qua đúng Python giúp bạn không cài nhầm thư viện sang môi trường khác. Khi tới bài NumPy, cài bằng `.venv\\Scripts\\python -m pip install numpy` trên Windows hoặc `.venv/bin/python -m pip install numpy` trên Linux/macOS. `pip` cài gói (package), tức một tập module nạp được như một đơn vị, thường lấy từ kho PyPI. Nó không tự đổi phiên bản Python."
+        "text": "Trên Linux/macOS, lệnh tương ứng là `.venv/bin/python -m pip --version`. `pip` cài gói (package), tức một thư viện bên ngoài. Gọi nó qua đúng Python giúp bạn không cài nhầm sang môi trường khác. Khi tới bài NumPy (thư viện tính toán trên cả dãy số một lượt), cài bằng `.venv\\Scripts\\python -m pip install numpy` trên Windows."
        },
        {
         "type": "paragraph",
-        "text": "`sys` và `venv` thuộc thư viện chuẩn nên đã có sẵn cùng Python, còn NumPy là gói bên ngoài phải cài thêm. Quanh việc này còn vài công cụ khác mà bạn sẽ gặp trong tài liệu. `virtualenv` cũng tạo môi trường; `pyenv` chủ yếu giúp quản lý các phiên bản Python. `conda` quản lý cả môi trường lẫn gói, trong đó Miniconda gọn hơn Anaconda vốn kèm sẵn nhiều gói."
-       },
-       {
-        "type": "paragraph",
-        "text": "Sơ đồ trong slide (trang trình bày của bài giảng gốc) còn nhắc pipenv và Poetry để quản lý dự án và các phụ thuộc. Nó cũng nhắc `setup.py` trong cách đóng gói truyền thống. Trước mắt bạn chỉ cần biết tạo một môi trường và biết Python nào sẽ chạy bài. Khi gửi dự án cho người khác, ghi lại các phiên bản thư viện để họ dựng lại đúng môi trường của bạn."
+        "text": "`sys` và `venv` thuộc thư viện chuẩn, có sẵn cùng Python; gói bên ngoài thì phải cài thêm. Khi gửi dự án cho người khác, ghi lại phiên bản các thư viện để họ dựng lại đúng môi trường của bạn."
        }
       ]
      ],
@@ -381,8 +377,8 @@
      ],
      "practice": [
       {
-       "prompt": "pip và pyenv quản lý cùng một việc không?",
-       "answer": "Không. pip quản lý package trong môi trường Python; pyenv giúp chọn/cài các phiên bản Python."
+       "prompt": "Lệnh `python -m venv .venv` làm gì, và nó có cài NumPy không?",
+       "answer": "Nó tạo thư mục `.venv` chứa một môi trường mới, chưa cài NumPy hay thư viện nào. Cài thư viện là một bước riêng, bằng pip."
       },
       {
        "prompt": "Viết lệnh tạo môi trường .venv và kiểm tra pip của nó trên Windows.",
@@ -397,12 +393,12 @@
        "answer": "Dùng Python 3. Python 2 đã ngừng được hỗ trợ nên không còn là lựa chọn phù hợp để bắt đầu dự án mới."
       },
       {
-       "prompt": "Bạn muốn cài NumPy từ PyPI và ghi phụ thuộc của dự án. pip, PyPI, pipenv/Poetry và setup.py có vai trò gì?",
-       "answer": "PyPI là kho phân phối package; pip là công cụ cài package vào môi trường Python đã chọn. pipenv và Poetry giúp quản lý môi trường hoặc phụ thuộc dự án. setup.py là file cấu hình trong cách đóng gói Python truyền thống, không phải một môi trường ảo."
+       "prompt": "Bạn muốn cài NumPy vào môi trường `.venv` của dự án trên Windows. Lệnh nào làm việc đó, và vì sao gọi `pip` qua đúng Python?",
+       "answer": "`.venv\\Scripts\\python -m pip install numpy`. Gọi pip qua đúng Python giúp thư viện được cài vào môi trường đó, không cài nhầm sang môi trường khác; pip không đổi phiên bản Python."
       },
       {
-       "prompt": "Conda khác pyenv ở đâu? Nếu muốn bắt đầu với ít package được cài sẵn, bạn chọn Miniconda hay Anaconda?",
-       "answer": "pyenv chủ yếu quản lý các phiên bản Python. Conda quản lý môi trường và package, kể cả một số phụ thuộc ngoài Python. Miniconda là bản khởi đầu gọn; Anaconda cài sẵn nhiều package hơn."
+       "prompt": "Khi gửi dự án cho người khác, bạn cần ghi lại điều gì để họ dựng lại đúng môi trường?",
+       "answer": "Ghi lại phiên bản các thư viện đã cài (và Python đang dùng), để họ tạo môi trường mới rồi cài đúng những phiên bản đó."
       }
      ]
     },
@@ -430,13 +426,13 @@
    "sort_order": 3,
    "module": "M1 · Python nền tảng",
    "title": "PY03 · REPL, notebook và trạng thái đã chạy",
-   "subtitle": "Cơ bản · M1 · 15 phút",
-   "estimated_minutes": 15,
-   "xp_reward": 9,
+   "subtitle": "Cơ bản · M1 · 14 phút",
+   "estimated_minutes": 14,
+   "xp_reward": 8,
    "content_json": {
     "schema": "studio-lesson/v2",
     "title": "PY03 · REPL, notebook và trạng thái đã chạy",
-    "subtitle": "Cơ bản · M1 · 15 phút",
+    "subtitle": "Cơ bản · M1 · 14 phút",
     "source": {
      "kind": "python-da",
      "filename": "course.json#PY03",
@@ -449,7 +445,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Môi trường bạn vừa tạo ở bài trước quyết định Python nào sẽ chạy; giờ chọn chỗ để gõ. Trong một notebook, bạn chạy ô gán `cups = 12` lúc đầu buổi, rồi lát sau chạy ô in `cups`. Con số cũ vẫn còn vì kernel (tiến trình Python chạy phía sau trang đó) giữ lại biến của ô trước. Một lần chạy có đủ đầu vào thì trông như sau:"
+        "text": "Môi trường bạn vừa tạo ở bài trước quyết định Python nào sẽ chạy; giờ chọn chỗ để gõ. Trong một notebook, bạn chạy ô gán `cups = 12` lúc đầu buổi, lát sau chạy ô in `cups`. Con số cũ vẫn còn vì kernel (tiến trình Python chạy phía sau trang đó) giữ biến của ô trước. Một lần chạy đủ đầu vào trông như sau:"
        },
        {
         "type": "code",
@@ -461,7 +457,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Trang này có hai loại ô: ô code và ô văn bản. Mỗi ô có thể kèm đầu ra (output), hình và công thức; Shift+Enter thường chạy ô đang chọn. Jupyter Notebook và JupyterLab là hai giao diện làm việc với nó. Phần giữ trạng thái và thực thi là kernel, và nó sống suốt buổi bạn ngồi tính. Nếu bạn chỉ gửi riêng ô `print(cups + 1)` cho người quản lý quán, máy họ có thể chưa có `cups`."
+        "text": "Trang này có hai loại ô: ô code và ô văn bản; mỗi ô có thể kèm đầu ra (output). Shift+Enter thường chạy ô đang chọn. Phần giữ trạng thái và thực thi là kernel, và nó sống suốt buổi bạn ngồi tính. Nếu bạn chỉ gửi riêng ô `print(cups + 1)` cho người quản lý quán, máy họ có thể chưa có `cups`."
        },
        {
         "type": "code",
@@ -473,11 +469,7 @@
       [
        {
         "type": "paragraph",
-        "text": "Giữa hai ô, bạn đếm lại bình rồi sửa con số; ô chạy sau dùng giá trị `cups` mới nhất mà kernel đang giữ. Nếu chưa gán `cups` mà đã in nó, Python báo `NameError` vì chưa có tên đó. Đó là lý do trước khi gửi sổ cho người khác, bạn khởi động lại tiến trình đó rồi chạy lại từ đầu. Bước khởi tạo nào bị thiếu sẽ lộ ra ngay."
-       },
-       {
-        "type": "paragraph",
-        "text": "Nơi bạn gõ cũng có nhiều lựa chọn, và chọn gì thì sổ của quán vẫn tính ra cùng con số. Một editor chủ yếu giúp sửa văn bản mã nguồn. Một IDE gom thêm công cụ chạy, kiểm lỗi và gỡ lỗi. VS Code mở rộng được bằng extension, còn PyCharm và Spyder là hai ví dụ IDE mà bài giảng gốc nêu."
+        "text": "Giữa hai ô, bạn đếm lại bình rồi sửa con số; ô chạy sau dùng giá trị `cups` mới nhất mà kernel đang giữ. Chưa gán `cups` mà đã in nó thì Python báo `NameError`. Vì vậy trước khi gửi sổ cho người khác, hãy khởi động lại kernel rồi chạy lại từ đầu. Bước khởi tạo nào thiếu sẽ lộ ra ngay."
        },
        {
         "type": "code",
@@ -489,15 +481,11 @@
       [
        {
         "type": "paragraph",
-        "text": "Hai kiểu dữ liệu đầu tiên của sổ xuất hiện ở đây: số cốc là một con số, tên món là chữ. `type(12)` cho biết 12 có kiểu `int`, còn `type(\"data\")` cho biết chuỗi có kiểu `str`. Khi cần tra một thứ gì, gõ `dir(object)` để xem tên các thuộc tính, hoặc `help(print)` để đọc hướng dẫn dùng `print`."
+        "text": "Hai kiểu dữ liệu đầu tiên của sổ xuất hiện ở đây: số cốc là một con số, tên món là chữ. `type(12)` cho biết 12 có kiểu `int`, còn `type(\"data\")` cho biết chuỗi có kiểu `str`. Khi cần hướng dẫn một hàm, gõ `help(print)`."
        },
        {
         "type": "paragraph",
-        "text": "Nếu máy chưa có nó, chạy `python -m pip install notebook` trong terminal của môi trường đã chọn, rồi chạy `jupyter notebook` để mở. Với `conda`, bài giảng gốc đưa lựa chọn `conda install -c conda-forge notebook`. Đây là lệnh terminal; đừng dán chúng vào một ô rồi coi là câu Python. Và không cần dùng cả `pip` lẫn `conda` cho cùng một lần cài."
-       },
-       {
-        "type": "paragraph",
-        "text": "Phần dưới đây là lịch sử, đọc để biết chứ chưa cần làm gì. Jupyter phát triển từ dự án IPython. Với Python, IPython kernel thực thi và giữ các biến, còn Notebook và JupyterLab là giao diện gửi lệnh tới nó. Trong sơ đồ của slide, ZeroMQ vận chuyển thông điệp và Tornado phục vụ phần web. jQuery, Bootstrap và MathJax lo phần giao diện. Bạn không phải tự cài từng cái để tính một ô."
+        "text": "Nếu máy chưa có Notebook, chạy `python -m pip install notebook` trong terminal của môi trường đã chọn, rồi chạy `jupyter notebook` để mở. Đây là lệnh terminal; đừng dán chúng vào một ô rồi coi là câu Python."
        }
       ]
      ],
@@ -580,12 +568,12 @@
        "answer": "Trong terminal của môi trường dự án, chạy python -m pip install notebook rồi jupyter notebook. Với notebook đã mở, Restart kernel rồi Run All theo đúng thứ tự, kiểm lại kết quả và ghi môi trường khi chia sẻ. Bước cài cần kết nối và quyền phù hợp; không coi là câu lệnh Python trong cell."
       },
       {
-       "prompt": "Bạn cần sửa file .py và đặt breakpoint. Editor và IDE khác nhau ở đâu? Notebook có thêm loại nội dung nào ngoài code?",
-       "answer": "Editor chủ yếu sửa văn bản; IDE tích hợp thêm chạy, kiểm lỗi và debugger. VS Code có thể mở rộng, PyCharm/Spyder là ví dụ IDE. Notebook còn chứa văn bản giải thích, output, hình và phương trình."
+       "prompt": "Vì sao một notebook gửi cho người khác nên được khởi động lại kernel rồi chạy lại từ đầu?",
+       "answer": "Kernel giữ biến của mọi ô đã chạy, kể cả ô bạn đã sửa hoặc xoá. Khởi động lại rồi chạy từ đầu cho thấy bước khởi tạo nào còn thiếu, trước khi người khác gặp NameError."
       },
       {
-       "prompt": "Notebook/JupyterLab, IPython kernel, ZeroMQ, Tornado, jQuery/Bootstrap và MathJax giữ vai trò nào trong kiến trúc Jupyter mà bài mô tả?",
-       "answer": "Notebook/Lab là giao diện; IPython kernel thực thi và giữ trạng thái. ZeroMQ vận chuyển thông điệp; Tornado thuộc web server; jQuery/Bootstrap thuộc giao diện lịch sử; MathJax hiển thị toán. Jupyter phát triển từ IPython. Đây không phải các package cần tự gọi để tính một cell."
+       "prompt": "`type(12)` và `type(\"data\")` in ra gì, và vì sao hai kết quả khác nhau?",
+       "answer": "`int` và `str`. Số cốc là một con số nên có kiểu `int`; tên món là chữ nên có kiểu `str`."
       }
      ]
     },
@@ -10256,7 +10244,7 @@
       [
        {
         "type": "paragraph",
-        "text": "`to_numpy()` lấy các giá trị thành NumPy array, bỏ nhãn hàng và cột; array của một cột vẫn có hai chiều nên kết quả gồm các `list` nhỏ. Slide cũ dùng `.values` cho thao tác tương tự; code mới thường viết rõ `to_numpy()`. Nếu các cột khác kiểu, array kết quả có thể cần kiểu chung thay vì giữ nguyên kiểu của từng cột."
+        "text": "`to_numpy()` lấy các giá trị thành NumPy array, bỏ nhãn hàng và cột; array của một cột vẫn có hai chiều nên kết quả gồm các `list` nhỏ. Slide (trang trình bày của bài giảng gốc) dùng `.values` cho thao tác tương tự; code mới thường viết rõ `to_numpy()`. Nếu các cột khác kiểu, array kết quả có thể cần kiểu chung thay vì giữ nguyên kiểu của từng cột."
        },
        {
         "type": "paragraph",

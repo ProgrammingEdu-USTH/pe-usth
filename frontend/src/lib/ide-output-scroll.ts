@@ -33,3 +33,26 @@ export function canKeoKetQua(
   const canThay = Math.min(nguong, bottom - top);
   return dangThay < canThay;
 }
+
+/**
+ * Cuộn BAO NHIÊU px để ô kết quả lọt vào màn (0 = không cần).
+ *
+ * Dùng cho màn bài tập CHẤM của trang bài học, nơi `caoMan` không phải `innerHeight` mà là mép TRÊN
+ * của thanh dưới dính (nút "Nộp"): phần màn nằm sau thanh đó không thấy được. Đo 16/11/2026 trên bản
+ * dựng, 390×844: ô soạn mã ở y 494–679, nút "Chạy thử" ở 699, và SAU khi chạy ô "KẾT QUẢ CHẠY" hiện
+ * ở y = 780–918 với `scrollY` vẫn 0 — tức nằm trọn dưới thanh dưới (từ y 755). Người học bấm Chạy và
+ * ảnh chụp GIỐNG HỆT trước khi bấm. Hai bài đo (#24, #44) đều thế.
+ *
+ * Kéo ÍT NHẤT có thể: đủ để `nguong` px ĐẦU của ô (đầu ô là dòng trạng thái và những dòng in ra đầu
+ * tiên) nằm trong màn, không kéo cả ô vào — ô soạn mã ở trên phải còn lọt màn để sửa rồi chạy lại.
+ */
+export function doCuonKetQua(
+  top: number,
+  bottom: number,
+  caoThay: number,
+  nguong: number = KET_QUA_THAY_TOI_THIEU_PX,
+): number {
+  if (!canKeoKetQua(top, bottom, caoThay, nguong)) return 0;
+  const canThay = Math.min(nguong, bottom - top);
+  return Math.max(0, top + canThay - caoThay);
+}

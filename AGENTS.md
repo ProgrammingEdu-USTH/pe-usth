@@ -88,7 +88,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
-| Frontend unit test | `cd frontend && npm run test:unit` → **754 ca** / 68 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **760 ca** / 69 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -108,7 +108,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **51 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 754 · backend 35 bộ/523 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/365 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 760 · backend 35 bộ/523 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/365 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -139,9 +139,10 @@ khoa-roi-giao-trinh 5 · label-version 3 · learning-events 48 · lesson-back 19
 lesson-chrome-sticky 4 · lesson-load 7 · lien-ket-noi-bo 3 · loi-python 6 · mcq-code 11 ·
 mcq-next-after-wrong 23 · o-go-16px 10 · o-nhap-nhieu-dong 2 · phan-bai 8 · practice-contract 15 ·
 practice-run 9 · prewarm-gate 5 · read-diagram 12 · read-guess 19 · read-trace 17 ·
-read-try-it 23 · recap-recall 7 · review-quiz 34 · run-stale 15 · session-marker 5 ·
+read-try-it 23 · recap-recall 7 · review-quiz 34 · run-stale 15 · sandbox-cuon-ket-qua 6 · session-marker 5 ·
 spaced-review 18 · studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 · trang-404 6 ·
-trang-loi 12 · trap-leak 3 · worker-csp 7 = 754.
+trang-loi 12 · trap-leak 3 · worker-csp 7 = 760.
+Mốc trước là 754; thêm sandbox-cuon-ket-qua 6 (BÀI TẬP CHẤM TRÊN ĐIỆN THOẠI: bấm "Chạy thử" xong ô "KẾT QUẢ CHẠY" hiện ở y 780–918 ở 390×844 trong khi thanh dưới dính che từ 755 và `scrollY` vẫn 0 — đo hai bài, #24 và #44; nay cuộn khi `running` đi true → false, đáy "thấy được" là mép trên thanh dưới) — 16/11/2026.
 Mốc trước là 747; thêm danh-thuc-may-chu 6 (ĐÁNH THỨC MÁY CHỦ: một lượt `GET /health` mỗi phiên từ trang chủ và trang khoá học, KHÔNG qua `apiFetch` — cold start đo > 25 s, 33,2 s ngày 16/11; hiệu quả rút ngắn CHƯA ĐO) và catalog-naming 3 → 4 (#274: trang bài học còn `courseName="Python Advanced"`, trang chủ còn dự phòng "Python nâng cao") — 16/11/2026.
 Mốc trước là 746; hover-cam-ung 3 → 4 (`a:hover` TOÀN CỤC của `public/static/css/edu-theme.css`: đặc hiệu (0,1,1) thắng mọi `.lớp { color }`, nên sau một cú chạm nó đổi chữ nút "Thử ngay trong IDE" thành xanh action — 4,30:1 ngày / 2,01:1 đêm, backtest bài #21 ở 390px, CẢ HAI giao diện; cổng cũ chỉ quét `src/`) — 16/11/2026.
 Mốc trước là 687; thêm giao-dien +7 (RÀO AN TOÀN của theme chiêm tinh: khoá phiên bản pe-giao-dien-v trong script trước-paint, nhãn "Thử nghiệm" + đường về lofi, EB Garamond tự lưu trữ một bậc 600, cạnh khối code ban đêm) và giao-dien-chuyen-dong +2 (tvSlip ≤ 320 ms, 12px, 0,4°; "Quay lại" chỉ mờ ≤ 120 ms) — 16/11/2026.

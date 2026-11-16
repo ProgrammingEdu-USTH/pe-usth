@@ -261,7 +261,13 @@ test('MỌI lời gọi bộ chấm trong check-practice.mjs đều truyền fil
   // không bài tập nào ĐỌC file, nên bỏ tham số `files` ở pha 1 hay pha 2 vẫn
   // cho cả hai pha XANH (đã thử: chỉ pha 3 đỏ). Chỗ duy nhất nói ra được điều
   // đó trước khi có một bài tập thật đọc file là chính cây mã.
-  const goi = [...CHECK_PRACTICE.matchAll(/grade\(([\s\S]{0,240}?)\)\);/g)].map((m) => m[1]);
+  // Chỉ phần TRƯỚC pha 5: pha 5 (bảng lỗi tiếng Việt) chạy các chương trình TỰ DỰNG gây NameError,
+  // KeyError… — không chương trình nào đọc file, nên nó cố ý gọi `grade(code, '[]', '{}', …)` mà
+  // không truyền file bài tập. Đếm cả nó là báo oan; để nguyên nó ở ngoài phạm vi canh thì mỗi
+  // lời gọi thêm vào pha 1–3 vẫn bị đếm.
+  const phan = CHECK_PRACTICE.slice(0, CHECK_PRACTICE.indexOf('PHA 5'));
+  assert.ok(phan.length > 10000, 'không tìm thấy mốc "PHA 5" — cắt sai thì ca này đếm rỗng');
+  const goi = [...phan.matchAll(/grade\(([\s\S]{0,240}?)\)\);/g)].map((m) => m[1]);
   assert.equal(goi.length, 3, 'số lời gọi `grade(` đã đổi — xem lại ca này');
   for (const args of goi) {
     assert.match(args, /JSON\.stringify\(file(CuaBai)?\)/,

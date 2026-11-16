@@ -147,8 +147,6 @@ const CHUA_DO = {
   // hàng do nội dung quyết thì KHAI NỢ kèm đường đo.
   '.phuongAn':
     'ReviewQuiz.tsx — phương án của đề ôn tập, hàng full-width `padding: 10px 12px` font 14px nên bề cao do số dòng của câu quyết. Đo được khi người học xong ≥ 2 bài: `MIN_POOL` đòi 5 câu và mỗi bài phát 3 câu.',
-  '.moduleHead':
-    'CourseDetail.tsx qua CourseShell.module.css — hàng tiêu đề học phần bấm được ở trang khoá học, `padding: 13px 4px` và chữ là một heading nên bề cao gần chắc đã ≥ 44 do nội dung. Đo được bằng cách mở `/courses/python_advanced` ở 390×844; chưa làm vì vòng này đã có một bản sửa đo được.',
   '.theoryFigure figcaption a':
     'ReadScreen.tsx — link nguồn trong chú thích hình, chỉ có ở bài mà hình mang '
     + 'link. Là thẻ `a` INLINE nên `min-height` không áp được: bản sửa ở đó phải '
@@ -490,6 +488,10 @@ test('đích bấm: năm nút đã đo không quay về dưới sàn', () => {
     // #157 sửa cái dưới và bỏ sót cái này vì SY05 không có câu luyện tập nào
     // chạy được, nên cổng `{chayDuoc && …}` không dựng nút để mà đo.
     '.practiceRun': [38, 1],
+    // Đo 16/11/2026 trên production, trang khoá 390×844: 11 hàng cao 50–109px — ĐÃ ≥ 44,
+    // nên số 50 là mức thấp nhất đo được chứ không phải "dưới sàn". Sàn khai ở CSS để nó
+    // thành bảo đảm; mục này canh "đừng gỡ min-height: 44px". CourseShell = TEP[8].
+    '.moduleHead': [50, 8],
     // Đo 09/11/2026 sau khi trả lời câu ôn giãn cách trên NP06. Tôi DỰ ĐOÁN 38
     // (cùng công thức CSS với `.practiceRun`) và đo ra 36 — một công thức giống
     // nhau cho một con số GẦN nhau, không cho CÙNG con số.

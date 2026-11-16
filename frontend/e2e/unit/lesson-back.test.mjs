@@ -346,3 +346,38 @@ test('StudioLesson dùng CÙNG một cờ `completed` cho cả vẽ lẫn bấm'
   assert.match(s, /doneSteps=\{screens\.map\(\(x\) => completed \|\| Boolean\(d\.done\[x\.key\]\)\)\}/,
     'doneSteps đổi cách đọc `completed` — kiểm lại rằng vẽ và bấm vẫn khớp nhau.');
 });
+
+// ---------------------------------------------------------------------------
+// 7. NGÂN SÁCH BỀ RỘNG THANH DƯỚI Ở KHỔ ĐIỆN THOẠI — nút phụ không được bóp nút chính
+// ---------------------------------------------------------------------------
+//
+// Đo trên bản dựng, 390×844, PD14 (fixture, không ghi production): MỌI màn có nút
+// phụ — "💡 Gợi ý" ở các màn luyện tập/bài tập chấm, "Chọn lại" sau khi trả lời
+// trắc nghiệm sai — nút chính rộng đúng `min-width` 132px, nhãn "Nộp & Chấm điểm"
+// / "Đã xem đáp án →" xuống HAI dòng (chữ cao 34–36px so với 17px) và nhãn "Tiến
+// độ tự lưu" cũng gãy hai dòng. Màn không có nút phụ thì nút chính 202px, một dòng.
+
+test('thanh dưới đánh dấu "có nút phụ" bằng data-co-nut-phu, đúng khi có secondaryLabel', () => {
+  assert.ok(
+    boChuThich(CHROME).includes("data-co-nut-phu={secondaryLabel ? '1' : undefined}"),
+    'bottomBarInner phải mang data-co-nut-phu khi có nút phụ — CSS dựa vào nó để nhường chỗ cho nút chính',
+  );
+});
+
+test('khổ điện thoại + có nút phụ: nhãn lưu bị CLIP (không display:none) trong @media 560px', () => {
+  const css = CSS.replace(/\/\*[\s\S]*?\*\//g, '');
+  const sel = '.bottomBarInner[data-co-nut-phu] .saveLabel';
+  const at = css.indexOf(sel);
+  assert.ok(at >= 0, `không thấy luật ${sel}`);
+  assert.equal(css.indexOf(sel, at + 1), -1, 'luật này phải khai ĐÚNG MỘT lần');
+  const thanVan = css.slice(css.indexOf('{', at) + 1, css.indexOf('}', at));
+  assert.match(thanVan, /clip-path:\s*inset\(50%\)/, 'nhãn lưu phải ẩn bằng clip');
+  assert.match(thanVan, /position:\s*absolute/, 'nhãn lưu phải rời dòng chảy flex, nếu không vẫn chiếm 85px');
+  assert.ok(!/display:\s*none/.test(thanVan), 'display:none bỏ nhãn role="status" khỏi cây hỗ trợ tiếp cận');
+  // Phải nằm TRONG khối @media (max-width: 560px), không ở tầng gốc (ẩn cả desktop).
+  const bat = css.lastIndexOf('@media (max-width: 560px)', at);
+  assert.ok(bat >= 0, 'luật nằm ngoài mọi @media (max-width: 560px)');
+  let sau = css.indexOf('{', bat) + 1, mo = 1;
+  while (mo > 0 && sau < css.length) { const c = css[sau++]; if (c === '{') mo++; else if (c === '}') mo--; }
+  assert.ok(at < sau, 'luật nằm sau khi khối @media (max-width: 560px) gần nhất đã đóng — tức ở tầng gốc');
+});

@@ -202,7 +202,9 @@ export default function LessonChrome({
       </main>
 
       <footer className={styles.bottomBar}>
-        <div className={styles.bottomBarInner}>
+        {/* data-co-nut-phu: có nút phụ (Gợi ý / Chọn lại) thì ở khổ điện thoại nhãn
+            "Tiến độ tự lưu" nhường chỗ — xem `.bottomBarInner[data-co-nut-phu]`. */}
+        <div className={styles.bottomBarInner} data-co-nut-phu={secondaryLabel ? '1' : undefined}>
           {/* Ô trái giữ nguyên MỘT ô của lưới 3 cột, nếu không nút chính lệch
               khỏi giữa thanh. Nút quay lại đứng trước nhãn lưu vì nó là thứ
               người ta đi tìm; nhãn lưu chỉ để đọc. */}

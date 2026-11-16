@@ -137,8 +137,8 @@
      "answer": "So shape (10,100), tên cột, numeric và text. Column4/Column12 trong CSV đổi bằng Timestamp(\"1960-01-01\") + to_timedelta(...,unit=\"D\") trước so với SAS. Dùng pandas.testing.assert_frame_equal với check_dtype=False nếu chỉ khác độ rộng số; không bỏ qua khác giá trị."
     },
     {
-     "prompt": "Với file thật .sas7bdat, nêu cách đọc bằng API cũ trong slide và bằng pandas. Với .dta thì dùng gì? Một test XPORT có đủ xác nhận SAS7BDAT không?",
-     "answer": "API trong slide: with SAS7BDAT(str(path)) as reader: frame=reader.to_data_frame(). Pandas: pd.read_sas(path,format=\"sas7bdat\",encoding=\"utf8\"). Với .dta: pd.read_stata(path). XPORT và SAS7BDAT là hai format khác nhau; phải kiểm đúng fixture .sas7bdat, không suy từ .xpt."
+     "prompt": "Với file thật .sas7bdat, nêu cách đọc bằng thư viện sas7bdat (API cũ) và bằng pandas. Với .dta thì dùng gì? Một test XPORT có đủ xác nhận SAS7BDAT không?",
+     "answer": "API sas7bdat cũ: with SAS7BDAT(str(path)) as reader: frame=reader.to_data_frame(). Pandas: pd.read_sas(path,format=\"sas7bdat\",encoding=\"utf8\"). Với .dta: pd.read_stata(path). XPORT và SAS7BDAT là hai format khác nhau; phải kiểm đúng fixture .sas7bdat, không suy từ .xpt."
     }
    ]
   },

@@ -245,7 +245,7 @@
   "step_2": {
    "mcq": [
     {
-     "question": "Trong mô hình Apache Worker của slide, các thread cùng một child process có thể chia sẻ heap không?",
+     "question": "Trong mô hình Apache Worker của bài, các thread cùng một child process có thể chia sẻ heap không?",
      "options": [
       {
        "text": "Không; thread luôn có heap riêng",
@@ -264,7 +264,7 @@
      "explanation": "Chúng thuộc cùng process nên cùng không gian địa chỉ theo mô hình thread thông thường."
     },
     {
-     "question": "Trong sơ đồ Prefork của slide, các child process có mặc định chung heap không?",
+     "question": "Trong sơ đồ Prefork của bài, các child process có mặc định chung heap không?",
      "options": [
       {
        "text": "Chỉ chung heap nếu tên giống nhau",

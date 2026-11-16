@@ -139,7 +139,7 @@
      "answer": "Không. np.load nạp định dạng NumPy; helper tìm/mở dữ liệu mẫu đi kèm Matplotlib. Kiểm API và file phiên bản hiện tại, hoặc tạo fixture array ảnh cùng loại như ví dụ; không suy một tên mẫu cũ luôn có sẵn."
     },
     {
-     "prompt": "np.random.random((2,3)) trong slide cho bao nhiêu số và khoảng giá trị nào? np.mgrid[0:1:100j] cho bước dài 100 hay 100 vị trí?",
+     "prompt": "np.random.random((2,3)) cho bao nhiêu số và khoảng giá trị nào? np.mgrid[0:1:100j] cho bước dài 100 hay 100 vị trí?",
      "answer": "Có 6 số trong bảng (2,3), từ 0 đến dưới 1. 100j yêu cầu 100 vị trí tính cả hai đầu 0 và 1; khoảng cách là 1/99. rng.random((2,3)) là cách dùng bộ sinh riêng với cùng ý nghĩa shape."
     },
     {

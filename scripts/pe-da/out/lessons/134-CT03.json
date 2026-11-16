@@ -158,7 +158,7 @@
      "explanation": "I/O-bound có nhiều giai đoạn chờ, scheduler tận dụng thời gian này."
     },
     {
-     "question": "Process đang chờ ổ đĩa nằm ở queue nào trong mô hình slide?",
+     "question": "Process đang chờ ổ đĩa nằm ở queue nào trong mô hình của bài?",
      "options": [
       {
        "text": "job queue chỉ chứa kết quả đã in",

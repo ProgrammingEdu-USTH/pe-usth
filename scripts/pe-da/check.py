@@ -721,6 +721,15 @@ def _noi_nhu_build(codes: list[str]) -> str:
     return '\n\n'.join(phan) + '\n'
 
 
+# CÂU HỎI không được hỏi vào một thứ người học không có. Giáo trình bắt nguồn từ slide bài giảng USTH;
+# người tự học KHÔNG có bộ slide đó, nên "Slide nêu những mức chia sẻ nào?" không trả lời được chỉ bằng bài
+# (đo 16/11/2026: 8 câu luyện tập/trắc nghiệm ở 7 bài, #284). Ngoại lệ có chủ đích, mỗi cái một lý do:
+#   · VZ14: "nền slide" là TRANG TRÌNH BÀY (đặt hình lên slide thuyết trình), không phải slide của giáo trình;
+#   · GU03: câu hỏi về PHẠM VI nguồn — slide chỉ liệt kê Menu, ví dụ add_command là phần bổ sung; chữ ấy
+#     ghi dấu gốc của ví dụ (liên quan bản quyền USTH, #292) nên giữ cho tới khi chủ dự án quyết.
+SLIDE_CHO_PHEP = {'VZ14', 'GU03'}
+
+
 def kiem_chu_nguoi_dung_he_thong(bai: list[dict]) -> None:
     """Đề bài và câu giải thích môi trường KHÔNG được mang chữ của người dựng.
 
@@ -735,6 +744,15 @@ def kiem_chu_nguoi_dung_he_thong(bai: list[dict]) -> None:
             if ma_loi:
                 loi(f'{b["lesson_code"]}: step_4.{ten} còn chữ của người dựng "{ma_loi.group(0)}" — '
                     'dịch bằng ly_do_cho_nguoi_hoc() của build.py')
+        if b['lesson_code'] in SLIDE_CHO_PHEP:
+            continue
+        s2 = b['content_json'].get('step_2') or {}
+        cau_hoi = [('practice.prompt', p.get('prompt')) for p in s2.get('practice') or []]
+        cau_hoi += [('mcq.question', q.get('question')) for q in s2.get('mcq') or []]
+        for ten, van in cau_hoi:
+            if re.search(r'\bslide\b', str(van or ''), re.I):
+                loi(f'{b["lesson_code"]}: step_2.{ten} hỏi vào "slide" — người tự học không có bộ slide USTH; '
+                    'viết lại để trả lời được chỉ bằng bài (hoặc thêm mã bài vào SLIDE_CHO_PHEP kèm lý do)')
 
 
 def kiem_sandbox(bai: list[dict]) -> None:

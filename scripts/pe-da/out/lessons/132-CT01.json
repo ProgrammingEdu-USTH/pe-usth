@@ -196,7 +196,7 @@
      "answer": "worker là cha, analysis là tổ tiên cách một thế hệ. helper là cháu của analysis."
     },
     {
-     "prompt": "Con được tạo từ cha có luôn dùng chung mọi biến Python không? Slide nêu những mức chia sẻ nào?",
+     "prompt": "Con được tạo từ cha có luôn dùng chung mọi biến Python không? Bài nêu những mức chia sẻ nào?",
      "answer": "Không. Mức tài nguyên được chia sẻ tùy OS/cơ chế: toàn bộ, một phần hoặc không đối với tài nguyên đang xét; phải kiểm mô hình thay vì mặc định chung mọi object."
     }
    ]

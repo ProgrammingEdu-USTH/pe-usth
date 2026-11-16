@@ -586,7 +586,7 @@
           "answer": "Editor chủ yếu sửa văn bản; IDE tích hợp thêm chạy, kiểm lỗi và debugger. VS Code có thể mở rộng, PyCharm/Spyder là ví dụ IDE. Notebook còn chứa văn bản giải thích, output, hình và phương trình."
         },
         {
-          "prompt": "Notebook/JupyterLab, IPython kernel, ZeroMQ, Tornado, jQuery/Bootstrap và MathJax giữ vai trò nào trong sơ đồ slide?",
+          "prompt": "Notebook/JupyterLab, IPython kernel, ZeroMQ, Tornado, jQuery/Bootstrap và MathJax giữ vai trò nào trong kiến trúc Jupyter mà bài mô tả?",
           "answer": "Notebook/Lab là giao diện; IPython kernel thực thi và giữ trạng thái. ZeroMQ vận chuyển thông điệp; Tornado thuộc web server; jQuery/Bootstrap thuộc giao diện lịch sử; MathJax hiển thị toán. Jupyter phát triển từ IPython. Đây không phải các package cần tự gọi để tính một cell."
         }
       ],
@@ -4421,7 +4421,7 @@
           "answer": "Dùng df.index.tolist(), df.columns.tolist(), df.head(1), df.tail(1) và df.info(). Hai tên đầu là nhãn hàng, hai tên sau là nhãn cột; info in thông tin trực tiếp."
         },
         {
-          "prompt": "df[[\"so_coc\"]] có shape (2,1). Sau to_numpy(), các nhãn A/B và so_coc còn được giữ không? .values trong slide có ý nghĩa gì?",
+          "prompt": "df[[\"so_coc\"]] có shape (2,1). Sau to_numpy(), các nhãn A/B và so_coc còn được giữ không? .values (cách viết cũ) có ý nghĩa gì?",
           "answer": "Không. to_numpy() trả ndarray shape (2,1) chỉ giữ giá trị. .values cũng lấy phần giá trị, nhưng to_numpy() thể hiện rõ thao tác và cho phép chọn dtype/copy. Giữ nhãn riêng nếu cần ghép kết quả trở lại bảng."
         }
       ],
@@ -11727,8 +11727,8 @@
       "provenance": "Khái niệm đối chiếu slide USTH; dữ liệu, ví dụ và bài tập được biên soạn mới cho người học Data Analyst.",
       "reviewExercises": [
         {
-          "prompt": "Với file thật .sas7bdat, nêu cách đọc bằng API cũ trong slide và bằng pandas. Với .dta thì dùng gì? Một test XPORT có đủ xác nhận SAS7BDAT không?",
-          "answer": "API trong slide: with SAS7BDAT(str(path)) as reader: frame=reader.to_data_frame(). Pandas: pd.read_sas(path,format=\"sas7bdat\",encoding=\"utf8\"). Với .dta: pd.read_stata(path). XPORT và SAS7BDAT là hai format khác nhau; phải kiểm đúng fixture .sas7bdat, không suy từ .xpt."
+          "prompt": "Với file thật .sas7bdat, nêu cách đọc bằng thư viện sas7bdat (API cũ) và bằng pandas. Với .dta thì dùng gì? Một test XPORT có đủ xác nhận SAS7BDAT không?",
+          "answer": "API sas7bdat cũ: with SAS7BDAT(str(path)) as reader: frame=reader.to_data_frame(). Pandas: pd.read_sas(path,format=\"sas7bdat\",encoding=\"utf8\"). Với .dta: pd.read_stata(path). XPORT và SAS7BDAT là hai format khác nhau; phải kiểm đúng fixture .sas7bdat, không suy từ .xpt."
         }
       ],
       "strand": "python-systems"
@@ -11924,7 +11924,7 @@
       "provenance": "Khái niệm đối chiếu slide USTH; dữ liệu, ví dụ và bài tập được biên soạn mới cho người học Data Analyst.",
       "reviewExercises": [
         {
-          "prompt": "File SQLite data.sqlite trong thư mục hiện tại dùng URL nào? Thay engine.table_names() và execute chuỗi trần của slide bằng gì? fetchmany(size=1), fetchall() và result.keys() trả phần nào?",
+          "prompt": "File SQLite data.sqlite trong thư mục hiện tại dùng URL nào? Thay engine.table_names() và execute chuỗi trần (cách viết cũ) bằng gì? fetchmany(size=1), fetchall() và result.keys() trả phần nào?",
           "answer": "URL sqlite:///data.sqlite. Dùng inspect(engine).get_table_names(), và connection.execute(text(\"SELECT ...\")). result.keys() cho tên cột; fetchmany(size=1) lấy một dòng từ vị trí hiện tại; fetchall() lấy các dòng còn lại. with engine.connect() đóng connection khi rời khối, engine.dispose() thu dọn pool. pd.read_sql_query(text(...),connection,params=...) trả DataFrame có tên cột."
         }
       ],
@@ -12481,7 +12481,7 @@
           "answer": "worker là cha, analysis là tổ tiên cách một thế hệ. helper là cháu của analysis."
         },
         {
-          "prompt": "Con được tạo từ cha có luôn dùng chung mọi biến Python không? Slide nêu những mức chia sẻ nào?",
+          "prompt": "Con được tạo từ cha có luôn dùng chung mọi biến Python không? Bài nêu những mức chia sẻ nào?",
           "answer": "Không. Mức tài nguyên được chia sẻ tùy OS/cơ chế: toàn bộ, một phần hoặc không đối với tài nguyên đang xét; phải kiểm mô hình thay vì mặc định chung mọi object."
         }
       ],
@@ -15509,7 +15509,7 @@
           "answer": "python -m pip install notebook rồi jupyter notebook, trong terminal của môi trường dự án. Không dán thành câu lệnh Python vào cell."
         },
         {
-          "prompt": "Nếu dự án quản lý bằng conda, lựa chọn cài trong slide là gì? Vì sao vẫn kiểm sys.executable trong notebook?",
+          "prompt": "Nếu dự án quản lý bằng conda, lựa chọn cài mà bài nêu là gì? Vì sao vẫn kiểm sys.executable trong notebook?",
           "answer": "conda install -c conda-forge notebook. Kernel có thể trỏ tới môi trường khác terminal; sys.executable giúp kiểm Python thực tế."
         },
         {
@@ -16019,7 +16019,7 @@
       "provenance": "Bài bổ sung sau đối chiếu yêu cầu chi tiết của slide USTH. Dữ liệu và tình huống do bộ bài biên soạn; không phải số liệu khảo sát thật.",
       "reviewExercises": [
         {
-          "prompt": "np.random.random((2,3)) trong slide cho bao nhiêu số và khoảng giá trị nào? np.mgrid[0:1:100j] cho bước dài 100 hay 100 vị trí?",
+          "prompt": "np.random.random((2,3)) cho bao nhiêu số và khoảng giá trị nào? np.mgrid[0:1:100j] cho bước dài 100 hay 100 vị trí?",
           "answer": "Có 6 số trong bảng (2,3), từ 0 đến dưới 1. 100j yêu cầu 100 vị trí tính cả hai đầu 0 và 1; khoảng cách là 1/99. rng.random((2,3)) là cách dùng bộ sinh riêng với cùng ý nghĩa shape."
         },
         {

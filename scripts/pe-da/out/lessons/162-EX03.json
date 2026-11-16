@@ -130,7 +130,7 @@
      "answer": "python -m pip install notebook rồi jupyter notebook, trong terminal của môi trường dự án. Không dán thành câu lệnh Python vào cell."
     },
     {
-     "prompt": "Nếu dự án quản lý bằng conda, lựa chọn cài trong slide là gì? Vì sao vẫn kiểm sys.executable trong notebook?",
+     "prompt": "Nếu dự án quản lý bằng conda, lựa chọn cài mà bài nêu là gì? Vì sao vẫn kiểm sys.executable trong notebook?",
      "answer": "conda install -c conda-forge notebook. Kernel có thể trỏ tới môi trường khác terminal; sys.executable giúp kiểm Python thực tế."
     },
     {

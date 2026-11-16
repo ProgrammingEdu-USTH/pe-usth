@@ -157,7 +157,7 @@
      "answer": "Editor chủ yếu sửa văn bản; IDE tích hợp thêm chạy, kiểm lỗi và debugger. VS Code có thể mở rộng, PyCharm/Spyder là ví dụ IDE. Notebook còn chứa văn bản giải thích, output, hình và phương trình."
     },
     {
-     "prompt": "Notebook/JupyterLab, IPython kernel, ZeroMQ, Tornado, jQuery/Bootstrap và MathJax giữ vai trò nào trong sơ đồ slide?",
+     "prompt": "Notebook/JupyterLab, IPython kernel, ZeroMQ, Tornado, jQuery/Bootstrap và MathJax giữ vai trò nào trong kiến trúc Jupyter mà bài mô tả?",
      "answer": "Notebook/Lab là giao diện; IPython kernel thực thi và giữ trạng thái. ZeroMQ vận chuyển thông điệp; Tornado thuộc web server; jQuery/Bootstrap thuộc giao diện lịch sử; MathJax hiển thị toán. Jupyter phát triển từ IPython. Đây không phải các package cần tự gọi để tính một cell."
     }
    ]

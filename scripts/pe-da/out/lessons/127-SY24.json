@@ -139,7 +139,7 @@
      "answer": "Dùng with engine.connect() as c: pd.read_sql_query(text(\"SELECT id, score FROM scores ORDER BY id\"), c). Kiểm columns, số dòng và giá trị. Trước đó inspect(engine).get_table_names() để kiểm tên bảng; đóng/dispose khi hoàn tất."
     },
     {
-     "prompt": "File SQLite data.sqlite trong thư mục hiện tại dùng URL nào? Thay engine.table_names() và execute chuỗi trần của slide bằng gì? fetchmany(size=1), fetchall() và result.keys() trả phần nào?",
+     "prompt": "File SQLite data.sqlite trong thư mục hiện tại dùng URL nào? Thay engine.table_names() và execute chuỗi trần (cách viết cũ) bằng gì? fetchmany(size=1), fetchall() và result.keys() trả phần nào?",
      "answer": "URL sqlite:///data.sqlite. Dùng inspect(engine).get_table_names(), và connection.execute(text(\"SELECT ...\")). result.keys() cho tên cột; fetchmany(size=1) lấy một dòng từ vị trí hiện tại; fetchall() lấy các dòng còn lại. with engine.connect() đóng connection khi rời khối, engine.dispose() thu dọn pool. pd.read_sql_query(text(...),connection,params=...) trả DataFrame có tên cột."
     }
    ]

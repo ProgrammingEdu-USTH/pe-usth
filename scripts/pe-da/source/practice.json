@@ -33548,7 +33548,7 @@
               "type": "mcq",
               "title": "Queue theo trạng thái",
               "focus": "Queue theo trạng thái",
-              "prompt": "Process đang chờ ổ đĩa nằm ở queue nào trong mô hình slide?",
+              "prompt": "Process đang chờ ổ đĩa nằm ở queue nào trong mô hình của bài?",
               "options": [
                 {
                   "id": "c",
@@ -36651,7 +36651,7 @@
           "id": "RC01-predict",
           "type": "mcq",
           "title": "Dự đoán trước khi chạy",
-          "prompt": "Trong mô hình Apache Worker của slide, các thread cùng một child process có thể chia sẻ heap không?",
+          "prompt": "Trong mô hình Apache Worker của bài, các thread cùng một child process có thể chia sẻ heap không?",
           "options": [
             {
               "id": "a",
@@ -36680,7 +36680,7 @@
               "type": "mcq",
               "title": "Prefork và bộ nhớ",
               "focus": "Prefork và bộ nhớ",
-              "prompt": "Trong sơ đồ Prefork của slide, các child process có mặc định chung heap không?",
+              "prompt": "Trong sơ đồ Prefork của bài, các child process có mặc định chung heap không?",
               "options": [
                 {
                   "id": "c",
@@ -36796,7 +36796,7 @@
               "type": "mcq",
               "title": "Giới hạn diễn giải sơ đồ",
               "focus": "Giới hạn diễn giải sơ đồ",
-              "prompt": "Có nên dùng ba hình lịch sử trong slide để khẳng định mọi bản Chromium hiện nay có cùng số process không?",
+              "prompt": "Có nên dùng ba hình lịch sử trong bài để khẳng định mọi bản Chromium hiện nay có cùng số process không?",
               "options": [
                 {
                   "id": "a",

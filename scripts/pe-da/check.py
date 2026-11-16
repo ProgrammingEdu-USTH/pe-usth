@@ -791,6 +791,12 @@ def kiem_bai_tap(ma: str, bon: dict, mode: str) -> None:
     if 'terminal' in tieu_de.lower():
         loi(f'{ma}: tiêu đề bài tập "{tieu_de}" nhắc terminal nhưng ô soạn là trình duyệt — '
             'thêm chữ gói practice vào TIEU_DE_BAI_TAP_THAY trong build.py')
+    # Gợi ý của 22 bài biểu đồ từng nói "mở một file riêng và gọi plt.show()": người học không có
+    # file riêng nào, nơi gọi plt.show() là /ide (#284; build.py: CAU_GOI_Y_MOI).
+    for g in bon.get('hints') or []:
+        if re.search(r'file riêng[^.]*plt\.show', str(g.get('body') or ''), re.I):
+            loi(f'{ma}: gợi ý nói "mở một file riêng và gọi plt.show()" — chữ của người dựng, '
+                'người học không có file riêng nào; dùng CAU_GOI_Y_MOI của build.py')
 
     giai = bon.get('solutionCode') or ''
     if not giai.strip():

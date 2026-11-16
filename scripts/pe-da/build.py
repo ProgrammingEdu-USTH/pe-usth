@@ -953,6 +953,13 @@ IO_MAX_KY_TU = 320
 # #284.
 TIEU_DE_BAI_TAP_THAY = {'Tự viết và chạy trong terminal': 'Tự viết rồi chạy Python'}
 
+# GỢI Ý VZ nói "mở một file riêng và gọi plt.show()" — chữ của người dựng, không phải của người học.
+# 22 bài biểu đồ có bài tập chấm mang đúng một câu này (30 chỗ trong gói practice): người mới không có
+# "file riêng" nào để mở. Nơi thật sự gọi `plt.show()` để xem hình là Bàn thí nghiệm `/ide`, nên câu
+# thay chỉ ra đúng chỗ. Gói nguồn KHÔNG bị sửa; `check.py` đòi bản dựng không còn câu cũ. #284.
+CAU_GOI_Y_CU = 'Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình.'
+CAU_GOI_Y_MOI = 'Muốn xem hình thì mở Bàn thí nghiệm (/ide) và gọi `plt.show()` ở đó.'
+
 
 def vi_du_io(bai_tap: dict, hop_dong: dict) -> tuple[list[dict] | None, str]:
     """Ô "đầu vào → kết quả" của bài tập, dựng từ CA CHẤM ĐẦU TIÊN.
@@ -1113,6 +1120,7 @@ def bai_tap_cua(bai_tap: dict, mode: str = 'pyodide',
         # dung bài — `_ly_do_io` bị bóc ra ngay sau khi main() đọc.
         ra['_ly_do_io'] = ly_do_io
     goi_y = [g for g in bai_tap.get('hints') or [] if g]
+    goi_y = [g.replace(CAU_GOI_Y_CU, CAU_GOI_Y_MOI) for g in goi_y]
     if goi_y:
         ra['hints'] = [{'title': f'Gợi ý {i + 1}', 'body': g}
                        for i, g in enumerate(goi_y)]

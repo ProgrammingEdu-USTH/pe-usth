@@ -465,6 +465,25 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
                       {plan.completedCount > 0 && ` · đã xong ${plan.completedCount}/${total}`}
                     </span>
                   </div>
+                  {/* THANH TIẾN ĐỘ KHOÁ — chỉ khi THẬT SỰ biết tiến độ (cùng điều kiện với dòng
+                      "đã xong x/N" ngay trên): khách vãng lai không thấy một thanh rỗng nói "0%".
+                      Số lấy từ `plan` (đã qua cổng `hasStoredSession` ở loadCompletedLessons), nên
+                      thanh này KHÔNG thêm một lời gọi API nào vào trang công khai. Chữ đã có ở dòng
+                      trên; thanh chỉ là cái nhìn một cái ra "còn bao xa" mà chữ không cho. */}
+                  {plan.completedCount > 0 && (
+                    <div
+                      className={styles.tienDoKhoa}
+                      role="progressbar"
+                      aria-label="Tiến độ khoá học"
+                      aria-valuemin={0}
+                      aria-valuemax={total}
+                      aria-valuenow={plan.completedCount}
+                      aria-valuetext={`Đã xong ${plan.completedCount} trên ${total} bài`}
+                      data-tien-do-khoa="1"
+                    >
+                      <span style={{ width: `${Math.min(100, Math.round((plan.completedCount / total) * 100))}%` }} />
+                    </div>
+                  )}
                   <div className={styles.blockBody}>
                     {/* Điều kiện giữ tiến độ nói BẰNG CHỮ: khoá học không đăng nhập, tiến độ gắn
                         với trình duyệt này (tài khoản khách sống 30 ngày kể từ lần dùng cuối). Trước

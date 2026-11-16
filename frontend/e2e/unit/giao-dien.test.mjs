@@ -658,3 +658,17 @@ test('trang khoá học theo theme: EB Garamond cho tiêu đề, thanh tiến đ
   assert.match(tsx, /\(cong \/ total\) \* 100/, 'vị trí vạch phải theo số bài cộng dồn / tổng');
   assert.match(tsx, /<i key=\{mi\} className=\{styles\.tienDoMoc\} aria-hidden="true"/, 'vạch chặng là trang trí: aria-hidden');
 });
+
+test('--ds-sketch (viền thứ bấm được): ẤM ở cả hai chế độ và đủ tương phản trên giấy hàng, thẻ, nền trang', () => {
+  const R = (hex) => parseInt(hex.slice(1, 3), 16);
+  const Bl = (hex) => parseInt(hex.slice(5, 7), 16);
+  const ngay = mau('--ds-sketch', 'ngay');
+  const dem = mau('--ds-sketch', 'dem');
+  assert.ok(R(ngay) >= Bl(ngay), `--ds-sketch ban ngày ${ngay} xanh hơn đỏ — lofi #5B6A85 lạnh trên giấy kem, đó chính là thứ phải đổi`);
+  assert.ok(R(dem) >= Bl(dem), `--ds-sketch ban đêm ${dem} xanh hơn đỏ — nền đêm của theme là nâu, viền lạnh #8FA0BC của lofi lạc tông`);
+  assert.notEqual(ngay.toUpperCase(), '#5B6A85', 'theme còn dùng --ds-sketch của lofi');
+  for (const n of ['--ds-paper', '--ds-card', '--ds-page']) {
+    assert.ok(tuongPhan(ngay, mau(n, 'ngay')) >= 4.5, `ban ngày: --ds-sketch ${ngay} trên ${n} chỉ ${tuongPhan(ngay, mau(n, 'ngay')).toFixed(2)}:1`);
+    assert.ok(tuongPhan(dem, mau(n, 'dem')) >= 5, `ban đêm: --ds-sketch ${dem} trên ${n} chỉ ${tuongPhan(dem, mau(n, 'dem')).toFixed(2)}:1`);
+  }
+});

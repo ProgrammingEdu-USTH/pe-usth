@@ -72,6 +72,8 @@ html[data-theme="thien-van"] {
   --ds-card: #FBF5E3;
   --ds-desk: #E3D7BC;
   --ds-line: #DCCFA6;
+  /* viền thứ BẤM ĐƯỢC + nét đứt "chưa học" (hàng bài ở trang khoá). Lofi: #5B6A85 xanh xám lạnh — lạc tông trên giấy kem. 5,62:1 trên giấy hàng, 5,86:1 trên thẻ, 5,15:1 trên nền trang. */
+  --ds-sketch: #6F5D33;
   /* mực và nền phụ của TRANG KHOÁ HỌC / SiteHeader: chúng dùng --ds-ink (navy
      lạnh #0F1B33 của lofi) và --ds-paper/--ds-tint thay vì --edu-t*. Không đổi
      thì trang khoá có chữ navy trên giấy kem — hai bảng màu cùng một khung nhìn. */
@@ -146,6 +148,7 @@ html[data-theme="thien-van"] body.dark {
   --ds-card: #2A2416;
   --ds-desk: #3A3220;
   --ds-line: #574B2A;
+  --ds-sketch: #A89A74;
   --ds-ink: #E8EEF7;
   --ds-soft: #AFBDD2;
   --ds-paper: #221C10;

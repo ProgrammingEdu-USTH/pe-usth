@@ -551,3 +551,39 @@
     transition: none;
   }
 }
+
+/* ===== TRANG KHOÁ HỌC THEO THEME "ĐÀI THIÊN VĂN" (chiem-tinh) =====
+   Trước đây trang khoá chỉ ĐỔI MÀU qua token (nền giấy, mực nâu) còn hình thức vẫn là lofi:
+   tiêu đề Montserrat đậm trong khi màn bài học dùng EB Garamond, và thanh tiến độ khoá là một
+   thanh xanh lục trơn. Ba thay đổi, cả ba chỉ khi chọn theme (lofi không đổi một pixel):
+   (1) tiêu đề khoá + tiêu đề khối bằng EB Garamond (cùng bậc 600, letter-spacing 0, lining-nums
+       như `.title` của ShellB — font nạp lười nên người dùng lofi vẫn 0 request font);
+   (2) phần đã xong của thanh tiến độ là ĐỒNG, nền thanh là `--tv-rule` — cùng họ thước đồng ở thanh
+       bài học;
+   (3) vạch ngăn chặng cắt ngang thanh bằng màu thẻ: nhìn một cái ra "đã qua mấy chặng". */
+.tienDoMoc {
+  display: none;
+}
+:global(html[data-theme="thien-van"]) .tienDoKhoa {
+  position: relative;
+  background: var(--tv-rule);
+}
+:global(html[data-theme="thien-van"]) .tienDoKhoa > span {
+  background: var(--tv-brass);
+}
+:global(html[data-theme="thien-van"]) .tienDoMoc {
+  display: block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  transform: translateX(-1px);
+  background: var(--ds-card);
+}
+:global(html[data-theme="thien-van"]) .title,
+:global(html[data-theme="thien-van"]) .blockTitle {
+  font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+  font-weight: 600;
+  letter-spacing: 0;
+  font-variant-numeric: lining-nums;
+}

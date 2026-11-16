@@ -470,6 +470,13 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
                       data-tien-do-khoa="1"
                     >
                       <span style={{ width: `${Math.min(100, Math.round((plan.completedCount / total) * 100))}%` }} />
+                      {/* Vạch ngăn CHẶNG: một vạch ở mỗi ranh giới giữa hai chặng, đặt theo số bài cộng dồn
+                          (chặng không đều: 18, 23, 14… bài). Chỉ theme "Đài thiên văn" vẽ chúng (thước đồng);
+                          lofi `display: none`. Trang trí thuần — thông tin thật đã ở aria-valuetext. */}
+                      {modules.slice(0, -1).map((_, mi) => {
+                        const cong = modules.slice(0, mi + 1).reduce((n, m) => n + m.lessons.length, 0);
+                        return <i key={mi} className={styles.tienDoMoc} aria-hidden="true" style={{ left: `${(cong / total) * 100}%` }} />;
+                      })}
                     </div>
                   )}
                   <div className={styles.blockBody}>

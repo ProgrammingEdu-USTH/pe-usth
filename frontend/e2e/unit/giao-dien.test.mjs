@@ -632,3 +632,29 @@ test('sơ đồ DOM: thanh trái làn và mũi tên nối bước dùng đồng 
   assert.equal(co('.readDiagramLane', 'border-left-color'), 'var(--tv-brass)');
   assert.equal(co('.readDiagramSteps li + li::before', 'color'), 'var(--tv-brass)');
 });
+
+test('trang khoá học theo theme: EB Garamond cho tiêu đề, thanh tiến độ ĐỒNG có vạch chặng, lofi không đổi', () => {
+  const css = readFileSync(join(GOC, 'src/components/CourseShell.module.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const rules = moiRule(css);
+  const co = (sel) => rules.find((x) => x.media === null && x.sels.some((s) => s.includes('html[data-theme="thien-van"]') && s.endsWith(sel)));
+  // (1) tiêu đề
+  const tit = co('.title');
+  assert.ok(tit && /EB Garamond/.test(tit.than) && /font-weight\s*:\s*600/.test(tit.than), '.title dưới theme phải là EB Garamond 600');
+  assert.ok(tit.sels.some((s) => s.endsWith('.blockTitle')), '.blockTitle phải đi cùng .title');
+  // (2) thanh tiến độ: đồng, không mã màu, không chuyển động
+  const nen = co('.tienDoKhoa');
+  const day = co('.tienDoKhoa > span');
+  assert.ok(nen && /background\s*:\s*var\(--tv-rule\)/.test(nen.than), 'nền thanh dưới theme phải là --tv-rule');
+  assert.ok(day && /background\s*:\s*var\(--tv-brass\)/.test(day.than), 'phần đã xong dưới theme phải là --tv-brass');
+  const moc = co('.tienDoMoc');
+  assert.ok(moc && /background\s*:\s*var\(--ds-card\)/.test(moc.than) && /position\s*:\s*absolute/.test(moc.than), 'vạch chặng phải cắt ngang bằng màu thẻ');
+  for (const r of [tit, nen, day, moc]) assert.ok(!/animation|transition|#[0-9a-fA-F]{3,8}\b/.test(r.than), `${r.sels[0]}: không chuyển động, không mã màu`);
+  // (3) lofi: vạch chặng ẩn ở rule GỐC
+  const goc = rules.find((x) => x.media === null && x.sels.includes('.tienDoMoc'));
+  assert.ok(goc && /display\s*:\s*none/.test(goc.than), '.tienDoMoc phải display:none ở lofi');
+  // markup: một vạch cho mỗi ranh giới chặng (modules.slice(0, -1)), đặt theo số bài cộng dồn
+  const tsx = readFileSync(join(GOC, 'src/app/(standalone)/courses/[courseId]/CourseDetail.tsx'), 'utf8').replace(/\{\/\*[\s\S]*?\*\/\}/g, '');
+  assert.match(tsx, /modules\.slice\(0, -1\)\.map/, 'vạch chặng phải sinh từ modules.slice(0, -1)');
+  assert.match(tsx, /\(cong \/ total\) \* 100/, 'vị trí vạch phải theo số bài cộng dồn / tổng');
+  assert.match(tsx, /<i key=\{mi\} className=\{styles\.tienDoMoc\} aria-hidden="true"/, 'vạch chặng là trang trí: aria-hidden');
+});

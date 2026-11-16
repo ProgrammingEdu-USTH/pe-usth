@@ -381,3 +381,33 @@ test('khổ điện thoại + có nút phụ: nhãn lưu bị CLIP (không displ
   while (mo > 0 && sau < css.length) { const c = css[sau++]; if (c === '{') mo++; else if (c === '}') mo--; }
   assert.ok(at < sau, 'luật nằm sau khi khối @media (max-width: 560px) gần nhất đã đóng — tức ở tầng gốc');
 });
+
+// ---------------------------------------------------------------------------
+// NÚT CHÍNH BÁO "ĐANG LÀM" cho trình đọc màn hình (aria-busy)
+// ---------------------------------------------------------------------------
+//
+// `disabled` một mình chỉ nói "không bấm được": người nghe thấy nút mờ đi mà không biết nó
+// đang chờ chấm hay đã hỏng. `aria-busy` + nhãn "Đang chấm…" nói đúng trạng thái. Hôm nay có
+// BA chỗ nút chính chờ một việc: chấm bài, chạy code ở màn game, và hai khung chờ của
+// StudioLesson (đang tải, đang ghi danh). Cả ba phải đi qua cùng một prop, nếu không một chỗ
+// sẽ quên.
+
+test('nút chính: aria-busy đi từ prop primaryBusy, và chỉ đặt khi thật sự bận', () => {
+  assert.ok(/primaryBusy\?: boolean/.test(CHROME), 'LessonChrome không khai prop primaryBusy');
+  const nut = CHROME.slice(CHROME.indexOf('disabled={primaryDisabled}'), CHROME.indexOf('{primaryLabel}'));
+  assert.match(nut, /aria-busy=\{primaryBusy \|\| undefined\}/, 'nút chính phải đặt aria-busy từ primaryBusy; `|| undefined` để KHÔNG ghi aria-busy="false" khi rảnh');
+  assert.match(nut, /data-cta="primary"/, 'đổi cấu trúc thì sửa ca này: aria-busy phải nằm trên nút data-cta="primary"');
+});
+
+test('nút chính: cả ba chỗ chờ đều báo bận (chấm bài · chạy game · khung đang tải/ghi danh)', () => {
+  const cta = doc(join(FE, 'src', 'components', 'python-studio', 'cta.ts'));
+  for (const nhan of ["'Đang chấm…'", "'Đang chạy code…'"]) {
+    const i = cta.indexOf(nhan);
+    assert.ok(i > 0, `cta.ts không còn nhãn ${nhan}`);
+    const doan = cta.slice(i, cta.indexOf('action:', i));
+    assert.match(doan, /busy:/, `nhãn ${nhan} có mà Cta không mang busy — người dùng trình đọc màn hình chỉ nghe nút mờ`);
+  }
+  assert.match(SHELL, /primaryBusy=\{cta\.busy\}/, 'StudioLesson không chuyển cta.busy xuống LessonChrome');
+  assert.match(SHELL, /primaryDisabled: true,\s*\n\s*primaryBusy: true/, 'khung "Đang tải…" phải báo bận');
+  assert.match(SHELL, /primaryDisabled: busy,\s*\n\s*primaryBusy: busy/, 'khung ghi danh phải báo bận khi đang đăng ký');
+});

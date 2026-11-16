@@ -487,6 +487,7 @@ export default function StudioLesson({
         primaryLabel={cta.label}
         primaryTone={cta.tone}
         primaryDisabled={cta.disabled}
+        primaryBusy={cta.busy}
         onPrimaryClick={() => doAction(cta.action)}
         // Quay lại màn trước. Dùng CHÍNH `goTo` mà thanh tiến độ dùng, không
         // viết một đường đi thứ hai: `goTo` đã lo xoá kết quả chấm của màn cũ,
@@ -589,6 +590,7 @@ export default function StudioLesson({
       : 'Chờ một chút, nội dung đang được lấy từ máy chủ.'), {
       primaryLabel: 'Đang tải…',
       primaryDisabled: true,
+      primaryBusy: true,
       onPrimaryClick: () => undefined,
       onSeek: undefined,
       onBack: undefined,
@@ -611,6 +613,7 @@ export default function StudioLesson({
       {
         primaryLabel: busy ? 'Đang đăng ký…' : `Đăng ký khóa ${courseName} & bắt đầu`,
         primaryDisabled: busy,
+        primaryBusy: busy,
         onPrimaryClick: () => void enroll(),
         onSeek: undefined,
         onBack: undefined,

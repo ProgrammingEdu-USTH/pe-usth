@@ -16,6 +16,7 @@
 import { useState } from 'react';
 
 import CodeBlock from '@/components/lesson-chrome/exercises/CodeBlock';
+import CopyCodeButton from '@/components/lesson-chrome/exercises/CopyCodeButton';
 import TryItButton from '@/components/lesson-chrome/TryItButton';
 import { toCodeLines } from '@/lib/py-highlight';
 import {
@@ -243,6 +244,7 @@ function Block({
             <CodeBlock
               filename="python"
               langTag="ví dụ trong bài"
+              action={<CopyCodeButton code={block.code} />}
               lines={toCodeLines(block.code)}
             />
           </div>

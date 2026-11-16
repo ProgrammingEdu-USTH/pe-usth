@@ -280,6 +280,10 @@
   width: 100%;
   box-sizing: border-box;
   padding: 13px 4px;
+  /* Sàn đích bấm 44px. Đo 16/11/2026 trên production, 390×844: cả 11 hàng cao 50–109px
+     (chữ là heading, xuống dòng được) nên sàn KHÔNG đổi gì nhìn thấy — nó biến một con số
+     đo được thành bảo đảm, để một lần đổi padding/cỡ chữ không kéo hàng ngắn nhất xuống dưới 44. */
+  min-height: 44px;
   font: inherit;
   text-align: left;
   color: inherit;

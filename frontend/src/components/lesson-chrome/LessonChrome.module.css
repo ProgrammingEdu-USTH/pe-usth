@@ -817,6 +817,24 @@ button.segment:focus-visible,
     line-height: 1.3;
     white-space: normal;
   }
+  /* NGÂN SÁCH BỀ RỘNG thanh dưới ở 390px (đo trên bản dựng): 358px khả dụng =
+     nút Quay lại 44 + nhãn lưu 85 + nút phụ 74 + hai khe 16 + nút chính. Có nút
+     phụ thì nút chính chỉ còn ~132px (đúng `min-width`) và nhãn "Đã xem đáp án →" /
+     "Nộp & Chấm điểm" XUỐNG HAI DÒNG (chữ cao 34–36px so với 17px), mũi tên rơi lẻ,
+     còn nhãn lưu gãy hai dòng. Xảy ra ở MỌI màn luyện tập có "💡 Gợi ý" và mỗi lần
+     trả lời trắc nghiệm sai. Nhãn lưu là thứ nhường: nó nói một điều đúng ở mọi màn
+     (tiến độ tự lưu), còn nút chính là việc người học đang làm. Ẩn bằng CLIP chứ
+     KHÔNG display:none — cùng lý do `.backText`: nó là role="status", bỏ khỏi cây hỗ
+     trợ tiếp cận là bỏ luôn lời báo. Nút chính được ~224px. */
+  .bottomBarInner[data-co-nut-phu] .saveLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    max-width: none;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
   /* Điện thoại: nút co về đúng mũi tên. Chữ "Quay lại" ẩn bằng clip chứ KHÔNG
      display:none — display:none là bỏ khỏi cây hỗ trợ tiếp cận, nút sẽ không
      còn tên để đọc. */

@@ -193,3 +193,29 @@ test('có MỘT dòng nói điều kiện giữ tiến độ (trình duyệt nà
   const dong = DETAIL.slice(DETAIL.indexOf('data-giu-tien-do') - 80, DETAIL.indexOf('data-giu-tien-do') + 200);
   assert.ok(!/apiFetch|fetch\(/.test(dong), 'dòng giữ tiến độ phải là chữ tĩnh');
 });
+
+// ── Chỉ số khoá (teardown Brilliant 16/11): "N câu luyện tập · N bài tập có ca chấm" ──
+test('chỉ số khoá trong curricula.json KHỚP bản dựng (không phải số viết tay)', () => {
+  const lessons = JSON.parse(doc(join(FE, '..', 'scripts', 'pe-da', 'out', 'lessons.json'))).lessons;
+  const practice = lessons.reduce((s, b) => s + (b.content_json?.step_2?.practice ?? []).length, 0);
+  const graded = lessons.filter((b) => (b.content_json?.step_4?.tests ?? []).length > 0).length;
+  const stats = CURRICULA.python_advanced?.stats;
+  assert.ok(stats, 'curricula.json thiếu python_advanced.stats — chạy `py scripts/pe-da/sync_curricula.py`.');
+  assert.equal(stats.practice, practice, 'số câu luyện tập lệch bản dựng — chạy lại sync_curricula.py');
+  assert.equal(stats.graded, graded, 'số bài tập có ca chấm lệch bản dựng — chạy lại sync_curricula.py');
+  // Chống "khớp vì cả hai cùng rỗng": phép đếm phải thật sự đếm được thứ gì.
+  assert.ok(practice > 300 && graded > 50, `phép đếm ra quá ít (${practice}/${graded}) — có thể đọc sai khoá của bản dựng`);
+});
+
+test('trang khoá IN hai chỉ số từ stats, không ghi cứng, và bỏ cả dòng khi khoá không có stats', () => {
+  const code = boChuThich(DETAIL);
+  assert.ok(code.includes('curriculum.stats'), 'CourseDetail phải đọc curriculum.stats');
+  assert.ok(code.includes('{stats && ('), 'khoá không có stats thì phải bỏ cả dòng, không in "undefined câu"');
+  assert.ok(code.includes('{stats.practice} câu luyện tập'), 'dòng phải in stats.practice kèm đơn vị');
+  assert.ok(code.includes('{stats.graded} bài tập có ca chấm'), 'dòng phải in stats.graded kèm đơn vị');
+  const s = CURRICULA.python_advanced.stats;
+  assert.ok(
+    !new RegExp(`\b(${s.practice}|${s.graded})\b`).test(code.replace(/\d+px|\d+\.\d+|#[0-9a-fA-F]+/g, '')),
+    'CourseDetail đang ghi cứng đúng con số của bản dựng — số tay thì sẽ trôi',
+  );
+});

@@ -53,6 +53,8 @@ type Curriculum = {
   requirements?: string[];
   skills?: string[];
   modules?: { title: string; lessons: string[] }[];
+  /** Do `scripts/pe-da/sync_curricula.py` sinh từ bản dựng; khoá khác không có. */
+  stats?: { practice: number; graded: number };
 };
 const CURRICULA = CURRICULA_JSON.CURRICULA as Record<string, Curriculum>;
 
@@ -318,6 +320,7 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
   const curriculum = CURRICULA[courseId] || {};
   const modules = curriculum.modules || [];
   const outcomes = curriculum.skills || [];
+  const stats = curriculum.stats;
   const requirements = curriculum.requirements || [];
   /**
    * Tổng số bài lấy từ chính danh sách đang render, không từ `course.lessons`:
@@ -613,6 +616,13 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
                         ds-wording.test.mjs nay cấm cả hai. */}
                     <div className={styles.incItem}><span className={styles.incIcon}><Icon name="book" /></span> {course.lessons} bài</div>
                     <div className={styles.incItem}><span className={styles.incIcon}><Icon name="clock" /></span> {course.duration}</div>
+                    {/* Hai con số đến từ bản dựng (`curricula.json` → `stats`), không ghi cứng ở đây.
+                        Khoá nào không có `stats` thì bỏ cả dòng, không in "undefined câu". */}
+                    {stats && (
+                      <div className={styles.incItem} data-chi-so-khoa="1">
+                        <span className={styles.incIcon}><Icon name="clipboard" /></span> {stats.practice} câu luyện tập · {stats.graded} bài tập có ca chấm
+                      </div>
+                    )}
                     <div className={styles.incItem}><span className={styles.incIcon}><Icon name="route" /></span> Mọi bài mở sẵn, không khoá theo thứ tự</div>
                     <div className={styles.incItem}><span className={styles.incIcon}><Icon name="save" /></span> Tiến độ lưu theo phiên của bạn</div>
                     <div className={styles.incItem}><span className={styles.incIcon}><Icon name="device" /></span> Chạy trong trình duyệt, không cần cài gì</div>

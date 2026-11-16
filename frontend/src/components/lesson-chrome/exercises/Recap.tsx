@@ -4,6 +4,8 @@ import { useState } from 'react';
 
 import { withInlineCode } from '@/lib/inline-code';
 
+import styles from './exercises.module.css';
+
 export interface RecapStat {
   icon: string;
   value: string;
@@ -62,16 +64,16 @@ function OHoiTuong({ onNop }: { onNop: (chu: string) => void }) {
   const [chu, setChu] = useState('');
   return (
     <form
-      style={{ textAlign: 'left' }}
+      className={styles.recapLeft}
       onSubmit={(e) => {
         e.preventDefault();
         if (chu.trim()) onNop(chu.trim());
       }}
     >
-      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--edu-t2)', marginBottom: 8 }}>
+      <div className={styles.recapEyebrow}>
         <span aria-hidden="true">🧠</span> TRƯỚC KHI XEM TÓM TẮT
       </div>
-      <p style={{ fontSize: 14, color: 'var(--edu-t2)', margin: '0 0 10px', lineHeight: 1.6 }}>
+      <p className={styles.recapLead}>
         Không nhìn lại bài: viết 1–2 câu bạn nhớ được. Nhớ lại được bao nhiêu
         không quan trọng — chính việc cố nhớ mới làm kiến thức ở lại. Phần tóm
         tắt hiện ra ngay sau đó, và không ai chấm câu bạn viết.
@@ -82,38 +84,12 @@ function OHoiTuong({ onNop }: { onNop: (chu: string) => void }) {
         rows={3}
         aria-label="Viết lại thứ bạn nhớ được từ bài này"
         placeholder="Bài này dạy…"
-        style={{
-          width: '100%',
-          resize: 'vertical',
-          fontFamily: 'inherit',
-          // 16, không 14: ô này nằm ở màn tổng kết của MỌI bài, và Safari iOS tự phóng
-          // trang khi một form control < 16px nhận focus rồi không phóng lại ra
-          // (xem `o-go-16px.test.mjs`). Style nội tuyến thắng CSS nên không có @media
-          // nào hạ/nâng nó được — con số phải đúng ngay ở đây.
-          fontSize: 16,
-          lineHeight: 1.6,
-          padding: '10px 12px',
-          borderRadius: 10,
-          border: '1px solid var(--edu-sidebar-border)',
-          background: 'var(--edu-panel-bg-solid)',
-          color: 'var(--edu-t1)',
-        }}
+        className={styles.recapInput}
       />
       <button
         type="submit"
         disabled={!chu.trim()}
-        style={{
-          marginTop: 10,
-          padding: '9px 18px',
-          borderRadius: 999,
-          border: 'none',
-          fontWeight: 700,
-          fontSize: 14,
-          cursor: chu.trim() ? 'pointer' : 'not-allowed',
-          opacity: chu.trim() ? 1 : 0.55,
-          background: 'var(--edu-accent)',
-          color: '#fff',
-        }}
+        className={styles.recapGo}
       >
         Xem tóm tắt
       </button>
@@ -132,71 +108,36 @@ export default function Recap({
   hoiTruoc,
 }: RecapProps) {
   return (
-    <div style={{ textAlign: 'center' }}>
+    <div className={styles.recapRoot}>
       <span
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 8,
-          background: 'var(--edu-panel-bg-solid)',
-          border: '1px solid var(--edu-sidebar-border)',
-          borderRadius: 999,
-          padding: '10px 20px',
-          fontSize: 22,
-          fontWeight: 800,
-          color: 'var(--edu-accent-text)',
-        }}
+        className={styles.recapXp}
       >
         <span aria-hidden="true">💎</span> {xpLabel} <span aria-hidden="true">✨</span>
       </span>
-      <h2 style={{ fontSize: 24, fontWeight: 800, margin: '16px 0 8px', color: 'var(--edu-t1)' }}>{title}</h2>
-      <p style={{ fontSize: 14, color: 'var(--edu-t3)', maxWidth: 460, margin: '0 auto 20px' }}>{description}</p>
-      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${stats.length}, 1fr)`, gap: 12, marginBottom: 20 }}>
+      <h2 className={styles.recapTitle}>{title}</h2>
+      <p className={styles.recapDesc}>{description}</p>
+      <div className={styles.recapStats} style={{ gridTemplateColumns: `repeat(${stats.length}, 1fr)` }}>
         {stats.map((s, i) => (
-          <div
-            key={i}
-            style={{
-              background: 'var(--edu-panel-bg-solid)',
-              border: '1px solid var(--edu-sidebar-border)',
-              borderRadius: 12,
-              padding: 16,
-            }}
-          >
-            <div style={{ fontSize: 22 }} aria-hidden="true">{s.icon}</div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--edu-t1)', margin: '6px 0 2px' }}>{s.value}</div>
-            <div style={{ fontSize: 11, color: 'var(--edu-t3)' }}>{s.label}</div>
+          <div key={i} className={styles.recapStat}>
+            <div className={styles.recapStatIcon} aria-hidden="true">{s.icon}</div>
+            <div className={styles.recapStatValue}>{s.value}</div>
+            <div className={styles.recapStatLabel}>{s.label}</div>
           </div>
         ))}
       </div>
       {hoiTruoc && !hoiTruoc.daViet ? (
         <OHoiTuong onNop={hoiTruoc.onNop} />
       ) : (
-      <div style={{ textAlign: 'left' }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--edu-t2)', marginBottom: 8 }}>
+      <div className={styles.recapLeft}>
+        <div className={styles.recapEyebrow}>
           <span aria-hidden="true">📖</span> KIẾN THỨC CỐT LÕI ĐÃ HỌC
         </div>
         {/* Danh sách thật: trình đọc màn hình báo được "3 mục" thay vì đọc liền
             một mạch ba đoạn văn không rõ ranh giới. */}
-        <ul style={{ display: 'flex', flexDirection: 'column', gap: 8, listStyle: 'none', margin: 0, padding: 0 }}>
+        <ul className={styles.recapFactList}>
           {facts.map((f, i) => (
-            <li
-              key={i}
-              style={{
-                display: 'flex',
-                gap: 10,
-                alignItems: 'flex-start',
-                background: 'var(--edu-panel-bg-solid)',
-                border: '1px solid var(--edu-sidebar-border)',
-                borderRadius: 10,
-                padding: '11px 14px',
-                // 14px, không 13: ô này là "KIẾN THỨC CỐT LÕI ĐÃ HỌC", tức thứ
-                // người học đọc lại khi ôn. Xem lý do đầy đủ ở .read p.
-                fontSize: 14,
-                lineHeight: 1.6,
-                color: 'var(--edu-t1)',
-              }}
-            >
-              <span aria-hidden="true" style={{ color: 'var(--st-ok-text)' }}>✓</span>
+            <li key={i} className={styles.recapFact}>
+              <span aria-hidden="true" className={styles.recapTick}>✓</span>
               {/* withInlineCode, KHÔNG phải {f} trần: các ý chính ở đây lấy
                   từ đoạn văn của màn đọc, mà giáo trình 172 bài dùng backtick
                   dày đặc. Dựng trần thì học viên đọc ra cả dấu backtick —
@@ -221,18 +162,7 @@ export default function Recap({
       <button
         type="button"
         onClick={onFinish}
-        style={{
-          width: '100%',
-          height: 52,
-          borderRadius: 999,
-          border: 0,
-          background: 'var(--edu-accent-grad)',
-          color: 'var(--edu-panel-bg-solid)',
-          fontWeight: 700,
-          fontSize: 15,
-          cursor: 'pointer',
-          marginTop: 20,
-        }}
+        className={styles.recapFinish}
       >
         Hoàn thành <span aria-hidden="true">✓</span>
       </button>

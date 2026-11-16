@@ -59,6 +59,15 @@ const O_GO = [
     vi: 'ô gõ dự đoán ở màn đọc — đã 16px từ trước, giữ nó trong danh sách để '
       + 'ngày ai hạ nó xuống thì có chỗ bắt',
   },
+  {
+    lop: 'recapInput',
+    sel: '.recapInput',
+    css: 'src/components/lesson-chrome/exercises/exercises.module.css',
+    tsx: 'src/components/lesson-chrome/exercises/Recap.tsx',
+    // Từng là `fontSize: 14` NỘI TUYẾN (đính chính 16/11). Tách ra lớp CSS (B8a) để theme thứ
+    // hai và các cổng có chỗ bám — và để ca "thẻ KHÔNG ghi fontSize nội tuyến" canh được nó.
+    vi: 'ô hồi tưởng ở màn tổng kết của MỌI bài — đã 16px, nay là lớp CSS thay vì nội tuyến',
+  },
 ];
 
 /** Hai ô còn lại dưới 16px, CỐ Ý không sửa — xem lý do ở ghi chú của ca cuối. */
@@ -263,7 +272,7 @@ const boCtDong = (s) => s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$
 /** Tệp -> số ô gõ, và sàn 16px được canh ở đâu. */
 const DA_PHU = {
   'src/app/ide/IdeClient.tsx': 2, // `.select` + `.fallbackInput`, cả hai ở ide.module.css
-  'src/components/lesson-chrome/exercises/Recap.tsx': 1, // fontSize NỘI TUYẾN 16 (ca bên dưới đọc con số)
+  'src/components/lesson-chrome/exercises/Recap.tsx': 1, // `.recapInput` ở exercises.module.css (O_GO)
   'src/components/lesson-chrome/exercises/SandboxEditor.tsx': 1,
   'src/components/python-studio/screens/PracticeScreen.tsx': 1,
   'src/components/python-studio/screens/ReadScreen.tsx': 2,

@@ -125,15 +125,6 @@ const CHUA_DO = {
   // chuỗi, nên vòng sau phải đi tìm lại từ đầu "nút này ở màn nào". Mỗi mục nay
   // mang tệp dựng nó và VÌ SAO một lượt đi qua bài học không gặp nó — đó là
   // thứ biến một danh sách nợ thành một việc làm được.
-  '.resetLink':
-    'AdminAnswerKey.tsx — bề mặt QUẢN TRỊ, không nằm trên đường nào của người '
-    + 'học. Sàn 44px vẫn nên áp (chuột hay ngón tay thì cũng là đích bấm) nhưng '
-    + 'nó không cùng mức ưu tiên với màn bài học.',
-  '.answerKeyHead':
-    'AdminAnswerKey.tsx — cùng bề mặt quản trị ấy, là tiêu đề bấm được của bảng '
-    + 'đáp án. Nó khai `width: 100%` nên trục ngang đạt sẵn; chỉ trục dọc chưa đo.',
-
-
   // Hai mục dưới do NỘI DUNG quyết bề cao (hàng full-width, chữ xuống dòng
   // được), nên một sàn gieo mù vừa có thể là no-op vừa che mất một vấn đề
   // thiết kế thật. Phép chia của vòng #162: nút pill cỡ cố định thì ÁP SÀN,
@@ -512,6 +503,10 @@ test('đích bấm: năm nút đã đo không quay về dưới sàn', () => {
     // min-width; `.awards button` padding 10px + chữ ≈ 39px). Chuyển từ CHUA_DO sang đây vì sàn
     // đã khai ở CSS — cổng kiểm được khai báo, không cần ép overlay hiện.
     '.toast button': [18, 1], '.awards button': [39, 1],
+    // 16/11/2026 — bề mặt QUẢN TRỊ (AdminAnswerKey.tsx), cùng sàn 44px: số cũ suy từ khai báo (không
+    // đo trên màn — người học không thấy bảng này). `.resetLink` chỉ là chữ 12px không padding nên
+    // cao ~16px; `.answerKeyHead` đã `width: 100%` và cao theo chữ.
+    '.resetLink': [16, 1], '.answerKeyHead': [20, 1],
   };
   for (const [sel, [cu, i]] of Object.entries(CU)) {
     const tep = TEP[i];

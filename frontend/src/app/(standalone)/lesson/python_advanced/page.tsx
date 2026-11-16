@@ -9,7 +9,7 @@ import { soBaiTuTruyVan } from '@/lib/nhap-bai';
 // description, mà tên bài chỉ có sau khi client tải content_json.
 export const metadata: Metadata = {
   // Tên khoá lấy đúng tên đang hiển thị ở danh mục (src/lib/catalog.ts). Khoá
-  // nay là 172 bài giáo trình ĐỌC (pe-da), không còn 48 bài mini-game của
+  // nay là giáo trình ĐỌC (pe-da), không còn 48 bài mini-game của
   // pe-v4 — mô tả cũ ghi "ghép cặp, đúng/sai, dò lỗi và trận Boss" là những
   // thứ bộ mới không có một cái nào.
   title: 'Bài học Python cho Data Analyst – Programming EDU',
@@ -39,7 +39,11 @@ export default async function LessonPythonAdvancedPage({
   return (
     <>
       <PageStyles hrefs={STUDIO_CSS} />
-      <StudioLesson courseId="python_advanced" courseName="Python Advanced" lessonNo={sortOrder} />
+      <StudioLesson
+        courseId="python_advanced"
+        courseName={findCourse('python_advanced')?.title ?? 'Python cho Data Analyst'}
+        lessonNo={sortOrder}
+      />
     </>
   );
 }

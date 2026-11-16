@@ -30,6 +30,7 @@
 //     lại nền, phông và `.page` của cả trang và cảnh sẽ lệch.
 import type { Metadata } from 'next';
 
+import DanhThucMayChu from '@/components/DanhThucMayChu';
 import StudyRoom from '@/components/goc-hoc/StudyRoom';
 import PageStyles from '@/components/PageStyles';
 import { COURSES } from '@/lib/catalog';
@@ -55,9 +56,10 @@ export default function HomePage() {
   return (
     <>
       <PageStyles hrefs={[]} />
+      <DanhThucMayChu />
       <StudyRoom
         courseId={COURSE_ID}
-        courseName={course?.title ?? 'Python nâng cao'}
+        courseName={course?.title ?? 'Python cho Data Analyst'}
         lessonUrl={course?.lessonUrl ?? `/lesson/${COURSE_ID}`}
         modules={modules}
         meta={meta}

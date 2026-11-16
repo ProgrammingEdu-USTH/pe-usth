@@ -30,6 +30,7 @@
 
 import { useEffect, useState } from 'react';
 
+import DanhThucMayChu from '@/components/DanhThucMayChu';
 import PageStyles from '@/components/PageStyles';
 import SiteHeader from '@/components/SiteHeader';
 import ThemePicker from '@/components/ThemePicker';
@@ -372,6 +373,7 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
           KHÔNG thắng ở bất kỳ khối nào của trang này — chúng chỉ tô `body`,
           mà `.page` dưới đây phủ kín khung nhìn nên nền body không còn lộ. */}
       <PageStyles hrefs={['/static/css/edu-theme.css']} />
+      <DanhThucMayChu />
 
       {/* data-tv-surface: trang khoá học nhận giao diện "Đài thiên văn" ở mức
           TOKEN (giấy, mực, tint, đường kẻ) — xem `theme-thien-van.css`. */}

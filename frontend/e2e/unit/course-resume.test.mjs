@@ -245,3 +245,38 @@ test('thanh tiến độ khoá: CSS dùng token lofi (line + ochre), không bran
   assert.match(day[1], /background:\s*var\(--ds-ochre\)/);
   assert.ok(!/--edu-accent|gradient|animation|transition/.test(nen[1] + day[1]), 'thanh không dùng brand xanh/gradient và không chuyển động');
 });
+
+// ---------------------------------------------------------------------------
+// TRANG KHOÁ HỌC: ba lỗi truy cập Lighthouse bắt được (16/11/2026, mobile, bản dựng thật)
+// ---------------------------------------------------------------------------
+//
+// Accessibility 97 → ba audit trượt: `heading-order` (h1 rồi nhảy thẳng h3), `landmark-one-main`
+// (trang không có <main>) và `label-content-name-mismatch` (logo hiện "ProgrammingEDU" mà aria-label
+// bắt đầu bằng "Programming EDU"). Trang này là trang CÔNG KHAI, nên nó cũng là thứ công cụ tìm
+// kiếm và trình đọc màn hình gặp đầu tiên.
+
+test('trang khoá: đúng một h1, tiêu đề khối là h2 (không nhảy cấp), và có đúng một <main>', () => {
+  const tsx = doc(join(FE, 'src', 'app', '(standalone)', 'courses', '[courseId]', 'CourseDetail.tsx')).replace(/\{\/\*[\s\S]*?\*\/\}/g, '');
+  assert.equal((tsx.match(/<h1\b/g) || []).length, 1, 'trang khoá phải có đúng một <h1>');
+  assert.ok(!/<h3\b/.test(tsx), 'còn <h3> trong CourseDetail: h1 → h3 là nhảy cấp (heading-order). Tiêu đề khối dùng <h2>.');
+  assert.equal((tsx.match(/<h2 className=\{styles\.blockTitle\}>/g) || []).length, 3, 'ba tiêu đề khối (nội dung / tổng quan / yêu cầu) phải là h2');
+  assert.equal((tsx.match(/<main\b/g) || []).length, 1, 'trang khoá phải có ĐÚNG MỘT <main>');
+  assert.ok(/<main className=\{styles\.main\}>[\s\S]*<\/main>/.test(tsx), '<main> phải bọc cột nội dung chính và có thẻ đóng');
+});
+
+test('logo ở SiteHeader: chữ nhìn thấy khớp phần đầu của aria-label (Label in Name)', () => {
+  const tsx = doc(join(FE, 'src', 'components', 'SiteHeader.tsx')).replace(/\{\/\*[\s\S]*?\*\/\}/g, '');
+  const m = /<a className=\{styles\.brand\}[^>]*aria-label="([^"]+)"[^>]*>([\s\S]*?)<\/a>/.exec(tsx);
+  assert.ok(m, 'không tìm thấy liên kết logo');
+  // JSX bỏ MỌI khoảng trắng có xuống dòng giữa các phần tử — chỉ `{' '}` mới thành dấu cách thật.
+  // (Bản đầu của phép tính này gộp `\s+` thành một dấu cách nên nó TỰ THÊM khoảng trắng mà JSX
+  // không thêm — ablate bỏ `{' '}` cho 0 đỏ.)
+  const hienRa = m[2]
+    .replace(/\{' '\}/g, '\u0001')
+    .replace(/\s*\n\s*/g, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\u0001/g, ' ')
+    .trim();
+  assert.equal(hienRa, 'Programming EDU', 'chữ nhìn thấy của logo phải có khoảng trắng giữa hai từ — nếu không axe đọc "ProgrammingEDU"');
+  assert.ok(m[1].startsWith(hienRa), `aria-label "${m[1]}" phải BẮT ĐẦU bằng chữ nhìn thấy "${hienRa}"`);
+});

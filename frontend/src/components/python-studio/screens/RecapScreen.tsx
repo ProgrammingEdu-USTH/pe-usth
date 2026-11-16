@@ -187,6 +187,7 @@ export default function RecapScreen({
         .filter((x): x is string => Boolean(x))
         .slice(0, 4)}
       onFinish={onFinish}
+      soSao={screens.length - 1}
       extra={deOn}
       // CỔNG HỒI TƯỞNG — xem `LessonDraft.recall`. Chỉ khoá bài ĐỌC truyền nó;
       // `Recap` dùng chung cho mọi loại bài nên prop này tuỳ chọn.

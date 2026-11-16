@@ -87,7 +87,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
-| Frontend unit test | `cd frontend && npm run test:unit` → **725 ca** / 66 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **726 ca** / 66 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **65 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -107,7 +107,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **51 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 725 · backend 35 bộ/523 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/365 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 726 · backend 35 bộ/523 · tracer 65 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/365 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -129,7 +129,7 @@ Phân rã hiện tại, ĐO chứ không cộng tay:
 ablate-trung-thuc 19 · catalog-duration 2 · catalog-naming 3 · consent-banner 15 ·
 course-resume 13 · data-files 18 · dich-bam-vo-bai-hoc 7 · ds-contrast 17 · editor-load-gate 14 ·
 feedback-link 9 · feedback-rank 3 · forum-xss 1 · giam-chuyen-dong 3 · giao-dien 22 ·
-giao-dien-chuyen-dong 9 · giao-dien-monaco 4 · giao-dien-trang-chu 4 · goc-hoc-cho-so 7 ·
+giao-dien-chuyen-dong 10 · giao-dien-monaco 4 · giao-dien-trang-chu 4 · goc-hoc-cho-so 7 ·
 goc-hoc-escape 5 · goc-hoc-hang-nut 4 · goc-hoc-khung-cho 6 · goc-hoc-lo-trinh 9 ·
 goc-hoc-man-con 3 · goc-hoc-nhan-mot 6 · goc-hoc-thanh-cuon 5 · hover-cam-ung 3 ·
 ide-brief-code 12 · ide-handoff 6 · ide-output-scroll 6 · ide-partial-output 10 ·
@@ -140,7 +140,7 @@ mcq-next-after-wrong 23 · o-go-16px 9 · o-nhap-nhieu-dong 2 · phan-bai 8 · p
 practice-run 9 · prewarm-gate 5 · read-diagram 12 · read-guess 19 · read-trace 16 ·
 read-try-it 23 · recap-recall 7 · review-quiz 34 · run-stale 15 · session-marker 5 ·
 spaced-review 18 · studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 · trang-404 6 ·
-trang-loi 12 · trap-leak 3 · worker-csp 7 = 725.
+trang-loi 12 · trap-leak 3 · worker-csp 7 = 726.
 Mốc trước là 687; thêm giao-dien +7 (RÀO AN TOÀN của theme chiêm tinh: khoá phiên bản pe-giao-dien-v trong script trước-paint, nhãn "Thử nghiệm" + đường về lofi, EB Garamond tự lưu trữ một bậc 600, cạnh khối code ban đêm) và giao-dien-chuyen-dong +2 (tvSlip ≤ 320 ms, 12px, 0,4°; "Quay lại" chỉ mờ ≤ 120 ms) — 16/11/2026.
 Mốc trước là 682; thêm goc-hoc-escape 5 (ESC TRONG Ô GÕ của cảnh Góc học: `#hintIn` và `#tenIn` từng bị `back()`/`finishIntro()` đá khỏi màn đang nhập dở; cổng CHẠY THẬT `onEscape` bóc khỏi engine.js — vá lấy từ nhánh `test` 33834e6, nhưng BỎ nhánh `app.contains(target)` của họ vì Esc lúc không focus gì có target là `body`, nằm NGOÀI `#app`, nên nó sẽ vô hiệu hoá Esc hoàn toàn).
 Trước đó 681; mcq-code 9 → 10 (KHỐI CODE CỦA ĐỀ TRẮC NGHIỆM dính liền phương án A: McqScreen mượn `.readCode`, mà `.readCode > div` đặt `margin-bottom: 0` — đo 0px ở 471/1032 câu).
@@ -7167,7 +7167,7 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   thế nào khi lật sang màn thứ hai" thì chưa. (2) Nhiễu của phép đo nhịp trống (±30–70%) lớn hơn khác biệt cần phát hiện;
   nó chỉ bắt được một lớp nền gây sụt LỚN (như 133 animation của trang chủ), không bắt được +15%. Muốn bắt mức đó phải đo
   bằng vết DevTools (câu "AI", không phải "BAO LÂU" — xem mục đo hiệu năng) hoặc lặp ≥ 10 lần. (3) Chưa có chuyển động
-  cho thanh tiến độ, phương án, phản hồi, overlay — đó là B4, B5, B8 và dùng phần ngân sách còn lại (hôm nay 3/12).
+  cho thanh tiến độ, phương án, phản hồi, overlay — đó là B4, B5, B8 và dùng phần ngân sách còn lại (hôm nay 3/12).
 
 - **THEME CHIÊM TINH PHỦ TRANG CHỦ — và vì sao nó là lớp KHOÁC, không phải cảnh mới (vòng H1, 12/11/2026).**
   Chủ dự án hỏi "sao chỉ áp vào kia": theme mới có ở màn bài học và trang khoá, còn trang chủ vẫn dòng chữ

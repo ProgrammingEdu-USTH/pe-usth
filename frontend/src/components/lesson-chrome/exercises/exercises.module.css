@@ -897,3 +897,67 @@ textarea.codeBody:focus-visible {
   cursor: pointer;
   margin-top: 20px;
 }
+
+/* ===== CHÒM SAO Ở MÀN TỔNG KẾT (theme "Đài thiên văn", B8) =====
+   Một ngôi sao cho mỗi màn đã đi qua, nối bằng một nét. Ở lofi `display: none`.
+   · Nét nối VẼ MỘT LẦN bằng `scaleX` (transform, KHÔNG stroke-dashoffset/width — hai thứ đó
+     kích hoạt layout/paint), 0,7 s, `backwards` để trước giờ chạy nó đứng ở trạng thái đầu.
+   · Sao hiện lần lượt: `--tv-i` × 50 ms, tối đa 24 sao (Recap kẹp) ⇒ ≤ 1,2 s.
+   · KHÔNG `infinite`, KHÔNG `both`/`forwards` (giữ trạng thái cuối đè style thật) — ngân sách
+     chuyển động nền đã dùng 3/12 ở LessonChrome, màn này chỉ có chuyển động theo SỰ KIỆN.
+   · Vị trí le lói lên/xuống bằng thuộc tính `translate`/`rotate` riêng để keyframe
+     (`transform`) không phải nội suy giữa hai danh sách hàm khác nhau.
+   Dải là trang trí thuần nên `aria-hidden` ở Recap.tsx. */
+.recapChom {
+  display: none;
+}
+:global(html[data-theme="thien-van"]) .recapChom {
+  display: flex;
+  position: relative;
+  justify-content: space-between;
+  align-items: center;
+  height: 28px;
+  margin: 0 8px 18px;
+}
+:global(html[data-theme="thien-van"]) .recapChomNoi {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 50%;
+  height: 1px;
+  background: var(--tv-brass);
+  opacity: 0.55;
+  transform-origin: left center;
+  animation: tvChomNoi 0.7s var(--tv-ease) backwards;
+}
+:global(html[data-theme="thien-van"]) .recapSao {
+  position: relative;
+  z-index: 1;
+  width: 8px;
+  height: 8px;
+  background: var(--tv-brass);
+  rotate: 45deg;
+  translate: 0 -4px;
+  animation: tvSaoHien 0.42s var(--tv-ease) backwards;
+  animation-delay: calc(var(--tv-i, 0) * 50ms);
+}
+:global(html[data-theme="thien-van"]) .recapSao:nth-of-type(even) {
+  translate: 0 4px;
+}
+@keyframes tvChomNoi {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes tvSaoHien {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :global(html[data-theme="thien-van"]) .recapChomNoi,
+  :global(html[data-theme="thien-van"]) .recapSao {
+    animation: none;
+  }
+}

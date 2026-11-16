@@ -36,6 +36,12 @@ export interface RecapProps {
    * loại bài — chỉ khoá bài đọc truyền nó.
    */
   hoiTruoc?: { daViet: boolean; onNop: (chu: string) => void };
+  /**
+   * Số màn đã đi qua — theme "Đài thiên văn" vẽ một ngôi sao cho mỗi màn, nối thành chòm
+   * sao. Ở lofi dải này `display: none` (không chiếm chỗ, không vào cây truy cập).
+   * Chỉ là TRANG TRÍ nên luôn `aria-hidden`: con số thật đã nằm ở ô "Phần đã đọc".
+   */
+  soSao?: number;
 }
 
 /**
@@ -106,6 +112,7 @@ export default function Recap({
   onFinish,
   extra,
   hoiTruoc,
+  soSao,
 }: RecapProps) {
   return (
     <div className={styles.recapRoot}>
@@ -125,6 +132,18 @@ export default function Recap({
           </div>
         ))}
       </div>
+      {soSao && soSao > 1 ? (
+        <div className={styles.recapChom} aria-hidden="true">
+          <i className={styles.recapChomNoi} />
+          {Array.from({ length: Math.min(soSao, 24) }, (_, k) => (
+            <i
+              key={k}
+              className={styles.recapSao}
+              style={{ ['--tv-i' as string]: k } as React.CSSProperties}
+            />
+          ))}
+        </div>
+      ) : null}
       {hoiTruoc && !hoiTruoc.daViet ? (
         <OHoiTuong onNop={hoiTruoc.onNop} />
       ) : (

@@ -243,3 +243,27 @@ test('chuyển động theme: "Quay lại" chỉ mờ vào ≤ 120 ms, không tr
   assert.ok(/data-huong=\{[^}]*'lui'/.test(tsx), 'LessonChrome.tsx không đặt data-huong="lui" khi lùi');
   assert.ok(/step\s*<\s*buocTruoc/.test(tsx), 'hướng lùi phải suy từ step < bước trước');
 });
+
+const EXERCISES = 'src/components/lesson-chrome/exercises/exercises.module.css';
+
+test('chòm sao ở tổng kết: lofi ẩn hẳn, nét nối vẽ bằng scaleX MỘT lần, sao so le ≤ 60 ms, tối đa 24 sao, aria-hidden', () => {
+  const rules = moiRule(readFileSync(join(GOC, EXERCISES), 'utf8'));
+  // Lofi: dải phải display:none ở rule GỐC (không có tiền tố theme) — nếu không, người dùng lofi thấy sao.
+  const goc = rules.find((x) => x.media === null && x.sels.includes('.recapChom'));
+  assert.ok(goc && /display\s*:\s*none/.test(goc.than), '.recapChom không ẩn ở lofi — dải sao chỉ thuộc theme Đài thiên văn');
+  const nguon = TAT_ANIM.find((a) => a.tep === EXERCISES && /\.recapChomNoi$/.test(a.sel));
+  assert.ok(nguon && nguon.kf === 'tvChomNoi' && !nguon.voHan, 'nét nối phải là hoạt ảnh tvChomNoi chạy MỘT lần');
+  assert.ok(thoiLuongMs(nguon.gt) <= 800, `nét nối ${thoiLuongMs(nguon.gt)} ms > 800`);
+  assert.match(khungDau(EXERCISES, 'tvChomNoi'), /transform\s*:\s*scaleX\(\s*0\s*\)/, 'nét nối phải vẽ bằng transform: scaleX (không width/stroke-dashoffset)');
+  const sao = rules.find((x) => x.media === null && x.sels.some((s) => s.includes(TIEN_TO) && s.endsWith('.recapSao')) && /animation\s*:/.test(x.than));
+  assert.ok(sao, 'thiếu hoạt ảnh vào của .recapSao');
+  assert.match(sao.than, /animation\s*:\s*tvSaoHien\b[^;]*\bbackwards\b/);
+  const buoc = /animation-delay\s*:\s*calc\(\s*var\(--tv-i[^)]*\)\s*\*\s*(\d+)ms\s*\)/.exec(sao.than);
+  assert.ok(buoc && Number(buoc[1]) <= 60, 'bước so le của sao phải ≤ 60 ms, đang là ' + buoc?.[1]);
+  const tsx = boChuThich(readFileSync(join(GOC, 'src/components/lesson-chrome/exercises/Recap.tsx'), 'utf8'));
+  assert.ok(/className=\{styles\.recapChom\}\s+aria-hidden="true"/.test(tsx), 'dải sao là trang trí thuần — phải aria-hidden');
+  const kep = /Math\.min\(\s*soSao\s*,\s*(\d+)\s*\)/.exec(tsx);
+  assert.ok(kep && Number(kep[1]) <= 24, 'Recap.tsx phải kẹp số sao ≤ 24 (độ trễ tối đa ~1,2 s), đang là ' + kep?.[1]);
+  const man = boChuThich(readFileSync(join(GOC, 'src/components/python-studio/screens/RecapScreen.tsx'), 'utf8'));
+  assert.ok(/soSao=\{screens\.length - 1\}/.test(man), 'RecapScreen không truyền soSao — CSS theme là code chết');
+});

@@ -8,6 +8,7 @@ import HintSheet from '@/components/lesson-chrome/exercises/HintSheet';
 import SandboxEditor from '@/components/lesson-chrome/exercises/SandboxEditor';
 import ShellB from '@/components/lesson-chrome/ShellB';
 import { ghiSuKien, ghiSuaMa } from '@/lib/learning-events';
+import { giaiThichLoi } from '@/lib/loi-python';
 import { toCodeLines } from '@/lib/py-highlight';
 
 import c from '../studio-chrome.module.css';
@@ -44,7 +45,14 @@ function consoleLines(result: RunResult | null, code: string): ConsoleLine[] | n
   const lines: ConsoleLine[] = [];
   if (result.output)
     for (const line of result.output.replace(/\n$/, '').split('\n')) lines.push({ text: line });
-  if (result.error) lines.push({ text: result.error, tone: 'err' });
+  if (result.error) {
+    lines.push({ text: result.error, tone: 'err' });
+    // Traceback nguyên văn GIỮ NGUYÊN (người học sẽ gặp nó ngoài đời), câu tiếng Việt đứng NGAY
+    // DƯỚI, màu chữ thường: một lời giải thích nhạt hơn thông báo lỗi là đúng lỗi thứ bậc đã
+    // sửa ở bảng ca chấm (feedback-rank). Lỗi ngoài bảng thì KHÔNG bịa câu nào.
+    const g = giaiThichLoi(result.error);
+    if (g) lines.push({ text: `→ ${g.ten}${g.dong ? ` (dòng ${g.dong})` : ''}: ${g.cau}` });
+  }
   for (const note of result.notes ?? []) lines.push({ text: note, tone: 'muted' });
   if (!lines.length) {
     // Ô soạn mã trống hoặc chỉ có chú thích thì "không in ra gì" là vô nghĩa

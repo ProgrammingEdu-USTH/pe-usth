@@ -399,7 +399,8 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
 
             <div className={styles.grid}>
               {/* ── Cột trái ── */}
-              <div className={styles.main}>
+              {/* <main>: landmark duy nhất của trang (Lighthouse landmark-one-main). */}
+              <main className={styles.main}>
                 {/* Hero */}
                 <div className={styles.hero}>
                   <div className={styles.heroInfo}>
@@ -451,7 +452,7 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
                 <div className={styles.block} id={curriculumAnchor}>
                   <div className={styles.blockHd}>
                     <div className={styles.blockIcon}><Icon name="book" /></div>
-                    <h3 className={styles.blockTitle}>Nội dung khoá học</h3>
+                    <h2 className={styles.blockTitle}>Nội dung khoá học</h2>
                     <span className={styles.blockMeta}>
                       {/* "chặng" và "bài", không phải "module"/"bài học": bảng
                           thuật ngữ ở lib/home-copy.ts chốt một việc một từ, trang
@@ -582,7 +583,7 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
                 <div className={styles.block}>
                   <div className={styles.blockHd}>
                     <div className={styles.blockIcon}><Icon name="clipboard" /></div>
-                    <h3 className={styles.blockTitle}>Tổng quan khoá học</h3>
+                    <h2 className={styles.blockTitle}>Tổng quan khoá học</h2>
                   </div>
                   <div className={styles.blockBody}>
                     <p className={styles.desc}>{course.description}</p>
@@ -594,7 +595,7 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
                   <div className={styles.block}>
                     <div className={styles.blockHd}>
                       <div className={styles.blockIcon}><Icon name="pin" /></div>
-                      <h3 className={styles.blockTitle}>Yêu cầu</h3>
+                      <h2 className={styles.blockTitle}>Yêu cầu</h2>
                     </div>
                     <div className={styles.blockBody}>
                       <ul className={styles.reqList}>
@@ -607,7 +608,7 @@ export default function CourseDetail({ courseId }: { courseId: string }) {
                 )}
 
                 {/* Khối "Đánh giá của học viên" đã gỡ — xem chú thích đầu file. */}
-              </div>
+              </main>
 
               {/* ── Cột phải ── */}
               <div className={styles.side}>

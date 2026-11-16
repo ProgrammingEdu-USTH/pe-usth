@@ -49,6 +49,10 @@ export default function SiteHeader({ wide = false }: { wide?: boolean }) {
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <a className={styles.brand} href="/" aria-label="Programming EDU — về trang chủ">
         <span className={styles.brandName}>Programming</span>
+        {/* Khoảng trắng THẬT giữa hai span: `.brand` là inline-flex nên nó không vẽ ra gì, nhưng chữ
+            nhìn thấy thành "Programming EDU" (không phải "ProgrammingEDU") và khớp phần đầu của
+            aria-label — axe `label-content-name-mismatch` (WCAG 2.5.3 Label in Name). */}
+        {' '}
         <span className={styles.brandAccent}>EDU</span>
       </a>
       <nav className={styles.nav} aria-label="Khu vực chính">

@@ -246,7 +246,7 @@
     },
     {
      "title": "Gợi ý 3",
-     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Muốn xem hình thì mở Bàn thí nghiệm (/ide) và gọi `plt.show()` ở đó."
     }
    ],
    "packages": [

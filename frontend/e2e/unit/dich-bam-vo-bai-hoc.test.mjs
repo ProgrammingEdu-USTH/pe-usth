@@ -125,12 +125,9 @@ const CHUA_DO = {
   // chuỗi, nên vòng sau phải đi tìm lại từ đầu "nút này ở màn nào". Mỗi mục nay
   // mang tệp dựng nó và VÌ SAO một lượt đi qua bài học không gặp nó — đó là
   // thứ biến một danh sách nợ thành một việc làm được.
-  // Hai mục dưới do NỘI DUNG quyết bề cao (hàng full-width, chữ xuống dòng
-  // được), nên một sàn gieo mù vừa có thể là no-op vừa che mất một vấn đề
-  // thiết kế thật. Phép chia của vòng #162: nút pill cỡ cố định thì ÁP SÀN,
-  // hàng do nội dung quyết thì KHAI NỢ kèm đường đo.
-  '.phuongAn':
-    'ReviewQuiz.tsx — phương án của đề ôn tập, hàng full-width `padding: 10px 12px` font 14px nên bề cao do số dòng của câu quyết. Đo được khi người học xong ≥ 2 bài: `MIN_POOL` đòi 5 câu và mỗi bài phát 3 câu.',
+  // 16/11/2026: danh sách RỖNG — mọi đích bấm đã hoặc đạt sàn (CU) hoặc có lý do không tới được
+  // (KHONG_CO_DUONG_TOI / NGOAI_TAM). Thêm rule `cursor: pointer` mới mà chưa khai sàn thì cổng đỏ.
+
 
 
 };
@@ -507,6 +504,10 @@ test('đích bấm: năm nút đã đo không quay về dưới sàn', () => {
     // đo trên màn — người học không thấy bảng này). `.resetLink` chỉ là chữ 12px không padding nên
     // cao ~16px; `.answerKeyHead` đã `width: 100%` và cao theo chữ.
     '.resetLink': [16, 1], '.answerKeyHead': [20, 1],
+    // 16/11/2026 — phương án của đề ôn tập (ReviewQuiz.tsx, TEP[5]). Hàng do NỘI DUNG quyết bề cao nên
+    // sàn chỉ nâng trường hợp một dòng: 10+21+10 + viền 2 = 43px (số này TÍNH, không đo trên màn:
+    // đề ôn chỉ hiện sau khi xong ≥ 2 bài).
+    '.phuongAn': [43, 5],
   };
   for (const [sel, [cu, i]] of Object.entries(CU)) {
     const tep = TEP[i];

@@ -533,6 +533,24 @@
   to { opacity: 1; }
 }
 
+/* PHÁO GIẤY → SAO (theme "Đài thiên văn", B8). Tám emoji 🎉🐍⭐… là ngôn ngữ của lofi; ở theme
+   chúng thành tám ngôi sao đồng cùng bay ra theo ĐÚNG quỹ đạo `pe-fly` sẵn có — nên không thêm
+   keyframe, không thêm hoạt ảnh nào vào ngân sách chuyển động, và `pe-burst-life` vẫn là bộ đếm
+   giờ để JS gỡ phần tử. Chữ emoji bị `font-size: 0` (vẫn nằm trong DOM, `aria-hidden` ở cha),
+   ngôi sao là `::before` 9px xoay 45° bằng thuộc tính `rotate` riêng để không đụng `transform`
+   của `pe-fly`. Chữ "▶ Code chạy đúng!" giữ nguyên màu ok. */
+:global(html[data-theme="thien-van"]) .burst span {
+  font-size: 0;
+}
+:global(html[data-theme="thien-van"]) .burst span::before {
+  content: "";
+  display: block;
+  width: 9px;
+  height: 9px;
+  background: var(--tv-brass);
+  rotate: 45deg;
+}
+
 .awardsBackdrop {
   position: fixed;
   inset: 0;

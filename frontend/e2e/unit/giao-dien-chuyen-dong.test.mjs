@@ -267,3 +267,21 @@ test('chòm sao ở tổng kết: lofi ẩn hẳn, nét nối vẽ bằng scaleX
   const man = boChuThich(readFileSync(join(GOC, 'src/components/python-studio/screens/RecapScreen.tsx'), 'utf8'));
   assert.ok(/soSao=\{screens\.length - 1\}/.test(man), 'RecapScreen không truyền soSao — CSS theme là code chết');
 });
+
+test('pháo giấy: theme đổi emoji thành sao đồng bằng CSS thuần — không thêm hoạt ảnh nào', () => {
+  const tep = 'src/components/python-studio/studio-chrome.module.css';
+  const rules = moiRule(readFileSync(join(GOC, tep), 'utf8'));
+  const span = rules.find((x) => x.media === null && x.sels.some((s) => s.includes(TIEN_TO) && s.endsWith('.burst span')));
+  assert.ok(span && /font-size\s*:\s*0\b/.test(span.than), 'emoji của .burst phải bị font-size: 0 dưới theme');
+  const sao = rules.find((x) => x.media === null && x.sels.some((s) => s.includes(TIEN_TO) && s.endsWith('.burst span::before')));
+  assert.ok(sao && /var\(--tv-brass\)/.test(sao.than), 'ngôi sao phải dùng token --tv-brass, không mã màu');
+  // `rotate` riêng, KHÔNG `transform`: pe-fly đã chiếm transform của chính phần tử span.
+  assert.ok(!/(?:^|[;\s])transform\s*:/.test(sao.than), 'sao không được đặt transform (đè lên quỹ đạo pe-fly)');
+  // Không rule theme nào của .burst được khai animation: ngân sách chuyển động không đổi.
+  for (const r of rules) {
+    if (!r.sels.some((s) => s.includes(TIEN_TO) && /\.burst\b/.test(s))) continue;
+    assert.ok(!/animation\s*:/.test(r.than), `${r.sels.join(', ')} khai animation — pháo giấy theme phải dùng lại pe-fly`);
+  }
+  const tsx = boChuThich(readFileSync(join(GOC, 'src/components/python-studio/LessonOverlays.tsx'), 'utf8'));
+  assert.ok(/className=\{c\.burst\}\s+aria-hidden="true"/.test(tsx), 'pháo giấy phải aria-hidden');
+});

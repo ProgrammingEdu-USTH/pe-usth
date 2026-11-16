@@ -140,10 +140,6 @@ const CHUA_DO = {
   // hàng do nội dung quyết thì KHAI NỢ kèm đường đo.
   '.phuongAn':
     'ReviewQuiz.tsx — phương án của đề ôn tập, hàng full-width `padding: 10px 12px` font 14px nên bề cao do số dòng của câu quyết. Đo được khi người học xong ≥ 2 bài: `MIN_POOL` đòi 5 câu và mỗi bài phát 3 câu.',
-  '.theoryFigure figcaption a':
-    'ReadScreen.tsx — link nguồn trong chú thích hình, chỉ có ở bài mà hình mang '
-    + 'link. Là thẻ `a` INLINE nên `min-height` không áp được: bản sửa ở đó phải '
-    + 'là `display: inline-block` + padding, một quyết định khác hẳn.',
 
 
 };
@@ -178,6 +174,16 @@ const KHONG_CO_DUONG_TOI = {
     + '0/179 bài có màn ấy. Cùng hạng với nút "Thử ngay trong IDE" ở màn '
     + 'brief/explain mà `check-duong-toi.mjs` đã khai là còn tối. Vẫn giữ mã, vì '
     + 'ngày pe-v4 bật lại thì nó sống.',
+  // 16/11/2026 — ĐÍNH CHÍNH: mục này nằm ở CHUA_DO với lý do "ReadScreen.tsx … chỉ có ở bài mà
+  // hình mang link". SAI TỆP: `.theoryFigure` do `TheoryScreen.tsx` dựng (Figure, dòng 21), không
+  // phải ReadScreen (khối `figure` của ReadScreen không có chú thích). Màn `theory` đọc
+  // `step_1.theory`: đếm 179 bài pe-da, các khoá của step_1 chỉ là `read` (179) và `context`
+  // (179) — `theory` 0/179. Nên link ấy chưa bao giờ hiện cho người học nào.
+  '.theoryFigure figcaption a':
+    'TheoryScreen.tsx:21 (hàm Figure) — chú thích hình của màn `theory`, đọc `step_1.theory`. '
+    + 'Đếm bản dựng: 0/179 bài pe-da phát khoá đó (step_1 chỉ có `read` và `context`), còn pe-v4 '
+    + 'đã ẩn có. Là thẻ `a` INLINE nên `min-height` không áp được: ngày màn này sống lại, bản sửa '
+    + 'phải là `display: inline-block` + padding, một quyết định khác hẳn việc gieo một dòng sàn.',
 };
 
 /** Đích bấm CỐ Ý dưới sàn, kèm lý do. Hai chiều: một mục đã đạt sàn là LỖI. */

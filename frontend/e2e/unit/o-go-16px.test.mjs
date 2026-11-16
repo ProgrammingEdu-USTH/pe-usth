@@ -342,3 +342,18 @@ test('ô gõ: thẻ KHÔNG ghi fontSize nội tuyến (nó thắng sàn 16px tro
     }
   }
 });
+
+test('ô soạn mã: chiều cao tối thiểu nằm ở CSS (không nội tuyến) và co theo màn ở khổ điện thoại', () => {
+  const tsx = doc('src/components/lesson-chrome/exercises/SandboxEditor.tsx').replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  for (const the of theMoCua(tsx, 'codeBody')) {
+    assert.ok(!/\bminHeight\b/.test(the), 'ô soạn mã ghi minHeight NỘI TUYẾN — nó thắng CSS nên khổ điện thoại không thu ô lại được; nút "Chạy thử" bị thanh dưới che.');
+  }
+  const css = doc('src/components/lesson-chrome/exercises/exercises.module.css').replace(/\/\*[\s\S]*?\*\//g, ' ');
+  assert.match(css, /(?:^|\})\s*textarea\.codeBody\s*\{\s*min-height\s*:\s*248px\s*;?\s*\}/m, 'desktop phải giữ min-height: 248px ở textarea.codeBody');
+  const m = /@media\s*\(max-width:\s*1023\.98px\)\s*\{\s*textarea\.codeBody\s*\{\s*min-height\s*:\s*clamp\(\s*(\d+)px\s*,\s*(\d+(?:\.\d+)?)svh\s*,\s*(\d+)px\s*\)/.exec(css);
+  assert.ok(m, 'khổ điện thoại phải có min-height: clamp(Npx, Xsvh, Mpx) ở textarea.codeBody');
+  const [sanPx, svh, tranPx] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  assert.ok(sanPx >= 120, `sàn ${sanPx}px quá thấp — ô soạn mã dưới ~4 dòng không còn dùng được`);
+  assert.ok(svh <= 25, `${svh}svh quá cao — ở 844px ô vẫn cao ${Math.round(8.44 * svh)}px và nút Chạy thử lại bị thanh dưới che`);
+  assert.ok(tranPx <= 248, 'trần của clamp không được vượt 248px (mức desktop)');
+});

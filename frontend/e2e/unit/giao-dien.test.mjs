@@ -617,3 +617,18 @@ test('mọi tệp CSS có dấu ngoặc nhọn cân bằng (khối không đóng
   }
   assert.deepEqual(lech, [], 'tệp CSS lệch dấu ngoặc: ' + lech.join('; '));
 });
+
+test('sơ đồ DOM: thanh trái làn và mũi tên nối bước dùng đồng (--tv-brass), không mã màu, không hoạt ảnh', () => {
+  const css = readFileSync(join(GOC, 'src/components/python-studio/studio-chrome.module.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const co = (sel, prop) => {
+    const i = css.indexOf(`:global(html[data-theme="thien-van"]) ${sel} {`);
+    assert.ok(i > 0, `thiếu luật theme cho ${sel}`);
+    const than = css.slice(css.indexOf('{', i) + 1, css.indexOf('}', i));
+    const m = new RegExp(`${prop}\\s*:\\s*([^;]+);`).exec(than);
+    assert.ok(m, `${sel} thiếu ${prop}`);
+    assert.ok(!/animation|transition/.test(than), `${sel}: sơ đồ là phép so hai làn cạnh nhau — không chuyển động`);
+    return m[1].trim();
+  };
+  assert.equal(co('.readDiagramLane', 'border-left-color'), 'var(--tv-brass)');
+  assert.equal(co('.readDiagramSteps li + li::before', 'color'), 'var(--tv-brass)');
+});

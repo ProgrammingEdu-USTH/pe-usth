@@ -1727,3 +1727,16 @@
 :global(html[data-theme="thien-van"] body.dark) .theoryFigure img {
   filter: brightness(0.88);
 }
+
+/* SƠ ĐỒ DOM (khối `diagram`, B6/#211) — theme "Đài thiên văn". Màu nền và chữ đã đi theo token;
+   phần còn thiếu là NHẤN: thanh trái mỗi làn và mũi tên nối bước dùng đồng (--tv-brass) thay cho
+   hổ phách `--ds-mark-ochre` của lofi, để sơ đồ cùng họ với thước đồng và chòm sao. Cả hai là TRANG
+   TRÍ (mũi tên do CSS vẽ, không nằm trong DOM) nên chỉ cần 3:1 của thành phần giao diện — đồng
+   đo được 4,5:1 ngày trên giấy làn, cao hơn đêm. Không hoạt ảnh (sơ đồ là phép SO SÁNH hai làn
+   cạnh nhau — xem ReadBlock). */
+:global(html[data-theme="thien-van"]) .readDiagramLane {
+  border-left-color: var(--tv-brass);
+}
+:global(html[data-theme="thien-van"]) .readDiagramSteps li + li::before {
+  color: var(--tv-brass);
+}

@@ -649,6 +649,17 @@ textarea.codeBody:focus-visible {
   textarea.codeBody { font-size: 16px; }
 }
 
+/* CHIỀU CAO Ô SOẠN MÃ — trước nằm NỘI TUYẾN (`minHeight: 248`), nên không @media nào thu được.
+   Đo 16/11/2026 trên PY01, 390×844, màn bài tập chấm: ô cao 248px khiến nút "▶ Chạy thử" nằm ở
+   762–806 trong khi thanh dưới bắt đầu ở 776 — tức nút chính của việc "thử code" bị thanh dưới
+   che mất 14px ngay ở màn đầu, người học phải cuộn mới thấy nó. Ở khổ điện thoại ô co theo
+   chiều cao màn (22svh: 186px ở 844, sàn 150px ≈ 4 dòng 13–16px) để nút vào được màn đầu; ô vẫn
+   `resize: vertical` nên ai cần dài hơn kéo ra. Desktop giữ 248. */
+textarea.codeBody { min-height: 248px; }
+@media (max-width: 1023.98px) {
+  textarea.codeBody { min-height: clamp(150px, 22svh, 248px); }
+}
+
 /* ===== MÀN TỔNG KẾT (Recap.tsx) =====
    Trước đây toàn bộ là style nội tuyến — thứ không rule CSS nào đè được, nên theme
    thứ hai không có chỗ bám và ba cổng canh (44px, hover, giảm chuyển động) mù với nó.

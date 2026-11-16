@@ -184,3 +184,49 @@ test('ô gõ: hai ô dưới 16px còn lại được KHAI, kèm lý do', () => 
     );
   }
 });
+
+// ---------------------------------------------------------------------------
+// STYLE NỘI TUYẾN THẮNG CSS — sàn 16px chỉ có nghĩa khi thẻ KHÔNG tự ghi fontSize
+// ---------------------------------------------------------------------------
+//
+// Đo 16/11/2026 (bản dựng, 390×844, bài PD14, màn bài tập chấm): `textarea.codeBody`
+// tính ra **13px** dù `exercises.module.css` có `textarea.codeBody { font-size: 16px }`
+// trong @media điện thoại — vì `SandboxEditor.tsx` ghi `fontSize: 13` trong `style={{…}}`
+// của chính thẻ, và style nội tuyến thắng mọi quy tắc CSS không `!important`. Sàn 16px
+// của #155 đã vô hiệu từ đó, và cả bốn ca ở trên vẫn XANH vì chúng chỉ đọc CSS tĩnh.
+
+/** Thân thẻ mở chứa `className={styles.<lop>}` — quét có đếm ngoặc nhọn để `=>` trong onChange không cắt sớm. */
+function theMoCua(tsx, lop) {
+  // Mô-đun CSS được import dưới nhiều tên (`styles`, `c`…) — khớp `<tên>.<lớp>`.
+  // MỌI lần xuất hiện, không chỉ lần đầu: `tracePredictInput` nằm ở HAI thẻ của
+  // ReadScreen.tsx, và chỉ quét lần đầu thì thẻ thứ hai ghi fontSize cũng lọt.
+  const ra = [];
+  for (const kh of tsx.matchAll(new RegExp(String.raw`\b[A-Za-z_$][\w$]*\.${lop}\b`, 'g'))) {
+    const i = kh.index;
+    const dau = tsx.lastIndexOf('<', i);
+    let sau = i, sau_ngoac = 0;
+    for (; sau < tsx.length; sau++) {
+      const c = tsx[sau];
+      if (c === '{') sau_ngoac++;
+      else if (c === '}') sau_ngoac--;
+      else if (c === '>' && sau_ngoac === 0 && tsx[sau - 1] !== '=') break;
+    }
+    ra.push(tsx.slice(dau, sau + 1));
+  }
+  return ra;
+}
+
+test('ô gõ: thẻ KHÔNG ghi fontSize nội tuyến (nó thắng sàn 16px trong CSS)', () => {
+  for (const o of O_GO) {
+    const tsx = doc(o.tsx).replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+    const cac = theMoCua(tsx, o.lop);
+    assert.ok(cac.length >= 1 && cac.every((x) => x.length > 20), `không bóc được thẻ mở của \`${o.lop}\` trong ${o.tsx}`);
+    for (const the of cac) {
+      assert.ok(
+        !/\bfontSize\b/.test(the),
+        `\`${o.lop}\` ghi fontSize NỘI TUYẾN trong ${o.tsx} — style nội tuyến thắng quy tắc CSS không `
+        + '`!important`, nên sàn 16px ở @media vô hiệu và iOS vẫn phóng trang khi focus ô này.',
+      );
+    }
+  }
+});

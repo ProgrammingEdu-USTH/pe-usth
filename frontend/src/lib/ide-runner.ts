@@ -255,6 +255,9 @@ export function runInBrowser(code: string): Promise<IdeRunResult> {
 
     w.onmessage = ({ data }) => {
       if (!data) return;
+      // Worker này DÙNG CHUNG với "Xem từng bước": `result`/`fatal` mang `loai` của yêu cầu sinh ra chúng,
+      // và kết quả của lần GHI VẾT không phải kết quả của lần chạy này (xem hàng đợi trong ide.worker.js).
+      if (data.loai && data.loai !== 'run') return;
       if (data.type === 'partial') {
         // Không gọi het(): lần chạy CHƯA xong, đây chỉ là ảnh chụp đầu ra để
         // dùng nếu lát nữa phải cắt.

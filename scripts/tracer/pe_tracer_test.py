@@ -458,6 +458,59 @@ def main():
             str(len(doc["stdout"])),
         )
 
+    # --- 14b. pandas: DataFrame/Series là BẢNG CHỮ, không phải ruột nội bộ -----
+    # Đo thật (17/11/2026, pandas 3.0): vars(df) trả `_mgr`, `_attrs`, `_flags` — người học bấm "Xem
+    # từng bước" thấy `DataFrame(_mgr=BlockManager(), …)` thay cho bảng bài đang dạy. Runner CI không có
+    # pandas, nên đoạn mã dưới tự định nghĩa lớp GIẢ mang `__module__ = "pandas.core.frame"` với đúng ba
+    # thứ tracer chạm tới (shape, iloc, to_string). Đủ để chứng minh phần của TRACER (nhận lớp theo
+    # module, cắt 6x6, ghi số hàng/cột thật, không mở vars()); độ khớp với pandas THẬT được đo bằng
+    # scripts/tracer/probe-pandas.py trên máy có pandas (xem mô tả commit).
+    fake = (
+        "class _Hang:\n"
+        "    def __init__(self, cells): self.cells = cells\n"
+        "class DataFrame:\n"
+        "    __module__ = 'pandas.core.frame'\n"
+        "    def __init__(self, n, m):\n"
+        "        self.n, self.m = n, m\n"
+        "        self.secret_internal = 'KHONG_DUOC_LO'\n"
+        "    @property\n"
+        "    def shape(self): return (self.n, self.m)\n"
+        "    @property\n"
+        "    def iloc(self):\n"
+        "        outer = self\n"
+        "        class _I:\n"
+        "            def __getitem__(s, key):\n"
+        "                r, c = key\n"
+        "                v = DataFrame(len(range(outer.n)[r]), len(range(outer.m)[c]))\n"
+        "                return v\n"
+        "        return _I()\n"
+        "    def to_string(self, max_colwidth=None):\n"
+        "        return '\\n'.join(' '.join('x' for _ in range(self.m)) for _ in range(self.n))\n"
+        "small = DataFrame(3, 2)\n"
+        "big = DataFrame(2623, 9)\n"
+        "x = 1\n"
+    )
+    doc, _, err = run_trace(tracer_src, fake)
+    check("pandas: có vết", doc is not None, err[-400:])
+    if doc:
+        v = locals_of(doc["steps"][-1])
+        s, b = v.get("small"), v.get("big")
+        check(
+            "pandas: DataFrame là giá trị opaque kiểu bảng chữ, KHÔNG mở vars() ra thuộc tính nội bộ",
+            bool(s) and s["t"] == "opaque" and s["cls"] == "DataFrame" and "KHONG_DUOC_LO" not in json.dumps(s),
+            json.dumps(s, ensure_ascii=False)[:200],
+        )
+        check(
+            "pandas: bảng nhỏ không có dòng '[n hàng × m cột]'",
+            bool(s) and "hàng" not in s.get("r", "KHONG") and s.get("r", "").count("\n") == 2,
+            repr(s and s.get("r")),
+        )
+        check(
+            "pandas: bảng lớn bị cắt ở 6 hàng và ghi số hàng x cột THẬT",
+            bool(b) and b.get("r", "").endswith("[2623 hàng × 9 cột]") and b.get("r", "").count("\n") == 6,
+            repr(b and b.get("r")),
+        )
+
     # --- 15. Kích thước: file dựng ra phải vừa trần của POST /run ----------
     typical = (
         "def fib(n):\n"

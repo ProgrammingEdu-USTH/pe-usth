@@ -196,18 +196,19 @@ const BOC_PYTHON = [
   '          "ten = input(\\"Tên: \\").", file=sys.stderr)',
 ].join('\n');
 
-async function run(code) {
-  const { py, box } = await getRuntime();
-  box.out = '';
-  box.err = '';
-  box.cat = false;
-  // Mở đường gửi dần. Chỉ mở trong lúc CHẠY: lúc nạp gói hay lúc ghi vết thì
-  // đầu ra chưa thuộc về lần chạy nào của người học.
-  hopDangChay = box;
-  lanGuiCuoi = 0;
-
-  // Tải gói TRƯỚC khi bấm giờ: `import pandas` lần đầu tốn vài giây, tính vào
-  // thời gian chạy thì người học tưởng mã của mình chậm.
+/**
+ * Nạp gói mà đoạn mã sắp chạy cần — DÙNG CHUNG cho "Chạy" và "Xem từng bước".
+ *
+ * 17/11/2026: khối này từng nằm riêng trong `run()`, nên "Xem từng bước" ở một bài
+ * pandas/numpy/matplotlib chết với `ModuleNotFoundError: No module named 'pandas'` nếu người
+ * học chưa bấm "Chạy" trước đó trong cùng worker. Đo trên /ide: mở bằng nút "Thử ngay trong
+ * IDE" rồi bấm "Xem từng bước" → dừng ở dòng 1, 4 bước ghi được, traceback ModuleNotFoundError;
+ * bấm "Chạy" xong rồi ghi vết lại → 7 bước, đủ biến. Mà nút "Xem từng bước" đứng TRƯỚC nút
+ * "Chạy" trên thanh công cụ, và 411 khối code của khoá có nút "Thử ngay trong IDE" — phần lớn
+ * import pandas/numpy/matplotlib. Tức đường đầu tiên của người học tới bước-từng-dòng hỏng đúng
+ * ở thư viện mà khoá này dạy.
+ */
+async function napGoi(py, code) {
   const can = packagesFor(code).filter((p) => !warmed.has(p));
   if (can.length) {
     await py.loadPackage(can, { messageCallback: () => {} });
@@ -233,6 +234,21 @@ async function run(code) {
     }
     can.forEach((p) => warmed.add(p));
   }
+}
+
+async function run(code) {
+  const { py, box } = await getRuntime();
+  box.out = '';
+  box.err = '';
+  box.cat = false;
+  // Mở đường gửi dần. Chỉ mở trong lúc CHẠY: lúc nạp gói hay lúc ghi vết thì
+  // đầu ra chưa thuộc về lần chạy nào của người học.
+  hopDangChay = box;
+  lanGuiCuoi = 0;
+
+  // Tải gói TRƯỚC khi bấm giờ: `import pandas` lần đầu tốn vài giây, tính vào
+  // thời gian chạy thì người học tưởng mã của mình chậm.
+  await napGoi(py, code);
 
   const t0 = performance.now();
   let exitCode = 0;
@@ -303,6 +319,9 @@ async function trace(code) {
     if (!r.ok) throw new Error(`không tải được bộ ghi vết (${r.status})`);
     tracerSrc = await r.text();
   }
+  // Nạp gói TRƯỚC khi tracer chạy: tracer chạy mã người học ngay trong `_pe_run`, nên thiếu bước này
+  // thì dòng `import pandas` là bước đầu tiên và cũng là bước cuối (xem `napGoi`).
+  await napGoi(py, code);
   await py.runPythonAsync(tracerSrc);
   py.globals.set('__ide_src', code);
   const t0 = performance.now();
@@ -342,7 +361,24 @@ async function trace(code) {
   };
 }
 
-self.onmessage = async ({ data }) => {
+/*
+ * HÀNG ĐỢI TUẦN TỰ + NHÃN LOẠI YÊU CẦU (17/11/2026).
+ *
+ * Trước đây mỗi thông điệp chạy `async` song song trong CÙNG một thông dịch viên Pyodide. Đo được lỗi
+ * thật: "Tôi tin đoạn mã này — cho chạy" (tin VÀ chạy) rồi bấm "Xem từng bước" ngay trong lúc bài
+ * pandas còn đang nạp gói → hai yêu cầu chồng nhau, thông điệp `result` của "Chạy" (không có `trace`)
+ * bị bên ghi vết nhận nhầm là kết quả của mình → `doc.stats` undefined → TypeError ở <CodeVisualizer>
+ * → màn "Trang này vừa gặp lỗi". Tuần tự hoá là phần BẮT BUỘC chứ không chỉ là gọn: `run()` và `trace()`
+ * cùng đụng `box`, `hopDangChay`, `os._exit` và các hàm của tracer ở mức toàn cục — chạy chồng là
+ * chúng viết đè lên nhau. (Cũng khép luôn một chỗ hở cũ: hai `getRuntime()` đồng thời — `warmup` rồi
+ * `run` — mỗi bên nạp một Pyodide riêng vì `runtime` chỉ được gán SAU khi nạp xong.)
+ *
+ * Kết quả mang `loai` = loại yêu cầu đã sinh ra nó; phía nhận (`ide-runner.ts`, `ide-trace.ts`) bỏ qua
+ * thông điệp không phải của mình. `warmup` không mang `loai` vì không phải kết quả của lần nào.
+ */
+let cola = Promise.resolve();
+
+async function xuLy(data) {
   if (data && data.type === 'warmup') {
     try {
       await getRuntime();
@@ -357,10 +393,18 @@ self.onmessage = async ({ data }) => {
     const result = data.type === 'trace'
       ? await trace(String(data.code ?? ''))
       : await run(String(data.code ?? ''));
-    self.postMessage({ type: 'result', result });
+    self.postMessage({ type: 'result', loai: data.type, result });
   } catch (error) {
     // Lỗi của HẠ TẦNG (không nạp được runtime, không tải được gói) — khác hẳn
     // lỗi trong chương trình của người học, vốn nằm trong result.stderr.
-    self.postMessage({ type: 'fatal', message: String(error && error.message ? error.message : error) });
+    self.postMessage({
+      type: 'fatal',
+      loai: data.type,
+      message: String(error && error.message ? error.message : error),
+    });
   }
+}
+
+self.onmessage = ({ data }) => {
+  cola = cola.then(() => xuLy(data), () => xuLy(data));
 };

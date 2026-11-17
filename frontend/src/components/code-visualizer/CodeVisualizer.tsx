@@ -575,9 +575,20 @@ export default function CodeVisualizer({
                                           diễn lại — kể cả khi cùng một biến đổi
                                           liên tiếp nhiều bước (đổi class thôi
                                           thì CSS không chạy lại animation). */}
+                                      {/* Giá trị NHIỀU DÒNG (bảng pandas, mảng
+                                          numpy 2 chiều) phải giữ khoảng trắng:
+                                          HTML gộp chúng nên cột lệch và một
+                                          bảng thành một dòng chữ liền. */}
                                       <span
                                         key={text}
-                                        className={fresh ? styles.varNew : undefined}
+                                        className={
+                                          [
+                                            fresh ? styles.varNew : '',
+                                            text.includes('\n') ? styles.varPre : '',
+                                          ]
+                                            .filter(Boolean)
+                                            .join(' ') || undefined
+                                        }
                                       >
                                         {text}
                                       </span>

@@ -69,6 +69,9 @@ export function traceInBrowser(code: string): Promise<IdeTraceResult> {
 
     w.onmessage = ({ data }) => {
       if (!data) return;
+      // Kết quả của lần CHẠY (`loai: 'run'`) không có `trace`; nhận nhầm nó là một TypeError ở
+      // <CodeVisualizer> (`doc.stats` undefined) — đã tái hiện khi bấm "Xem từng bước" lúc bài đang chạy.
+      if (data.loai && data.loai !== 'trace') return;
       if (data.type === 'result') het(() => resolve(data.result as IdeTraceResult));
       else if (data.type === 'fatal') {
         het(() => {

@@ -616,6 +616,45 @@ def _pe_repr(o, lim, st):
 
 _PE_SEQ = (list, tuple, set, frozenset)
 
+# pandas: DataFrame/Series KHÔNG được mở bằng vars(). Ruột của chúng là `_mgr`, `_attrs`, `_flags`…
+# — đo trên pandas 3.0 ở bước cuối của `df = pd.DataFrame(...)`: vars(df) cho BlockManager rỗng cùng
+# vài cờ nội bộ, tức người học bấm "Xem từng bước" thấy `DataFrame(_mgr=BlockManager(), _attrs={}, …)`
+# thay cho cái bảng mà bài đang dạy (mảng numpy thì đúng vì không có __dict__ nên rơi về repr).
+# Nay hiện đúng thứ notebook hiện — một bảng chữ — nhưng CẮT ở 6 hàng x 6 cột x 14 ký tự mỗi ô: tracer
+# chụp lại MỌI biến ở MỖI bước, nên chi phí phải bó (đo 1,1 ms/lần cho bảng nhỏ, 1,5 ms cho bảng 2623
+# hàng; repr() đủ bảng tốn 2,9 ms và dài vô hạn). Chỉ nhận lớp do chính pandas định nghĩa; lớp con của
+# người học (module khác) vẫn đi đường vars() như mọi đối tượng của họ.
+_PE_PD_ROWS = 6
+_PE_PD_COLS = 6
+_PE_PD_CELL = 14
+_PE_PD_CHARS = 700
+
+
+def _pe_pandas(o, t, lim, st):
+    name = t.__name__
+    try:
+        if name == "DataFrame":
+            n, m = o.shape
+            s = o.iloc[:_PE_PD_ROWS, :_PE_PD_COLS].to_string(max_colwidth=_PE_PD_CELL)
+            if n > _PE_PD_ROWS or m > _PE_PD_COLS:
+                s += "\n[%d hàng × %d cột]" % (n, m)
+        elif name == "Series":
+            n = len(o)
+            s = o.iloc[:_PE_PD_ROWS].to_string(name=True, dtype=True, length=False)
+            if n > _PE_PD_ROWS:
+                s += "\n[%d phần tử]" % n
+        else:
+            # Index, Timestamp, GroupBy…: repr của chính pandas đã ngắn và đủ ý.
+            return {"t": "opaque", "cls": name, "r": _pe_repr(o, lim, st)}
+    except _PEStop:
+        raise
+    except BaseException:
+        return {"t": "opaque", "cls": name, "r": "<không đọc được>"}
+    if len(s) > _PE_PD_CHARS:
+        st["trunc"] += 1
+        s = s[:_PE_PD_CHARS] + "…"
+    return {"t": "opaque", "cls": name, "r": s}
+
 
 def _pe_value(o, depth, seen, lim, st):
     """Giá trị Python -> cây JSON có trần. Xem hợp đồng ở trace-document.ts."""
@@ -633,6 +672,8 @@ def _pe_value(o, depth, seen, lim, st):
         return {"t": "str", "r": o}
     if t is bytes or t is bytearray:
         return {"t": "bytes", "r": _pe_repr(o, lim, st), "n": len(o)}
+    if (getattr(t, "__module__", "") or "").startswith("pandas"):
+        return _pe_pandas(o, t, lim, st)
 
     oid = id(o)
     if oid in seen:

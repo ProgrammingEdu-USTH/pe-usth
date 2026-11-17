@@ -380,6 +380,14 @@
   color: var(--edu-t2);
   word-break: break-word;
 }
+/* Giá trị NHIỀU DÒNG (bảng pandas, mảng numpy 2 chiều): giữ nguyên khoảng trắng để cột thẳng hàng,
+   và cuộn ngang thay vì bẻ dòng — bẻ dòng giữa một hàng bảng làm hai hàng dính vào nhau. */
+.varPre {
+  display: block;
+  white-space: pre;
+  overflow-x: auto;
+  word-break: normal;
+}
 
 .returned,
 .thrown {

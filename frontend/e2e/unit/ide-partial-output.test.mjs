@@ -174,16 +174,23 @@ test('worker import sẵn thư viện trước khi bắt đầu đo thời gian'
     new URL('../../public/static/js/ide.worker.js', import.meta.url),
     'utf8',
   );
-  const than = /async function run\(code\) \{([\s\S]*?)\n\}/.exec(src);
-  assert.ok(than, 'không tìm thấy hàm run() trong ide.worker.js');
-  const iLoad = than[1].indexOf('loadPackage');
-  const iImport = than[1].indexOf('importlib.import_module');
-  const iGio = than[1].indexOf('performance.now()');
-  assert.ok(iLoad > -1, 'run() không gọi loadPackage');
-  assert.ok(iImport > -1, 'run() không import sẵn thư viện nào');
+  // 17/11/2026: khối nạp gói đã tách thành `napGoi(py, code)` để "Xem từng bước" dùng chung (xem
+  // ide-trace-nap-goi.test.mjs). Tính chất cần giữ KHÔNG đổi và vẫn được kiểm ở đây: run() gọi
+  // napGoi TRƯỚC khi bấm giờ, và trong napGoi thì loadPackage đứng trước câu import làm nóng.
+  const run = /async function run\(code\) \{([\s\S]*?)\n\}/.exec(src);
+  assert.ok(run, 'không tìm thấy hàm run() trong ide.worker.js');
+  const nap = /async function napGoi\(py, code\) \{([\s\S]*?)\n\}/.exec(src);
+  assert.ok(nap, 'không tìm thấy hàm napGoi() trong ide.worker.js');
+  const iNap = run[1].indexOf('napGoi(py, code)');
+  const iGio = run[1].indexOf('performance.now()');
+  assert.ok(iNap > -1, 'run() không gọi napGoi — không nạp gói nào');
   assert.ok(iGio > -1, 'run() không bấm giờ');
-  assert.ok(iLoad < iGio, 'loadPackage phải nằm TRƯỚC khi bấm giờ');
-  assert.ok(iImport < iGio, 'import sẵn phải nằm TRƯỚC khi bấm giờ');
+  assert.ok(iNap < iGio, 'napGoi (loadPackage + import sẵn) phải nằm TRƯỚC khi bấm giờ');
+  const iLoad = nap[1].indexOf('loadPackage');
+  const iImport = nap[1].indexOf('importlib.import_module');
+  assert.ok(iLoad > -1, 'napGoi không gọi loadPackage');
+  assert.ok(iImport > -1, 'napGoi không import sẵn thư viện nào');
+  assert.ok(iLoad < iImport, 'import sẵn phải đứng SAU loadPackage (loadPackage chỉ bung wheel, chưa import)');
 });
 
 test('làm nóng matplotlib bằng pyplot, không phải gói ngoài', () => {

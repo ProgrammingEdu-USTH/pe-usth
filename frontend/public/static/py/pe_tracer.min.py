@@ -1,7 +1,7 @@
 # TỆP SINH TỰ ĐỘNG — ĐỪNG SỬA TAY.
 # Nguồn: scripts/tracer/pe_tracer.py (bản rút gọn, bỏ chú thích)
 # Sinh lại: node scripts/build-tracer-source.mjs
-# sha256 của nguồn: 89d7527057a9457f28e3b87ae80dbe22d062a9f00cfa7571f5266b9835f8fee4
+# sha256 của nguồn: 887a81826a81ffd2084521e62456935761ec503b8096ba848dc3a7cad72a6193
 PE_FILENAME = 'main.py'
 PE_BEGIN = '__PE_TRACE_V1_BEGIN__'
 PE_END = '__PE_TRACE_V1_END__'
@@ -290,6 +290,34 @@ def _pe_repr(o, lim, st):
         return s[:cap] + '…'
     return s
 _PE_SEQ = (list, tuple, set, frozenset)
+_PE_PD_ROWS = 6
+_PE_PD_COLS = 6
+_PE_PD_CELL = 14
+_PE_PD_CHARS = 700
+
+def _pe_pandas(o, t, lim, st):
+    name = t.__name__
+    try:
+        if name == 'DataFrame':
+            n, m = o.shape
+            s = o.iloc[:_PE_PD_ROWS, :_PE_PD_COLS].to_string(max_colwidth=_PE_PD_CELL)
+            if n > _PE_PD_ROWS or m > _PE_PD_COLS:
+                s += '\n[%d hàng × %d cột]' % (n, m)
+        elif name == 'Series':
+            n = len(o)
+            s = o.iloc[:_PE_PD_ROWS].to_string(name=True, dtype=True, length=False)
+            if n > _PE_PD_ROWS:
+                s += '\n[%d phần tử]' % n
+        else:
+            return {'t': 'opaque', 'cls': name, 'r': _pe_repr(o, lim, st)}
+    except _PEStop:
+        raise
+    except BaseException:
+        return {'t': 'opaque', 'cls': name, 'r': '<không đọc được>'}
+    if len(s) > _PE_PD_CHARS:
+        st['trunc'] += 1
+        s = s[:_PE_PD_CHARS] + '…'
+    return {'t': 'opaque', 'cls': name, 'r': s}
 
 def _pe_value(o, depth, seen, lim, st):
     t = type(o)
@@ -305,6 +333,8 @@ def _pe_value(o, depth, seen, lim, st):
         return {'t': 'str', 'r': o}
     if t is bytes or t is bytearray:
         return {'t': 'bytes', 'r': _pe_repr(o, lim, st), 'n': len(o)}
+    if (getattr(t, '__module__', '') or '').startswith('pandas'):
+        return _pe_pandas(o, t, lim, st)
     oid = id(o)
     if oid in seen:
         return {'t': 'cycle'}

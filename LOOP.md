@@ -31,7 +31,9 @@ lần đọc cộng ~1 000 mỗi lần viết lại; Kanzo tốn ~900 token mô 
 mỗi phiên, phản hồi 10–60 token mỗi lượt. Hoà vốn sau khoảng một lượt.
 
 **Thứ KHÔNG chuyển sang Kanzo:** phần "đã bác bỏ, kèm lý do đã đo" và mọi bẫy
-trong `AGENTS.md`. Đó là KIẾN THỨC, không phải việc — và SQLite ngoài repo thì
+(nguyên văn ở `BAY-DA-GAP.md`, mục lục + mười bốn luật lặp lại ở `AGENTS.md` — từ
+17/11/2026, #227; bẫy MỚI thì thêm vào cuối phần 1 của `BAY-DA-GAP.md` và MỘT dòng
+vào mục lục). Đó là KIẾN THỨC, không phải việc — và SQLite ngoài repo thì
 không review được trong PR, không đi theo một lần clone, không ai đọc được khi
 Kanzo không chạy.
 

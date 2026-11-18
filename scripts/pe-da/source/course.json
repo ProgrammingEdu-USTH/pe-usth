@@ -5298,34 +5298,34 @@
       "reading": [
         {
           "type": "paragraph",
-          "text": "Bảng đơn hàng đã đọc đúng rồi, giờ quán cần số tổng theo từng nhóm. Bảng hiện có một hàng cho mỗi giao dịch. Để báo cáo doanh thu cửa hàng, bạn cần gộp các giao dịch có cùng mã cửa hàng rồi cộng amount."
+          "text": "Bảng đơn hàng đã đọc đúng rồi, nhưng cuối ngày chủ quán hỏi: quầy nào bán được nhiều cốc nhất? Bảng có một hàng cho mỗi giao dịch, nên bạn phải gộp các hàng cùng mã quầy rồi cộng số cốc."
         },
         {
           "type": "code",
-          "code": "import pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'amount': [10, 20, 40]})\nresult = df.groupby('store')['amount'].sum()\nprint(result.to_dict())",
-          "expected": "{'A': 30, 'B': 40}"
+          "code": "import pandas as pd\ndf = pd.DataFrame({'quay': ['Q1', 'Q1', 'Q2'], 'so_coc': [12, 18, 25]})\nresult = df.groupby('quay')['so_coc'].sum()\nprint(result.to_dict())",
+          "expected": "{'Q1': 30, 'Q2': 25}"
         },
         {
           "type": "paragraph",
-          "text": "`groupby` chia hàng thành nhóm, rồi `sum` tính riêng trong từng nhóm. Kết quả có một giá trị cho mỗi cửa hàng. Nếu cần nhiều thống kê, agg đặt tên rõ cho các cột báo cáo."
+          "text": "`groupby` chia hàng thành nhóm, rồi `sum` tính riêng trong từng nhóm. Kết quả có một giá trị cho mỗi quầy. Nếu cần nhiều thống kê, agg đặt tên rõ cho các cột báo cáo."
         },
         {
           "type": "code",
-          "code": "import pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', 'B'], 'amount': [10, 20, 40]})\nreport = df.groupby('store', as_index=False).agg(revenue=('amount', 'sum'), orders=('amount', 'size'))\nprint(report.to_dict('records'))",
-          "expected": "[{'store': 'A', 'revenue': 30, 'orders': 2}, {'store': 'B', 'revenue': 40, 'orders': 1}]"
+          "code": "import pandas as pd\ndf = pd.DataFrame({'quay': ['Q1', 'Q1', 'Q2'], 'so_coc': [12, 18, 25]})\nreport = df.groupby('quay', as_index=False).agg(tong_coc=('so_coc', 'sum'), so_don=('so_coc', 'size'))\nprint(report.to_dict('records'))",
+          "expected": "[{'quay': 'Q1', 'tong_coc': 30, 'so_don': 2}, {'quay': 'Q2', 'tong_coc': 25, 'so_don': 1}]"
         },
         {
           "type": "paragraph",
-          "text": "`as_index=False` giữ store thành cột thông thường. size đếm số hàng của nhóm; count chỉ đếm ô không thiếu trong cột được chọn. Nếu khóa nhóm bị thiếu, mặc định nhóm đó bị bỏ; `dropna=False` giữ nó để bạn kiểm tra."
+          "text": "`as_index=False` giữ quay thành cột thông thường. size đếm số hàng của nhóm; count chỉ đếm ô không thiếu trong cột được chọn. Nếu khóa nhóm bị thiếu, mặc định nhóm đó bị bỏ; `dropna=False` giữ nó để bạn kiểm tra."
         },
         {
           "type": "code",
-          "code": "import pandas as pd\ndf = pd.DataFrame({'store': ['A', 'A', None], 'amount': [10.0, None, 20.0]})\ngrouped = df.groupby('store', dropna=False)['amount']\nprint(grouped.size().tolist())\nprint(grouped.count().tolist())\nprint(grouped.sum().sum())",
-          "expected": "[2, 1]\n[1, 1]\n30.0"
+          "code": "import pandas as pd\ndf = pd.DataFrame({'quay': ['Q1', 'Q1', None], 'so_coc': [12.0, None, 25.0]})\ngrouped = df.groupby('quay', dropna=False)['so_coc']\nprint(grouped.size().tolist())\nprint(grouped.count().tolist())\nprint(grouped.sum().sum())",
+          "expected": "[2, 1]\n[1, 1]\n37.0"
         },
         {
           "type": "paragraph",
-          "text": "Có thể nhóm theo nhiều cột bằng danh sách, chẳng hạn `groupby([\"store\", \"month\"])`. Trước khi so sánh tổng báo cáo với tổng gốc, hãy quyết định cách xử lý khóa nhóm thiếu để tránh làm thất thoát số liệu."
+          "text": "Có thể nhóm theo nhiều cột bằng danh sách, chẳng hạn `groupby([\"quay\", \"thang\"])`. Trước khi so sánh tổng báo cáo với tổng gốc, hãy quyết định cách xử lý khóa nhóm thiếu để tránh làm thất thoát số liệu."
         }
       ],
       "drills": [

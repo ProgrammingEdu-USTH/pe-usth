@@ -13405,7 +13405,8 @@
           ],
           "hints": [
             "Cần giữ cả nhóm có mã quầy bị thiếu.",
-            "Tổng hợp về một hàng cho mỗi nhóm và giữ khóa thiếu có chủ ý."
+            "Tổng hợp về một hàng cho mỗi nhóm và giữ khóa thiếu có chủ ý.",
+            "Làm ba bước. Một: điền \"Unknown\" vào các ô quay còn thiếu bằng `fillna`. Hai: nhóm theo `quay` rồi cộng `so_coc`. Ba: đổi kết quả thành dictionary bằng `to_dict`."
           ],
           "explanation": "Tổng hợp về một hàng cho mỗi nhóm và giữ khóa thiếu có chủ ý.",
           "transferNote": "Dữ liệu mới khác ví dụ đã xem; hãy viết hàm để xử lý được cả ba trường hợp, không in hoặc trả riêng một đáp án mẫu."

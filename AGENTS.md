@@ -36,7 +36,7 @@ mức này:
 | Hạng mục | Mốc | Đo ngày |
 |---|---|---|
 | Backend typecheck | sạch | 15/11/2026 |
-| Backend test | 40 bộ, 496 ca, tất cả đạt | 15/11/2026 |
+| Backend test | 44 bộ, 542 ca, tất cả đạt (máy đặt múi giờ UTC thì 1 ca `streak.service.spec.ts` trượt — chạy `TZ=Asia/Ho_Chi_Minh npx jest --ci`) | 18/11/2026 |
 | Backend lint | 155 lỗi, 2 cảnh báo — **mốc trần trong CI là 170, chỉ được hạ** | 15/11/2026 |
 | Frontend typecheck | sạch | 15/10/2026 |
 | Frontend lint | 0 lỗi, 118 cảnh báo | 19/10/2026 |

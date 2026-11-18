@@ -23,6 +23,7 @@ import { RoadmapModule } from './roadmap/roadmap.module';
 import { CourseAdminModule } from './course-admin/course-admin.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
 import { PythonRunnerModule } from './python-runner/python-runner.module';
+import { LearningEventsModule } from './learning-events/learning-events.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { PythonRunnerModule } from './python-runner/python-runner.module';
     CourseAdminModule,
     ChatbotModule,
     PythonRunnerModule,
+    LearningEventsModule,
   ],
   controllers: [HealthController],
 })

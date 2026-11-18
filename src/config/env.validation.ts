@@ -59,6 +59,11 @@ export const envValidationSchema = Joi.object({
   THROTTLE_FORUM_POST_TTL_SECONDS: throttleTtl(600),
   THROTTLE_FORUM_COMMENT_LIMIT: throttleLimit(30),
   THROTTLE_FORUM_COMMENT_TTL_SECONDS: throttleTtl(600),
+  // Lớp ghi nhật ký lần thử (src/learning-events): FE đẩy tối đa ~360 lô/giờ.
+  THROTTLE_EVENTS_LIMIT: throttleLimit(600),
+  THROTTLE_EVENTS_TTL_SECONDS: throttleTtl(3600),
+  THROTTLE_EVENTS_CONSENT_LIMIT: throttleLimit(30),
+  THROTTLE_EVENTS_CONSENT_TTL_SECONDS: throttleTtl(3600),
   THROTTLE_PY_RUN_LIMIT: throttleLimit(10),
   THROTTLE_PY_RUN_TTL_SECONDS: throttleTtl(60),
   THROTTLE_PY_TRACE_LIMIT: throttleLimit(10),

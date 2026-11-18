@@ -273,6 +273,168 @@ ORDER BY sua_moi_lan_chay DESC, e.lesson_no;
 
 
 -- ############################################################################
+-- (d)–(h) NĂM CÂU CHO NĂM LOẠI SỰ KIỆN THÊM 19/11/2026
+-- ############################################################################
+-- Năm loại: `X-Screen.View`, `X-Predict.Submit`, `X-Answer.Reveal`,
+-- `X-Review.Answer`, `X-IDE.Open` (xem learning-event-kinds.ts). Chúng đo PHẦN
+-- GỢI TÒ MÒ của bài — thứ mà bốn câu trên không thấy được: bốn câu đó nói "đâm
+-- tường ở đâu", năm câu này nói "người học có THẬT SỰ làm những việc bài mời họ
+-- làm hay không".
+--
+-- ĐỌC ĐÚNG NHƯ BỐN CÂU TRÊN (xem 8 ghi chú ở đầu file): đếm NGƯỜI, xếp thứ bậc,
+-- KHÔNG tính phần trăm, không trả `user_id` ra ngoài.
+--
+-- MỐC THỜI GIAN: năm loại này chỉ tồn tại SAU ngày deploy, nên mọi phép SO với
+-- dữ liệu cũ (ví dụ `X-Lesson.Abandon` trước đó) là so hai thứ khác thời kỳ. Câu
+-- (d) tự lấy mốc từ lần `X-Screen.View` đầu tiên có trong bảng — đó chính là lúc
+-- nó bắt đầu được thu, không cần gõ tay một ngày deploy dễ sai.
+
+-- ----------------------------------------------------------------------------
+-- (d) NGƯỜI HỌC TỚI NHỮNG MÀN NÀO, VÀ BỎ Ở ĐÂU
+-- ----------------------------------------------------------------------------
+-- `nguoi_toi` là MẪU SỐ theo màn mà `X-Lesson.Abandon` thiếu: "3 người bỏ ở màn
+-- 5" khác hẳn nhau khi có 3 hay 30 người từng tới màn 5. `luot_mo_lai` > 0 nghĩa
+-- là có người QUAY LẠI màn đó (đọc lại một chỗ khó, hay bấm nhầm).
+--
+-- Đọc: nhìn `nguoi_bo_o_day` giảm dần, rồi đối chiếu `nguoi_toi` của chính màn
+-- đó. Màn có nhiều người bỏ mà ít người từng tới là màn nặng hơn vẻ ngoài.
+WITH moc AS (
+  SELECT min(created_at) AS tu
+  FROM learning_events
+  WHERE kind = 'X-Screen.View'
+),
+toi AS (
+  SELECT e.course_id, e.lesson_no, e.screen_key,
+         count(DISTINCT e.user_id) AS nguoi_toi,
+         count(*)                  AS luot_vao
+  FROM learning_events e
+  WHERE e.kind = 'X-Screen.View'
+    AND e.lesson_no IS NOT NULL
+    AND e.screen_key IS NOT NULL
+  GROUP BY e.course_id, e.lesson_no, e.screen_key
+),
+bo AS (
+  SELECT e.course_id, e.lesson_no, e.screen_key,
+         count(DISTINCT e.user_id) AS nguoi_bo
+  FROM learning_events e
+  CROSS JOIN moc
+  WHERE e.kind = 'X-Lesson.Abandon'
+    AND e.lesson_no IS NOT NULL
+    AND e.screen_key IS NOT NULL
+    AND e.created_at >= moc.tu
+  GROUP BY e.course_id, e.lesson_no, e.screen_key
+)
+SELECT
+  t.course_id,
+  t.lesson_no,
+  l.lesson_code,
+  t.screen_key,
+  t.nguoi_toi,
+  t.luot_vao - t.nguoi_toi        AS luot_mo_lai,
+  coalesce(b.nguoi_bo, 0)         AS nguoi_bo_o_day
+FROM toi t
+LEFT JOIN bo b
+  ON b.course_id = t.course_id AND b.lesson_no = t.lesson_no AND b.screen_key = t.screen_key
+LEFT JOIN lessons l
+  ON l.course_id = t.course_id AND l.sort_order = t.lesson_no
+ORDER BY nguoi_bo_o_day DESC, luot_mo_lai DESC, t.lesson_no, t.screen_key;
+
+-- ----------------------------------------------------------------------------
+-- (e) CÂU ĐOÁN: AI ĐOÁN SAI Ở ĐÂU
+-- ----------------------------------------------------------------------------
+-- Một khối có NHIỀU người đoán sai là khối có khoảng trống tri thức THẬT (hoặc
+-- một câu hỏi mơ hồ) — mở ra đọc câu hỏi và đáp án trước khi kết luận gì. Khối
+-- mà AI cũng đoán đúng là cổng không làm việc: nó chỉ là một lần bấm.
+-- `cong` là loại cổng: 'output' (đoán kết quả của code), 'figure' (đoán hình —
+-- KHÔNG có `correct`, nên hai cột đúng/sai luôn 0 ở đó), 'trace' (đoán ở bảng
+-- từng bước).
+SELECT
+  e.course_id,
+  e.lesson_no,
+  l.lesson_code,
+  e.screen_key,
+  e.payload->>'gate'                                                   AS cong,
+  count(DISTINCT e.user_id)                                            AS nguoi_doan,
+  count(DISTINCT e.user_id) FILTER (WHERE e.payload->>'correct' = 'false') AS nguoi_doan_sai,
+  count(DISTINCT e.user_id) FILTER (WHERE e.payload->>'correct' = 'true')  AS nguoi_doan_dung
+FROM learning_events e
+LEFT JOIN lessons l
+  ON l.course_id = e.course_id AND l.sort_order = e.lesson_no
+WHERE e.kind = 'X-Predict.Submit'
+  AND e.lesson_no IS NOT NULL
+GROUP BY e.course_id, e.lesson_no, l.lesson_code, e.screen_key, e.payload->>'gate'
+ORDER BY nguoi_doan_sai DESC, nguoi_doan DESC, e.lesson_no, e.screen_key;
+
+-- ----------------------------------------------------------------------------
+-- (f) AI XEM ĐÁP ÁN MẪU CỦA CÂU LUYỆN TẬP MỞ
+-- ----------------------------------------------------------------------------
+-- Câu luyện tập mở khoá nút "Xem đáp án" tới khi người học đã gõ (và đã chạy
+-- thử, với câu chạy được) — nên SỐ NGƯỜI XEM ở đây không đo "bỏ cuộc" mà đo "đã
+-- thử rồi mới xem". Con số hữu ích là SO GIỮA CÁC CÂU: câu nào hầu như ai cũng
+-- bấm xem là câu đáp án quan trọng, câu nào ít người xem là câu người ta tự tin
+-- hoặc bỏ qua. `runnable` tách câu chạy được khỏi câu chỉ để viết.
+SELECT
+  e.course_id,
+  e.lesson_no,
+  l.lesson_code,
+  e.screen_key,
+  e.payload->>'runnable'   AS chay_duoc,
+  count(DISTINCT e.user_id) AS nguoi_xem,
+  count(*)                  AS luot_xem
+FROM learning_events e
+LEFT JOIN lessons l
+  ON l.course_id = e.course_id AND l.sort_order = e.lesson_no
+WHERE e.kind = 'X-Answer.Reveal'
+  AND e.lesson_no IS NOT NULL
+GROUP BY e.course_id, e.lesson_no, l.lesson_code, e.screen_key, e.payload->>'runnable'
+ORDER BY nguoi_xem DESC, e.lesson_no, e.screen_key;
+
+-- ----------------------------------------------------------------------------
+-- (g) ÔN GIÃN CÁCH: CÂU NÀO HAY BỊ SAI LẠI
+-- ----------------------------------------------------------------------------
+-- Hàng chờ ôn nằm ở localStorage, nên đây là chỗ DUY NHẤT máy chủ biết người học
+-- nhớ hay quên. `bai_goc` + `man_goc` là NƠI câu hỏi xuất phát (không phải bài
+-- đang mở khi ôn). Câu có nhiều người SAI LẠI ngay ở màn ôn là câu mà một lần
+-- giải thích chưa đủ — sửa ở bài gốc (đáp án gây nhầm, thiếu ví dụ), đừng thêm
+-- bài ôn. `miss_cao_nhat` là số lần sai ở màn ôn cao nhất của một người.
+SELECT
+  e.payload->>'fromLesson'                                                   AS bai_goc,
+  e.payload->>'fromKey'                                                      AS man_goc,
+  count(DISTINCT e.user_id)                                                  AS nguoi_on,
+  count(DISTINCT e.user_id) FILTER (WHERE e.payload->>'correct' = 'true')    AS nguoi_dung,
+  count(DISTINCT e.user_id) FILTER (WHERE e.payload->>'correct' = 'false')   AS nguoi_sai_lai,
+  max((e.payload->>'miss')::int)                                             AS miss_cao_nhat
+FROM learning_events e
+WHERE e.kind = 'X-Review.Answer'
+GROUP BY e.payload->>'fromLesson', e.payload->>'fromKey'
+ORDER BY nguoi_sai_lai DESC, nguoi_on DESC, bai_goc, man_goc;
+
+-- ----------------------------------------------------------------------------
+-- (h) KHỐI CODE NÀO KÍCH ĐƯỢC NGƯỜI HỌC MỞ IDE
+-- ----------------------------------------------------------------------------
+-- Bấm "Thử ngay trong IDE" là người học TÒ MÒ đến mức tự sửa — mà `/ide` không
+-- mang bối cảnh bài, nên đây là chỗ duy nhất biết khối nào kích được việc đó.
+-- Đọc để học mẫu: mở các khối đứng đầu và xem chúng có gì chung (một kết quả bất
+-- ngờ? một con số người học muốn đổi?) rồi viết thêm khối như vậy. `khoi` là chỉ
+-- số khối trong màn đọc.
+SELECT
+  e.course_id,
+  e.lesson_no,
+  l.lesson_code,
+  e.screen_key,
+  e.payload->>'block'       AS khoi,
+  count(DISTINCT e.user_id) AS nguoi_bam,
+  count(*)                  AS luot_bam
+FROM learning_events e
+LEFT JOIN lessons l
+  ON l.course_id = e.course_id AND l.sort_order = e.lesson_no
+WHERE e.kind = 'X-IDE.Open'
+  AND e.lesson_no IS NOT NULL
+GROUP BY e.course_id, e.lesson_no, l.lesson_code, e.screen_key, e.payload->>'block'
+ORDER BY nguoi_bam DESC, luot_bam DESC, e.lesson_no, e.screen_key;
+
+
+-- ############################################################################
 -- ĐÓNG ĐỢT THỬ NGHIỆM — XOÁ DỮ LIỆU QUÁ HẠN
 -- ############################################################################
 -- HẠN LƯU: 90 NGÀY (hằng `HAN_LUU_NGAY` trong

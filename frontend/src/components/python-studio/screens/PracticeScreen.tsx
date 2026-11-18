@@ -199,11 +199,13 @@ export default function PracticeScreen({
             disabled={!typed.trim() || (chayDuoc && !daChay)}
             onClick={() => {
               update({ practiceSeen: { ...(draft.practiceSeen ?? {}), [at]: true } });
-              // ĐO việc xem đáp án (không gửi chữ người học đã viết): `ranFirst` cho
-              // biết câu chạy được này đã được chạy thử trước khi xem hay chưa.
+              // ĐO việc xem đáp án (không gửi chữ người học đã viết). `runnable` tách
+              // hai nhóm câu: câu chạy được thì nút đã bị khoá tới khi chạy thử (nên
+              // KHÔNG có cột "xem mà chưa chạy" — nó luôn rỗng), câu không chạy được
+              // thì cổng chỉ là "đã gõ". Hai nhóm đó có mức xem đáp án rất khác nhau.
               ghiSuKien('X-Answer.Reveal', {
                 screenKey: scr.key,
-                payload: { item: at, ...(chayDuoc ? { ranFirst: Boolean(daChay) } : {}) },
+                payload: { item: at, runnable: Boolean(chayDuoc) },
               });
             }}
           >

@@ -36,7 +36,7 @@ mức này:
 | Hạng mục | Mốc | Đo ngày |
 |---|---|---|
 | Backend typecheck | sạch | 15/11/2026 |
-| Backend test | 44 bộ, 542 ca, tất cả đạt (máy đặt múi giờ UTC thì 1 ca `streak.service.spec.ts` trượt — chạy `TZ=Asia/Ho_Chi_Minh npx jest --ci`) | 18/11/2026 |
+| Backend test | 45 bộ, 547 ca, tất cả đạt (máy đặt múi giờ UTC thì 1 ca `streak.service.spec.ts` trượt — chạy `TZ=Asia/Ho_Chi_Minh npx jest --ci`) | 18/11/2026 |
 | Backend lint | 155 lỗi, 2 cảnh báo — **mốc trần trong CI là 170, chỉ được hạ** | 15/11/2026 |
 | Frontend typecheck | sạch | 15/10/2026 |
 | Frontend lint | 0 lỗi, 118 cảnh báo | 19/10/2026 |
@@ -247,6 +247,12 @@ Hai đường, chọn sai là xoá tiến độ của người đang học:
   npx ts-node scripts/update-lesson-content.ts --codes=P01,P02,P03             # xem trước
   npx ts-node scripts/update-lesson-content.ts --codes=P01,P02,P03 --apply --backup=bak.json
   ```
+
+  Sau mỗi lần thêm/xoá bài, chạy `npx ts-node scripts/fix-course-lessons.ts` trước (mặc định
+  chỉ xem, `--apply` luôn cần `--backup=<file.json>`), rồi chạy
+  `npx ts-node scripts/check-db-invariants.ts`. Script chỉ đếm bài có `1 <= sort_order < 1000`
+  và dừng nếu dãy số bị hở: `courses.lessons` còn là số thứ tự tối đa của route bài học, nên
+  không được tự dồn `sort_order` vì sẽ làm lệch tiến độ có sẵn.
 
   Luật chọn/so sánh nằm ở `src/course-admin/lesson-content-update.ts` (có test Jest).
 

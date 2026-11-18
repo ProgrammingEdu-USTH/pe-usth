@@ -11,6 +11,7 @@
 import 'dotenv/config';
 import { PrismaClient } from '../src/generated/prisma';
 import { PrismaNeon } from '@prisma/adapter-neon';
+import { activeLessonSql } from '../src/course-admin/course-lesson-count';
 
 type Check = { name: string; sql: string; hint: string };
 
@@ -18,8 +19,13 @@ type Check = { name: string; sql: string; hint: string };
 const CHECKS: Check[] = [
   {
     name: 'courses.lessons bằng số bài thật',
-    sql: `SELECT c.id, c.lessons AS khai, count(l.id)::int AS thuc FROM courses c LEFT JOIN lessons l ON l.course_id = c.id GROUP BY c.id, c.lessons HAVING c.lessons <> count(l.id)`,
-    hint: 'UPDATE courses SET lessons = (số bài thật) — sao lưu hàng trước.',
+    sql: `SELECT c.id, c.lessons AS khai, count(l.id) FILTER (WHERE ${activeLessonSql('l')})::int AS thuc FROM courses c LEFT JOIN lessons l ON l.course_id = c.id GROUP BY c.id, c.lessons HAVING c.lessons <> count(l.id) FILTER (WHERE ${activeLessonSql('l')})`,
+    hint: 'Chạy scripts/fix-course-lessons.ts (mặc định chạy thử; --apply cần --backup).',
+  },
+  {
+    name: 'sort_order bài hoạt động liên tiếp từ 1 đến courses.lessons',
+    sql: `SELECT c.id, c.lessons AS khai, count(l.id) FILTER (WHERE ${activeLessonSql('l')})::int AS thuc, max(l.sort_order) FILTER (WHERE ${activeLessonSql('l')})::int AS max_sort_order FROM courses c LEFT JOIN lessons l ON l.course_id = c.id GROUP BY c.id, c.lessons HAVING count(l.id) FILTER (WHERE ${activeLessonSql('l')}) <> COALESCE(max(l.sort_order) FILTER (WHERE ${activeLessonSql('l')}), 0)`,
+    hint: 'Không tự dồn sort_order: tìm số thiếu rồi xử lý tay để không làm lệch lesson_progress.',
   },
   {
     name: 'không có hai bài trùng (course_id, sort_order)',

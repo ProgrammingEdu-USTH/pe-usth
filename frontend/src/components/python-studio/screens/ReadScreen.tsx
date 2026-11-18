@@ -19,6 +19,7 @@ import { useState } from 'react';
 import CodeBlock from '@/components/lesson-chrome/exercises/CodeBlock';
 import CopyCodeButton from '@/components/lesson-chrome/exercises/CopyCodeButton';
 import TryItButton from '@/components/lesson-chrome/TryItButton';
+import { ghiSuKien } from '@/lib/learning-events';
 import { toCodeLines } from '@/lib/py-highlight';
 import {
   doanDuocHinh,
@@ -226,11 +227,17 @@ function Block({
   daNop,
   onNop,
   coCongHinh,
+  onThu,
+  onDoanTrace,
 }: {
   block: ReadBlock;
   thu?: string | null;
   daNop: string | undefined;
   onNop: (doan: string) => void;
+  /** Người học bấm "Thử ngay trong IDE" ở khối này (chỉ để đo, xem `ghiSuKien`). */
+  onThu?: () => void;
+  /** Người học nộp câu đoán của bảng từng bước ở khối này. */
+  onDoanTrace?: (dung: boolean) => void;
   /** Khối `figure` này có dựng cổng không — xem `doanDuocHinh`. */
   coCongHinh?: boolean;
 }) {
@@ -272,6 +279,7 @@ function Block({
                   : 'Thử ngay trong IDE'
               }
               spaced
+              onOpen={onThu}
             />
           ) : null}
           {/* BẢNG TỪNG BƯỚC, ẨN SẴN. Đứng SAU nút "Thử ngay trong IDE" có lý
@@ -279,7 +287,7 @@ function Block({
               nào" chỉ nảy ra SAU khi người học đã thấy có chỗ để tự thử. Vết
               chỉ có ở khối nào khâu build sinh được (module 2 trở đi, và phải
               ra được một câu dự đoán) — xem ReadTrace. */}
-          {block.trace ? <StepTrace trace={block.trace} code={block.code} /> : null}
+          {block.trace ? <StepTrace trace={block.trace} code={block.code} onDoan={onDoanTrace} /> : null}
         </>
       );
 
@@ -460,8 +468,26 @@ export default function ReadScreen({ lesson, scr, metaLabel, draft, update }: Pr
             // màn đọc của cùng một bài, nên đoán ở màn 1 sẽ mở sẵn đáp án của
             // khối cùng vị trí ở màn 2.
             daNop={draft.readGuess?.[`${at}-${i}`]}
-            onNop={(doan) =>
-              update({ readGuess: { ...(draft.readGuess ?? {}), [`${at}-${i}`]: doan } })
+            onNop={(doan) => {
+              update({ readGuess: { ...(draft.readGuess ?? {}), [`${at}-${i}`]: doan } });
+              // ĐO câu đoán: chỉ ĐÚNG/SAI, không bao giờ chữ người học gõ. Cổng đoán
+              // output có đáp án để so; cổng đoán hình thì không (`correct` vắng).
+              const dapAn = block.type === 'code' && doanDuocOutput(block) ? block.expected : undefined;
+              ghiSuKien('X-Predict.Submit', {
+                screenKey: scr.key,
+                payload: {
+                  gate: dapAn ? 'output' : 'figure',
+                  block: i,
+                  ...(dapAn ? { correct: khopDapAn(doan, dapAn) } : {}),
+                },
+              });
+            }}
+            onThu={() => ghiSuKien('X-IDE.Open', { screenKey: scr.key, payload: { block: i } })}
+            onDoanTrace={(dung) =>
+              ghiSuKien('X-Predict.Submit', {
+                screenKey: scr.key,
+                payload: { gate: 'trace', block: i, correct: dung },
+              })
             }
           />
         ))}

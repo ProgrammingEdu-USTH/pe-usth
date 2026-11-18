@@ -71,10 +71,10 @@ function suKienThat(doi: Record<string, unknown> = {}) {
 }
 
 describe('danh sách `kind` ĐÓNG, đặt tên theo ProgSnap2', () => {
-  it('mười loại, và bốn tên CHUẨN của ProgSnap2 đúng chính tả của nó', () => {
-    // Con số 10 là một quyết định (xem chú thích trong learning-event-kinds.ts),
+  it('mười lăm loại, và các tên CHUẨN của ProgSnap2 đúng chính tả của nó', () => {
+    // Con số 15 là một quyết định (xem chú thích trong learning-event-kinds.ts),
     // không phải chi tiết ngẫu nhiên: thêm/bớt loại là đổi thứ câu SQL đếm được.
-    expect(LEARNING_EVENT_KINDS).toHaveLength(10);
+    expect(LEARNING_EVENT_KINDS).toHaveLength(15);
     expect([...LEARNING_EVENT_KINDS]).toEqual([
       'X-Lesson.Open',
       'X-Lesson.Heartbeat',
@@ -86,6 +86,11 @@ describe('danh sách `kind` ĐÓNG, đặt tên theo ProgSnap2', () => {
       'X-Runtime.Failure',
       'Resource.View',
       'X-Quiz.Answer',
+      'X-Screen.View',
+      'X-Predict.Submit',
+      'X-Answer.Reveal',
+      'X-Review.Answer',
+      'X-IDE.Open',
     ]);
     // Gõ sai một tên chuẩn (`Run.Tests`, `ResourceView`) là mất hẳn khả năng so
     // dữ liệu với bộ của người khác — và nó sai trong im lặng.

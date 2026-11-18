@@ -93,7 +93,7 @@ describe('dauAnPhamVi', () => {
     // lần — nếu ai bỏ `.sort()` thì ca GHIM ở dưới sẽ đỏ ngay khi danh sách
     // được sắp lại, một kiểu đỏ oan rất khó hiểu.
     expect(dauAnPhamVi()).toBe(dauAnPhamVi());
-    expect(dauAnPhamVi()).toMatch(/^10loai\/90ngay\/Resource\.View,/);
+    expect(dauAnPhamVi()).toMatch(/^15loai\/90ngay\/Resource\.View,/);
   });
 
   it('GHIM: đổi phạm vi thu thập mà quên đổi PHIEN_BAN_DONG_Y là ĐỎ ở đây', () => {
@@ -110,11 +110,12 @@ describe('dauAnPhamVi', () => {
     // Cập nhật cả hai cùng lúc là có chủ đích: chúng là một CẶP, và ghim một cái
     // thì không chứng minh được gì.
     expect(dauAnPhamVi()).toBe(
-      '10loai/90ngay/Resource.View,Run.Test,Submit,X-Lesson.Abandon,' +
-        'X-Lesson.Heartbeat,X-Lesson.Open,X-Quiz.Answer,X-Repeat.Fail,' +
-        'X-Run.Interrupted,X-Runtime.Failure',
+      '15loai/90ngay/Resource.View,Run.Test,Submit,X-Answer.Reveal,' +
+        'X-IDE.Open,X-Lesson.Abandon,X-Lesson.Heartbeat,X-Lesson.Open,' +
+        'X-Predict.Submit,X-Quiz.Answer,X-Repeat.Fail,X-Review.Answer,' +
+        'X-Run.Interrupted,X-Runtime.Failure,X-Screen.View',
     );
-    expect(PHIEN_BAN_DONG_Y).toBe('2026-10-28');
+    expect(PHIEN_BAN_DONG_Y).toBe('2026-11-19');
   });
 
   it('phiên bản có dạng ngày, không phải v1/v2', () => {

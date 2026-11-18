@@ -18,12 +18,18 @@ export interface TryItButtonProps {
   label?: string;
   /** Thêm lề trên — dùng khi khối bên trên không cách bằng `gap` của flex. */
   spaced?: boolean;
+  /**
+   * Gọi khi người học BẤM nút. Chỉ là một lời gọi lại: nút này dùng ở nhiều
+   * trang, nên nó không import lớp ghi nhật ký — nơi nào muốn đo thì tự nối.
+   */
+  onOpen?: () => void;
 }
 
 export default function TryItButton({
   code,
   label = 'Thử ngay trong IDE',
   spaced,
+  onOpen,
 }: TryItButtonProps) {
   // Bài quy trình (dựng môi trường, Git) không có mã, và mã dài quá trần thì
   // không bàn giao được: cả hai trường hợp KHÔNG hiện nút, chứ không mở một IDE
@@ -35,6 +41,7 @@ export default function TryItButton({
       <a
         className={styles.button}
         href={href}
+        onClick={onOpen}
         target="_blank"
         // `noopener` giữ (cắt `window.opener`), nhưng BỎ `noreferrer`: nó xoá
         // mất tín hiệu duy nhất phân biệt "link từ chính trang bài học" với

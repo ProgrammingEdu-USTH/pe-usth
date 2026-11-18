@@ -63,13 +63,17 @@ const KHI_KHONG_DOC_DUOC: TrangThaiDongY = {
 export const MO_TA_PHAM_VI = {
   tieuDe: 'Cho phép ghi lại quá trình học của bạn?',
   thu: [
-    'Bạn mở bài nào, ở màn nào, và bỏ dở ở đâu.',
+    'Bạn mở bài nào, đã tới những màn nào, và bỏ dở ở đâu.',
     'Mỗi lần bấm Chạy: ca chấm nào đạt, ca nào trượt, lỗi là lỗi gì.',
     'Lần thử này có giống lần trước không, và bạn đã sửa mấy lần giữa hai lần chạy.',
     'Câu trắc nghiệm bạn chọn đáp án nào.',
+    'Ở các ô "đoán trước khi chạy": bạn đoán đúng hay sai — chỉ đúng/sai, không phải chữ bạn gõ.',
+    'Bạn có bấm xem đáp án mẫu hoặc mở IDE từ một ví dụ hay không.',
+    'Khi ôn lại một câu cũ: bạn trả lời đúng hay sai.',
   ],
   khongThu: [
     'KHÔNG gửi mã Python bạn viết — kể cả dưới dạng mã băm (hash).',
+    'KHÔNG gửi chữ bạn gõ vào ô đoán hay ô trả lời.',
     'KHÔNG có tên, email hay thông tin cá nhân nào trong bản ghi.',
   ],
   hanLuu: 'Chúng tôi xoá toàn bộ sau 90 ngày.',

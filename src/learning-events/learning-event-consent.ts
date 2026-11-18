@@ -58,7 +58,7 @@ import { HAN_LUU_NGAY, LEARNING_EVENT_KINDS } from './learning-event-kinds';
  * Dạng ngày tháng chứ không `v1`/`v2`: khi đọc một hàng trong DB sáu tháng sau,
  * "2026-10-28" nói ngay bản mô tả nào, còn "v3" thì phải đi tra.
  */
-export const PHIEN_BAN_DONG_Y = '2026-10-28';
+export const PHIEN_BAN_DONG_Y = '2026-11-19';
 
 /**
  * Dấu ấn của PHẠM VI thu thập: tập tên loại sự kiện (đã sắp) + hạn lưu.

@@ -112,8 +112,10 @@
  */
 
 /**
- * MƯỜI loại sự kiện. Mỗi loại tồn tại vì nó ghi được một thứ mà KHÔNG loại nào
- * khác suy ra được — đó là tiêu chí, không phải "cho đủ bộ".
+ * MƯỜI LĂM loại sự kiện (mười loại đầu từ 28/10/2026; năm loại cuối thêm 19/11/2026
+ * để đo được phần GỢI TÒ MÒ của bài — xem từng mục). Mỗi loại tồn tại vì nó ghi
+ * được một thứ mà KHÔNG loại nào khác suy ra được — đó là tiêu chí, không phải
+ * "cho đủ bộ".
  *
  *  1. `X-Lesson.Open`      mở bài. Mẫu số của mọi phép đo drop-off.
  *  2. `X-Lesson.Heartbeat` còn đang mở bài (nhịp cố định). Thời gian trên tác
@@ -146,6 +148,30 @@
  *     số gộp nên không chỉ ra được distractor nào bị chọn lặp lại — mà đúng cái
  *     đó mới quyết định được bài nào cần `MisconceptionScreen`.
  *
+ * 11. `X-Screen.View`     vào một màn của bài (`step`, loại màn). Là MẪU SỐ THEO
+ *     MÀN: `X-Lesson.Abandon` chỉ nói họ rời ở màn nào, không nói bao nhiêu
+ *     người ĐÃ TỚI màn đó — thiếu mẫu số thì "20% bỏ ở màn 5" có thể là 1/5 hay
+ *     20/100 người. Đồng thời cho biết màn nào bị MỞ LẠI (quay lại đọc), thứ mà
+ *     nhịp 30 giây của `X-Lesson.Heartbeat` không phân biệt được.
+ * 12. `X-Predict.Submit`  nộp một câu ĐOÁN trước khi xem kết quả (cổng đoán
+ *     output, đoán hình, đoán ở bảng từng bước): `gate`, `block`, và `correct`
+ *     khi cổng có đáp án để máy so (vắng ở cổng đoán hình). KHÔNG gửi chữ người
+ *     học gõ — chữ tự do không vào bảng này (luật 4, mở rộng từ "mã nguồn" sang
+ *     mọi văn bản tự do). `X-Quiz.Answer` chỉ phủ trắc nghiệm; hàng trăm cổng
+ *     đoán của khoá không để lại dấu vết nào, mà "đoán đúng bao nhiêu" là thước
+ *     đo duy nhất của việc người học có đang TỰ SUY LUẬN hay chỉ lật sang đáp án.
+ * 13. `X-Answer.Reveal`   bấm "Xem đáp án" ở câu luyện tập mở. `Resource.View`
+ *     chỉ phủ gợi ý của bài tập CHẤM; câu luyện tập mở (hơn 600 màn) không có
+ *     dấu hiệu nào cho biết người học đã tự viết rồi mới xem hay xem cho xong.
+ * 14. `X-Review.Answer`   trả lời một câu ÔN GIÃN CÁCH ở đầu bài: đúng/sai và đây
+ *     là lần sai thứ mấy (`miss`). Hàng chờ ôn nằm ở localStorage nên máy chủ
+ *     không biết người học nhớ hay quên — không có loại này thì không đo được ôn
+ *     giãn cách có tác dụng không — một cơ chế được chọn vì bằng chứng khoa học
+ *     bên ngoài (Cepeda 2006) mà chưa có số đo nào của chính khoá này.
+ * 15. `X-IDE.Open`        bấm "Thử ngay trong IDE" ở một khối code: người học tò
+ *     mò đến mức tự sửa. `/ide` không mang bối cảnh bài, nên đây là chỗ DUY NHẤT
+ *     biết khối nào kích được việc đó. Ghi việc BẤM, không ghi mã bàn giao.
+ *
  * KHÔNG có `lesson_complete`: `lesson_progress.completed_at` đã ghi đúng việc
  * đó, và hai nguồn cho một sự thật là chỗ chúng lệch nhau (xem bẫy "Hai nguồn
  * danh sách bài" trong AGENTS.md).
@@ -161,6 +187,11 @@ export const LEARNING_EVENT_KINDS = [
   'X-Runtime.Failure',
   'Resource.View',
   'X-Quiz.Answer',
+  'X-Screen.View',
+  'X-Predict.Submit',
+  'X-Answer.Reveal',
+  'X-Review.Answer',
+  'X-IDE.Open',
 ] as const;
 
 export type LearningEventKind = (typeof LEARNING_EVENT_KINDS)[number];
@@ -171,7 +202,7 @@ export const KIND_LAN_THU: readonly LearningEventKind[] = [
   'Submit',
 ];
 
-/** Tra cứu O(1) — `includes` trên mảng 10 phần tử gọi mỗi sự kiện của mỗi lô. */
+/** Tra cứu O(1) — `includes` trên mảng 15 phần tử gọi mỗi sự kiện của mỗi lô. */
 const TAP_KIND: ReadonlySet<string> = new Set<string>(LEARNING_EVENT_KINDS);
 
 export function laKindHopLe(kind: unknown): kind is LearningEventKind {

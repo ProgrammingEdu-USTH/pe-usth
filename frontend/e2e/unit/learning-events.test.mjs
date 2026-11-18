@@ -110,14 +110,60 @@ test('learning-event-kinds.ts ở backend và frontend giống nhau từng ký t
   );
 });
 
-test('danh sách kind: 10 loại, tên chuẩn ProgSnap2 đúng chính tả, còn lại mang `X-`', () => {
-  assert.equal(LEARNING_EVENT_KINDS.length, 10);
+test('danh sách kind: 15 loại, tên chuẩn ProgSnap2 đúng chính tả, còn lại mang `X-`', () => {
+  assert.equal(LEARNING_EVENT_KINDS.length, 15);
   const chuan = new Set(['Run.Test', 'Submit', 'Resource.View']);
   for (const k of chuan) assert.ok(LEARNING_EVENT_KINDS.includes(k), `thiếu tên chuẩn ${k}`);
   for (const k of LEARNING_EVENT_KINDS) {
     if (!chuan.has(k)) assert.ok(k.startsWith('X-'), `${k} không chuẩn mà cũng không có X-`);
   }
   assert.deepEqual([...KIND_LAN_THU], ['Run.Test', 'Submit']);
+});
+
+// ===========================================================================
+// NĂM LOẠI THÊM NGÀY 19/11/2026 — mỗi loại phải có một CHỖ PHÁT thật
+// ===========================================================================
+// Thêm `kind` vào hợp đồng mà không ai gọi `ghiSuKien` là "dựng xong mà không có
+// đường tới": bảng có cột, bản mô tả đồng ý nói sẽ thu, và không một hàng nào
+// bao giờ tới. Cũng là lỗi ngược: gỡ chỗ phát đi thì không test nào đỏ.
+
+const CHO_PHAT = {
+  'X-Screen.View': ['frontend/src/components/python-studio/StudioLesson.tsx'],
+  'X-Review.Answer': ['frontend/src/components/python-studio/StudioLesson.tsx'],
+  'X-Predict.Submit': ['frontend/src/components/python-studio/screens/ReadScreen.tsx'],
+  'X-IDE.Open': ['frontend/src/components/python-studio/screens/ReadScreen.tsx'],
+  'X-Answer.Reveal': ['frontend/src/components/python-studio/screens/PracticeScreen.tsx'],
+};
+
+test('năm loại thêm 19/11: mỗi loại có đúng chỗ phát trong giao diện học', () => {
+  for (const [kind, tep] of Object.entries(CHO_PHAT)) {
+    assert.ok(LEARNING_EVENT_KINDS.includes(kind), `${kind} chưa có trong hợp đồng`);
+    for (const t of tep) {
+      assert.ok(
+        doc(t).includes(`ghiSuKien('${kind}'`),
+        `${kind} nằm trong hợp đồng nhưng ${t} không gọi ghiSuKien('${kind}', …) — ` +
+          'loại này sẽ không bao giờ có một hàng nào trong DB.',
+      );
+    }
+  }
+});
+
+test('năm loại thêm 19/11: payload không mang CHỮ người học gõ', () => {
+  // Bản mô tả đồng ý hứa "chỉ đúng/sai, không phải chữ bạn gõ". Lời hứa đó chỉ
+  // đúng khi payload của các chỗ phát KHÔNG có khoá nào chở văn bản tự do.
+  const khoaCam = /\b(guess|text|typed|answer|doan|input|value)\s*:/;
+  for (const [kind, tep] of Object.entries(CHO_PHAT)) {
+    for (const t of tep) {
+      const ma = doc(t);
+      let tu = ma.indexOf(`ghiSuKien('${kind}'`);
+      while (tu !== -1) {
+        const het = ma.indexOf('});', tu);
+        const khoi = ma.slice(tu, het);
+        assert.ok(!khoaCam.test(khoi), `${kind} ở ${t}: payload có khoá chở văn bản tự do:\n${khoi}`);
+        tu = ma.indexOf(`ghiSuKien('${kind}'`, tu + 1);
+      }
+    }
+  }
 });
 
 // ===========================================================================

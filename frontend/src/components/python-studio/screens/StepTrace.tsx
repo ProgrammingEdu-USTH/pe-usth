@@ -52,7 +52,16 @@ function dienBien(r: TraceRow) {
   return mau;
 }
 
-export default function StepTrace({ trace, code }: { trace: ReadTrace; code: string }) {
+export default function StepTrace({
+  trace,
+  code,
+  onDoan,
+}: {
+  trace: ReadTrace;
+  code: string;
+  /** Gọi ĐÚNG MỘT lần khi người học nộp câu đoán; `dung` = khớp đáp án của bảng. */
+  onDoan?: (dung: boolean) => void;
+}) {
   const [moPanel, setMoPanel] = useState(false);
   const [doan, setDoan] = useState('');
   // `null` = chưa nộp. Giữ lại sau khi đóng bảng: bắt người học đoán LẠI cùng
@@ -90,7 +99,10 @@ export default function StepTrace({ trace, code }: { trace: ReadTrace; code: str
           className={c.tracePredict}
           onSubmit={(e) => {
             e.preventDefault();
-            if (doan.trim()) setDaNop(doan.trim());
+            if (doan.trim()) {
+              setDaNop(doan.trim());
+              onDoan?.(khopDapAn(doan.trim(), trace.predict.answer));
+            }
           }}
         >
           <p className={c.tracePredictAsk}>

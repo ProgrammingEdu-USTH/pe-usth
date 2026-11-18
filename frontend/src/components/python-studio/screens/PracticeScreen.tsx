@@ -26,6 +26,7 @@
 import { useState } from 'react';
 
 import CodeBlock from '@/components/lesson-chrome/exercises/CodeBlock';
+import { ghiSuKien } from '@/lib/learning-events';
 import { toCodeLines } from '@/lib/py-highlight';
 import { khopDapAn } from '@/lib/studio-lesson';
 
@@ -196,9 +197,15 @@ export default function PracticeScreen({
             type="button"
             className={c.practiceReveal}
             disabled={!typed.trim() || (chayDuoc && !daChay)}
-            onClick={() =>
-              update({ practiceSeen: { ...(draft.practiceSeen ?? {}), [at]: true } })
-            }
+            onClick={() => {
+              update({ practiceSeen: { ...(draft.practiceSeen ?? {}), [at]: true } });
+              // ĐO việc xem đáp án (không gửi chữ người học đã viết): `ranFirst` cho
+              // biết câu chạy được này đã được chạy thử trước khi xem hay chưa.
+              ghiSuKien('X-Answer.Reveal', {
+                screenKey: scr.key,
+                payload: { item: at, ...(chayDuoc ? { ranFirst: Boolean(daChay) } : {}) },
+              });
+            }}
           >
             {/* Câu CHẠY ĐƯỢC thì cổng là "đã chạy", không phải "đã gõ": với một
                 câu code, thử một lần CHÍNH LÀ việc phải làm, và một đoạn gõ ra

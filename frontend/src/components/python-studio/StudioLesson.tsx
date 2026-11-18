@@ -178,6 +178,18 @@ export default function StudioLesson({
     trangThaiRef.current = { screenKey: scr?.key, completed, step: d.step };
   });
 
+  // ĐÃ TỚI MÀN NÀO. Là mẫu số theo màn của mọi phép đo bỏ dở: `X-Lesson.Abandon`
+  // chỉ nói họ rời ở màn nào, không nói bao nhiêu người đã tới đó. Chạy lại khi
+  // ĐỔI MÀN (khoá màn đổi), không mỗi lần render; `lessonNo` đứng trong deps để
+  // hai bài có chung khoá màn (`s1-read-0`…) không nuốt lượt vào màn đầu của nhau.
+  const khoaMan = scr?.key;
+  const loaiMan = scr?.kind;
+  const buocMan = d.step;
+  useEffect(() => {
+    if (!khoaMan) return;
+    ghiSuKien('X-Screen.View', { screenKey: khoaMan, payload: { step: buocMan, kind: loaiMan } });
+  }, [khoaMan, loaiMan, buocMan, lessonNo]);
+
   useEffect(() => {
     if (loading || !lesson) return;
     const nhip = setInterval(() => {
@@ -556,6 +568,13 @@ export default function StudioLesson({
           <OnGianCach
             cau={cauOn}
             onXong={(dung) => {
+              // ĐO ôn giãn cách: hàng chờ nằm ở localStorage nên máy chủ không biết
+              // người học nhớ hay quên. Chỉ đúng/sai + số lần đã sai, không có nội
+              // dung câu hỏi (tra lại được bằng `fromKey`).
+              ghiSuKien('X-Review.Answer', {
+                screenKey: scr?.key,
+                payload: { fromKey: cauOn.key, fromLesson: cauOn.lessonNo, correct: dung, miss: cauOn.lan ?? 0 },
+              });
               // Đúng thì bỏ; SAI ngay ở màn ôn thì xếp lại (1 ngày → 3 ngày → bỏ).
               if (dung) xoaCauOn(courseId, cauOn.key);
               else datLaiCauOn(courseId, cauOn.key);

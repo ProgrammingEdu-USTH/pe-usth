@@ -1,6 +1,6 @@
 'use client';
 
-// S2 · Luyện tập: một câu của `step_2.practice` (khoá 172 bài đọc — xem
+// S2 · Luyện tập: một câu của `step_2.practice` (khoá 179 bài đọc — xem
 // scripts/pe-da/SCHEMA.md).
 //
 // KHÔNG CHẤM, và đó là quyết định về nội dung chứ không phải phần làm chưa
@@ -10,7 +10,7 @@
 // isGraded('practice') trả false và màn này không có băng phản hồi đúng/sai.
 //
 // Thứ tự dựng là có ý: ô viết ĐỨNG TRƯỚC nút "Xem đáp án". Mở sẵn đáp án thì
-// câu luyện tập thành câu đọc, mà khoá này đã có 172 bài đọc rồi.
+// câu luyện tập thành câu đọc, mà khoá này đã có 179 bài đọc rồi.
 //
 // VÀ THỨ TỰ THÔI LÀ CHƯA ĐỦ — nút phải KHOÁ tới khi có chữ. Đo trên bản dựng:
 // 669 màn luyện tập = 31% toàn khoá, nhiều hơn cả màn đọc (565) — mà không màn

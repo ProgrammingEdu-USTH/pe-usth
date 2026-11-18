@@ -1,9 +1,10 @@
 'use client';
 
-// S1 · Bài đọc: một LÁT của `step_1.read` (khoá 172 bài "Python cho Data
+// S1 · Bài đọc: một LÁT của `step_1.read` (khoá 179 bài "Python cho Data
 // Analyst" — xem scripts/pe-da/SCHEMA.md). Nguồn của khoá này là giáo trình
-// ĐỌC: không trắc nghiệm, không scaffold, không ca kiểm thử — nên màn này
-// không chấm gì, nó chỉ phải trình bày đúng.
+// ĐỌC; trắc nghiệm, câu luyện tập và bài tập chấm do khâu build thêm và nằm ở
+// các MÀN KHÁC của bài (S2 và S4). Màn này không chấm gì, nó chỉ phải trình bày
+// đúng và đòi người học làm một việc nhỏ trước khi xem kết quả (xem `doanDuoc*`).
 //
 // Lát nào thuộc màn nào do KHÂU BUILD quyết (một màn = một ý được một đoạn code
 // chứng minh); ở đây chỉ lấy `read[scr.index]` và đổ ra theo thứ tự. Renderer

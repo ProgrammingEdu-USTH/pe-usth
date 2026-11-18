@@ -23,9 +23,11 @@
  * là việc của người khác), và cả ba đều là ràng buộc mã, không phải lời khuyên:
  *
  *  1. MẶC ĐỊNH LÀ TẮT. `taoBoGhi()` ở frontend không xếp sự kiện nào vào hàng
- *     chờ, không ghi gì xuống localStorage, không gửi gì — cho tới khi có ai
- *     gọi `datDongY(true)`. Không có cờ env nào bật sẵn, không có ô tick sẵn.
- *  2. RÚT LẠI LÀ XOÁ HÀNG CHỜ, KHÔNG PHẢI ĐẨY NỐT. `datDongY(false)` bỏ sạch
+ *     chờ, không ghi gì xuống localStorage, không gửi gì — cho tới khi máy chủ
+ *     báo người học đã đồng ý (`datDongYGhiNhatKy(true)`, gọi từ
+ *     `frontend/src/lib/log-consent.ts`). Không có cờ env nào bật sẵn, không có
+ *     ô tick sẵn.
+ *  2. RÚT LẠI LÀ XOÁ HÀNG CHỜ, KHÔNG PHẢI ĐẨY NỐT. `datDongYGhiNhatKy(false)` bỏ sạch
  *     những gì đang chờ. Đẩy nốt "cho khỏi mất dữ liệu" là gửi đúng thứ người
  *     ta vừa nói đừng gửi.
  *  3. TỪ CHỐI KHÔNG ẢNH HƯỞNG VIỆC HỌC. Không một đường nào trong bài học đọc
@@ -33,10 +35,12 @@
  *     y nguyên như khi lớp này không tồn tại — đó là cách duy nhất để sự đồng ý
  *     không bị gói chung với quyền dùng sản phẩm.
  *
- * CHƯA LÀM, và nó là thứ CHẶN việc bật lớp này: giao diện xin đồng ý và BẢN GHI
- * ĐỒNG Ý ở máy chủ (ai đồng ý, lúc nào, cho mục đích gì). Hôm nay chưa chỗ nào
- * gọi `datDongY(true)`, nên lớp này nằm im — và đó là trạng thái ĐÚNG, không
- * phải việc còn sót. Đừng "bật tạm cho có dữ liệu".
+ * ĐÃ NỐI (mục này từng ghi "CHƯA LÀM" khi hai thứ chặn việc bật lớp này còn
+ * thiếu): giao diện xin đồng ý là `ConsentBanner.tsx`, và BẢN GHI ĐỒNG Ý nằm ở
+ * máy chủ (`learning-event-consent.ts`, bảng `learning_event_consents`, khoá
+ * theo `PHIEN_BAN_DONG_Y`). Ràng buộc không đổi: chưa đồng ý thì mọi đường vẫn
+ * im. Đừng "bật tạm cho có dữ liệu" — và khi phạm vi thu đổi, sửa cả
+ * `MO_TA_PHAM_VI` ở `log-consent.ts` cùng nâng `PHIEN_BAN_DONG_Y`.
  *
  * Và KHÔNG thu dữ liệu nhân khẩu, không một trường nào. Nhóm Blackbox (bộ dữ
  * liệu lập trình giáo dục lớn nhất từng có) cố ý từ chối thu nhân khẩu vì

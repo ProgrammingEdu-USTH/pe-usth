@@ -21,9 +21,10 @@
 //    Không xếp vào hàng chờ (gom trước rồi "chờ đồng ý" vẫn là thu thập), không
 //    ghi localStorage, không gọi mạng. Rút lại thì XOÁ hàng chờ, không đẩy nốt.
 //    Và không một đường nào trong bài học đọc cờ này — từ chối thì vẫn học y
-//    nguyên. HÔM NAY CHƯA CHỖ NÀO GỌI `datDongY(true)` nên lớp này nằm im; đó
-//    là trạng thái đúng, thứ còn thiếu là giao diện xin đồng ý + bản ghi đồng ý
-//    ở máy chủ.
+//    nguyên. Cổng được mở đúng MỘT chỗ: `log-consent.ts` gọi `datDongY(...)`
+//    (qua tên xuất `datDongYGhiNhatKy`) theo trạng thái MÁY CHỦ trả về, sau khi
+//    `ConsentBanner.tsx` xin đồng ý và máy chủ đã ghi bản ghi đồng ý. Chưa có
+//    bản ghi thì lớp này vẫn im — đó là trạng thái đúng.
 // 2. CHỈ `apiFetch`, và CHỈ ở trang bài học.
 //    `apiFetch` gặp 401 là tự gọi `ensureGuest()`. Gọi nó ở một trang công khai
 //    nghĩa là MỖI BOT QUÉT WEB sinh một tài khoản khách, ăn hết

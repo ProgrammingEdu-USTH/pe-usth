@@ -197,7 +197,11 @@ function ensureGuest(): Promise<string | null> {
   return guesting;
 }
 
-export async function apiFetch(path: string, opts: RequestInit = {}): Promise<Response> {
+async function request(
+  path: string,
+  opts: RequestInit = {},
+  allowGuest = true,
+): Promise<Response> {
   const base = origin();
   const send = (access: string | null) => {
     const headers = new Headers(opts.headers || {});
@@ -207,12 +211,26 @@ export async function apiFetch(path: string, opts: RequestInit = {}): Promise<Re
 
   let res = await send(ls(LS_ACCESS));
   if (res.status === 401) {
-    // Thứ tự: refresh phiên cũ trước (giữ tiến độ của khách đã học hôm qua),
-    // chỉ khi không còn phiên nào mới tạo khách mới.
-    const access = (await refreshAccess()) ?? (await ensureGuest());
+    // Thứ tự: refresh phiên cũ trước (giữ tiến độ của khách đã học hôm qua);
+    // chỉ khi allowGuest bật và không còn phiên nào mới tạo tài khoản khách mới.
+    const refreshed = await refreshAccess();
+    const access = refreshed ?? (allowGuest ? await ensureGuest() : null);
     if (access) res = await send(access);
   }
   return res;
+}
+
+export function apiFetch(path: string, opts: RequestInit = {}): Promise<Response> {
+  return request(path, opts, true);
+}
+
+/**
+ * Fetch chỉ dùng phiên đang có — KHÔNG tự gọi `/auth/guest` khi gặp 401.
+ * Dùng cho trang công khai (trang chủ, khoá học, khảo sát đầu vào, hồ sơ)
+ * để khách vãng lai/bot không sinh hàng loạt tài khoản khách.
+ */
+export function apiFetchSessionOnly(path: string, opts: RequestInit = {}): Promise<Response> {
+  return request(path, opts, false);
 }
 
 /**

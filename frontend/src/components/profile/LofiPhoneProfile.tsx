@@ -1,13 +1,49 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LofiPhoneMockup } from '@/components/ui/LofiPhoneMockup';
 import { LofiTabs } from '@/components/ui/LofiTabs';
 import { LofiProgressBar } from '@/components/ui/LofiProgressBar';
 import { LofiFeedbackBanner } from '@/components/ui/LofiFeedbackBanner';
+import CURRICULA_JSON from '@/lib/curricula.json';
+import { apiFetchSessionOnly, asList, findEnrollment } from '@/lib/api';
+import {
+  completedLessonSet,
+  hasStoredSession,
+  LS_ACCESS,
+  LS_LEGACY_REFRESH,
+} from '@/lib/course-progress';
+import {
+  submitCourseReset,
+  submitDisplayName,
+  USE_COURSE_RESET_MOCK,
+} from '@/lib/course-reset-profile';
 import styles from './phone-profile.module.css';
 
+const DEFAULT_COURSE_ID = 'python_advanced';
+const LS_DISPLAY_NAME = 'pe_goc_hoc_ten';
+const LS_CHILL_DONE = 'pe_chill_done_lessons';
+
+function lessonTotalFor(courseId: string): number {
+  const mods = (
+    CURRICULA_JSON as {
+      CURRICULA?: Record<string, { modules?: { lessons?: string[] }[] }>;
+    }
+  ).CURRICULA?.[courseId]?.modules;
+  if (!mods?.length) return 179;
+  return mods.reduce((sum, m) => sum + (m.lessons?.length ?? 0), 0) || 179;
+}
+
+function lsGet(key: string): string | null {
+  try {
+    return typeof localStorage === 'undefined' ? null : localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
 export interface LofiPhoneProfileProps {
+  courseId?: string;
   initialDoneLessons?: number;
   initialXp?: number;
   totalLessons?: number;
@@ -16,36 +52,167 @@ export interface LofiPhoneProfileProps {
 }
 
 export function LofiPhoneProfile({
+  courseId = DEFAULT_COURSE_ID,
   initialDoneLessons = 12,
   initialXp = 1250,
-  totalLessons = 48,
-  courseTitle = 'Python nâng cao',
+  totalLessons,
+  courseTitle = 'Python cho Data Analyst',
   onResetProgress,
 }: LofiPhoneProfileProps) {
+  const resolvedTotal = totalLessons ?? lessonTotalFor(courseId);
+
   const [activeTab, setActiveTab] = useState<'me' | 'rank'>('me');
+  const [signedIn, setSignedIn] = useState(false);
+  const [displayName, setDisplayName] = useState('Học viên Lofi');
   const [doneLessons, setDoneLessons] = useState(initialDoneLessons);
-  const [xp] = useState(initialXp);
-  const [currentLessonNo, setCurrentLessonNo] = useState(initialDoneLessons > 0 ? initialDoneLessons + 1 : 1);
+  const [xp, setXp] = useState(initialXp);
+  const [currentLessonNo, setCurrentLessonNo] = useState(
+    initialDoneLessons > 0 ? Math.min(resolvedTotal, initialDoneLessons + 1) : 1,
+  );
+
+  // Form đổi tên hiển thị
+  const [editingName, setEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState('');
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [savingName, setSavingName] = useState(false);
+
+  // Modal xác nhận Học lại khoá
   const [showResetModal, setShowResetModal] = useState(false);
+  const [resetBusy, setResetBusy] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
 
-  const handleConfirmReset = () => {
-    setDoneLessons(0);
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadProfile() {
+      const localName = lsGet(LS_DISPLAY_NAME);
+      if (localName?.trim() && !cancelled) {
+        setDisplayName(localName.trim());
+      }
+
+      const session = {
+        access: lsGet(LS_ACCESS),
+        legacyRefresh: lsGet(LS_LEGACY_REFRESH),
+        cookie: typeof document === 'undefined' ? null : document.cookie,
+      };
+      if (!hasStoredSession(session)) return;
+
+      const [userRes, enrolledRes, statsRes] = await Promise.all([
+        apiFetchSessionOnly('/api/user').catch(() => null),
+        apiFetchSessionOnly('/api/enrolled').catch(() => null),
+        apiFetchSessionOnly('/api/stats').catch(() => null),
+      ]);
+      if (cancelled) return;
+
+      if (userRes?.ok) {
+        const u = (await userRes.json().catch(() => null)) as { name?: unknown } | null;
+        if (!cancelled) {
+          setSignedIn(true);
+          if (typeof u?.name === 'string' && u.name.trim()) {
+            setDisplayName(u.name.trim());
+          }
+        }
+      }
+
+      if (enrolledRes?.ok) {
+        const data = (await enrolledRes.json().catch(() => null)) as unknown;
+        const row = findEnrollment(asList(data, 'enrolled'), courseId);
+        const raw = row?.completedLessonNumbers;
+        if (!cancelled && Array.isArray(raw)) {
+          const done = completedLessonSet(raw, resolvedTotal);
+          setDoneLessons(done.size);
+          setCurrentLessonNo(done.size >= resolvedTotal ? resolvedTotal : done.size + 1);
+        }
+      }
+
+      if (statsRes?.ok) {
+        const s = (await statsRes.json().catch(() => null)) as { xp?: unknown } | null;
+        if (!cancelled && typeof s?.xp === 'number' && Number.isFinite(s.xp)) {
+          setXp(s.xp);
+        }
+      }
+    }
+
+    void loadProfile();
+    return () => {
+      cancelled = true;
+    };
+  }, [courseId, resolvedTotal]);
+
+  const handleOpenRename = () => {
+    setNameDraft(displayName);
+    setNameError(null);
+    setEditingName(true);
+  };
+
+  const handleSaveRename = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (savingName) return;
+    setSavingName(true);
+    setNameError(null);
+    const result = await submitDisplayName(nameDraft, {
+      signedIn,
+      fetcher: apiFetchSessionOnly,
+    });
+    setSavingName(false);
+    if (!result.ok) {
+      setNameError(result.message);
+      return;
+    }
+    setDisplayName(result.name);
+    setEditingName(false);
+    try {
+      localStorage.setItem(LS_DISPLAY_NAME, result.name);
+    } catch {
+      /* private mode */
+    }
+    setBannerMessage(
+      result.source === 'api'
+        ? `Đã cập nhật tên hiển thị thành "${result.name}".`
+        : `Đã lưu tên hiển thị cục bộ "${result.name}" (đăng nhập để đồng bộ máy chủ).`,
+    );
+  };
+
+  const handleConfirmReset = async () => {
+    if (resetBusy) return;
+    setResetBusy(true);
+    setResetError(null);
+    const result = await submitCourseReset(courseId, {
+      useMock: USE_COURSE_RESET_MOCK,
+      fetcher: apiFetchSessionOnly,
+    });
+    setResetBusy(false);
+    if (!result.ok) {
+      setResetError(result.message);
+      return;
+    }
+
+    setDoneLessons(result.data.completedLessons);
     setCurrentLessonNo(1);
     setShowResetModal(false);
-    setBannerMessage('Đã đặt lại tiến độ về Bài 1. Điểm XP vẫn được giữ nguyên.');
+    try {
+      localStorage.removeItem(LS_CHILL_DONE);
+    } catch {
+      /* private mode */
+    }
+    setBannerMessage(
+      result.source === 'mock'
+        ? 'Đã đặt lại tiến độ về Bài 1 (dữ liệu mẫu). Điểm XP vẫn được giữ nguyên.'
+        : 'Đã đặt lại tiến độ về Bài 1 và lưu lịch sử học tập. Điểm XP vẫn được giữ nguyên.',
+    );
     if (onResetProgress) {
       onResetProgress();
     }
   };
 
-  const progressPercent = Math.round((doneLessons / totalLessons) * 100);
+  const progressPercent =
+    resolvedTotal > 0 ? Math.min(100, Math.round((doneLessons / resolvedTotal) * 100)) : 0;
 
-  // Dữ liệu bảng xếp hạng xem trước
   const previewLeaderboard = [
     { rank: 1, name: 'Hoàng Nam', xp: 3420, isMe: false },
     { rank: 2, name: 'Thu Hà', xp: 2150, isMe: false },
-    { rank: 3, name: 'Học viên Lofi', xp, isMe: true },
+    { rank: 3, name: displayName, xp, isMe: true },
     { rank: 4, name: 'Minh Trí', xp: 980, isMe: false },
     { rank: 5, name: 'Anh Quân', xp: 740, isMe: false },
   ];
@@ -54,7 +221,6 @@ export function LofiPhoneProfile({
     <LofiPhoneMockup
       header={
         <div className={styles.profileWrapper}>
-          {/* Thanh trạng thái điện thoại */}
           <div className={styles.statusBar}>
             <span>09:41</span>
             <div className={styles.statusIcons}>
@@ -63,7 +229,6 @@ export function LofiPhoneProfile({
             </div>
           </div>
 
-          {/* Thanh chuyển tab phân đoạn */}
           <LofiTabs
             activeTab={activeTab}
             onChange={(tab) => {
@@ -78,7 +243,6 @@ export function LofiPhoneProfile({
         </div>
       }
     >
-      {/* Thông báo phản hồi nếu có */}
       {bannerMessage && (
         <LofiFeedbackBanner
           variant="success"
@@ -106,19 +270,70 @@ export function LofiPhoneProfile({
 
       {activeTab === 'me' ? (
         <>
-          {/* Thẻ người dùng */}
           <div className={styles.userCard}>
-            <div className={styles.userAvatar}>H</div>
+            <div className={styles.userAvatar}>
+              {displayName.trim()[0]?.toUpperCase() || 'H'}
+            </div>
             <div className={styles.userInfo}>
-              <h3 className={styles.userName}>Học viên Lofi</h3>
+              <div className={styles.userRowTop}>
+                <h3 className={styles.userName}>{displayName}</h3>
+                {!editingName && (
+                  <button
+                    type="button"
+                    className={styles.renameTriggerBtn}
+                    onClick={handleOpenRename}
+                  >
+                    Đổi tên
+                  </button>
+                )}
+              </div>
               <p className={styles.userStatus}>
                 <span className={styles.statusDot} />
-                Giao diện xem trước
+                {signedIn ? 'Đã đồng bộ tài khoản' : 'Giao diện xem trước'}
               </p>
+
+              {editingName && (
+                <form className={styles.renameForm} onSubmit={(e) => void handleSaveRename(e)}>
+                  <div className={styles.renameInputRow}>
+                    <input
+                      type="text"
+                      className={styles.renameInput}
+                      aria-label="Tên hiển thị"
+                      placeholder="Nhập tên hiển thị..."
+                      maxLength={40}
+                      value={nameDraft}
+                      onChange={(e) => setNameDraft(e.target.value)}
+                      disabled={savingName}
+                    />
+                    <button
+                      type="submit"
+                      className={styles.renameSaveBtn}
+                      disabled={savingName}
+                    >
+                      {savingName ? 'Đang lưu...' : 'Lưu'}
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.renameCancelBtn}
+                      onClick={() => {
+                        setEditingName(false);
+                        setNameError(null);
+                      }}
+                      disabled={savingName}
+                    >
+                      Huỷ
+                    </button>
+                  </div>
+                  {nameError && (
+                    <p className={styles.inlineError} role="alert">
+                      {nameError}
+                    </p>
+                  )}
+                </form>
+              )}
             </div>
           </div>
 
-          {/* Lưới 4 chỉ số thống kê */}
           <div className={styles.statsGrid}>
             <div className={styles.statBox}>
               <span className={styles.statVal}>{xp.toLocaleString('vi-VN')}</span>
@@ -126,7 +341,7 @@ export function LofiPhoneProfile({
             </div>
             <div className={styles.statBox}>
               <span className={styles.statVal}>
-                {doneLessons}/{totalLessons}
+                {doneLessons}/{resolvedTotal}
               </span>
               <span className={styles.statLabel}>bài đã xong</span>
             </div>
@@ -140,7 +355,6 @@ export function LofiPhoneProfile({
             </div>
           </div>
 
-          {/* Thẻ tiến độ khoá học */}
           <div className={styles.courseCard}>
             <div className={styles.courseHeader}>
               <span className={styles.courseSectionTitle}>KHOÁ ĐANG HỌC</span>
@@ -150,35 +364,41 @@ export function LofiPhoneProfile({
             </div>
             <h4 className={styles.courseName}>{courseTitle}</h4>
             <p className={styles.courseLessonTitle}>
-              {doneLessons === 0 ? 'Bài 1: Khởi đầu' : `Bài ${currentLessonNo}: Ôn tập tiến độ`}
+              {doneLessons === 0 ? 'Bài 1: Khởi đầu' : `Bài ${currentLessonNo}: Tiếp tục lộ trình`}
             </p>
             <div className={styles.courseProgressWrap}>
               <LofiProgressBar value={progressPercent} variant="gradient" />
               <div className={styles.courseProgressInfo}>
                 <span>
-                  {doneLessons} / {totalLessons} bài đã xong
+                  {doneLessons} / {resolvedTotal} bài đã xong
                 </span>
                 <span>{progressPercent}%</span>
               </div>
             </div>
           </div>
 
-          {/* Tuỳ chọn khoá học & Nút Học lại khoá này */}
           <div className={styles.optionsCard}>
-            <div className={styles.optionsTitle}>⚙️ Tuỳ chọn khoá học</div>
+            <div className={styles.optionsTitle}>Tuỳ chọn khoá học</div>
             <p className={styles.optionsDesc}>
               Bắt đầu ôn luyện lại từ bài đầu tiên mà không làm mất điểm tích luỹ.
             </p>
             <button
               type="button"
               className={styles.resetCourseBtn}
-              onClick={() => setShowResetModal(true)}
+              onClick={() => {
+                setResetError(null);
+                setShowResetModal(true);
+              }}
             >
               <span aria-hidden="true">🔄</span> Học lại khoá này
             </button>
+            {USE_COURSE_RESET_MOCK && (
+              <p className={styles.mockHint}>
+                Đang bật cờ dữ liệu giả (`NEXT_PUBLIC_COURSE_RESET_MOCK=false` để gọi API thật).
+              </p>
+            )}
           </div>
 
-          {/* Modal xác nhận Học lại khoá */}
           {showResetModal && (
             <div className={styles.modalOverlay} role="dialog" aria-modal="true">
               <div className={styles.modalCard}>
@@ -190,22 +410,29 @@ export function LofiPhoneProfile({
                   Tiến độ bài học sẽ trở về 0 để bạn bắt đầu lại từ Bài 1.
                 </p>
                 <div className={styles.modalHighlight}>
-                  💡 Toàn bộ <strong>{xp.toLocaleString('vi-VN')} XP</strong> bạn đã tích lũy vẫn được bảo lưu trọn vẹn.
+                  Toàn bộ <strong>{xp.toLocaleString('vi-VN')} XP</strong> bạn đã tích lũy vẫn được bảo lưu trọn vẹn.
                 </div>
+                {resetError && (
+                  <div className={styles.modalError} role="alert">
+                    {resetError}
+                  </div>
+                )}
                 <div className={styles.modalActions}>
                   <button
                     type="button"
                     className={styles.modalCancelBtn}
                     onClick={() => setShowResetModal(false)}
+                    disabled={resetBusy}
                   >
                     Giữ nguyên
                   </button>
                   <button
                     type="button"
                     className={styles.modalConfirmBtn}
-                    onClick={handleConfirmReset}
+                    onClick={() => void handleConfirmReset()}
+                    disabled={resetBusy}
                   >
-                    Xác nhận lại
+                    {resetBusy ? 'Đang đặt lại...' : 'Xác nhận lại'}
                   </button>
                 </div>
               </div>
@@ -213,7 +440,6 @@ export function LofiPhoneProfile({
           )}
         </>
       ) : (
-        /* Tab Xếp hạng */
         <div>
           <ul className={styles.leaderboardList}>
             {previewLeaderboard.map((item) => (

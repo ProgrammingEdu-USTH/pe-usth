@@ -43,8 +43,9 @@ import { createPortal } from 'react-dom';
 import { BookshelfCabinet } from '../bookshelf/BookshelfCabinet';
 import LofiWorkspace, { type LofiScreenType } from './LofiWorkspace';
 
-import { apiFetch, asList, findEnrollment } from '@/lib/api';
+import { apiFetch, apiFetchSessionOnly, asList, findEnrollment } from '@/lib/api';
 import { completedLessonSet, hasStoredSession, LS_ACCESS, LS_LEGACY_REFRESH } from '@/lib/course-progress';
+import { submitDisplayName } from '@/lib/course-reset-profile';
 import {
   buildContent,
   EMPTY_USER,
@@ -294,6 +295,14 @@ export default function StudyRoom(props: StudyRoomProps) {
                 else localStorage.removeItem(LS_TEN);
               } catch {
                 /* chế độ riêng tư: không lưu được thì thôi, cảnh vẫn chạy */
+              }
+              const session = {
+                access: lsGet(LS_ACCESS),
+                legacyRefresh: lsGet(LS_LEGACY_REFRESH),
+                cookie: typeof document === 'undefined' ? null : document.cookie,
+              };
+              if (v && hasStoredSession(session)) {
+                void submitDisplayName(v, { signedIn: true, fetcher: apiFetchSessionOnly });
               }
             },
           },

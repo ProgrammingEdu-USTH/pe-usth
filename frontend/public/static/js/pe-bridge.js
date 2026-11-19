@@ -33,13 +33,37 @@
    * "có phiên" từ server — localStorage server không đọc được. Được gia hạn mỗi
    * lần login/refresh.
    *
-   * max-age lấy từ `refreshExpiresIn` mà /auth/* trả về. Ghi cứng 8h là lệch:
-   * production đặt JWT_REFRESH_EXPIRES=24h, đo được Set-Cookie Max-Age=86400,
-   * nên từ giờ thứ 8 tới giờ thứ 24 cookie mốc đã hết trong khi phiên còn sống.
-   * Dự phòng vẫn là 8h vì đoán NGẮN hơn chỉ mất cái badge, còn đoán DÀI hơn thì
+   * max-age ưu tiên đọc từ `expiresAt` (hoặc `refreshExpiresIn`) mà /auth/refresh
+   * và /auth/* trả về; thiếu thì mặc định 8h (khớp JWT_REFRESH_EXPIRES mặc định).
+   * Dự phòng cố ý giữ 8h: đoán NGẮN hơn chỉ mất cái badge, còn đoán DÀI hơn thì
    * trang công khai mời người học vào một phiên đã chết rồi cấp tài khoản khách
    * mới — mất tiến độ. */
   var HAN_DU_PHONG_GIAY = 8 * 3600;
+  function hanPhienTuPhanHoi(body, nowMs) {
+    if (!body || typeof body !== 'object') return HAN_DU_PHONG_GIAY;
+    var now = typeof nowMs === 'number' && isFinite(nowMs) ? nowMs : Date.now();
+    var exp = body.expiresAt;
+    if (typeof exp === 'string') {
+      var trimmed = exp.trim();
+      if (trimmed && !/^\d+$/.test(trimmed)) {
+        var parsedMs = Date.parse(trimmed);
+        if (isFinite(parsedMs)) {
+          var secStr = Math.floor((parsedMs - now) / 1000);
+          if (secStr > 0) return secStr;
+        }
+      }
+    } else if (typeof exp === 'number' && isFinite(exp) && exp > 0) {
+      var secNum = 0;
+      if (exp > 1e12) secNum = Math.floor((exp - now) / 1000);
+      else if (exp > 1e9) secNum = Math.floor(exp - now / 1000);
+      if (secNum > 0) return secNum;
+    }
+    var rei = body.refreshExpiresIn;
+    if (typeof rei === 'number' && isFinite(rei) && rei > 0) {
+      return Math.floor(rei);
+    }
+    return HAN_DU_PHONG_GIAY;
+  }
   function setSessionCookie(giay) {
     var n = (typeof giay === 'number' && isFinite(giay) && giay > 0)
       ? Math.floor(giay) : HAN_DU_PHONG_GIAY;
@@ -48,9 +72,8 @@
   function clearSessionCookie() {
     try { document.cookie = 'pe_has_session=; path=/; max-age=0; SameSite=Lax'; } catch (e) {}
   }
-  /* `hanGiay` = refreshExpiresIn trong response của /auth/*; thiếu thì dùng dự
-   * phòng. Truyền xuống tới đây chứ không đoán ở setSessionCookie, để chỉ có
-   * MỘT nguồn sự thật: máy chủ. */
+  /* `hanGiay` lấy từ `expiresAt` / `refreshExpiresIn` trong response của /auth/*;
+   * thiếu thì dùng dự phòng 8h để chỉ có MỘT nguồn sự thật: máy chủ. */
   function setTokens(access, hanGiay) {
     try {
       if (access) localStorage.setItem(LS_ACCESS, access);
@@ -99,7 +122,7 @@
       if (r.status === 401 || r.status === 403) { clearTokens(); return null; }
       if (!r.ok) return null;  // lỗi mạng/5xx: giữ token, thử lại sau
       return r.json().then(function (d) {
-        setTokens(d.access, d.refreshExpiresIn);
+        setTokens(d.access, hanPhienTuPhanHoi(d));
         return d.access;
       });
     }).catch(function () { return null; });
@@ -157,7 +180,7 @@
       if (toBackend && resp.ok &&
           (url.indexOf('/auth/login') === 0 || url.indexOf('/auth/register') === 0)) {
         resp.clone().json().then(function (data) {
-          if (data && data.access) setTokens(data.access, data.refreshExpiresIn);
+          if (data && data.access) setTokens(data.access, hanPhienTuPhanHoi(data));
         }).catch(function () {});
       }
       // 401 → thử refresh 1 lần (trừ chính các call auth)

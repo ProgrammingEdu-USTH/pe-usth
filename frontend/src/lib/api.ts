@@ -59,14 +59,45 @@ function callRefresh(): Promise<Response> {
 export const HAN_DU_PHONG_GIAY = 8 * 3600;
 
 /**
+ * Rút hạn phiên (giây) từ body response của `/auth/refresh` (hoặc `/auth/guest`):
+ * ưu tiên `expiresAt` (ISO string hoặc epoch ms/giây), kế đến `refreshExpiresIn`,
+ * không có thì rơi về `HAN_DU_PHONG_GIAY` (8 giờ, khớp `JWT_REFRESH_EXPIRES`).
+ */
+export function hanPhienTuPhanHoi(body?: unknown, nowMs: number = Date.now()): number {
+  if (!body || typeof body !== 'object') return HAN_DU_PHONG_GIAY;
+  const record = body as Record<string, unknown>;
+  const exp = record.expiresAt;
+  if (typeof exp === 'string') {
+    const trimmed = exp.trim();
+    if (trimmed && !/^\d+$/.test(trimmed)) {
+      const parsedMs = Date.parse(trimmed);
+      if (Number.isFinite(parsedMs)) {
+        const sec = Math.floor((parsedMs - nowMs) / 1000);
+        if (sec > 0) return sec;
+      }
+    }
+  } else if (typeof exp === 'number' && Number.isFinite(exp) && exp > 0) {
+    let sec = 0;
+    if (exp > 1e12) sec = Math.floor((exp - nowMs) / 1000);
+    else if (exp > 1e9) sec = Math.floor(exp - nowMs / 1000);
+    if (sec > 0) return sec;
+  }
+  const rei = record.refreshExpiresIn;
+  if (typeof rei === 'number' && Number.isFinite(rei) && rei > 0) {
+    return Math.floor(rei);
+  }
+  return HAN_DU_PHONG_GIAY;
+}
+
+/**
  * Ghi cookie mốc "đang có phiên" cho proxy.ts của Next đọc (nó không đọc được
  * localStorage, và `pe_refresh` thì httpOnly).
  *
- * `giay` lấy từ `refreshExpiresIn` trong response của /auth/*. Trước đây bốn
- * chỗ ghi cứng `max-age=28800` trong khi production đặt
- * `JWT_REFRESH_EXPIRES=24h` — đo được `Set-Cookie: … Max-Age=86400`. Lệch 3
- * lần, và hệ quả thấy được: từ giờ thứ 8 tới giờ thứ 24 phiên còn sống nhưng
- * cookie mốc đã hết, nên trang chủ hiện "chưa đăng nhập".
+ * `giay` lấy từ `expiresAt` hoặc `refreshExpiresIn` trong response của `/auth/refresh`
+ * và `/auth/*`; không có thì dùng mặc định 8 giờ (`JWT_REFRESH_EXPIRES`). Trước đây
+ * có các chỗ ghi cứng 8 giờ (`max-age=28800` trong chú thích lịch sử) dù production
+ * có thể đặt `JWT_REFRESH_EXPIRES=24h`, làm từ giờ thứ 8 tới giờ thứ 24 cookie mốc
+ * đã hết trong khi phiên còn sống.
  */
 // Xuất ra ngoài CHỈ để test được: nó quyết hạn của cookie mốc, và chính con số
 // đó từng lệch 3 lần so với máy chủ mà không có ca nào bắt.
@@ -120,7 +151,7 @@ function refreshAccess(): Promise<string | null> {
       } catch {
         /* private mode */
       }
-      danhDauPhien(d.refreshExpiresIn);
+      danhDauPhien(hanPhienTuPhanHoi(d));
       return d.access as string;
     })
     .catch(() => null);
@@ -156,7 +187,7 @@ function ensureGuest(): Promise<string | null> {
       } catch {
         /* private mode: vẫn dùng được access trong phiên này */
       }
-      danhDauPhien(d.refreshExpiresIn);
+      danhDauPhien(hanPhienTuPhanHoi(d));
       return d.access as string;
     })
     .catch(() => null)

@@ -8,6 +8,43 @@
         return null;
       }
 
+      // Hạn dự phòng khớp mặc định JWT_REFRESH_EXPIRES='8h' khi không có expiresAt.
+      const DEFAULT_SESSION_MAX_AGE = 8 * 3600;
+
+      function resolveSessionMaxAge(body) {
+        if (!body || typeof body !== "object") return DEFAULT_SESSION_MAX_AGE;
+        const exp = body.expiresAt;
+        const now = Date.now();
+        if (typeof exp === "string") {
+          const trimmed = exp.trim();
+          if (trimmed && !/^\d+$/.test(trimmed)) {
+            const parsedMs = Date.parse(trimmed);
+            if (isFinite(parsedMs)) {
+              const sec = Math.floor((parsedMs - now) / 1000);
+              if (sec > 0) return sec;
+            }
+          }
+        } else if (typeof exp === "number" && isFinite(exp) && exp > 0) {
+          let sec = 0;
+          if (exp > 1e12) sec = Math.floor((exp - now) / 1000);
+          else if (exp > 1e9) sec = Math.floor(exp - now / 1000);
+          if (sec > 0) return sec;
+        }
+        if (typeof body.refreshExpiresIn === "number" && isFinite(body.refreshExpiresIn) && body.refreshExpiresIn > 0) {
+          return Math.floor(body.refreshExpiresIn);
+        }
+        return DEFAULT_SESSION_MAX_AGE;
+      }
+
+      function writeSessionMarker(access, body) {
+        const maxAge = resolveSessionMaxAge(body);
+        if (typeof window.__PE_setTokens === "function" && access) {
+          window.__PE_setTokens(access, maxAge);
+          return;
+        }
+        try { document.cookie = "pe_has_session=1; path=/; max-age=" + maxAge + "; SameSite=Lax"; } catch (e) {}
+      }
+
       // User đăng nhập TRƯỚC khi cookie pe_has_session tồn tại (phiên cũ) bị
       // proxy đá về đây dù token còn hạn: ghi lại cookie rồi trả về trang cũ.
       (function () {
@@ -16,7 +53,7 @@
         let access = null;
         try { access = localStorage.getItem("pe_access"); } catch (e) {}
         if (!access) return;
-        try { document.cookie = "pe_has_session=1; path=/; max-age=28800; SameSite=Lax"; } catch (e) {}
+        writeSessionMarker(access);
         window.location.replace(next);
       })();
 
@@ -120,6 +157,10 @@
               errMsg = data.error.message;
             }
             throw new Error(errMsg);
+          }
+
+          if (data && data.access && typeof window.__PE_setTokens !== "function") {
+            writeSessionMarker(data.access, data);
           }
 
           const nextUrl = safeNext() || "/dashboard?streak=1";

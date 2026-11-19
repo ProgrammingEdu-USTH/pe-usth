@@ -35,15 +35,15 @@ export const LS_LEGACY_REFRESH = 'pe_refresh';
  * `cookie` là document.cookie.
  *
  * VÌ SAO LẤY `pe_access` LÀM CỜ CHÍNH, KHÔNG LẤY COOKIE `pe_has_session`:
- * cookie đó được đặt với `max-age=28800` (8 giờ, xem api.ts) trong khi cookie
- * refresh của khách sống lâu hơn nhiều. Nếu dựa vào cookie cờ thì người quay
- * lại SAU 2 NGÀY bị coi là chưa có phiên và lại thấy "Bắt đầu học" — đúng cái
- * lỗ "không biết mình học tới đâu" mà tính năng này sinh ra để lấp. Còn
+ * cookie đó đọc hạn từ `expiresAt` (hoặc `refreshExpiresIn`) khi máy chủ trả về,
+ * nếu không có thì rơi về hạn dự phòng 8 giờ (khớp `JWT_REFRESH_EXPIRES` mặc định,
+ * xem api.ts), trong khi cookie refresh thật có thể được gia hạn qua mỗi lần quay
+ * lại hoặc cấu hình dài hơn. Nếu chỉ dựa vào cookie cờ ngắn hạn thì người quay
+ * lại sau khi cookie cờ hết hạn bị coi là chưa có phiên và lại thấy "Bắt đầu học" —
+ * đúng cái lỗ "không biết mình học tới đâu" mà tính năng này sinh ra để lấp. Còn
  * `pe_access` trong localStorage KHÔNG CÓ HẠN: nó chỉ bị xoá khi
- * `/auth/refresh` trả 401/403 (api.ts), tức khi phiên thật sự đã chết. Chọn
- * cách này thay vì nâng max-age của cookie để không phải sửa cả ba chỗ đang
- * ghi cờ (api.ts hai chỗ, pe-bridge.js một chỗ) — token hết hạn cũng không sao
- * vì đường chỉ-refresh tự đổi token mới.
+ * `/auth/refresh` trả 401/403 (api.ts), tức khi phiên thật sự đã chết — token hết hạn
+ * cũng không sao vì đường chỉ-refresh tự đổi token mới.
  *
  * Vẫn chấp nhận cookie và `pe_refresh` làm cờ phụ: ở chế độ riêng tư
  * `localStorage.setItem` ném lỗi và api.ts bỏ qua, nên `pe_access` không bao

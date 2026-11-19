@@ -29,6 +29,7 @@
 //     thêm edu-fonts.css vào mọi trang) — thêm edu-theme.css vào thì nó đặt
 //     lại nền, phông và `.page` của cả trang và cảnh sẽ lệch.
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 import StudyRoom from '@/components/goc-hoc/StudyRoom';
 import PageStyles from '@/components/PageStyles';
@@ -54,13 +55,13 @@ export default function HomePage() {
 
   return (
     <>
-      <PageStyles hrefs={[]} />
+      <PageStyles hrefs={['/static/css/bookshelf-tokens.css']} />
       {/* Khối điều hướng semantic SSR phục vụ SEO và máy đọc màn hình (T7) */}
       <nav aria-label="Điều hướng chính" className="gh-sr-only">
         <h2>Lộ trình và Khoá học</h2>
         <ul>
           <li><a href="#map">Lộ trình</a></li>
-          <li><a href="#courses">Khoá học</a></li>
+          <li><Link href="/bookshelf">Khoá học</Link></li>
           <li><a href={course?.lessonUrl ?? `/lesson/${COURSE_ID}`}>Bài học</a></li>
           <li><a href="/practice">Ôn tập</a></li>
           <li><a href="#trophy">Thành tựu</a></li>

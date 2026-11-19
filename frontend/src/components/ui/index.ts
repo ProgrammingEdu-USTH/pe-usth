@@ -6,4 +6,5 @@ export * from './LofiHeader';
 export * from './LofiInput';
 export * from './LofiTabs';
 export * from './LofiPhoneMockup';
+export * from './LofiRoomChrome';
 export * from '../profile/LofiPhoneProfile';

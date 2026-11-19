@@ -2949,7 +2949,7 @@ export default function LofiWorkspace({
           <Link href="/#roadmap" className={styles.topTab}>
             Lộ trình
           </Link>
-          <Link href="/#courses" className={styles.topTab}>
+          <Link href="/bookshelf" className={styles.topTab}>
             Khoá học
           </Link>
           <button

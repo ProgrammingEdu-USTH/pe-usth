@@ -38,6 +38,12 @@ export const LofiHeader: React.FC<LofiHeaderProps> = ({
 
       <nav className={styles.headerNav} aria-label="Điều hướng chính">
         <Link
+          href="/bookshelf"
+          className={`${styles.navLink} ${isLinkActive('/bookshelf') ? styles.navLinkActive : ''}`}
+        >
+          Tủ sách
+        </Link>
+        <Link
           href="/lesson/python_advanced"
           className={`${styles.navLink} ${isLinkActive('/lesson') ? styles.navLinkActive : ''}`}
         >

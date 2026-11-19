@@ -38,6 +38,9 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+
+import { BookshelfCabinet } from '../bookshelf/BookshelfCabinet';
 
 import { apiFetch, asList, findEnrollment } from '@/lib/api';
 import { completedLessonSet, hasStoredSession, LS_ACCESS, LS_LEGACY_REFRESH } from '@/lib/course-progress';
@@ -173,6 +176,7 @@ async function laySo(courseId: string, total: number): Promise<KetQua> {
 
 export default function StudyRoom(props: StudyRoomProps) {
   const hostRef = useRef<HTMLDivElement>(null);
+  const [coursesMountEl, setCoursesMountEl] = useState<HTMLElement | null>(null);
   /** Cảnh thật đã dựng xong chưa — tới lúc đó khung giữ chỗ (máy chủ) còn hiện. */
   const [canhSan, setCanhSan] = useState(false);
 
@@ -214,6 +218,7 @@ export default function StudyRoom(props: StudyRoomProps) {
           content,
           user,
           feedback: props.feedbackUrl ?? null,
+          onCoursesMount: (el: HTMLElement | null) => setCoursesMountEl(el),
           // Lần dựng lại KHÔNG chạy lại màn mở đầu (đèn bật, 3,1 s): người học
           // đã xem nó, và nó có thể còn đang chạy dở lúc số về.
           boQuaMoDau: muon,
@@ -237,12 +242,14 @@ export default function StudyRoom(props: StudyRoomProps) {
       huy = true;
       huyCho();
       if (dispose) dispose();
+      setCoursesMountEl(null);
       host.innerHTML = '';
     };
   }, [props.courseId, props.courseName, props.lessonUrl, props.modules, props.meta, props.feedbackUrl]);
 
   return (
     <>
+      {coursesMountEl ? createPortal(<BookshelfCabinet inStudyRoom />, coursesMountEl) : null}
       {/* KHUNG GIỮ CHỖ — dựng ở MÁY CHỦ, nên có trong HTML đầu tiên: ảnh phòng
           dưới lớp tối, đúng khung hình đầu của màn mở đầu (xem scene.css,
           `.gh-cho`). Trước khi có nó, HTML chỉ là div rỗng và ảnh phòng chỉ

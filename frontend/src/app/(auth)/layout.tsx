@@ -18,7 +18,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           background: #14121b;
         }
       `}</style>
-      <PageStyles hrefs={['/static/css/studio-tokens.css']} />
+      <PageStyles hrefs={['/static/css/studio-tokens.css', '/static/css/bookshelf-tokens.css']} />
       {children}
     </>
   );

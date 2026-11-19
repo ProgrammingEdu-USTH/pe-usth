@@ -40,6 +40,7 @@ export function navItems(ideEnabled: boolean): NavItem[] {
   const items: NavItem[] = [
     { href: '/', label: 'Khoá học', match: '/' },
     { href: '/practice', label: 'Ôn tập', match: '/practice' },
+    { href: '/bookshelf', label: 'Tủ sách', match: '/bookshelf' },
   ];
   if (ideEnabled) {
     items.push({ href: '/ide', label: 'Bàn thí nghiệm', match: '/ide' });

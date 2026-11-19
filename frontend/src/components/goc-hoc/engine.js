@@ -30,6 +30,14 @@ import {
  *    nên vẽ ổ khoá là nói sai về sản phẩm.
  */
 export function initStudyRoom(host, state) {
+let coursesHost = null;
+function unmountCourses() {
+  if (coursesHost) {
+    coursesHost.remove();
+    coursesHost = null;
+    if (typeof state.onCoursesMount === 'function') state.onCoursesMount(null);
+  }
+}
 
 /* ---- nội dung và số: giáo trình thật, số thật hoặc trống ---- */
 const CONTENT = state.content;
@@ -451,9 +459,8 @@ function activate(G, key){
   if (G.route==='window') return toggleWindow();
   if (G.route==='calendar') return peekCal();
   if (G.route==='mug') return sipMug();
-  /* Không còn nhánh "bài bị khoá": khoá này không khoá bài nào, mọi bài đều mở
-     được từ trang khoá học. G.s là chỉ số HỌC PHẦN (S.mi), không phải chỉ số kệ. */
-  if (G.route==='book') return go('learn',{shelf:G.s, lesson:G.i, from:'book', pick:G.keys[0]});
+  /* Bấm bất kỳ kệ/cuốn sách nào trên tranh phòng đều mở màn Tủ sách 3 khoá liền mạch ngay trong Góc học. */
+  if (G.route==='book') return go('courses', {});
   const pk = {phone:'phone', practice:'notebook', achievements: key || G.keys[0]}[G.route];
   go(G.route, Object.assign(G.route==='phone'?{tab:'forum'}:{}, pk?{pick:pk}:{}));
 }
@@ -668,11 +675,7 @@ function trong(tieu, cau){
 }
 
 function body(r){
-  if (r==='courses') return `<div class="pg"><div class="pghead"><div><h1>Khoá học</h1><p>${esc(CONTENT.course.name)} · ${MODULES.length} học phần · ${TOTAL} bài. Ba học phần đầu là ba kệ sách trong phòng; mỗi cuốn sách là một bài.</p></div></div>
-    <div class="lib">${MODULES.map((m,mi)=>{ const st=modStats(m);
-      const books = m.lessons.map((l,i)=>{ const k=bookKeyOf(mi,i); const col = k ? COVER(k) : COL_PHU[(mi+i)%COL_PHU.length];
-        return `<button class="bk ${l.state==='cur'?'cur':''}" data-mi="${mi}" data-li="${i}" ${k?`data-k="${k}"`:''} style="--w:${[44,48,42,46,48,44,52,44,48,42,46][i%11]}px;--h:${[176,162,154,170,160,166,180,158,172,164,168][i%11]}px;background:${col}" aria-label="Bài ${l.no}: ${esc(l.title)}${l.state==='done'?' · đã học':''}"><span class="no">${l.no}</span><span class="tt">${esc(l.title)}</span></button>`; }).join('');
-      return `<section class="course${m.shelfKey?' room-course':''}"><div class="meta"><h3>${esc(m.name)}</h3><p>${st.sub}${m.shelfKey?'':' · chưa có kệ trong phòng'}</p><div class="bar"><i style="width:${st.pct}%"></i></div></div><div class="shelfrow">${books}</div></section>`; }).join('')}</div></div>`;
+  if (r==='courses') return `<div class="pg"><div id="bookshelfMount"></div></div>`;
 
   if (r==='roadmap'){
     /* Điện thoại (L.mobile — cùng ngưỡng 820px với khối @media của scene.css)
@@ -812,8 +815,13 @@ function wirePage(r, fresh){
   (fresh ? page : page.querySelector('.stagearea')).querySelectorAll('[data-tab]').forEach(t=>t.addEventListener('click',()=>{ const n=t.dataset.tab; if (n!==route || n==='learn') sibling(n, n==='learn'?{...CUR_OPTS}:{}); }));
   const sa = page.querySelector('.stagearea');
   if (r==='courses'){
-    sa.querySelectorAll('.bk[data-mi]').forEach(b=>b.addEventListener('click',()=>
-      sibling('learn',{shelf:+b.dataset.mi, lesson:+b.dataset.li})));
+    unmountCourses();
+    const mount = sa.querySelector('#bookshelfMount');
+    if (mount && typeof state.onCoursesMount === 'function') {
+      coursesHost = document.createElement('div');
+      mount.appendChild(coursesHost);
+      state.onCoursesMount(coursesHost);
+    }
   }
   if (r==='phone'){
     const xoayDienThoai = (sangNgang) => {
@@ -956,6 +964,7 @@ async function back(){
     busy = false; return;
   }
   await conceal(r);
+  unmountCourses();
   page.innerHTML=''; page.classList.remove('live');
   anim(blurFull,[{opacity:1},{opacity:0}],{duration:RM?1:500}); anim(scrim,[{opacity:1},{opacity:0}],{duration:RM?1:600});
   const p = tweenCam({tx:0,ty:0,k:1}, RM?0:950); anim(blurHole,[{opacity:1},{opacity:0}],{duration:RM?1:900,delay:RM?0:150});
@@ -968,6 +977,7 @@ async function sibling(r, o={}){
   const content = page.querySelector('.stagearea');
   await anim(content,[{opacity:1,transform:'none'},{opacity:0,transform:`translateX(${dir*60}px)`}],{duration:RM?1:320});
   if (opts.pick) pickEnd();
+  unmountCourses();
   route = r; opts = o; ghiHash(r); const fk = focusKey(r,o); setHole(fk); FOCUS._cur = fk;
   if (r === 'phone') { forumState.wide = false; forumState.postId = null; }
   content.remove();
@@ -998,16 +1008,7 @@ async function reveal(r, fresh){
     return;
   }
   if (r==='courses'){
-    const books = [...sa.querySelectorAll('.bk[data-k]')];
-    sa.querySelectorAll('.course:not(.room-course)').forEach((c,i)=>c.animate([{opacity:0,transform:'translateY(24px)'},{opacity:1,transform:'none'}],{duration:700,delay:1100+i*120,easing:EASE,fill:'backwards'}));
-    sa.querySelectorAll('.room-course .meta').forEach((m,i)=>m.animate([{opacity:0},{opacity:1}],{duration:500,delay:500+i*200,fill:'backwards'}));
-    await Promise.all(books.map((b,j)=>{ const k=b.dataset.k, i=j*0.55; const s=bookRect(k); const br=b.getBoundingClientRect();
-      const kx=s.w/br.width, ky=s.h/br.height, dx=s.x-br.left, dy=s.y-br.top;
-      [...b.children].forEach(ch=>ch.animate([{opacity:0},{opacity:0,offset:.6},{opacity:1}],{duration:1100,delay:i*70,fill:'backwards'}));
-      return b.animate([
-        {transform:`translate(${dx}px,${dy}px) scale(${kx},${ky})`, backgroundColor:BOOKCOL(k), offset:0},
-        {transform:`translate(${dx}px,${dy-28}px) scale(${kx},${ky})`, backgroundColor:BOOKCOL(k), offset:.24},
-        {transform:'none', backgroundColor:COVER(k), offset:1}],{duration:1100,delay:i*70,easing:EASE,fill:'backwards'}).finished; }));
+    await anim(sa, [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: RM ? 1 : 450 });
   } else if (r==='learn'){
     const les = $('#lesson'); const lr = les.getBoundingClientRect();
     if (opts.from==='book' && bookKeyOf(opts.shelf||0, opts.lesson)){
@@ -1069,12 +1070,7 @@ async function conceal(r){
   if (RM){ page.style.opacity=0; await new Promise(res=>setTimeout(res,120)); page.style.opacity=''; return; }
   anim(top,[{opacity:1},{opacity:0}],{duration:300});
   if (r==='courses'){
-    const books=[...sa.querySelectorAll('.bk[data-k]')];
-    sa.querySelectorAll('.pghead,.course:not(.room-course),.room-course .meta').forEach(h=>anim(h,[{opacity:1},{opacity:0}],{duration:250}));
-    await Promise.all(books.map((b,i)=>{ const k=b.dataset.k; const s=bookRect(k); const br=b.getBoundingClientRect(); [...b.children].forEach(c=>c.style.opacity=0);
-      return b.animate([{transform:'none',backgroundColor:COVER(k)},{transform:`translate(${s.x-br.left}px,${s.y-br.top}px) scale(${s.w/br.width},${s.h/br.height})`,backgroundColor:BOOKCOL(k),opacity:.9}],
-        {duration:750,delay:(books.length-1-i)*22,easing:'cubic-bezier(.6,0,.3,1)',fill:'forwards'}).finished; }));
-    await anim(sa,[{opacity:1},{opacity:0}],{duration:200});
+    await anim(sa, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(12px)' }], { duration: RM ? 1 : 260 });
   } else {
     const f = rectS(FOCUS[FOCUS._cur || r]); const box = sa.getBoundingClientRect();
     await anim(sa,[{opacity:1,transform:'none'},{opacity:0,transform:`translate(${f.cx-box.left-box.width/2}px,${f.cy-box.top-box.height/2}px) scale(.25)`}],{duration:520,easing:'cubic-bezier(.6,0,.4,1)'});
@@ -1307,7 +1303,7 @@ function apDungSo(){
   const hp = $('#heroProg'); if (hp) hp.style.width = (USER.lessonsDone == null ? 0 : PCT) + '%';
 
   T('navRoadmap', `${MODULES.length} học phần · ${TOTAL} bài`);
-  T('navCourses', 'Mỗi cuốn sách trên kệ là một bài');
+  T('navCourses', 'Tủ sách 3 khoá: Python · SQL · ML');
   T('navPractice', USER.lessonsDone == null ? 'Câu hỏi lấy từ bài đã xong' : `Kho câu từ ${USER.lessonsDone} bài đã xong`);
   // "Chưa có phiên" KHÁC "có phiên mà đọc hỏng": người mở trang lần đầu từng
   // thấy "chưa đọc được" ở hai ô này — đọc ra là trang hỏng, trong khi máy chủ
@@ -1324,7 +1320,17 @@ function apDungSo(){
     : `Đang ở học phần ${CUR ? CUR.m.short : '—'}.`);
   T('courseName', CONTENT.course.name);
   T('courseSub', CUR ? `Bài tiếp theo: ${CUR.l.title}` : '');
-  const cl = $('#courseLink'); if (cl) cl.href = `/courses/${CONTENT.course.id}`;
+  const cl = $('#courseLink');
+  if (cl) {
+    cl.href = '/bookshelf';
+    if (!cl.dataset.bsWired) {
+      cl.dataset.bsWired = '1';
+      cl.addEventListener('click', (e) => {
+        e.preventDefault();
+        go('courses', {});
+      });
+    }
+  }
   // Link góp ý: chỉ hiện khi trang (server) đưa xuống một địa chỉ đã qua
   // feedbackHref(). Không có thì GIỮ `hidden` — đặt biến môi trường rỗng là
   // cố ý tắt nút, không được rơi về một địa chỉ đoán.
@@ -1419,6 +1425,7 @@ const start = () => {
 if (img.complete) start(); else on(img, 'load', start);
 return function dispose(){
   dead = true;
+  unmountCourses();
   timers.forEach(id => window.clearTimeout(id)); timers.clear();
   rafs.forEach(id => window.cancelAnimationFrame(id)); rafs.clear();
   offs.forEach(off => off()); offs.length = 0;

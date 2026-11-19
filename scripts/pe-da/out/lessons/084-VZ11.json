@@ -3,58 +3,95 @@
  "sort_order": 84,
  "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
  "title": "VZ11 · Trục, tick, tỷ lệ log và giới hạn hiển thị",
- "subtitle": "Trung cấp · M4 · 30 phút",
- "estimated_minutes": 30,
- "xp_reward": 15,
+ "subtitle": "Trung cấp · M4 · 20 phút",
+ "estimated_minutes": 20,
+ "xp_reward": 12,
  "content_json": {
-  "schema": "studio-lesson/v1",
+  "schema": "studio-lesson/v2",
   "title": "VZ11 · Trục, tick, tỷ lệ log và giới hạn hiển thị",
-  "subtitle": "Trung cấp · M4 · 30 phút",
+  "subtitle": "Trung cấp · M4 · 20 phút",
   "source": {
-   "kind": "pe-da",
-   "filename": "lessons/VZ11.md",
-   "parser": "pe-da/build"
+   "kind": "python-da",
+   "filename": "course.json#VZ11",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 329; Trục, tick, tỷ lệ log và giới hạn hiển thị"
   },
   "step_1": {
-   "context": {
-    "title": "Trục, tick, tỷ lệ log và giới hạn hiển thị",
-    "body": "Hai cột 98 và 100 có thể trông chênh nhau rất lớn nếu trục đứng bắt đầu từ 97. Giới hạn trục thay đổi cảm nhận về hình nhưng không thay đổi dữ liệu. Với cột biểu diễn lượng, giữ mốc 0; với đường cần xem biến động nhỏ, có thể thu hẹp trục nhưng phải hiển thị mốc rõ.",
-    "level": "Trung cấp"
-   },
-   "theory": [
-    {
-     "title": "Tình huống",
-     "body": "Hai cột 98 và 100 có thể trông chênh nhau rất lớn nếu trục đứng bắt đầu từ 97. Giới hạn trục thay đổi cảm nhận về hình nhưng không thay đổi dữ liệu. Với cột biểu diễn lượng, giữ mốc 0; với đường cần xem biến động nhỏ, có thể thu hẹp trục nhưng phải hiển thị mốc rõ.\n\n![Biểu đồ](../visuals/VZ11-1.png)"
-    },
-    {
-     "title": "Ý chính 2",
-     "body": "Thang log dùng khoảng cách bằng nhau cho tỷ lệ bằng nhau, chẳng hạn 1, 10 và 100. Log thông thường không biểu diễn trực tiếp được 0 và số âm; không tự cộng 1 mà không giải thích. Mỗi mốc tick phải thể hiện đúng giá trị, kể cả khi bạn viết lại nhãn bằng chữ.\n\n![Biểu đồ](../visuals/VZ11-2.png)"
-    },
-    {
-     "title": "Ý chính 3",
-     "body": "Bạn có thể ẩn viền trên, chỉnh tick hoặc tăng khoảng đệm bằng margins để hình thoáng hơn. Tỷ lệ equal giữ một đơn vị x dài bằng một đơn vị y; điều này cần khi hình học có ý nghĩa. Tránh hai trục y tùy ý chỉ để hai đường trông đi cùng nhau; cùng dữ liệu có thể tạo nhiều cảm giác khác nhau khi đổi giới hạn. margins(x=0.1,y=0.1) thêm đệm dựa trên phạm vi dữ liệu tự co giãn; nó không đặt giới hạn cố định. Khi cần miền x cụ thể, gọi ax.set_xlim(0,3) hoặc ax.set(xlim=(0,3)). set_aspect(\"equal\") kiểm soát độ dài một đơn vị dữ liệu, khác tỷ lệ cao/rộng của cả Figure.\n\n![Biểu đồ](../visuals/VZ11-3.png)"
-    }
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Màu đã chọn xong rồi, nhưng trục mới là chỗ một hình nói sai sự thật. Hai cột 98 và 100 có thể trông chênh nhau rất lớn nếu trục đứng bắt đầu từ 97. Giới hạn trục thay đổi cảm nhận về hình nhưng không thay đổi dữ liệu. Trục đứng đặt theo loại hình, xem bảng dưới."
+     },
+     {
+      "type": "table",
+      "headers": [
+       "Loại hình",
+       "Trục đứng"
+      ],
+      "rows": [
+       [
+        "cột biểu diễn lượng",
+        "giữ mốc 0"
+       ],
+       [
+        "đường cần xem biến động nhỏ",
+        "được thu hẹp, nhưng phải hiển thị mốc rõ"
+       ]
+      ]
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.bar([\"A\", \"B\"], [98, 100])\nax.set(ylabel=\"Orders\", title=\"Keep a meaningful bar baseline\", ylim=(0, 110))\nax.set_yticks([0, 50, 100])\nprint(round(100 / 98, 3))\nplt.show()",
+      "expected": "1.02",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ11-1.png",
+      "alt": "Biểu đồ cột, tiêu đề \"Keep a meaningful bar baseline\", trục dọc \"Orders\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Thang log dùng khoảng cách bằng nhau cho tỷ lệ bằng nhau, chẳng hạn 1, 10 và 100. Log thông thường không biểu diễn trực tiếp được 0 và số âm; không tự cộng 1 mà không giải thích. Mỗi mốc tick phải thể hiện đúng giá trị, kể cả khi bạn viết lại nhãn bằng chữ."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.plot([1, 2, 3], [1, 10, 100], marker=\"o\")\nax.set_yscale(\"log\")\nax.set(xlabel=\"Stage\", ylabel=\"Records (log scale)\", title=\"Equal distances represent equal ratios\")\nax.set_xticks([1, 2, 3], [\"Start\", \"Middle\", \"End\"])\nprint(ax.get_yscale())\nplt.show()",
+      "expected": "log",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ11-2.png",
+      "alt": "Biểu đồ đường, tiêu đề \"Equal distances represent equal ratios\", trục ngang \"Stage\", trục dọc \"Records (log scale)\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Bạn có thể ẩn viền trên, chỉnh tick hoặc tăng khoảng đệm bằng margins để hình thoáng hơn. Tỷ lệ equal giữ một đơn vị x dài bằng một đơn vị y; điều này cần khi hình học có ý nghĩa. Tránh hai trục y tùy ý chỉ để hai đường trông đi cùng nhau; cùng dữ liệu có thể tạo nhiều cảm giác khác nhau khi đổi giới hạn. margins(x=0.1,y=0.1) thêm đệm dựa trên phạm vi dữ liệu tự co giãn; nó không đặt giới hạn cố định. Khi cần miền x cụ thể, gọi `ax.set_xlim(0, 3)` hoặc `ax.set(xlim=(0, 3))`. set_aspect(\"equal\") kiểm soát độ dài một đơn vị dữ liệu, khác tỷ lệ cao/rộng của cả `Figure`."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.plot([0, 1, 2], [0, 1, 2], marker=\"o\")\nax.set_aspect(\"equal\", adjustable=\"box\")\nax.margins(x=0.1, y=0.1)\nax.spines[\"top\"].set_visible(False)\nax.spines[\"bottom\"].set_position((\"outward\", 5))\nax.tick_params(axis=\"y\", direction=\"inout\", length=8)\nax.set(xlabel=\"x (km)\", ylabel=\"y (km)\", title=\"Equal units on both axes\")\nprint(ax.spines[\"top\"].get_visible())\nplt.show()",
+      "expected": "False",
+      "tryIt": true
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ11-3.png",
+      "alt": "Biểu đồ đường, tiêu đề \"Equal units on both axes\", trục ngang \"x (km)\", trục dọc \"y (km)\"."
+     }
+    ]
    ],
-   "code": {
-    "filename": "vi_du.py",
-    "version": "Python 3.12",
-    "source": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.bar([\"A\", \"B\"], [98, 100])\nax.set(ylabel=\"Orders\", title=\"Keep a meaningful bar baseline\", ylim=(0, 110))\nax.set_yticks([0, 50, 100])\nprint(round(100 / 98, 3))\nplt.show()",
-    "kind": "demo"
-   },
-   "explain": [
-    {
-     "n": 1,
-     "body": "Ví dụ 1 in ra: 1.02"
-    },
-    {
-     "n": 2,
-     "body": "Ví dụ 2 in ra: log"
-    },
-    {
-     "n": 3,
-     "body": "Ví dụ 3 in ra: False"
-    }
-   ]
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "VZ04 · Bar chart: so sánh nhóm và sắp thứ tự, VZ09 · Nhãn, đơn vị, đường mốc và chú thích"
+   }
   },
   "step_2": {
    "mcq": [
@@ -62,19 +99,17 @@
      "question": "Trên thang log10, 1→10 và 10→100 có khoảng cách thế nào?",
      "options": [
       {
-       "text": "Tùy số hàng bảng",
-       "correct": false,
-       "detail": "Số hàng không quyết định thang trục."
+       "text": "Khoảng sau lớn gấp 10",
+       "detail": "Đó là cách đọc hiệu số trên thang tuyến tính."
       },
       {
        "text": "Bằng nhau vì cùng gấp 10",
-       "correct": true,
-       "detail": "Đúng: log biểu diễn tỷ số bằng khoảng cách."
+       "detail": "Đúng: log biểu diễn tỷ số bằng khoảng cách.",
+       "correct": true
       },
       {
-       "text": "Khoảng sau lớn gấp 10",
-       "correct": false,
-       "detail": "Đó là cách đọc hiệu số trên thang tuyến tính."
+       "text": "Tùy số hàng bảng",
+       "detail": "Số hàng không quyết định thang trục."
       }
      ],
      "explanation": "Cần phân biệt hiệu số bằng nhau với tỷ số bằng nhau."
@@ -83,90 +118,136 @@
      "question": "Hai giá trị 98 và 100 chênh 2 hay 200 đơn?",
      "options": [
       {
-       "text": "Chênh 200 đơn vì trục đã rút ngắn.",
-       "correct": false,
-       "detail": "Trục hẹp chỉ thay cách trình bày, không nhân độ chênh lên 100 lần."
+       "text": "Chênh 2 đơn. Thu hẹp trục không làm chênh lệch số học lớn lên.",
+       "detail": "Chênh 2 đơn. Thu hẹp trục không làm chênh lệch số học lớn lên.",
+       "correct": true
       },
       {
        "text": "Chênh 102 đơn vì cộng hai mức.",
-       "correct": false,
        "detail": "102 là tổng hai số, không phải hiệu."
       },
       {
-       "text": "Chênh 2 đơn. Thu hẹp trục không làm chênh lệch số học lớn lên.",
-       "correct": true,
-       "detail": "Chênh 2 đơn. Thu hẹp trục không làm chênh lệch số học lớn lên."
+       "text": "Chênh 200 đơn vì trục đã rút ngắn.",
+       "detail": "Trục hẹp chỉ thay cách trình bày, không nhân độ chênh lên 100 lần."
       }
      ],
      "explanation": "Chênh 2 đơn. Thu hẹp trục không làm chênh lệch số học lớn lên."
     },
     {
-     "question": "Vì sao số 0 gặp vấn đề trên trục log thông thường?",
+     "question": "Vì sao số 0 gặp vấn đề trên trục log thông thường?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nax.plot([1, 2, 3], [1, 10, 100], marker=\"o\")\nax.set_yscale(\"log\")\nax.set(xlabel=\"Stage\", ylabel=\"Records (log scale)\", title=\"Equal distances represent equal ratios\")\nax.set_xticks([1, 2, 3], [\"Start\", \"Middle\", \"End\"])\nprint(ax.get_yscale())\nplt.show()",
      "options": [
       {
        "text": "Vì Matplotlib tự đổi mọi số 0 thành 1 mà không cần thông báo.",
-       "correct": false,
        "detail": "Không nên giả định thư viện âm thầm thay 0 thành 1 cho đúng nghĩa dữ liệu."
       },
       {
-       "text": "log(0) không có giá trị hữu hạn; cần chọn cách biểu diễn khác phù hợp với ý nghĩa dữ liệu.",
-       "correct": true,
-       "detail": "log(0) không có giá trị hữu hạn; cần chọn cách biểu diễn khác phù hợp với ý nghĩa dữ liệu."
+       "text": "Vì log(0)=0 nên nó trùng với nhãn đầu trục.",
+       "detail": "log(0) không bằng 0."
       },
       {
-       "text": "Vì log(0)=0 nên nó trùng với nhãn đầu trục.",
-       "correct": false,
-       "detail": "log(0) không bằng 0."
+       "text": "log(0) không có giá trị hữu hạn; cần chọn cách biểu diễn khác phù hợp với ý nghĩa dữ liệu.",
+       "detail": "log(0) không có giá trị hữu hạn; cần chọn cách biểu diễn khác phù hợp với ý nghĩa dữ liệu.",
+       "correct": true
       }
      ],
      "explanation": "log(0) không có giá trị hữu hạn; cần chọn cách biểu diễn khác phù hợp với ý nghĩa dữ liệu."
     }
+   ],
+   "practice": [
+    {
+     "prompt": "Hai giá trị 98 và 100 chênh 2 hay 200 đơn?",
+     "answer": "Chênh 2 đơn. Thu hẹp trục không làm chênh lệch số học lớn lên."
+    },
+    {
+     "prompt": "Vì sao số 0 gặp vấn đề trên trục log thông thường?",
+     "answer": "log(0) không có giá trị hữu hạn; cần chọn cách biểu diễn khác phù hợp với ý nghĩa dữ liệu."
+    },
+    {
+     "prompt": "Muốn giấu viền trên của Axes, dùng lệnh nào?",
+     "answer": "ax.spines[\"top\"].set_visible(False). Giữ đủ dấu trục và nhãn để đọc được số."
+    },
+    {
+     "prompt": "Hình bản đồ đơn giản cần một đơn vị x bằng một đơn vị y, giới hạn x từ 0 đến 3, thêm đệm 10% khi autoscale, tick y hướng vào dài 8 điểm và giấu viền trên. Nêu lệnh cho từng việc; đặt xlim trước rồi margins có tự đổi giới hạn x cố định không?",
+     "answer": "ax.set_aspect(\"equal\"); ax.set_xlim(0,3); ax.margins(x=0.1,y=0.1); ax.tick_params(axis=\"y\", direction=\"in\", length=8); ax.spines[\"top\"].set_visible(False). margins không ghi đè xlim đã tắt autoscale. Muốn đệm tự động phải dùng autoscale cho chiều đó. Di chuyển viền dưới ra ngoài 5 điểm: ax.spines[\"bottom\"].set_position((\"outward\",5))."
+    },
+    {
+     "prompt": "Đặt ba tick ngang ở vị trí [1,2,3] với nhãn [\"Start\",\"Middle\",\"End\"] bằng cách nào? Việc đổi nhãn có đổi giá trị dữ liệu thành ba chữ đó không?",
+     "answer": "ax.set_xticks([1,2,3],[\"Start\",\"Middle\",\"End\"]). Các vị trí số vẫn là 1,2,3; nhãn chỉ quyết định chữ người đọc nhìn thấy. Không gán riêng ba nhãn cho số vị trí không tương ứng."
+    }
    ]
-  },
-  "step_3": {
-   "task": {
-    "title": "Tự nhớ một phần cú pháp",
-    "body": "Ẩn viền trên."
-   },
-   "scaffold": {
-    "template": "ax.spines[\"top\"].set_{{slot1}}(False)",
-    "slots": [
-     {
-      "n": 1,
-      "placeholder": "Phần còn thiếu",
-      "answer": "visible"
-     }
-    ],
-    "bank": [
-     {
-      "label": "visible",
-      "slot": 1,
-      "trap": ""
-     }
-    ]
-   }
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.values đều dương. Vẽ một đường, đặt yscale=\"log\", ẩn spine top. Trả scale=get_yscale(), topVisible=get_visible() của viền trên, values đọc từ đường. Việc đổi thang không được log-transform dãy trước khi truyền plot. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
     "io": [
      {
-      "label": "ba bậc độ lớn",
-      "value": "{'values': [2, 20, 200]} → {'scale': 'log', 'topVisible': False, 'values': [2.0, 20.0, 200.0]}"
+      "label": "data =",
+      "value": "{'values': [2, 20, 200]}"
      },
      {
-      "label": "nhỏ hơn 1 vẫn dương",
-      "value": "{'values': [0.1, 1, 10]} → {'scale': 'log', 'topVisible': False, 'values': [0.1, 1.0, 10.0]}"
-     },
-     {
-      "label": "một số dương",
-      "value": "{'values': [5]} → {'scale': 'log', 'topVisible': False, 'values': [5.0]}"
+      "label": "trả về",
+      "value": "{'scale': 'log', 'topVisible': False, 'values': [2.0, 20.0, 200.0]}"
      }
     ]
    },
    "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
    "solutionCode": "import matplotlib.pyplot as plt\nimport numpy as np\n\ndef solve(data):\n     fig, ax = plt.subplots()\n     line, = ax.plot(data['values'])\n     ax.set_yscale('log')\n     ax.spines['top'].set_visible(False)\n     result = {'scale':ax.get_yscale(),'topVisible':ax.spines['top'].get_visible(),'values':[float(v) for v in line.get_ydata()]}\n     plt.close(fig)\n     return result\n",
+   "tests": [
+    {
+     "name": "ba bậc độ lớn",
+     "input": {
+      "values": [
+       2,
+       20,
+       200
+      ]
+     },
+     "expected": {
+      "scale": "log",
+      "topVisible": false,
+      "values": [
+       2.0,
+       20.0,
+       200.0
+      ]
+     }
+    },
+    {
+     "name": "nhỏ hơn 1 vẫn dương",
+     "input": {
+      "values": [
+       0.1,
+       1,
+       10
+      ]
+     },
+     "expected": {
+      "scale": "log",
+      "topVisible": false,
+      "values": [
+       0.1,
+       1.0,
+       10.0
+      ]
+     }
+    },
+    {
+     "name": "một số dương",
+     "input": {
+      "values": [
+       5
+      ]
+     },
+     "expected": {
+      "scale": "log",
+      "topVisible": false,
+      "values": [
+       5.0
+      ]
+     }
+    }
+   ],
    "hints": [
     {
      "title": "Gợi ý 1",
@@ -178,30 +259,23 @@
     },
     {
      "title": "Gợi ý 3",
-     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
+     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Muốn xem hình thì mở Bàn thí nghiệm (/ide) và gọi `plt.show()` ở đó."
     }
    ],
    "packages": [
     "matplotlib",
     "numpy"
-   ],
-   "tests": [
-    {
-     "name": "ba bậc độ lớn",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [2, 20, 200]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "{'scale': 'log', 'topVisible': False, 'values': [2.0, 20.0, 200.0]}"
-    },
-    {
-     "name": "nhỏ hơn 1 vẫn dương",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [0.1, 1, 10]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "{'scale': 'log', 'topVisible': False, 'values': [0.1, 1.0, 10.0]}"
-    },
-    {
-     "name": "một số dương",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [5]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "{'scale': 'log', 'topVisible': False, 'values': [5.0]}"
-    }
    ]
   }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
  }
 }

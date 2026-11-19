@@ -275,12 +275,13 @@ jobs:
           python-version: '3.12'
       - run: python scripts/pe-v4/anim/check.py --strict
 
-  # Kiểm tra tính đồng bộ của giáo trình pe-v4 với frontend/src/lib/curricula.json
-  # và đối chiếu dữ liệu seed DB (D6c) với giao diện & catalog.
+  # Kiểm tra tính đồng bộ của giáo trình pe-da (179 bài) với curricula.json & catalog.ts
+  # và đối chiếu dữ liệu bài với buildScreens() / thời lượng / script tham số hoá.
   # CI báo đỏ nếu:
-  #  1. curricula.json lệch với pe-v4 (quên sync hoặc sửa tay);
-  #  2. Dữ liệu seed DB lệch bất kỳ màn/khoá nào trong 48 bài với buildScreens() (dashboard-plan);
-  #  3. Thời lượng quảng cáo catalog lệch tổng 48 bài (catalog-duration).
+  #  1. curricula.json hoặc catalog.ts lệch với gói pe-da (quên sync hoặc sửa tay);
+  #  2. LESSON_META lệch bất kỳ màn/khoá nào với buildScreens() (dashboard-plan);
+  #  3. Thời lượng/số bài catalog.ts lệch tổng các bài thật (catalog-duration);
+  #  4. Script sync_curricula.py bị lỗi trên gói thật, pe-v4 hoặc gói mẫu (sync-curricula).
   dong-bo-giao-trinh:
     runs-on: ubuntu-latest
     steps:
@@ -296,14 +297,14 @@ jobs:
 
       - name: Chạy sync_curricula.py và kiểm lệch
         run: |
-          python scripts/pe-v4/sync_curricula.py
-          if ! git diff --exit-code -- frontend/src/lib/curricula.json; then
-            echo "::error::curricula.json bị lệch với dữ liệu pe-v4. Hãy chạy 'python scripts/pe-v4/sync_curricula.py' rồi commit."
+          python scripts/sync_curricula.py --bundle scripts/pe-da/out --course python_advanced
+          if ! git diff --exit-code -- frontend/src/lib/curricula.json frontend/src/lib/catalog.ts; then
+            echo "::error::curricula.json hoặc catalog.ts bị lệch với gói pe-da. Hãy chạy 'python scripts/pe-da/sync_curricula.py' rồi commit."
             exit 1
           fi
 
-      - name: So khớp dữ liệu bài DB với curricula.json và catalog (D6c)
+      - name: So khớp dữ liệu bài với curricula.json và catalog
         working-directory: frontend
         run: |
           npm ci
-          node --test e2e/unit/dashboard-plan.test.mjs e2e/unit/catalog-duration.test.mjs
+          node --test e2e/unit/dashboard-plan.test.mjs e2e/unit/catalog-duration.test.mjs e2e/unit/sync-curricula.test.mjs

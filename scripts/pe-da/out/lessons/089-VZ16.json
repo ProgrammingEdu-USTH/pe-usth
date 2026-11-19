@@ -3,58 +3,75 @@
  "sort_order": 89,
  "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
  "title": "VZ16 · Seaborn: histogram, ECDF và KDE",
- "subtitle": "Trung cấp · M4 · 30 phút",
- "estimated_minutes": 30,
- "xp_reward": 15,
+ "subtitle": "Trung cấp · M4 · 17 phút",
+ "estimated_minutes": 17,
+ "xp_reward": 10,
  "content_json": {
-  "schema": "studio-lesson/v1",
+  "schema": "studio-lesson/v2",
   "title": "VZ16 · Seaborn: histogram, ECDF và KDE",
-  "subtitle": "Trung cấp · M4 · 30 phút",
+  "subtitle": "Trung cấp · M4 · 17 phút",
   "source": {
-   "kind": "pe-da",
-   "filename": "lessons/VZ16.md",
-   "parser": "pe-da/build"
+   "kind": "python-da",
+   "filename": "course.json#VZ16",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "Seaborn: histogram, ECDF và KDE"
   },
   "step_1": {
-   "context": {
-    "title": "Seaborn: histogram, ECDF và KDE",
-    "body": "Một cột thời gian chờ trong DataFrame có thể vẽ ngay bằng seaborn.histplot. Bạn đưa tên cột vào x, còn seaborn lấy các giá trị từ data. Cách viết này giữ tên biến trong code rõ hơn khi bảng có nhiều cột.",
-    "level": "Trung cấp"
-   },
-   "theory": [
-    {
-     "title": "Tình huống",
-     "body": "Một cột thời gian chờ trong DataFrame có thể vẽ ngay bằng seaborn.histplot. Bạn đưa tên cột vào x, còn seaborn lấy các giá trị từ data. Cách viết này giữ tên biến trong code rõ hơn khi bảng có nhiều cột.\n\n![Biểu đồ](../visuals/VZ16-1.png)"
-    },
-    {
-     "title": "Ý chính 2",
-     "body": "ECDF cho biết phần quan sát có giá trị nhỏ hơn hoặc bằng một mốc. Với sáu đơn, bốn đơn chờ không quá 4 phút nên ECDF ở 4 là 4/6. Nó không cần chọn bins, phù hợp khi bạn muốn đọc tỷ lệ dưới một ngưỡng.\n\n![Biểu đồ](../visuals/VZ16-2.png)"
-    },
-    {
-     "title": "Ý chính 3",
-     "body": "KDE ước lượng một đường mật độ mượt. bw_adjust điều chỉnh mức làm mượt và cut=0 dừng đường tại miền quan sát; chúng không biến KDE thành phân bố thật của tổng thể. Dữ liệu chờ là không âm và mẫu ở đây rất nhỏ, vì vậy luôn xem cả điểm gốc hoặc histogram trước khi diễn giải các đỉnh của đường.\n\n![Biểu đồ](../visuals/VZ16-3.png)"
-    }
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Bài trước vẽ thẳng từ bảng của quán; thư viện này nhận cả tên cột. Một cột thời gian chờ trong `DataFrame` có thể vẽ ngay bằng seaborn.histplot. Bạn đưa tên cột vào x, còn seaborn lấy các giá trị từ data. Cách viết này giữ tên biến trong code rõ hơn khi bảng có nhiều cột."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\nimport seaborn as sns\norders = pd.DataFrame({\"wait\":[1, 2, 2, 4, 5, 8]})\nsns.histplot(data=orders, x=\"wait\", bins=[0, 3, 6, 9], ax=ax)\nax.set(xlabel=\"Wait (minutes)\", ylabel=\"Orders\", title=\"A named column in a DataFrame\")\nprint(len(orders))\nplt.show()",
+      "expected": "6"
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ16-1.png",
+      "alt": "Biểu đồ phân phối, tiêu đề \"A named column in a DataFrame\", trục ngang \"Wait (minutes)\", trục dọc \"Orders\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "ECDF cho biết phần quan sát có giá trị nhỏ hơn hoặc bằng một mốc. Với sáu đơn, bốn đơn chờ không quá 4 phút nên ECDF ở 4 là 4/6. Nó không cần chọn bins, phù hợp khi bạn muốn đọc tỷ lệ dưới một ngưỡng."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\nimport seaborn as sns\norders = pd.DataFrame({\"wait\":[1, 2, 2, 4, 5, 8]})\nsns.ecdfplot(data=orders, x=\"wait\", ax=ax)\nax.set(xlabel=\"Wait (minutes)\", ylabel=\"Proportion <= x\", title=\"How many orders wait at most four minutes?\")\nprint(round(float((orders[\"wait\"] <= 4).mean()), 3))\nplt.show()",
+      "expected": "0.667"
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ16-2.png",
+      "alt": "Biểu đồ hàm phân phối tích luỹ, tiêu đề \"How many orders wait at most four minutes?\", trục ngang \"Wait (minutes)\", trục dọc \"Proportion <= x\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "KDE ước lượng một đường mật độ mượt. bw_adjust điều chỉnh mức làm mượt và cut=0 dừng đường tại miền quan sát; chúng không biến KDE thành phân bố thật của tổng thể. Dữ liệu chờ là không âm và mẫu ở đây rất nhỏ, vì vậy luôn xem cả điểm gốc hoặc histogram trước khi diễn giải các đỉnh của đường."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\nimport seaborn as sns\norders = pd.DataFrame({\"wait\":[1, 2, 2, 4, 5, 8]})\nsns.kdeplot(data=orders, x=\"wait\", bw_adjust=1.2, cut=0, ax=ax)\nsns.rugplot(data=orders, x=\"wait\", ax=ax)\nax.set(xlabel=\"Wait (minutes)\", ylabel=\"Estimated density\", title=\"Smoothing does not add observations\")\nprint(orders[\"wait\"].min(), orders[\"wait\"].max())\nplt.show()",
+      "expected": "1 8"
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ16-3.png",
+      "alt": "Biểu đồ mật độ, tiêu đề \"Smoothing does not add observations\", trục ngang \"Wait (minutes)\", trục dọc \"Estimated density\"."
+     }
+    ]
    ],
-   "code": {
-    "filename": "vi_du.py",
-    "version": "Python 3.12",
-    "source": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\nimport seaborn as sns\norders = pd.DataFrame({\"wait\":[1, 2, 2, 4, 5, 8]})\nsns.histplot(data=orders, x=\"wait\", bins=[0, 3, 6, 9], ax=ax)\nax.set(xlabel=\"Wait (minutes)\", ylabel=\"Orders\", title=\"A named column in a DataFrame\")\nprint(len(orders))\nplt.show()",
-    "kind": "demo"
-   },
-   "explain": [
-    {
-     "n": 1,
-     "body": "Ví dụ 1 in ra: 6"
-    },
-    {
-     "n": 2,
-     "body": "Ví dụ 2 in ra: 0.667"
-    },
-    {
-     "n": 3,
-     "body": "Ví dụ 3 in ra: 1 8"
-    }
-   ]
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "VZ06 · Histogram: khoảng chia, tần số và mật độ, PD02 · DataFrame: đọc một bảng nhỏ, PD05 · Lọc hàng theo điều kiện"
+   }
   },
   "step_2": {
    "mcq": [
@@ -62,19 +79,17 @@
      "question": "Dữ liệu [1,2,2,5]. ECDF tại 2 bằng gì?",
      "options": [
       {
-       "text": "2/4",
-       "correct": false,
-       "detail": "Hai giá trị 2 không phải toàn bộ các giá trị ≤2; còn số 1."
-      },
-      {
        "text": "1/4",
-       "correct": false,
        "detail": "Đây không phải tỷ lệ lớn hơn ngưỡng."
       },
       {
+       "text": "2/4",
+       "detail": "Hai giá trị 2 không phải toàn bộ các giá trị ≤2; còn số 1."
+      },
+      {
        "text": "3/4",
-       "correct": true,
-       "detail": "Đúng: ba trong bốn giá trị nhỏ hơn hoặc bằng 2."
+       "detail": "Đúng: ba trong bốn giá trị nhỏ hơn hoặc bằng 2.",
+       "correct": true
       }
      ],
      "explanation": "ECDF tính theo các quan sát, không cần chọn bins."
@@ -83,19 +98,17 @@
      "question": "ECDF tại 4 bằng 4/6 có nghĩa gì?",
      "options": [
       {
+       "text": "Mỗi quan sát chắc chắn có xác suất đúng 4/6.",
+       "detail": "Tỷ lệ tích lũy không gán cùng xác suất 4/6 cho từng điểm riêng."
+      },
+      {
        "text": "Bốn trong sáu quan sát có thời gian chờ nhỏ hơn hoặc bằng 4 phút.",
-       "correct": true,
-       "detail": "Bốn trong sáu quan sát có thời gian chờ nhỏ hơn hoặc bằng 4 phút."
+       "detail": "Bốn trong sáu quan sát có thời gian chờ nhỏ hơn hoặc bằng 4 phút.",
+       "correct": true
       },
       {
        "text": "Có bốn quan sát lớn hơn 4 trong sáu quan sát.",
-       "correct": false,
        "detail": "Đây là phía lớn hơn ngưỡng, ngược với tích lũy tới ngưỡng."
-      },
-      {
-       "text": "Mỗi quan sát chắc chắn có xác suất đúng 4/6.",
-       "correct": false,
-       "detail": "Tỷ lệ tích lũy không gán cùng xác suất 4/6 cho từng điểm riêng."
       }
      ],
      "explanation": "Bốn trong sáu quan sát có thời gian chờ nhỏ hơn hoặc bằng 4 phút."
@@ -104,92 +117,71 @@
      "question": "Tăng bw_adjust thường làm KDE thay đổi thế nào?",
      "options": [
       {
-       "text": "Tự tăng số quan sát trong dữ liệu.",
-       "correct": false,
-       "detail": "Làm mượt không sinh thêm quan sát gốc."
+       "text": "Đường được làm mượt hơn; có thể che những chi tiết hoặc đỉnh nhỏ.",
+       "detail": "Đường được làm mượt hơn; có thể che những chi tiết hoặc đỉnh nhỏ.",
+       "correct": true
       },
       {
        "text": "Luôn tạo thêm nhiều đỉnh hơn.",
-       "correct": false,
        "detail": "Mức làm mượt cao hơn thường có thể che các đỉnh nhỏ, không bảo đảm tạo thêm đỉnh."
       },
       {
-       "text": "Đường được làm mượt hơn; có thể che những chi tiết hoặc đỉnh nhỏ.",
-       "correct": true,
-       "detail": "Đường được làm mượt hơn; có thể che những chi tiết hoặc đỉnh nhỏ."
+       "text": "Tự tăng số quan sát trong dữ liệu.",
+       "detail": "Làm mượt không sinh thêm quan sát gốc."
       }
      ],
      "explanation": "Đường được làm mượt hơn; có thể che những chi tiết hoặc đỉnh nhỏ."
     }
+   ],
+   "practice": [
+    {
+     "prompt": "ECDF tại 4 bằng 4/6 có nghĩa gì?",
+     "answer": "Bốn trong sáu quan sát có thời gian chờ nhỏ hơn hoặc bằng 4 phút."
+    },
+    {
+     "prompt": "Tăng bw_adjust thường làm KDE thay đổi thế nào?",
+     "answer": "Đường được làm mượt hơn; có thể che những chi tiết hoặc đỉnh nhỏ."
+    },
+    {
+     "prompt": "KDE có nhiều đỉnh trong mẫu 6 đơn có đủ để khẳng định nhiều nhóm khách không?",
+     "answer": "Chưa đủ. Kiểm tra dữ liệu gốc, cỡ mẫu và độ nhạy với mức làm mượt."
+    }
    ]
-  },
-  "step_3": {
-   "task": {
-    "title": "Tự nhớ một phần cú pháp",
-    "body": "Chỉ vẽ KDE trong miền đã quan sát."
-   },
-   "scaffold": {
-    "template": "sns.kdeplot(data=orders,x=\"wait\",{{slot1}}=0,ax=ax)",
-    "slots": [
-     {
-      "n": 1,
-      "placeholder": "Phần còn thiếu",
-      "answer": "cut"
-     }
-    ],
-    "bank": [
-     {
-      "label": "cut",
-      "slot": 1,
-      "trap": ""
-     }
-    ]
-   }
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
-    "body": "data.values là thời gian chờ, data.threshold là ngưỡng. Tạo DataFrame và sns.ecdfplot. Trả proportion là tỷ lệ values<=threshold và finalHeight là y cuối của đường ECDF (ax.lines[0].get_ydata()[-1]). Hai số giúp đối chiếu cách đọc hình; đóng Figure. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
-    "io": [
-     {
-      "label": "ngưỡng có số lặp",
-      "value": "{'values': [1, 2, 2, 5], 'threshold': 2} → {'proportion': 0.75, 'finalHeight': 1.0}"
-     },
-     {
-      "label": "dưới tất cả quan sát",
-      "value": "{'values': [3, 4, 8], 'threshold': 1} → {'proportion': 0.0, 'finalHeight': 1.0}"
-     },
-     {
-      "label": "bằng cực đại",
-      "value": "{'values': [0, 5], 'threshold': 5} → {'proportion': 1.0, 'finalHeight': 1.0}"
-     }
-    ]
+    "title": "Chạy trên máy của bạn",
+    "body": "Bài này không chạy được trong trình duyệt: seaborn chưa được cài sẵn trong trình duyệt của khoá này. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
    },
-   "hints": [
-    {
-     "title": "Gợi ý 1",
-     "body": "Cần giới hạn đường KDE ở miền dữ liệu quan sát, không kéo dài qua hai mép."
-    },
-    {
-     "title": "Gợi ý 2",
-     "body": "Đọc tỷ lệ không vượt ngưỡng từ ECDF."
-    },
-    {
-     "title": "Gợi ý 3",
-     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
-    }
-   ],
-   "packages": [
-    "matplotlib",
-    "numpy",
-    "pandas"
-   ],
    "procedure": [
-    "Bài này cần seaborn, không có trong Pyodide nên chưa chấm tự động.",
-    "Đầu vào {'values': [1, 2, 2, 5], 'threshold': 2} — kết quả cần có {'proportion': 0.75, 'finalHeight': 1.0}.",
-    "Đầu vào {'values': [3, 4, 8], 'threshold': 1} — kết quả cần có {'proportion': 0.0, 'finalHeight': 1.0}.",
-    "Đầu vào {'values': [0, 5], 'threshold': 5} — kết quả cần có {'proportion': 1.0, 'finalHeight': 1.0}."
+    "Mở terminal tại thư mục làm việc của bạn.",
+    "Tạo môi trường: py -m venv .venv",
+    "Cài thư viện bài cần: .venv\\Scripts\\python -m pip install <tên gói>",
+    "Lưu đoạn code vào một file .py rồi chạy: .venv\\Scripts\\python ten_file.py"
    ]
   }
+ },
+ "_mode": "local",
+ "_blocked": [
+  {
+   "block": 0,
+   "reason": "seaborn chưa có wheel trong /pyodide/v314.0.7/"
+  },
+  {
+   "block": 1,
+   "reason": "seaborn chưa có wheel trong /pyodide/v314.0.7/"
+  },
+  {
+   "block": 2,
+   "reason": "seaborn chưa có wheel trong /pyodide/v314.0.7/"
+  }
+ ],
+ "_so_mcq": 3,
+ "_bai_tap": "khong: seaborn chưa có wheel trong /pyodide/v314.0.7/",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
  }
 }

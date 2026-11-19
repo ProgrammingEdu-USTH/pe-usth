@@ -3,54 +3,67 @@
  "sort_order": 167,
  "module": "M9 · Ôn tập và thực hành các chi tiết trong slide",
  "title": "EX08 · Chuẩn bị vector và lưới trước khi vẽ",
- "subtitle": "Trung cấp · M9 · 30 phút",
- "estimated_minutes": 30,
- "xp_reward": 15,
+ "subtitle": "Trung cấp · M9 · 17 phút",
+ "estimated_minutes": 17,
+ "xp_reward": 10,
  "content_json": {
-  "schema": "studio-lesson/v1",
+  "schema": "studio-lesson/v2",
   "title": "EX08 · Chuẩn bị vector và lưới trước khi vẽ",
-  "subtitle": "Trung cấp · M9 · 30 phút",
+  "subtitle": "Trung cấp · M9 · 17 phút",
   "source": {
-   "kind": "pe-da",
-   "filename": "lessons/EX08.md",
-   "parser": "pe-da/build"
+   "kind": "python-da",
+   "filename": "course.json#EX08",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 329; NumPy mgrid; Matplotlib sample data"
   },
   "step_1": {
-   "context": {
-    "title": "Chuẩn bị vector và lưới trước khi vẽ",
-    "body": "Để vẽ đường sin, bạn cần các vị trí x và giá trị sin tương ứng. `linspace` tạo các vị trí cách đều; `sin` và `cos` tính trên từng phần tử của array. Ví dụ dưới cũng tạo bảng số ngẫu nhiên bằng một bộ sinh riêng `rng`. Seed giúp chạy lại ví dụ trong cùng môi trường, nhưng các số sinh ra vẫn là dữ liệu mô phỏng. Lệnh cũ `np.random.random((2, 3))` dùng bộ sinh toàn cục, cho bảng 2 hàng, 3 cột với các số từ 0 đến dưới 1. Giữ `rng` riêng giúp bạn điều khiển seed mà không đổi trạng thái ngẫu nhiên của phần code khác.",
-    "level": "Trung cấp"
-   },
-   "theory": [
-    {
-     "title": "Tình huống",
-     "body": "Để vẽ đường sin, bạn cần các vị trí x và giá trị sin tương ứng. `linspace` tạo các vị trí cách đều; `sin` và `cos` tính trên từng phần tử của array. Ví dụ dưới cũng tạo bảng số ngẫu nhiên bằng một bộ sinh riêng `rng`. Seed giúp chạy lại ví dụ trong cùng môi trường, nhưng các số sinh ra vẫn là dữ liệu mô phỏng. Lệnh cũ `np.random.random((2, 3))` dùng bộ sinh toàn cục, cho bảng 2 hàng, 3 cột với các số từ 0 đến dưới 1. Giữ `rng` riêng giúp bạn điều khiển seed mà không đổi trạng thái ngẫu nhiên của phần code khác.\n\nTrong `np.mgrid`, `3j` yêu cầu ba điểm tính cả hai đầu, không phải khoảng cách 3 giữa các điểm. Ví dụ lấy ba vị trí x từ -1 đến 1 và năm vị trí y từ -2 đến 2. `X` và `Y` là hai bảng tọa độ có cùng `shape=(3, 5)`. Tại mỗi vị trí, đặt `U=-Y` và `V=X` để có hai thành phần của vector xoay; VZ29 dùng các bảng này để vẽ trường vector. Với bước là số thực như 0.5, `mgrid` hiểu đó là khoảng cách giữa các điểm."
-    },
-    {
-     "title": "Ý chính 2",
-     "body": "`np.load` đọc file định dạng NumPy. Đoạn dưới lưu array ảnh vào `image.npy`, đọc lại rồi kiểm tra dữ liệu có giữ nguyên không. Tiếp theo, `get_sample_data(\"topobathy.npz\", asfileobj=False)` lấy đường dẫn file mẫu đi kèm Matplotlib. File `.npz` này chứa ba array: `topo` (độ cao/độ sâu), `longitude` (kinh độ) và `latitude` (vĩ độ). Dùng `np.load` để mở rồi chọn array theo tên. Một số file mẫu cũ như `bivariate_normal.npy` không có ở mọi phiên bản; nếu thiếu, hãy xem các mẫu có sẵn hoặc dùng array tự tạo."
-    }
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Một đường sin cần nhiều vị trí x hơn ba điểm bán hàng. linspace chọn các vị trí cách đều, còn sin/cos tính trên từng phần tử của array. Khi code dùng dữ liệu ngẫu nhiên để kiểm hình, cố định seed giúp bạn chạy lại cùng một ví dụ; đó không phải dữ liệu quan sát ngoài đời. np.random.random((2,3)) trong slide dùng bộ sinh toàn cục và cũng cho bảng 2 hàng, 3 cột với số từ 0 đến dưới 1. Với code mới, giữ rng riêng giúp kiểm soát seed mà không đổi trạng thái ngẫu nhiên của phần khác."
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\nx = np.linspace(0, np.pi, 3)\nprint(np.round(np.sin(x), 6).tolist())\nprint(np.round(np.cos(x), 6).tolist())\nrng = np.random.default_rng(7)\ndata = rng.random((2, 3))\nprint(data.shape, bool(((data >= 0) & (data < 1)).all()))\nprint(np.random.random((2, 3)).shape)",
+      "expected": "[0.0, 1.0, 0.0]\n[1.0, 0.0, -1.0]\n(2, 3) True\n(2, 3)",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Trong np.mgrid, bước complex như 3j yêu cầu ba điểm tính cả hai đầu, khác với bước thực là khoảng cách giữa điểm. Hai lưới X/Y có cùng shape; từ đó tạo U/V cho trường vector. Bảng nhỏ dưới giữ quy tắc U=-Y, V=X như trường xoay trong VZ29."
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\nX, Y = np.mgrid[-1:1:3j, -2:2:5j]\nU, V = -Y, X\nprint(X.shape, Y.shape, U.shape, V.shape)\nprint(X[:, 0].tolist())\nprint(Y[0, :].tolist())",
+      "expected": "(3, 5) (3, 5) (3, 5) (3, 5)\n[-1.0, 0.0, 1.0]\n[-2.0, -1.0, 0.0, 1.0, 2.0]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "np.load đọc mảng đã lưu trong file NumPy, khác với đọc bảng text. matplotlib.cbook.get_sample_data tìm dữ liệu mẫu đi kèm bản Matplotlib. Ví dụ dưới trước hết lưu/nạp mảng của chính mình; sau đó dùng `asfileobj=False` để lấy đường dẫn mẫu topobathy.npz rồi mở bằng np.load. Archive này có các mảng topo, longitude và latitude. Tên bivariate_normal.npy trong slide cũ không có ở mọi phiên bản; nếu thiếu file mẫu, kiểm danh sách mẫu hoặc dùng mảng tự tạo thay vì cài lại thư viện cũ chỉ để giữ tên file."
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\nimport tempfile\nfrom pathlib import Path\nfrom matplotlib.cbook import get_sample_data\nimage = np.array([[0.0, 0.5], [0.75, 1.0]])\nwith tempfile.TemporaryDirectory() as folder:\n    path = Path(folder) / \"image.npy\"\n    np.save(path, image)\n    loaded = np.load(path, allow_pickle=False)\n    print(loaded.shape, bool(np.array_equal(image, loaded)))\nsample_path = get_sample_data(\"topobathy.npz\", asfileobj=False)\nwith np.load(sample_path, allow_pickle=False) as sample:\n    print(sorted(sample.files))\n    print(sample[\"topo\"].ndim)",
+      "expected": "(2, 2) True\n['latitude', 'longitude', 'topo']\n2",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "Chuẩn bị dãy số trước khi vẽ là bước bạn làm ở mọi hình của quán."
+     }
+    ]
    ],
-   "code": {
-    "filename": "vi_du.py",
-    "version": "Python 3.12",
-    "source": "import numpy as np\nx = np.linspace(0, np.pi, 3)\nprint(np.round(np.sin(x), 6).tolist())\nprint(np.round(np.cos(x), 6).tolist())\nrng = np.random.default_rng(7)\ndata = rng.random((2, 3))\nprint(data.shape, bool(((data >= 0) & (data < 1)).all()))\nprint(np.random.random((2, 3)).shape)",
-    "kind": "demo"
-   },
-   "explain": [
-    {
-     "n": 1,
-     "body": "Ví dụ 1 in ra: [0.0, 1.0, 0.0] ⏎ [1.0, 0.0, -1.0] ⏎ (2, 3) True ⏎ (2, 3)"
-    },
-    {
-     "n": 2,
-     "body": "Ví dụ 2 in ra: (3, 5) (3, 5) (3, 5) (3, 5) ⏎ [-1.0, 0.0, 1.0] ⏎ [-2.0, -1.0, 0.0, 1.0, 2.0]"
-    },
-    {
-     "n": 3,
-     "body": "Ví dụ 3 in ra: (2, 2) True ⏎ ['latitude', 'longitude', 'topo'] ⏎ 2"
-    }
-   ]
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "NP22 · Tạo dữ liệu thử với seed, NP08 · Xếp lại bằng reshape"
+   }
   },
   "step_2": {
    "mcq": [
@@ -58,19 +71,17 @@
      "question": "np.mgrid[-1:1:3j] tạo bao nhiêu điểm?",
      "options": [
       {
-       "text": "3",
-       "correct": true,
-       "detail": "Bước phức 3j yêu cầu ba điểm, gồm hai đầu -1 và 1."
-      },
-      {
        "text": "2",
-       "correct": false,
        "detail": "Không diễn giải 3j như khoảng cách giữa hai điểm."
       },
       {
        "text": "Không xác định vì số phức",
-       "correct": false,
        "detail": "Trong cú pháp mgrid, phần ảo chỉ định số điểm."
+      },
+      {
+       "text": "3",
+       "detail": "Bước phức 3j yêu cầu ba điểm, gồm hai đầu -1 và 1.",
+       "correct": true
       }
      ],
      "explanation": "Bước phức 3j yêu cầu ba điểm, gồm hai đầu -1 và 1."
@@ -79,18 +90,16 @@
      "question": "linspace(0, pi, 3) tạo mấy vị trí?",
      "options": [
       {
+       "text": "3",
+       "detail": "Tham số thứ ba là số điểm; mặc định cách dùng này gồm cả hai đầu.",
+       "correct": true
+      },
+      {
        "text": "pi vị trí",
-       "correct": false,
        "detail": "Chưa đúng. Tham số thứ ba là số điểm; mặc định cách dùng này gồm cả hai đầu."
       },
       {
-       "text": "3",
-       "correct": true,
-       "detail": "Tham số thứ ba là số điểm; mặc định cách dùng này gồm cả hai đầu."
-      },
-      {
        "text": "2",
-       "correct": false,
        "detail": "Chưa đúng. Tham số thứ ba là số điểm; mặc định cách dùng này gồm cả hai đầu."
       }
      ],
@@ -100,47 +109,44 @@
      "question": "np.sin(x) với x là array làm gì trước khi vẽ?",
      "options": [
       {
-       "text": "Tính sin từng phần tử thành array",
-       "correct": true,
-       "detail": "Tính giá trị và tạo hình là hai bước riêng; sin không tự vẽ."
-      },
-      {
-       "text": "Tự mở đồ thị sin",
-       "correct": false,
+       "text": "Đổi mọi phần tử thành chỉ số",
        "detail": "Chưa đúng. Tính giá trị và tạo hình là hai bước riêng; sin không tự vẽ."
       },
       {
-       "text": "Đổi mọi phần tử thành chỉ số",
-       "correct": false,
+       "text": "Tính sin từng phần tử thành array",
+       "detail": "Tính giá trị và tạo hình là hai bước riêng; sin không tự vẽ.",
+       "correct": true
+      },
+      {
+       "text": "Tự mở đồ thị sin",
        "detail": "Chưa đúng. Tính giá trị và tạo hình là hai bước riêng; sin không tự vẽ."
       }
      ],
      "explanation": "Tính giá trị và tạo hình là hai bước riêng; sin không tự vẽ."
     }
+   ],
+   "practice": [
+    {
+     "prompt": "linspace(0, pi, 3) cho bao nhiêu vị trí? sin và cos của array cho một số hay một array?",
+     "answer": "Ba vị trí. sin/cos tính từng phần tử và trả array cùng shape; không tự vẽ đường."
+    },
+    {
+     "prompt": "np.mgrid[-1:1:3j,-2:2:5j] tạo shape gì? 3j có phải bước dài 3 không?",
+     "answer": "Shape (3,5); 3j yêu cầu ba điểm trên chiều đầu, gồm hai đầu mút. Nó không có nghĩa bước dài 3."
+    },
+    {
+     "prompt": "np.load(path) và get_sample_data(name) có cùng đọc CSV không? Làm gì nếu ví dụ cũ thiếu ảnh mẫu?",
+     "answer": "Không. np.load nạp định dạng NumPy; helper tìm/mở dữ liệu mẫu đi kèm Matplotlib. Kiểm API và file phiên bản hiện tại, hoặc tạo fixture array ảnh cùng loại như ví dụ; không suy một tên mẫu cũ luôn có sẵn."
+    },
+    {
+     "prompt": "np.random.random((2,3)) cho bao nhiêu số và khoảng giá trị nào? np.mgrid[0:1:100j] cho bước dài 100 hay 100 vị trí?",
+     "answer": "Có 6 số trong bảng (2,3), từ 0 đến dưới 1. 100j yêu cầu 100 vị trí tính cả hai đầu 0 và 1; khoảng cách là 1/99. rng.random((2,3)) là cách dùng bộ sinh riêng với cùng ý nghĩa shape."
+    },
+    {
+     "prompt": "Bạn có X,Y cùng shape (3,5) và muốn trường xoay. Viết U,V; lấy đường dẫn dữ liệu mẫu Matplotlib rồi nạp archive NumPy bằng lệnh nào?",
+     "answer": "U,V=-Y,X nên cả bốn mảng có shape (3,5). path=get_sample_data(\"topobathy.npz\",asfileobj=False); with np.load(path,allow_pickle=False) as sample: topo=sample[\"topo\"].copy(). Không dùng np.load để đọc CSV; với mẫu thiếu ở phiên bản khác, dùng array tự tạo có cùng ý nghĩa."
+    }
    ]
-  },
-  "step_3": {
-   "task": {
-    "title": "Viết phần còn thiếu",
-    "body": "Lấy n vị trí cách đều từ 0 đến pi, gồm cả hai đầu."
-   },
-   "scaffold": {
-    "template": "x = np.{{slot1}}(0, np.pi, n)",
-    "slots": [
-     {
-      "n": 1,
-      "placeholder": "Hàm tạo n điểm",
-      "answer": "linspace"
-     }
-    ],
-    "bank": [
-     {
-      "label": "linspace",
-      "slot": 1,
-      "trap": ""
-     }
-    ]
-   }
   },
   "step_4": {
    "task": {
@@ -148,21 +154,93 @@
     "body": "Viết solve(data) nhận {\"nx\": số điểm x, \"ny\": số điểm y}, mỗi số ít nhất 2. Tạo mgrid x từ -1 đến 1 gồm nx điểm và y từ -2 đến 2 gồm ny điểm. Đặt U=-Y, V=X. Lưu U vào vector.npy rồi đọc lại bằng allow_pickle=False. Trả {\"shape\": shape của U dạng list, \"uFirst\": hàng đầu U, \"vLast\": hàng cuối V, \"roundtrip\": dữ liệu đọc có bằng U}.",
     "io": [
      {
-      "label": "lưới 3x5",
-      "value": "{'nx': 3, 'ny': 5} → {'shape': [3, 5], 'uFirst': [2, 1, 0, -1, -2], 'vLast': [1, 1, 1, 1, 1], 'roundtrip': True}"
+      "label": "data =",
+      "value": "{'nx': 3, 'ny': 5}"
      },
      {
-      "label": "lưới 2x3",
-      "value": "{'nx': 2, 'ny': 3} → {'shape': [2, 3], 'uFirst': [2, 0, -2], 'vLast': [1, 1, 1], 'roundtrip': True}"
-     },
-     {
-      "label": "lưới 4x2",
-      "value": "{'nx': 4, 'ny': 2} → {'shape': [4, 2], 'uFirst': [2, -2], 'vLast': [1, 1], 'roundtrip': True}"
+      "label": "trả về",
+      "value": "{'shape': [3, 5], 'uFirst': [2, 1, 0, -1, -2], 'vLast': [1, 1, 1, 1, 1], 'roundtrip': True}"
      }
     ]
    },
    "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
    "solutionCode": "import numpy as np\ndef solve(data):\n    X,Y = np.mgrid[-1:1:complex(0,data['nx']), -2:2:complex(0,data['ny'])]\n    U,V = -Y,X\n    np.save('vector.npy',U)\n    loaded = np.load('vector.npy',allow_pickle=False)\n    return {'shape':list(U.shape),'uFirst':U[0].tolist(),'vLast':V[-1].tolist(),'roundtrip':bool(np.array_equal(loaded,U))}\n",
+   "tests": [
+    {
+     "name": "lưới 3x5",
+     "input": {
+      "nx": 3,
+      "ny": 5
+     },
+     "expected": {
+      "shape": [
+       3,
+       5
+      ],
+      "uFirst": [
+       2,
+       1,
+       0,
+       -1,
+       -2
+      ],
+      "vLast": [
+       1,
+       1,
+       1,
+       1,
+       1
+      ],
+      "roundtrip": true
+     }
+    },
+    {
+     "name": "lưới 2x3",
+     "input": {
+      "nx": 2,
+      "ny": 3
+     },
+     "expected": {
+      "shape": [
+       2,
+       3
+      ],
+      "uFirst": [
+       2,
+       0,
+       -2
+      ],
+      "vLast": [
+       1,
+       1,
+       1
+      ],
+      "roundtrip": true
+     }
+    },
+    {
+     "name": "lưới 4x2",
+     "input": {
+      "nx": 4,
+      "ny": 2
+     },
+     "expected": {
+      "shape": [
+       4,
+       2
+      ],
+      "uFirst": [
+       2,
+       -2
+      ],
+      "vLast": [
+       1,
+       1
+      ],
+      "roundtrip": true
+     }
+    }
+   ],
    "hints": [
     {
      "title": "Gợi ý 1",
@@ -174,25 +252,19 @@
     }
    ],
    "packages": [
+    "matplotlib",
     "numpy"
-   ],
-   "tests": [
-    {
-     "name": "lưới 3x5",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'nx': 3, 'ny': 5}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "{'shape': [3, 5], 'uFirst': [2, 1, 0, -1, -2], 'vLast': [1, 1, 1, 1, 1], 'roundtrip': True}"
-    },
-    {
-     "name": "lưới 2x3",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'nx': 2, 'ny': 3}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "{'shape': [2, 3], 'uFirst': [2, 0, -2], 'vLast': [1, 1, 1], 'roundtrip': True}"
-    },
-    {
-     "name": "lưới 4x2",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'nx': 4, 'ny': 2}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "{'shape': [4, 2], 'uFirst': [2, -2], 'vLast': [1, 1], 'roundtrip': True}"
-    }
    ]
   }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
  }
 }

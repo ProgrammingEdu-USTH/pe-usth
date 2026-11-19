@@ -3,62 +3,64 @@
  "sort_order": 107,
  "module": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ",
  "title": "SY04 · Git: từ thư mục bài làm đến fork của bạn",
- "subtitle": "Trung cấp · M5 · 30 phút",
- "estimated_minutes": 30,
- "xp_reward": 15,
+ "subtitle": "Trung cấp · M5 · 11 phút",
+ "estimated_minutes": 11,
+ "xp_reward": 8,
  "content_json": {
-  "schema": "studio-lesson/v1",
+  "schema": "studio-lesson/v2",
   "title": "SY04 · Git: từ thư mục bài làm đến fork của bạn",
-  "subtitle": "Trung cấp · M5 · 30 phút",
+  "subtitle": "Trung cấp · M5 · 11 phút",
   "source": {
-   "kind": "pe-da",
-   "filename": "lessons/SY04.md",
-   "parser": "pe-da/build"
+   "kind": "python-da",
+   "filename": "course.json#SY04",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 96; Git — Tutorial"
   },
   "step_1": {
-   "context": {
-    "title": "Git: từ thư mục bài làm đến fork của bạn",
-    "body": "Bạn sửa một bài Python và muốn giữ lại bản trước khi thay công thức. Git lưu các mốc thay đổi của dự án, gọi là commit. Fork tạo một bản kho mã (repository) trong tài khoản GitHub của bạn; clone tải bản làm việc cùng lịch sử Git về máy. Các lệnh dưới chạy ở terminal trong thư mục lab, thay TEN_BAN bằng tài khoản thật:",
-    "level": "Trung cấp"
-   },
-   "theory": [
-    {
-     "title": "Tình huống",
-     "body": "Bạn sửa một bài Python và muốn giữ lại bản trước khi thay công thức. Git lưu các mốc thay đổi của dự án, gọi là commit. Fork tạo một bản kho mã (repository) trong tài khoản GitHub của bạn; clone tải bản làm việc cùng lịch sử Git về máy. Các lệnh dưới chạy ở terminal trong thư mục lab, thay TEN_BAN bằng tài khoản thật:\n\nKết quả / quan sát thủ công:"
-    },
-    {
-     "title": "Ý chính 2",
-     "body": "Trước bước clone, dùng nút Fork của repository môn học để tạo fork. `origin` của bản clone phải trỏ đến fork bạn có quyền ghi. Chưa cần thay code hay push vào repository gốc của giảng viên.\n\nKết quả / quan sát thủ công:"
-    },
-    {
-     "title": "Ý chính 3",
-     "body": "Sau khi sửa README để ghi tên theo hướng dẫn môn học, dùng `git add` để chọn nội dung sẽ đưa vào commit. Vùng chứa nội dung đã chọn được gọi là staging area. Nếu sửa file thêm sau khi add, phần sửa mới chưa nằm trong vùng này. Dùng `git diff` để xem phần chưa add và `git diff --cached` để xem phần sắp được commit.\n\nKết quả / quan sát thủ công:"
-    },
-    {
-     "title": "Ý chính 4",
-     "body": "Push gửi các commit trên máy lên repository ở remote. Vì vậy, commit chưa push vẫn nằm trên máy bạn, nhưng người khác chưa lấy được nó từ fork. Bài này cần Git, tài khoản GitHub và quyền truy cập repository. Sau khi push, mở fork trên GitHub và kiểm tra commit cùng phần README vừa sửa."
-    }
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Các hàm vừa viết cho quán đã đủ dài để bạn cần giữ lại từng bản. Bạn sửa một bài Python và muốn giữ lại bản trước khi thay công thức. Git lưu các mốc thay đổi của dự án, gọi là commit. Fork (lấy một bản sao sang tài khoản của bạn) tạo một kho mã (repository) riêng trên GitHub. Clone tải bản làm việc cùng lịch sử Git về máy. Các lệnh dưới chạy ở terminal trong thư mục lab, thay TEN_BAN bằng tài khoản thật:"
+     },
+     {
+      "type": "terminal",
+      "code": "git clone git@github.com:TEN_BAN/pp2022.git\ncd pp2022\ngit remote -v",
+      "expected": "Có remote origin trỏ tới fork của bạn. Tên tài khoản và output thay đổi theo lab."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Trước bước clone, dùng nút Fork của repository môn học để tạo fork. `origin` của bản clone phải trỏ đến fork bạn có quyền ghi. Chưa cần thay code hay push vào repository gốc của giảng viên."
+     },
+     {
+      "type": "terminal",
+      "code": "git status\ngit diff -- README.md\ngit add README.md\ngit diff --cached\ngit commit -m \"First student commit\"",
+      "expected": "Commit chứa đúng sửa đổi README bạn đã kiểm tra; không kèm file ngoài ý muốn."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Sau khi sửa README để ghi tên theo hướng dẫn môn học, dùng `git add` để chọn nội dung sẽ đưa vào commit. Vùng chứa nội dung đã chọn được gọi là staging area. Nếu sửa file thêm sau khi add, phần sửa mới chưa nằm trong vùng này. Dùng `git diff` để xem phần chưa add và `git diff --cached` để xem phần sắp được commit."
+     },
+     {
+      "type": "terminal",
+      "code": "git push origin HEAD\ngit status\ngit log -1 --oneline",
+      "expected": "Commit mới có trên fork; working tree sạch nếu không có thay đổi tiếp theo."
+     },
+     {
+      "type": "paragraph",
+      "text": "Push gửi commit local đến remote. Một commit chưa push vẫn tồn tại trên máy bạn nhưng người khác chưa lấy được từ fork. Bài này cần Git, GitHub và quyền truy cập của người học; kết quả kiểm tra là commit thực có thể xem trên fork, không phải một ảnh dòng lệnh được soạn sẵn. Lịch sử code của quán giữ được rồi, nên bạn dám sửa công thức tính tiền."
+     }
+    ]
    ],
-   "code": {
-    "filename": "vi_du.py",
-    "version": "Python 3.12",
-    "source": "git clone git@github.com:TEN_BAN/pp2022.git\ncd pp2022\ngit remote -v",
-    "kind": "demo"
-   },
-   "explain": [
-    {
-     "n": 1,
-     "body": "Ví dụ 1 in ra: (không in gì)"
-    },
-    {
-     "n": 2,
-     "body": "Ví dụ 2 in ra: (không in gì)"
-    },
-    {
-     "n": 3,
-     "body": "Ví dụ 3 in ra: (không in gì)"
-    }
-   ]
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "PY03 · REPL, notebook và trạng thái đã chạy"
+   }
   },
   "step_2": {
    "mcq": [
@@ -67,17 +69,15 @@
      "options": [
       {
        "text": "Nội dung đã được add trước lần sửa sau",
-       "correct": true,
-       "detail": "Git commit dùng nội dung trong staging area."
+       "detail": "Git commit dùng nội dung trong staging area.",
+       "correct": true
       },
       {
        "text": "Toàn bộ nội dung mới nhất trên đĩa",
-       "correct": false,
        "detail": "Phần sửa sau add vẫn chưa được đưa vào staging area."
       },
       {
        "text": "Nội dung đã push lần gần nhất",
-       "correct": false,
        "detail": "Commit mới được tạo từ staging area tại máy, không lấy từ remote."
       }
      ],
@@ -87,19 +87,17 @@
      "question": "Bạn muốn có bản repository trong tài khoản GitHub của mình trước khi làm PW0. Thao tác nào phù hợp?",
      "options": [
       {
+       "text": "git add",
+       "detail": "Chưa đúng. Fork tạo repository riêng trên dịch vụ; add và diff làm việc với thay đổi trong bản local."
+      },
+      {
        "text": "git diff",
-       "correct": false,
        "detail": "Chưa đúng. Fork tạo repository riêng trên dịch vụ; add và diff làm việc với thay đổi trong bản local."
       },
       {
        "text": "Fork",
-       "correct": true,
-       "detail": "Fork tạo repository riêng trên dịch vụ; add và diff làm việc với thay đổi trong bản local."
-      },
-      {
-       "text": "git add",
-       "correct": false,
-       "detail": "Chưa đúng. Fork tạo repository riêng trên dịch vụ; add và diff làm việc với thay đổi trong bản local."
+       "detail": "Fork tạo repository riêng trên dịch vụ; add và diff làm việc với thay đổi trong bản local.",
+       "correct": true
       }
      ],
      "explanation": "Fork tạo repository riêng trên dịch vụ; add và diff làm việc với thay đổi trong bản local."
@@ -108,61 +106,58 @@
      "question": "git clone tạo gì trên máy?",
      "options": [
       {
-       "text": "Bản làm việc cùng lịch sử Git",
-       "correct": true,
-       "detail": "Clone lấy repository về máy để làm việc; nó không tự tạo thay đổi ở kho gốc."
-      },
-      {
-       "text": "Chỉ một ảnh chụp README",
-       "correct": false,
+       "text": "Một commit mới trên repository giảng viên",
        "detail": "Chưa đúng. Clone lấy repository về máy để làm việc; nó không tự tạo thay đổi ở kho gốc."
       },
       {
-       "text": "Một commit mới trên repository giảng viên",
-       "correct": false,
+       "text": "Bản làm việc cùng lịch sử Git",
+       "detail": "Clone lấy repository về máy để làm việc; nó không tự tạo thay đổi ở kho gốc.",
+       "correct": true
+      },
+      {
+       "text": "Chỉ một ảnh chụp README",
        "detail": "Chưa đúng. Clone lấy repository về máy để làm việc; nó không tự tạo thay đổi ở kho gốc."
       }
      ],
      "explanation": "Clone lấy repository về máy để làm việc; nó không tự tạo thay đổi ở kho gốc."
     }
+   ],
+   "practice": [
+    {
+     "prompt": "Fork khác clone ở đâu?",
+     "answer": "Fork tạo repository trên GitHub; clone tạo bản làm việc và lịch sử Git trên máy."
+    },
+    {
+     "prompt": "Sửa file sau git add, commit sẽ lưu bản nào?",
+     "answer": "Lưu nội dung đã stage, trừ khi add lại phần sửa mới. Dùng git diff và git diff --cached để xem hai phần."
+    },
+    {
+     "prompt": "Làm đủ PW0 và nộp bằng chứng gì?",
+     "answer": "Tự fork repository môn học, clone fork, sửa README ghi tên, add/commit với First student commit, push. Nộp URL fork + commit hash + git remote -v + git status. Kiểm README của đúng commit trên fork."
+    }
    ]
-  },
-  "step_3": {
-   "task": {
-    "title": "Viết phần còn thiếu",
-    "body": "Xem nội dung sắp được commit, sau khi đã git add."
-   },
-   "scaffold": {
-    "template": "git diff {{slot1}}",
-    "slots": [
-     {
-      "n": 1,
-      "placeholder": "Tùy chọn xem phần đã chọn",
-      "answer": "--cached"
-     }
-    ],
-    "bank": [
-     {
-      "label": "--cached",
-      "slot": 1,
-      "trap": ""
-     }
-    ]
-   }
   },
   "step_4": {
    "task": {
-    "title": "Tự làm trong terminal",
-    "body": "Tạo một commit chỉ sửa tiêu đề README của bản fork bài tập, rồi kiểm cả bản local lẫn remote. Dùng repository của chính bạn, không thay kho giảng viên."
+    "title": "Chạy trên máy của bạn",
+    "body": "Bài này không chạy được trong trình duyệt: bài này là các lệnh gõ trong terminal. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
    },
    "procedure": [
-    "Kiểm origin trỏ đúng fork bạn có quyền ghi.",
-    "Sửa một tiêu đề trong README, xem diff, add đúng file rồi xem diff đã stage.",
-    "Commit với thông điệp mô tả thay đổi. Nếu muốn gửi bài, tự push vào fork và mở đúng commit trên GitHub.",
-    "Tự kiểm: Diff chỉ có thay đổi tiêu đề bạn định làm.",
-    "Tự kiểm: Hash commit local xác định được.",
-    "Tự kiểm: Nếu đã push, README ở đúng hash trên fork khớp bản commit; nếu chưa push, ghi rõ commit mới còn ở máy."
+    "Mở terminal tại thư mục làm việc của bạn.",
+    "Tạo môi trường: py -m venv .venv",
+    "Cài thư viện bài cần: .venv\\Scripts\\python -m pip install <tên gói>",
+    "Lưu đoạn code vào một file .py rồi chạy: .venv\\Scripts\\python ten_file.py"
    ]
   }
+ },
+ "_mode": "local",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "khong co",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
  }
 }

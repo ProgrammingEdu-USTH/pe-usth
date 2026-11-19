@@ -3,54 +3,67 @@
  "sort_order": 65,
  "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
  "title": "PD24 · Cửa sổ trượt và so sánh kỳ trước",
- "subtitle": "Trung cấp · M3 · 30 phút",
- "estimated_minutes": 30,
- "xp_reward": 15,
+ "subtitle": "Trung cấp · M3 · 11 phút",
+ "estimated_minutes": 11,
+ "xp_reward": 8,
  "content_json": {
-  "schema": "studio-lesson/v1",
+  "schema": "studio-lesson/v2",
   "title": "PD24 · Cửa sổ trượt và so sánh kỳ trước",
-  "subtitle": "Trung cấp · M3 · 30 phút",
+  "subtitle": "Trung cấp · M3 · 11 phút",
   "source": {
-   "kind": "pe-da",
-   "filename": "lessons/PD24.md",
-   "parser": "pe-da/build"
+   "kind": "python-da",
+   "filename": "course.json#PD24",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas · Window operations"
   },
   "step_1": {
-   "context": {
-    "title": "Cửa sổ trượt và so sánh kỳ trước",
-    "body": "Doanh thu từng ngày biến động mạnh. Trung bình ba ngày giúp xem xu hướng ngắn hạn, nhưng chỉ nên dùng dữ liệu từ hiện tại trở về trước.",
-    "level": "Trung cấp"
-   },
-   "theory": [
-    {
-     "title": "Tình huống",
-     "body": "Doanh thu từng ngày biến động mạnh. Trung bình ba ngày giúp xem xu hướng ngắn hạn, nhưng chỉ nên dùng dữ liệu từ hiện tại trở về trước.\n\nHai hàng đầu chưa đủ ba giá trị nên còn thiếu. min_periods=1 cho phép tính sớm hơn bằng ít dữ liệu hơn. Cửa sổ rolling(3) là ba hàng; muốn ba ngày theo lịch phải có index thời gian và dùng rolling(\"3D\")."
-    },
-    {
-     "title": "Ý chính 2",
-     "body": "`shift(1)` đưa giá trị kỳ trước về hàng hiện tại. `diff()` lấy giá trị hiện tại trừ kỳ trước, nên 120 trừ 100 bằng 20, còn 90 trừ 120 bằng -30. `pct_change()` chia chênh lệch đó cho giá trị kỳ trước; 0.2 nghĩa là tăng 20%. Khi kỳ trước bằng 0 hoặc thiếu, bạn cần đặt quy tắc riêng.\n\n`ewm` tính trung bình với trọng số giảm dần cho các quan sát cũ. Với `alpha=0.5, adjust=False`, mỗi kết quả sau lấy một nửa giá trị mới cộng một nửa kết quả trước: 0.5 × 20 + 0.5 × 10 = 15, rồi 0.5 × 30 + 0.5 × 15 = 22.5. Dòng `rolling(2).mean().shift(1)` đưa trung bình hai hàng trước về hàng hiện tại; vì vậy kết quả ở hàng có giá trị 30 là trung bình của 10 và 20, bằng 15. Khi tạo dữ liệu cho dự báo, cách dịch này giúp tránh dùng chính giá trị đang cần dự báo."
-    }
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Giờ hiển thị đã đúng rồi, nên bạn so được doanh thu của quán hôm nay với mấy ngày trước. Doanh thu từng ngày biến động mạnh. Trung bình ba ngày giúp xem xu hướng ngắn hạn, nhưng chỉ nên dùng dữ liệu từ hiện tại trở về trước."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ns = pd.Series([10, 20, 30, 40])\nmoving = s.rolling(3, min_periods=3).mean()\nprint(moving.isna().tolist())\nprint(moving.dropna().tolist())",
+      "expected": "[True, True, False, False]\n[20.0, 30.0]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Hai hàng đầu chưa đủ ba giá trị nên còn thiếu. min_periods=1 cho phép tính sớm hơn bằng ít dữ liệu hơn. Cửa sổ rolling(3) là ba hàng; muốn ba ngày theo lịch phải có index thời gian và dùng rolling(\"3D\")."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ns = pd.Series([100, 120, 90])\nprint(s.shift(1).dropna().tolist())\nprint(s.diff().dropna().tolist())\nprint(s.pct_change(fill_method=None).dropna().round(2).tolist())",
+      "expected": "[100.0, 120.0]\n[20.0, -30.0]\n[0.2, -0.25]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "shift(1) đưa giá trị kỳ trước về hàng hiện tại. diff tính chênh lệch tuyệt đối; pct_change trả tỷ lệ thay đổi, nên 0.2 nghĩa là tăng 20%. Khi kỳ trước bằng 0 hoặc thiếu, bạn phải đặt quy tắc riêng."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ns = pd.Series([10, 20, 30])\nprint(s.ewm(alpha=0.5, adjust=False).mean().tolist())\nprint(s.rolling(2).mean().shift(1).dropna().tolist())",
+      "expected": "[10.0, 15.0, 22.5]\n[15.0]",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "ewm tính trung bình với trọng số giảm dần cho các quan sát cũ. Câu thứ hai dịch trung bình hai hàng lại một kỳ, để giá trị tại hàng hiện tại không dùng số của chính hàng đó. Điều này hữu ích khi tạo đặc trưng dự báo và tránh dùng dữ liệu tương lai."
+     }
+    ]
    ],
-   "code": {
-    "filename": "vi_du.py",
-    "version": "Python 3.12",
-    "source": "import pandas as pd\ns = pd.Series([10, 20, 30, 40])\nmoving = s.rolling(3, min_periods=3).mean()\nprint(moving.isna().tolist())\nprint(moving.dropna().tolist())",
-    "kind": "demo"
-   },
-   "explain": [
-    {
-     "n": 1,
-     "body": "Ví dụ 1 in ra: [True, True, False, False] ⏎ [20.0, 30.0]"
-    },
-    {
-     "n": 2,
-     "body": "Ví dụ 2 in ra: [100.0, 120.0] ⏎ [20.0, -30.0] ⏎ [0.2, -0.25]"
-    },
-    {
-     "n": 3,
-     "body": "Ví dụ 3 in ra: [10.0, 15.0, 22.5] ⏎ [15.0]"
-    }
-   ]
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "PD23 · Múi giờ: cùng thời điểm, khác giờ hiển thị"
+   }
   },
   "step_2": {
    "mcq": [
@@ -59,110 +72,143 @@
      "options": [
       {
        "text": "Thiếu",
-       "correct": true,
-       "detail": "Đúng: mới có một quan sát, chưa đủ hai."
-      },
-      {
-       "text": "2",
-       "correct": false,
-       "detail": "Chỉ đúng nếu cho phép min_periods=1."
+       "detail": "Đúng: mới có một quan sát, chưa đủ hai.",
+       "correct": true
       },
       {
        "text": "3",
-       "correct": false,
        "detail": "3 là kết quả tại hàng thứ hai."
+      },
+      {
+       "text": "2",
+       "detail": "Chỉ đúng nếu cho phép min_periods=1."
       }
      ],
      "explanation": "window và min_periods xác định dữ liệu được dùng ở mỗi hàng."
     },
     {
-     "question": "Vì sao rolling(3, min_periods=3) có hai kết quả đầu thiếu?",
+     "question": "Vì sao rolling(3, min_periods=3) có hai kết quả đầu thiếu?\n\nimport pandas as pd\ns = pd.Series([10, 20, 30, 40])\nmoving = s.rolling(3, min_periods=3).mean()\nprint(moving.isna().tolist())\nprint(moving.dropna().tolist())",
      "options": [
       {
        "text": "Vì min_periods xóa dữ liệu gốc.",
-       "correct": false,
        "detail": "min_periods quyết định lúc có kết quả, không xóa dữ liệu gốc."
       },
       {
        "text": "Chưa đủ ba quan sát.",
-       "correct": true,
-       "detail": "Chưa đủ ba quan sát."
+       "detail": "Chưa đủ ba quan sát.",
+       "correct": true
       },
       {
        "text": "Vì pandas luôn bỏ hai hàng đầu của mọi phép tính.",
-       "correct": false,
        "detail": "Số kết quả đầu thiếu phụ thuộc kích thước cửa sổ và min_periods."
       }
      ],
      "explanation": "Chưa đủ ba quan sát."
     },
     {
-     "question": "pct_change trả 0.2 có nghĩa là 0.2% hay 20%?",
+     "question": "pct_change trả 0.2 có nghĩa là 0.2% hay 20%?\n\nimport pandas as pd\ns = pd.Series([100, 120, 90])\nprint(s.shift(1).dropna().tolist())\nprint(s.diff().dropna().tolist())\nprint(s.pct_change(fill_method=None).dropna().round(2).tolist())",
      "options": [
       {
-       "text": "20%.",
-       "correct": true,
-       "detail": "20%."
-      },
-      {
        "text": "0.2%.",
-       "correct": false,
        "detail": "0.2 là một phần năm, không phải 0.2 phần trăm."
       },
       {
        "text": "200%.",
-       "correct": false,
        "detail": "200% tương ứng tỷ lệ 2.0."
+      },
+      {
+       "text": "20%.",
+       "detail": "20%.",
+       "correct": true
       }
      ],
      "explanation": "20%."
     }
+   ],
+   "practice": [
+    {
+     "prompt": "Vì sao rolling(3, min_periods=3) có hai kết quả đầu thiếu?",
+     "answer": "Chưa đủ ba quan sát."
+    },
+    {
+     "prompt": "pct_change trả 0.2 có nghĩa là 0.2% hay 20%?",
+     "answer": "20%."
+    },
+    {
+     "prompt": "Tính trung bình cửa sổ hai hàng của [2,4,8], chỉ in các kết quả đủ cửa sổ.",
+     "answer": "Kết quả [3.0, 6.0].",
+     "answerCode": "import pandas as pd\ns = pd.Series([2, 4, 8])\nprint(s.rolling(2).mean().dropna().tolist())",
+     "answerExpected": "[3.0, 6.0]"
+    }
    ]
-  },
-  "step_3": {
-   "task": {
-    "title": "Tự nhớ một phần cú pháp",
-    "body": "Dịch trung bình một hàng trước khi dùng để dự báo hàng hiện tại."
-   },
-   "scaffold": {
-    "template": "feature = s.rolling(2).mean().{{slot1}}(1)",
-    "slots": [
-     {
-      "n": 1,
-      "placeholder": "Phần còn thiếu",
-      "answer": "shift"
-     }
-    ],
-    "bank": [
-     {
-      "label": "shift",
-      "slot": 1,
-      "trap": ""
-     }
-    ]
-   }
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.values là số; data.window là số hàng cửa sổ dương. Tính rolling mean khi đủ window giá trị rồi shift(1). Trả list cùng độ dài, ô chưa đủ dữ liệu là None. Giá trị tại hàng t không được dùng trong đặc trưng cho chính t.",
     "io": [
      {
-      "label": "cửa sổ hai hàng trước",
-      "value": "{'values': [4, 8, 12, 20], 'window': 2} → [None, None, 6.0, 10.0]"
+      "label": "data =",
+      "value": "{'values': [4, 8, 12, 20], 'window': 2}"
      },
      {
-      "label": "chưa đủ cửa sổ",
-      "value": "{'values': [5, 9], 'window': 3} → [None, None]"
-     },
-     {
-      "label": "window bằng 1",
-      "value": "{'values': [7, 0, 3], 'window': 1} → [None, 7.0, 0.0]"
+      "label": "trả về",
+      "value": "[None, None, 6.0, 10.0]"
      }
     ]
    },
    "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
    "solutionCode": "import pandas as pd\n\ndef solve(data):\n     s = pd.Series(data['values'], dtype=float)\n     result = s.rolling(data['window'], min_periods=data['window']).mean().shift(1)\n     return [None if pd.isna(v) else float(v) for v in result]\n",
+   "tests": [
+    {
+     "name": "cửa sổ hai hàng trước",
+     "input": {
+      "values": [
+       4,
+       8,
+       12,
+       20
+      ],
+      "window": 2
+     },
+     "expected": [
+      null,
+      null,
+      6.0,
+      10.0
+     ]
+    },
+    {
+     "name": "chưa đủ cửa sổ",
+     "input": {
+      "values": [
+       5,
+       9
+      ],
+      "window": 3
+     },
+     "expected": [
+      null,
+      null
+     ]
+    },
+    {
+     "name": "window bằng 1",
+     "input": {
+      "values": [
+       7,
+       0,
+       3
+      ],
+      "window": 1
+     },
+     "expected": [
+      null,
+      7.0,
+      0.0
+     ]
+    }
+   ],
    "hints": [
     {
      "title": "Gợi ý 1",
@@ -175,24 +221,17 @@
    ],
    "packages": [
     "pandas"
-   ],
-   "tests": [
-    {
-     "name": "cửa sổ hai hàng trước",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [4, 8, 12, 20], 'window': 2}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "[None, None, 6.0, 10.0]"
-    },
-    {
-     "name": "chưa đủ cửa sổ",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [5, 9], 'window': 3}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "[None, None]"
-    },
-    {
-     "name": "window bằng 1",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'values': [7, 0, 3], 'window': 1}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "[None, 7.0, 0.0]"
-    }
    ]
   }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
  }
 }

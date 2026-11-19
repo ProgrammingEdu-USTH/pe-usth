@@ -1,56 +1,66 @@
 {
  "lesson_code": "GU10",
  "sort_order": 157,
- "module": "M8 · Tkinter: từ form nhỏ đến quản lý điểm",
+ "module": "M8 · Tkinter: từ form nhỏ đến màn hình nhận đơn",
  "title": "GU10 · Grid: dựng form theo hàng và cột",
- "subtitle": "Trung cấp · M8 · 30 phút",
- "estimated_minutes": 30,
- "xp_reward": 15,
+ "subtitle": "Trung cấp · M8 · 14 phút",
+ "estimated_minutes": 14,
+ "xp_reward": 8,
  "content_json": {
-  "schema": "studio-lesson/v1",
+  "schema": "studio-lesson/v2",
   "title": "GU10 · Grid: dựng form theo hàng và cột",
-  "subtitle": "Trung cấp · M8 · 30 phút",
+  "subtitle": "Trung cấp · M8 · 14 phút",
   "source": {
-   "kind": "pe-da",
-   "filename": "lessons/GU10.md",
-   "parser": "pe-da/build"
+   "kind": "python-da",
+   "filename": "course.json#GU10",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 322-324; Python · tkinter"
   },
   "step_1": {
-   "context": {
-    "title": "Grid: dựng form theo hàng và cột",
-    "body": "Form có nhãn Username bên trái, ô nhập bên phải và nút đăng nhập bên dưới. grid đặt các widget vào hàng và cột, giúp các ô thẳng nhau khi thay đổi độ rộng.",
-    "level": "Trung cấp"
-   },
-   "theory": [
-    {
-     "title": "Tình huống",
-     "body": "Form có nhãn Username bên trái, ô nhập bên phải và nút đăng nhập bên dưới. grid đặt các widget vào hàng và cột, giúp các ô thẳng nhau khi thay đổi độ rộng.\n\nrow và column bắt đầu từ 0. sticky=\"ew\" kéo widget tới mép đông và tây của ô, nên ô nhập có thể lấp chiều ngang. padx, pady tạo khoảng trống bên ngoài widget."
-    },
-    {
-     "title": "Ý chính 2",
-     "body": "columnspan=2 cho nút trải qua hai cột. rowspan làm tương tự theo hàng. sticky không tự tạo không gian dư cho cột; parent cần có trọng số để phân bổ phần dư khi resize.\n\nweight=1 cho cột tham gia chia không gian dư; weight=0 giữ kích thước theo nội dung. Khi dựng form thật, đặt trọng số ở đúng container chứa widget. Bố cục thường cần thử với tên dài và cửa sổ hẹp chứ không chỉ nhìn cấu hình."
-    }
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Form có nhãn Username bên trái, ô nhập bên phải và nút đăng nhập bên dưới. grid đặt các widget vào hàng và cột, giúp các ô thẳng nhau khi thay đổi độ rộng."
+     },
+     {
+      "type": "code",
+      "code": "import tkinter as tk\nr=tk.Tk();r.withdraw()\ntk.Label(r,text='Username').grid(row=0,column=0,padx=8,pady=4)\nname=tk.Entry(r);name.grid(row=0,column=1,sticky=tk.EW,padx=8,pady=4)\nprint(name.grid_info()['row'],name.grid_info()['column'])\nprint(name.grid_info()['sticky'])\nr.destroy()",
+      "expected": "0 1\new"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "row và column bắt đầu từ 0. sticky=\"ew\" kéo widget tới mép đông và tây của ô, nên ô nhập có thể lấp chiều ngang. padx, pady tạo khoảng trống bên ngoài widget."
+     },
+     {
+      "type": "code",
+      "code": "import tkinter as tk\nr=tk.Tk();r.withdraw()\ntk.Label(r,text='Password').grid(row=1,column=0)\ntk.Entry(r,show='*').grid(row=1,column=1,sticky='ew')\nbutton=tk.Button(r,text='Login');button.grid(row=2,column=0,columnspan=2,sticky='ew')\nprint(button.grid_info()['columnspan'])\nr.destroy()",
+      "expected": "2"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "columnspan=2 cho nút trải qua hai cột. rowspan làm tương tự theo hàng. sticky không tự tạo không gian dư cho cột; parent cần có trọng số để phân bổ phần dư khi resize."
+     },
+     {
+      "type": "code",
+      "code": "import tkinter as tk\nr=tk.Tk();r.withdraw()\nr.columnconfigure(1,weight=1)\nr.rowconfigure(0,weight=1)\npanel=tk.Frame(r);panel.grid(row=0,column=0,columnspan=2,rowspan=2,sticky='nsew',padx=5,pady=5)\nprint(r.grid_columnconfigure(1)['weight'])\nprint(panel.grid_info()['rowspan'],panel.grid_info()['columnspan'])\nr.destroy()",
+      "expected": "1\n2 2"
+     },
+     {
+      "type": "paragraph",
+      "text": "weight=1 cho cột tham gia chia không gian dư; weight=0 giữ kích thước theo nội dung. Khi dựng form thật, đặt trọng số ở đúng container chứa widget. Bố cục thường cần thử với tên dài và cửa sổ hẹp chứ không chỉ nhìn cấu hình."
+     }
+    ]
    ],
-   "code": {
-    "filename": "vi_du.py",
-    "version": "Python 3.12",
-    "source": "import tkinter as tk\nr=tk.Tk();r.withdraw()\ntk.Label(r,text='Username').grid(row=0,column=0,padx=8,pady=4)\nname=tk.Entry(r);name.grid(row=0,column=1,sticky=tk.EW,padx=8,pady=4)\nprint(name.grid_info()['row'],name.grid_info()['column'])\nprint(name.grid_info()['sticky'])\nr.destroy()",
-    "kind": "demo"
-   },
-   "explain": [
-    {
-     "n": 1,
-     "body": "Ví dụ 1 in ra: 0 1 ⏎ ew"
-    },
-    {
-     "n": 2,
-     "body": "Ví dụ 2 in ra: 2"
-    },
-    {
-     "n": 3,
-     "body": "Ví dụ 3 in ra: 1 ⏎ 2 2"
-    }
-   ]
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "GU09 · Place: vị trí tuyệt đối và tương đối"
+   }
   },
   "step_2": {
    "mcq": [
@@ -58,19 +68,17 @@
      "question": "Entry grid(sticky=\"ew\") nhưng cột không có weight thì luôn giãn theo cửa sổ không?",
      "options": [
       {
-       "text": "Không; Entry không thể thay độ rộng",
-       "correct": false,
-       "detail": "Entry có thể giãn khi cả cell và widget được cấu hình đúng."
-      },
-      {
        "text": "Không; cột cần được cấp phần chỗ tăng thêm",
-       "correct": true,
-       "detail": "sticky kéo trong cell; columnconfigure(weight=...) phân bổ chỗ dư cho cột."
+       "detail": "sticky kéo trong cell; columnconfigure(weight=...) phân bổ chỗ dư cho cột.",
+       "correct": true
       },
       {
        "text": "Có; sticky tự thay weight của cột",
-       "correct": false,
        "detail": "Đó là hai cấu hình khác nhau."
+      },
+      {
+       "text": "Không; Entry không thể thay độ rộng",
+       "detail": "Entry có thể giãn khi cả cell và widget được cấu hình đúng."
       }
      ],
      "explanation": "sticky kéo trong cell; columnconfigure(weight=...) phân bổ chỗ dư cho cột."
@@ -80,18 +88,16 @@
      "options": [
       {
        "text": "Cửa sổ thứ 1 của hệ điều hành",
-       "correct": false,
+       "detail": "Chưa đúng. Grid chia parent thành hàng/cột; số ở đây không là tọa độ pixel."
+      },
+      {
+       "text": "Pixel x=1,y=0",
        "detail": "Chưa đúng. Grid chia parent thành hàng/cột; số ở đây không là tọa độ pixel."
       },
       {
        "text": "Hàng 1, cột 0 của parent",
-       "correct": true,
-       "detail": "Grid chia parent thành hàng/cột; số ở đây không là tọa độ pixel."
-      },
-      {
-       "text": "Pixel x=1,y=0",
-       "correct": false,
-       "detail": "Chưa đúng. Grid chia parent thành hàng/cột; số ở đây không là tọa độ pixel."
+       "detail": "Grid chia parent thành hàng/cột; số ở đây không là tọa độ pixel.",
+       "correct": true
       }
      ],
      "explanation": "Grid chia parent thành hàng/cột; số ở đây không là tọa độ pixel."
@@ -100,61 +106,77 @@
      "question": "sticky=\"ew\" yêu cầu gì?",
      "options": [
       {
-       "text": "Kéo widget về hai cạnh đông/tây trong cell",
-       "correct": true,
-       "detail": "Sticky xử lý vị trí/giãn trong cell; phân bổ chỗ dư cho cột cần cấu hình weight."
-      },
-      {
-       "text": "Tự cấp weight cho mọi cột",
-       "correct": false,
+       "text": "Đặt widget vào hai cửa sổ",
        "detail": "Chưa đúng. Sticky xử lý vị trí/giãn trong cell; phân bổ chỗ dư cho cột cần cấu hình weight."
       },
       {
-       "text": "Đặt widget vào hai cửa sổ",
-       "correct": false,
+       "text": "Kéo widget về hai cạnh đông/tây trong cell",
+       "detail": "Sticky xử lý vị trí/giãn trong cell; phân bổ chỗ dư cho cột cần cấu hình weight.",
+       "correct": true
+      },
+      {
+       "text": "Tự cấp weight cho mọi cột",
        "detail": "Chưa đúng. Sticky xử lý vị trí/giãn trong cell; phân bổ chỗ dư cho cột cần cấu hình weight."
       }
      ],
      "explanation": "Sticky xử lý vị trí/giãn trong cell; phân bổ chỗ dư cho cột cần cấu hình weight."
     }
+   ],
+   "practice": [
+    {
+     "prompt": "grid bắt đầu đánh số hàng từ mấy?",
+     "answer": "Từ 0."
+    },
+    {
+     "prompt": "sticky=\"ew\" có tự làm cột nhận không gian dư không?",
+     "answer": "Không; thường cần columnconfigure(weight=...) cho parent."
+    },
+    {
+     "prompt": "Tạo Button chiếm ba cột và in columnspan.",
+     "answer": "Kết quả 3.",
+     "answerCode": "import tkinter as tk\nr=tk.Tk();r.withdraw()\nb=tk.Button(r,text='Save');b.grid(row=0,column=0,columnspan=3)\nprint(b.grid_info()['columnspan'])\nr.destroy()",
+     "answerExpected": "3"
+    },
+    {
+     "prompt": "Tả form Username/Password/Login dùng grid: vị trí, khoảng đệm và nút chiếm hai cột; rowspan khác gì?",
+     "answer": "Nhãn ở (row0,col0)/(row1,col0), Entry ở col1 với sticky=tk.EW và padx/pady; Login row2 col0 columnspan=2. Đánh số từ0; rowspan chiếm nhiều hàng. Parent cần column weight nếu muốn nhận chỗ dư."
+    }
    ]
-  },
-  "step_3": {
-   "task": {
-    "title": "Viết phần còn thiếu",
-    "body": "Cho nút cuối hàng phủ hai cột."
-   },
-   "scaffold": {
-    "template": "save_button.grid(row=2, column=0, {{slot1}}=2, sticky=\"ew\")",
-    "slots": [
-     {
-      "n": 1,
-      "placeholder": "Số cột phủ",
-      "answer": "columnspan"
-     }
-    ],
-    "bank": [
-     {
-      "label": "columnspan",
-      "slot": 1,
-      "trap": ""
-     }
-    ]
-   }
   },
   "step_4": {
    "task": {
-    "title": "Tự làm trong terminal",
-    "body": "Tạo form hai dòng \"Tên sách\"/\"Số lượng\" và nút \"Lưu\" phủ hai cột. Dùng grid, có padx/pady, cột Entry co giãn khi kéo rộng cửa sổ."
+    "title": "Chạy trên máy của bạn",
+    "body": "Bài này không chạy được trong trình duyệt: Tkinter cần hệ cửa sổ của máy. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
    },
    "procedure": [
-    "Đặt nhãn cột0, Entry cột1; nút hàng2 columnspan2.",
-    "Cấu hình root.columnconfigure(1, weight=1) và Entry sticky ew.",
-    "Nút đọc tên và số lượng; báo lỗi văn bản không phải số nguyên hoặc âm, không đóng form.",
-    "Tự kiểm: Kéo rộng: Entry tăng chiều ngang, nhãn còn đọc được.",
-    "Tự kiểm: Nhập sách \"Data\" số3 cho thông báo đúng; nhập abc hoặc -1 báo lỗi rõ.",
-    "Tự kiểm: Không dùng pack cho các con trực tiếp của root đang dùng grid."
+    "Mở terminal tại thư mục làm việc của bạn.",
+    "Tạo môi trường: py -m venv .venv",
+    "Cài thư viện bài cần: .venv\\Scripts\\python -m pip install <tên gói>",
+    "Lưu đoạn code vào một file .py rồi chạy: .venv\\Scripts\\python ten_file.py"
    ]
   }
+ },
+ "_mode": "local",
+ "_blocked": [
+  {
+   "block": 0,
+   "reason": "Tkinter cần hệ cửa sổ của máy"
+  },
+  {
+   "block": 1,
+   "reason": "Tkinter cần hệ cửa sổ của máy"
+  },
+  {
+   "block": 2,
+   "reason": "Tkinter cần hệ cửa sổ của máy"
+  }
+ ],
+ "_so_mcq": 3,
+ "_bai_tap": "khong co",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
  }
 }

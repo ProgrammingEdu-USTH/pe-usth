@@ -2,8 +2,8 @@
  * Unit test cho trang chủ `/` (src/lib/dashboard-plan.ts + nối dây DashboardMap.tsx).
  * Trang này từng ở /dashboard; 19/10/2026 nó thay trang chủ cũ.
  *
- * Fixture là dữ liệu THẬT: curricula.json đang ship và gói bài pe-v4 đang seed
- * (scripts/pe-v4/out-advanced/lessons.json) — bẫy "fixture không giống dữ liệu
+ * Fixture là dữ liệu THẬT: curricula.json đang ship và gói bài pe-da hiện hành
+ * (scripts/pe-da/out/lessons.json, 179 bài) — bẫy "fixture không giống dữ liệu
  * thật" trong AGENTS.md.
  *
  * Ca quan trọng nhất là ca đầu: LESSON_META (do sync_curricula.py viết bằng
@@ -34,15 +34,16 @@ import { buildScreens } from '../../src/lib/studio-lesson.ts';
 const FE = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const CURRICULA = JSON.parse(readFileSync(join(FE, 'src', 'lib', 'curricula.json'), 'utf8'));
 const BUNDLE = JSON.parse(
-  readFileSync(join(FE, '..', 'scripts', 'pe-v4', 'out-advanced', 'lessons.json'), 'utf8'),
+  readFileSync(join(FE, '..', 'scripts', 'pe-da', 'out', 'lessons.json'), 'utf8'),
 ).lessons.sort((a, b) => a.sort_order - b.sort_order);
 const MODULES = CURRICULA.CURRICULA.python_advanced.modules;
 const META = CURRICULA.LESSON_META?.python_advanced;
 const STAGES = buildStages(MODULES, META, REGION_NAMES);
 
-test('LESSON_META khớp từng khoá màn của buildScreens() trên cả 48 bài', () => {
-  assert.ok(Array.isArray(META), 'curricula.json thiếu LESSON_META — chạy py scripts/pe-v4/sync_curricula.py');
+test('LESSON_META khớp từng khoá màn của buildScreens() trên cả 179 bài', () => {
+  assert.ok(Array.isArray(META), 'curricula.json thiếu LESSON_META — chạy python3 scripts/pe-da/sync_curricula.py');
   assert.equal(META.length, BUNDLE.length);
+  assert.equal(BUNDLE.length, 179);
   const lech = [];
   BUNDLE.forEach((row, i) => {
     const want = buildScreens(row.content_json).map((s) => [s.key, s.kind === 'game' ? s.gameType : s.kind]);
@@ -51,23 +52,26 @@ test('LESSON_META khớp từng khoá màn của buildScreens() trên cả 48 b�
       lech.push(`${row.lesson_code}: meta ${JSON.stringify(got)} ≠ trình duyệt ${JSON.stringify(want)}`);
     }
   });
-  assert.deepEqual(lech, [], 'LESSON_META lệch buildScreens — sửa screen_keys() trong sync_curricula.py');
+  assert.deepEqual(lech, [], 'LESSON_META lệch buildScreens — sửa screen_keys() trong scripts/sync_curricula.py');
 });
 
-test('buildStages: 8 chặng, số bài đếm từ giáo trình, phút/XP/boss từ gói bài', () => {
+test('buildStages: 11 chặng / 179 bài, số bài từ giáo trình, phút/XP/boss từ gói bài', () => {
   assert.equal(STAGES.length, MODULES.length);
+  assert.equal(STAGES.length, 11);
   assert.deepEqual(
     STAGES.map((s) => s.lessons.length),
     MODULES.map((m) => m.lessons.length),
   );
-  const p01 = STAGES[0].lessons[0];
-  assert.equal(p01.code, 'P01');
-  assert.equal(p01.title, 'Program, process và tài nguyên');
-  assert.equal(p01.index, 0);
-  assert.equal(p01.minutes, BUNDLE[0].estimated_minutes);
-  assert.equal(p01.xp, BUNDLE[0].xp_reward);
+  const py01 = STAGES[0].lessons[0];
+  assert.equal(py01.code, 'PY01');
+  assert.equal(py01.title, 'Chạy một phép tính và đọc kết quả');
+  assert.equal(py01.index, 0);
+  assert.equal(py01.minutes, BUNDLE[0].estimated_minutes);
+  assert.equal(py01.xp, BUNDLE[0].xp_reward);
   assert.equal(STAGES[0].code, 'M01');
-  assert.equal(STAGES[0].name, REGION_NAMES[0]);
+  // Số chặng hiện tại là 11 (!= 8 của REGION_NAMES) nên dùng tên thật thay vì gán nhầm tên ẩn dụ.
+  assert.equal(STAGES[0].name, 'Python nền tảng');
+  assert.equal(STAGES[0].topic, 'Python nền tảng');
   // Chỉ số phẳng liên tục qua các chặng — đúng giá trị `?lesson=`.
   assert.deepEqual(
     STAGES.flatMap((s) => s.lessons.map((l) => l.index)),
@@ -82,7 +86,8 @@ test('buildStages: thiếu LESSON_META vẫn ra chặng/bài, chỉ không có s
   const bare = buildStages(MODULES, undefined, REGION_NAMES);
   assert.equal(bare[0].lessons[0].minutes, 0);
   assert.deepEqual(bare[0].lessons[0].screens, []);
-  // Lệch số chặng thì bỏ tên ẩn dụ, dùng tên thật.
+  // Đủ 8 chặng mới dùng tên ẩn dụ REGION_NAMES; lệch số chặng thì dùng tên thật.
+  assert.equal(buildStages(MODULES.slice(0, 8), META, REGION_NAMES)[0].name, REGION_NAMES[0]);
   assert.equal(buildStages(MODULES.slice(0, 3), META, REGION_NAMES)[0].name, STAGES[0].topic);
 });
 

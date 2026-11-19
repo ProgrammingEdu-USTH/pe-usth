@@ -1,56 +1,66 @@
 {
  "lesson_code": "GU07",
  "sort_order": 154,
- "module": "M8 · Tkinter: từ form nhỏ đến quản lý điểm",
+ "module": "M8 · Tkinter: từ form nhỏ đến màn hình nhận đơn",
  "title": "GU07 · Danh sách và hộp chọn thả xuống",
- "subtitle": "Trung cấp · M8 · 30 phút",
- "estimated_minutes": 30,
- "xp_reward": 15,
+ "subtitle": "Trung cấp · M8 · 14 phút",
+ "estimated_minutes": 14,
+ "xp_reward": 8,
  "content_json": {
-  "schema": "studio-lesson/v1",
+  "schema": "studio-lesson/v2",
   "title": "GU07 · Danh sách và hộp chọn thả xuống",
-  "subtitle": "Trung cấp · M8 · 30 phút",
+  "subtitle": "Trung cấp · M8 · 14 phút",
   "source": {
-   "kind": "pe-da",
-   "filename": "lessons/GU07.md",
-   "parser": "pe-da/build"
+   "kind": "python-da",
+   "filename": "course.json#GU07",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 315-316; Python · tkinter; Tk · Listbox; Python · ttk Combobox"
   },
   "step_1": {
-   "context": {
-    "title": "Danh sách và hộp chọn thả xuống",
-    "body": "Form nhập điểm cần chọn sinh viên và môn học. Listbox hiển thị nhiều phần tử, còn Combobox tiết kiệm chỗ bằng danh sách thả xuống.",
-    "level": "Trung cấp"
-   },
-   "theory": [
-    {
-     "title": "Tình huống",
-     "body": "Form nhập điểm cần chọn sinh viên và môn học. Listbox hiển thị nhiều phần tử, còn Combobox tiết kiệm chỗ bằng danh sách thả xuống.\n\ninsert(END, ...) thêm phần tử vào cuối danh sách. ACTIVE là phần tử mà Listbox đang dùng làm vị trí hoạt động cho thao tác bàn phím. Nó có thể khác phần tử đang được chọn và tô sáng. Muốn biết những dòng người dùng đã chọn, gọi curselection()."
-    },
-    {
-     "title": "Ý chính 2",
-     "body": "Ở đây, vị trí hoạt động là Chi nhưng dòng được chọn là An. Vì vậy, get(tk.ACTIVE) trả \"Chi\", còn curselection() cho vị trí của \"An\". Nếu chưa có dòng nào được chọn, curselection() trả một dãy rỗng; hãy kiểm tra trước khi lấy phần tử đầu.\n\nCombobox.get trả chữ đang chọn. readonly ngăn người dùng gõ tự do qua giao diện, nhưng code vẫn phải kiểm tra dữ liệu khi dùng set hoặc nạp từ file. current chọn theo vị trí từ 0."
-    }
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Hai nút chọn ở bài trước đủ cho hai mức; thực đơn của quán thì dài hơn. Màn hình nhận đơn cần chọn món và chọn nhóm món. Listbox hiển thị nhiều phần tử, còn Combobox tiết kiệm chỗ bằng danh sách thả xuống."
+     },
+     {
+      "type": "code",
+      "code": "import tkinter as tk\nr=tk.Tk();r.withdraw()\nbox=tk.Listbox(r)\nbox.insert(tk.END,'Latte','Mocha','Tra sen')\nbox.activate(1)\nprint(box.get(tk.ACTIVE))\nprint(box.size())\nr.destroy()",
+      "expected": "Mocha\n3"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "insert(END,...) thêm phần tử ở cuối. ACTIVE là phần tử đang active để thao tác bàn phím; nó có thể khác lựa chọn đang được tô sáng. Muốn lấy các lựa chọn thực sự, dùng curselection."
+     },
+     {
+      "type": "code",
+      "code": "import tkinter as tk\nr=tk.Tk();r.withdraw()\nbox=tk.Listbox(r,selectmode=tk.MULTIPLE)\nbox.insert(tk.END,'Latte','Mocha','Tra sen')\nbox.activate(2);box.selection_set(0)\nprint(box.get(tk.ACTIVE))\nprint([box.get(i) for i in box.curselection()])\nr.destroy()",
+      "expected": "Tra sen\n['Latte']"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Ví dụ cố ý để active ở Tra sen nhưng selected ở Latte. curselection trả các vị trí đã chọn; danh sách có thể rỗng, nên cần kiểm tra trước khi lấy phần tử đầu."
+     },
+     {
+      "type": "code",
+      "code": "import tkinter as tk\nfrom tkinter import ttk\nr=tk.Tk();r.withdraw()\ncombo=ttk.Combobox(r,values=['Ca phe','Tra'],state='readonly')\ncombo.current(1)\nprint(combo.get())\nprint(combo.cget('state'))\nr.destroy()",
+      "expected": "Tra\nreadonly"
+     },
+     {
+      "type": "paragraph",
+      "text": "Combobox.get trả chữ đang chọn. readonly ngăn người dùng gõ tự do qua giao diện, nhưng code vẫn phải kiểm tra dữ liệu khi dùng `set` hoặc nạp từ file. current chọn theo vị trí từ 0."
+     }
+    ]
    ],
-   "code": {
-    "filename": "vi_du.py",
-    "version": "Python 3.12",
-    "source": "import tkinter as tk\nr=tk.Tk();r.withdraw()\nbox=tk.Listbox(r)\nbox.insert(tk.END,'An','Binh','Chi')\nbox.activate(1)\nprint(box.get(tk.ACTIVE))\nprint(box.size())\nr.destroy()",
-    "kind": "demo"
-   },
-   "explain": [
-    {
-     "n": 1,
-     "body": "Ví dụ 1 in ra: Binh ⏎ 3"
-    },
-    {
-     "n": 2,
-     "body": "Ví dụ 2 in ra: Chi ⏎ ['An']"
-    },
-    {
-     "n": 3,
-     "body": "Ví dụ 3 in ra: Statistics ⏎ readonly"
-    }
-   ]
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "GU06 · Radiobutton và giá trị được chọn"
+   }
   },
   "step_2": {
    "mcq": [
@@ -58,19 +68,17 @@
      "question": "Listbox đang có mục active nhưng curselection() rỗng. Có thể kết luận người dùng đã chọn mục đó không?",
      "options": [
       {
-       "text": "Không; Listbox không cho chọn mục",
-       "correct": false,
-       "detail": "Listbox có selection; cần dùng đúng API và trạng thái."
+       "text": "Có; ACTIVE luôn đồng nghĩa selected",
+       "detail": "ACTIVE là mục bàn phím đang active, có thể khác tập selection."
       },
       {
        "text": "Không; active và selection là hai trạng thái",
-       "correct": true,
-       "detail": "Nên đọc curselection rồi kiểm rỗng khi yêu cầu là mục đã chọn."
+       "detail": "Nên đọc curselection rồi kiểm rỗng khi yêu cầu là mục đã chọn.",
+       "correct": true
       },
       {
-       "text": "Có; ACTIVE luôn đồng nghĩa selected",
-       "correct": false,
-       "detail": "ACTIVE là mục bàn phím đang active, có thể khác tập selection."
+       "text": "Không; Listbox không cho chọn mục",
+       "detail": "Listbox có selection; cần dùng đúng API và trạng thái."
       }
      ],
      "explanation": "Nên đọc curselection rồi kiểm rỗng khi yêu cầu là mục đã chọn."
@@ -79,18 +87,16 @@
      "question": "Listbox.insert dùng để làm gì?",
      "options": [
       {
-       "text": "Đặt tên cửa sổ",
-       "correct": false,
-       "detail": "Chưa đúng. Listbox quản lý các mục hiển thị; thao tác thêm khác bố trí hoặc event loop."
-      },
-      {
        "text": "Thêm phần tử vào danh sách",
-       "correct": true,
-       "detail": "Listbox quản lý các mục hiển thị; thao tác thêm khác bố trí hoặc event loop."
+       "detail": "Listbox quản lý các mục hiển thị; thao tác thêm khác bố trí hoặc event loop.",
+       "correct": true
       },
       {
        "text": "Tự chọn một process CPU",
-       "correct": false,
+       "detail": "Chưa đúng. Listbox quản lý các mục hiển thị; thao tác thêm khác bố trí hoặc event loop."
+      },
+      {
+       "text": "Đặt tên cửa sổ",
        "detail": "Chưa đúng. Listbox quản lý các mục hiển thị; thao tác thêm khác bố trí hoặc event loop."
       }
      ],
@@ -100,61 +106,77 @@
      "question": "Chưa có mục được chọn, callback có nên mặc định luôn lấy phần tử đầu của curselection không?",
      "options": [
       {
-       "text": "Không; cần kiểm tập chỉ số được chọn có rỗng không",
-       "correct": true,
-       "detail": "Người dùng có thể chưa chọn; truy cập [0] trên kết quả rỗng sẽ lỗi."
+       "text": "Chỉ kiểm nếu danh sách có chữ",
+       "detail": "Chưa đúng. Người dùng có thể chưa chọn; truy cập [0] trên kết quả rỗng sẽ lỗi."
       },
       {
        "text": "Có; curselection luôn có một chỉ số",
-       "correct": false,
        "detail": "Chưa đúng. Người dùng có thể chưa chọn; truy cập [0] trên kết quả rỗng sẽ lỗi."
       },
       {
-       "text": "Chỉ kiểm nếu danh sách có chữ",
-       "correct": false,
-       "detail": "Chưa đúng. Người dùng có thể chưa chọn; truy cập [0] trên kết quả rỗng sẽ lỗi."
+       "text": "Không; cần kiểm tập chỉ số được chọn có rỗng không",
+       "detail": "Người dùng có thể chưa chọn; truy cập [0] trên kết quả rỗng sẽ lỗi.",
+       "correct": true
       }
      ],
      "explanation": "Người dùng có thể chưa chọn; truy cập [0] trên kết quả rỗng sẽ lỗi."
     }
+   ],
+   "practice": [
+    {
+     "prompt": "ACTIVE có luôn là phần tử selected không?",
+     "answer": "Không; cần dùng curselection nếu muốn đọc lựa chọn thực tế."
+    },
+    {
+     "prompt": "curselection rỗng thì có nên đọc [0] ngay không?",
+     "answer": "Không; kiểm tra có lựa chọn trước để tránh IndexError."
+    },
+    {
+     "prompt": "Tạo Combobox [A,B], chọn phần tử đầu và in get.",
+     "answer": "Kết quả A.",
+     "answerCode": "import tkinter as tk\nfrom tkinter import ttk\nr=tk.Tk();r.withdraw()\nc=ttk.Combobox(r,values=['A','B'],state='readonly');c.current(0)\nprint(c.get())\nr.destroy()",
+     "answerExpected": "A"
+    },
+    {
+     "prompt": "Để thêm Latte ở cuối Listbox rồi đọc phần tử active, dùng các lời gọi nào? Với Combobox lấy chữ đang chọn thế nào?",
+     "answer": "box.insert(tk.END,\"Latte\"); box.get(tk.ACTIVE). Active có thể khác selected; selected lấy qua curselection. Tạo ttk.Combobox(values=[...]) và lấy chữ bằng combo.get()."
+    }
    ]
-  },
-  "step_3": {
-   "task": {
-    "title": "Viết phần còn thiếu",
-    "body": "Chỉ đọc mục khi có lựa chọn."
-   },
-   "scaffold": {
-    "template": "indexes = choices.curselection()\nif indexes:\n    value = choices.{{slot1}}(indexes[0])",
-    "slots": [
-     {
-      "n": 1,
-      "placeholder": "Đọc nội dung mục",
-      "answer": "get"
-     }
-    ],
-    "bank": [
-     {
-      "label": "get",
-      "slot": 1,
-      "trap": ""
-     }
-    ]
-   }
   },
   "step_4": {
    "task": {
-    "title": "Tự làm trong terminal",
-    "body": "Tạo form chọn sách gồm Listbox [Python, SQL, Statistics] và Combobox readonly [Mượn, Đọc tại chỗ]. Nút xác nhận hiển thị cả hai lựa chọn; nếu thiếu mục nào thì báo cần chọn."
+    "title": "Chạy trên máy của bạn",
+    "body": "Bài này không chạy được trong trình duyệt: Tkinter cần hệ cửa sổ của máy. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
    },
    "procedure": [
-    "Thêm ba sách vào Listbox theo thứ tự.",
-    "Dùng curselection kiểm rỗng trước khi get.",
-    "Cấu hình Combo readonly; sau khi xác nhận thử đổi cả sách và hình thức.",
-    "Tự kiểm: Bấm ngay khi chưa chọn không gây IndexError.",
-    "Tự kiểm: Chọn SQL và Mượn cho nội dung đúng hai giá trị.",
-    "Tự kiểm: Không nhập được một hình thức tùy ý ngoài Combobox readonly; lựa chọn sau cập nhật kết quả."
+    "Mở terminal tại thư mục làm việc của bạn.",
+    "Tạo môi trường: py -m venv .venv",
+    "Cài thư viện bài cần: .venv\\Scripts\\python -m pip install <tên gói>",
+    "Lưu đoạn code vào một file .py rồi chạy: .venv\\Scripts\\python ten_file.py"
    ]
   }
+ },
+ "_mode": "local",
+ "_blocked": [
+  {
+   "block": 0,
+   "reason": "Tkinter cần hệ cửa sổ của máy"
+  },
+  {
+   "block": 1,
+   "reason": "Tkinter cần hệ cửa sổ của máy"
+  },
+  {
+   "block": 2,
+   "reason": "Tkinter cần hệ cửa sổ của máy"
+  }
+ ],
+ "_so_mcq": 3,
+ "_bai_tap": "khong co",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
  }
 }

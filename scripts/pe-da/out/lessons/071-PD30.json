@@ -3,54 +3,67 @@
  "sort_order": 71,
  "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
  "title": "PD30 · Một quy trình làm sạch có kiểm tra",
- "subtitle": "Nâng cao · M3 · 40 phút",
- "estimated_minutes": 40,
- "xp_reward": 20,
+ "subtitle": "Nâng cao · M3 · 13 phút",
+ "estimated_minutes": 13,
+ "xp_reward": 8,
  "content_json": {
-  "schema": "studio-lesson/v1",
+  "schema": "studio-lesson/v2",
   "title": "PD30 · Một quy trình làm sạch có kiểm tra",
-  "subtitle": "Nâng cao · M3 · 40 phút",
+  "subtitle": "Nâng cao · M3 · 13 phút",
   "source": {
-   "kind": "pe-da",
-   "filename": "lessons/PD30.md",
-   "parser": "pe-da/build"
+   "kind": "python-da",
+   "filename": "course.json#PD30",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas · Pipe"
   },
   "step_1": {
-   "context": {
-    "title": "Một quy trình làm sạch có kiểm tra",
-    "body": "Mỗi tuần bạn nhận cùng kiểu file doanh thu. Nếu sửa từng ô bằng tay, tuần sau rất khó biết mình đã làm gì. Một hàm làm sạch giúp chạy lại cùng quy tắc và kiểm tra kết quả.",
-    "level": "Nâng cao"
-   },
-   "theory": [
-    {
-     "title": "Tình huống",
-     "body": "Mỗi tuần bạn nhận cùng kiểu file doanh thu. Nếu sửa từng ô bằng tay, tuần sau rất khó biết mình đã làm gì. Một hàm làm sạch giúp chạy lại cùng quy tắc và kiểm tra kết quả.\n\nHàm nhận bảng gốc và trả bảng đã xử lý. Nó chưa tự bỏ dữ liệu lỗi: `amount` còn thiếu để bạn quyết định cách xử lý. Tiếp theo, cần kiểm tra các quy tắc mà bảng phải đáp ứng, chẳng hạn mỗi đơn có mã duy nhất và số tiền không thiếu. Tập quy tắc đó thường được gọi là hợp đồng dữ liệu."
-    },
-    {
-     "title": "Ý chính 2",
-     "body": "Điều kiện số tiền không âm chỉ đúng với bảng doanh thu chưa chứa hoàn tiền; bảng khác có thể cần quy tắc khác. `assert` hữu ích trong bài phân tích và kiểm thử. Với ứng dụng đang vận hành, hãy dùng điều kiện kiểm tra và `raise` rõ ràng, vì Python có chế độ chạy tắt các câu lệnh `assert`.\n\npipe truyền cả bảng vào hàm để các bước đọc từ trái sang phải. Kiểm tra cuối cho thấy chuẩn hóa thêm lần nữa không làm đổi bảng ở ví dụ này. Ghi phiên bản thư viện, quy tắc và thứ tự đầu ra giúp người khác chạy lại báo cáo."
-    }
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Mọi cách đọc và làm sạch ở các bài trước nay phải thành một quy trình chốt sổ của quán. Mỗi tuần bạn nhận cùng kiểu file doanh thu. Nếu sửa từng ô bằng tay, tuần sau rất khó biết mình đã làm gì. Một hàm làm sạch giúp chạy lại cùng quy tắc và kiểm tra kết quả."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndef clean_sales(raw):\n    clean = raw.copy()\n    clean['store'] = clean['store'].str.strip().str.upper()\n    clean['amount'] = pd.to_numeric(clean['amount'], errors='coerce')\n    return clean\nraw = pd.DataFrame({'store': [' a ', 'b'], 'amount': ['10', 'bad']})\nclean = clean_sales(raw)\nprint(clean['store'].tolist())\nprint(clean['amount'].isna().tolist())",
+      "expected": "['A', 'B']\n[False, True]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Hàm nhận bảng gốc và trả bảng đã xử lý. Nó chưa tự bỏ dữ liệu lỗi: `amount` còn thiếu để bạn quyết định cách xử lý. Tiếp theo, cần kiểm tra các quy tắc mà bảng phải đáp ứng, chẳng hạn mỗi đơn có mã duy nhất và số tiền không thiếu. Tập quy tắc đó thường được gọi là hợp đồng dữ liệu."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndf = pd.DataFrame({'order': ['A', 'B'], 'amount': [10, 20]})\nassert df['order'].notna().all()\nassert df['order'].is_unique\nassert df['amount'].notna().all()\nassert (df['amount'] >= 0).all()\nprint('Passed: 2 orders, total', df['amount'].sum())",
+      "expected": "Passed: 2 orders, total 30",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Điều kiện không âm chỉ đúng với bảng doanh thu chưa chứa hoàn tiền; bảng nghiệp vụ khác cần quy tắc khác. assert hữu ích trong bài phân tích và kiểm thử; ứng dụng production nên dùng kiểm tra rõ ràng và raise vì Python có chế độ tắt assert."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\ndef normalize(df):\n    return df.assign(store=df['store'].str.strip().str.upper())\nraw = pd.DataFrame({'store': [' a ', 'b'], 'amount': [10, 20]})\nclean = raw.pipe(normalize).sort_values('store').reset_index(drop=True)\nprint(clean.to_dict('records'))\nprint(normalize(clean).equals(clean))",
+      "expected": "[{'store': 'A', 'amount': 10}, {'store': 'B', 'amount': 20}]\nTrue",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "`pipe` truyền cả bảng vào hàm để các bước đọc từ trái sang phải. Kiểm tra cuối cho thấy chuẩn hóa thêm lần nữa không làm đổi bảng ở ví dụ này. Ghi phiên bản thư viện, quy tắc và thứ tự đầu ra giúp người khác chạy lại báo cáo."
+     }
+    ]
    ],
-   "code": {
-    "filename": "vi_du.py",
-    "version": "Python 3.12",
-    "source": "import pandas as pd\ndef clean_sales(raw):\n    clean = raw.copy()\n    clean['store'] = clean['store'].str.strip().str.upper()\n    clean['amount'] = pd.to_numeric(clean['amount'], errors='coerce')\n    return clean\nraw = pd.DataFrame({'store': [' a ', 'b'], 'amount': ['10', 'bad']})\nclean = clean_sales(raw)\nprint(clean['store'].tolist())\nprint(clean['amount'].isna().tolist())",
-    "kind": "demo"
-   },
-   "explain": [
-    {
-     "n": 1,
-     "body": "Ví dụ 1 in ra: ['A', 'B'] ⏎ [False, True]"
-    },
-    {
-     "n": 2,
-     "body": "Ví dụ 2 in ra: Passed: 2 orders, total 30"
-    },
-    {
-     "n": 3,
-     "body": "Ví dụ 3 in ra: [{'store': 'A', 'amount': 10}, {'store': 'B', 'amount': 20}] ⏎ True"
-    }
-   ]
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "PD29 · Đọc SQL thành DataFrame"
+   }
   },
   "step_2": {
    "mcq": [
@@ -59,39 +72,35 @@
      "options": [
       {
        "text": "Ô thiếu để xem lại",
-       "correct": true,
-       "detail": "Đúng: không giấu lỗi thành một số tiền có vẻ hợp lệ."
-      },
-      {
-       "text": "0 vì đó là doanh thu an toàn",
-       "correct": false,
-       "detail": "0 là dữ liệu mới không được nguồn xác nhận."
+       "detail": "Đúng: không giấu lỗi thành một số tiền có vẻ hợp lệ.",
+       "correct": true
       },
       {
        "text": "Bỏ cả bảng",
-       "correct": false,
        "detail": "Một ô lỗi chưa buộc mọi hàng hợp lệ bị bỏ."
+      },
+      {
+       "text": "0 vì đó là doanh thu an toàn",
+       "detail": "0 là dữ liệu mới không được nguồn xác nhận."
       }
      ],
      "explanation": "Hàm làm sạch và quyết định nghiệp vụ về dữ liệu lỗi cần rõ ràng."
     },
     {
-     "question": "Vì sao hàm clean_sales giữ ô amount lỗi thành thiếu thay vì điền 0?",
+     "question": "Vì sao hàm clean_sales giữ ô amount lỗi thành thiếu thay vì điền 0?\n\nimport pandas as pd\ndef clean_sales(raw):\n    clean = raw.copy()\n    clean['store'] = clean['store'].str.strip().str.upper()\n    clean['amount'] = pd.to_numeric(clean['amount'], errors='coerce')\n    return clean\nraw = pd.DataFrame({'store': [' a ', 'b'], 'amount': ['10', 'bad']})\nclean = clean_sales(raw)\nprint(clean['store'].tolist())\nprint(clean['amount'].isna().tolist())",
      "options": [
       {
        "text": "Vì dữ liệu thiếu luôn phải bị xóa ngay.",
-       "correct": false,
        "detail": "Xóa ngay có thể làm mất đơn trước khi có quy tắc xử lý phù hợp."
       },
       {
-       "text": "Để lỗi vẫn được nhìn thấy và xử lý theo quy tắc nghiệp vụ.",
-       "correct": true,
-       "detail": "Để lỗi vẫn được nhìn thấy và xử lý theo quy tắc nghiệp vụ."
+       "text": "Để mọi lỗi trở thành đơn có doanh thu 0 hợp lệ.",
+       "detail": "Điền 0 sẽ che mất khác biệt giữa lỗi và doanh thu 0 thật."
       },
       {
-       "text": "Để mọi lỗi trở thành đơn có doanh thu 0 hợp lệ.",
-       "correct": false,
-       "detail": "Điền 0 sẽ che mất khác biệt giữa lỗi và doanh thu 0 thật."
+       "text": "Để lỗi vẫn được nhìn thấy và xử lý theo quy tắc nghiệp vụ.",
+       "detail": "Để lỗi vẫn được nhìn thấy và xử lý theo quy tắc nghiệp vụ.",
+       "correct": true
       }
      ],
      "explanation": "Để lỗi vẫn được nhìn thấy và xử lý theo quy tắc nghiệp vụ."
@@ -100,69 +109,126 @@
      "question": "Một quy tắc không âm có phù hợp mọi bảng giao dịch không?",
      "options": [
       {
+       "text": "Có; số âm tự được đổi thành số dương khi đọc CSV.",
+       "detail": "Pandas không mặc định đổi mọi số âm thành số dương."
+      },
+      {
        "text": "Không; ví dụ bảng có hoàn tiền có thể cần giá trị âm hợp lệ.",
-       "correct": true,
-       "detail": "Không; ví dụ bảng có hoàn tiền có thể cần giá trị âm hợp lệ."
+       "detail": "Không; ví dụ bảng có hoàn tiền có thể cần giá trị âm hợp lệ.",
+       "correct": true
       },
       {
        "text": "Có; số âm luôn là lỗi trong mọi nghiệp vụ.",
-       "correct": false,
        "detail": "Giá trị âm có thể mang ý nghĩa hợp lệ trong một loại bảng khác."
-      },
-      {
-       "text": "Có; số âm tự được đổi thành số dương khi đọc CSV.",
-       "correct": false,
-       "detail": "Pandas không mặc định đổi mọi số âm thành số dương."
       }
      ],
      "explanation": "Không; ví dụ bảng có hoàn tiền có thể cần giá trị âm hợp lệ."
     }
+   ],
+   "practice": [
+    {
+     "prompt": "Vì sao hàm clean_sales giữ ô amount lỗi thành thiếu thay vì điền 0?",
+     "answer": "Để lỗi vẫn được nhìn thấy và xử lý theo quy tắc nghiệp vụ."
+    },
+    {
+     "prompt": "Một quy tắc không âm có phù hợp mọi bảng giao dịch không?",
+     "answer": "Không; ví dụ bảng có hoàn tiền có thể cần giá trị âm hợp lệ."
+    },
+    {
+     "prompt": "Kiểm tra order=[A,B] duy nhất và amount=[3,4] không thiếu, rồi in tổng.",
+     "answer": "Các kiểm tra đều qua, tổng là 7.",
+     "answerCode": "import pandas as pd\ndf = pd.DataFrame({'order': ['A', 'B'], 'amount': [3, 4]})\nassert df['order'].is_unique\nassert df['amount'].notna().all()\nprint(df['amount'].sum())",
+     "answerExpected": "7"
+    }
    ]
-  },
-  "step_3": {
-   "task": {
-    "title": "Tự nhớ một phần cú pháp",
-    "body": "Chuyển cả bảng qua một hàm chuẩn hóa."
-   },
-   "scaffold": {
-    "template": "clean = raw.{{slot1}}(normalize)",
-    "slots": [
-     {
-      "n": 1,
-      "placeholder": "Phần còn thiếu",
-      "answer": "pipe"
-     }
-    ],
-    "bank": [
-     {
-      "label": "pipe",
-      "slot": 1,
-      "trap": ""
-     }
-    ]
-   }
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.rows chứa store và amount dạng chữ. Chuẩn hóa store bằng strip/upper và amount bằng to_numeric(coerce), không tự bỏ hàng lỗi. Trả records (ô amount thiếu là None), invalid là số amount thiếu. Không sửa data đầu vào.",
     "io": [
      {
-      "label": "chuỗi chưa chuẩn",
-      "value": "{'rows': [{'store': ' e ', 'amount': '7'}, {'store': 'w', 'amount': 'oops'}]} → {'records': [{'store': 'E', 'amount': 7.0}, {'store': 'W', 'amount': None}], 'invalid': 1}"
+      "label": "data =",
+      "value": "{'rows': [{'store': ' e ', 'amount': '7'}, {'store': 'w', 'amount': 'oops'}]}"
      },
      {
-      "label": "không mất số 0",
-      "value": "{'rows': [{'store': ' a ', 'amount': '0'}]} → {'records': [{'store': 'A', 'amount': 0.0}], 'invalid': 0}"
-     },
-     {
-      "label": "âm chưa tự xóa",
-      "value": "{'rows': [{'store': 'b', 'amount': '-2'}]} → {'records': [{'store': 'B', 'amount': -2.0}], 'invalid': 0}"
+      "label": "trả về",
+      "value": "{'records': [{'store': 'E', 'amount': 7.0}, {'store': 'W', 'amount': None}], 'invalid': 1}"
      }
     ]
    },
    "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
    "solutionCode": "import pandas as pd\n\ndef solve(data):\n     frame = pd.DataFrame(data['rows']).copy()\n     frame['store'] = frame['store'].str.strip().str.upper()\n     frame['amount'] = pd.to_numeric(frame['amount'], errors='coerce')\n     records = [{'store':row['store'], 'amount':None if pd.isna(row['amount']) else float(row['amount'])} for _,row in frame.iterrows()]\n     return {'records':records, 'invalid':int(frame['amount'].isna().sum())}\n",
+   "tests": [
+    {
+     "name": "chuỗi chưa chuẩn",
+     "input": {
+      "rows": [
+       {
+        "store": " e ",
+        "amount": "7"
+       },
+       {
+        "store": "w",
+        "amount": "oops"
+       }
+      ]
+     },
+     "expected": {
+      "records": [
+       {
+        "store": "E",
+        "amount": 7.0
+       },
+       {
+        "store": "W",
+        "amount": null
+       }
+      ],
+      "invalid": 1
+     }
+    },
+    {
+     "name": "không mất số 0",
+     "input": {
+      "rows": [
+       {
+        "store": " a ",
+        "amount": "0"
+       }
+      ]
+     },
+     "expected": {
+      "records": [
+       {
+        "store": "A",
+        "amount": 0.0
+       }
+      ],
+      "invalid": 0
+     }
+    },
+    {
+     "name": "âm chưa tự xóa",
+     "input": {
+      "rows": [
+       {
+        "store": "b",
+        "amount": "-2"
+       }
+      ]
+     },
+     "expected": {
+      "records": [
+       {
+        "store": "B",
+        "amount": -2.0
+       }
+      ],
+      "invalid": 0
+     }
+    }
+   ],
    "hints": [
     {
      "title": "Gợi ý 1",
@@ -175,24 +241,17 @@
    ],
    "packages": [
     "pandas"
-   ],
-   "tests": [
-    {
-     "name": "chuỗi chưa chuẩn",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'rows': [{'store': ' e ', 'amount': '7'}, {'store': 'w', 'amount': 'oops'}]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "{'records': [{'store': 'E', 'amount': 7.0}, {'store': 'W', 'amount': None}], 'invalid': 1}"
-    },
-    {
-     "name": "không mất số 0",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'rows': [{'store': ' a ', 'amount': '0'}]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "{'records': [{'store': 'A', 'amount': 0.0}], 'invalid': 0}"
-    },
-    {
-     "name": "âm chưa tự xóa",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'rows': [{'store': 'b', 'amount': '-2'}]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "{'records': [{'store': 'B', 'amount': -2.0}], 'invalid': 0}"
-    }
    ]
   }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
  }
 }

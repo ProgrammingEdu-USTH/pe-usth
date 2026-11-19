@@ -3,58 +3,69 @@
  "sort_order": 90,
  "module": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard",
  "title": "VZ17 · Seaborn: đếm nhóm và so sánh phân bố",
- "subtitle": "Trung cấp · M4 · 30 phút",
- "estimated_minutes": 30,
- "xp_reward": 15,
+ "subtitle": "Trung cấp · M4 · 16 phút",
+ "estimated_minutes": 16,
+ "xp_reward": 10,
  "content_json": {
-  "schema": "studio-lesson/v1",
+  "schema": "studio-lesson/v2",
   "title": "VZ17 · Seaborn: đếm nhóm và so sánh phân bố",
-  "subtitle": "Trung cấp · M4 · 30 phút",
+  "subtitle": "Trung cấp · M4 · 16 phút",
   "source": {
-   "kind": "pe-da",
-   "filename": "lessons/VZ17.md",
-   "parser": "pe-da/build"
+   "kind": "python-da",
+   "filename": "course.json#VZ17",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "Seaborn: đếm nhóm và so sánh phân bố"
   },
   "step_1": {
-   "context": {
-    "title": "Seaborn: đếm nhóm và so sánh phân bố",
-    "body": "Bạn có các đơn được gắn tên ca sáng hoặc tối. countplot đếm số dòng trong mỗi ca, còn boxplot mô tả phân bố thời gian của từng ca. Hai hình trả lời hai câu hỏi khác nhau dù cùng dùng tên ca trên trục ngang.",
-    "level": "Trung cấp"
-   },
-   "theory": [
-    {
-     "title": "Tình huống",
-     "body": "Bạn có các đơn được gắn tên ca sáng hoặc tối. countplot đếm số dòng trong mỗi ca, còn boxplot mô tả phân bố thời gian của từng ca. Hai hình trả lời hai câu hỏi khác nhau dù cùng dùng tên ca trên trục ngang.\n\n![Biểu đồ](../visuals/VZ17-1.png)"
-    },
-    {
-     "title": "Ý chính 2",
-     "body": "Khi mẫu ít, stripplot cho thấy từng quan sát thay vì chỉ một số tóm tắt. jitter dịch nhẹ các điểm theo chiều ngang để chúng bớt chồng lên nhau; nó không đổi thời gian chờ trên trục y. Ví dụ này tắt jitter nên các điểm của mỗi ca nằm trên cùng một vị trí x. Bạn có thể vẽ boxplot trước rồi đặt các điểm gốc lên trên để vừa đọc phần tóm tắt, vừa thấy dữ liệu từng đơn.\n\n![Biểu đồ](../visuals/VZ17-2.png)"
-    },
-    {
-     "title": "Ý chính 3",
-     "body": "![Biểu đồ](../visuals/VZ17-3.png)"
-    }
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Phân bố một cột đã vẽ được rồi, giờ chia theo ca làm của quán. Bạn có các đơn được gắn tên ca sáng hoặc tối. countplot đếm số dòng trong mỗi ca, còn boxplot mô tả phân bố thời gian của từng ca. Hai hình trả lời hai câu hỏi khác nhau dù cùng dùng tên ca trên trục ngang."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\nimport seaborn as sns\norders = pd.DataFrame({\"shift\":[\"AM\", \"AM\", \"AM\", \"PM\", \"PM\"]})\nsns.countplot(data=orders, x=\"shift\", order=[\"AM\", \"PM\"], color=\"#0072B2\", ax=ax)\nax.set(xlabel=\"Shift\", ylabel=\"Orders\", title=\"Count rows in each shift\")\nprint(orders[\"shift\"].value_counts().to_dict())\nplt.show()",
+      "expected": "{'AM': 3, 'PM': 2}"
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ17-1.png",
+      "alt": "Biểu đồ cột đếm số hàng mỗi nhóm, tiêu đề \"Count rows in each shift\", trục ngang \"Shift\", trục dọc \"Orders\"."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Khi mẫu ít, stripplot cho thấy từng quan sát thay vì chỉ một số tóm tắt. jitter có thể tránh chồng điểm; ví dụ này tắt jitter để vị trí tái lập. Nếu cần so sánh phần giữa và độ phân tán, thêm boxplot rồi giữ điểm gốc phía trên."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\nimport seaborn as sns\norders = pd.DataFrame({\"shift\":[\"AM\", \"AM\", \"AM\", \"PM\", \"PM\", \"PM\"], \"wait\":[2, 3, 8, 3, 4, 5]})\nsns.stripplot(data=orders, x=\"shift\", y=\"wait\", jitter=False, color=\"#D55E00\", ax=ax)\nax.set(xlabel=\"Shift\", ylabel=\"Wait (minutes)\", title=\"Every dot is an observed order\")\nprint(orders.groupby(\"shift\")[\"wait\"].median().to_dict())\nplt.show()",
+      "expected": "{'AM': 3.0, 'PM': 4.0}"
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ17-2.png",
+      "alt": "Biểu đồ điểm theo nhóm, tiêu đề \"Every dot is an observed order\", trục ngang \"Shift\", trục dọc \"Wait (minutes)\"."
+     },
+     {
+      "type": "code",
+      "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\nimport seaborn as sns\norders = pd.DataFrame({\"shift\":[\"AM\", \"AM\", \"AM\", \"PM\", \"PM\", \"PM\"], \"wait\":[2, 3, 8, 3, 4, 5]})\nsns.boxplot(data=orders, x=\"shift\", y=\"wait\", color=\"lightgray\", ax=ax)\nsns.stripplot(data=orders, x=\"shift\", y=\"wait\", jitter=False, color=\"black\", ax=ax)\nax.set(xlabel=\"Shift\", ylabel=\"Wait (minutes)\", title=\"Summary and observations together\")\nprint(int(orders[\"wait\"].max()))\nplt.show()",
+      "expected": "8"
+     },
+     {
+      "type": "figure",
+      "src": "/static/da/VZ17-3.png",
+      "alt": "Biểu đồ điểm theo nhóm, tiêu đề \"Summary and observations together\", trục ngang \"Shift\", trục dọc \"Wait (minutes)\"."
+     }
+    ]
    ],
-   "code": {
-    "filename": "vi_du.py",
-    "version": "Python 3.12",
-    "source": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\nimport seaborn as sns\norders = pd.DataFrame({\"shift\":[\"AM\", \"AM\", \"AM\", \"PM\", \"PM\"]})\nsns.countplot(data=orders, x=\"shift\", order=[\"AM\", \"PM\"], color=\"#0072B2\", ax=ax)\nax.set(xlabel=\"Shift\", ylabel=\"Orders\", title=\"Count rows in each shift\")\nprint(orders[\"shift\"].value_counts().to_dict())\nplt.show()",
-    "kind": "demo"
-   },
-   "explain": [
-    {
-     "n": 1,
-     "body": "Ví dụ 1 in ra: {'AM': 3, 'PM': 2}"
-    },
-    {
-     "n": 2,
-     "body": "Ví dụ 2 in ra: {'AM': 3.0, 'PM': 4.0}"
-    },
-    {
-     "n": 3,
-     "body": "Ví dụ 3 in ra: 8"
-    }
-   ]
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "VZ07 · Boxplot và violinplot: đọc phân bố theo nhóm, VZ16 · Seaborn: histogram, ECDF và KDE, PD14 · Groupby: tổng hợp theo nhóm"
+   }
   },
   "step_2": {
    "mcq": [
@@ -63,133 +74,108 @@
      "options": [
       {
        "text": "Trung vị",
-       "correct": false,
        "detail": "Muốn đọc trung vị phân bố thường dùng boxplot hoặc tính riêng."
       },
       {
-       "text": "Số hàng mỗi ca",
-       "correct": true,
-       "detail": "Đúng: mỗi quan sát đóng góp vào số đếm của ca."
+       "text": "Trung bình thời gian chờ",
+       "detail": "countplot không tự tổng hợp cột wait thành mean."
       },
       {
-       "text": "Trung bình thời gian chờ",
-       "correct": false,
-       "detail": "countplot không tự tổng hợp cột wait thành mean."
+       "text": "Số hàng mỗi ca",
+       "detail": "Đúng: mỗi quan sát đóng góp vào số đếm của ca.",
+       "correct": true
       }
      ],
      "explanation": "Tên nhóm giống nhau không làm hai loại biểu đồ trả cùng câu hỏi."
     },
     {
-     "question": "countplot trục y là trung bình thời gian chờ hay số dòng?",
+     "question": "countplot trục y là trung bình thời gian chờ hay số dòng?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\nimport seaborn as sns\norders = pd.DataFrame({\"shift\":[\"AM\", \"AM\", \"AM\", \"PM\", \"PM\"]})\nsns.countplot(data=orders, x=\"shift\", order=[\"AM\", \"PM\"], color=\"#0072B2\", ax=ax)\nax.set(xlabel=\"Shift\", ylabel=\"Orders\", title=\"Count rows in each shift\")\nprint(orders[\"shift\"].value_counts().to_dict())\nplt.show()",
      "options": [
       {
-       "text": "Trung bình của mọi cột số trong nhóm.",
-       "correct": false,
-       "detail": "Đó là mean, không phải count của từng nhóm."
+       "text": "Là số dòng thuộc mỗi nhóm; nó không tự tính trung bình cột thời gian.",
+       "detail": "Là số dòng thuộc mỗi nhóm; nó không tự tính trung bình cột thời gian.",
+       "correct": true
       },
       {
        "text": "Tổng thời gian chờ của nhóm.",
-       "correct": false,
        "detail": "Cộng thời gian chờ khác với đếm số dòng."
       },
       {
-       "text": "Là số dòng thuộc mỗi nhóm; nó không tự tính trung bình cột thời gian.",
-       "correct": true,
-       "detail": "Là số dòng thuộc mỗi nhóm; nó không tự tính trung bình cột thời gian."
+       "text": "Trung bình của mọi cột số trong nhóm.",
+       "detail": "Đó là mean, không phải count của từng nhóm."
       }
      ],
      "explanation": "Là số dòng thuộc mỗi nhóm; nó không tự tính trung bình cột thời gian."
     },
     {
-     "question": "Khi cả ca có 3 quan sát, tại sao vẽ thêm stripplot?",
+     "question": "Khi cả ca có 3 quan sát, tại sao vẽ thêm stripplot?\n\nimport matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(6, 3.5), layout=\"constrained\")\nimport pandas as pd\nimport seaborn as sns\norders = pd.DataFrame({\"shift\":[\"AM\", \"AM\", \"AM\", \"PM\", \"PM\", \"PM\"], \"wait\":[2, 3, 8, 3, 4, 5]})\nsns.stripplot(data=orders, x=\"shift\", y=\"wait\", jitter=False, color=\"#D55E00\", ax=ax)\nax.set(xlabel=\"Shift\", ylabel=\"Wait (minutes)\", title=\"Every dot is an observed order\")\nprint(orders.groupby(\"shift\")[\"wait\"].median().to_dict())\nplt.show()",
      "options": [
       {
-       "text": "Để thay thế dữ liệu gốc bằng đường hồi quy.",
-       "correct": false,
-       "detail": "Điểm gốc không phải đường hồi quy và không thay dữ liệu."
+       "text": "Để tự làm cỡ mẫu tăng từ 3 lên 30.",
+       "detail": "Số quan sát vẫn là 3, dù mỗi quan sát được hiện rõ hơn."
       },
       {
        "text": "Để thấy giá trị thật và cỡ mẫu thay vì suy luận từ hộp tóm tắt.",
-       "correct": true,
-       "detail": "Để thấy giá trị thật và cỡ mẫu thay vì suy luận từ hộp tóm tắt."
+       "detail": "Để thấy giá trị thật và cỡ mẫu thay vì suy luận từ hộp tóm tắt.",
+       "correct": true
       },
       {
-       "text": "Để tự làm cỡ mẫu tăng từ 3 lên 30.",
-       "correct": false,
-       "detail": "Số quan sát vẫn là 3, dù mỗi quan sát được hiện rõ hơn."
+       "text": "Để thay thế dữ liệu gốc bằng đường hồi quy.",
+       "detail": "Điểm gốc không phải đường hồi quy và không thay dữ liệu."
       }
      ],
      "explanation": "Để thấy giá trị thật và cỡ mẫu thay vì suy luận từ hộp tóm tắt."
     }
+   ],
+   "practice": [
+    {
+     "prompt": "countplot trục y là trung bình thời gian chờ hay số dòng?",
+     "answer": "Là số dòng thuộc mỗi nhóm; nó không tự tính trung bình cột thời gian."
+    },
+    {
+     "prompt": "Khi cả ca có 3 quan sát, tại sao vẽ thêm stripplot?",
+     "answer": "Để thấy giá trị thật và cỡ mẫu thay vì suy luận từ hộp tóm tắt."
+    },
+    {
+     "prompt": "Muốn ca AM luôn đứng trước PM, dùng gì?",
+     "answer": "Truyền order=[\"AM\", \"PM\"] vào hàm categorical phù hợp."
+    }
    ]
-  },
-  "step_3": {
-   "task": {
-    "title": "Tự nhớ một phần cú pháp",
-    "body": "Giữ thứ tự ca AM trước PM."
-   },
-   "scaffold": {
-    "template": "sns.countplot(data=orders,x=\"shift\",{{slot1}}=[\"AM\",\"PM\"],ax=ax)",
-    "slots": [
-     {
-      "n": 1,
-      "placeholder": "Phần còn thiếu",
-      "answer": "order"
-     }
-    ],
-    "bank": [
-     {
-      "label": "order",
-      "slot": 1,
-      "trap": ""
-     }
-    ]
-   }
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
-    "body": "data.groups là list nhãn; data.order chứa đúng các nhãn cần vẽ và mỗi nhãn có ít nhất một hàng. Dùng sns.countplot với order đã cho. Trả list chiều cao từ ax.patches theo thứ tự đó. Các hàm get_* trong yêu cầu chỉ dùng đọc lại chart để kiểm tra, không phải kiến thức cần học thuộc. Sau khi đọc thuộc tính, đóng Figure bằng plt.close(fig); không gọi show() trong solve.",
-    "io": [
-     {
-      "label": "thứ tự mới",
-      "value": "{'groups': ['A', 'B', 'A', 'A'], 'order': ['B', 'A']} → [1.0, 3.0]"
-     },
-     {
-      "label": "một nhóm",
-      "value": "{'groups': ['Night', 'Night'], 'order': ['Night']} → [2.0]"
-     },
-     {
-      "label": "ba nhóm",
-      "value": "{'groups': ['X', 'Y', 'Z', 'Y'], 'order': ['X', 'Y', 'Z']} → [1.0, 2.0, 1.0]"
-     }
-    ]
+    "title": "Chạy trên máy của bạn",
+    "body": "Bài này không chạy được trong trình duyệt: seaborn chưa được cài sẵn trong trình duyệt của khoá này. Mở Python trên máy rồi gõ lại các đoạn code ở trên."
    },
-   "hints": [
-    {
-     "title": "Gợi ý 1",
-     "body": "Cần cố định thứ tự các nhóm, không dựa vào thứ tự xuất hiện trong bảng."
-    },
-    {
-     "title": "Gợi ý 2",
-     "body": "Phân biệt đếm hàng của nhóm với trung bình số đo."
-    },
-    {
-     "title": "Gợi ý 3",
-     "body": "Khung đọc kết quả: sau khi vẽ, dùng các thuộc tính được nêu trong đề để tạo kết quả trả về. Bạn có thể mở một file riêng và gọi plt.show() khi muốn xem hình."
-    }
-   ],
-   "packages": [
-    "matplotlib",
-    "numpy",
-    "pandas"
-   ],
    "procedure": [
-    "Bài này cần seaborn, không có trong Pyodide nên chưa chấm tự động.",
-    "Đầu vào {'groups': ['A', 'B', 'A', 'A'], 'order': ['B', 'A']} — kết quả cần có [1.0, 3.0].",
-    "Đầu vào {'groups': ['Night', 'Night'], 'order': ['Night']} — kết quả cần có [2.0].",
-    "Đầu vào {'groups': ['X', 'Y', 'Z', 'Y'], 'order': ['X', 'Y', 'Z']} — kết quả cần có [1.0, 2.0, 1.0]."
+    "Mở terminal tại thư mục làm việc của bạn.",
+    "Tạo môi trường: py -m venv .venv",
+    "Cài thư viện bài cần: .venv\\Scripts\\python -m pip install <tên gói>",
+    "Lưu đoạn code vào một file .py rồi chạy: .venv\\Scripts\\python ten_file.py"
    ]
   }
+ },
+ "_mode": "local",
+ "_blocked": [
+  {
+   "block": 0,
+   "reason": "seaborn chưa có wheel trong /pyodide/v314.0.7/"
+  },
+  {
+   "block": 1,
+   "reason": "seaborn chưa có wheel trong /pyodide/v314.0.7/"
+  },
+  {
+   "block": 2,
+   "reason": "seaborn chưa có wheel trong /pyodide/v314.0.7/"
+  }
+ ],
+ "_so_mcq": 3,
+ "_bai_tap": "khong: seaborn chưa có wheel trong /pyodide/v314.0.7/",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
  }
 }

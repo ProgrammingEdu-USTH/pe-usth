@@ -1,0 +1,197 @@
+{
+  "course_id": "sample_sql",
+  "lessons": [
+    {
+      "lesson_code": "SQL01",
+      "sort_order": 1,
+      "module": "M1 · Truy vấn cơ bản",
+      "title": "SQL01 · Chọn cột với SELECT và FROM",
+      "estimated_minutes": 20,
+      "xp_reward": 10,
+      "content_json": {
+        "schema": "studio-lesson/v2",
+        "title": "SQL01 · Chọn cột với SELECT và FROM",
+        "step_1": {
+          "read": [
+            [
+              {
+                "type": "paragraph",
+                "text": "Bảng `orders` lưu từng đơn hàng theo dòng. Để lấy đúng 2 cột `order_id` và `total`, dùng SELECT."
+              },
+              {
+                "type": "code",
+                "code": "SELECT order_id, total\nFROM orders;",
+                "expected": "order_id | total\n101      | 45000\n102      | 30000"
+              }
+            ],
+            [
+              {
+                "type": "paragraph",
+                "text": "Dùng bí danh cột với AS để tiêu đề bảng kết quả dễ đọc hơn."
+              }
+            ]
+          ]
+        },
+        "step_2": {
+          "mcq": [
+            {
+              "question": "Mệnh đề nào chỉ định bảng cần lấy dữ liệu?",
+              "options": [
+                { "text": "FROM", "correct": true },
+                { "text": "WHERE", "correct": false }
+              ],
+              "explanation": "FROM chọn bảng nguồn; WHERE chỉ lọc các dòng thoả điều kiện."
+            },
+            {
+              "question": "Câu chỉ có 1 lựa chọn phải bị bỏ qua khi dựng màn",
+              "options": [{ "text": "Chỉ một" }]
+            },
+            {
+              "question": "Dấu phẩy giữa các tên cột trong SELECT có tác dụng gì?",
+              "options": [
+                { "text": "Ngăn cách danh sách cột", "correct": true },
+                { "text": "Sắp xếp kết quả giảm dần", "correct": false }
+              ]
+            }
+          ],
+          "practice": [
+            {
+              "prompt": "Viết câu truy vấn lấy cột `name` và `price` từ bảng `menu`.",
+              "answer": "Dùng SELECT name, price FROM menu;"
+            }
+          ]
+        },
+        "step_4": {
+          "task": {
+            "title": "Truy vấn bảng mẫu bằng sqlite3",
+            "body": "Hoàn thành hàm `run_query(conn)` trả về danh sách `(order_id, total)`."
+          },
+          "starterCode": "def run_query(conn):\n    return []\n",
+          "solutionCode": "def run_query(conn):\n    return conn.execute('SELECT order_id, total FROM orders ORDER BY order_id').fetchall()\n",
+          "tests": [
+            {
+              "name": "Lấy đủ 2 dòng đầu",
+              "call": "len(run_query(_conn))",
+              "expect": "2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "lesson_code": "SQL02",
+      "sort_order": 2,
+      "module": "M1 · Truy vấn cơ bản",
+      "title": "SQL02 · Lọc dữ liệu theo điều kiện WHERE",
+      "estimated_minutes": 25,
+      "xp_reward": 15,
+      "content_json": {
+        "schema": "studio-lesson/v1",
+        "title": "SQL02 · Lọc dữ liệu theo điều kiện WHERE",
+        "step_1": {
+          "theory": [
+            {
+              "title": "Thứ tự đọc bảng và lọc dòng",
+              "body": "Hệ quản trị đọc bảng từ FROM trước rồi mới kiểm tra điều kiện WHERE cho từng dòng."
+            }
+          ],
+          "context": {
+            "title": "Lọc đơn trên 35 nghìn",
+            "body": "Quán cần xem các đơn hàng có giá trị lớn hơn 35000."
+          },
+          "explain": [
+            {
+              "n": 1,
+              "body": "WHERE giữ lại những dòng mà biểu thức điều kiện trả về đúng."
+            }
+          ],
+          "memory": {
+            "assertion": "filtered_rows <= total_rows"
+          },
+          "misconception": {
+            "title": "Dùng = thay cho ==",
+            "body": "Trong SQL phép so sánh bằng viết một dấu `=`, không phải `==`."
+          },
+          "predict": {
+            "question": "Với total lần lượt là 20000, 45000, 50000, điều kiện `total >= 45000` giữ lại mấy dòng?",
+            "options": [
+              { "id": "a", "title": "2 dòng", "correct": true },
+              { "id": "b", "title": "1 dòng", "correct": false }
+            ]
+          }
+        },
+        "step_2": {
+          "classify": {
+            "bins": [
+              { "key": "clause", "title": "Mệnh đề lọc" },
+              { "key": "col", "title": "Tên cột" }
+            ],
+            "tokens": [
+              { "label": "WHERE", "bin": "clause" },
+              { "label": "total", "bin": "col" }
+            ]
+          },
+          "selfExplain": {
+            "prompt": "Giải thích ngắn vì sao WHERE chạy sau FROM trước ORDER BY.",
+            "sample": "Phải biết lấy từ bảng nào rồi mới lọc được các dòng trước khi sắp xếp kết quả."
+          }
+        },
+        "step_3": {
+          "scaffold": {}
+        }
+      }
+    },
+    {
+      "lesson_code": "SQL03",
+      "sort_order": 3,
+      "module": "M2 · Tổng hợp dữ liệu",
+      "title": "SQL03 · Gom nhóm với GROUP BY và COUNT",
+      "estimated_minutes": 30,
+      "xp_reward": 20,
+      "content_json": {
+        "schema": "studio-lesson/v1",
+        "title": "SQL03 · Gom nhóm với GROUP BY và COUNT",
+        "step_1": {
+          "brief": {
+            "eyebrow": ["M2", "SQL", "SQL03"],
+            "title": "Đếm đơn theo loại đồ uống",
+            "task": "Nhóm các đơn theo `drink` và đếm số lượng từng loại bằng `COUNT(*)`."
+          }
+        },
+        "step_3": {
+          "scaffold": {
+            "template": "SELECT drink, {{slot1}}(*) FROM orders {{slot2}} BY drink;",
+            "slots": [
+              { "n": 1, "answer": "COUNT" },
+              { "n": 2, "answer": "GROUP" }
+            ],
+            "bank": [
+              { "label": "COUNT", "slot": 1 },
+              { "label": "GROUP", "slot": 2 }
+            ]
+          },
+          "trace": {
+            "steps": [
+              { "label": "Bước 1", "text": "Gom các dòng trùng giá trị `drink` vào cùng một nhóm." },
+              { "label": "Bước 2", "text": "Tính COUNT(*) trên mỗi nhóm và trả về 1 dòng đại diện." }
+            ]
+          },
+          "counter": {
+            "question": "Nhận định 'GROUP BY luôn giữ nguyên toàn bộ số dòng chi tiết ban đầu' sai ở trường hợp nào?",
+            "options": [
+              "Khi một nhóm có nhiều hơn 1 đơn cùng loại đồ uống",
+              "Khi bảng không có dòng nào"
+            ],
+            "correct": "Khi một nhóm có nhiều hơn 1 đơn cùng loại đồ uống"
+          }
+        },
+        "step_4": {
+          "task": {
+            "title": "Đếm đơn theo từng món",
+            "body": "Viết truy vấn GROUP BY trên cột `drink`."
+          }
+        }
+      }
+    }
+  ]
+}

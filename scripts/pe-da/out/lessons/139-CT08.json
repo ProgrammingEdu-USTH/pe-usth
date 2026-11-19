@@ -3,54 +3,64 @@
  "sort_order": 139,
  "module": "M6 · Hệ điều hành, tiến trình và đa luồng",
  "title": "CT08 · Popen, communicate, pipeline và timeout",
- "subtitle": "Nâng cao · M6 · 40 phút",
- "estimated_minutes": 40,
- "xp_reward": 20,
+ "subtitle": "Nâng cao · M6 · 18 phút",
+ "estimated_minutes": 18,
+ "xp_reward": 11,
  "content_json": {
-  "schema": "studio-lesson/v1",
+  "schema": "studio-lesson/v2",
   "title": "CT08 · Popen, communicate, pipeline và timeout",
-  "subtitle": "Nâng cao · M6 · 40 phút",
+  "subtitle": "Nâng cao · M6 · 18 phút",
   "source": {
-   "kind": "pe-da",
-   "filename": "lessons/CT08.md",
-   "parser": "pe-da/build"
+   "kind": "python-da",
+   "filename": "course.json#CT08",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 245, 247-248; Python — subprocess; Python — threading"
   },
   "step_1": {
-   "context": {
-    "title": "Popen, communicate, pipeline và timeout",
-    "body": "Một chương trình con cần nhận văn bản đầu vào rồi trả kết quả. Popen cho phép tạo process trước, sau đó trao đổi dữ liệu bằng communicate:",
-    "level": "Nâng cao"
-   },
-   "theory": [
-    {
-     "title": "Tình huống",
-     "body": "Một chương trình con cần nhận văn bản đầu vào rồi trả kết quả. Popen cho phép tạo process trước, sau đó trao đổi dữ liệu bằng communicate:\n\nPopen trả về sau khi khởi tạo, không chờ toàn bộ công việc xong như run. Với text=True, communicate nhận chuỗi; ở chế độ nhị phân, nó nhận bytes. communicate giúp gửi đầu vào, đọc đầu ra và chờ kết thúc mà không tự viết các lần đọc/ghi dễ làm đầy pipe."
-    },
-    {
-     "title": "Ý chính 2",
-     "body": "stdout của process trước nối vào stdin của process sau: đó là pipeline. Cha đóng bản sao đầu đọc p1.stdout sau khi nối để không giữ pipe mở không cần thiết. Cần chờ cả hai process và kiểm tra mã thoát của từng bước, không chỉ bước cuối.\n\nKhi Popen.communicate báo TimeoutExpired, process con có thể vẫn đang chạy. Ví dụ gọi kill rồi communicate lần nữa để đọc phần đầu ra còn lại và chờ con kết thúc. terminate và kill kết thúc process theo cơ chế của nền tảng: trên POSIX, kill mạnh hơn; trên Windows, hai phương thức đều dùng cơ chế kết thúc process của Windows. Không nên trông đợi terminate luôn cho chương trình con chạy xong phần dọn dẹp. Khác với communicate, run(timeout=...) tự dừng và chờ con khi hết hạn."
-    }
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Ở quầy, việc nặng được đẩy qua ô cửa cho người phía sau rồi chờ nhận lại ở đúng ô đó. Một chương trình con cũng cần nhận văn bản đầu vào rồi trả kết quả. `Popen` cho phép tạo process trước, sau đó trao đổi dữ liệu bằng communicate:"
+     },
+     {
+      "type": "code",
+      "code": "import subprocess, sys\np = subprocess.Popen([sys.executable, \"-c\", \"import sys; print(sys.stdin.read().upper())\"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)\nout, err = p.communicate(\"hello\", timeout=5)\nprint(out.strip(), p.returncode)",
+      "expected": "HELLO 0"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "`Popen` trả về sau khi khởi tạo, không chờ toàn bộ công việc xong như run. Với `text=True`, communicate nhận chuỗi; ở chế độ nhị phân, nó nhận `bytes`. communicate giúp gửi đầu vào, đọc đầu ra và chờ kết thúc mà không tự viết các lần đọc/ghi dễ làm đầy pipe."
+     },
+     {
+      "type": "code",
+      "code": "import subprocess, sys\np1 = subprocess.Popen([sys.executable, \"-c\", \"print('abc')\"], stdout=subprocess.PIPE)\np2 = subprocess.Popen([sys.executable, \"-c\", \"import sys; print(sys.stdin.read().strip().upper())\"], stdin=p1.stdout, stdout=subprocess.PIPE)\np1.stdout.close()\nout, _ = p2.communicate(timeout=5)\np1.wait(timeout=5)\nprint(out.decode().strip())",
+      "expected": "ABC"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "stdout của process trước nối vào stdin của process sau: đó là pipeline. Cha đóng bản sao đầu đọc p1.stdout sau khi nối để không giữ pipe mở không cần thiết. Cần chờ cả hai process và kiểm tra mã thoát của từng bước, không chỉ bước cuối."
+     },
+     {
+      "type": "code",
+      "code": "import subprocess, sys\np = subprocess.Popen([sys.executable, \"-c\", \"import time; time.sleep(30)\"], stdout=subprocess.PIPE)\ntry:\n    p.communicate(timeout=0.05)\nexcept subprocess.TimeoutExpired:\n    p.kill()\n    p.communicate()\n    print(\"stopped\", p.poll() is not None)",
+      "expected": "stopped True"
+     },
+     {
+      "type": "paragraph",
+      "text": "Timeout của `Popen.communicate` không tự bảo đảm đã dừng process. Ví dụ chủ động kill rồi communicate lại để thu hồi. terminate yêu cầu kết thúc theo cơ chế nền tảng; kill mạnh hơn trên POSIX, nhưng trên Windows hai phương thức cùng dẫn tới cơ chế kết thúc process của Windows. Không dựa vào terminate để chắc chắn chạy phần cleanup của chương trình con. run(timeout=...) có quản lý kill/wait riêng khi hết hạn."
+     }
+    ]
    ],
-   "code": {
-    "filename": "vi_du.py",
-    "version": "Python 3.12",
-    "source": "import subprocess, sys\np = subprocess.Popen([sys.executable, \"-c\", \"import sys; print(sys.stdin.read().upper())\"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)\nout, err = p.communicate(\"hello\", timeout=5)\nprint(out.strip(), p.returncode)",
-    "kind": "demo"
-   },
-   "explain": [
-    {
-     "n": 1,
-     "body": "Ví dụ 1 in ra: HELLO 0"
-    },
-    {
-     "n": 2,
-     "body": "Ví dụ 2 in ra: ABC"
-    },
-    {
-     "n": 3,
-     "body": "Ví dụ 3 in ra: stopped True"
-    }
-   ]
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "CT07 · Chạy lệnh, tách output và mã thoát"
+   }
   },
   "step_2": {
    "mcq": [
@@ -58,19 +68,17 @@
      "question": "Popen có stdin=PIPE, stdout=PIPE. Với lượng dữ liệu lớn, communicate giúp gì?",
      "options": [
       {
+       "text": "Chỉ trả PID, không đọc output",
+       "detail": "PID nằm ở thuộc tính pid; communicate trả output/error."
+      },
+      {
        "text": "Tự giết mọi tiến trình nếu quá thời gian mà không cần xử lý",
-       "correct": false,
        "detail": "Khi communicate timeout cần xử lý tiến trình và gọi lại để thu/dọn."
       },
       {
        "text": "Gửi input và thu output để tránh tự chờ sai thứ tự",
-       "correct": true,
-       "detail": "communicate xử lý trao đổi với các pipe và chờ kết thúc."
-      },
-      {
-       "text": "Chỉ trả PID, không đọc output",
-       "correct": false,
-       "detail": "PID nằm ở thuộc tính pid; communicate trả output/error."
+       "detail": "communicate xử lý trao đổi với các pipe và chờ kết thúc.",
+       "correct": true
       }
      ],
      "explanation": "communicate xử lý trao đổi với các pipe và chờ kết thúc."
@@ -79,18 +87,16 @@
      "question": "Popen khác run ở điểm chờ nào?",
      "options": [
       {
+       "text": "Popen cho phép cha tiếp tục sau khi khởi tạo con",
+       "detail": "Sau Popen, có thể giao tiếp/chờ bằng communicate hoặc wait theo cách dùng.",
+       "correct": true
+      },
+      {
        "text": "run không bao giờ chờ con",
-       "correct": false,
        "detail": "Chưa đúng. Sau Popen, có thể giao tiếp/chờ bằng communicate hoặc wait theo cách dùng."
       },
       {
-       "text": "Popen cho phép cha tiếp tục sau khi khởi tạo con",
-       "correct": true,
-       "detail": "Sau Popen, có thể giao tiếp/chờ bằng communicate hoặc wait theo cách dùng."
-      },
-      {
        "text": "Popen luôn chờ toàn bộ con xong trước khi trả",
-       "correct": false,
        "detail": "Chưa đúng. Sau Popen, có thể giao tiếp/chờ bằng communicate hoặc wait theo cách dùng."
       }
      ],
@@ -100,83 +106,87 @@
      "question": "Popen(text=True) nhận input cho communicate theo kiểu nào trong bài?",
      "options": [
       {
-       "text": "str",
-       "correct": true,
-       "detail": "Text mode xử lý chuỗi; binary mode dùng bytes."
-      },
-      {
-       "text": "Chỉ bytes",
-       "correct": false,
+       "text": "Chỉ int",
        "detail": "Chưa đúng. Text mode xử lý chuỗi; binary mode dùng bytes."
       },
       {
-       "text": "Chỉ int",
-       "correct": false,
+       "text": "str",
+       "detail": "Text mode xử lý chuỗi; binary mode dùng bytes.",
+       "correct": true
+      },
+      {
+       "text": "Chỉ bytes",
        "detail": "Chưa đúng. Text mode xử lý chuỗi; binary mode dùng bytes."
       }
      ],
      "explanation": "Text mode xử lý chuỗi; binary mode dùng bytes."
     }
+   ],
+   "practice": [
+    {
+     "prompt": "communicate nhận str khi nào?",
+     "answer": "Khi process mở pipe ở chế độ text, chẳng hạn text=True; mặc định nhị phân dùng bytes."
+    },
+    {
+     "prompt": "Sau TimeoutExpired từ Popen.communicate, có thể mặc định process đã dừng không?",
+     "answer": "Không. Cần dừng theo chính sách rồi thu hồi bằng communicate/wait."
+    },
+    {
+     "prompt": "Trong pipeline hai bước, chỉ kiểm mã thoát bước cuối đã đủ chưa?",
+     "answer": "Chưa. Bước đầu có thể lỗi dù bước cuối vẫn thoát 0; kiểm cả hai và quản lý các đầu pipe."
+    },
+    {
+     "prompt": "Trong Popen không có text=True, communicate nên nhận \"hello\" hay b\"hello\"?",
+     "answer": "Nhận bytes b\"hello\" cho pipe nhị phân; với text=True thì nhận str. stdin/stdout=PIPE tạo kênh trao đổi với con."
+    },
+    {
+     "prompt": "run và Popen khác nhau ở thời điểm trả quyền điều khiển như thế nào?",
+     "answer": "run chờ con hoàn tất; Popen trả sau khởi tạo để cha có thể làm việc khác rồi communicate/wait. Cả hai vẫn tạo process con."
+    },
+    {
+     "prompt": "Sau communicate timeout, nêu thứ tự dừng và thu hồi. terminate và kill có luôn khác nhau trên mọi OS không?",
+     "answer": "Áp chính sách terminate/kill cho con do mình tạo rồi communicate/wait để thu output và trạng thái. Trên POSIX kill mạnh hơn; trên Windows terminate/kill dùng cơ chế kết thúc process tương ứng của Windows."
+    },
+    {
+     "prompt": "Vẽ đường đi dữ liệu cho input.txt → A → B → out.txt bằng stdin/stdout. Cần kiểm mã thoát của ai?",
+     "answer": "stdin A nhận file; stdout A nối stdin B; stdout B nhận file đích. Đóng các đầu pipe dư ở cha và kiểm mã của cả A lẫn B, không chỉ B."
+    }
    ]
-  },
-  "step_3": {
-   "task": {
-    "title": "Viết phần còn thiếu",
-    "body": "Gửi chuỗi vào tiến trình đã mở text=True."
-   },
-   "scaffold": {
-    "template": "output, errors = process.{{slot1}}(input=\"hello\", timeout=5)",
-    "slots": [
-     {
-      "n": 1,
-      "placeholder": "Phương thức trao đổi",
-      "answer": "communicate"
-     }
-    ],
-    "bank": [
-     {
-      "label": "communicate",
-      "slot": 1,
-      "trap": ""
-     }
-    ]
-   }
   },
   "step_4": {
    "task": {
-    "title": "Tự viết rồi chạy Python",
-    "body": "solve(data) nhận một chuỗi ASCII. Mở Python con bằng Popen(text=True, stdin=PIPE, stdout=PIPE, stderr=PIPE); con đọc stdin và ghi upper() vào stdout. communicate có timeout=5; nếu timeout phải kill rồi communicate trước khi báo lại. Trả chuỗi output, giữ đúng newline đầu vào.",
-    "io": [
-     {
-      "label": "hai dòng",
-      "value": "'tea\\ncoffee\\n' → 'TEA\\nCOFFEE\\n'"
-     },
-     {
-      "label": "không newline",
-      "value": "'a1 b2' → 'A1 B2'"
-     },
-     {
-      "label": "rỗng",
-      "value": "'' → ''"
-     }
-    ]
+    "title": "Chạy trên máy của bạn",
+    "body": "Bài này không chạy được trong trình duyệt: trình duyệt không chạy được chương trình bên ngoài (như lệnh của hệ điều hành). Mở Python trên máy rồi gõ lại các đoạn code ở trên."
    },
-   "hints": [
-    {
-     "title": "Gợi ý 1",
-     "body": "Tách yêu cầu thành các bước nhận dữ liệu, xử lý và trả kết quả."
-    },
-    {
-     "title": "Gợi ý 2",
-     "body": "Thử một đầu vào nhỏ bằng tay, rồi so với giá trị hàm của bạn trả về."
-    }
-   ],
    "procedure": [
-    "Bài này cần subprocess, không có trong Pyodide nên chưa chấm tự động.",
-    "Đầu vào 'tea\\ncoffee\\n' — kết quả cần có 'TEA\\nCOFFEE\\n'.",
-    "Đầu vào 'a1 b2' — kết quả cần có 'A1 B2'.",
-    "Đầu vào '' — kết quả cần có ''."
+    "Mở terminal tại thư mục làm việc của bạn.",
+    "Tạo môi trường: py -m venv .venv",
+    "Cài thư viện bài cần: .venv\\Scripts\\python -m pip install <tên gói>",
+    "Lưu đoạn code vào một file .py rồi chạy: .venv\\Scripts\\python ten_file.py"
    ]
   }
+ },
+ "_mode": "local",
+ "_blocked": [
+  {
+   "block": 0,
+   "reason": "WASM không gọi được chương trình ngoài"
+  },
+  {
+   "block": 1,
+   "reason": "WASM không gọi được chương trình ngoài"
+  },
+  {
+   "block": 2,
+   "reason": "WASM không gọi được chương trình ngoài"
+  }
+ ],
+ "_so_mcq": 3,
+ "_bai_tap": "khong: sys.executable trong trình duyệt không trỏ tới file thật",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
  }
 }

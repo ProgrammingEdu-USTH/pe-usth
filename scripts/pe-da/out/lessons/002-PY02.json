@@ -3,58 +3,75 @@
  "sort_order": 2,
  "module": "M1 · Python nền tảng",
  "title": "PY02 · Chọn đúng Python và tách môi trường học",
- "subtitle": "Cơ bản · M1 · 25 phút",
- "estimated_minutes": 25,
- "xp_reward": 10,
+ "subtitle": "Cơ bản · M1 · 14 phút",
+ "estimated_minutes": 14,
+ "xp_reward": 8,
  "content_json": {
-  "schema": "studio-lesson/v1",
+  "schema": "studio-lesson/v2",
   "title": "PY02 · Chọn đúng Python và tách môi trường học",
-  "subtitle": "Cơ bản · M1 · 25 phút",
+  "subtitle": "Cơ bản · M1 · 14 phút",
   "source": {
-   "kind": "pe-da",
-   "filename": "lessons/PY02.md",
-   "parser": "pe-da/build"
+   "kind": "python-da",
+   "filename": "course.json#PY02",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 19-22; Python — Tutorial"
   },
   "step_1": {
-   "context": {
-    "title": "Chọn đúng Python và tách môi trường học",
-    "body": "Bạn có hai dự án cần các phiên bản thư viện khác nhau. Nếu cài mọi thứ vào cùng một Python, một lần nâng cấp có thể làm dự án cũ thay đổi. Trước hết, hãy biết mình đang chạy Python nào:",
-    "level": "Cơ bản"
-   },
-   "theory": [
-    {
-     "title": "Tình huống",
-     "body": "Bạn có hai dự án cần các phiên bản thư viện khác nhau. Nếu cài mọi thứ vào cùng một Python, một lần nâng cấp có thể làm dự án cũ thay đổi. Trước hết, hãy biết mình đang chạy Python nào:\n\nSố 3 cho biết đang dùng Python 3. `sys` là module có sẵn của Python; `import sys` giúp bạn đọc thông tin môi trường. Khi cần xem đường dẫn Python đang chạy, gõ `print(sys.executable)`. Đường dẫn cụ thể sẽ khác nhau giữa các máy."
-    },
-    {
-     "title": "Ý chính 2",
-     "body": "Môi trường ảo giữ thư viện của từng dự án riêng nhau. Mở terminal trong thư mục dự án rồi chạy lệnh sau. Đây là lệnh terminal, không phải code để dán vào cell Python:\n\nKết quả / quan sát thủ công:"
-    },
-    {
-     "title": "Ý chính 3",
-     "body": "Tên `.venv` là thư mục bạn chọn để chứa môi trường. Bước này tạo môi trường, chưa cài NumPy. Trên Windows, kiểm tra pip của môi trường vừa tạo bằng:\n\nKết quả / quan sát thủ công:"
-    },
-    {
-     "title": "Ý chính 4",
-     "body": "Trên Linux/macOS, lệnh tương ứng là `.venv/bin/python -m pip --version`. Gọi pip qua đúng Python giúp tránh cài nhầm thư viện. Khi đến bài NumPy, cài bằng `.venv\\Scripts\\python -m pip install numpy` trên Windows hoặc `.venv/bin/python -m pip install numpy` trên Linux/macOS. `pip` cài package, thường từ kho PyPI; nó không tự đổi phiên bản Python.\n\n`sys` và `venv` thuộc thư viện chuẩn nên đã có cùng Python. NumPy là package bên ngoài cần cài thêm. `virtualenv` là công cụ khác để tạo môi trường; `pyenv` chủ yếu giúp quản lý phiên bản Python. Conda quản lý cả môi trường lẫn package, trong đó Miniconda gọn hơn Anaconda vốn kèm nhiều package."
-    },
-    {
-     "title": "Ý chính 5",
-     "body": "Sơ đồ trong slide còn nhắc pipenv và Poetry để quản lý dự án/phụ thuộc, cùng `setup.py` trong cách đóng gói truyền thống. Trước mắt, bạn chỉ cần một cách tạo môi trường và biết Python nào sẽ chạy bài. Khi chia sẻ dự án, ghi lại các phiên bản thư viện để người khác dựng lại môi trường."
-    }
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Ở bài trước bạn vừa tính doanh thu ngày đầu bằng mấy dòng code. Sổ sách sẽ lớn dần, nên hãy dọn cho nó một góc riêng. Cài chung mọi thứ vào một Python thì một lần nâng cấp cho quán có thể làm bài tập cũ đổi kết quả. Trước hết, hãy biết mình đang chạy Python nào:"
+     },
+     {
+      "type": "code",
+      "code": "import sys\nprint(sys.version_info.major)",
+      "expected": "3",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Số 3 cho biết đang dùng Python 3. `sys` là một module (file Python nạp được vào file khác) có sẵn của Python, và `print(sys.executable)` cho đường dẫn của đúng Python đang chạy."
+     },
+     {
+      "type": "paragraph",
+      "text": "Môi trường ảo giữ thư viện của từng dự án riêng nhau. Mở terminal (cửa sổ bạn gõ câu lệnh vào) trong thư mục dự án rồi chạy lệnh sau. Đây là lệnh gõ trong cửa sổ đó, không phải code để dán vào một ô code:"
+     },
+     {
+      "type": "terminal",
+      "code": "python -m venv .venv",
+      "expected": "Nếu thành công, lệnh thường không in thông báo. Trong thư mục dự án xuất hiện .venv, có file pyvenv.cfg và trình thông dịch riêng."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Tên `.venv` là thư mục chứa môi trường của quán. Trên Windows, kiểm tra `pip` của môi trường vừa tạo bằng:"
+     },
+     {
+      "type": "terminal",
+      "code": ".venv\\Scripts\\python -m pip --version",
+      "expected": "Một dòng bắt đầu bằng pip, kèm phiên bản và đường dẫn thư viện bên trong .venv. Số phiên bản thay đổi tùy máy."
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Trên Linux/macOS, lệnh tương ứng là `.venv/bin/python -m pip --version`. `pip` cài gói (package), tức một thư viện bên ngoài. Gọi nó qua đúng Python giúp bạn không cài nhầm sang môi trường khác. Khi tới bài NumPy (thư viện tính toán trên cả dãy số một lượt), cài bằng `.venv\\Scripts\\python -m pip install numpy` trên Windows."
+     },
+     {
+      "type": "paragraph",
+      "text": "`sys` và `venv` thuộc thư viện chuẩn, có sẵn cùng Python; gói bên ngoài thì phải cài thêm. Khi gửi dự án cho người khác, ghi lại phiên bản các thư viện để họ dựng lại đúng môi trường của bạn."
+     }
+    ]
    ],
-   "code": {
-    "filename": "vi_du.py",
-    "version": "Python 3.12",
-    "source": "import sys\nprint(sys.version_info.major)",
-    "kind": "demo"
-   },
-   "explain": [
-    {
-     "n": 1,
-     "body": "Ví dụ 1 in ra: 3"
-    }
-   ]
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PY01 · Chạy một phép tính và đọc kết quả"
+   }
   },
   "step_2": {
    "mcq": [
@@ -63,18 +80,16 @@
      "options": [
       {
        "text": "pip --version",
-       "correct": false,
        "detail": "Lệnh này có thể tìm pip ở nơi khác trên PATH."
       },
       {
-       "text": "python -m venv pip",
-       "correct": false,
-       "detail": "Lệnh này tạo một thư mục môi trường tên pip; nó không kiểm pip trong .venv."
+       "text": ".venv\\Scripts\\python -m pip --version",
+       "detail": "Đúng. Lệnh dùng chính trình thông dịch trong .venv.",
+       "correct": true
       },
       {
-       "text": ".venv\\Scripts\\python -m pip --version",
-       "correct": true,
-       "detail": "Đúng. Lệnh dùng chính trình thông dịch trong .venv."
+       "text": "python -m venv pip",
+       "detail": "Lệnh này tạo một thư mục môi trường tên pip; nó không kiểm pip trong .venv."
       }
      ],
      "explanation": "Đúng. Lệnh dùng chính trình thông dịch trong .venv."
@@ -84,17 +99,15 @@
      "options": [
       {
        "text": "python -m venv .venv",
-       "correct": true,
-       "detail": "venv tạo môi trường; pip dùng để quản lý các gói bên trong môi trường."
+       "detail": "venv tạo môi trường; pip dùng để quản lý các gói bên trong môi trường.",
+       "correct": true
       },
       {
        "text": "python -m pip .venv",
-       "correct": false,
        "detail": "pip không phải module tạo venv."
       },
       {
        "text": "python .venv",
-       "correct": false,
        "detail": "Lệnh này cố chạy .venv như một script."
       }
      ],
@@ -104,61 +117,65 @@
      "question": "Trên Windows, cách nào kiểm pip thuộc chính .venv?",
      "options": [
       {
-       "text": ".venv\\Scripts\\python -m pip --version",
-       "correct": true,
-       "detail": "Dùng đường dẫn interpreter của .venv rồi gọi module pip."
+       "text": "python -m venv --pip-version",
+       "detail": "Đây không phải cách xem pip của môi trường đã tạo."
       },
       {
        "text": "pip --version luôn thuộc .venv",
-       "correct": false,
        "detail": "Lệnh pip trong PATH có thể thuộc Python khác."
       },
       {
-       "text": "python -m venv --pip-version",
-       "correct": false,
-       "detail": "Đây không phải cách xem pip của môi trường đã tạo."
+       "text": ".venv\\Scripts\\python -m pip --version",
+       "detail": "Dùng đường dẫn interpreter của .venv rồi gọi module pip.",
+       "correct": true
       }
      ],
      "explanation": "Dùng đường dẫn interpreter của .venv rồi gọi module pip."
     }
+   ],
+   "practice": [
+    {
+     "prompt": "Lệnh `python -m venv .venv` làm gì, và nó có cài NumPy không?",
+     "answer": "Nó tạo thư mục `.venv` chứa một môi trường mới, chưa cài NumPy hay thư viện nào. Cài thư viện là một bước riêng, bằng pip."
+    },
+    {
+     "prompt": "Viết lệnh tạo môi trường .venv và kiểm tra pip của nó trên Windows.",
+     "answer": "python -m venv .venv; sau đó chạy .venv\\Scripts\\python -m pip --version. Đây là hai lệnh riêng."
+    },
+    {
+     "prompt": "Vì sao hai dự án nên có môi trường riêng?",
+     "answer": "Để phụ thuộc của mỗi dự án không bị thay bởi việc cài hoặc nâng cấp package cho dự án khác. Kiểm tra interpreter thực tế và ghi phiên bản khi bàn giao."
+    },
+    {
+     "prompt": "Khóa học dùng Python 2 hay Python 3? Vì sao không bắt đầu dự án mới bằng Python 2?",
+     "answer": "Dùng Python 3. Python 2 đã ngừng được hỗ trợ nên không còn là lựa chọn phù hợp để bắt đầu dự án mới."
+    },
+    {
+     "prompt": "Bạn muốn cài NumPy vào môi trường `.venv` của dự án trên Windows. Lệnh nào làm việc đó, và vì sao gọi `pip` qua đúng Python?",
+     "answer": "`.venv\\Scripts\\python -m pip install numpy`. Gọi pip qua đúng Python giúp thư viện được cài vào môi trường đó, không cài nhầm sang môi trường khác; pip không đổi phiên bản Python."
+    },
+    {
+     "prompt": "Khi gửi dự án cho người khác, bạn cần ghi lại điều gì để họ dựng lại đúng môi trường?",
+     "answer": "Ghi lại phiên bản các thư viện đã cài (và Python đang dùng), để họ tạo môi trường mới rồi cài đúng những phiên bản đó."
+    }
    ]
-  },
-  "step_3": {
-   "task": {
-    "title": "Tự nhớ phần cú pháp còn thiếu",
-    "body": "Lệnh này tạo môi trường .venv trong thư mục dự án. Điền tên module."
-   },
-   "scaffold": {
-    "template": "python -m {{slot1}} .venv",
-    "slots": [
-     {
-      "n": 1,
-      "placeholder": "Module tạo môi trường",
-      "answer": "venv"
-     }
-    ],
-    "bank": [
-     {
-      "label": "venv",
-      "slot": 1,
-      "trap": ""
-     }
-    ]
-   }
   },
   "step_4": {
    "task": {
-    "title": "Tự chạy trong môi trường của bạn",
-    "body": "Tạo một môi trường cho dự án theo dõi kho sách rồi xác nhận Python và pip đều thuộc môi trường ấy."
+    "title": "Chạy thử",
+    "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào."
    },
-   "procedure": [
-    "Mở terminal trong một thư mục dự án mới.",
-    "Tạo .venv rồi kiểm đường dẫn Python của nó.",
-    "Kiểm pip bằng cùng trình thông dịch; ghi đường dẫn in ra.",
-    "Tự kiểm: Trên Windows, hai đường dẫn đều nằm trong .venv của dự án.",
-    "Tự kiểm: Trên Linux/macOS, thay .venv\\Scripts\\python bằng .venv/bin/python.",
-    "Tự kiểm: Không cần số phiên bản giống ví dụ; cần đúng môi trường."
-   ]
+   "starterCode": "import sys\nprint(sys.version_info.major)\n"
   }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "khong co",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
  }
 }

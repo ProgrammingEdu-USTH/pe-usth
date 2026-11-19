@@ -3,54 +3,67 @@
  "sort_order": 171,
  "module": "M10 · Ôn API trực quan hóa và mở rộng NumPy cho phân tích",
  "title": "RD04 · Nhân ma trận và ước lượng một đường thẳng",
- "subtitle": "Nâng cao · M10 · 40 phút",
- "estimated_minutes": 40,
- "xp_reward": 20,
+ "subtitle": "Nâng cao · M10 · 12 phút",
+ "estimated_minutes": 12,
+ "xp_reward": 8,
  "content_json": {
-  "schema": "studio-lesson/v1",
+  "schema": "studio-lesson/v2",
   "title": "RD04 · Nhân ma trận và ước lượng một đường thẳng",
-  "subtitle": "Nâng cao · M10 · 40 phút",
+  "subtitle": "Nâng cao · M10 · 12 phút",
   "source": {
-   "kind": "pe-da",
-   "filename": "lessons/RD04.md",
-   "parser": "pe-da/build"
+   "kind": "python-da",
+   "filename": "course.json#RD04",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "NumPy linear algebra"
   },
   "step_1": {
-   "context": {
-    "title": "Nhân ma trận và ước lượng một đường thẳng",
-    "body": "Mỗi hàng đơn hàng có số lượng hai sản phẩm; bảng giá là một dãy hai số. Phép @ có thể cộng các tích số lượng × giá để cho ngay tổng tiền từng đơn.",
-    "level": "Nâng cao"
-   },
-   "theory": [
-    {
-     "title": "Tình huống",
-     "body": "Mỗi hàng đơn hàng có số lượng hai sản phẩm; bảng giá là một dãy hai số. Phép @ có thể cộng các tích số lượng × giá để cho ngay tổng tiền từng đơn.\n\nDòng đầu của phép nhân là 2×10 + 1×20 = 40. @ ở đây lấy chiều cột của qty ghép với chiều của price; chúng cùng dài 2. Dấu * vẫn là nhân từng phần tử có broadcasting. Hai phép toán không thay thế tùy ý cho nhau."
-    },
-    {
-     "title": "Ý chính 2",
-     "body": "Hệ trên là x + y = 5 và 2x + y = 8, nên nghiệm là x = 3, y = 2. `np.linalg.solve` dùng cho ma trận vuông, không suy biến, tức hệ có một nghiệm duy nhất. Nếu hai phương trình trùng nhau, điều kiện đó không còn đúng. Khi chỉ cần giải hệ, dùng `solve` thay vì tự tính ma trận nghịch đảo rồi nhân. Sau đó, kiểm tra `A @ x` có gần bằng `b` theo sai số phù hợp không.\n\n`design` có cột đầu toàn số 1 để biểu diễn hệ số chặn và cột thứ hai chứa số lượt truy cập `visits`. `lstsq` tìm các hệ số làm tổng bình phương sai lệch giữa dự đoán và dữ liệu nhỏ nhất. Kết quả `[2, 3]` cho công thức `sales ≈ 2 + 3 × visits`. `column_stack` ghép các dãy thành cột; `rank=2` cho biết hai cột trong ví dụ độc lập tuyến tính. Với dữ liệu thật, hãy xem phần dư (giá trị quan sát trừ dự đoán), khoảng giá trị `visits` đã có và cách lấy mẫu. Đường khớp không chứng minh thêm lượt truy cập làm tăng doanh thu; dự đoán ngoài khoảng dữ liệu đã quan sát cũng có thể sai."
-    }
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Tên món đã đi cùng số rồi, giờ nhân một đơn với bảng giá của quán. Mỗi hàng đơn hàng có số lượng hai sản phẩm; bảng giá là một dãy hai số. Phép @ có thể cộng các tích số lượng × giá để cho ngay tổng tiền từng đơn."
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\ncups = np.array([[2, 1], [1, 3]])\nprice = np.array([10, 20])\nprint((cups @ price).tolist())\nprint((cups * price).sum(axis=1).tolist())",
+      "expected": "[40, 70]\n[40, 70]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Dòng đầu của phép nhân là 2×10 + 1×20 = 40. @ ở đây lấy chiều cột của cups ghép với chiều của price; chúng cùng dài 2. Dấu * vẫn là nhân từng phần tử có broadcasting. Hai phép toán không thay thế tùy ý cho nhau."
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\nA = np.array([[1., 1.], [2., 1.]])\nb = np.array([5., 8.])\nx = np.linalg.solve(A, b)\nprint(np.round(x, 6).tolist())\nprint(bool(np.allclose(A @ x, b)))",
+      "expected": "[3.0, 2.0]\nTrue",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Hệ trên là x + y = 5 và 2x + y = 8, nên nghiệm là x = 3, y = 2. `np.linalg.solve` dùng cho ma trận vuông, không suy biến, tức hệ có một nghiệm duy nhất. Nếu hai phương trình trùng nhau, điều kiện đó không còn đúng. Khi chỉ cần giải hệ, dùng `solve` thay vì tự tính ma trận nghịch đảo rồi nhân. Sau đó, kiểm tra `A @ x` có gần bằng `b` theo sai số phù hợp không."
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\nvisits = np.array([0., 1., 2.])\nsales = np.array([2., 5., 8.])\ndesign = np.column_stack([np.ones(3), visits])\ncoef, residuals, rank, singular = np.linalg.lstsq(design, sales, rcond=None)\nprint(np.round(coef, 6).tolist())\nprint(np.round(design @ coef, 6).tolist())\nprint(rank)",
+      "expected": "[2.0, 3.0]\n[2.0, 5.0, 8.0]\n2",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "Hai cột design là hệ số chặn 1 và số lượt thăm. lstsq tìm hệ số để tổng bình phương sai lệch nhỏ nhất: ví dụ cho sales≈2+3×visits. column_stack đặt các dãy thành cột; rank=2 cho thấy hai cột độc lập trong ví dụ này. Dữ liệu thật hiếm khi nằm chính xác trên một đường: xem phần dư, phạm vi x và cách lấy mẫu. Đường khớp không chứng minh thêm lượt thăm gây tăng doanh thu và không bảo đảm ngoại suy đúng."
+     }
+    ]
    ],
-   "code": {
-    "filename": "vi_du.py",
-    "version": "Python 3.12",
-    "source": "import numpy as np\nqty = np.array([[2, 1], [1, 3]])\nprice = np.array([10, 20])\nprint((qty @ price).tolist())\nprint((qty * price).sum(axis=1).tolist())",
-    "kind": "demo"
-   },
-   "explain": [
-    {
-     "n": 1,
-     "body": "Ví dụ 1 in ra: [40, 70] ⏎ [40, 70]"
-    },
-    {
-     "n": 2,
-     "body": "Ví dụ 2 in ra: [3.0, 2.0] ⏎ True"
-    },
-    {
-     "n": 3,
-     "body": "Ví dụ 3 in ra: [2.0, 3.0] ⏎ [2.0, 5.0, 8.0] ⏎ 2"
-    }
-   ]
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "NP18 · Broadcasting từ ví dụ giá bán, NP20 · So sánh số thực, RD02 · Đổi trục và ghép các lô array"
+   }
   },
   "step_2": {
    "mcq": [
@@ -58,111 +71,159 @@
      "question": "Hệ x+y=7, 2x+y=11 có nghiệm nào?",
      "options": [
       {
+       "text": "[3,4]",
+       "detail": "Phương trình đầu đúng nhưng phương trình sau thành 10, không phải 11."
+      },
+      {
        "text": "[7,11]",
-       "correct": false,
        "detail": "Đó là vế phải b, không phải nghiệm của hệ."
       },
       {
        "text": "[4,3]",
-       "correct": true,
-       "detail": "Đúng. Thế lại: 4+3=7 và 2×4+3=11."
-      },
-      {
-       "text": "[3,4]",
-       "correct": false,
-       "detail": "Phương trình đầu đúng nhưng phương trình sau thành 10, không phải 11."
+       "detail": "Đúng. Thế lại: 4+3=7 và 2×4+3=11.",
+       "correct": true
       }
      ],
      "explanation": "Đúng. Thế lại: 4+3=7 và 2×4+3=11."
     },
     {
-     "question": "Mỗi hàng là một đơn gồm hai loại hàng. Kết quả ở lệnh print cuối có giá trị nào?",
+     "question": "Mỗi hàng là một đơn gồm hai loại hàng. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\ncups = np.array([[1,2],[3,0]])\nprice = np.array([10,5])\nprint(cups @ price)",
      "options": [
       {
        "text": "[20, 30]",
-       "correct": true,
-       "detail": "Mỗi hàng nhân với các giá tương ứng rồi cộng các tích."
+       "detail": "Mỗi hàng nhân với các giá tương ứng rồi cộng các tích.",
+       "correct": true
       },
       {
        "text": "[[10, 10], [30, 0]]",
-       "correct": false,
        "detail": "Đó là nhân từng phần tử trước khi cộng theo hàng."
       },
       {
        "text": "[15, 15]",
-       "correct": false,
        "detail": "Phải dùng số lượng của từng hàng, không chỉ cộng bảng giá."
       }
      ],
      "explanation": "Mỗi hàng nhân với các giá tương ứng rồi cộng các tích."
     },
     {
-     "question": "Dừng trước bước cộng mỗi hàng. Kết quả ở lệnh print cuối có giá trị nào?",
+     "question": "Dừng trước bước cộng mỗi hàng. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\ncups = np.array([[1,2],[3,0]])\nprice = np.array([10,5])\nprint(cups * price)",
      "options": [
       {
+       "text": "[[10, 5], [30, 5]]",
+       "detail": "Mỗi ô lượng phải được nhân với giá cùng cột."
+      },
+      {
        "text": "[[10, 10], [30, 0]]",
-       "correct": true,
-       "detail": "Dấu * với broadcasting giữ riêng khoản tiền từng sản phẩm."
+       "detail": "Dấu * với broadcasting giữ riêng khoản tiền từng sản phẩm.",
+       "correct": true
       },
       {
        "text": "[20, 30]",
-       "correct": false,
        "detail": "Đó là kết quả @ đã cộng các tích."
-      },
-      {
-       "text": "[[10, 5], [30, 5]]",
-       "correct": false,
-       "detail": "Mỗi ô lượng phải được nhân với giá cùng cột."
       }
      ],
      "explanation": "Dấu * với broadcasting giữ riêng khoản tiền từng sản phẩm."
     }
+   ],
+   "practice": [
+    {
+     "prompt": "Với cups=[[1,2],[3,0]] và price=[10,5], dự đoán cups@price trước khi chạy.",
+     "answer": "Kết quả [20,30]. Mỗi hàng được nhân với giá tương ứng rồi cộng; chiều ghép phải có cùng độ dài."
+    },
+    {
+     "prompt": "Hệ có hai phương trình x+y=5 và 2x+2y=10 có nghiệm duy nhất để solve không?",
+     "answer": "Không. Hai phương trình phụ thuộc nhau; ma trận suy biến. Cần xem lại bài toán thay vì cho rằng mọi ma trận vuông đều giải được duy nhất."
+    },
+    {
+     "prompt": "Đường khớp cho hệ số [2,3] với cột [1,x]. Dự báo ở x=4 là gì? Kết quả đó có tự chứng minh chính xác cho dữ liệu mới không?",
+     "answer": "2+3×4=14. Đó là dự báo của mô hình; x=4 còn ngoài phạm vi ví dụ 0–2 nên là ngoại suy. Cần kiểm dữ liệu mới, phần dư và giả định, không suy quan hệ nhân quả."
+    }
    ]
-  },
-  "step_3": {
-   "task": {
-    "title": "Tự nhớ phần cú pháp còn thiếu",
-    "body": "Điền hàm cho hệ vuông có nghiệm duy nhất."
-   },
-   "scaffold": {
-    "template": "solution = np.linalg.{{slot1}}(A, b)",
-    "slots": [
-     {
-      "n": 1,
-      "placeholder": "Hàm giải hệ",
-      "answer": "solve"
-     }
-    ],
-    "bank": [
-     {
-      "label": "solve",
-      "slot": 1,
-      "trap": ""
-     }
-    ]
-   }
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận ma trận A vuông không suy biến và dãy b cùng kích thước. Trả nghiệm của A @ x = b bằng np.linalg.solve. Các bài kiểm đều có nghiệm duy nhất.",
     "io": [
      {
-      "label": "Hai phương trình",
-      "value": "{'A': [[1, 1], [2, 1]], 'b': [7, 11]} → [4.0, 3.0]"
+      "label": "data =",
+      "value": "{'A': [[1, 1], [2, 1]], 'b': [7, 11]}"
      },
      {
-      "label": "Ma trận đơn vị",
-      "value": "{'A': [[1, 0], [0, 1]], 'b': [2, -1]} → [2.0, -1.0]"
-     },
-     {
-      "label": "Hệ một ẩn",
-      "value": "{'A': [[2]], 'b': [6]} → [3.0]"
+      "label": "trả về",
+      "value": "[4.0, 3.0]"
      }
     ]
    },
    "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
    "solutionCode": "import numpy as np\ndef solve(data):\n    A = np.array(data[\"A\"], dtype=float)\n    b = np.array(data[\"b\"], dtype=float)\n    return np.linalg.solve(A, b)\n",
+   "tests": [
+    {
+     "name": "Hai phương trình",
+     "input": {
+      "A": [
+       [
+        1,
+        1
+       ],
+       [
+        2,
+        1
+       ]
+      ],
+      "b": [
+       7,
+       11
+      ]
+     },
+     "expected": [
+      4.0,
+      3.0
+     ]
+    },
+    {
+     "name": "Ma trận đơn vị",
+     "input": {
+      "A": [
+       [
+        1,
+        0
+       ],
+       [
+        0,
+        1
+       ]
+      ],
+      "b": [
+       2,
+       -1
+      ]
+     },
+     "expected": [
+      2.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "Hệ một ẩn",
+     "input": {
+      "A": [
+       [
+        2
+       ]
+      ],
+      "b": [
+       6
+      ]
+     },
+     "expected": [
+      3.0
+     ]
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
    "hints": [
     {
      "title": "Gợi ý 1",
@@ -175,24 +236,17 @@
    ],
    "packages": [
     "numpy"
-   ],
-   "tests": [
-    {
-     "name": "Hai phương trình",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'A': [[1, 1], [2, 1]], 'b': [7, 11]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "[4.0, 3.0]"
-    },
-    {
-     "name": "Ma trận đơn vị",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'A': [[1, 0], [0, 1]], 'b': [2, -1]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "[2.0, -1.0]"
-    },
-    {
-     "name": "Hệ một ẩn",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'A': [[2]], 'b': [6]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "[3.0]"
-    }
    ]
   }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
  }
 }

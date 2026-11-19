@@ -3,54 +3,67 @@
  "sort_order": 169,
  "module": "M10 · Ôn API trực quan hóa và mở rộng NumPy cho phân tích",
  "title": "RD02 · Đổi trục và ghép các lô array",
- "subtitle": "Nâng cao · M10 · 40 phút",
- "estimated_minutes": 40,
- "xp_reward": 20,
+ "subtitle": "Nâng cao · M10 · 11 phút",
+ "estimated_minutes": 11,
+ "xp_reward": 8,
  "content_json": {
-  "schema": "studio-lesson/v1",
+  "schema": "studio-lesson/v2",
   "title": "RD02 · Đổi trục và ghép các lô array",
-  "subtitle": "Nâng cao · M10 · 40 phút",
+  "subtitle": "Nâng cao · M10 · 11 phút",
   "source": {
-   "kind": "pe-da",
-   "filename": "lessons/RD02.md",
-   "parser": "pe-da/build"
+   "kind": "python-da",
+   "filename": "course.json#RD02",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "NumPy array manipulation"
   },
   "step_1": {
-   "context": {
-    "title": "Đổi trục và ghép các lô array",
-    "body": "Hai cửa hàng có số bán trong ba ngày. Trong file hiện tại, hàng là cửa hàng. Một hàm báo cáo khác lại cần hàng là ngày; transpose đổi hai chiều mà không đổi con số nào.",
-    "level": "Nâng cao"
-   },
-   "theory": [
-    {
-     "title": "Tình huống",
-     "body": "Hai cửa hàng có số bán trong ba ngày. Trong file hiện tại, hàng là cửa hàng. Một hàm báo cáo khác lại cần hàng là ngày; transpose đổi hai chiều mà không đổi con số nào.\n\nsales.T có hàng đầu [12,10]: số bán ngày đầu của hai cửa hàng. Với array hai chiều, transpose đổi hàng thành cột và ngược lại. Nó khác reshape vốn xếp lại theo thứ tự phần tử; bạn vẫn phải kiểm ý nghĩa hàng/cột khi chuyển cho hàm khác."
-    },
-    {
-     "title": "Ý chính 2",
-     "body": "concatenate nối dọc theo một chiều đã có. axis=0 thêm hàng; axis=1 nối các cột ở ví dụ này. Các chiều còn lại phải khớp. Chỉ nối cột khi các hàng cùng đại diện cho một đối tượng; kích thước vừa nhau chưa chứng minh ghép đúng dữ liệu.\n\nstack tạo một chiều mới. Hai dãy vốn có shape (2,) trở thành bảng (2,2), mỗi hàng là một ngày. concatenate hai dãy đó không tạo chiều ngày mà chỉ cho dãy bốn số. Khi làm nhiều lô lớn, thu các lô vào list rồi ghép một lần để tránh sao chép lại toàn bộ sau mỗi lần thêm."
-    }
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Chú thích đã đặt đúng chỗ rồi, giờ đến hình dạng của bảng số trong sổ quán. Hai cửa hàng có số bán trong ba ngày. Trong file hiện tại, hàng là cửa hàng. Một hàm báo cáo khác lại cần hàng là ngày; transpose đổi hai chiều mà không đổi con số nào."
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\nsales = np.array([[12, 15, 9], [10, 8, 14]])\nby_day = sales.T\nprint(by_day.tolist())\nprint(by_day.shape)",
+      "expected": "[[12, 10], [15, 8], [9, 14]]\n(3, 2)",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "sales.T có hàng đầu [12,10]: số bán ngày đầu của hai cửa hàng. Với array hai chiều, transpose đổi hàng thành cột và ngược lại. Nó khác reshape vốn xếp lại theo thứ tự phần tử; bạn vẫn phải kiểm ý nghĩa hàng/cột khi chuyển cho hàm khác."
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\nfirst = np.array([[12, 15, 9]])\nsecond = np.array([[10, 8, 14]])\nprint(np.concatenate([first, second], axis=0).tolist())\nprint(np.concatenate([first, second], axis=1).shape)",
+      "expected": "[[12, 15, 9], [10, 8, 14]]\n(1, 6)",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "concatenate nối dọc theo một chiều đã có. axis=0 thêm hàng; axis=1 nối các cột ở ví dụ này. Các chiều còn lại phải khớp. Chỉ nối cột khi các hàng cùng đại diện cho một đối tượng; kích thước vừa nhau chưa chứng minh ghép đúng dữ liệu."
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\nmon = np.array([12, 10])\ntue = np.array([15, 8])\ndays = np.stack([mon, tue], axis=0)\nprint(days.tolist())\nprint(days.shape)",
+      "expected": "[[12, 10], [15, 8]]\n(2, 2)",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "`stack` tạo một chiều mới. Hai dãy vốn có shape (2,) trở thành bảng (2,2), mỗi hàng là một ngày. concatenate hai dãy đó không tạo chiều ngày mà chỉ cho dãy bốn số. Khi làm nhiều lô lớn, thu các lô vào `list` rồi ghép một lần để tránh sao chép lại toàn bộ sau mỗi lần thêm."
+     }
+    ]
    ],
-   "code": {
-    "filename": "vi_du.py",
-    "version": "Python 3.12",
-    "source": "import numpy as np\nsales = np.array([[12, 15, 9], [10, 8, 14]])\nby_day = sales.T\nprint(by_day.tolist())\nprint(by_day.shape)",
-    "kind": "demo"
-   },
-   "explain": [
-    {
-     "n": 1,
-     "body": "Ví dụ 1 in ra: [[12, 10], [15, 8], [9, 14]] ⏎ (3, 2)"
-    },
-    {
-     "n": 2,
-     "body": "Ví dụ 2 in ra: [[12, 15, 9], [10, 8, 14]] ⏎ (1, 6)"
-    },
-    {
-     "n": 3,
-     "body": "Ví dụ 3 in ra: [[12, 10], [15, 8]] ⏎ (2, 2)"
-    }
-   ]
+   "context": {
+    "level": "Nâng cao",
+    "prereq": "NP08 · Xếp lại bằng reshape, NP09 · Lấy ô, hàng và cột, NP19 · Cắt dữ liệu: view và copy"
+   }
   },
   "step_2": {
    "mcq": [
@@ -59,110 +72,183 @@
      "options": [
       {
        "text": "(2,3)",
-       "correct": true,
-       "detail": "Đúng. Thêm hàng trên chiều có sẵn."
+       "detail": "Đúng. Thêm hàng trên chiều có sẵn.",
+       "correct": true
       },
       {
        "text": "(1,6)",
-       "correct": false,
        "detail": "Đó là nối axis=1 trong trường hợp này."
       },
       {
        "text": "(2,1,3)",
-       "correct": false,
        "detail": "Đó có thể là thêm chiều mới bằng stack, không phải concatenate."
       }
      ],
      "explanation": "Đúng. Thêm hàng trên chiều có sẵn."
     },
     {
-     "question": "Hai cửa hàng, ba ngày cần chuyển thành ba hàng ngày. Kết quả ở lệnh print cuối có giá trị nào?",
+     "question": "Hai cửa hàng, ba ngày cần chuyển thành ba hàng ngày. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\nsales = np.array([[1, 2, 3], [4, 5, 6]])\nprint(sales.T)",
      "options": [
       {
-       "text": "[[1, 4], [2, 5], [3, 6]]",
-       "correct": true,
-       "detail": "Các cột của bảng gốc trở thành các hàng của bảng chuyển vị."
+       "text": "[[1, 2, 3], [4, 5, 6]]",
+       "detail": "Hai trục đã được đổi vai trò."
       },
       {
        "text": "[[3, 2, 1], [6, 5, 4]]",
-       "correct": false,
        "detail": "Transpose không đảo thứ tự phần tử trong từng hàng."
       },
       {
-       "text": "[[1, 2, 3], [4, 5, 6]]",
-       "correct": false,
-       "detail": "Hai trục đã được đổi vai trò."
+       "text": "[[1, 4], [2, 5], [3, 6]]",
+       "detail": "Các cột của bảng gốc trở thành các hàng của bảng chuyển vị.",
+       "correct": true
       }
      ],
      "explanation": "Các cột của bảng gốc trở thành các hàng của bảng chuyển vị."
     },
     {
-     "question": "Bảng gốc hai hàng và bốn cột. Kết quả ở lệnh print cuối có giá trị nào?",
+     "question": "Bảng gốc hai hàng và bốn cột. Kết quả ở lệnh print cuối có giá trị nào?\n\nimport numpy as np\na = np.array([[1,2,3,4],[5,6,7,8]])\nprint(a.T.shape)",
      "options": [
       {
+       "text": "[8]",
+       "detail": "Transpose không làm phẳng bảng."
+      },
+      {
        "text": "(4, 2)",
-       "correct": true,
-       "detail": "Đổi hai trục làm số hàng mới bằng số cột cũ."
+       "detail": "Đổi hai trục làm số hàng mới bằng số cột cũ.",
+       "correct": true
       },
       {
        "text": "[2, 4]",
-       "correct": false,
        "detail": "Đó là shape trước transpose."
-      },
-      {
-       "text": "[8]",
-       "correct": false,
-       "detail": "Transpose không làm phẳng bảng."
       }
      ],
      "explanation": "Đổi hai trục làm số hàng mới bằng số cột cũ."
     }
+   ],
+   "practice": [
+    {
+     "prompt": "sales có shape (2,3). sales.T có shape gì và hàng đầu biểu diễn gì?",
+     "answer": "Shape (3,2); hàng đầu giữ ngày thứ nhất của hai cửa hàng, không còn là ba ngày của cửa hàng đầu."
+    },
+    {
+     "prompt": "Nối bảng (2,3) với bảng (1,3) thành ba hàng dùng hàm và axis nào?",
+     "answer": "np.concatenate([a,b],axis=0), shape (3,3). Không dùng axis=1 vì số hàng 2 và 1 không khớp."
+    },
+    {
+     "prompt": "Hai array a=[1,2], b=[3,4]: stack axis=0 và concatenate cho shape nào?",
+     "answer": "np.stack([a,b],axis=0) cho (2,2); np.concatenate([a,b]) cho (4,). Chiều mới của stack giữ riêng danh tính từng dãy."
+    }
    ]
-  },
-  "step_3": {
-   "task": {
-    "title": "Tự nhớ phần cú pháp còn thiếu",
-    "body": "Điền thuộc tính đổi hai trục của bảng 2D."
-   },
-   "scaffold": {
-    "template": "by_time = combined.{{slot1}}",
-    "slots": [
-     {
-      "n": 1,
-      "placeholder": "Thuộc tính chuyển vị",
-      "answer": "T"
-     }
-    ],
-    "bank": [
-     {
-      "label": "T",
-      "slot": 1,
-      "trap": ""
-     }
-    ]
-   }
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Viết solve(data) nhận first và second là hai lô bảng có cùng số cột. Ghép theo hàng rồi chuyển vị kết quả để mỗi cột cũ trở thành một hàng. Trả array đó.",
     "io": [
      {
-      "label": "Hai lô một hàng",
-      "value": "{'first': [[1, 2, 3]], 'second': [[4, 5, 6]]} → [[1, 4], [2, 5], [3, 6]]"
+      "label": "data =",
+      "value": "{'first': [[1, 2, 3]], 'second': [[4, 5, 6]]}"
      },
      {
-      "label": "Lô đầu hai hàng",
-      "value": "{'first': [[1, 2], [3, 4]], 'second': [[5, 6]]} → [[1, 3, 5], [2, 4, 6]]"
-     },
-     {
-      "label": "Một cột",
-      "value": "{'first': [[0]], 'second': [[7]]} → [[0, 7]]"
+      "label": "trả về",
+      "value": "[[1, 4], [2, 5], [3, 6]]"
      }
     ]
    },
    "starterCode": "def solve(data):\n    # Viết phần xử lý rồi return kết quả.\n    pass\n",
    "solutionCode": "import numpy as np\ndef solve(data):\n    first = np.array(data[\"first\"])\n    second = np.array(data[\"second\"])\n    combined = np.concatenate([first, second], axis=0)\n    return combined.T\n",
+   "tests": [
+    {
+     "name": "Hai lô một hàng",
+     "input": {
+      "first": [
+       [
+        1,
+        2,
+        3
+       ]
+      ],
+      "second": [
+       [
+        4,
+        5,
+        6
+       ]
+      ]
+     },
+     "expected": [
+      [
+       1,
+       4
+      ],
+      [
+       2,
+       5
+      ],
+      [
+       3,
+       6
+      ]
+     ]
+    },
+    {
+     "name": "Lô đầu hai hàng",
+     "input": {
+      "first": [
+       [
+        1,
+        2
+       ],
+       [
+        3,
+        4
+       ]
+      ],
+      "second": [
+       [
+        5,
+        6
+       ]
+      ]
+     },
+     "expected": [
+      [
+       1,
+       3,
+       5
+      ],
+      [
+       2,
+       4,
+       6
+      ]
+     ]
+    },
+    {
+     "name": "Một cột",
+     "input": {
+      "first": [
+       [
+        0
+       ]
+      ],
+      "second": [
+       [
+        7
+       ]
+      ]
+     },
+     "expected": [
+      [
+       0,
+       7
+      ]
+     ]
+    }
+   ],
+   "contract": {
+    "mode": "function"
+   },
    "hints": [
     {
      "title": "Gợi ý 1",
@@ -175,24 +261,17 @@
    ],
    "packages": [
     "numpy"
-   ],
-   "tests": [
-    {
-     "name": "Hai lô một hàng",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'first': [[1, 2, 3]], 'second': [[4, 5, 6]]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "[[1, 4], [2, 5], [3, 6]]"
-    },
-    {
-     "name": "Lô đầu hai hàng",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'first': [[1, 2], [3, 4]], 'second': [[5, 6]]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "[[1, 3, 5], [2, 4, 6]]"
-    },
-    {
-     "name": "Một cột",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'first': [[0]], 'second': [[7]]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "[[0, 7]]"
-    }
    ]
   }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
  }
 }

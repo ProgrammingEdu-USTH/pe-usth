@@ -3,54 +3,76 @@
  "sort_order": 54,
  "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
  "title": "PD13 · JSON và Excel: chọn đúng bảng cần đọc",
- "subtitle": "Trung cấp · M3 · 30 phút",
- "estimated_minutes": 30,
- "xp_reward": 15,
+ "subtitle": "Trung cấp · M3 · 17 phút",
+ "estimated_minutes": 17,
+ "xp_reward": 10,
  "content_json": {
-  "schema": "studio-lesson/v1",
+  "schema": "studio-lesson/v2",
   "title": "PD13 · JSON và Excel: chọn đúng bảng cần đọc",
-  "subtitle": "Trung cấp · M3 · 30 phút",
+  "subtitle": "Trung cấp · M3 · 17 phút",
   "source": {
-   "kind": "pe-da",
-   "filename": "lessons/PD13.md",
-   "parser": "pe-da/build"
+   "kind": "python-da",
+   "filename": "course.json#PD13",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 328; pandas · Excel input; pandas · ExcelFile.parse migration"
   },
   "step_1": {
-   "context": {
-    "title": "JSON và Excel: chọn đúng bảng cần đọc",
-    "body": "Một API trả danh sách đơn dưới dạng JSON, trong khi đồng nghiệp gửi Excel có nhiều sheet. Cả hai có thể thành DataFrame, nhưng bạn cần biết cấu trúc dữ liệu trước khi đọc.",
-    "level": "Trung cấp"
-   },
-   "theory": [
-    {
-     "title": "Tình huống",
-     "body": "Một API trả danh sách đơn dưới dạng JSON, trong khi đồng nghiệp gửi Excel có nhiều sheet. Cả hai có thể thành DataFrame, nhưng bạn cần biết cấu trúc dữ liệu trước khi đọc.\n\norient=\"records\" nghĩa là mỗi đối tượng JSON đại diện cho một hàng. JSON lồng nhiều tầng cần chọn hoặc làm phẳng phần chứa bảng, chứ không phải lúc nào cũng đọc thẳng toàn bộ phản hồi."
-    },
-    {
-     "title": "Ý chính 2",
-     "body": "BytesIO giữ file Excel trong bộ nhớ; seek(0) đưa vị trí đọc về đầu file sau khi ghi. Ví dụ này cần gói openpyxl cho định dạng xlsx. Với đường dẫn thật, bạn không phải tự dùng BytesIO.\n\n`ExcelFile` giúp xem tên sheet rồi đọc đúng bảng. `book.parse(sheet_name=0)` đọc sheet đầu, còn `book.parse(sheet_name=\"Sales\")` chọn theo tên; cũng có thể dùng `pd.read_excel(book, ...)`. Trong ví dụ, sheet Targets có một hàng trống ở đầu do `startrow=1` lúc ghi. `skiprows=[0]` bỏ hàng đó, còn `names` đặt tên cột đọc vào. Slide cũ dùng tham số `parse_cols` để chọn cột; hiện nay dùng `usecols`, còn `ExcelFile.parse` vẫn được sử dụng. Hãy xem tên sheet trước khi chọn, vì sheet đầu có thể chỉ chứa hướng dẫn."
-    }
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Sổ quán không chỉ ở dạng CSV như bài trước; nó còn về từ dịch vụ hoặc bảng tính. Một API (tập hàm một dịch vụ mở ra cho bạn gọi) trả danh sách đơn, trong khi đồng nghiệp gửi Excel có nhiều sheet. Danh sách đó ở dạng JSON (định dạng text lưu dữ liệu lồng nhau). Cả hai có thể thành `DataFrame`, nhưng bạn cần biết cấu trúc dữ liệu trước khi đọc."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nfrom io import StringIO\ntext = '[{\"order\":\"A\",\"amount\":10},{\"order\":\"B\",\"amount\":20}]'\ndf = pd.read_json(StringIO(text), orient='records')\nprint(df['amount'].sum())\nprint(df.to_json(orient='records'))",
+      "expected": "30\n[{\"order\":\"A\",\"amount\":10},{\"order\":\"B\",\"amount\":20}]",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "orient=\"records\" nghĩa là mỗi đối tượng JSON đại diện cho một hàng. JSON lồng nhiều tầng cần chọn hoặc làm phẳng phần chứa bảng, chứ không phải lúc nào cũng đọc thẳng toàn bộ phản hồi."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nfrom io import BytesIO\nbuffer = BytesIO()\ndf = pd.DataFrame({'order': ['A', 'B'], 'amount': [10, 20]})\ndf.to_excel(buffer, index=False, sheet_name='Sales', engine='openpyxl')\nbuffer.seek(0)\nback = pd.read_excel(buffer, sheet_name='Sales', usecols=['amount'], engine='openpyxl')\nprint(back['amount'].sum())",
+      "expected": "30"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "BytesIO giữ file Excel trong bộ nhớ; seek(0) đưa vị trí đọc về đầu file sau khi ghi. Ví dụ này cần gói openpyxl cho định dạng xlsx. Với đường dẫn thật, bạn không phải tự dùng BytesIO."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\nfrom io import BytesIO\nbuffer = BytesIO()\nwith pd.ExcelWriter(buffer, engine='openpyxl') as writer:\n    pd.DataFrame({'amount': [10]}).to_excel(writer, sheet_name='Sales', index=False)\n    pd.DataFrame({'target': [20]}).to_excel(writer, sheet_name='Targets', index=False, startrow=1)\nbuffer.seek(0)\nwith pd.ExcelFile(buffer, engine='openpyxl') as book:\n    print(book.sheet_names)\n    print(book.parse(sheet_name=0, usecols=['amount']).loc[0, 'amount'])\n    target = book.parse(sheet_name='Targets', usecols=[0], skiprows=[0], names=['weekly_target'])\n    print(target.loc[0, 'weekly_target'])",
+      "expected": "['Sales', 'Targets']\n10\n20"
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "ExcelFile giúp xem tên sheet rồi đọc đúng bảng. `book.parse(sheet_name=0)` và `pd.read_excel(book, sheet_name=0)` là hai cách đọc tương đương; số 0 chọn sheet đầu, còn chuỗi \"Sales\" chọn theo tên. Targets có một hàng trống đầu file do startrow=1 lúc ghi; skiprows=[0] bỏ hàng đó, còn names đặt tên cột đọc vào. Trong tờ tóm tắt cũ, parse_cols chọn cột; tham số hiện hành là usecols. Không đổi parse thành một API đã bị bỏ: ExcelFile.parse vẫn có trong tài liệu pandas ổn định được kiểm khi biên tập. Đừng mặc định sheet đầu luôn là bảng cần dùng; nó có thể chỉ là hướng dẫn."
+     },
+     {
+      "type": "paragraph",
+      "text": "Hai bảng tra của quán có THẬT trong thư mục của bài này: `mon.csv` giữ giá niêm yết từng món, `quay.csv` giữ ba quầy. Khi file đã nằm cạnh chương trình thì `pd.read_csv` nhận luôn tên file — không cần `StringIO` như các ví dụ ở trên. Trước hết vẫn phải xem bảng nào có cột mình cần, chứ không phải đọc cả hai rồi mới tính."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\n\nmon = pd.read_csv('mon.csv')\nquay = pd.read_csv('quay.csv')\nprint(mon.shape, quay.shape)\nprint(list(mon.columns))\nprint(mon.groupby('nhom')['gia_niem_yet'].mean().astype(int).to_dict())\nprint(quay.loc[0, 'ten'])\n",
+      "expected": "(12, 4) (3, 4)\n['mon', 'ten_mon', 'nhom', 'gia_niem_yet']\n{'Bánh': 28500, 'Cà phê': 34571, 'Trà': 40500, 'Đá xay': 49000}\nQuầy mặt phố"
+     }
+    ]
    ],
-   "code": {
-    "filename": "vi_du.py",
-    "version": "Python 3.12",
-    "source": "import pandas as pd\nfrom io import StringIO\ntext = '[{\"order\":\"A\",\"amount\":10},{\"order\":\"B\",\"amount\":20}]'\ndf = pd.read_json(StringIO(text), orient='records')\nprint(df['amount'].sum())\nprint(df.to_json(orient='records'))",
-    "kind": "demo"
-   },
-   "explain": [
-    {
-     "n": 1,
-     "body": "Ví dụ 1 in ra: 30 ⏎ [{\"order\":\"A\",\"amount\":10},{\"order\":\"B\",\"amount\":20}]"
-    },
-    {
-     "n": 2,
-     "body": "Ví dụ 2 in ra: 30"
-    },
-    {
-     "n": 3,
-     "body": "Ví dụ 3 in ra: ['Sales', 'Targets'] ⏎ 10 ⏎ 20"
-    }
-   ]
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "PD12 · Đọc CSV và giữ đúng ý nghĩa cột"
+   }
   },
   "step_2": {
    "mcq": [
@@ -58,128 +80,123 @@
      "question": "Workbook có [\"Notes\",\"Sales\"]. sheet_name=0 chọn gì?",
      "options": [
       {
-       "text": "Sales",
-       "correct": false,
-       "detail": "Tên Sales không quyết định vị trí 0."
-      },
-      {
        "text": "Cả hai",
-       "correct": false,
        "detail": "Một số 0 chọn một sheet, không phải mọi sheet."
       },
       {
+       "text": "Sales",
+       "detail": "Tên Sales không quyết định vị trí 0."
+      },
+      {
        "text": "Notes",
-       "correct": true,
-       "detail": "Đúng: 0 chỉ vị trí sheet đầu."
+       "detail": "Đúng: 0 chỉ vị trí sheet đầu.",
+       "correct": true
       }
      ],
      "explanation": "Hãy xem tên sheet và chọn theo mục đích của bảng."
     },
     {
-     "question": "orient=\"records\" mô tả JSON như thế nào?",
+     "question": "orient=\"records\" mô tả JSON như thế nào?\n\nimport pandas as pd\nfrom io import StringIO\ntext = '[{\"order\":\"A\",\"amount\":10},{\"order\":\"B\",\"amount\":20}]'\ndf = pd.read_json(StringIO(text), orient='records')\nprint(df['amount'].sum())\nprint(df.to_json(orient='records'))",
      "options": [
       {
+       "text": "Một chuỗi duy nhất chứa tên sheet Excel.",
+       "detail": "JSON records không mô tả tên sheet của workbook."
+      },
+      {
        "text": "Một danh sách đối tượng, mỗi đối tượng tương ứng một hàng.",
-       "correct": true,
-       "detail": "Một danh sách đối tượng, mỗi đối tượng tương ứng một hàng."
+       "detail": "Một danh sách đối tượng, mỗi đối tượng tương ứng một hàng.",
+       "correct": true
       },
       {
        "text": "Một dictionary cho mỗi cột, không có hàng.",
-       "correct": false,
        "detail": "Mô tả này nghiêng về dạng ánh xạ theo cột, không phải records."
-      },
-      {
-       "text": "Một chuỗi duy nhất chứa tên sheet Excel.",
-       "correct": false,
-       "detail": "JSON records không mô tả tên sheet của workbook."
       }
      ],
      "explanation": "Một danh sách đối tượng, mỗi đối tượng tương ứng một hàng."
     },
     {
-     "question": "Vì sao buffer.seek(0) xuất hiện trước khi đọc Excel trong ví dụ?",
+     "question": "Vì sao buffer.seek(0) xuất hiện trước khi đọc Excel trong ví dụ?\n\nimport pandas as pd\nfrom io import BytesIO\nbuffer = BytesIO()\ndf = pd.DataFrame({'order': ['A', 'B'], 'amount': [10, 20]})\ndf.to_excel(buffer, index=False, sheet_name='Sales', engine='openpyxl')\nbuffer.seek(0)\nback = pd.read_excel(buffer, sheet_name='Sales', usecols=['amount'], engine='openpyxl')\nprint(back['amount'].sum())",
      "options": [
       {
-       "text": "Để xóa workbook trước khi đọc.",
-       "correct": false,
-       "detail": "seek(0) đổi vị trí đọc, không xóa dữ liệu."
+       "text": "Vì sau khi ghi, con trỏ đang ở cuối dữ liệu; cần đưa về đầu để đọc.",
+       "detail": "Vì sau khi ghi, con trỏ đang ở cuối dữ liệu; cần đưa về đầu để đọc.",
+       "correct": true
       },
       {
        "text": "Để đổi sheet đầu tiên thành Sales.",
-       "correct": false,
        "detail": "Chọn sheet là trách nhiệm của sheet_name hoặc parse."
       },
       {
-       "text": "Vì sau khi ghi, con trỏ đang ở cuối dữ liệu; cần đưa về đầu để đọc.",
-       "correct": true,
-       "detail": "Vì sau khi ghi, con trỏ đang ở cuối dữ liệu; cần đưa về đầu để đọc."
+       "text": "Để xóa workbook trước khi đọc.",
+       "detail": "seek(0) đổi vị trí đọc, không xóa dữ liệu."
       }
      ],
      "explanation": "Vì sau khi ghi, con trỏ đang ở cuối dữ liệu; cần đưa về đầu để đọc."
     }
+   ],
+   "practice": [
+    {
+     "prompt": "orient=\"records\" mô tả JSON như thế nào?",
+     "answer": "Một danh sách đối tượng, mỗi đối tượng tương ứng một hàng."
+    },
+    {
+     "prompt": "Vì sao buffer.seek(0) xuất hiện trước khi đọc Excel trong ví dụ?",
+     "answer": "Vì sau khi ghi, con trỏ đang ở cuối dữ liệu; cần đưa về đầu để đọc."
+    },
+    {
+     "prompt": "Tạo một file Excel trong bộ nhớ có sheet Sales chứa so_coc=[2,3], price=[10,20]. Đọc riêng cột so_coc của sheet đó và in tổng.",
+     "answer": "Dùng sheet_name và usecols; tổng so_coc là 5.",
+     "answerCode": "import pandas as pd\nfrom io import BytesIO\nbuffer = BytesIO()\npd.DataFrame({'so_coc': [2, 3], 'price': [10, 20]}).to_excel(buffer, sheet_name='Sales', index=False, engine='openpyxl')\nbuffer.seek(0)\nread = pd.read_excel(buffer, sheet_name='Sales', usecols=['so_coc'], engine='openpyxl')\nprint(read['so_coc'].sum())",
+     "answerExpected": "5"
+    },
+    {
+     "prompt": "book.sheet_names là [\"Sales\",\"Targets\"]. Viết hai cách đọc Sales bằng parse; đọc cột đầu Targets sau một dòng trống và đổi tên thành weekly_target.",
+     "answer": "book.parse(sheet_name=\"Sales\") và book.parse(sheet_name=0) cùng đọc Sales. Với Targets: book.parse(sheet_name=\"Targets\", usecols=[0], skiprows=[0], names=[\"weekly_target\"]). Thay parse_cols cũ bằng usecols; pd.read_excel(book, ...) cũng nhận các lựa chọn này."
+    }
    ]
-  },
-  "step_3": {
-   "task": {
-    "title": "Tự nhớ một phần cú pháp",
-    "body": "Chọn Sales theo tên."
-   },
-   "scaffold": {
-    "template": "sales = pd.read_excel(buffer, {{slot1}}=\"Sales\", usecols=[\"amount\"], engine=\"openpyxl\")",
-    "slots": [
-     {
-      "n": 1,
-      "placeholder": "Phần còn thiếu",
-      "answer": "sheet_name"
-     }
-    ],
-    "bank": [
-     {
-      "label": "sheet_name",
-      "slot": 1,
-      "trap": ""
-     }
-    ]
-   }
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
-    "body": "data.amounts là số tiền của sheet Sales; data.targets là chỉ tiêu ở sheet Targets. Tạo workbook trong BytesIO với hai sheet Targets trước, Sales sau. Đọc lại chỉ cột amount của Sales và trả tổng. Lệnh đọc phải chỉ rõ sheet Sales; không lấy chỉ tiêu từ sheet đầu.",
-    "io": [
-     {
-      "label": "chỉ tiêu không phải doanh thu",
-      "value": "{'amounts': [5, 8], 'targets': [100]} → 13.0"
-     },
-     {
-      "label": "một dòng doanh thu",
-      "value": "{'amounts': [0], 'targets': [9, 20]} → 0.0"
-     },
-     {
-      "label": "ba dòng",
-      "value": "{'amounts': [1.5, 2.5, 6], 'targets': [1000]} → 10.0"
-     }
-    ]
+    "title": "Chạy thử",
+    "body": "Ô này chạy Python ngay trong trình duyệt. Code của bài đã có sẵn — sửa số liệu, thêm print() rồi chạy lại để xem kết quả đổi thế nào. 2 đoạn trong bài không chạy được ở đây (openpyxl chưa được cài sẵn trong trình duyệt của khoá này) nên không nằm trong ô này."
    },
-   "hints": [
-    {
-     "title": "Gợi ý 1",
-     "body": "Workbooks có thể có nhiều sheet. Chỉ định tên sheet cần đọc."
-    },
-    {
-     "title": "Gợi ý 2",
-     "body": "Tạo và đọc đúng sheet Excel thay vì mặc định sheet đầu."
-    }
-   ],
+   "starterCode": "# ── Đoạn 1 ──\nimport pandas as pd\nfrom io import StringIO\ntext = '[{\"order\":\"A\",\"amount\":10},{\"order\":\"B\",\"amount\":20}]'\ndf = pd.read_json(StringIO(text), orient='records')\nprint(df['amount'].sum())\nprint(df.to_json(orient='records'))\n\n# ── Đoạn 2 ──\nimport pandas as pd\n\nmon = pd.read_csv('mon.csv')\nquay = pd.read_csv('quay.csv')\nprint(mon.shape, quay.shape)\nprint(list(mon.columns))\nprint(mon.groupby('nhom')['gia_niem_yet'].mean().astype(int).to_dict())\nprint(quay.loc[0, 'ten'])\n",
    "packages": [
     "pandas"
    ],
-   "procedure": [
-    "Bài này chưa chạy đạt trong Pyodide (bộ chấm trình duyệt) nên chưa chấm tự động.",
-    "Đầu vào {'amounts': [5, 8], 'targets': [100]} — kết quả cần có 13.0.",
-    "Đầu vào {'amounts': [0], 'targets': [9, 20]} — kết quả cần có 0.0.",
-    "Đầu vào {'amounts': [1.5, 2.5, 6], 'targets': [1000]} — kết quả cần có 10.0."
+   "env": "2 đoạn phải chạy bằng Python trên máy: openpyxl chưa được cài sẵn trong trình duyệt của khoá này.",
+   "dataFiles": [
+    "mon.csv",
+    "quay.csv"
    ]
   }
+ },
+ "_mode": "mixed",
+ "_blocked": [
+  {
+   "block": 1,
+   "reason": "openpyxl chưa có wheel trong /pyodide/v314.0.7/"
+  },
+  {
+   "block": 2,
+   "reason": "openpyxl chưa có wheel trong /pyodide/v314.0.7/"
+  }
+ ],
+ "_du_lieu": {
+  "files": [
+   "mon.csv",
+   "quay.csv"
+  ],
+  "blocks": [
+   3
+  ]
+ },
+ "_so_mcq": 3,
+ "_bai_tap": "khong: openpyxl chưa có wheel trong /pyodide/v314.0.7/",
+ "_vet": {
+  "can": 1,
+  "co": 0,
+  "bo": 1,
+  "loi": []
  }
 }

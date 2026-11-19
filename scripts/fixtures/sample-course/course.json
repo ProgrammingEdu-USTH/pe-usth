@@ -1,0 +1,19 @@
+{
+  "id": "sample_sql",
+  "title": "SQL thực hành (mẫu)",
+  "subtitle": "3 bài: từ SELECT đầu tiên tới GROUP BY",
+  "description": "Gói bài mẫu gọn để kiểm tra đồng bộ giáo trình cho mọi môn trước khi nạp bộ dữ liệu SQL và ML thật.",
+  "level": "beginner",
+  "color": "#0f766e",
+  "accent": "#f59e0b",
+  "mark": "SQL",
+  "lessonUrl": "/lesson/sample_sql",
+  "requirements": [
+    "Đọc bảng dữ liệu và kết quả truy vấn mẫu trực tiếp trên màn đọc",
+    "Không cần cài sẵn hệ quản trị CSDL trên máy"
+  ],
+  "skills": [
+    "Truy vấn SELECT, lọc hàng với WHERE",
+    "Nhóm và tổng hợp số liệu bằng GROUP BY và COUNT"
+  ]
+}

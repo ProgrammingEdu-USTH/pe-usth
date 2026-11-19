@@ -3,54 +3,67 @@
  "sort_order": 58,
  "module": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích",
  "title": "PD17 · Kiểm tra số dòng sau khi nối bảng",
- "subtitle": "Trung cấp · M3 · 30 phút",
- "estimated_minutes": 30,
- "xp_reward": 15,
+ "subtitle": "Trung cấp · M3 · 12 phút",
+ "estimated_minutes": 12,
+ "xp_reward": 8,
  "content_json": {
-  "schema": "studio-lesson/v1",
+  "schema": "studio-lesson/v2",
   "title": "PD17 · Kiểm tra số dòng sau khi nối bảng",
-  "subtitle": "Trung cấp · M3 · 30 phút",
+  "subtitle": "Trung cấp · M3 · 12 phút",
   "source": {
-   "kind": "pe-da",
-   "filename": "lessons/PD17.md",
-   "parser": "pe-da/build"
+   "kind": "python-da",
+   "filename": "course.json#PD17",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "pandas · Merge validation"
   },
   "step_1": {
-   "context": {
-    "title": "Kiểm tra số dòng sau khi nối bảng",
-    "body": "Một danh mục khách vô tình có hai dòng cho cùng mã. Nếu nối ngay với đơn hàng, một đơn có thể xuất hiện hai lần và làm tổng tiền tăng sai.",
-    "level": "Trung cấp"
-   },
-   "theory": [
-    {
-     "title": "Tình huống",
-     "body": "Một danh mục khách vô tình có hai dòng cho cùng mã. Nếu nối ngay với đơn hàng, một đơn có thể xuất hiện hai lần và làm tổng tiền tăng sai.\n\nHai đơn bên trái ghép với hai dòng bên phải tạo bốn hàng. Tổng gốc chỉ là 30. Đây là quan hệ nhiều-nhiều; merge không tự biết phép nối đó có đúng nghiệp vụ hay không."
-    },
-    {
-     "title": "Ý chính 2",
-     "body": "many_to_one cho phép nhiều đơn cùng khách, nhưng yêu cầu khóa bên danh mục là duy nhất. one_to_one yêu cầu cả hai phía duy nhất. many_to_many cho phép trùng ở cả hai phía nên không bảo vệ bạn khỏi việc nhân dòng.\n\n`indicator=True` thêm cột `_merge`: `both` nghĩa là mã có ở cả hai bảng, `left_only` chỉ có ở bảng trái và `right_only` chỉ có ở bảng phải. Với phép nối trái trong ví dụ, mã 2 được đánh dấu `left_only`. Sau khi nối, đếm số đơn chưa khớp và kiểm tra riêng số hàng, tổng tiền. Khác phép nối SQL thông thường, pandas có thể ghép hai khóa cùng thiếu với nhau, nên cần xử lý khóa thiếu trước."
-    }
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Phép nối ở bài trước chạy êm vì mỗi mã khách của quán chỉ có một dòng. Một danh mục khách vô tình có hai dòng cho cùng mã. Nếu nối ngay với đơn hàng, một đơn có thể xuất hiện hai lần và làm tổng tiền tăng sai."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\norders = pd.DataFrame({'customer_id': [1, 1], 'amount': [10, 20]})\ncustomers = pd.DataFrame({'customer_id': [1, 1], 'city': ['HN', 'DN']})\njoined = orders.merge(customers, on='customer_id')\nprint(len(joined))\nprint(joined['amount'].sum())",
+      "expected": "4\n60",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Hai đơn bên trái ghép với hai dòng bên phải tạo bốn hàng. Tổng gốc chỉ là 30. Đây là quan hệ nhiều-nhiều; merge không tự biết phép nối đó có đúng nghiệp vụ hay không."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\norders = pd.DataFrame({'customer_id': [1, 1], 'amount': [10, 20]})\ncustomers = pd.DataFrame({'customer_id': [1, 1], 'city': ['HN', 'DN']})\ntry:\n    orders.merge(customers, on='customer_id', validate='many_to_one')\nexcept pd.errors.MergeError as error:\n    print(type(error).__name__)",
+      "expected": "MergeError",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "many_to_one cho phép nhiều đơn cùng khách, nhưng yêu cầu khóa bên danh mục là duy nhất. one_to_one yêu cầu cả hai phía duy nhất. many_to_many cho phép trùng ở cả hai phía nên không bảo vệ bạn khỏi việc nhân dòng."
+     },
+     {
+      "type": "code",
+      "code": "import pandas as pd\norders = pd.DataFrame({'customer_id': [1, 2]})\ncustomers = pd.DataFrame({'customer_id': [1], 'city': ['HN']})\njoined = orders.merge(customers, on='customer_id', how='left', validate='many_to_one', indicator=True)\nprint(joined['_merge'].astype('string').tolist())\nprint(len(joined) == len(orders))",
+      "expected": "['both', 'left_only']\nTrue",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "`indicator=True` thêm cột `_merge`: `both` nghĩa là mã có ở cả hai bảng, `left_only` chỉ có ở bảng trái và `right_only` chỉ có ở bảng phải. Với phép nối trái trong ví dụ, mã 2 được đánh dấu `left_only`. Sau khi nối, đếm số đơn chưa khớp và kiểm tra riêng số hàng, tổng tiền. Khác phép nối SQL (ngôn ngữ hỏi dữ liệu trong cơ sở dữ liệu) thông thường, pandas có thể ghép hai khóa cùng thiếu với nhau. Vì vậy cần xử lý khóa thiếu trước."
+     }
+    ]
    ],
-   "code": {
-    "filename": "vi_du.py",
-    "version": "Python 3.12",
-    "source": "import pandas as pd\norders = pd.DataFrame({'customer_id': [1, 1], 'amount': [10, 20]})\ncustomers = pd.DataFrame({'customer_id': [1, 1], 'city': ['HN', 'DN']})\njoined = orders.merge(customers, on='customer_id')\nprint(len(joined))\nprint(joined['amount'].sum())",
-    "kind": "demo"
-   },
-   "explain": [
-    {
-     "n": 1,
-     "body": "Ví dụ 1 in ra: 4 ⏎ 60"
-    },
-    {
-     "n": 2,
-     "body": "Ví dụ 2 in ra: MergeError"
-    },
-    {
-     "n": 3,
-     "body": "Ví dụ 3 in ra: ['both', 'left_only'] ⏎ True"
-    }
-   ]
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "PD16 · Merge: nối đơn hàng với bảng món"
+   }
   },
   "step_2": {
    "mcq": [
@@ -59,18 +72,16 @@
      "options": [
       {
        "text": "2",
-       "correct": false,
        "detail": "Không tự giữ số hàng của bảng trái nếu khóa phải trùng."
       },
       {
-       "text": "6",
-       "correct": true,
-       "detail": "Đúng: mọi cặp cùng khóa đều được ghép."
+       "text": "3",
+       "detail": "Không chỉ lấy số hàng lớn hơn trong hai phía."
       },
       {
-       "text": "3",
-       "correct": false,
-       "detail": "Không chỉ lấy số hàng lớn hơn trong hai phía."
+       "text": "6",
+       "detail": "Đúng: mọi cặp cùng khóa đều được ghép.",
+       "correct": true
       }
      ],
      "explanation": "Danh mục trùng khóa có thể nhân hàng; many_to_one phát hiện trường hợp này."
@@ -79,90 +90,133 @@
      "question": "Hai hàng cùng khóa bên trái nối với ba hàng cùng khóa bên phải tạo bao nhiêu hàng?",
      "options": [
       {
-       "text": "Năm hàng, vì cộng hai kích thước.",
-       "correct": false,
-       "detail": "Số cặp ghép dùng phép nhân, không dùng phép cộng."
+       "text": "Sáu hàng.",
+       "detail": "Sáu hàng.",
+       "correct": true
       },
       {
        "text": "Ba hàng, vì merge luôn giữ số hàng lớn hơn.",
-       "correct": false,
        "detail": "Không có quy tắc chỉ lấy kích thước lớn hơn khi khóa lặp."
       },
       {
-       "text": "Sáu hàng.",
-       "correct": true,
-       "detail": "Sáu hàng."
+       "text": "Năm hàng, vì cộng hai kích thước.",
+       "detail": "Số cặp ghép dùng phép nhân, không dùng phép cộng."
       }
      ],
      "explanation": "Sáu hàng."
     },
     {
-     "question": "Đơn hàng nối danh mục khách duy nhất nên dùng validate nào?",
+     "question": "Đơn hàng nối danh mục khách duy nhất nên dùng validate nào?\n\nimport pandas as pd\norders = pd.DataFrame({'customer_id': [1, 1], 'amount': [10, 20]})\ncustomers = pd.DataFrame({'customer_id': [1, 1], 'city': ['HN', 'DN']})\ntry:\n    orders.merge(customers, on='customer_id', validate='many_to_one')\nexcept pd.errors.MergeError as error:\n    print(type(error).__name__)",
      "options": [
       {
-       "text": "many_to_many để bảo đảm danh mục không lặp mã.",
-       "correct": false,
-       "detail": "many_to_many không kiểm điều kiện duy nhất của danh mục."
+       "text": "one_to_one dù một khách có nhiều đơn.",
+       "detail": "one_to_one từ chối tình huống khách có nhiều đơn hợp lệ."
       },
       {
        "text": "many_to_one, khi đơn hàng ở bên trái.",
-       "correct": true,
-       "detail": "many_to_one, khi đơn hàng ở bên trái."
+       "detail": "many_to_one, khi đơn hàng ở bên trái.",
+       "correct": true
       },
       {
-       "text": "one_to_one dù một khách có nhiều đơn.",
-       "correct": false,
-       "detail": "one_to_one từ chối tình huống khách có nhiều đơn hợp lệ."
+       "text": "many_to_many để bảo đảm danh mục không lặp mã.",
+       "detail": "many_to_many không kiểm điều kiện duy nhất của danh mục."
       }
      ],
      "explanation": "many_to_one, khi đơn hàng ở bên trái."
     }
+   ],
+   "practice": [
+    {
+     "prompt": "Hai hàng cùng khóa bên trái nối với ba hàng cùng khóa bên phải tạo bao nhiêu hàng?",
+     "answer": "Sáu hàng."
+    },
+    {
+     "prompt": "Đơn hàng nối danh mục khách duy nhất nên dùng validate nào?",
+     "answer": "many_to_one, khi đơn hàng ở bên trái."
+    },
+    {
+     "prompt": "Dùng indicator để đếm mã trái chưa khớp: trái [1,2,3], phải [1,3].",
+     "answer": "Có một mã chưa khớp.",
+     "answerCode": "import pandas as pd\na = pd.DataFrame({'id': [1, 2, 3]})\nb = pd.DataFrame({'id': [1, 3]})\nout = a.merge(b, on='id', how='left', validate='one_to_one', indicator=True)\nprint((out['_merge'] == 'left_only').sum())",
+     "answerExpected": "1"
+    }
    ]
-  },
-  "step_3": {
-   "task": {
-    "title": "Tự nhớ một phần cú pháp",
-    "body": "Cho phép nhiều đơn nhưng danh mục phải duy nhất."
-   },
-   "scaffold": {
-    "template": "joined = orders.merge(catalog, on=\"id\", validate=\"{{slot1}}\")",
-    "slots": [
-     {
-      "n": 1,
-      "placeholder": "Phần còn thiếu",
-      "answer": "many_to_one"
-     }
-    ],
-    "bank": [
-     {
-      "label": "many_to_one",
-      "slot": 1,
-      "trap": ""
-     }
-    ]
-   }
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "data.orders là list mã id của đơn; data.catalog là list mã trong danh mục. Trả {valid:False,missing:[]} nếu danh mục trùng khóa; nếu hợp lệ, nối trái có validate và indicator rồi trả valid=True và list mã chưa khớp theo thứ tự đơn, giữ cả lần lặp.",
     "io": [
      {
-      "label": "ghi mã chưa khớp",
-      "value": "{'orders': [1, 4, 4, 2], 'catalog': [1, 2]} → {'valid': True, 'missing': [4, 4]}"
+      "label": "data =",
+      "value": "{'orders': [1, 4, 4, 2], 'catalog': [1, 2]}"
      },
      {
-      "label": "danh mục trùng",
-      "value": "{'orders': [1, 2], 'catalog': [1, 1, 2]} → {'valid': False, 'missing': []}"
-     },
-     {
-      "label": "khớp hết",
-      "value": "{'orders': [3, 3], 'catalog': [3]} → {'valid': True, 'missing': []}"
+      "label": "trả về",
+      "value": "{'valid': True, 'missing': [4, 4]}"
      }
     ]
    },
    "starterCode": "def solve(data):\n    # Đọc yêu cầu về đầu vào và giá trị cần trả về.\n    pass\n",
    "solutionCode": "import pandas as pd\n\ndef solve(data):\n     orders = pd.DataFrame({'id':data['orders']})\n     catalog = pd.DataFrame({'id':data['catalog']})\n     try:\n         joined = orders.merge(catalog, on='id', how='left', validate='many_to_one', indicator=True)\n     except pd.errors.MergeError:\n         return {'valid':False, 'missing':[]}\n     return {'valid':True, 'missing':joined.loc[joined['_merge'] == 'left_only','id'].tolist()}\n",
+   "tests": [
+    {
+     "name": "ghi mã chưa khớp",
+     "input": {
+      "orders": [
+       1,
+       4,
+       4,
+       2
+      ],
+      "catalog": [
+       1,
+       2
+      ]
+     },
+     "expected": {
+      "valid": true,
+      "missing": [
+       4,
+       4
+      ]
+     }
+    },
+    {
+     "name": "danh mục trùng",
+     "input": {
+      "orders": [
+       1,
+       2
+      ],
+      "catalog": [
+       1,
+       1,
+       2
+      ]
+     },
+     "expected": {
+      "valid": false,
+      "missing": []
+     }
+    },
+    {
+     "name": "khớp hết",
+     "input": {
+      "orders": [
+       3,
+       3
+      ],
+      "catalog": [
+       3
+      ]
+     },
+     "expected": {
+      "valid": true,
+      "missing": []
+     }
+    }
+   ],
    "hints": [
     {
      "title": "Gợi ý 1",
@@ -175,24 +229,17 @@
    ],
    "packages": [
     "pandas"
-   ],
-   "tests": [
-    {
-     "name": "ghi mã chưa khớp",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'orders': [1, 4, 4, 2], 'catalog': [1, 2]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "{'valid': True, 'missing': [4, 4]}"
-    },
-    {
-     "name": "danh mục trùng",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'orders': [1, 2], 'catalog': [1, 1, 2]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "{'valid': False, 'missing': []}"
-    },
-    {
-     "name": "khớp hết",
-     "call": "__import__('json').loads(__import__('json').dumps(solve({'orders': [3, 3], 'catalog': [3]}), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "{'valid': True, 'missing': []}"
-    }
    ]
   }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
  }
 }

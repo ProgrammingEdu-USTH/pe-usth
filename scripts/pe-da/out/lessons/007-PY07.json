@@ -3,54 +3,67 @@
  "sort_order": 7,
  "module": "M1 · Python nền tảng",
  "title": "PY07 · Lấy ký tự và một đoạn chuỗi",
- "subtitle": "Cơ bản · M1 · 25 phút",
- "estimated_minutes": 25,
- "xp_reward": 10,
+ "subtitle": "Cơ bản · M1 · 13 phút",
+ "estimated_minutes": 13,
+ "xp_reward": 8,
  "content_json": {
-  "schema": "studio-lesson/v1",
+  "schema": "studio-lesson/v2",
   "title": "PY07 · Lấy ký tự và một đoạn chuỗi",
-  "subtitle": "Cơ bản · M1 · 25 phút",
+  "subtitle": "Cơ bản · M1 · 13 phút",
   "source": {
-   "kind": "pe-da",
-   "filename": "lessons/PY07.md",
-   "parser": "pe-da/build"
+   "kind": "python-da",
+   "filename": "course.json#PY07",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 47-48, 330; Python — Tutorial"
   },
   "step_1": {
-   "context": {
-    "title": "Lấy ký tự và một đoạn chuỗi",
-    "body": "Tên file là \"marks.csv\". Bạn chỉ cần phần đuôi csv để kiểm tra loại dữ liệu:",
-    "level": "Cơ bản"
-   },
-   "theory": [
-    {
-     "title": "Tình huống",
-     "body": "Tên file là \"marks.csv\". Bạn chỉ cần phần đuôi csv để kiểm tra loại dữ liệu:\n\nChỉ số bắt đầu từ 0; chỉ số âm đếm từ cuối. `filename[-3:]` lấy từ ký tự thứ ba tính từ cuối đến hết chuỗi. Dấu `:` tạo một slice, tức một đoạn. Với bước dương, bỏ vị trí bắt đầu (start) như `filename[:5]` nghĩa là lấy từ đầu, còn bỏ vị trí dừng (stop) như `filename[2:]` là lấy đến hết."
-    },
-    {
-     "title": "Ý chính 2",
-     "body": "Trong `text[start:stop:step]`, điểm dừng không được lấy. `text[1:5:2]` lấy chỉ số 1 và 3, nên được y và h. Bước -1 đảo hướng đọc. `in` kiểm tra có chuỗi con, còn `not in` kiểm tra không có. Việc kiểm tra phân biệt hoa thường: `\"Py\" in \"Python\"` là True, nhưng `\"py\" in \"Python\"` là False.\n\nChuỗi bất biến: không thể gán lại một ký tự trong object chuỗi. Đoạn trên dùng try/except để bắt TypeError và in tên lỗi, nên chương trình vẫn chạy câu lệnh tiếp theo; bạn sẽ học cấu trúc bắt lỗi ở bài ngoại lệ. Bạn tạo chuỗi mới bằng cách ghép \"D\" với đoạn còn lại. Chỉ số vượt phạm vi gây IndexError; slice vượt điểm cuối có thể trả đoạn ngắn hơn thay vì báo lỗi."
-    }
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Dòng tiêu đề bạn vừa dựng ở bài trước là chữ bạn tự viết ra. Nhưng mỗi tối máy tính tiền lại xuất cho quán một file tên \"doanhthu.csv\", và bạn cần đọc được từng phần của chuỗi đó. Ba ký tự cuối cho biết đây là bảng phân tách bằng dấu phẩy:"
+     },
+     {
+      "type": "code",
+      "code": "filename = \"doanhthu.csv\"\nprint(filename[-3:])\nprint(filename[0])",
+      "expected": "csv\nd",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Chỉ số bắt đầu từ 0, nên `filename[0]` là chữ đầu tiên. Chỉ số âm đếm từ cuối, nên `filename[-3:]` lấy từ ký tự thứ ba tính từ cuối đến hết chuỗi. Dấu `:` tạo một lát cắt (slice), tức một đoạn liên tiếp của dãy. Bỏ điểm đầu như `filename[:5]` là lấy từ đầu; bỏ điểm cuối như `filename[2:]` là lấy đến hết."
+     },
+     {
+      "type": "code",
+      "code": "ma = \"CF0312\"\nprint(ma[1:5:2])\nprint(ma[::-1])\nprint(\"CF\" in ma)",
+      "expected": "F3\n2130FC\nTrue",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Mã đơn của quán cũng là một chuỗi, nên cùng mấy phép đọc đó áp được. Trong `ma[start:stop:step]`, điểm dừng không được lấy: `ma[1:5:2]` lấy chỉ số 1 và 3, nên được `\"F3\"`. Bước -1 đọc ngược cả chuỗi. `in` kiểm có chuỗi con, `not in` kiểm không có. Phép kiểm này phân biệt hoa thường, nên `\"CF\" in ma` là `True` còn `\"cf\" in ma` là `False`."
+     },
+     {
+      "type": "code",
+      "code": "mon = \"latte\"\ntry:\n    mon[0] = \"L\"\nexcept TypeError as error:\n    print(type(error).__name__)\nprint(\"L\" + mon[1:])",
+      "expected": "TypeError\nLatte",
+      "tryIt": true
+     },
+     {
+      "type": "paragraph",
+      "text": "Tên món trong sổ viết thường, và bạn muốn hoa chữ đầu khi in ra hoá đơn. Sửa thẳng một ký tự thì không được: chuỗi bất biến, nên không gán lại được một ký tự trong chuỗi đã có. Đoạn trên dùng `try`/`except` để bắt `TypeError` và in tên lỗi, nên chương trình vẫn chạy dòng sau. Cách đúng là tạo một chuỗi mới: ghép `\"L\"` với đoạn còn lại. Chỉ số vượt phạm vi gây `IndexError`, còn lát cắt vượt điểm cuối trả đoạn ngắn hơn thay vì báo lỗi."
+     }
+    ]
    ],
-   "code": {
-    "filename": "vi_du.py",
-    "version": "Python 3.12",
-    "source": "filename = \"marks.csv\"\nprint(filename[-3:])\nprint(filename[0])",
-    "kind": "demo"
-   },
-   "explain": [
-    {
-     "n": 1,
-     "body": "Ví dụ 1 in ra: csv ⏎ m"
-    },
-    {
-     "n": 2,
-     "body": "Ví dụ 2 in ra: yh ⏎ nohtyP ⏎ True"
-    },
-    {
-     "n": 3,
-     "body": "Ví dụ 3 in ra: TypeError ⏎ Data"
-    }
-   ]
+   "context": {
+    "level": "Cơ bản",
+    "prereq": "PY06 · Chuỗi, dấu nháy và ký tự xuống dòng"
+   }
   },
   "step_2": {
    "mcq": [
@@ -59,107 +72,121 @@
      "options": [
       {
        "text": "2048",
-       "correct": true,
-       "detail": "Đúng. Lấy bốn ký tự từ cuối tới hết."
-      },
-      {
-       "text": "AB-2",
-       "correct": false,
-       "detail": "Đó là bốn ký tự đầu."
+       "detail": "Đúng. Lấy bốn ký tự từ cuối tới hết.",
+       "correct": true
       },
       {
        "text": "048",
-       "correct": false,
        "detail": "Bắt đầu từ -4 chứ không phải -3."
+      },
+      {
+       "text": "AB-2",
+       "detail": "Đó là bốn ký tự đầu."
       }
      ],
      "explanation": "Đúng. Lấy bốn ký tự từ cuối tới hết."
     },
     {
-     "question": "Đọc ký tự đầu của mã file. Kết quả ở lệnh print cuối có giá trị nào?",
+     "question": "Đọc ký tự đầu của mã file. Kết quả ở lệnh print cuối có giá trị nào?\n\nname = \"sales.csv\"\nprint(name[0])",
      "options": [
       {
-       "text": "'s'",
-       "correct": true,
-       "detail": "Chỉ số 0 trỏ ký tự đầu tiên."
-      },
-      {
        "text": "'a'",
-       "correct": false,
        "detail": "a ở chỉ số 1."
       },
       {
        "text": "'sales'",
-       "correct": false,
        "detail": "[0] lấy một ký tự, không lấy cả từ."
+      },
+      {
+       "text": "'s'",
+       "detail": "Chỉ số 0 trỏ ký tự đầu tiên.",
+       "correct": true
       }
      ],
      "explanation": "Chỉ số 0 trỏ ký tự đầu tiên."
     },
     {
-     "question": "Đọc ký tự cuối. Kết quả ở lệnh print cuối có giá trị nào?",
+     "question": "Đọc ký tự cuối. Kết quả ở lệnh print cuối có giá trị nào?\n\nname = \"report\"\nprint(name[-1])",
      "options": [
       {
-       "text": "'t'",
-       "correct": true,
-       "detail": "Chỉ số -1 lấy ký tự cuối của dãy."
-      },
-      {
        "text": "'r'",
-       "correct": false,
        "detail": "r là ký tự đầu."
       },
       {
+       "text": "'t'",
+       "detail": "Chỉ số -1 lấy ký tự cuối của dãy.",
+       "correct": true
+      },
+      {
        "text": "'o'",
-       "correct": false,
        "detail": "o không ở vị trí cuối."
       }
      ],
      "explanation": "Chỉ số -1 lấy ký tự cuối của dãy."
     }
+   ],
+   "practice": [
+    {
+     "prompt": "\"latte\"[-1] trả ký tự nào?",
+     "answer": "e."
+    },
+    {
+     "prompt": "Trong \"CF0312\"[1:5:2], vì sao không có ký tự ở vị trí 5?",
+     "answer": "Lát cắt không lấy điểm dừng; các chỉ số được lấy là 1 và 3."
+    },
+    {
+     "prompt": "Lấy 5 ký tự đầu và 3 ký tự cuối của tên file \"doanhthu.csv\".",
+     "answer": "Dùng s[:5] cho \"doanh\" và s[-3:] cho \"csv\". Nếu chuỗi ngắn hơn độ dài yêu cầu, lát cắt trả phần có sẵn."
+    },
+    {
+     "prompt": "Với s=\"latte\", s[0], s[-1], s[:2], s[2:] và \"LA\" not in s cho gì?",
+     "answer": "l; e; la; tte; True. Chỉ số bắt đầu 0, chỉ số âm đếm từ cuối; bỏ điểm đầu lấy từ đầu, bỏ điểm cuối lấy đến hết. So chuỗi con phân biệt hoa thường."
+    }
    ]
-  },
-  "step_3": {
-   "task": {
-    "title": "Tự nhớ phần cú pháp còn thiếu",
-    "body": "Điền vị trí dừng để lấy đúng hai ký tự đầu của \"Python\"."
-   },
-   "scaffold": {
-    "template": "prefix = \"Python\"[:{{slot1}}]",
-    "slots": [
-     {
-      "n": 1,
-      "placeholder": "Vị trí dừng",
-      "answer": "2"
-     }
-    ],
-    "bank": [
-     {
-      "label": "2",
-      "slot": 1,
-      "trap": ""
-     }
-    ]
-   }
   },
   "step_4": {
    "task": {
-    "title": "Tự viết và chạy trong terminal",
+    "title": "Tự viết rồi chạy Python",
     "body": "Hệ thống cung cấp serial là chuỗi mã kiện hàng. Gán tối đa bốn ký tự cuối vào suffix. Với mã ngắn hơn bốn ký tự, giữ cả mã.",
     "io": [
      {
-      "label": "Mã dài",
-      "value": "'BOX-2048' → '2048'"
+      "label": "serial =",
+      "value": "'BOX-2048'"
      },
      {
-      "label": "Mã ngắn",
-      "value": "'A7' → 'A7'"
-     },
-     {
-      "label": "Mã rỗng",
-      "value": "'' → ''"
+      "label": "suffix =",
+      "value": "'2048'"
      }
     ]
+   },
+   "starterCode": "# Hệ thống cung cấp serial là chuỗi mã kiện hàng.\n# Hệ thống cung cấp serial; gán kết quả vào suffix.\n",
+   "solutionCode": "suffix = serial[-4:]\n",
+   "tests": [
+    {
+     "name": "Mã dài",
+     "input": "BOX-2048",
+     "expected": "2048"
+    },
+    {
+     "name": "Mã ngắn",
+     "input": "A7",
+     "expected": "A7"
+    },
+    {
+     "name": "Mã rỗng",
+     "input": "",
+     "expected": ""
+    },
+    {
+     "name": "Mã chỉ dài hơn bốn ký tự một chút",
+     "input": "AB123",
+     "expected": "B123"
+    }
+   ],
+   "contract": {
+    "mode": "script",
+    "inputVariable": "serial",
+    "resultVariable": "suffix"
    },
    "hints": [
     {
@@ -170,13 +197,17 @@
      "title": "Gợi ý 2",
      "body": "Chỉ số âm đếm từ cuối; bỏ stop để lấy tới hết chuỗi."
     }
-   ],
-   "procedure": [
-    "Bài này chạy bằng script (đọc biến đầu vào, gán biến kết quả) nên chưa chấm tự động.",
-    "Đầu vào 'BOX-2048' — kết quả cần có '2048'.",
-    "Đầu vào 'A7' — kết quả cần có 'A7'.",
-    "Đầu vào '' — kết quả cần có ''."
    ]
   }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 0,
+  "co": 0,
+  "bo": 0,
+  "loi": []
  }
 }

@@ -3,54 +3,63 @@
  "sort_order": 160,
  "module": "M9 · Ôn tập và thực hành các chi tiết trong slide",
  "title": "EX01 · Đọc bảng cùng kiểu bằng loadtxt và tra đúng trợ giúp",
- "subtitle": "Trung cấp · M9 · 30 phút",
- "estimated_minutes": 30,
- "xp_reward": 15,
+ "subtitle": "Trung cấp · M9 · 17 phút",
+ "estimated_minutes": 17,
+ "xp_reward": 10,
  "content_json": {
-  "schema": "studio-lesson/v1",
+  "schema": "studio-lesson/v2",
   "title": "EX01 · Đọc bảng cùng kiểu bằng loadtxt và tra đúng trợ giúp",
-  "subtitle": "Trung cấp · M9 · 30 phút",
+  "subtitle": "Trung cấp · M9 · 17 phút",
   "source": {
-   "kind": "pe-da",
-   "filename": "lessons/EX01.md",
-   "parser": "pe-da/build"
+   "kind": "python-da",
+   "filename": "course.json#EX01",
+   "parser": "pe-da/build",
+   "importedAt": "2026-10-24T00:00:00+00:00",
+   "slides": "All_slide_one_file.pdf tr. 328; NumPy loadtxt; NumPy info"
   },
   "step_1": {
-   "context": {
-    "title": "Đọc bảng cùng kiểu bằng loadtxt và tra đúng trợ giúp",
-    "body": "File có một dòng tiêu đề và hai cột số. Bạn chỉ cần cột điểm, nên có thể bỏ tiêu đề bằng skiprows=1 và chọn cột bằng usecols. Chỉ số cột bắt đầu từ 0 giống chỉ số phần tử trong array.",
-    "level": "Trung cấp"
-   },
-   "theory": [
-    {
-     "title": "Tình huống",
-     "body": "File có một dòng tiêu đề và hai cột số. Bạn chỉ cần cột điểm, nên có thể bỏ tiêu đề bằng skiprows=1 và chọn cột bằng usecols. Chỉ số cột bắt đầu từ 0 giống chỉ số phần tử trong array.\n\n`loadtxt` đọc các giá trị theo kiểu đã chọn. `delimiter` chỉ ký tự ngăn cột, còn `dtype` chọn kiểu của các phần tử. `StringIO` cho phép dùng chuỗi như một file văn bản; với file thật, thay nó bằng đường dẫn. Ở ví dụ, chỉ có cột điểm được chọn từ hai dòng, nên kết quả là array một chiều gồm hai số: `shape=(2,)`, `len=2`. Trong `dtype.kind`, ký tự `f` là nhóm kiểu số thực."
-    },
-    {
-     "title": "Ý chính 2",
-     "body": "Nếu chưa nhớ tham số, dùng `help(pd.read_csv)` để xem cách đọc CSV hoặc `np.info(np.ndarray.dtype)` để xem mô tả `dtype`. Đây là các lệnh xem tài liệu, không đọc dữ liệu trong bảng. Đoạn dưới còn minh họa cách đọc file văn bản: lấy dòng đầu bằng `readline()`, lấy phần còn lại bằng `read()`, rồi đóng file bằng `close()`. Với `with open(...)`, file được đóng tự động khi ra khỏi khối. Hai giá trị True cuối chỉ xác nhận rằng các lệnh trợ giúp đã trả về nội dung; khi tự tra cứu, bạn có thể gọi hai lệnh đó trực tiếp."
-    }
+   "read": [
+    [
+     {
+      "type": "paragraph",
+      "text": "Tám bài còn lại quay về các chi tiết mà những bài trước đi nhanh qua, trên đúng bảng của quán. File có một dòng tiêu đề và hai cột số. Bạn chỉ cần cột lượng cà phê hạt, nên có thể bỏ tiêu đề bằng skiprows=1 và chọn cột bằng usecols. Chỉ số cột bắt đầu từ 0 giống chỉ số phần tử trong array."
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\nfrom io import StringIO\ntext = \"id,luong\\n1,8.5\\n2,7.0\\n\"\nluong = np.loadtxt(StringIO(text), delimiter=\",\", skiprows=1, usecols=(1,), dtype=float)\nprint(luong.tolist())\nprint(luong.shape, len(luong), luong.dtype.kind)",
+      "expected": "[8.5, 7.0]\n(2,) 2 f",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "loadtxt phù hợp khi phần bảng bạn đọc có cùng kiểu. delimiter chỉ ký tự ngăn cột, dtype chọn kiểu của các phần tử. StringIO ở đây đóng vai trò một file văn bản để ví dụ chạy độc lập; với file thật, thay nó bằng đường dẫn. Nếu lấy một cột từ hai dòng, kết quả thường là array một chiều chứ không tự giữ thành bảng hai cột."
+     },
+     {
+      "type": "code",
+      "code": "import numpy as np\nfrom io import StringIO\ntext = \"ten_mon,nhom\\nLatte,Ca phe\\nMocha,Ca phe\\n\"\nten_mon = np.loadtxt(StringIO(text), delimiter=\",\", skiprows=1, usecols=(0,), dtype=str)\nprint(ten_mon.tolist())\nprint(ten_mon.shape)",
+      "expected": "['Latte', 'Mocha']\n(2,)",
+      "tryIt": true
+     }
+    ],
+    [
+     {
+      "type": "paragraph",
+      "text": "Trước khi đổi tham số theo phỏng đoán, dùng help(pd.read_csv) hoặc np.info(np.ndarray.dtype) để xem tài liệu. Kết quả trợ giúp mô tả API; nó không phải nội dung bảng đang phân tích. Ví dụ dưới vừa đọc file thật trong thư mục tạm, vừa kiểm phần mô tả có tồn tại; nó không in toàn bộ tài liệu dài."
+     },
+     {
+      "type": "code",
+      "code": "import tempfile, io, contextlib\nfrom pathlib import Path\nimport numpy as np\nimport pandas as pd\nwith tempfile.TemporaryDirectory() as folder:\n    path = Path(folder) / \"luong.txt\"\n    path.write_text(\"Latte,8\\nMocha,7\\n\", encoding=\"utf-8\")\n    f = open(path, encoding=\"utf-8\")\n    print(f.readline().strip())\n    print(f.read().strip())\n    f.close()\n    print(f.closed)\n    with open(path, encoding=\"utf-8\") as stream:\n        print(len(stream.readlines()))\ninfo, help_text = io.StringIO(), io.StringIO()\nwith contextlib.redirect_stdout(info):\n    np.info(np.ndarray.dtype)\nwith contextlib.redirect_stdout(help_text):\n    help(pd.read_csv)\nprint(bool(info.getvalue().strip()), \"read_csv\" in help_text.getvalue())",
+      "expected": "Latte,8\nMocha,7\nTrue\n2\nTrue True",
+      "tryIt": true
+     }
+    ]
    ],
-   "code": {
-    "filename": "vi_du.py",
-    "version": "Python 3.12",
-    "source": "import numpy as np\nfrom io import StringIO\ntext = \"id,mark\\n1,8.5\\n2,7.0\\n\"\nmarks = np.loadtxt(StringIO(text), delimiter=\",\", skiprows=1, usecols=(1,), dtype=float)\nprint(marks.tolist())\nprint(marks.shape, len(marks), marks.dtype.kind)",
-    "kind": "demo"
-   },
-   "explain": [
-    {
-     "n": 1,
-     "body": "Ví dụ 1 in ra: [8.5, 7.0] ⏎ (2,) 2 f"
-    },
-    {
-     "n": 2,
-     "body": "Ví dụ 2 in ra: ['Mai', 'An'] ⏎ (2,)"
-    },
-    {
-     "n": 3,
-     "body": "Ví dụ 3 in ra: Mai,8 ⏎ An,7 ⏎ True ⏎ 2 ⏎ True True"
-    }
-   ]
+   "context": {
+    "level": "Trung cấp",
+    "prereq": "NP21 · Đọc bảng số từ CSV, PD12 · Đọc CSV và giữ đúng ý nghĩa cột"
+   }
   },
   "step_2": {
    "mcq": [
@@ -58,19 +67,17 @@
      "question": "File id,mark có hai cột. usecols=(1,) chọn cột nào?",
      "options": [
       {
-       "text": "Cả hai cột",
-       "correct": false,
-       "detail": "Tuple chỉ chứa 1 yêu cầu đọc riêng một cột."
+       "text": "id",
+       "detail": "Đó là cột có chỉ số 0."
       },
       {
        "text": "mark",
-       "correct": true,
-       "detail": "Chỉ số cột bắt đầu từ 0: id ở 0, mark ở 1."
+       "detail": "Chỉ số cột bắt đầu từ 0: id ở 0, mark ở 1.",
+       "correct": true
       },
       {
-       "text": "id",
-       "correct": false,
-       "detail": "Đó là cột có chỉ số 0."
+       "text": "Cả hai cột",
+       "detail": "Tuple chỉ chứa 1 yêu cầu đọc riêng một cột."
       }
      ],
      "explanation": "Chỉ số cột bắt đầu từ 0: id ở 0, mark ở 1."
@@ -79,18 +86,16 @@
      "question": "File id,mark có một dòng tiêu đề. skiprows=1 bỏ phần nào?",
      "options": [
       {
+       "text": "Dòng đầu",
+       "detail": "Skiprows áp dụng lên dòng; usecols mới lựa chọn cột.",
+       "correct": true
+      },
+      {
        "text": "Phần tử cuối mỗi hàng",
-       "correct": false,
        "detail": "Chưa đúng. Skiprows áp dụng lên dòng; usecols mới lựa chọn cột."
       },
       {
-       "text": "Dòng đầu",
-       "correct": true,
-       "detail": "Skiprows áp dụng lên dòng; usecols mới lựa chọn cột."
-      },
-      {
        "text": "Cột đầu",
-       "correct": false,
        "detail": "Chưa đúng. Skiprows áp dụng lên dòng; usecols mới lựa chọn cột."
       }
      ],
@@ -100,47 +105,44 @@
      "question": "usecols=(1,) chọn cột nào khi cột đầu có chỉ số 0?",
      "options": [
       {
-       "text": "Cột thứ hai",
-       "correct": true,
-       "detail": "Chỉ số cột theo 0, nên 1 là cột thứ hai."
+       "text": "Hai cột đầu",
+       "detail": "Chưa đúng. Chỉ số cột theo 0, nên 1 là cột thứ hai."
       },
       {
        "text": "Cột đầu tiên",
-       "correct": false,
        "detail": "Chưa đúng. Chỉ số cột theo 0, nên 1 là cột thứ hai."
       },
       {
-       "text": "Hai cột đầu",
-       "correct": false,
-       "detail": "Chưa đúng. Chỉ số cột theo 0, nên 1 là cột thứ hai."
+       "text": "Cột thứ hai",
+       "detail": "Chỉ số cột theo 0, nên 1 là cột thứ hai.",
+       "correct": true
       }
      ],
      "explanation": "Chỉ số cột theo 0, nên 1 là cột thứ hai."
     }
+   ],
+   "practice": [
+    {
+     "prompt": "File id,luong có tiêu đề và hai cột. Viết cách chỉ đọc luong bằng số thực.",
+     "answer": "np.loadtxt(path, delimiter=\",\", skiprows=1, usecols=(1,), dtype=float). Cột luong có chỉ số 1."
+    },
+    {
+     "prompt": "Đọc hai tên món bằng dtype=str: shape (2,) có nghĩa hai hàng hai cột không?",
+     "answer": "Không. Đó là array một chiều gồm hai phần tử. len bằng 2; không có chiều cột thứ hai."
+    },
+    {
+     "prompt": "readline, read và help(pd.read_csv) có cùng đọc dữ liệu file không? Khi nào file tự đóng?",
+     "answer": "readline lấy dòng tiếp theo; read lấy phần còn lại. help mô tả API, không lấy dữ liệu bảng. Khối with đóng file khi rời khối; nếu mở thủ công, gọi close và có thể xem thuộc tính closed."
+    },
+    {
+     "prompt": "Bạn chưa nhớ dtype nhận những giá trị nào. Viết lệnh hỏi trợ giúp cho thuộc tính NumPy này và cho pd.read_csv. Các lệnh có đọc file don_hang.csv không?",
+     "answer": "np.info(np.ndarray.dtype) và help(pd.read_csv). Chúng hiển thị tài liệu API, không đọc dữ liệu don_hang.csv. Đọc file vẫn cần lời gọi np.loadtxt hay pd.read_csv cùng đường dẫn và tham số."
+    },
+    {
+     "prompt": "luong có shape (2,), dtype=float64. len(luong) bằng bao nhiêu? Vì sao import numpy as np cần xuất hiện trước np.loadtxt?",
+     "answer": "len bằng 2, tức hai phần tử theo chiều đầu. import nạp thư viện và gán tên np; dùng np trước khi tên được định nghĩa sẽ báo NameError trong phiên sạch."
+    }
    ]
-  },
-  "step_3": {
-   "task": {
-    "title": "Viết phần còn thiếu",
-    "body": "Bỏ một dòng tiêu đề trước khi đọc số."
-   },
-   "scaffold": {
-    "template": "a = np.loadtxt(StringIO(text), delimiter=\",\", {{slot1}}=1, usecols=(1,))",
-    "slots": [
-     {
-      "n": 1,
-      "placeholder": "Tham số bỏ dòng",
-      "answer": "skiprows"
-     }
-    ],
-    "bank": [
-     {
-      "label": "skiprows",
-      "slot": 1,
-      "trap": ""
-     }
-    ]
-   }
   },
   "step_4": {
    "task": {
@@ -148,21 +150,43 @@
     "body": "Viết solve(data) nhận chuỗi CSV có tiêu đề id,price và ít nhất một dòng số hợp lệ. Đọc riêng price bằng np.loadtxt, trả list giá theo thứ tự file. Với file chỉ có một dòng, kết quả vẫn phải là list một phần tử.",
     "io": [
      {
-      "label": "hai dòng",
-      "value": "'id,price\\n1,12.5\\n2,9.0\\n' → [12.5, 9.0]"
+      "label": "data =",
+      "value": "'id,price\\n1,12.5\\n2,9.0\\n'"
      },
      {
-      "label": "một dòng",
-      "value": "'id,price\\n8,0.0\\n' → [0.0]"
-     },
-     {
-      "label": "giá không phải id",
-      "value": "'id,price\\n99,4\\n2,7.25\\n3,4\\n' → [4.0, 7.25, 4.0]"
+      "label": "trả về",
+      "value": "[12.5, 9.0]"
      }
     ]
    },
    "starterCode": "def solve(data):\n    # Viết cách xử lý của bạn ở đây.\n    pass\n",
    "solutionCode": "import numpy as np\nfrom io import StringIO\ndef solve(data):\n    prices = np.loadtxt(StringIO(data), delimiter=',', skiprows=1, usecols=(1,), ndmin=1)\n    return prices.tolist()\n",
+   "tests": [
+    {
+     "name": "hai dòng",
+     "input": "id,price\n1,12.5\n2,9.0\n",
+     "expected": [
+      12.5,
+      9.0
+     ]
+    },
+    {
+     "name": "một dòng",
+     "input": "id,price\n8,0.0\n",
+     "expected": [
+      0.0
+     ]
+    },
+    {
+     "name": "giá không phải id",
+     "input": "id,price\n99,4\n2,7.25\n3,4\n",
+     "expected": [
+      4.0,
+      7.25,
+      4.0
+     ]
+    }
+   ],
    "hints": [
     {
      "title": "Gợi ý 1",
@@ -174,25 +198,19 @@
     }
    ],
    "packages": [
-    "numpy"
-   ],
-   "tests": [
-    {
-     "name": "hai dòng",
-     "call": "__import__('json').loads(__import__('json').dumps(solve('id,price\\n1,12.5\\n2,9.0\\n'), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "[12.5, 9.0]"
-    },
-    {
-     "name": "một dòng",
-     "call": "__import__('json').loads(__import__('json').dumps(solve('id,price\\n8,0.0\\n'), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "[0.0]"
-    },
-    {
-     "name": "giá không phải id",
-     "call": "__import__('json').loads(__import__('json').dumps(solve('id,price\\n99,4\\n2,7.25\\n3,4\\n'), default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o)))",
-     "expect": "[4.0, 7.25, 4.0]"
-    }
+    "numpy",
+    "pandas"
    ]
   }
+ },
+ "_mode": "pyodide",
+ "_blocked": [],
+ "_so_mcq": 3,
+ "_bai_tap": "cham",
+ "_vet": {
+  "can": 3,
+  "co": 0,
+  "bo": 3,
+  "loi": []
  }
 }

@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { BookshelfShell } from './BookshelfShell';
 import { BookCoverStage } from './BookCoverStage';
 import { BookSpreadStage } from './BookSpreadStage';
@@ -11,6 +12,7 @@ import {
   loadBookshelfProgress,
   type CourseProgressSnapshot,
 } from './bookshelf-progress';
+import { markReturningBook } from './bookshelf-transition';
 
 type BookStep = 'cover' | 'syllabus' | 'lessons';
 
@@ -23,14 +25,30 @@ export interface CourseBookViewProps {
  * cover (Bìa sách + 4 đồ vật) → syllabus (Giới thiệu + Danh sách chặng) → lessons (Mục lục bài).
  */
 export function CourseBookView({ courseSlug }: CourseBookViewProps) {
+  const router = useRouter();
   const course = findBookshelfCourse(courseSlug);
   const totalLessons = course?.lessonCount ?? 0;
 
   const [step, setStep] = useState<BookStep>('cover');
   const [activeStageIdx, setActiveStageIdx] = useState(0);
+  const [isReturningToShelf, setIsReturningToShelf] = useState(false);
   const [progress, setProgress] = useState<CourseProgressSnapshot>(() =>
     getInitialBookshelfProgress(courseSlug, totalLessons),
   );
+  const returnTimerRef = useRef<number | null>(null);
+  const fallbackTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    router.prefetch('/bookshelf');
+    return () => {
+      if (returnTimerRef.current !== null) {
+        window.clearTimeout(returnTimerRef.current);
+      }
+      if (fallbackTimerRef.current !== null) {
+        window.clearTimeout(fallbackTimerRef.current);
+      }
+    };
+  }, [router]);
 
   // Đọc tham số ?step= và ?stage= sau khi hydrate để giữ SSG sạch hydration mismatch.
   useEffect(() => {
@@ -68,6 +86,29 @@ export function CourseBookView({ courseSlug }: CourseBookViewProps) {
 
   if (!course) return null;
 
+  const handleReturnToShelf = () => {
+    if (isReturningToShelf) return;
+    const reducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion) {
+      router.push('/bookshelf');
+      return;
+    }
+
+    markReturningBook(course.slug);
+    router.prefetch('/bookshelf');
+    setIsReturningToShelf(true);
+
+    returnTimerRef.current = window.setTimeout(() => {
+      router.push('/bookshelf');
+    }, 220);
+
+    fallbackTimerRef.current = window.setTimeout(() => {
+      setIsReturningToShelf(false);
+    }, 2000);
+  };
+
   const featuredStageIndex = (() => {
     if (progress.currentLessonNo === null) return 0;
     const found = course.stages.findIndex((st) =>
@@ -81,8 +122,8 @@ export function CourseBookView({ courseSlug }: CourseBookViewProps) {
   const shellMeta = (() => {
     if (step === 'cover') {
       return {
-        backHref: '/bookshelf',
-        onBack: undefined,
+        backHref: undefined,
+        onBack: handleReturnToShelf,
         backLabel: 'Về tủ sách',
         title: `Tủ sách · ${course.title}`,
         hintText: 'Chạm vào bìa để mở sách',
@@ -119,7 +160,10 @@ export function CourseBookView({ courseSlug }: CourseBookViewProps) {
         <BookCoverStage
           course={course}
           doneCount={progress.completedNos.length}
-          onOpenBook={() => setStep('syllabus')}
+          isExiting={isReturningToShelf}
+          onOpenBook={() => {
+            if (!isReturningToShelf) setStep('syllabus');
+          }}
         />
       )}
 

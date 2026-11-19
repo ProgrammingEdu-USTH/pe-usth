@@ -1,12 +1,19 @@
 import type { Metadata } from 'next';
 
-import IdeClient from './IdeClient';
+import LofiWorkspace from '@/components/goc-hoc/LofiWorkspace';
+import PageStyles from '@/components/PageStyles';
 
 export const metadata: Metadata = {
-  title: 'Python IDE – Programming EDU',
-  description: 'Viết và chạy thử mã Python ngay trên trang, chạy trong sandbox cách ly trên máy chủ.',
+  title: 'Bàn thí nghiệm – Programming EDU',
+  description:
+    'Viết và chạy thử mã Python ngay trên trang; mã chạy trong môi trường cách ly trên máy chủ.',
 };
 
 export default function IdePage() {
-  return <IdeClient />;
+  return (
+    <>
+      <PageStyles hrefs={[]} />
+      <LofiWorkspace initialScreen="ide" />
+    </>
+  );
 }

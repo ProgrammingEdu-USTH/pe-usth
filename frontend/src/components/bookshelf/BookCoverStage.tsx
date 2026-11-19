@@ -9,24 +9,35 @@ import styles from './bookshelf.module.css';
 export interface BookCoverStageProps {
   course: BookshelfCourse;
   doneCount: number;
+  isExiting?: boolean;
   onOpenBook: () => void;
 }
 
 /**
  * Bước 1 của mỗi khoá: Bìa sách cứng ở trung tâm kèm 4 đồ vật đặc trưng hai bên.
  */
-export function BookCoverStage({ course, doneCount, onOpenBook }: BookCoverStageProps) {
+export function BookCoverStage({
+  course,
+  doneCount,
+  isExiting = false,
+  onOpenBook,
+}: BookCoverStageProps) {
   const statusLabel =
     doneCount > 0 ? `Đã học ${doneCount}/${course.lessonCount} bài` : 'Sẵn sàng bắt đầu';
 
   return (
-    <div className={styles.coverStage}>
+    <div
+      className={`${styles.coverStage} ${
+        isExiting ? styles.coverStageExiting : styles.coverStageAnimated
+      }`}
+    >
       <BookPropsDisplay slug={course.slug} side="left" />
 
       <div className={styles.coverCenterCol}>
         <button
           type="button"
           className={styles.hardCoverBtn}
+          disabled={isExiting}
           onClick={onOpenBook}
           aria-label={`Mở bìa sách khoá học ${course.title}`}
         >
@@ -67,15 +78,18 @@ export function BookCoverStage({ course, doneCount, onOpenBook }: BookCoverStage
           {course.statusNote && <span className={styles.coverMockChip}>{course.statusNote}</span>}
         </button>
 
-        <LofiButton
-          type="button"
-          size="md"
-          className={styles.ctaThemedBtn}
-          rightIcon={<span aria-hidden="true">→</span>}
-          onClick={onOpenBook}
-        >
-          Mở sách
-        </LofiButton>
+        <div className={styles.coverCtaWrap}>
+          <LofiButton
+            type="button"
+            size="md"
+            disabled={isExiting}
+            className={styles.ctaThemedBtn}
+            rightIcon={<span aria-hidden="true">→</span>}
+            onClick={onOpenBook}
+          >
+            Mở sách
+          </LofiButton>
+        </div>
       </div>
 
       <BookPropsDisplay slug={course.slug} side="right" />

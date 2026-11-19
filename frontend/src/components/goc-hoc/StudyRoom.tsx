@@ -41,6 +41,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { BookshelfCabinet } from '../bookshelf/BookshelfCabinet';
+import LofiWorkspace, { type LofiScreenType } from './LofiWorkspace';
 
 import { apiFetch, asList, findEnrollment } from '@/lib/api';
 import { completedLessonSet, hasStoredSession, LS_ACCESS, LS_LEGACY_REFRESH } from '@/lib/course-progress';
@@ -63,6 +64,8 @@ const TRAN_CHO_MS = 3000;
 
 /** Tên hiển thị người test tự đặt — xem màn Xếp hạng. Chỉ nằm trong máy họ. */
 const LS_TEN = 'pe_goc_hoc_ten';
+const LS_CHILL_DONE = 'pe_chill_done_lessons';
+const LS_CHILL_XP = 'pe_chill_xp';
 
 export type StudyRoomProps = {
   courseId: string;
@@ -85,6 +88,25 @@ function lsGet(key: string): string | null {
   } catch {
     return null;
   }
+}
+
+function readLocalChillProgress(total: number): { done: number[]; xp: number | null } {
+  const rawDone = lsGet(LS_CHILL_DONE);
+  let done: number[] = [];
+  if (rawDone) {
+    try {
+      const parsed = JSON.parse(rawDone) as unknown;
+      if (Array.isArray(parsed)) {
+        done = [...completedLessonSet(parsed, total)];
+      }
+    } catch {
+      /* bỏ qua dữ liệu lỗi */
+    }
+  }
+  const rawXp = lsGet(LS_CHILL_XP);
+  const numXp = rawXp !== null ? Number(rawXp) : NaN;
+  const xp = Number.isFinite(numXp) && numXp >= 0 ? numXp : null;
+  return { done, xp };
 }
 
 /** Một lượt gọi "chỉ-phiên": lỗi mạng, 4xx hay JSON rác đều thành `null`. */
@@ -118,12 +140,25 @@ type KetQua = { user: RoomUser; done: number[] };
  *  · `/api/leaderboard`   → bảng xếp hạng theo XP.
  */
 async function laySo(courseId: string, total: number): Promise<KetQua> {
+  const local = readLocalChillProgress(total);
   const session = {
     access: lsGet(LS_ACCESS),
     legacyRefresh: lsGet(LS_LEGACY_REFRESH),
     cookie: typeof document === 'undefined' ? null : document.cookie,
   };
-  if (!hasStoredSession(session)) return { user: EMPTY_USER, done: [] };
+  if (!hasStoredSession(session)) {
+    if (local.done.length > 0 || local.xp !== null) {
+      return {
+        user: {
+          ...EMPTY_USER,
+          xp: local.xp,
+          lessonsDone: local.done.length > 0 ? local.done.length : null,
+        },
+        done: local.done,
+      };
+    }
+    return { user: EMPTY_USER, done: [] };
+  }
 
   const [done, xp, name, badges, board] = await Promise.all([
     doc<number[]>('/api/enrolled', (data) => {
@@ -155,12 +190,19 @@ async function laySo(courseId: string, total: number): Promise<KetQua> {
     }),
   ]);
 
+  const mergedDone = [...new Set([...(done ?? []), ...local.done])];
+  const hasDone = done !== null || local.done.length > 0;
+  const mergedXp =
+    xp !== null && local.xp !== null
+      ? Math.max(xp, local.xp)
+      : xp ?? local.xp;
+
   return {
     user: {
       signedIn: true,
       name,
-      xp,
-      lessonsDone: done ? done.length : null,
+      xp: mergedXp,
+      lessonsDone: hasDone ? mergedDone.length : null,
       badges: badges
         ? { done: badges.filter((b) => b.unlocked).length, total: badges.length }
         : null,
@@ -170,13 +212,26 @@ async function laySo(courseId: string, total: number): Promise<KetQua> {
     },
     // Tập bài đã xong đi RIÊNG khỏi `user`: nó không phải một con số để hiện ra
     // mà là nguyên liệu dựng trạng thái của từng cuốn sách trên kệ.
-    done: done ?? [],
+    done: mergedDone,
   };
 }
 
+type ChillMountState = {
+  screen: LofiScreenType;
+  lessonIdx: number;
+  mountEl: HTMLElement;
+} | null;
+
+type EngineControl = {
+  switchRoute: (targetRoute: string, routeOpts?: Record<string, unknown>) => void;
+  syncProgress: (doneNums: number[], newXp: number) => void;
+};
+
 export default function StudyRoom(props: StudyRoomProps) {
   const hostRef = useRef<HTMLDivElement>(null);
+  const engineCtrlRef = useRef<EngineControl | null>(null);
   const [coursesMountEl, setCoursesMountEl] = useState<HTMLElement | null>(null);
+  const [chillMount, setChillMount] = useState<ChillMountState>(null);
   /** Cảnh thật đã dựng xong chưa — tới lúc đó khung giữ chỗ (máy chủ) còn hiện. */
   const [canhSan, setCanhSan] = useState(false);
 
@@ -202,6 +257,7 @@ export default function StudyRoom(props: StudyRoomProps) {
         if (huy || !hostRef.current) return;
         // Dựng lại: gỡ cảnh đang chạy trước (bộ hẹn giờ, rAF, sự kiện).
         if (dispose) {
+          engineCtrlRef.current = null;
           dispose();
           dispose = null;
         }
@@ -218,7 +274,15 @@ export default function StudyRoom(props: StudyRoomProps) {
           content,
           user,
           feedback: props.feedbackUrl ?? null,
-          onCoursesMount: (el: HTMLElement | null) => setCoursesMountEl(el),
+          onCoursesMount: (el: HTMLElement | null) => {
+            if (!huy) setCoursesMountEl(el);
+          },
+          onChillRoute: (nextState: ChillMountState) => {
+            if (!huy) setChillMount(nextState);
+          },
+          onEngineReady: (ctrl: EngineControl) => {
+            engineCtrlRef.current = ctrl;
+          },
           // Lần dựng lại KHÔNG chạy lại màn mở đầu (đèn bật, 3,1 s): người học
           // đã xem nó, và nó có thể còn đang chạy dở lúc số về.
           boQuaMoDau: muon,
@@ -241,8 +305,10 @@ export default function StudyRoom(props: StudyRoomProps) {
     return () => {
       huy = true;
       huyCho();
+      engineCtrlRef.current = null;
       if (dispose) dispose();
       setCoursesMountEl(null);
+      setChillMount(null);
       host.innerHTML = '';
     };
   }, [props.courseId, props.courseName, props.lessonUrl, props.modules, props.meta, props.feedbackUrl]);
@@ -250,6 +316,24 @@ export default function StudyRoom(props: StudyRoomProps) {
   return (
     <>
       {coursesMountEl ? createPortal(<BookshelfCabinet inStudyRoom />, coursesMountEl) : null}
+      {chillMount &&
+        createPortal(
+          <LofiWorkspace
+            embedded
+            initialScreen={chillMount.screen}
+            initialLessonIdx={chillMount.lessonIdx}
+            onEmbeddedSwitch={(nextScreen, nextLessonIdx) => {
+              engineCtrlRef.current?.switchRoute(
+                nextScreen === 'lesson' ? 'learn' : nextScreen,
+                nextLessonIdx != null ? { lessonIdx: nextLessonIdx } : {},
+              );
+            }}
+            onProgressChange={(doneNums, newXp) => {
+              engineCtrlRef.current?.syncProgress(doneNums, newXp);
+            }}
+          />,
+          chillMount.mountEl,
+        )}
       {/* KHUNG GIỮ CHỖ — dựng ở MÁY CHỦ, nên có trong HTML đầu tiên: ảnh phòng
           dưới lớp tối, đúng khung hình đầu của màn mở đầu (xem scene.css,
           `.gh-cho`). Trước khi có nó, HTML chỉ là div rỗng và ảnh phòng chỉ

@@ -336,6 +336,239 @@
   outline-offset: 2px;
 }
 
+.spineBtnPulled,
+.spineBtnPulled:hover,
+.spineBtnPulled:focus-visible {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-20px) scale(0.92);
+  outline: 0;
+  transition: opacity 0.14s ease, transform 0.18s ease;
+}
+
+.spineBtnSettled {
+  animation: spineSettle 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cabinetHead,
+.shelfCabinet {
+  transition:
+    opacity 0.36s ease,
+    transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.36s ease;
+}
+
+.cabinetPulling .cabinetHead,
+.cabinetPulling .shelfCabinet {
+  opacity: 0.28;
+  transform: scale(0.975);
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+.cabinetReturning .cabinetHead,
+.cabinetReturning .shelfCabinet {
+  animation: cabinetWake 0.56s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  pointer-events: none;
+}
+
+/* ── Hiệu ứng rút sách 3D ra khỏi tủ ── */
+.pullOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1400px;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 48%, var(--bs-scrim-center), var(--bs-scrim-edge));
+  animation: pullBackdropIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.pullBook3d {
+  position: relative;
+  width: min(360px, calc(100vw - 48px));
+  height: 448px;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50%;
+  will-change: transform;
+  animation: pullBookOut 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.pullCoverFace {
+  position: absolute;
+  inset: 0;
+  transform: translateZ(32px);
+  backface-visibility: hidden;
+  border-radius: 10px 18px 18px 10px;
+  background: linear-gradient(160deg, var(--bs-cover), var(--bs-cover-deep));
+  color: var(--bs-ink);
+  padding: 24px 26px 28px 34px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow:
+    inset 18px 0 0 rgba(0, 0, 0, 0.16),
+    0 28px 58px var(--bs-shadow);
+  box-sizing: border-box;
+}
+
+.pullBackFace {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg) translateZ(32px);
+  backface-visibility: hidden;
+  border-radius: 18px 10px 10px 18px;
+  background: var(--bs-cover-deep);
+}
+
+.pullSpineFace {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 64px;
+  transform-origin: center center;
+  transform: translateX(-32px) rotateY(-90deg);
+  backface-visibility: hidden;
+  border-radius: 6px 0 0 6px;
+  background: var(--bs-spine-bg);
+  color: var(--bs-spine-ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26px 6px 22px;
+  box-shadow:
+    inset 3px 0 0 rgba(255, 255, 255, 0.16),
+    inset -4px 0 0 rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+}
+
+.pullSpineFace::before,
+.pullSpineFace::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 7px;
+  background: var(--bs-spine-band);
+}
+
+.pullSpineFace::before {
+  top: 16px;
+}
+
+.pullSpineFace::after {
+  bottom: 16px;
+}
+
+.pullPagesEdge {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  right: 0;
+  width: 58px;
+  transform-origin: center center;
+  transform: translateX(29px) rotateY(90deg);
+  backface-visibility: hidden;
+  border-radius: 0 4px 4px 0;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--bs-paper) 0px,
+    var(--bs-paper) 3px,
+    var(--bs-paper-edge) 3px,
+    var(--bs-paper-edge) 5px
+  );
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.18);
+}
+
+@keyframes pullBackdropIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes pullBookOut {
+  0% {
+    transform: translate3d(var(--pull-dx, 0px), var(--pull-dy, 0px), 0px) scale(0.5) rotateZ(0deg) rotateY(86deg);
+  }
+  24% {
+    transform: translate3d(var(--pull-dx, 0px), calc(var(--pull-dy, 0px) - 34px), 85px) scale(0.6) rotateZ(-4deg) rotateY(68deg);
+  }
+  70% {
+    transform: translate3d(0px, -10px, 95px) scale(0.95) rotateZ(1.5deg) rotateY(14deg);
+  }
+  100% {
+    transform: translate3d(0px, -14px, 0px) scale(1) rotateZ(0deg) rotateY(0deg);
+  }
+}
+
+.pullOverlayReturn {
+  animation: putBackdropOut 0.58s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.pullBook3dReturn {
+  animation: putBookBack 0.58s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes putBackdropOut {
+  0% {
+    opacity: 1;
+  }
+  68% {
+    opacity: 0.82;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes putBookBack {
+  0% {
+    transform: translate3d(0px, -14px, 0px) scale(1) rotateZ(0deg) rotateY(0deg);
+  }
+  30% {
+    transform: translate3d(0px, -10px, 95px) scale(0.95) rotateZ(1.5deg) rotateY(14deg);
+  }
+  76% {
+    transform: translate3d(var(--pull-dx, 0px), calc(var(--pull-dy, 0px) - 34px), 85px) scale(0.6) rotateZ(-4deg) rotateY(68deg);
+  }
+  100% {
+    transform: translate3d(var(--pull-dx, 0px), var(--pull-dy, 0px), 0px) scale(0.5) rotateZ(0deg) rotateY(86deg);
+  }
+}
+
+@keyframes spineSettle {
+  0% {
+    transform: translateY(-6px);
+    filter: brightness(1.08);
+  }
+  100% {
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes cabinetWake {
+  0% {
+    opacity: 0.32;
+    transform: scale(0.975);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
 .spineBadge {
   position: absolute;
   top: -8px;
@@ -1305,6 +1538,172 @@
 
 .bottomActionLink {
   text-decoration: none;
+}
+
+.coverCtaWrap {
+  display: inline-flex;
+}
+
+/* Nhịp hạ bìa sách & 4 đồ vật hai bên xuất hiện đồng bộ sau cú rút 3D */
+.coverStageAnimated .hardCoverBtn {
+  animation: coverSettle 0.3s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.coverStageAnimated .coverCtaWrap {
+  animation: coverCtaIn 0.36s cubic-bezier(0.22, 1, 0.36, 1) 0.14s backwards;
+}
+
+.coverStageAnimated > .propsColumn:first-child > :nth-child(1) {
+  animation: propFromRight 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.08s backwards;
+}
+
+.coverStageAnimated > .propsColumn:first-child > :nth-child(2) {
+  animation: propFromRight 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.16s backwards;
+}
+
+.coverStageAnimated > .propsColumn:last-child > :nth-child(1) {
+  animation: propFromLeft 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.12s backwards;
+}
+
+.coverStageAnimated > .propsColumn:last-child > :nth-child(2) {
+  animation: propFromLeft 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.2s backwards;
+}
+
+@keyframes coverSettle {
+  0% {
+    opacity: 0.72;
+    transform: translateY(-10px) scale(0.975);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes coverCtaIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes propFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(24px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes propFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-24px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Nhịp 1 khi bấm "Về tủ sách": thu 4 đồ vật + nút để trả bìa về trung tâm */
+.coverStageExiting .hardCoverBtn {
+  animation: coverLiftReturn 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  pointer-events: none;
+}
+
+.coverStageExiting .coverCtaWrap {
+  animation: coverCtaOut 0.16s ease forwards;
+  pointer-events: none;
+}
+
+.coverStageExiting > .propsColumn:first-child > * {
+  animation: propBackRight 0.18s ease forwards;
+  pointer-events: none;
+}
+
+.coverStageExiting > .propsColumn:last-child > * {
+  animation: propBackLeft 0.18s ease forwards;
+  pointer-events: none;
+}
+
+@keyframes coverLiftReturn {
+  0% {
+    transform: none;
+  }
+  100% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes coverCtaOut {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes propBackRight {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(22px) scale(0.95);
+  }
+}
+
+@keyframes propBackLeft {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-22px) scale(0.95);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pullOverlay,
+  .pullOverlayReturn,
+  .pullBook3d,
+  .pullBook3dReturn,
+  .spineBtnSettled,
+  .cabinetReturning .cabinetHead,
+  .cabinetReturning .shelfCabinet,
+  .coverStageAnimated .hardCoverBtn,
+  .coverStageAnimated .coverCtaWrap,
+  .coverStageAnimated > .propsColumn:first-child > :nth-child(1),
+  .coverStageAnimated > .propsColumn:first-child > :nth-child(2),
+  .coverStageAnimated > .propsColumn:last-child > :nth-child(1),
+  .coverStageAnimated > .propsColumn:last-child > :nth-child(2),
+  .coverStageExiting .hardCoverBtn,
+  .coverStageExiting .coverCtaWrap,
+  .coverStageExiting > .propsColumn:first-child > *,
+  .coverStageExiting > .propsColumn:last-child > * {
+    animation: none;
+  }
+
+  .cabinetHead,
+  .shelfCabinet,
+  .spineBtn,
+  .spineBtnPulled,
+  .hardCoverBtn {
+    transition: none;
+  }
 }
 
 /* ──────────────────────────────────────────────────────────────────────

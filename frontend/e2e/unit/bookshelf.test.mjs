@@ -24,6 +24,10 @@ import {
   buildProgressSnapshot,
   getInitialBookshelfProgress,
 } from '../../src/components/bookshelf/bookshelf-progress.ts';
+import {
+  markReturningBook,
+  consumeReturningBook,
+} from '../../src/components/bookshelf/bookshelf-transition.ts';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FE = join(HERE, '..', '..');
@@ -43,6 +47,7 @@ test('bookshelf routes, LofiRoomChrome và BookshelfCabinet tồn tại đầy �
     ['src', 'components', 'ui', 'lofi-room-chrome.module.css'],
     ['src', 'components', 'bookshelf', 'bookshelf-catalog.ts'],
     ['src', 'components', 'bookshelf', 'bookshelf-progress.ts'],
+    ['src', 'components', 'bookshelf', 'bookshelf-transition.ts'],
     ['src', 'components', 'bookshelf', 'BookshelfCabinet.tsx'],
     ['src', 'components', 'bookshelf', 'BookshelfShell.tsx'],
     ['src', 'components', 'bookshelf', 'BookshelfHubView.tsx'],
@@ -145,4 +150,58 @@ test('Góc học mở Tủ sách liền mạch qua #bookshelfMount + createPorta
   const studyRoom = read('src', 'components', 'goc-hoc', 'StudyRoom.tsx');
   assert.match(studyRoom, /createPortal/);
   assert.match(studyRoom, /BookshelfCabinet/);
+});
+
+test('bấm sách trên kệ có hiệu ứng rút 3D ra xem bìa và đồng bộ đồ vật 2 bên', () => {
+  const cabSrc = read('src', 'components', 'bookshelf', 'BookshelfCabinet.tsx');
+  assert.match(cabSrc, /createPortal/);
+  assert.match(cabSrc, /prefers-reduced-motion:\s*reduce/);
+  assert.match(cabSrc, /pullOverlay/);
+  assert.match(cabSrc, /pullBook3d/);
+  assert.match(cabSrc, /<Link[\s\S]*?href=\{`\/bookshelf\/\$\{course\.slug\}`\}/);
+
+  const cssSrc = read('src', 'components', 'bookshelf', 'bookshelf.module.css');
+  assert.match(cssSrc, /@keyframes\s+pullBookOut/);
+  assert.match(cssSrc, /@media\s*\(\s*prefers-reduced-motion:\s*reduce\s*\)/);
+
+  const coverSrc = read('src', 'components', 'bookshelf', 'BookCoverStage.tsx');
+  assert.match(coverSrc, /coverStageAnimated/);
+  assert.match(coverSrc, /coverCtaWrap/);
+});
+
+test('bấm "Về tủ sách" hoặc Esc có hiệu ứng cất sách 3D ngược vào đúng khe kệ cũ', () => {
+  const mem = new Map();
+  const mockStorage = {
+    getItem: (k) => mem.get(k) ?? null,
+    setItem: (k, v) => mem.set(k, v),
+    removeItem: (k) => mem.delete(k),
+  };
+
+  for (const slug of ['python', 'sql', 'machine-learning']) {
+    markReturningBook(slug, mockStorage, 1000);
+    assert.equal(consumeReturningBook(mockStorage, 1500), slug);
+    assert.equal(consumeReturningBook(mockStorage, 1600), null, 'chỉ consume đúng 1 lần');
+  }
+
+  markReturningBook('sql', mockStorage, 1000);
+  assert.equal(consumeReturningBook(mockStorage, 6000), null, 'quá TTL phải trả null');
+
+  mockStorage.setItem('pe_bookshelf_return_book', JSON.stringify({ slug: 'invalid', ts: 1000 }));
+  assert.equal(consumeReturningBook(mockStorage, 1200), null, 'slug lạ phải trả null');
+
+  const viewSrc = read('src', 'components', 'bookshelf', 'CourseBookView.tsx');
+  assert.match(viewSrc, /markReturningBook/);
+  assert.match(viewSrc, /router\.push\('\/bookshelf'\)/);
+  assert.match(viewSrc, /isExiting=\{isReturningToShelf\}/);
+  assert.match(viewSrc, /prefers-reduced-motion:\s*reduce/);
+
+  const cabSrc = read('src', 'components', 'bookshelf', 'BookshelfCabinet.tsx');
+  assert.match(cabSrc, /consumeReturningBook/);
+  assert.match(cabSrc, /pullBook3dReturn/);
+  assert.match(cabSrc, /spineBtnSettled/);
+
+  const cssSrc = read('src', 'components', 'bookshelf', 'bookshelf.module.css');
+  assert.match(cssSrc, /@keyframes\s+putBookBack/);
+  assert.match(cssSrc, /@keyframes\s+spineSettle/);
+  assert.match(cssSrc, /\.coverStageExiting/);
 });

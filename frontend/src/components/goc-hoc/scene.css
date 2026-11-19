@@ -433,6 +433,8 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .tab:not([aria-current="page"]):hover{color:var(--ink);background:rgba(255,255,255,.08)}
 .top .pill{background:var(--glass);border:1px solid var(--line)}
 .stagearea{position:relative;flex:1;min-height:0;overflow:auto;padding:8px max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.stagearea.chill{overflow:hidden}
+.chill-stage-mount{width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .pg{max-width:1080px;margin:0 auto}
 .pghead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:8px 4px 18px;flex-wrap:wrap}
 .pghead h1{font-family:var(--f-display);font-weight:700;font-size:34px;line-height:1;margin:0}

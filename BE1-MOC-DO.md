@@ -312,6 +312,87 @@ lệ với số cảm xúc.
 
   AGENTS.md dặn phải gỡ lệch trước rồi mới chạy lệnh migrate.
 
+## Sau BE9: phụ thuộc, bí mật và trạng thái migration
+
+Kiểm ngày 19/11/2026 trên nhánh `test`, nền code `ac64816`, branch Neon thử
+`ep-late-hill`. Đây là số đo rà soát bảo mật và tính sẵn sàng của DB;
+**chưa đo lại số truy vấn, vòng tuần tự, p50 hoặc p95 của các route**.
+Việc đo hiệu năng API tiếp theo thuộc BE15. Các bảng trước vẫn là số đo tại
+thời điểm của chúng, không đại diện hiệu năng sau khi áp thêm migration.
+
+### Phụ thuộc production
+
+Chạy `npm audit --omit=dev --json` ở thư mục gốc và `runner/`.
+Số dưới đây là số package npm báo bị ảnh hưởng, không phải số lỗ hổng độc lập:
+
+| Phạm vi | Critical trước → sau | High trước → sau | Moderate trước → sau | Tổng trước → sau |
+|---|---|---|---|---|
+| Backend gốc | 1 → 0 | 9 → 0 | 1 → 0 | **11 → 0** |
+| `runner/` | 0 → 0 | 0 → 0 | 0 → 0 | **0 → 0** |
+
+Các bản vá được khoá trong `package-lock.json`, trong phạm vi phiên bản cho phép
+của `package.json`; không dùng `npm audit fix --force`:
+
+- `@nestjs/platform-express`: 11.1.28 → 11.2.11.
+- `prisma`, `@prisma/client`, `@prisma/adapter-neon`: 7.9.1 → 7.10.1;
+  đã sinh lại Prisma client.
+- `joi`: 18.2.3 → 18.3.2; `multer`: 2.2.0 → 2.5.0.
+- `body-parser`: 2.3.0 → 2.4.0; `proxy-addr`: 2.0.7 → 2.0.8;
+  `qs`: 6.15.3 → 6.17.1; các dependency gián tiếp liên quan cũng nhận bản vá.
+
+Không suy ra toàn hệ thống không còn lỗ hổng từ kết quả 0 này:
+audit chỉ xét dependency production của hai package trên, theo dữ liệu advisory
+tại thời điểm chạy; không bao gồm audit frontend hoặc dependency chỉ dùng khi phát triển.
+
+### Bí mật và các giới hạn đã xác nhận
+
+- Quét lịch sử Git qua `git log --all -p` (576 commit có diff được xử lý),
+  theo mẫu Google API key, GitHub token, private key, URI PostgreSQL và
+  giá trị bí mật gán trực tiếp. Không phát hiện bí mật thật theo các mẫu này.
+- Hai URI PostgreSQL tìm thấy là placeholder: dữ liệu test trong
+  `src/config/env.validation.spec.ts` (commit `9b7e6c492b`) và cấu hình CI trong
+  `.github/workflows/ci.yml` (commit `c3b0dbbb1f`). Không đưa giá trị kết nối vào báo cáo.
+- Quét thêm 1.100 file văn bản hiện được Git theo dõi theo mẫu Google key,
+  GitHub token và private key: không có phát hiện. Đây là quét theo mẫu,
+  không chứng minh rằng mọi dạng bí mật đều đã được phát hiện.
+- `.env` bị ignore; `.env.example` được theo dõi. Access token `pe_access`
+  vẫn ở localStorage; refresh token dùng cookie HTTP-only. CSP frontend còn
+  `unsafe-inline` cho script và style: ghi nhận rủi ro XSS, chưa đổi kiến trúc
+  lưu token/CSP trong BE9.
+- `FixedWindowThrottlerStorage` và `CachedUserService` giữ dữ liệu trong RAM
+  từng tiến trình; chạy nhiều instance sẽ đếm hạn mức riêng, cache vai trò có
+  thể cũ tối đa 60 giây. Chuyển cache/rate-limit dùng chung là việc tiếp theo.
+- JWT/throttle là global guard; ValidationPipe bật `whitelist` và
+  `forbidNonWhitelisted`. SQL trong đường người dùng dùng tham số hoá;
+  `$queryRawUnsafe` ở script kiểm bất biến chỉ chạy câu SQL cố định nội bộ.
+
+### Migration của branch đo
+
+`npx prisma migrate status` trả **Database schema is up to date!**.
+Đối chiếu `_prisma_migrations` với file SQL trong repo:
+
+| Mục kiểm | Kết quả |
+|---|---|
+| Migration trong repo | 13 |
+| Migration repo đã hoàn thành trên DB | 13/13 |
+| Checksum không khớp | 0 |
+| Migration thất bại chưa rollback | 0 |
+| Migration riêng của branch | `20261017000000_arena`, `20261018000000_playground_snippets` |
+
+Hai migration riêng được giữ nguyên, không xoá bảng hoặc lịch sử migration.
+Các migration ngày 15–16/11 và BE8 `20261119000000_course_reset` đều đã áp;
+ghi chú thiếu migration ở mục "Sau BE7" là trạng thái lịch sử ngày đo BE7.
+Trong lượt BE9 này chỉ kiểm đọc trạng thái/checksum, không áp thêm migration.
+
+### Kiểm hồi quy sau cập nhật dependency
+
+| Lệnh kiểm | Kết quả |
+|---|---|
+| `npm run typecheck` | Sạch |
+| `TZ=Asia/Ho_Chi_Minh npx jest --ci` | **46 bộ, 554 ca, tất cả đạt** |
+| `npx eslint "{src,apps,libs,test}/**/*.ts" --ignore-pattern "src/generated/**"` | **155 lỗi, 2 cảnh báo**, giữ nguyên mốc |
+| `git diff --check` | Sạch |
+
 ## Đo lại sau mỗi task
 
 1. Trỏ `.env` vào branch Neon đo (đã có sẵn dữ liệu ở trên, chỉ thiếu người dùng đo).

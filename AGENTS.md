@@ -36,7 +36,7 @@ mức này:
 | Hạng mục | Mốc | Đo ngày |
 |---|---|---|
 | Backend typecheck | sạch | 15/11/2026 |
-| Backend test | 45 bộ, 547 ca, tất cả đạt (máy đặt múi giờ UTC thì 1 ca `streak.service.spec.ts` trượt — chạy `TZ=Asia/Ho_Chi_Minh npx jest --ci`) | 18/11/2026 |
+| Backend test | 46 bộ, 554 ca, tất cả đạt (máy đặt múi giờ UTC thì 1 ca `streak.service.spec.ts` trượt — chạy `TZ=Asia/Ho_Chi_Minh npx jest --ci`) | 19/11/2026 |
 | Backend lint | 155 lỗi, 2 cảnh báo — **mốc trần trong CI là 170, chỉ được hạ** | 15/11/2026 |
 | Frontend typecheck | sạch | 15/10/2026 |
 | Frontend lint | 0 lỗi, 118 cảnh báo | 19/10/2026 |
@@ -355,3 +355,12 @@ host trong biến shell, đừng sửa lệnh. Trước khi chạy bất kỳ l�
   mô tả commit.
 - Mỗi commit một việc, mô tả nói rõ triệu chứng → nguyên nhân → cách sửa.
 - Thay đổi làm đổi hành vi người dùng thấy được thì nói thẳng trong mô tả commit.
+
+### Học lại khoá (BE8)
+
+`POST /api/courses/:id/reset` chỉ do người học tự yêu cầu sau khi FE xác nhận.
+Lưu archive → xoá tiến độ → đặt ghi danh về 0 trong một transaction.
+`reset()` và `completeLesson()` cùng khoá hàng enrollment trước khi đọc/ghi;
+đừng bỏ khoá ở một phía vì reset/nộp bài đồng thời có thể mất bằng chứng thưởng.
+Lịch sử đã hoàn thành/đã nhận XP chặn cộng lại XP và gems, nhưng bài học dở
+chưa thưởng vẫn nhận thưởng lần đầu. Bảng archive đã được thêm vào job dọn khách.

@@ -29,7 +29,7 @@ const asyncMock = <A extends unknown[] = unknown[]>(): AsyncMock<A> =>
 
 /** Đối số `prisma.user.update()` ở nhánh cộng XP. */
 type UserUpdateArg = {
-  data: { xp: { increment: number } };
+  data: { xp: { increment: number }; gems: { increment: number } };
 };
 
 /** Đối số `userDailyXpLog.upsert()` — xem src/common/xp/daily-xp-log.ts. */
@@ -40,6 +40,8 @@ type DailyXpUpsertArg = {
 };
 
 type PrismaMock = {
+  $queryRaw: AsyncMock;
+  lessonProgressArchive: { findFirst: AsyncMock };
   course: { findUnique: AsyncMock };
   enrollment: { findUnique: AsyncMock };
   lesson: { findFirst: AsyncMock; create: AsyncMock };
@@ -63,6 +65,8 @@ describe('LessonsService.completeLesson', () => {
 
   beforeEach(async () => {
     prisma = {
+      $queryRaw: asyncMock().mockResolvedValue([{ user_id: 1 }]),
+      lessonProgressArchive: { findFirst: asyncMock().mockResolvedValue(null) },
       course: { findUnique: asyncMock() },
       enrollment: { findUnique: asyncMock() },
       lesson: { findFirst: asyncMock(), create: asyncMock() },
@@ -115,6 +119,54 @@ describe('LessonsService.completeLesson', () => {
   });
 
   const COURSE = { id: 'python', lessonCount: 20 };
+
+  describe('BE8: thưởng khi học lại', () => {
+    beforeEach(() => {
+      prisma.course.findUnique.mockResolvedValue(COURSE);
+      prisma.enrollment.findUnique.mockResolvedValue({ userId: 1 });
+      prisma.lesson.findFirst.mockResolvedValue({ id: 10, xpReward: 50 });
+    });
+
+    it('hai lượt học lại đều cập nhật tiến độ nhưng không cộng XP/gems hoặc XP ngày', async () => {
+      prisma.lessonProgressArchive.findFirst.mockResolvedValue({ id: 1n });
+      for (let i = 0; i < 2; i++) {
+        const res = await service.completeLesson(1, 1, { courseId: 'python' });
+        expect(res.xpGained).toBe(0);
+        expect(res.completedLessons).toBe(1);
+      }
+      expect(prisma.lessonProgressArchive.findFirst).toHaveBeenCalledWith({
+        where: {
+          userId: 1,
+          lessonId: 10,
+          OR: [{ status: 'completed' }, { xpEarned: { gt: 0 } }],
+        },
+        select: { id: true },
+      });
+      for (const [arg] of prisma.user.update.mock.calls) {
+        expect(arg.data.xp.increment).toBe(0);
+        expect(arg.data.gems.increment).toBe(0);
+      }
+      expect(prisma.userDailyXpLog.upsert).not.toHaveBeenCalled();
+      expect(prisma.$queryRaw.mock.invocationCallOrder[0]).toBeLessThan(
+        prisma.lessonProgressArchive.findFirst.mock.invocationCallOrder[0],
+      );
+    });
+
+    it('chưa có lịch sử nhận thưởng thì vẫn nhận XP lần đầu', async () => {
+      const res = await service.completeLesson(1, 1, { courseId: 'python' });
+      expect(res.xpGained).toBe(50);
+      expect(prisma.userDailyXpLog.upsert).toHaveBeenCalledTimes(1);
+    });
+
+    it('ghi danh bị xoá giữa bước kiểm và transaction thì không tạo tiến độ hay thưởng', async () => {
+      prisma.$queryRaw.mockResolvedValue([]);
+      await expect(
+        service.completeLesson(1, 1, { courseId: 'python' }),
+      ).rejects.toThrow(ForbiddenException);
+      expect(prisma.lessonProgress.createMany).not.toHaveBeenCalled();
+      expect(prisma.user.update).not.toHaveBeenCalled();
+    });
+  });
 
   // ---------- BB2-7 ----------
   describe('BẮT BUỘC ghi danh trước khi hoàn thành bài (chặn farm XP)', () => {

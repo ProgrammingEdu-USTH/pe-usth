@@ -1,3 +1,4 @@
+import { lockCourseEnrollment } from 'src/common/lock-course-enrollment';
 import {
   BadRequestException,
   ForbiddenException,
@@ -278,6 +279,31 @@ export class CoursesService {
     return { ok: true };
   }
 
+  /** Chỉ reset khi người học chủ động yêu cầu; lưu lịch sử trước khi xoá. */
+  async reset(userId: number, courseId: string) {
+    return this.prisma.$transaction(async (tx) => {
+      await lockCourseEnrollment(tx, userId, courseId);
+      const resetAt = new Date();
+      await tx.$executeRaw(Prisma.sql`
+        INSERT INTO lesson_progress_archive
+          (user_id, lesson_id, course_id, status, quiz_score, xp_earned, completed_at, archived_at)
+        SELECT user_id, lesson_id, course_id, status, quiz_score, xp_earned, completed_at, ${resetAt}
+        FROM lesson_progress WHERE user_id = ${userId} AND course_id = ${courseId}
+      `);
+      await tx.lessonProgress.deleteMany({ where: { userId, courseId } });
+      await tx.enrollment.update({
+        where: { userId_courseId: { userId, courseId } },
+        data: { completedLessons: 0, progress: 0, resetAt },
+      });
+      return {
+        ok: true,
+        completedLessons: 0,
+        progress: 0,
+        reset_at: resetAt.toISOString(),
+      };
+    }, TX_OPTIONS);
+  }
+
   // ---------- Task 94 ----------
   async rateCourse(userId: number, courseId: string, rating: number) {
     if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
@@ -549,6 +575,7 @@ export class CoursesService {
     status: string | null;
     timeSpent: string | null;
     enrolledAt: Date;
+    resetAt?: Date | null;
     course: {
       title: string | null;
       lessonCount: number;
@@ -565,6 +592,7 @@ export class CoursesService {
       // `id` là trường frontend thực sự dùng; giữ `courseId` cho client cũ.
       id: r.courseId,
       courseId: r.courseId,
+      reset_at: r.resetAt?.toISOString() ?? null,
       title: r.course.title,
       subtitle: meta.subtitle ?? '',
       duration: meta.duration ?? '',
@@ -616,6 +644,7 @@ export class CoursesService {
         status: string | null;
         timeSpent: string | null;
         enrolledAt: Date;
+        resetAt?: Date | null;
         title: string | null;
         lessonCount: number;
         accentColor: string | null;
@@ -627,6 +656,7 @@ export class CoursesService {
       SELECT e.course_id AS "courseId", e.progress,
              e.completed_lessons AS "completedLessons", e.status,
              e.time_spent AS "timeSpent", e.enrolled_at AS "enrolledAt",
+             e.reset_at AS "resetAt",
              c.title, c.lessons AS "lessonCount",
              c.accent_color AS "accentColor", c.content_meta AS "contentMeta",
              lv.title AS "baiVuaXong", lk.title AS "baiKe"

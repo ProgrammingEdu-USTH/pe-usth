@@ -1,3 +1,4 @@
+import { Throttle, seconds } from '@nestjs/throttler';
 import {
   Body,
   Controller,
@@ -62,6 +63,19 @@ export class CoursesController {
   @HttpCode(HttpStatus.OK)
   unenroll(@CurrentUserId() userId: number, @Param('id') courseId: string) {
     return this.courses.unenroll(userId, courseId);
+  }
+
+  // FE chỉ gọi sau khi người học xác nhận trong hộp thoại học lại.
+  @Post('courses/:id/reset')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({
+    ip_hour: {
+      limit: Number(process.env.THROTTLE_COURSE_RESET_LIMIT ?? 5),
+      ttl: seconds(3600),
+    },
+  })
+  reset(@CurrentUserId() userId: number, @Param('id') courseId: string) {
+    return this.courses.reset(userId, courseId);
   }
 
   // ---------- Task 103 ----------

@@ -47,33 +47,34 @@ model User {
   isVerified             Boolean   @default(false) @map("is_verified")
   createdAt              DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  authSessions        AuthSession[]
-  emailVerifications  EmailVerification[]
-  oauthAccounts       UserOauthAccount[]
-  courses             Course[]
-  enrollments         Enrollment[]
-  lessonProgress      LessonProgress[]
-  courseRatings       CourseRating[]
-  missions            Mission[]
-  quizzes             Quiz[]
-  reviewQuizResults   ReviewQuizResult[]
-  surveys             Survey[]
-  roadmaps            RoadMap[]
-  roadmapProgress     RoadMapProgress[]
-  dailyXpLogs         UserDailyXpLog[]
-  userBadges          UserBadge[]
-  notificationSetting NotificationSetting?
-  notifications       Notification[]
-  comments            Comment[]
-  posts               Post[]
-  postReactions       PostReaction[]
-  commentReactions    CommentReaction[]
-  userAchievements    UserAchievement[]
-  following           UserFollow[]           @relation("UserFollowers")
-  followers           UserFollow[]           @relation("UserFollowing")
-  learningEvents      LearningEvent[]
-  logConsents         LearningEventConsent[]
-  learningTimeDaily   LearningTimeDaily[]
+  authSessions          AuthSession[]
+  emailVerifications    EmailVerification[]
+  oauthAccounts         UserOauthAccount[]
+  courses               Course[]
+  enrollments           Enrollment[]
+  lessonProgressArchive LessonProgressArchive[]
+  lessonProgress        LessonProgress[]
+  courseRatings         CourseRating[]
+  missions              Mission[]
+  quizzes               Quiz[]
+  reviewQuizResults     ReviewQuizResult[]
+  surveys               Survey[]
+  roadmaps              RoadMap[]
+  roadmapProgress       RoadMapProgress[]
+  dailyXpLogs           UserDailyXpLog[]
+  userBadges            UserBadge[]
+  notificationSetting   NotificationSetting?
+  notifications         Notification[]
+  comments              Comment[]
+  posts                 Post[]
+  postReactions         PostReaction[]
+  commentReactions      CommentReaction[]
+  userAchievements      UserAchievement[]
+  following             UserFollow[]            @relation("UserFollowers")
+  followers             UserFollow[]            @relation("UserFollowing")
+  learningEvents        LearningEvent[]
+  logConsents           LearningEventConsent[]
+  learningTimeDaily     LearningTimeDaily[]
 
   // Bảng xếp hạng ORDER BY xp/streak DESC LIMIT 20.
   // `map:` giữ đúng tên trong prisma/optional-indexes.sql để bản chạy tay
@@ -147,13 +148,14 @@ model Course {
   // Nullable: bản Django dùng chung bảng không biết cột này; NULL = chưa đánh phiên bản.
   contentVersion Int?         @map("content_version")
 
-  user           User             @relation(fields: [instructorId], references: [id])
-  lessons        Lesson[]
-  enrollments    Enrollment[]
-  lessonProgress LessonProgress[]
-  courseRatings  CourseRating[]
-  missions       Mission[]
-  quizzes        Quiz[]
+  user                  User                    @relation(fields: [instructorId], references: [id])
+  lessons               Lesson[]
+  enrollments           Enrollment[]
+  lessonProgressArchive LessonProgressArchive[]
+  lessonProgress        LessonProgress[]
+  courseRatings         CourseRating[]
+  missions              Mission[]
+  quizzes               Quiz[]
 
   // Khoá ngoại không đứng đầu chỉ mục nào: tra/xoá theo cha sẽ quét cả bảng (migration fk_indexes).
   @@index([instructorId])
@@ -176,8 +178,9 @@ model Lesson {
   contentHash      String?  @map("content_hash")
   updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  course         Course           @relation(fields: [courseId], references: [id])
-  lessonProgress LessonProgress[]
+  course                Course                  @relation(fields: [courseId], references: [id])
+  lessonProgressArchive LessonProgressArchive[]
+  lessonProgress        LessonProgress[]
 
   @@unique([courseId, lessonCode])
   // Bản ghi tự tạo khi hoàn thành bài để lesson_code NULL, nên unique ở trên
@@ -192,14 +195,15 @@ model Lesson {
 }
 
 model Enrollment {
-  userId           Int      @map("user_id")
-  courseId         String   @map("course_id")
+  resetAt          DateTime? @map("reset_at") @db.Timestamptz(6)
+  userId           Int       @map("user_id")
+  courseId         String    @map("course_id")
   progress         Int
-  completedLessons Int      @map("completed_lessons")
+  completedLessons Int       @map("completed_lessons")
   status           String?
   // Lưu dạng chuỗi '12.5h' theo bản Django -> StatsService.parseTimeSpent() parse ra số.
-  timeSpent        String?  @map("time_spent")
-  enrolledAt       DateTime @default(now()) @map("enrolled_at") @db.Timestamptz(6)
+  timeSpent        String?   @map("time_spent")
+  enrolledAt       DateTime  @default(now()) @map("enrolled_at") @db.Timestamptz(6)
 
   user   User   @relation(fields: [userId], references: [id])
   course Course @relation(fields: [courseId], references: [id])
@@ -500,12 +504,12 @@ model UserDailyXpLog {
 
   user User @relation(fields: [userId], references: [id])
 
-  // Leaderboard tuần: SUM(xp_earned) theo (user_id, khoảng log_date).
-  // Thừa từ khi có unique bên dưới, nhưng GIỮ: migration chỉ được THÊM (AGENTS.md).
-  @@index([userId, logDate], map: "idx_daily_xp_user_date")
   // Mỗi người MỘT hàng mỗi ngày — để addDailyXp() upsert được (BE3, migration
   // 20261111000000_daily_xp_log_unique).
   @@unique([userId, logDate], map: "uq_daily_xp_user_date")
+  // Leaderboard tuần: SUM(xp_earned) theo (user_id, khoảng log_date).
+  // Thừa từ khi có unique bên dưới, nhưng GIỮ: migration chỉ được THÊM (AGENTS.md).
+  @@index([userId, logDate], map: "idx_daily_xp_user_date")
   @@map("user_daily_xp_logs")
 }
 
@@ -688,4 +692,26 @@ model UserFollow {
   // Khoá ngoại không đứng đầu chỉ mục nào: tra/xoá theo cha sẽ quét cả bảng (migration fk_indexes).
   @@index([followeeId])
   @@map("user_follows")
+}
+
+/// Lịch sử học lại; giữ bằng chứng đã thưởng dù tiến độ hiện tại đã bị xoá.
+model LessonProgressArchive {
+  id          BigInt   @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  lessonId    Int      @map("lesson_id")
+  courseId    String   @map("course_id")
+  status      String?
+  quizScore   Int      @map("quiz_score")
+  xpEarned    Int      @map("xp_earned")
+  completedAt DateTime @map("completed_at") @db.Timestamptz(6)
+  archivedAt  DateTime @default(now()) @map("archived_at") @db.Timestamptz(6)
+  user        User     @relation(fields: [userId], references: [id])
+  lesson      Lesson   @relation(fields: [lessonId], references: [id])
+  course      Course   @relation(fields: [courseId], references: [id])
+
+  @@index([userId, courseId])
+  @@index([userId, lessonId])
+  @@index([lessonId])
+  @@index([courseId])
+  @@map("lesson_progress_archive")
 }

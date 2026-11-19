@@ -1,3 +1,4 @@
+import { lockCourseEnrollment } from 'src/common/lock-course-enrollment';
 import {
   BadRequestException,
   ForbiddenException,
@@ -360,6 +361,7 @@ export class LessonsService {
     }
 
     const result = await this.prisma.$transaction(async (tx) => {
+      await lockCourseEnrollment(tx, userId, courseId);
       const lesson = await this.resolveLesson(
         tx,
         courseId,
@@ -374,9 +376,21 @@ export class LessonsService {
       // cột lessons.xp_reward; bài chưa cấu hình (=0) thì dùng mặc định.
       const baseXp =
         lesson.xpReward > 0 ? Math.min(lesson.xpReward, MAX_XP) : DEFAULT_XP;
-      const xpGain = SCORED_XP_COURSES.includes(courseId)
-        ? scaledXp(baseXp, quizScore)
-        : baseXp;
+      // Bài đang học dở được lưu trữ chưa chắc đã nhận thưởng. Chỉ chặn
+      // khi từng hoàn thành hoặc có bằng chứng XP đã nhận.
+      const rewarded = await tx.lessonProgressArchive.findFirst({
+        where: {
+          userId,
+          lessonId,
+          OR: [{ status: 'completed' }, { xpEarned: { gt: 0 } }],
+        },
+        select: { id: true },
+      });
+      const xpGain = rewarded
+        ? 0
+        : SCORED_XP_COURSES.includes(courseId)
+          ? scaledXp(baseXp, quizScore)
+          : baseXp;
 
       // Bước 2: CHIẾM QUYỀN "người hoàn thành đầu tiên" một cách NGUYÊN TỬ.
       //
@@ -466,7 +480,8 @@ export class LessonsService {
         });
 
         // Bước 6: log XP theo ngày — một câu upsert, xem addDailyXp (BE3).
-        await addDailyXp(tx, userId, toStudyDate(today), xpGain);
+        if (xpGain > 0)
+          await addDailyXp(tx, userId, toStudyDate(today), xpGain);
       }
 
       return {

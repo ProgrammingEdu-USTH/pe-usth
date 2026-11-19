@@ -42,6 +42,7 @@ export const DELETE_ORDER: readonly UserRef[] = [
   'user_oauth_accounts.user_id',
   'enrollments.user_id',
   'lesson_progress.user_id',
+  'lesson_progress_archive.user_id',
   'course_ratings.user_id',
   'missions.user_id',
   'roadmap_progress.user_id',

@@ -935,8 +935,12 @@ test('fixture bài đọc: bản dựng pe-da đúng hình dạng ReadBlock/Prac
   // báo 15 → 13, không luật nào tăng.
   // 17/11/2026 (#285): paragraph 820 -> 817. PY02 viết gọn còn ~230 chữ (-1 đoạn) và
   // PY03 ~240 chữ (-2 đoạn); code/terminal/figure/table KHÔNG đổi một khối nào.
+  // 19/11/2026 (#310 A1): paragraph 817 -> 819. PY01 TÁCH hai câu thuật ngữ (bậc
+  // cao/mã nguồn mở, và câu OOP) ra khỏi hai đoạn đang dạy `print` và doanh
+  // thu, rồi xếp chúng xuống cuối bài: thêm hai khối đoạn, không bớt chữ nào.
+  // Số màn đọc GIỮ 567 (hai khối mới nằm trong màn cuối, sau khối code cuối).
   assert.deepEqual(count, {
-    paragraph: 817,
+    paragraph: 819,
     code: 508,
     terminal: 17,
     figure: 80,

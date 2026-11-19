@@ -22,7 +22,7 @@
     [
      {
       "type": "paragraph",
-      "text": "Hôm nay quán của bạn mở cửa ngày đầu. Buổi sáng bán 12 cốc, buổi chiều bán 9 cốc, và bạn muốn biết cả ngày được bao nhiêu. Mở Python hoặc một ô code (cell) trong notebook (trang gồm nhiều ô code chạy riêng được) rồi chạy:"
+      "text": "Hôm nay quán của bạn mở cửa ngày đầu. Buổi sáng bán 12 cốc, buổi chiều bán 9 cốc, và bạn muốn biết cả ngày được bao nhiêu. Bạn tự chạy được ngay trong trình duyệt bằng nút “Thử ngay trong IDE” ở dưới. Hoặc mở một ô code (cell) trong notebook (trang gồm nhiều ô code chạy riêng được):"
      },
      {
       "type": "code",
@@ -34,7 +34,7 @@
     [
      {
       "type": "paragraph",
-      "text": "`print` hiển thị kết quả của biểu thức trong ngoặc, nên con số 21 hiện ra chính là số cốc cả ngày. Python là ngôn ngữ bậc cao: bạn viết phép tính của quán bằng tên và dấu, không phải bằng lệnh máy. Mã nguồn mở nghĩa là mã nguồn triển khai được công khai theo giấy phép cho phép dùng và đóng góp."
+      "text": "`print` hiển thị kết quả của biểu thức trong ngoặc, nên con số 21 hiện ra chính là số cốc cả ngày."
      },
      {
       "type": "paragraph",
@@ -66,11 +66,19 @@
     [
      {
       "type": "paragraph",
-      "text": "Mỗi cốc 15 nghìn đồng, nên doanh thu ngày đầu là 315 nghìn. Python cũng hỗ trợ lập trình hướng đối tượng. Sau phần hàm, bạn sẽ gom số liệu và thao tác của quán vào một lớp (class)."
+      "text": "Mỗi cốc 15 nghìn đồng, nên doanh thu ngày đầu là 315 nghìn."
      },
      {
       "type": "paragraph",
       "text": "Có hai chỗ để chạy những dòng này, và bạn sẽ dùng cả hai. Trong REPL bạn gõ từng lệnh rồi xem ngay, tiện lúc tính nhanh một hoá đơn. Trong script bạn lưu code vào một file (dữ liệu đã ghi xuống đĩa) có đuôi `.py`, rồi chạy bằng `python ten_file.py`. Cách này tiện cho việc chốt sổ lặp lại mỗi tối. Trên hệ UNIX, dòng đầu như `#!/usr/bin/env python3` chỉ trình thông dịch khi file được cấp quyền chạy. Khóa học dùng Python 3; Python 2 đã ngừng được hỗ trợ."
+     },
+     {
+      "type": "paragraph",
+      "text": "Python là ngôn ngữ bậc cao: bạn viết phép tính của quán bằng tên và dấu, không phải bằng lệnh máy. Mã nguồn mở nghĩa là mã nguồn triển khai được công khai theo giấy phép cho phép dùng và đóng góp."
+     },
+     {
+      "type": "paragraph",
+      "text": "Python cũng hỗ trợ lập trình hướng đối tượng. Sau phần hàm, bạn sẽ gom số liệu và thao tác của quán vào một lớp (class)."
      },
      {
       "type": "paragraph",

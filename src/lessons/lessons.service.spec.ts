@@ -120,6 +120,42 @@ describe('LessonsService.completeLesson', () => {
 
   const COURSE = { id: 'python', lessonCount: 20 };
 
+  it.each([NaN, 0, 1.5, 2_147_483_648])(
+    'BE10 số bài %s không vào Prisma trước khi trả 400',
+    async (lessonNo) => {
+      prisma.course.findUnique.mockResolvedValue(COURSE);
+      prisma.enrollment.findUnique.mockResolvedValue({ userId: 1 });
+      await expect(
+        service.completeLesson(1, lessonNo, { courseId: 'python' }),
+      ).rejects.toThrow(BadRequestException);
+      expect(prisma.lesson.findFirst).not.toHaveBeenCalled();
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+    },
+  );
+
+  it('BE10 đọc bài trước transaction, bài đã có không bị đọc lại sau khoá', async () => {
+    prisma.course.findUnique.mockResolvedValue(COURSE);
+    prisma.enrollment.findUnique.mockResolvedValue({ userId: 1 });
+    prisma.lesson.findFirst.mockResolvedValue({ id: 10, xpReward: 50 });
+    await service.completeLesson(1, 1, { courseId: 'python' });
+    expect(prisma.lesson.findFirst).toHaveBeenCalledTimes(1);
+    expect(prisma.lesson.findFirst.mock.invocationCallOrder[0]).toBeLessThan(
+      prisma.$transaction.mock.invocationCallOrder[0],
+    );
+    expect(prisma.lesson.create).not.toHaveBeenCalled();
+  });
+
+  it('BE10 không tạo bài khi số bài ngoài khoảng dù chưa có bản ghi', async () => {
+    prisma.course.findUnique.mockResolvedValue(COURSE);
+    prisma.enrollment.findUnique.mockResolvedValue({ userId: 1 });
+    prisma.lesson.findFirst.mockResolvedValue(null);
+    await expect(
+      service.completeLesson(1, 21, { courseId: 'python' }),
+    ).rejects.toThrow(BadRequestException);
+    expect(prisma.lesson.create).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
   describe('BE8: thưởng khi học lại', () => {
     beforeEach(() => {
       prisma.course.findUnique.mockResolvedValue(COURSE);

@@ -482,26 +482,30 @@ export class CoursesService {
     // thay giáo trình (vd. khoá python chuyển sang PE v3 — scripts/seed-pe-v3.ts),
     // bài cũ được lưu trữ ở sort_order >= 1000 cùng lesson_progress của nó; nếu
     // đếm cả chúng thì học viên cũ hiện sẵn % hoàn thành của khoá mới.
-    const completedLessons = await tx.lessonProgress.count({
-      where: {
-        userId,
-        courseId,
-        status: 'completed',
-        lesson: { sortOrder: { gte: 1, lte: totalLessons } },
-      },
-    });
-
-    const progress =
-      totalLessons > 0
-        ? Math.min(100, Math.round((completedLessons / totalLessons) * 100))
-        : 0;
-
-    await tx.enrollment.updateMany({
-      where: { userId, courseId },
-      data: { completedLessons, progress },
-    });
-
-    return { completedLessons, progress };
+    // COUNT và UPDATE cùng một câu, bớt một vòng giữ connection. CTE vẫn trả
+    // thống kê khi ghi danh vừa bị huỷ (hành vi cũ của hàm dùng chung này).
+    // Tỷ lệ không âm nên ROUND(numeric) khớp Math.round, kể cả đúng nửa điểm.
+    const [stats] = await tx.$queryRaw<
+      { completedLessons: number; progress: number }[]
+    >(Prisma.sql`
+      WITH stats AS (
+        SELECT count(*)::int AS n FROM lesson_progress p
+        JOIN lessons l ON l.id = p.lesson_id
+        WHERE p.user_id = ${userId} AND p.course_id = ${courseId}
+          AND p.status = 'completed' AND l.sort_order BETWEEN 1 AND ${totalLessons}
+      ), result AS (
+        SELECT n AS "completedLessons",
+          CASE WHEN ${totalLessons} > 0
+            THEN LEAST(100, ROUND(n * 100.0 / ${totalLessons}))::int
+            ELSE 0 END AS progress FROM stats
+      ), updated AS (
+        UPDATE enrollments e
+        SET completed_lessons = r."completedLessons", progress = r.progress
+        FROM result r WHERE e.user_id = ${userId} AND e.course_id = ${courseId}
+        RETURNING e.user_id
+      ) SELECT "completedLessons", progress FROM result
+    `);
+    return stats;
   }
 
   private mapCourse(

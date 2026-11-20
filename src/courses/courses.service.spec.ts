@@ -245,11 +245,14 @@ describe('CoursesService — cổng is_published', () => {
       prisma.course.findUnique.mockResolvedValue(NHAP);
       prisma.enrollment.findUnique.mockResolvedValue({ userId: 1 });
       prisma.lessonProgress.count.mockResolvedValue(3);
+      prisma.$queryRaw.mockResolvedValue([
+        { completedLessons: 3, progress: 30 },
+      ]);
 
       const res = await service.enroll(1, 'python_advanced');
 
       expect(res).toEqual({ ok: true, completedLessons: 3, progress: 30 });
-      expect(prisma.enrollment.updateMany).toHaveBeenCalled();
+      expect(prisma.$queryRaw).toHaveBeenCalled();
     });
   });
 

@@ -208,6 +208,73 @@ async function main() {
     const enrolled = await courses.getEnrolled(user.id);
     assert(JSON.stringify(enrolled).includes('reset_at'));
     console.log('PASS: API ghi danh trả reset_at, không lộ BigInt archive');
+    // BE10: kiểm công thức bằng SQL thật, không giả lập kết quả COUNT.
+    await db.lessonProgress.deleteMany({ where: { userId: user.id } });
+    const recalc = (total: number) =>
+      db.$transaction((tx) =>
+        courses.recomputeProgress(tx, user.id, 'python', total),
+      );
+    assert.deepEqual(await recalc(0), { completedLessons: 0, progress: 0 });
+    assert.deepEqual(await recalc(8), { completedLessons: 0, progress: 0 });
+    await db.lessonProgress.create({
+      data: {
+        userId: user.id,
+        lessonId: lesson.id,
+        courseId: 'python',
+        status: 'completed',
+        quizScore: 100,
+        xpEarned: 0,
+      },
+    });
+    const archived = await db.lesson.create({
+      data: { courseId: 'python', sortOrder: 1001, xpReward: 0 },
+    });
+    await db.lessonProgress.create({
+      data: {
+        userId: user.id,
+        lessonId: archived.id,
+        courseId: 'python',
+        status: 'completed',
+        quizScore: 100,
+        xpEarned: 0,
+      },
+    });
+    assert.deepEqual(await recalc(8), { completedLessons: 1, progress: 13 });
+    assert.deepEqual(await recalc(1), { completedLessons: 1, progress: 100 });
+    await courses.unenroll(user.id, 'python');
+    assert.deepEqual(await courses.enroll(user.id, 'python'), {
+      ok: true,
+      completedLessons: 1,
+      progress: 50,
+    });
+    console.log(
+      'PASS BE10: 0 bài, chưa hoàn thành, làm tròn 12.5 thành 13, bài cuối, bỏ bài lưu trữ, ghi danh lại',
+    );
+    // Hai request cùng nhìn thấy chưa sở hữu: RETURNING không được báo trùng.
+    await db.achievement.createMany({
+      data: [1, 2, 3].map((n) => ({
+        code: `be10-${n}`,
+        conditionType: 'lesson_count',
+        conditionValue: 1,
+      })),
+    });
+    const awarders = [
+      new AchievementsService(prisma),
+      new AchievementsService(prisma),
+    ];
+    const awarded = await Promise.all(
+      awarders.map((a) => a.checkAndAwardAchievements(user.id)),
+    );
+    const ids = awarded.flat().map((a) => a.id);
+    assert.equal(ids.length, 3);
+    assert.equal(new Set(ids).size, 3);
+    assert.equal(
+      await db.userAchievement.count({ where: { userId: user.id } }),
+      3,
+    );
+    console.log(
+      'PASS BE10: ba thành tích, hai request đồng thời chỉ báo mỗi thành tích mới một lần',
+    );
   } finally {
     await db.$disconnect();
     await pool.end();

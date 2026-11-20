@@ -312,7 +312,8 @@ export class LessonsService {
     // THỨ TỰ KIỂM giữ nguyên: không có khoá → 404, chưa ghi danh → 403, rồi mới
     // tới lessonNo → 400. Giá phải trả: khoá không tồn tại vẫn tốn một truy vấn
     // enrollment bị bỏ — không lộ gì, vì 404 ném trước khi kết quả được dùng.
-    const [course, enrolled] = await Promise.all([
+    // Bài đọc cùng lượt với quyền và khoá; chỉ nhánh hợp lệ mới dùng kết quả.
+    const [course, enrolled, existingLesson] = await Promise.all([
       this.prisma.course.findUnique({
         where: { id: courseId },
         select: { id: true, lessonCount: true },
@@ -321,6 +322,13 @@ export class LessonsService {
         where: { userId_courseId: { userId, courseId } },
         select: { userId: true },
       }),
+      // Chỉ đọc ở đây: chưa qua kiểm quyền/số bài thì tuyệt đối không tạo bài.
+      Number.isInteger(lessonNo) && lessonNo >= 1 && lessonNo <= 2_147_483_647
+        ? this.prisma.lesson.findFirst({
+            where: { courseId, sortOrder: lessonNo },
+            select: { id: true, xpReward: true },
+          })
+        : Promise.resolve(null),
     ]);
     if (!course) throw new NotFoundException('Không tìm thấy khóa học');
 
@@ -362,12 +370,11 @@ export class LessonsService {
 
     const result = await this.prisma.$transaction(async (tx) => {
       await lockCourseEnrollment(tx, userId, courseId);
-      const lesson = await this.resolveLesson(
-        tx,
-        courseId,
-        lessonNo,
-        lessonTitle,
-      );
+      // Ca thường đã có bài: tránh giữ connection thêm một vòng SELECT.
+      // Khoá ghi danh và đọc archive vẫn trong transaction để giữ bảo vệ BE8.
+      const lesson =
+        existingLesson ??
+        (await this.resolveLesson(tx, courseId, lessonNo, lessonTitle));
       const lessonId = lesson.id;
 
       // XP do SERVER quyết định, không lấy theo lời khai của client.

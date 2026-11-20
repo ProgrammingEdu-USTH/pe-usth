@@ -9,7 +9,7 @@ export interface AchievementMetrics {
   course_complete: number;
 }
 
-/** Client Prisma trong hoặc ngoài transaction — checkAndAward phải chạy CÙNG tx với completeLesson. */
+/** Client dùng chung; completeLesson trao thành tích sau khi commit để nhả pool sớm. */
 type Db = PrismaService | Prisma.TransactionClient;
 
 @Injectable()
@@ -76,7 +76,7 @@ export class AchievementsService {
     ]);
 
     const ownedIds = new Set(owned.map((o) => o.achievementId));
-    const newlyAwarded: typeof all = [];
+    const eligible: typeof all = [];
 
     for (const a of all) {
       if (ownedIds.has(a.id)) continue;
@@ -85,15 +85,19 @@ export class AchievementsService {
       const current = metrics[a.conditionType as keyof AchievementMetrics];
       if (typeof current !== 'number' || current < a.conditionValue) continue;
 
-      // ON CONFLICT DO NOTHING: 2 request đồng thời không làm vỡ transaction.
-      const created = await db.userAchievement.createMany({
-        data: [{ userId, achievementId: a.id }],
-        skipDuplicates: true,
-      });
-      if (created.count > 0) newlyAwarded.push(a);
+      eligible.push(a);
     }
 
-    return newlyAwarded;
+    if (!eligible.length) return [];
+    // RETURNING chỉ trả hàng do CHÍNH request này tạo: đọc lại toàn bộ owned
+    // sau INSERT sẽ báo nhầm thành tích của request đồng thời là vừa được trao.
+    const created = await db.userAchievement.createManyAndReturn({
+      data: eligible.map((a) => ({ userId, achievementId: a.id })),
+      skipDuplicates: true,
+      select: { achievementId: true },
+    });
+    const createdIds = new Set(created.map((row) => row.achievementId));
+    return eligible.filter((a) => createdIds.has(a.id));
   }
 
   // ---------- Task 152 ----------

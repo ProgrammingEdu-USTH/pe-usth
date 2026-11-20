@@ -393,6 +393,77 @@ Trong lượt BE9 này chỉ kiểm đọc trạng thái/checksum, không áp th
 | `npx eslint "{src,apps,libs,test}/**/*.ts" --ignore-pattern "src/generated/**"` | **155 lỗi, 2 cảnh báo**, giữ nguyên mốc |
 | `git diff --check` | Sạch |
 
+## Sau BE10: hoàn thành bài và trao thành tích theo lô
+
+Đo ngày 20/11/2026, branch Neon thử `ep-late-hill`. Bản trước là `8704525`
+(đã có BE8/BE9). Bốn phiên bản: trước, bước 1 đưa đọc bài ra ngoài transaction,
+bước 2 gộp COUNT/UPDATE tiến độ, cuối cùng gom trao thành tích.
+
+Mỗi ca 30 lượt/phiên bản, bỏ lượt làm nóng; tổng 480 request được đo.
+Dùng controller `LessonsController` thật của Nest trên localhost, prefix `/api`,
+Prisma 7.10.1 và PostgreSQL thật trong schema ngẫu nhiên riêng. Danh tính được
+gán cố định theo user đo, **không chạy JWT/throttle/gateway đầy đủ**. p50/p95
+bao gồm HTTP localhost và parse response; không phải số đo bản deploy.
+Bốn phiên bản có client và user riêng, chạy ghép từng lượt song song trên cùng
+DB; không phải đo chịu tải. Không so trực tiếp ms với các bảng cũ khác môi trường.
+Schema của cả lượt đo hoàn tất và lượt bị ngắt trước đó đã được xoá sau kiểm.
+
+### Kết quả cuối so với bản trước
+
+| Ca | Truy vấn trước → sau | Vòng tuần tự toàn luồng trước → sau | Vòng trong transaction trước → sau | p50 (ms) trước → sau | p95 (ms) trước → sau | p50 thời gian transaction (ms) trước → sau |
+|---|---|---|---|---|---|---|
+| Hoàn thành lần đầu, không có thành tích mới | 17 → 16 | 13 → 11 | **11 → 9** | 701 → 554 | 824 → 685 | 587 → 452 |
+| Nộp lại bài đã xong, có quizScore | 13 → 12 | 12 → 10 | **11 → 9** | 627 → 504 | 695 → 557 | 574 → 448 |
+| Hoàn thành sau reset, không thưởng lại | 16 → 15 | 12 → 10 | **10 → 8** | 636 → 516 | 711 → 590 | 527 → 408 |
+| Hoàn thành và nhận ba thành tích | 20 → 17 | 16 → 12 | **11 → 9** | 865 → 614 | 1218 → 709 | 587 → 457 |
+
+Số truy vấn lấy từ event SQL của Prisma, cộng một BEGIN không hiện trong log.
+Số vòng trong transaction là các câu SQL tuần tự, gồm BEGIN/COMMIT.
+Vòng toàn luồng được suy từ nhóm gọi song song trong code và trace SQL:
+trước có hai câu đọc đầu song song, sau có ba; bốn câu đọc metrics/owned
+chạy song song khi cache danh mục đã nóng. Đây là vòng phụ thuộc logic,
+không phải số gói TCP. Nhánh tạo bài chưa có trong DB chưa nằm trong bảng này.
+
+Thời gian transaction đo quanh `$transaction`, gồm cả thời gian chờ lấy
+connection; không khẳng định toàn bộ khoảng đó là thời gian giữ connection.
+Reset/dọn fixture chạy ngoài khoảng đo; request sau reset phải trả XP=0.
+Ca thành tích dùng bài 32: trước mỗi lượt xoá tiến độ và ba hàng thành tích
+của user giả để luôn có đúng ba thành tích mới. Không thao tác dữ liệu public.
+
+### Số đo sau từng bước
+
+| Phiên bản | Vòng transaction: lần đầu / nộp lại | Lần đầu p50 / p95 (ms) | Nộp lại p50 / p95 (ms) | Ba thành tích p50 / p95 (ms) |
+|---|---|---|---|---|
+| Trước BE10 | 11 / 11 | 701 / 824 | 627 / 695 | 865 / 1218 |
+| Bước 1: đọc bài trước transaction | 10 / 10 | 723 / 844 | 649 / 682 | 913 / 1205 |
+| Bước 2: gộp đếm/cập nhật tiến độ | 9 / 9 | 585 / 706 | 520 / 578 | 741 / 1085 |
+| Bước 3: trao thành tích theo lô | 9 / 9 | 554 / 685 | 504 / 557 | 614 / 709 |
+
+Bước 1 bớt một vòng trong transaction nhưng chưa giảm ms trong lượt này;
+không khẳng định bước 1 riêng lẻ nhanh hơn. Sai số/cạnh tranh giữa bốn client
+ảnh hưởng thời gian đo. Bước 3 không đổi đường không có thành tích mới, nên
+chênh lệch ms ở các ca đó không được quy riêng cho sửa trao thành tích.
+
+### Hành vi được giữ và kiểm hồi quy
+
+- Chỉ đọc bài song song với course/enrollment; giữ thứ tự lỗi 404 → 403 → 400.
+  Số bài ngoài miền Int không gửi vào Prisma sớm. Chỉ nhánh hợp lệ mới tạo
+  bản ghi bài còn thiếu. Khoá ghi danh và kiểm archive vẫn ở trong transaction.
+- `recomputeProgress` gộp thành CTE COUNT + UPDATE; `ROUND(numeric)` cho số
+  không âm giữ cách làm tròn cũ, trần 100%, tổng 0 thì 0%. Bài lưu trữ không tính.
+- Thành tích dùng một `createManyAndReturn` với `skipDuplicates`, chỉ trả ID
+  chính request vừa tạo. Không đọc toàn bộ owned sau INSERT để đoán thành tích mới.
+- Kiểm PostgreSQL thật bằng `scripts/check-course-reset.ts`: reset/nộp đồng
+  thời không thưởng lại, rollback ở UPDATE cuối không mất tiến độ; thêm các ca
+  0 bài, chưa hoàn thành, 12.5% → 13%, bài cuối, bỏ bài lưu trữ và ghi danh lại.
+  Hai request trao ba thành tích đồng thời: mỗi ID mới chỉ có trong một response.
+- Jest: **47 bộ, 564 ca đạt**; typecheck sạch; lint CI giữ **155 lỗi, 2 cảnh báo**.
+  Đối chứng: bỏ dùng kết quả đọc bài sớm làm 1 ca trượt; bỏ lọc theo ID vừa
+  INSERT làm 1 ca trao thành tích trượt. Đã khôi phục code sau mỗi đối chứng.
+
+Chưa gộp SELECT/UPDATE user: hai bước chính đã đạt mục tiêu giảm hai vòng;
+giữ logic streak/ngày học hiện tại. Không có migration mới trong BE10.
+
 ## Đo lại sau mỗi task
 
 1. Trỏ `.env` vào branch Neon đo (đã có sẵn dữ liệu ở trên, chỉ thiếu người dùng đo).

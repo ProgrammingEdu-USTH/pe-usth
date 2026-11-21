@@ -1,8 +1,8 @@
 import { DATA, CAL, KEYS, ROAD, ROAD_DOC, SCODE, nhanLoTrinh } from './scene-data';
 import {
-  docBaiDienDan,
-  docChatDienDan,
   renderForumMarkup,
+  taiDanhSachBai,
+  taoTrangThaiDienDan,
   wireForumInteractions,
 } from './forum-lofi';
 
@@ -235,17 +235,135 @@ const FOCUS = {
 };
 const ROUTES = ['learn','ide','roadmap','courses','practice','achievements','phone'];
 const NAMES = {learn:'Học tiếp',ide:'Bàn thí nghiệm',roadmap:'Lộ trình',courses:'Khoá học',practice:'Ôn tập',achievements:'Thành tựu',phone:'Điện thoại'};
-const forumState = {
-  posts: docBaiDienDan(),
-  chat: docChatDienDan(),
-  category: 'all',
-  sort: 'newest',
-  search: '',
-  postId: null,
-  replyToId: null,
-  composing: false,
-  chatOpen: false,
+const FORUM_USER = state.forumUser
+  ? { ...state.forumUser }
+  : { id: null, name: USER.name || null, role: null };
+const rawForumApi = state.forumApi || null;
+const FORUM_API = rawForumApi
+  ? {
+      read: rawForumApi.read,
+      write: rawForumApi.write,
+      refreshUser: async () => {
+        if (typeof rawForumApi.refreshUser !== 'function') return FORUM_USER;
+        const u = await rawForumApi.refreshUser();
+        if (dead || !u) return FORUM_USER;
+        FORUM_USER.id = u.id ?? null;
+        FORUM_USER.name = u.name ?? FORUM_USER.name;
+        FORUM_USER.role = u.role ?? null;
+        USER.signedIn = true;
+        if (!USER.name && u.name) USER.name = u.name;
+        apDungSo();
+        return FORUM_USER;
+      },
+    }
+  : null;
+const forumState = taoTrangThaiDienDan({
   wide: false,
+});
+const capNhatSoDienDanNav = () => {
+  const el = $('#navForum');
+  if (!el) return;
+  el.textContent = forumState.loaded
+    ? `4 chuyên mục · ${forumState.total} chủ đề`
+    : '4 chuyên mục · thảo luận';
+};
+const xoayDienThoai = (sangNgang) => {
+  const ph = $('#phone');
+  const dangNgang = !!(ph && ph.classList.contains('phone-wide'));
+  forumState.wide = !!sangNgang;
+  const muonNgang = (opts.tab || 'forum') === 'forum' && forumState.wide;
+  if (ph) ph.classList.toggle('phone-wide', muonNgang);
+  capNhatForum();
+  if (!ph || RM || dangNgang === muonNgang) return;
+  const scr = ph.querySelector('.scr');
+  if (muonNgang) {
+    ph.animate(
+      [
+        { transform: 'perspective(1200px) rotateZ(90deg) rotateY(-18deg) scale(0.58)' },
+        { transform: 'perspective(1200px) rotateZ(-4deg) rotateX(6deg) scale(1.03)', offset: 0.72 },
+        { transform: 'none' },
+      ],
+      { duration: 680, easing: EASE },
+    );
+  } else {
+    ph.animate(
+      [
+        { transform: 'perspective(1200px) rotateZ(-90deg) rotateY(16deg) scale(1.42)' },
+        { transform: 'perspective(1200px) rotateZ(3deg) scale(0.98)', offset: 0.72 },
+        { transform: 'none' },
+      ],
+      { duration: 640, easing: EASE },
+    );
+  }
+  if (scr) {
+    scr.animate(
+      [
+        { opacity: 0.28, transform: 'scale(0.94)' },
+        { opacity: 1, transform: 'none' },
+      ],
+      { duration: 520, easing: EASE },
+    );
+  }
+};
+const capNhatForum = (updateOpts) => {
+  if (dead) return;
+  const fEl = $('#pvForum');
+  if (!fEl) return;
+  const optsObj =
+    updateOpts === true
+      ? { keepSearchFocus: true }
+      : updateOpts && typeof updateOpts === 'object'
+        ? updateOpts
+        : {};
+  const prevSearch = optsObj.keepSearchFocus ? fEl.querySelector('#lfSearchIn') : null;
+  const selStart = prevSearch ? prevSearch.selectionStart : null;
+  const selEnd = prevSearch ? prevSearch.selectionEnd : null;
+  const prevScroll = optsObj.scrollTopZero ? 0 : fEl.scrollTop;
+
+  const tenHien = TEN.doc() || USER.name || 'Khách';
+  fEl.innerHTML = renderForumMarkup(forumState, tenHien, FORUM_USER);
+  wireForumInteractions(
+    fEl,
+    forumState,
+    () => TEN.doc() || USER.name || 'Khách',
+    capNhatForum,
+    toast,
+    xoayDienThoai,
+    { api: FORUM_API, onTotalChange: capNhatSoDienDanNav },
+  );
+
+  if (optsObj.scrollTopZero) {
+    fEl.scrollTop = 0;
+  } else if (prevScroll > 0) {
+    fEl.scrollTop = prevScroll;
+  }
+  if (optsObj.keepSearchFocus) {
+    const nextSearch = fEl.querySelector('#lfSearchIn');
+    if (nextSearch) {
+      nextSearch.focus();
+      if (selStart != null && selEnd != null) {
+        try {
+          nextSearch.setSelectionRange(selStart, selEnd);
+        } catch {
+          /* input không hỗ trợ selection */
+        }
+      }
+    }
+  }
+};
+const taiForumLanDau = async (force = false) => {
+  if (!FORUM_API || dead) return;
+  if (!force && (forumState.loaded || forumState.loading)) return;
+  const req = taiDanhSachBai(forumState, FORUM_API);
+  if (route === 'phone' && (opts.tab || 'forum') === 'forum') {
+    capNhatForum();
+  }
+  const res = await req;
+  if (dead || res.stale) return;
+  capNhatSoDienDanNav();
+  if (route === 'phone' && (opts.tab || 'forum') === 'forum') {
+    capNhatForum();
+  }
 };
 
 /* ---------- ambient ---------- */
@@ -772,7 +890,7 @@ function body(r){
           : `<ul class="lb">${board.map(e=>`<li${e.isMe?' class="mine"':''}><span class="rk">${e.rank}</span><span class="av">${esc((e.isMe && ten ? ten : e.name).trim()[0] || '?').toUpperCase()}</span><span>${esc(e.isMe && ten ? ten : e.name)}${e.isMe?' <span class="up">bạn</span>':''}</span><span class="xp2">${SO(e.value)} XP</span></li>`).join('')}</ul>`}
         ${me ? `<div class="me"><span class="rk">${me.rank}</span><span class="av">${esc((ten || me.name).trim()[0] || '?').toUpperCase()}</span><span>${esc(ten || me.name)}</span><span>${SO(me.value)} XP</span></div>` : ''}
         <div class="sample">Tên của người khác do hệ thống đặt cho tài khoản khách (dạng "Khách XXXX") — chưa ai đặt được tên hiển thị.</div></div>
-      <div class="pv" id="pvForum" ${t!=='forum'?'hidden':''}>${renderForumMarkup(forumState, hien)}</div>
+      <div class="pv" id="pvForum" ${t!=='forum'?'hidden':''}>${renderForumMarkup(forumState, hien, FORUM_USER)}</div>
     </div></div></div></div>`;
   }
 }
@@ -791,54 +909,20 @@ function wirePage(r, fresh){
     }
   }
   if (r==='phone'){
-    const xoayDienThoai = (sangNgang) => {
-      const ph = $('#phone');
-      const dangNgang = !!(ph && ph.classList.contains('phone-wide'));
-      forumState.wide = !!sangNgang;
-      const muonNgang = (opts.tab || 'forum') === 'forum' && forumState.wide;
-      if (ph) ph.classList.toggle('phone-wide', muonNgang);
-      capNhatForum();
-      if (!ph || RM || dangNgang === muonNgang) return;
-      const scr = ph.querySelector('.scr');
-      if (muonNgang) {
-        ph.animate(
-          [
-            { transform: 'perspective(1200px) rotateZ(90deg) rotateY(-18deg) scale(0.58)' },
-            { transform: 'perspective(1200px) rotateZ(-4deg) rotateX(6deg) scale(1.03)', offset: 0.72 },
-            { transform: 'none' },
-          ],
-          { duration: 680, easing: EASE },
-        );
-      } else {
-        ph.animate(
-          [
-            { transform: 'perspective(1200px) rotateZ(-90deg) rotateY(16deg) scale(1.42)' },
-            { transform: 'perspective(1200px) rotateZ(3deg) scale(0.98)', offset: 0.72 },
-            { transform: 'none' },
-          ],
-          { duration: 640, easing: EASE },
-        );
-      }
-      if (scr) {
-        scr.animate(
-          [
-            { opacity: 0.28, transform: 'scale(0.94)' },
-            { opacity: 1, transform: 'none' },
-          ],
-          { duration: 520, easing: EASE },
-        );
-      }
-    };
-    const capNhatForum = () => {
-      const fEl = $('#pvForum');
-      if (!fEl) return;
-      const tenHien = TEN.doc() || USER.name || 'Khách';
-      fEl.innerHTML = renderForumMarkup(forumState, tenHien);
-      wireForumInteractions(fEl, forumState, () => TEN.doc() || USER.name || 'Khách', capNhatForum, toast, xoayDienThoai);
-    };
     const fInit = $('#pvForum');
     if (fInit) {
-      wireForumInteractions(fInit, forumState, () => TEN.doc() || USER.name || 'Khách', capNhatForum, toast, xoayDienThoai);
+      wireForumInteractions(
+        fInit,
+        forumState,
+        () => TEN.doc() || USER.name || 'Khách',
+        capNhatForum,
+        toast,
+        xoayDienThoai,
+        { api: FORUM_API, onTotalChange: capNhatSoDienDanNav },
+      );
+    }
+    if ((opts.tab || 'forum') === 'forum') {
+      void taiForumLanDau(true);
     }
     sa.querySelectorAll('[data-pt]').forEach(b=>b.addEventListener('click',()=>{ const t=b.dataset.pt;
       opts.tab = t;
@@ -864,6 +948,7 @@ function wirePage(r, fresh){
       } else if (t === 'forum' && ph) {
         ph.classList.toggle('phone-wide', forumState.wide);
         capNhatForum();
+        void taiForumLanDau(!forumState.loaded || forumState.authRequired);
       }
       const v = t==='forum'?pvF:t==='me'?pvM:pvR;
       if (v && !RM) v.animate([{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:320,easing:EASE}); }));
@@ -900,7 +985,15 @@ const focusKey = (r,o) => (r==='learn' && o.from==='book' && MODULES[o.shelf||0]
 
 async function go(r, o={}){
   if (busy || route || peeking || app.classList.contains('intro')) return; busy = true; route = r; opts = o; ghiHash(r);
-  if (r === 'phone') { forumState.wide = false; forumState.postId = null; }
+  if (r === 'phone') {
+    forumState.wide = false;
+    forumState.postId = null;
+    forumState.editingPostId = null;
+    forumState.editingCommentId = null;
+    forumState.confirmDeletePostId = null;
+    forumState.confirmDeleteCommentId = null;
+    forumState.actionError = null;
+  }
   closeDemo(); $('#calPop').hidden = true; app.classList.add('away'); clearHover(); hidePop(true); HITEL.forEach(h=>h.setAttribute('tabindex','-1')); notesEl.style.pointerEvents='none';
   host.querySelectorAll('.hl').forEach(m=>m.classList.remove('hl')); room.style.translate='0px 0px';
   if (o.pick){
@@ -950,7 +1043,15 @@ async function sibling(r, o={}){
   unmountChill();
   unmountCourses();
   route = r; opts = o; ghiHash(r); const fk = focusKey(r,o); setHole(fk); FOCUS._cur = fk;
-  if (r === 'phone') { forumState.wide = false; forumState.postId = null; }
+  if (r === 'phone') {
+    forumState.wide = false;
+    forumState.postId = null;
+    forumState.editingPostId = null;
+    forumState.editingCommentId = null;
+    forumState.confirmDeletePostId = null;
+    forumState.confirmDeleteCommentId = null;
+    forumState.actionError = null;
+  }
   content.remove();
   page.querySelectorAll('.tab').forEach(t=>{ if (t.dataset.tab===r) t.setAttribute('aria-current','page'); else t.removeAttribute('aria-current'); });
   await tweenCam(focusCam(fk), RM?0:850);
@@ -1280,7 +1381,7 @@ function apDungSo(){
   // chưa hề được hỏi (laySo() trả sớm khi không có phiên).
   const chuaDoc = USER.signedIn ? 'chưa đọc được' : 'chưa có phiên học';
   T('navAchv', USER.badges ? `${USER.badges.done}/${USER.badges.total} huy hiệu` : chuaDoc);
-  T('navForum', `4 chuyên mục · ${forumState.posts.length} chủ đề`);
+  capNhatSoDienDanNav();
   T('navRank', USER.rank ? `Hạng ${USER.rank.rank} theo XP` : chuaDoc);
 
   T('courseDone', USER.lessonsDone == null ? '—' : `${USER.lessonsDone}/${TOTAL} bài`);
@@ -1343,6 +1444,9 @@ const GHI_CHU = (() => {
 /* ---------- boot ---------- */
 TOD = nowH(); applyTOD(TOD);
 apDungSo();
+if (USER.signedIn && FORUM_API) {
+  void taiForumLanDau();
+}
 GHI_CHU.slice(0, 2).forEach(n => addNote(n, false)); poolI = Math.min(2, GHI_CHU.length);
 on(window,'resize', layout);
 layout();

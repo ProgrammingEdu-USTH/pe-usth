@@ -113,7 +113,7 @@ function readLocalChillProgress(total: number): { done: number[]; xp: number | n
 /** Một lượt gọi "chỉ-phiên": lỗi mạng, 4xx hay JSON rác đều thành `null`. */
 async function doc<T>(path: string, lay: (data: unknown) => T | null): Promise<T | null> {
   try {
-    const res = await apiFetch(path);
+    const res = await apiFetchSessionOnly(path);
     if (!res.ok) return null;
     return lay((await res.json()) as unknown);
   } catch {
@@ -123,8 +123,20 @@ async function doc<T>(path: string, lay: (data: unknown) => T | null): Promise<T
 
 const soHay = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 
+type ForumUser = { id: number | null; name: string | null; role: string | null };
+const EMPTY_FORUM_USER: ForumUser = { id: null, name: null, role: null };
+
+function parseForumUser(data: unknown): ForumUser | null {
+  if (!data || typeof data !== 'object') return null;
+  const d = data as { id?: unknown; name?: unknown; role?: unknown };
+  const id = typeof d.id === 'number' && Number.isFinite(d.id) ? d.id : null;
+  const name = typeof d.name === 'string' && d.name.trim() ? d.name.trim() : null;
+  const role = typeof d.role === 'string' ? d.role : null;
+  return { id, name, role };
+}
+
 /** Kết quả một lượt đi lấy số: các con số để HIỆN, và tập bài đã xong để DỰNG. */
-type KetQua = { user: RoomUser; done: number[] };
+type KetQua = { user: RoomUser; done: number[]; forumUser: ForumUser };
 
 /**
  * Đi lấy số của người học. Chưa có phiên ⇒ trả về `EMPTY_USER` và KHÔNG gọi gì.
@@ -133,7 +145,7 @@ type KetQua = { user: RoomUser; done: number[] };
  *  · `/api/enrolled`      → `completedLessonNumbers` (chỉ đường này trả nó —
  *                           `/api/courses-enrolled` KHÔNG có, nên đừng đổi);
  *  · `/api/stats`         → tổng XP;
- *  · `/api/user`          → tên tài khoản;
+ *  · `/api/user`          → tên + mã tài khoản (phục vụ quyền sửa/xoá diễn đàn);
  *  · `/api/achievements`  → huy hiệu (hiện trả MẢNG RỖNG: chưa dòng mã nào ghi
  *                           vào bảng danh mục thành tựu, mà vẫn HTTP 200 — nên
  *                           màn Thành tựu phải phân biệt "rỗng" với "không đọc
@@ -156,22 +168,20 @@ async function laySo(courseId: string, total: number): Promise<KetQua> {
           lessonsDone: local.done.length > 0 ? local.done.length : null,
         },
         done: local.done,
+        forumUser: EMPTY_FORUM_USER,
       };
     }
-    return { user: EMPTY_USER, done: [] };
+    return { user: EMPTY_USER, done: [], forumUser: EMPTY_FORUM_USER };
   }
 
-  const [done, xp, name, badges, board] = await Promise.all([
+  const [done, xp, userProfile, badges, board] = await Promise.all([
     doc<number[]>('/api/enrolled', (data) => {
       const row = findEnrollment(asList(data, 'enrolled'), courseId);
       const raw = row?.completedLessonNumbers;
       return Array.isArray(raw) ? [...completedLessonSet(raw, total)] : null;
     }),
     doc<number>('/api/stats', (data) => soHay((data as { xp?: unknown })?.xp)),
-    doc<string>('/api/user', (data) => {
-      const n = (data as { name?: unknown })?.name;
-      return typeof n === 'string' && n.trim() ? n.trim() : null;
-    }),
+    doc<ForumUser>('/api/user', parseForumUser),
     doc<RoomUser['badgeList']>('/api/achievements', (data) =>
       asList<Record<string, unknown>>(data, 'achievements').map((a) => ({
         code: typeof a.code === 'string' ? a.code : '',
@@ -201,7 +211,7 @@ async function laySo(courseId: string, total: number): Promise<KetQua> {
   return {
     user: {
       signedIn: true,
-      name,
+      name: userProfile?.name ?? null,
       xp: mergedXp,
       lessonsDone: hasDone ? mergedDone.length : null,
       badges: badges
@@ -214,6 +224,7 @@ async function laySo(courseId: string, total: number): Promise<KetQua> {
     // Tập bài đã xong đi RIÊNG khỏi `user`: nó không phải một con số để hiện ra
     // mà là nguyên liệu dựng trạng thái của từng cuốn sách trên kệ.
     done: mergedDone,
+    forumUser: userProfile ?? EMPTY_FORUM_USER,
   };
 }
 
@@ -251,8 +262,8 @@ export default function StudyRoom(props: StudyRoomProps) {
     const huyCho = choSoCoTran<KetQua>(
       laySo(props.courseId, total),
       TRAN_CHO_MS,
-      { user: EMPTY_USER, done: [] },
-      ({ user, done }, muon) => {
+      { user: EMPTY_USER, done: [], forumUser: EMPTY_FORUM_USER },
+      ({ user, done, forumUser }, muon) => {
         // Cleanup đã chạy (StrictMode, hoặc người dùng đi sang trang khác trong
         // lúc chờ): không được dựng cảnh lên một DOM đã bỏ.
         if (huy || !hostRef.current) return;
@@ -274,6 +285,12 @@ export default function StudyRoom(props: StudyRoomProps) {
         dispose = initStudyRoom(host, {
           content,
           user,
+          forumUser,
+          forumApi: {
+            read: apiFetchSessionOnly,
+            write: apiFetch,
+            refreshUser: async () => doc<ForumUser>('/api/user', parseForumUser),
+          },
           feedback: props.feedbackUrl ?? null,
           onCoursesMount: (el: HTMLElement | null) => {
             if (!huy) setCoursesMountEl(el);

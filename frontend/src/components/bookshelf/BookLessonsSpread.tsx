@@ -3,7 +3,12 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { LofiButton, LofiFeedbackBanner } from '@/components/ui';
-import type { BookshelfCourse, BookshelfLessonItem, BookshelfStage } from './bookshelf-catalog';
+import {
+  buildLessonHref,
+  type BookshelfCourse,
+  type BookshelfLessonItem,
+  type BookshelfStage,
+} from './bookshelf-catalog';
 import styles from './bookshelf.module.css';
 
 export interface BookLessonsSpreadProps {
@@ -14,14 +19,6 @@ export interface BookLessonsSpreadProps {
   currentLessonNo: number | null;
   onChangeStage: (nextIndex: number) => void;
   onBackToSyllabus: () => void;
-}
-
-function buildLessonHref(baseHref: string | null, lesson: BookshelfLessonItem): string | null {
-  if (!baseHref) return null;
-  if (baseHref.includes('python_advanced')) {
-    return `${baseHref}?lesson=${lesson.index}`;
-  }
-  return baseHref;
 }
 
 /**

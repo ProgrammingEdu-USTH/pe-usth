@@ -17,10 +17,28 @@ import DailyPracticeView from '@/components/practice/DailyPracticeView';
 import {
   COURSE_ID,
   ENROLLED_PATH,
-  TOTAL_LESSONS,
   completedLessons,
 } from '@/lib/practice-plan';
-import type { StudioLesson } from '@/lib/studio-lesson';
+import {
+  completeLessonWithAutoEnroll,
+  loadLessonContentWithAutoEnroll,
+  type LessonLoadErrorKind,
+} from '@/lib/lofi-lesson-loader';
+import {
+  buildBookSpreads,
+  type BookPageSpec,
+  type IndexedPracticeItem,
+  type IndexedReadBlock,
+} from '@/lib/lofi-book-spreads';
+import {
+  correctIndex,
+  maDeThu,
+  optionDetail,
+  optionText,
+  tachDeVaCode,
+  type ReadTrace,
+  type StudioLesson,
+} from '@/lib/studio-lesson';
 import styles from './lofi-workspace.module.css';
 
 export type LofiScreenType = 'lesson' | 'ide' | 'practice';
@@ -147,6 +165,40 @@ interface PoolMcqItem {
 
 const ALL_META_ENTRIES = Object.entries(DATA.meta) as [string, [number, number, number, number]][];
 
+function renderInlineCode(text: string): React.ReactNode {
+  if (!text.includes('`')) return text;
+  const parts = text.split(/(`[^`]+`)/g);
+  return parts.map((part, idx) =>
+    part.startsWith('`') && part.endsWith('`') && part.length >= 2 ? (
+      <code key={idx} className={styles.bookInlineCode}>
+        {part.slice(1, -1)}
+      </code>
+    ) : (
+      <React.Fragment key={idx}>{part}</React.Fragment>
+    ),
+  );
+}
+
+function formatTraceSet(items?: [string, string][]): string {
+  if (!items?.length) return '';
+  return items.map(([k, v]) => `${k} = ${v}`).join(', ');
+}
+
+function errorHeadingFor(kind: LessonLoadErrorKind): string {
+  switch (kind) {
+    case 'network':
+      return 'Chưa kết nối được Backend';
+    case 'unauthorized':
+      return 'Cần phiên học hợp lệ';
+    case 'forbidden':
+      return 'Chưa ghi danh khoá học';
+    case 'not_found':
+      return 'Chưa tìm thấy nội dung bài';
+    case 'server':
+      return 'Máy chủ đang gặp sự cố';
+  }
+}
+
 export default function LofiWorkspace({
   initialScreen = 'lesson',
   initialLessonIdx = 0,
@@ -168,7 +220,7 @@ export default function LofiWorkspace({
   const [doneLessons, setDoneLessons] = useState<number[]>([]);
   const [xp, setXp] = useState<number>(0);
 
-  // Trạng thái Bài học: Quyển sách mở 2 trang (48 bài thật từ giáo trình)
+  // Trạng thái Bài học: Quyển sách mở 2 trang (179 bài thật từ giáo trình)
   const [spreadIdx, setSpreadIdx] = useState(0);
   const [lessonIdx, setLessonIdx] = useState<number>(() => {
     const safe = Number.isInteger(initialLessonIdx) && initialLessonIdx >= 0 && initialLessonIdx < CATALOG_LESSONS.length
@@ -179,8 +231,12 @@ export default function LofiWorkspace({
   const [flipDir, setFlipDir] = useState<'next' | 'prev'>('next');
   const [lessonContent, setLessonContent] = useState<StudioLesson | null>(null);
   const [lessonLoading, setLessonLoading] = useState<boolean>(false);
-  const [lessonError, setLessonError] = useState<string | null>(null);
+  const [lessonError, setLessonError] = useState<{
+    kind: LessonLoadErrorKind;
+    message: string;
+  } | null>(null);
   const [lessonReloadKey, setLessonReloadKey] = useState<number>(0);
+  const pendingLastSpreadRef = useRef(false);
 
   const prevInitialScreenRef = useRef(initialScreen);
   useEffect(() => {
@@ -209,6 +265,10 @@ export default function LofiWorkspace({
   const [pickedMcq, setPickedMcq] = useState<Record<string, number>>({});
   const [pickedScaffold, setPickedScaffold] = useState<Record<string, string>>({});
   const [pickedCounter, setPickedCounter] = useState<Record<string, string>>({});
+  const [practiceInputs, setPracticeInputs] = useState<Record<string, string>>({});
+  const [revealedPractice, setRevealedPractice] = useState<Record<string, boolean>>({});
+  const [revealedTrace, setRevealedTrace] = useState<Record<string, boolean>>({});
+  const [expandedTraceTable, setExpandedTraceTable] = useState<Record<string, boolean>>({});
   const [showHints, setShowHints] = useState<Record<number, boolean>>({});
   const [showSolution, setShowSolution] = useState<Record<number, boolean>>({});
   const [completeBanner, setCompleteBanner] = useState<string>('');
@@ -317,7 +377,7 @@ export default function LofiWorkspace({
         }
         if (enrolledRes) {
           const row = findEnrollment(asList(enrolledRes, 'enrolled'), COURSE_ID);
-          const done = completedLessons(row?.completedLessonNumbers, TOTAL_LESSONS);
+          const done = completedLessons(row?.completedLessonNumbers, CATALOG_LESSONS.length);
           if (done.length) {
             setDoneLessons((prev) => Array.from(new Set([...prev, ...done])).sort((a, b) => a - b));
           }
@@ -332,7 +392,7 @@ export default function LofiWorkspace({
     };
   }, []);
 
-  // Nạp nội dung bài học bắt buộc từ Backend API (lessonIdx: 0..47 -> lessonNo: 1..48)
+  // Nạp nội dung bài học bắt buộc từ Backend API (tự ghi danh khi gặp 403)
   const currentCatalog = CATALOG_LESSONS[lessonIdx] ?? CATALOG_LESSONS[0];
   const lessonNo = currentCatalog.no;
 
@@ -345,32 +405,39 @@ export default function LofiWorkspace({
       setLessonLoading(true);
       setLessonError(null);
       setCompleteBanner('');
-      try {
-        const apiRes = await apiFetch(
-          `/api/courses/${encodeURIComponent(COURSE_ID)}/lessons/${lessonNo}/content`,
-        );
-        if (!alive) return;
-        if (apiRes.ok) {
-          const payload = (await apiRes.json()) as { lesson?: { contentJson?: StudioLesson } };
-          if (payload?.lesson?.contentJson) {
-            setLessonContent(payload.lesson.contentJson);
-            setLessonLoading(false);
 
-            // Làm ấm các gói thư viện của bài (numpy, pandas, matplotlib, sqlite3) nếu có
-            const pkgs = payload.lesson.contentJson?.step_4?.packages;
-            if (pkgs?.length) {
-              pyRunnerRef.current?.prewarm(pkgs);
-            }
-            return;
-          }
+      const res = await loadLessonContentWithAutoEnroll<StudioLesson>(
+        COURSE_ID,
+        lessonNo,
+        apiFetch,
+      );
+      if (!alive) return;
+
+      if (res.ok) {
+        const nextSpreads = buildBookSpreads(res.lesson, tachDeVaCode);
+        setLessonContent(res.lesson);
+        if (pendingLastSpreadRef.current) {
+          setSpreadIdx(Math.max(0, nextSpreads.length - 1));
+          pendingLastSpreadRef.current = false;
         }
-        setLessonError('Không thể tải bài học từ máy chủ. Vui lòng kiểm tra backend.');
-      } catch {
-        if (!alive) return;
-        setLessonError('Không thể kết nối máy chủ bài học. Vui lòng khởi động backend và bấm Thử lại.');
-      } finally {
-        if (alive) setLessonLoading(false);
+        if (res.completed) {
+          setDoneLessons((prev) =>
+            prev.includes(lessonNo) ? prev : [...prev, lessonNo].sort((a, b) => a - b),
+          );
+        }
+        setLessonLoading(false);
+
+        // Làm ấm các gói thư viện của bài (numpy, pandas, matplotlib, tzdata) nếu có
+        const pkgs = res.lesson?.step_4?.packages;
+        if (pkgs?.length) {
+          pyRunnerRef.current?.prewarm(pkgs);
+        }
+        return;
       }
+
+      pendingLastSpreadRef.current = false;
+      setLessonError({ kind: res.kind, message: res.message });
+      setLessonLoading(false);
     })();
 
     return () => {
@@ -543,71 +610,87 @@ export default function LofiWorkspace({
 
   const handleCompleteLesson = useCallback(async () => {
     const reward = currentCatalog.xp || 15;
-    if (!doneLessons.includes(lessonNo)) {
+    const alreadyDone = doneLessons.includes(lessonNo);
+    if (!alreadyDone) {
       const nextDone = [...doneLessons, lessonNo].sort((a, b) => a - b);
       setDoneLessons(nextDone);
       setXp((prev) => prev + reward);
-      setCompleteBanner(`🎉 Đã lưu tiến độ: Bài ${lessonNo} (${currentCatalog.code}) đã xong (+${reward} XP)!`);
+      setCompleteBanner(`Đang lưu tiến độ Bài ${lessonNo} (${currentCatalog.code}) lên máy chủ...`);
     } else {
       setCompleteBanner(`✓ Bài ${lessonNo} (${currentCatalog.code}) đã được ghi nhận xong từ trước.`);
     }
 
-    // Đồng bộ lên Backend API nếu có kết nối
-    try {
-      const res = await apiFetch(`/api/lessons/${lessonNo}/complete`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          courseId: COURSE_ID,
-          lessonTitle: `${currentCatalog.code} · ${currentCatalog.title}`,
-          xpEarned: reward,
-          quizScore: 100,
-        }),
-      });
-      if (res.ok) {
-        const body = (await res.json().catch(() => null)) as { xpGained?: number } | null;
-        if (body && typeof body.xpGained === 'number' && body.xpGained > 0) {
-          setCompleteBanner(
-            `🎉 Đã lưu lên máy chủ: Bài ${lessonNo} đã xong (+${body.xpGained} XP)!`,
-          );
-        }
-      }
-    } catch {
-      /* lỗi kết nối server khi lưu tiến độ */
+    const res = await completeLessonWithAutoEnroll(
+      COURSE_ID,
+      lessonNo,
+      {
+        lessonTitle: `${currentCatalog.code} · ${currentCatalog.title}`,
+        xpEarned: reward,
+        quizScore: 100,
+      },
+      apiFetch,
+    );
+
+    if (res.ok) {
+      const gained =
+        typeof res.data?.xpGained === 'number' && res.data.xpGained > 0
+          ? res.data.xpGained
+          : reward;
+      setCompleteBanner(
+        alreadyDone || res.data?.alreadyCompleted
+          ? `✓ Bài ${lessonNo} (${currentCatalog.code}) đã được ghi nhận hoàn thành trên máy chủ.`
+          : `🎉 Đã lưu lên máy chủ: Bài ${lessonNo} (${currentCatalog.code}) đã xong (+${gained} XP)!`,
+      );
+    } else {
+      setCompleteBanner(
+        `⚠️ Đã đánh dấu tạm trên trình duyệt, nhưng chưa lưu được lên máy chủ (${
+          res.status ? `HTTP ${res.status}` : 'chưa kết nối backend'
+        }).`,
+      );
     }
   }, [currentCatalog, doneLessons, lessonNo]);
 
   /* ==========================================================================
-     CHIA NỘI DUNG BÀI HỌC THẬT THÀNH CÁC CẶP TRANG SÁCH MỞ (3 SPREADS = 6 TRANG)
+     CHIA NỘI DUNG BÀI HỌC THẬT THÀNH CÁC CẶP TRANG SÁCH MỞ (4–6 SPREADS LINH HOẠT)
      ========================================================================== */
-  const TOTAL_SPREADS = 3; // Cặp 0 (Trang 1-2): Lý thuyết & Sơ đồ; Cặp 1 (Trang 3-4): Đọc hiểu & Trắc nghiệm; Cặp 2 (Trang 5-6): Lắp ghép & Thử thách
+  const spreads = useMemo(
+    () => (lessonContent ? buildBookSpreads(lessonContent, tachDeVaCode) : []),
+    [lessonContent],
+  );
+  const totalSpreads = Math.max(1, spreads.length);
+  const safeSpreadIdx = Math.min(spreadIdx, totalSpreads - 1);
+  const currentSpread = spreads[safeSpreadIdx] ?? null;
 
   const handleChangeLesson = useCallback(
     (nextIdx: number, targetSpread = 0) => {
       const clamped = Math.max(0, Math.min(CATALOG_LESSONS.length - 1, nextIdx));
+      if (targetSpread !== -1) {
+        pendingLastSpreadRef.current = false;
+        setSpreadIdx(Math.max(0, targetSpread));
+      }
       setLessonIdx(clamped);
-      setSpreadIdx(targetSpread);
       if (typeof window !== 'undefined') {
         const url = `/lesson/${COURSE_ID}?lesson=${clamped}`;
         window.history.pushState(null, '', url);
       }
     },
-    [setSpreadIdx],
+    [],
   );
 
   const handlePrevSpread = () => {
     setFlipDir('prev');
-    if (spreadIdx > 0) {
-      setSpreadIdx((s) => s - 1);
+    if (safeSpreadIdx > 0) {
+      setSpreadIdx((s) => Math.min(s, totalSpreads - 1) - 1);
     } else if (lessonIdx > 0) {
-      handleChangeLesson(lessonIdx - 1, TOTAL_SPREADS - 1);
+      pendingLastSpreadRef.current = true;
+      handleChangeLesson(lessonIdx - 1, -1);
     }
   };
 
   const handleNextSpread = () => {
     setFlipDir('next');
-    if (spreadIdx < TOTAL_SPREADS - 1) {
-      setSpreadIdx((s) => s + 1);
+    if (safeSpreadIdx < totalSpreads - 1) {
+      setSpreadIdx((s) => Math.min(s, totalSpreads - 1) + 1);
     } else if (lessonIdx < CATALOG_LESSONS.length - 1) {
       handleChangeLesson(lessonIdx + 1, 0);
     } else {
@@ -630,16 +713,1105 @@ export default function LofiWorkspace({
   const mcqList = useMemo(() => step2?.mcq ?? [], [step2]);
   const codeLineCount = Math.max(12, ideCustomCode.split('\n').length);
 
+  const renderReadBlock = ({ block, sliceIndex, blockIndex }: IndexedReadBlock) => {
+    const bKey = `${lessonNo}-s${sliceIndex}-b${blockIndex}`;
+    switch (block.type) {
+      case 'paragraph':
+        return (
+          <p key={bKey} className={styles.pageLeadParagraph}>
+            {renderInlineCode(block.text)}
+          </p>
+        );
+      case 'code': {
+        const traceKey = `${bKey}-trace`;
+        const trace: ReadTrace | undefined = block.trace;
+        return (
+          <div key={bKey} className={styles.bookReadCodeGroup}>
+            <div className={styles.bookCodeBox}>
+              {block.code
+                .trimEnd()
+                .split('\n')
+                .map((line, lIdx) => (
+                  <div key={lIdx}>{line || ' '}</div>
+                ))}
+            </div>
+            {block.expected !== undefined && block.expected !== '' && (
+              <div className={styles.bookExpectedBox}>
+                <span className={styles.bookExpectedLabel}>KẾT QUẢ</span>
+                <pre className={styles.bookExpectedPre}>{block.expected}</pre>
+              </div>
+            )}
+            {trace && (
+              <div className={styles.bookTraceBox}>
+                <div className={styles.bookTracePrompt}>
+                  <strong>Đoán trước:</strong> {renderInlineCode(trace.predict.prompt)}
+                </div>
+                <div className={styles.bookActionRow}>
+                  <button
+                    type="button"
+                    className={styles.bookSecondaryBtn}
+                    onClick={() =>
+                      setRevealedTrace((prev) => ({
+                        ...prev,
+                        [traceKey]: !prev[traceKey],
+                      }))
+                    }
+                  >
+                    {revealedTrace[traceKey]
+                      ? `Đáp án: ${trace.predict.answer}`
+                      : '👀 Xem đáp án dự đoán'}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.bookSecondaryBtn}
+                    onClick={() =>
+                      setExpandedTraceTable((prev) => ({
+                        ...prev,
+                        [traceKey]: !prev[traceKey],
+                      }))
+                    }
+                  >
+                    {expandedTraceTable[traceKey]
+                      ? 'Ẩn bảng từng bước'
+                      : `📊 Bảng từng bước (${trace.rows.length})`}
+                  </button>
+                </div>
+                {expandedTraceTable[traceKey] && (
+                  <div className={styles.bookTableWrap}>
+                    <table className={styles.bookTable}>
+                      <thead>
+                        <tr>
+                          <th>Dòng</th>
+                          <th>Biến đổi</th>
+                          <th>Đầu ra / Ghi chú</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {trace.rows.slice(0, 14).map((r, rIdx) => (
+                          <tr key={rIdx}>
+                            <td>L{r.line}</td>
+                            <td>
+                              {r.set?.length ? <code>{formatTraceSet(r.set)}</code> : '—'}
+                            </td>
+                            <td>
+                              {r.out
+                                ? `in: ${r.out}`
+                                : r.ret
+                                  ? `trả về: ${r.ret}`
+                                  : r.exc
+                                    ? `lỗi: ${r.exc}`
+                                    : r.enter && r.fn
+                                      ? `vào ${r.fn}()`
+                                      : '—'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+            {block.tryIt && (
+              <div className={styles.bookActionRow}>
+                <button
+                  type="button"
+                  className={styles.bookSecondaryBtn}
+                  onClick={() =>
+                    openCodeInIde(maDeThu(step1?.read, sliceIndex, blockIndex) ?? block.code)
+                  }
+                >
+                  ▶ Chạy thử ở Bàn thí nghiệm
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      }
+      case 'terminal':
+        return (
+          <div key={bKey} className={styles.bookTerminalBox}>
+            <div className={styles.bookTerminalTag}>TERMINAL</div>
+            <pre className={styles.bookTerminalPre}>$ {block.code}</pre>
+            {block.expected && (
+              <p className={styles.bookTerminalNote}>{renderInlineCode(block.expected)}</p>
+            )}
+          </div>
+        );
+      case 'figure':
+        return (
+          <div key={bKey} className={styles.bookFigureBox}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className={styles.bookFigureImg}
+              src={block.src}
+              alt={block.alt || 'Biểu đồ minh hoạ'}
+            />
+            {block.alt && <span className={styles.bookFigureCaption}>{block.alt}</span>}
+          </div>
+        );
+      case 'table':
+        return (
+          <div key={bKey} className={styles.bookTableWrap}>
+            <table className={styles.bookTable}>
+              <thead>
+                <tr>
+                  {block.headers.map((h, i) => (
+                    <th key={i}>{renderInlineCode(h)}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {block.rows.map((row, rIdx) => (
+                  <tr key={rIdx}>
+                    {row.map((cell, cIdx) => (
+                      <td key={cIdx}>{renderInlineCode(cell)}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      case 'diagram':
+        return (
+          <div key={bKey} className={styles.bookDiagramFrame}>
+            <div className={styles.bookConceptTag}>{renderInlineCode(block.title)}</div>
+            <div className={styles.bookDiagramGrid}>
+              {block.lanes.map((lane, lIdx) => (
+                <div key={lIdx} className={styles.bookDiagramLane}>
+                  <div className={styles.bookDiagramLaneTitle}>
+                    {renderInlineCode(lane.label)}
+                  </div>
+                  <div className={styles.bookDiagramSteps}>
+                    {lane.steps.map((st, sIdx) => (
+                      <div key={sIdx} className={styles.bookDiagramStep}>
+                        {renderInlineCode(st)}
+                      </div>
+                    ))}
+                  </div>
+                  {lane.note && (
+                    <p className={styles.bookDiagramNote}>{renderInlineCode(lane.note)}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+    }
+  };
+
+  const renderPracticeList = (items: IndexedPracticeItem[], totalPractice: number) =>
+    items.map(({ practiceIndex, item }) => {
+      const prKey = `${lessonNo}-practice-${practiceIndex}`;
+      const isRevealed = Boolean(revealedPractice[prKey]);
+      return (
+        <div key={prKey} className={styles.bookPracticeCard}>
+          <p className={styles.pageSectionLabel}>
+            CÂU TỰ LUYỆN {practiceIndex + 1}/{totalPractice}
+          </p>
+          <p className={styles.pageLeadParagraph} style={{ fontWeight: 600 }}>
+            {renderInlineCode(item.prompt)}
+          </p>
+          <textarea
+            className={styles.bookPracticeTextarea}
+            value={practiceInputs[prKey] ?? ''}
+            onChange={(e) =>
+              setPracticeInputs((prev) => ({ ...prev, [prKey]: e.target.value }))
+            }
+            placeholder="Viết nháp câu trả lời hoặc suy nghĩ của bạn trước khi xem đáp án..."
+            rows={2}
+            spellCheck={false}
+          />
+          <div className={styles.bookActionRow}>
+            <button
+              type="button"
+              className={styles.bookSecondaryBtn}
+              onClick={() =>
+                setRevealedPractice((prev) => ({
+                  ...prev,
+                  [prKey]: !prev[prKey],
+                }))
+              }
+            >
+              {isRevealed ? 'Ẩn đáp án mẫu' : '💡 Xem đáp án mẫu'}
+            </button>
+            {item.answerCode && (
+              <button
+                type="button"
+                className={styles.bookSecondaryBtn}
+                onClick={() => openCodeInIde(item.answerCode!)}
+              >
+                ▶ Chạy ở Bàn thí nghiệm
+              </button>
+            )}
+          </div>
+          {isRevealed && (
+            <div className={styles.paperFeedback}>
+              <div>{renderInlineCode(item.answer)}</div>
+              {item.answerCode && (
+                <div className={styles.bookCodeBox} style={{ marginTop: 8 }}>
+                  {item.answerCode
+                    .trimEnd()
+                    .split('\n')
+                    .map((line, lIdx) => (
+                      <div key={lIdx}>{line || ' '}</div>
+                    ))}
+                </div>
+              )}
+              {item.answerExpected && (
+                <div className={styles.bookExpectedBox} style={{ marginTop: 6 }}>
+                  <span className={styles.bookExpectedLabel}>KẾT QUẢ</span>
+                  <pre className={styles.bookExpectedPre}>{item.answerExpected}</pre>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    });
+
+  const renderLegacyLeft = (idx: number) => {
+    if (idx === 0) {
+      return (
+        <div className={styles.pageBodyFlow}>
+          <p className={styles.pageSectionLabel}>
+            {currentCatalog.moduleTitle.toUpperCase()} · {currentCatalog.minutes} PHÚT
+          </p>
+          <h2 className={styles.pageMainTitle}>
+            {step1?.brief?.title || currentCatalog.title}
+          </h2>
+          <p className={styles.pageLeadParagraph}>
+            {step1?.brief?.goal ||
+              step1?.context?.body ||
+              theoryBlocks[0]?.body ||
+              'Nắm vững nguyên lý cốt lõi và cách vận dụng trực tiếp trong Python.'}
+          </p>
+
+          {theoryBlocks.length > 0 && (
+            <div className={styles.bookCardsGrid}>
+              {theoryBlocks.slice(0, 2).map((blk, i) => (
+                <div
+                  key={i}
+                  className={`${styles.bookConceptCard} ${
+                    i === 1 ? styles.bookConceptCardHighlight : ''
+                  }`}
+                >
+                  <span className={styles.bookConceptTag}>
+                    KHÁI NIỆM {i + 1} · {currentCatalog.code}
+                  </span>
+                  <div className={styles.bookConceptTitle}>{blk.title}</div>
+                  <p className={styles.bookConceptDesc}>
+                    {blk.body || (blk.bullets ? blk.bullets.slice(0, 2).join(' • ') : '')}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {step1?.misconception ? (
+            <div className={styles.bookCalloutNote}>
+              <b>LƯU Ý DỄ NHẦM · {step1.misconception.title || 'CẦN NHỚ'}</b>
+              {step1.misconception.body}
+            </div>
+          ) : (
+            theoryBlocks[2] && (
+              <div className={styles.bookCalloutNote}>
+                <b>GHI CHÚ · {theoryBlocks[2].title}</b>
+                {theoryBlocks[2].body || (theoryBlocks[2].bullets ?? []).join(' • ')}
+              </div>
+            )
+          )}
+        </div>
+      );
+    }
+
+    if (idx === 1) {
+      return (
+        <div className={styles.pageBodyFlow}>
+          <p className={styles.pageSectionLabel}>DỰ ĐOÁN KẾT QUẢ &amp; KIỂM TRA</p>
+          {step1?.predict ? (
+            <>
+              <h2 className={styles.pageMainTitle}>Câu hỏi dự đoán nhanh</h2>
+              <p className={styles.pageLeadParagraph}>{step1.predict.question}</p>
+              <div className={styles.paperOptList}>
+                {step1.predict.options.map((opt, oIdx) => {
+                  const pKey = `${lessonNo}-predict`;
+                  const chosen = pickedPredict[pKey];
+                  const isAnswered = chosen !== undefined;
+                  const isCorrect = Boolean(opt.correct);
+                  let btnClass = styles.paperOptBtn;
+                  if (isAnswered && chosen === oIdx) {
+                    btnClass += isCorrect
+                      ? ` ${styles.paperOptCorrect}`
+                      : ` ${styles.paperOptWrong}`;
+                  } else if (isAnswered && isCorrect) {
+                    btnClass += ` ${styles.paperOptCorrect}`;
+                  }
+                  return (
+                    <button
+                      key={opt.id || oIdx}
+                      type="button"
+                      className={btnClass}
+                      onClick={() =>
+                        setPickedPredict((prev) => ({ ...prev, [pKey]: oIdx }))
+                      }
+                    >
+                      <span>
+                        <strong>{LETTERS[oIdx]}.</strong> {opt.title}
+                      </span>
+                      {isAnswered && isCorrect && <span>✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
+              {pickedPredict[`${lessonNo}-predict`] !== undefined && (
+                <div className={styles.paperFeedback}>
+                  {step1.predict.options[pickedPredict[`${lessonNo}-predict`]]?.detail ||
+                    'Quan sát kỹ sự khác biệt giữa các lần thực thi.'}
+                </div>
+              )}
+            </>
+          ) : null}
+
+          {mcqList[0] && (
+            <div style={{ marginTop: step1?.predict ? 6 : 0 }}>
+              <p className={styles.pageSectionLabel}>CÂU HỎI CỦNG CỐ #1</p>
+              <p
+                className={styles.pageLeadParagraph}
+                style={{ fontWeight: 700, marginBottom: 8 }}
+              >
+                {mcqList[0].question}
+              </p>
+              <div className={styles.paperOptList}>
+                {mcqList[0].options.map((rawOpt, oIdx) => {
+                  const text = optionText(rawOpt);
+                  const ansIdx = correctIndex(mcqList[0]);
+                  const mKey = `${lessonNo}-mcq-0`;
+                  const chosen = pickedMcq[mKey];
+                  const isAnswered = chosen !== undefined;
+                  const isCorrect = oIdx === ansIdx;
+                  let btnClass = styles.paperOptBtn;
+                  if (isAnswered && chosen === oIdx) {
+                    btnClass += isCorrect
+                      ? ` ${styles.paperOptCorrect}`
+                      : ` ${styles.paperOptWrong}`;
+                  } else if (isAnswered && isCorrect) {
+                    btnClass += ` ${styles.paperOptCorrect}`;
+                  }
+                  return (
+                    <button
+                      key={oIdx}
+                      type="button"
+                      className={btnClass}
+                      onClick={() =>
+                        setPickedMcq((prev) => ({ ...prev, [mKey]: oIdx }))
+                      }
+                    >
+                      <span>
+                        <strong>{LETTERS[oIdx]}.</strong> {text}
+                      </span>
+                      {isAnswered && isCorrect && <span>✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
+              {pickedMcq[`${lessonNo}-mcq-0`] !== undefined && (
+                <div className={styles.paperFeedback}>
+                  {mcqList[0].explanation || 'Đáp án đúng theo nguyên lý trong bài.'}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.pageBodyFlow}>
+        <p className={styles.pageSectionLabel}>LUYỆN LẮP GHÉP KHUNG MÃ</p>
+        <h2 className={styles.pageMainTitle}>
+          {step3?.task?.title || 'Điền khuyết khung chương trình'}
+        </h2>
+        <p className={styles.pageLeadParagraph}>
+          {step3?.task?.body ||
+            'Quan sát khung mã bên dưới và chọn mảnh ghép chính xác cho vị trí còn khuyết:'}
+        </p>
+
+        {step3?.scaffold ? (
+          <>
+            <div className={styles.bookCodeBox}>
+              {step3.scaffold.template
+                .trim()
+                .split('\n')
+                .slice(0, 14)
+                .map((line, lIdx) => (
+                  <div key={lIdx}>{line}</div>
+                ))}
+            </div>
+
+            {step3.scaffold.slots[0] && (
+              <>
+                <p
+                  className={styles.pageLeadParagraph}
+                  style={{ fontWeight: 700, fontSize: 12.8 }}
+                >
+                  Chọn mảnh ghép đúng cho <code>{'{{slot1}}'}</code>:
+                </p>
+                <div className={styles.paperOptList}>
+                  {step3.scaffold.bank
+                    .filter((b) => b.slot === 1)
+                    .map((item, bIdx) => {
+                      const sKey = `${lessonNo}-slot-1`;
+                      const picked = pickedScaffold[sKey];
+                      const targetAns = step3.scaffold?.slots[0]?.answer;
+                      const isRight = item.label === targetAns;
+                      let btnClass = styles.paperOptBtn;
+                      if (picked !== undefined && picked === item.label) {
+                        btnClass += isRight
+                          ? ` ${styles.paperOptCorrect}`
+                          : ` ${styles.paperOptWrong}`;
+                      } else if (picked !== undefined && isRight) {
+                        btnClass += ` ${styles.paperOptCorrect}`;
+                      }
+                      return (
+                        <button
+                          key={bIdx}
+                          type="button"
+                          className={btnClass}
+                          onClick={() =>
+                            setPickedScaffold((prev) => ({
+                              ...prev,
+                              [sKey]: item.label,
+                            }))
+                          }
+                        >
+                          <code>{item.label}</code>
+                          {picked !== undefined && isRight && <span>✓ Đúng</span>}
+                        </button>
+                      );
+                    })}
+                </div>
+              </>
+            )}
+          </>
+        ) : null}
+
+        {step3?.counter && (
+          <div style={{ marginTop: 4 }}>
+            <p className={styles.pageSectionLabel}>KIỂM TRA NHANH ĐẦU RA</p>
+            <p className={styles.pageLeadParagraph} style={{ fontWeight: 600 }}>
+              {step3.counter.question}
+            </p>
+            <div className={styles.paperOptList}>
+              {step3.counter.options.map((opt, oIdx) => {
+                const cKey = `${lessonNo}-counter`;
+                const picked = pickedCounter[cKey];
+                const isRight = opt === step3.counter?.correct;
+                let btnClass = styles.paperOptBtn;
+                if (picked !== undefined && picked === opt) {
+                  btnClass += isRight
+                    ? ` ${styles.paperOptCorrect}`
+                    : ` ${styles.paperOptWrong}`;
+                } else if (picked !== undefined && isRight) {
+                  btnClass += ` ${styles.paperOptCorrect}`;
+                }
+                return (
+                  <button
+                    key={oIdx}
+                    type="button"
+                    className={btnClass}
+                    onClick={() =>
+                      setPickedCounter((prev) => ({ ...prev, [cKey]: opt }))
+                    }
+                  >
+                    <span>{opt}</span>
+                    {picked !== undefined && isRight && <span>✓</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderLegacyRight = (idx: number) => {
+    if (idx === 0) {
+      return (
+        <div className={styles.pageBodyFlow}>
+          <p className={styles.pageSectionLabel}>SƠ ĐỒ TRỰC QUAN &amp; Ý CHÍNH</p>
+
+          {mainFigure ? (
+            <div className={styles.bookFigureBox}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className={styles.bookFigureImg}
+                src={mainFigure.src}
+                alt={mainFigure.alt || mainFigure.caption}
+              />
+              <span className={styles.bookFigureCaption}>{mainFigure.caption}</span>
+            </div>
+          ) : null}
+
+          {explainItems.length > 0 && (
+            <div className={styles.bookCalloutNote}>
+              <b>TÓM TẮT CỐT LÕI ({explainItems.length} Ý CHÍNH)</b>
+              {explainItems.slice(0, 3).map((item, i) => (
+                <div key={i} style={{ marginTop: i > 0 ? 4 : 0 }}>
+                  {item.n ?? i + 1}. {item.body}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {step1?.code?.source && (
+            <>
+              <div className={styles.bookCodeBox}>
+                {step1.code.source
+                  .trim()
+                  .split('\n')
+                  .slice(0, 8)
+                  .map((line, lIdx) => (
+                    <div key={lIdx}>{line}</div>
+                  ))}
+              </div>
+              <div className={styles.bookActionRow}>
+                <button
+                  type="button"
+                  className={styles.bookSecondaryBtn}
+                  onClick={() => openCodeInIde(step1.code!.source)}
+                >
+                  Chạy thử ở Bàn thí nghiệm
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      );
+    }
+
+    if (idx === 1) {
+      return (
+        <div className={styles.pageBodyFlow}>
+          {mcqList.slice(1, 3).map((mcq, i) => {
+            const realIdx = i + 1;
+            const mKey = `${lessonNo}-mcq-${realIdx}`;
+            const chosen = pickedMcq[mKey];
+            const isAnswered = chosen !== undefined;
+            const ansIdx = correctIndex(mcq);
+
+            return (
+              <div key={realIdx} style={{ marginBottom: 6 }}>
+                <p className={styles.pageSectionLabel}>
+                  CÂU HỎI CỦNG CỐ #{realIdx + 1}
+                </p>
+                <p
+                  className={styles.pageLeadParagraph}
+                  style={{ fontWeight: 700, marginBottom: 7 }}
+                >
+                  {mcq.question}
+                </p>
+                <div className={styles.paperOptList}>
+                  {mcq.options.map((rawOpt, oIdx) => {
+                    const text = optionText(rawOpt);
+                    const isCorrect = oIdx === ansIdx;
+                    let btnClass = styles.paperOptBtn;
+                    if (isAnswered && chosen === oIdx) {
+                      btnClass += isCorrect
+                        ? ` ${styles.paperOptCorrect}`
+                        : ` ${styles.paperOptWrong}`;
+                    } else if (isAnswered && isCorrect) {
+                      btnClass += ` ${styles.paperOptCorrect}`;
+                    }
+                    return (
+                      <button
+                        key={oIdx}
+                        type="button"
+                        className={btnClass}
+                        onClick={() => {
+                          if (pickedMcq[mKey] === undefined && isCorrect) {
+                            setXp((x) => x + 15);
+                          }
+                          setPickedMcq((prev) => ({ ...prev, [mKey]: oIdx }));
+                        }}
+                      >
+                        <span>
+                          <strong>{LETTERS[oIdx]}.</strong> {text}
+                        </span>
+                        {isAnswered && isCorrect && <span>✓</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+                {isAnswered && (
+                  <div className={styles.paperFeedback} style={{ marginTop: 6 }}>
+                    {mcq.explanation || 'Chính xác theo nội dung bài học.'}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.pageBodyFlow}>
+        <p className={styles.pageSectionLabel}>THỬ THÁCH ĐỘC LẬP</p>
+        <h2 className={styles.pageMainTitle}>
+          {step4?.task?.title || `Thực hành bài ${currentCatalog.code}`}
+        </h2>
+        <p className={styles.pageLeadParagraph}>
+          {step4?.task?.body ||
+            step1?.brief?.task ||
+            'Áp dụng kiến thức vừa học để viết hàm xử lý trong Bàn thí nghiệm.'}
+        </p>
+
+        {step4?.task?.io && step4.task.io.length > 0 && (
+          <div className={styles.bookCalloutNote}>
+            <b>CA KIỂM THỬ MẪU (INPUT ➔ OUTPUT)</b>
+            {step4.task.io.slice(0, 3).map((io, i) => (
+              <div key={i}>
+                <code>{io.label}</code> ➔ <strong>{io.value}</strong>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {step4?.starterCode && (
+          <div className={styles.bookCodeBox}>
+            {step4.starterCode
+              .trim()
+              .split('\n')
+              .slice(0, 10)
+              .map((line, lIdx) => (
+                <div key={lIdx}>{line}</div>
+              ))}
+          </div>
+        )}
+
+        <div className={styles.bookActionRow}>
+          {step4?.starterCode && (
+            <button
+              type="button"
+              className={styles.bookSecondaryBtn}
+              onClick={() => openCodeInIde(step4.starterCode!)}
+            >
+              Chạy thử ở Bàn thí nghiệm
+            </button>
+          )}
+
+          {step4?.hints && step4.hints.length > 0 && (
+            <button
+              type="button"
+              className={styles.bookSecondaryBtn}
+              onClick={() =>
+                setShowHints((prev) => ({
+                  ...prev,
+                  [lessonNo]: !prev[lessonNo],
+                }))
+              }
+            >
+              {showHints[lessonNo] ? 'Ẩn gợi ý' : '💡 Xem gợi ý'}
+            </button>
+          )}
+
+          {step4?.solutionCode && (
+            <button
+              type="button"
+              className={styles.bookSecondaryBtn}
+              onClick={() =>
+                setShowSolution((prev) => ({
+                  ...prev,
+                  [lessonNo]: !prev[lessonNo],
+                }))
+              }
+            >
+              {showSolution[lessonNo] ? 'Ẩn lời giải mẫu' : '📖 Xem lời giải mẫu'}
+            </button>
+          )}
+
+          <button
+            type="button"
+            className={`${styles.bookPrimaryBtn} ${
+              isCurrentLessonDone ? styles.bookPrimaryBtnDone : ''
+            }`}
+            onClick={() => void handleCompleteLesson()}
+          >
+            {isCurrentLessonDone
+              ? `✓ Bài ${lessonNo} đã xong`
+              : `✓ Đánh dấu bài ${lessonNo} đã xong (+${currentCatalog.xp} XP)`}
+          </button>
+        </div>
+
+        {showHints[lessonNo] && step4?.hints && (
+          <div className={styles.bookCalloutNote}>
+            <b>GỢI Ý CÁCH LÀM</b>
+            {step4.hints.map((h, i) => (
+              <div key={i} style={{ marginTop: i > 0 ? 4 : 0 }}>
+                <strong>{h.title}:</strong> {h.body}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {showSolution[lessonNo] && step4?.solutionCode && (
+          <div className={styles.bookCodeBox}>
+            {step4.solutionCode
+              .trim()
+              .split('\n')
+              .map((line, lIdx) => (
+                <div key={lIdx}>{line}</div>
+              ))}
+          </div>
+        )}
+
+        {completeBanner && <div className={styles.paperFeedback}>{completeBanner}</div>}
+      </div>
+    );
+  };
+
+  const renderBookPage = (page: BookPageSpec, isFirstLeftPage: boolean) => {
+    switch (page.kind) {
+      case 'read-slice':
+        return (
+          <div className={styles.pageBodyFlow}>
+            {isFirstLeftPage ? (
+              <>
+                <p className={styles.pageSectionLabel}>
+                  {currentCatalog.moduleTitle.toUpperCase()} · {currentCatalog.minutes} PHÚT
+                </p>
+                <h2 className={styles.pageMainTitle}>
+                  {lessonContent?.title || `${currentCatalog.code} · ${currentCatalog.title}`}
+                </h2>
+              </>
+            ) : (
+              <p className={styles.pageSectionLabel}>{page.heading.toUpperCase()}</p>
+            )}
+            {page.blocks.map(renderReadBlock)}
+          </div>
+        );
+
+      case 'mcq-page':
+        return (
+          <div className={styles.pageBodyFlow}>
+            {page.predict && (
+              <>
+                <p className={styles.pageSectionLabel}>DỰ ĐOÁN KẾT QUẢ</p>
+                <p className={styles.pageLeadParagraph} style={{ fontWeight: 700 }}>
+                  {renderInlineCode(page.predict.question)}
+                </p>
+                {page.predict.code && (
+                  <div className={styles.bookMcqCodeBox}>
+                    {page.predict.code.split('\n').map((line, lIdx) => (
+                      <div key={lIdx}>{line || ' '}</div>
+                    ))}
+                  </div>
+                )}
+                <div className={styles.paperOptList}>
+                  {page.predict.options.map((opt, oIdx) => {
+                    const pKey = `${lessonNo}-predict`;
+                    const chosen = pickedPredict[pKey];
+                    const isAnswered = chosen !== undefined;
+                    const isCorrect = Boolean(opt.correct);
+                    let btnClass = styles.paperOptBtn;
+                    if (isAnswered && chosen === oIdx) {
+                      btnClass += isCorrect
+                        ? ` ${styles.paperOptCorrect}`
+                        : ` ${styles.paperOptWrong}`;
+                    } else if (isAnswered && isCorrect) {
+                      btnClass += ` ${styles.paperOptCorrect}`;
+                    }
+                    return (
+                      <button
+                        key={opt.id || oIdx}
+                        type="button"
+                        className={btnClass}
+                        onClick={() =>
+                          setPickedPredict((prev) => ({ ...prev, [pKey]: oIdx }))
+                        }
+                      >
+                        <span>
+                          <strong>{LETTERS[oIdx]}.</strong> {opt.title}
+                        </span>
+                        {isAnswered && isCorrect && <span>✓</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+                {pickedPredict[`${lessonNo}-predict`] !== undefined && (
+                  <div className={styles.paperFeedback}>
+                    {page.predict.options[pickedPredict[`${lessonNo}-predict`]]?.detail ||
+                      'Quan sát kỹ sự khác biệt giữa các lần thực thi.'}
+                  </div>
+                )}
+              </>
+            )}
+
+            {page.items.map((mcq) => {
+              const mKey = `${lessonNo}-mcq-${mcq.mcqIndex}`;
+              const chosen = pickedMcq[mKey];
+              const isAnswered = chosen !== undefined;
+              const ansIdx = correctIndex(mcq.raw);
+              const detailText =
+                chosen !== undefined
+                  ? optionDetail(mcq.raw.options[chosen]) ||
+                    mcq.raw.explanation ||
+                    'Đáp án đúng theo nguyên lý trong bài.'
+                  : '';
+
+              return (
+                <div key={mKey} className={styles.bookMcqBlock}>
+                  <p className={styles.pageSectionLabel}>
+                    CÂU HỎI CỦNG CỐ #{mcq.mcqIndex + 1}
+                  </p>
+                  <p className={styles.pageLeadParagraph} style={{ fontWeight: 700 }}>
+                    {renderInlineCode(mcq.prompt)}
+                  </p>
+                  {mcq.code && (
+                    <div className={styles.bookMcqCodeBox}>
+                      {mcq.code.split('\n').map((line, lIdx) => (
+                        <div key={lIdx}>{line || ' '}</div>
+                      ))}
+                    </div>
+                  )}
+                  <div className={styles.paperOptList}>
+                    {mcq.raw.options.map((rawOpt, oIdx) => {
+                      const text = optionText(rawOpt);
+                      const isCorrect = oIdx === ansIdx;
+                      let btnClass = styles.paperOptBtn;
+                      if (isAnswered && chosen === oIdx) {
+                        btnClass += isCorrect
+                          ? ` ${styles.paperOptCorrect}`
+                          : ` ${styles.paperOptWrong}`;
+                      } else if (isAnswered && isCorrect) {
+                        btnClass += ` ${styles.paperOptCorrect}`;
+                      }
+                      return (
+                        <button
+                          key={oIdx}
+                          type="button"
+                          className={btnClass}
+                          onClick={() =>
+                            setPickedMcq((prev) => ({ ...prev, [mKey]: oIdx }))
+                          }
+                        >
+                          <span>
+                            <strong>{LETTERS[oIdx]}.</strong> {text}
+                          </span>
+                          {isAnswered && isCorrect && <span>✓</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {isAnswered && (
+                    <div className={styles.paperFeedback}>{renderInlineCode(detailText)}</div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        );
+
+      case 'practice-page':
+        return (
+          <div className={styles.pageBodyFlow}>
+            {renderPracticeList(page.items, page.totalPractice)}
+          </div>
+        );
+
+      case 'challenge-spec': {
+        const s4 = page.step4;
+        return (
+          <div className={styles.pageBodyFlow}>
+            {page.extraPractice?.length
+              ? renderPracticeList(page.extraPractice, page.extraPractice.length)
+              : null}
+            <p className={styles.pageSectionLabel}>THỬ THÁCH ĐỘC LẬP</p>
+            <h2 className={styles.pageMainTitle}>
+              {s4.task?.title || `Thực hành bài ${currentCatalog.code}`}
+            </h2>
+            <p className={styles.pageLeadParagraph}>
+              {renderInlineCode(
+                s4.task?.body ||
+                  page.fallbackTaskBody ||
+                  'Áp dụng kiến thức vừa học để hoàn thành bài thực hành.',
+              )}
+            </p>
+
+            {s4.task?.io && s4.task.io.length > 0 && (
+              <div className={styles.bookCalloutNote}>
+                <b>CA KIỂM THỬ MẪU (INPUT ➔ OUTPUT)</b>
+                {s4.task.io.map((io, idx) => (
+                  <div key={idx}>
+                    <code>{io.label}</code> ➔ <strong>{io.value}</strong>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {s4.contract && (
+              <div className={styles.bookCalloutNote}>
+                <b>QUY ƯỚC DỮ LIỆU</b>
+                {s4.contract.mode === 'script'
+                  ? renderInlineCode(
+                      `Đầu vào có sẵn trong biến \`${s4.contract.inputVariable ?? 'data'}\`, gán kết quả vào biến \`${s4.contract.resultVariable ?? 'result'}\`.`,
+                    )
+                  : 'Viết hàm theo mẫu trong khung khởi tạo để trả kết quả.'}
+              </div>
+            )}
+
+            {s4.dataFiles && s4.dataFiles.length > 0 && (
+              <div className={styles.bookCalloutNote}>
+                <b>TỆP DỮ LIỆU ĐÍNH KÈM</b>
+                {s4.dataFiles.map((fileName, idx) => (
+                  <div key={idx}>
+                    <code>{fileName}</code>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {s4.hints && s4.hints.length > 0 && (
+              <>
+                <div className={styles.bookActionRow}>
+                  <button
+                    type="button"
+                    className={styles.bookSecondaryBtn}
+                    onClick={() =>
+                      setShowHints((prev) => ({
+                        ...prev,
+                        [lessonNo]: !prev[lessonNo],
+                      }))
+                    }
+                  >
+                    {showHints[lessonNo] ? 'Ẩn gợi ý' : `💡 Xem gợi ý (${s4.hints.length})`}
+                  </button>
+                </div>
+                {showHints[lessonNo] && (
+                  <div className={styles.bookCalloutNote}>
+                    <b>GỢI Ý CÁCH LÀM</b>
+                    {s4.hints.map((h, idx) => (
+                      <div key={idx} style={{ marginTop: idx > 0 ? 4 : 0 }}>
+                        <strong>{h.title}:</strong> {renderInlineCode(h.body)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        );
+      }
+
+      case 'challenge-action': {
+        const s4 = page.step4;
+        return (
+          <div className={styles.pageBodyFlow}>
+            <p className={styles.pageSectionLabel}>
+              {s4.procedure?.length ? 'QUY TRÌNH THỰC HÀNH TRÊN MÁY' : 'BÀI TẬP & NỘP BÀI'}
+            </p>
+
+            {s4.procedure && s4.procedure.length > 0 ? (
+              <ol className={styles.bookProcedureList}>
+                {s4.procedure.map((stepText, idx) => (
+                  <li key={idx}>{renderInlineCode(stepText)}</li>
+                ))}
+              </ol>
+            ) : null}
+
+            {s4.env && (
+              <div className={styles.bookCalloutNote}>
+                <b>MÔI TRƯỜNG CHẠY</b>
+                {renderInlineCode(s4.env)}
+              </div>
+            )}
+
+            {s4.starterCode && (
+              <div className={styles.bookCodeBox}>
+                {s4.starterCode
+                  .trimEnd()
+                  .split('\n')
+                  .map((line, lIdx) => (
+                    <div key={lIdx}>{line || ' '}</div>
+                  ))}
+              </div>
+            )}
+
+            <div className={styles.bookActionRow}>
+              {s4.starterCode && (
+                <button
+                  type="button"
+                  className={styles.bookSecondaryBtn}
+                  onClick={() => openCodeInIde(s4.starterCode!)}
+                >
+                  ▶ Chạy thử ở Bàn thí nghiệm
+                </button>
+              )}
+
+              {s4.solutionCode && (
+                <button
+                  type="button"
+                  className={styles.bookSecondaryBtn}
+                  onClick={() =>
+                    setShowSolution((prev) => ({
+                      ...prev,
+                      [lessonNo]: !prev[lessonNo],
+                    }))
+                  }
+                >
+                  {showSolution[lessonNo] ? 'Ẩn lời giải mẫu' : '📖 Xem lời giải mẫu'}
+                </button>
+              )}
+
+              <button
+                type="button"
+                className={`${styles.bookPrimaryBtn} ${
+                  isCurrentLessonDone ? styles.bookPrimaryBtnDone : ''
+                }`}
+                onClick={() => void handleCompleteLesson()}
+              >
+                {isCurrentLessonDone
+                  ? `✓ Bài ${lessonNo} đã xong`
+                  : `✓ Đánh dấu bài ${lessonNo} đã xong (+${currentCatalog.xp} XP)`}
+              </button>
+            </div>
+
+            {showSolution[lessonNo] && s4.solutionCode && (
+              <div className={styles.bookCodeBox}>
+                {s4.solutionCode
+                  .trimEnd()
+                  .split('\n')
+                  .map((line, lIdx) => (
+                    <div key={lIdx}>{line || ' '}</div>
+                  ))}
+              </div>
+            )}
+
+            {completeBanner && <div className={styles.paperFeedback}>{completeBanner}</div>}
+          </div>
+        );
+      }
+
+      case 'legacy':
+        return page.side === 'left'
+          ? renderLegacyLeft(page.legacySpreadIdx)
+          : renderLegacyRight(page.legacySpreadIdx);
+    }
+  };
+
   const stageContent = (
     <>
         {activeScreen === 'lesson' && (
           /* ------------------------------------------------------------------
-             TRANG 1: QUYỂN SÁCH BÀI HỌC MỞ 2 TRANG & LẬT TRANG 3D (48 BÀI THẬT)
+             TRANG 1: QUYỂN SÁCH BÀI HỌC MỞ 2 TRANG & LẬT TRANG 3D (179 BÀI THẬT)
              ------------------------------------------------------------------ */
           <div ref={shellRef} className={styles.bookStageWrap}>
             <div className={styles.openBookCover}>
               <div
-                key={`lesson-${lessonIdx}-spread-${spreadIdx}`}
+                key={`lesson-${lessonIdx}-spread-${safeSpreadIdx}`}
                 className={`${styles.openBookSpread} ${
                   flipDir === 'next' ? styles.flipNextAnim : styles.flipPrevAnim
                 }`}
@@ -656,16 +1828,16 @@ export default function LofiWorkspace({
                       {CATALOG_LESSONS.map((item, idx) => (
                         <option key={item.no} value={idx}>
                           {doneLessons.includes(item.no) ? '✓ ' : ''}
-                          Bài {item.no}/48 · {item.code} · {item.title}
+                          Bài {item.no}/{CATALOG_LESSONS.length} · {item.code} · {item.title}
                         </option>
                       ))}
                     </select>
                     <span>
-                      {spreadIdx === 0
-                        ? 'LÝ THUYẾT'
-                        : spreadIdx === 1
-                          ? 'ĐỌC HIỂU'
-                          : 'LẮP GHÉP MÃ'}
+                      {lessonLoading
+                        ? 'ĐANG MỞ'
+                        : lessonError
+                          ? 'LỖI KẾT NỐI'
+                          : currentSpread?.left.tag ?? 'LÝ THUYẾT'}
                     </span>
                   </div>
 
@@ -681,294 +1853,35 @@ export default function LofiWorkspace({
                     </div>
                   ) : lessonError ? (
                     <div className={styles.pageBodyFlow}>
-                      <p className={styles.pageSectionLabel}>MÁY CHỦ BÀI HỌC</p>
-                      <h2 className={styles.pageMainTitle}>Chưa kết nối được Backend</h2>
+                      <p className={styles.pageSectionLabel}>
+                        {lessonError.kind === 'network' ? 'MÁY CHỦ BÀI HỌC' : 'THÔNG BÁO TẢI BÀI'}
+                      </p>
+                      <h2 className={styles.pageMainTitle}>{errorHeadingFor(lessonError.kind)}</h2>
                       <p className={styles.pageLeadParagraph}>
-                        Nội dung bài học {currentCatalog.code} cần được nạp trực tiếp từ máy chủ backend.
+                        {lessonError.kind === 'network'
+                          ? `Nội dung bài học ${currentCatalog.code} cần được nạp trực tiếp từ máy chủ backend.`
+                          : `Không nạp được bài học ${currentCatalog.code} từ API.`}
                       </p>
                       <div style={{ marginTop: 14, padding: '12px 16px', background: 'rgba(239, 68, 68, 0.08)', borderRadius: 10, border: '1px solid rgba(239, 68, 68, 0.2)' }}>
                         <p style={{ margin: 0, fontSize: 13.5, color: '#991b1b', lineHeight: 1.5 }}>
-                          ⚠️ {lessonError}
+                          ⚠️ {lessonError.message}
                         </p>
                       </div>
                       <button
                         type="button"
                         onClick={() => setLessonReloadKey((k) => k + 1)}
-                        className={styles.spreadNextBtn}
-                        style={{ marginTop: 18, width: 'fit-content', padding: '8px 20px', cursor: 'pointer' }}
+                        className={styles.bookPrimaryBtn}
+                        style={{ marginTop: 18, width: 'fit-content', padding: '8px 20px' }}
                       >
                         ↻ Thử lại
                       </button>
                     </div>
-                  ) : spreadIdx === 0 ? (
-                    /* --- CẶP TRANG 1 (TRANG TRÁI): ĐỊNH NGHĨA & LÝ THUYẾT CỐT LÕI --- */
-                    <div className={styles.pageBodyFlow}>
-                      <p className={styles.pageSectionLabel}>
-                        {currentCatalog.moduleTitle.toUpperCase()} · {currentCatalog.minutes} PHÚT
-                      </p>
-                      <h2 className={styles.pageMainTitle}>
-                        {step1?.brief?.title || currentCatalog.title}
-                      </h2>
-                      <p className={styles.pageLeadParagraph}>
-                        {step1?.brief?.goal ||
-                          step1?.context?.body ||
-                          theoryBlocks[0]?.body ||
-                          'Nắm vững nguyên lý cốt lõi và cách vận dụng trực tiếp trong Python.'}
-                      </p>
-
-                      {theoryBlocks.length > 0 && (
-                        <div className={styles.bookCardsGrid}>
-                          {theoryBlocks.slice(0, 2).map((blk, i) => (
-                            <div
-                              key={i}
-                              className={`${styles.bookConceptCard} ${
-                                i === 1 ? styles.bookConceptCardHighlight : ''
-                              }`}
-                            >
-                              <span className={styles.bookConceptTag}>
-                                KHÁI NIỆM {i + 1} · {currentCatalog.code}
-                              </span>
-                              <div className={styles.bookConceptTitle}>{blk.title}</div>
-                              <p className={styles.bookConceptDesc}>
-                                {blk.body ||
-                                  (blk.bullets ? blk.bullets.slice(0, 2).join(' • ') : '')}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {step1?.misconception ? (
-                        <div className={styles.bookCalloutNote}>
-                          <b>LƯU Ý DỄ NHẦM · {step1.misconception.title || 'CẦN NHỚ'}</b>
-                          {step1.misconception.body}
-                        </div>
-                      ) : (
-                        theoryBlocks[2] && (
-                          <div className={styles.bookCalloutNote}>
-                            <b>GHI CHÚ · {theoryBlocks[2].title}</b>
-                            {theoryBlocks[2].body ||
-                              (theoryBlocks[2].bullets ?? []).join(' • ')}
-                          </div>
-                        )
-                      )}
-                    </div>
-                  ) : spreadIdx === 1 ? (
-                    /* --- CẶP TRANG 2 (TRANG TRÁI): DỰ ĐOÁN & CÂU HỎI TRẮC NGHIỆM 1 --- */
-                    <div className={styles.pageBodyFlow}>
-                      <p className={styles.pageSectionLabel}>DỰ ĐOÁN KẾT QUẢ &amp; KIỂM TRA</p>
-                      {step1?.predict ? (
-                        <>
-                          <h2 className={styles.pageMainTitle}>Câu hỏi dự đoán nhanh</h2>
-                          <p className={styles.pageLeadParagraph}>{step1.predict.question}</p>
-                          <div className={styles.paperOptList}>
-                            {step1.predict.options.map((opt, oIdx) => {
-                              const pKey = `${lessonNo}-predict`;
-                              const chosen = pickedPredict[pKey];
-                              const isAnswered = chosen !== undefined;
-                              const isCorrect = Boolean(opt.correct);
-                              let btnClass = styles.paperOptBtn;
-                              if (isAnswered && chosen === oIdx) {
-                                btnClass += isCorrect
-                                  ? ` ${styles.paperOptCorrect}`
-                                  : ` ${styles.paperOptWrong}`;
-                              } else if (isAnswered && isCorrect) {
-                                btnClass += ` ${styles.paperOptCorrect}`;
-                              }
-                              return (
-                                <button
-                                  key={opt.id || oIdx}
-                                  type="button"
-                                  className={btnClass}
-                                  onClick={() =>
-                                    setPickedPredict((prev) => ({ ...prev, [pKey]: oIdx }))
-                                  }
-                                >
-                                  <span>
-                                    <strong>{LETTERS[oIdx]}.</strong> {opt.title}
-                                  </span>
-                                  {isAnswered && isCorrect && <span>✓</span>}
-                                </button>
-                              );
-                            })}
-                          </div>
-                          {pickedPredict[`${lessonNo}-predict`] !== undefined && (
-                            <div className={styles.paperFeedback}>
-                              {step1.predict.options[pickedPredict[`${lessonNo}-predict`]]
-                                ?.detail || 'Quan sát kỹ sự khác biệt giữa các lần thực thi.'}
-                            </div>
-                          )}
-                        </>
-                      ) : null}
-
-                      {mcqList[0] && (
-                        <div style={{ marginTop: step1?.predict ? 6 : 0 }}>
-                          <p className={styles.pageSectionLabel}>CÂU HỎI CỦNG CỐ #1</p>
-                          <p
-                            className={styles.pageLeadParagraph}
-                            style={{ fontWeight: 700, marginBottom: 8 }}
-                          >
-                            {mcqList[0].question}
-                          </p>
-                          <div className={styles.paperOptList}>
-                            {mcqList[0].options.map((rawOpt, oIdx) => {
-                              const optText =
-                                typeof rawOpt === 'string' ? rawOpt : rawOpt.text;
-                              const correctIdx =
-                                typeof mcqList[0].correct === 'number'
-                                  ? mcqList[0].correct
-                                  : mcqList[0].options.findIndex(
-                                      (x) => typeof x === 'object' && x.correct,
-                                    );
-                              const mKey = `${lessonNo}-mcq-0`;
-                              const chosen = pickedMcq[mKey];
-                              const isAnswered = chosen !== undefined;
-                              const isCorrect = oIdx === correctIdx;
-                              let btnClass = styles.paperOptBtn;
-                              if (isAnswered && chosen === oIdx) {
-                                btnClass += isCorrect
-                                  ? ` ${styles.paperOptCorrect}`
-                                  : ` ${styles.paperOptWrong}`;
-                              } else if (isAnswered && isCorrect) {
-                                btnClass += ` ${styles.paperOptCorrect}`;
-                              }
-                              return (
-                                <button
-                                  key={oIdx}
-                                  type="button"
-                                  className={btnClass}
-                                  onClick={() =>
-                                    setPickedMcq((prev) => ({ ...prev, [mKey]: oIdx }))
-                                  }
-                                >
-                                  <span>
-                                    <strong>{LETTERS[oIdx]}.</strong> {optText}
-                                  </span>
-                                  {isAnswered && isCorrect && <span>✓</span>}
-                                </button>
-                              );
-                            })}
-                          </div>
-                          {pickedMcq[`${lessonNo}-mcq-0`] !== undefined && (
-                            <div className={styles.paperFeedback}>
-                              {mcqList[0].explanation || 'Đáp án đúng theo nguyên lý trong bài.'}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    /* --- CẶP TRANG 3 (TRANG TRÁI): LẮP GHÉP KHUNG MÃ & DẤU VẾT --- */
-                    <div className={styles.pageBodyFlow}>
-                      <p className={styles.pageSectionLabel}>LUYỆN LẮP GHÉP KHUNG MÃ</p>
-                      <h2 className={styles.pageMainTitle}>
-                        {step3?.task?.title || 'Điền khuyết khung chương trình'}
-                      </h2>
-                      <p className={styles.pageLeadParagraph}>
-                        {step3?.task?.body ||
-                          'Quan sát khung mã bên dưới và chọn mảnh ghép chính xác cho vị trí còn khuyết:'}
-                      </p>
-
-                      {step3?.scaffold ? (
-                        <>
-                          <div className={styles.bookCodeBox}>
-                            {step3.scaffold.template
-                              .trim()
-                              .split('\n')
-                              .slice(0, 14)
-                              .map((line, lIdx) => (
-                                <div key={lIdx}>{line}</div>
-                              ))}
-                          </div>
-
-                          {step3.scaffold.slots[0] && (
-                            <>
-                              <p
-                                className={styles.pageLeadParagraph}
-                                style={{ fontWeight: 700, fontSize: 12.8 }}
-                              >
-                                Chọn mảnh ghép đúng cho <code>{'{{slot1}}'}</code>:
-                              </p>
-                              <div className={styles.paperOptList}>
-                                {step3.scaffold.bank
-                                  .filter((b) => b.slot === 1)
-                                  .map((item, bIdx) => {
-                                    const sKey = `${lessonNo}-slot-1`;
-                                    const picked = pickedScaffold[sKey];
-                                    const targetAns = step3.scaffold?.slots[0]?.answer;
-                                    const isRight = item.label === targetAns;
-                                    let btnClass = styles.paperOptBtn;
-                                    if (picked !== undefined && picked === item.label) {
-                                      btnClass += isRight
-                                        ? ` ${styles.paperOptCorrect}`
-                                        : ` ${styles.paperOptWrong}`;
-                                    } else if (picked !== undefined && isRight) {
-                                      btnClass += ` ${styles.paperOptCorrect}`;
-                                    }
-                                    return (
-                                      <button
-                                        key={bIdx}
-                                        type="button"
-                                        className={btnClass}
-                                        onClick={() =>
-                                          setPickedScaffold((prev) => ({
-                                            ...prev,
-                                            [sKey]: item.label,
-                                          }))
-                                        }
-                                      >
-                                        <code>{item.label}</code>
-                                        {picked !== undefined && isRight && <span>✓ Đúng</span>}
-                                      </button>
-                                    );
-                                  })}
-                              </div>
-                            </>
-                          )}
-                        </>
-                      ) : null}
-
-                      {step3?.counter && (
-                        <div style={{ marginTop: 4 }}>
-                          <p className={styles.pageSectionLabel}>KIỂM TRA NHANH ĐẦU RA</p>
-                          <p className={styles.pageLeadParagraph} style={{ fontWeight: 600 }}>
-                            {step3.counter.question}
-                          </p>
-                          <div className={styles.paperOptList}>
-                            {step3.counter.options.map((opt, oIdx) => {
-                              const cKey = `${lessonNo}-counter`;
-                              const picked = pickedCounter[cKey];
-                              const isRight = opt === step3.counter?.correct;
-                              let btnClass = styles.paperOptBtn;
-                              if (picked !== undefined && picked === opt) {
-                                btnClass += isRight
-                                  ? ` ${styles.paperOptCorrect}`
-                                  : ` ${styles.paperOptWrong}`;
-                              } else if (picked !== undefined && isRight) {
-                                btnClass += ` ${styles.paperOptCorrect}`;
-                              }
-                              return (
-                                <button
-                                  key={oIdx}
-                                  type="button"
-                                  className={btnClass}
-                                  onClick={() =>
-                                    setPickedCounter((prev) => ({ ...prev, [cKey]: opt }))
-                                  }
-                                >
-                                  <span>{opt}</span>
-                                  {picked !== undefined && isRight && <span>✓</span>}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  ) : currentSpread ? (
+                    renderBookPage(currentSpread.left, safeSpreadIdx === 0)
+                  ) : null}
 
                   <div className={styles.pageFooterRow}>
-                    <span>Trang {spreadIdx * 2 + 1}</span>
+                    <span>Trang {safeSpreadIdx * 2 + 1}</span>
                     <span>
                       {isCurrentLessonDone
                         ? '✓ Bài này đã xong'
@@ -982,11 +1895,11 @@ export default function LofiWorkspace({
                   <div className={styles.pageHeaderLine}>
                     <span>SỔ TAY NHÀ PHÁT MINH · {currentCatalog.moduleShort}</span>
                     <span>
-                      {spreadIdx === 0
-                        ? 'SƠ ĐỒ & VÍ DỤ'
-                        : spreadIdx === 1
-                          ? 'TRẮC NGHIỆM'
-                          : `THỬ THÁCH +${currentCatalog.xp} XP`}
+                      {lessonLoading
+                        ? 'ĐANG TẢI'
+                        : lessonError
+                          ? 'HƯỚNG DẪN'
+                          : currentSpread?.right.tag ?? `THỬ THÁCH +${currentCatalog.xp} XP`}
                     </span>
                   </div>
 
@@ -996,258 +1909,42 @@ export default function LofiWorkspace({
                       <p className={styles.pageLeadParagraph}>Đang kết nối tới máy chủ backend...</p>
                     </div>
                   ) : lessonError ? (
-                    <div className={styles.pageBodyFlow}>
-                      <p className={styles.pageSectionLabel}>HƯỚNG DẪN KẾT NỐI</p>
-                      <h2 className={styles.pageMainTitle}>Khởi động Backend</h2>
-                      <p className={styles.pageLeadParagraph}>
-                        Để học các bài học và làm bài tập, hãy đảm bảo máy chủ backend đang chạy:
-                      </p>
-                      <div style={{ background: '#292524', color: '#f5f5f4', padding: '10px 14px', borderRadius: 8, fontFamily: 'monospace', fontSize: 13, marginTop: 8 }}>
-                        <code>npm run start:dev</code>
+                    lessonError.kind === 'network' ? (
+                      <div className={styles.pageBodyFlow}>
+                        <p className={styles.pageSectionLabel}>HƯỚNG DẪN KẾT NỐI</p>
+                        <h2 className={styles.pageMainTitle}>Khởi động Backend</h2>
+                        <p className={styles.pageLeadParagraph}>
+                          Để học các bài học và làm bài tập, hãy đảm bảo máy chủ backend đang chạy:
+                        </p>
+                        <div style={{ background: '#292524', color: '#f5f5f4', padding: '10px 14px', borderRadius: 8, fontFamily: 'monospace', fontSize: 13, marginTop: 8 }}>
+                          <code>npm run start:dev</code>
+                        </div>
+                        <p style={{ fontSize: 13, color: '#78716c', marginTop: 12, lineHeight: 1.5 }}>
+                          Sau khi máy chủ NestJS sẵn sàng tại cổng 5000, bấm nút <strong>Thử lại</strong> ở trang đối diện để tải bài.
+                        </p>
                       </div>
-                      <p style={{ fontSize: 13, color: '#78716c', marginTop: 12, lineHeight: 1.5 }}>
-                        Sau khi máy chủ NestJS sẵn sàng tại cổng 5000, bấm nút <strong>Thử lại</strong> ở trang đối diện để tải bài.
-                      </p>
-                    </div>
-                  ) : spreadIdx === 0 ? (
-                    /* --- CẶP TRANG 1 (TRANG PHẢI): SƠ ĐỒ MINH HOẠ SVG & CODE VÍ DỤ --- */
-                    <div className={styles.pageBodyFlow}>
-                      <p className={styles.pageSectionLabel}>SƠ ĐỒ TRỰC QUAN &amp; Ý CHÍNH</p>
-
-                      {mainFigure ? (
-                        <div className={styles.bookFigureBox}>
-                          <img
-                            className={styles.bookFigureImg}
-                            src={mainFigure.src}
-                            alt={mainFigure.alt || mainFigure.caption}
-                          />
-                          <span className={styles.bookFigureCaption}>{mainFigure.caption}</span>
-                        </div>
-                      ) : null}
-
-                      {explainItems.length > 0 && (
-                        <div className={styles.bookCalloutNote}>
-                          <b>TÓM TẮT CỐT LÕI ({explainItems.length} Ý CHÍNH)</b>
-                          {explainItems.slice(0, 3).map((item, idx) => (
-                            <div key={idx} style={{ marginTop: idx > 0 ? 4 : 0 }}>
-                              {item.n ?? idx + 1}. {item.body}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {step1?.code?.source && (
-                        <>
-                          <div className={styles.bookCodeBox}>
-                            {step1.code.source
-                              .trim()
-                              .split('\n')
-                              .slice(0, 8)
-                              .map((line, lIdx) => (
-                                <div key={lIdx}>{line}</div>
-                              ))}
-                          </div>
-                          <div className={styles.bookActionRow}>
-                            <button
-                              type="button"
-                              className={styles.bookSecondaryBtn}
-                              onClick={() => openCodeInIde(step1.code!.source)}
-                            >
-                              Chạy thử ví dụ ở Bàn thí nghiệm
-                            </button>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  ) : spreadIdx === 1 ? (
-                    /* --- CẶP TRANG 2 (TRANG PHẢI): CÂU HỎI TRẮC NGHIỆM 2 & 3 --- */
-                    <div className={styles.pageBodyFlow}>
-                      {mcqList.slice(1, 3).map((mcq, idx) => {
-                        const realIdx = idx + 1;
-                        const mKey = `${lessonNo}-mcq-${realIdx}`;
-                        const chosen = pickedMcq[mKey];
-                        const isAnswered = chosen !== undefined;
-                        const correctIdx =
-                          typeof mcq.correct === 'number'
-                            ? mcq.correct
-                            : mcq.options.findIndex((x) => typeof x === 'object' && x.correct);
-
-                        return (
-                          <div key={realIdx} style={{ marginBottom: 6 }}>
-                            <p className={styles.pageSectionLabel}>
-                              CÂU HỎI CỦNG CỐ #{realIdx + 1}
-                            </p>
-                            <p
-                              className={styles.pageLeadParagraph}
-                              style={{ fontWeight: 700, marginBottom: 7 }}
-                            >
-                              {mcq.question}
-                            </p>
-                            <div className={styles.paperOptList}>
-                              {mcq.options.map((rawOpt, oIdx) => {
-                                const optText =
-                                  typeof rawOpt === 'string' ? rawOpt : rawOpt.text;
-                                const isCorrect = oIdx === correctIdx;
-                                let btnClass = styles.paperOptBtn;
-                                if (isAnswered && chosen === oIdx) {
-                                  btnClass += isCorrect
-                                    ? ` ${styles.paperOptCorrect}`
-                                    : ` ${styles.paperOptWrong}`;
-                                } else if (isAnswered && isCorrect) {
-                                  btnClass += ` ${styles.paperOptCorrect}`;
-                                }
-                                return (
-                                  <button
-                                    key={oIdx}
-                                    type="button"
-                                    className={btnClass}
-                                    onClick={() => {
-                                      if (pickedMcq[mKey] === undefined && isCorrect) {
-                                        setXp((x) => x + 15);
-                                      }
-                                      setPickedMcq((prev) => ({ ...prev, [mKey]: oIdx }));
-                                    }}
-                                  >
-                                    <span>
-                                      <strong>{LETTERS[oIdx]}.</strong> {optText}
-                                    </span>
-                                    {isAnswered && isCorrect && <span>✓</span>}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                            {isAnswered && (
-                              <div className={styles.paperFeedback} style={{ marginTop: 6 }}>
-                                {mcq.explanation || 'Chính xác theo nội dung bài học.'}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    /* --- CẶP TRANG 3 (TRANG PHẢI): THỬ THÁCH ĐỘC LẬP & LƯU TIẾN ĐỘ --- */
-                    <div className={styles.pageBodyFlow}>
-                      <p className={styles.pageSectionLabel}>THỬ THÁCH ĐỘC LẬP</p>
-                      <h2 className={styles.pageMainTitle}>
-                        {step4?.task?.title || `Thực hành bài ${currentCatalog.code}`}
-                      </h2>
-                      <p className={styles.pageLeadParagraph}>
-                        {step4?.task?.body ||
-                          step1?.brief?.task ||
-                          'Áp dụng kiến thức vừa học để viết hàm xử lý trong Bàn thí nghiệm.'}
-                      </p>
-
-                      {step4?.task?.io && step4.task.io.length > 0 && (
-                        <div className={styles.bookCalloutNote}>
-                          <b>CA KIỂM THỬ MẪU (INPUT ➔ OUTPUT)</b>
-                          {step4.task.io.slice(0, 3).map((io, idx) => (
-                            <div key={idx}>
-                              <code>{io.label}</code> ➔ <strong>{io.value}</strong>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {step4?.starterCode && (
-                        <div className={styles.bookCodeBox}>
-                          {step4.starterCode
-                            .trim()
-                            .split('\n')
-                            .slice(0, 10)
-                            .map((line, lIdx) => (
-                              <div key={lIdx}>{line}</div>
-                            ))}
-                        </div>
-                      )}
-
-                      <div className={styles.bookActionRow}>
-                        {step4?.starterCode && (
-                          <button
-                            type="button"
-                            className={styles.bookSecondaryBtn}
-                            onClick={() => openCodeInIde(step4.starterCode!)}
-                          >
-                            Chạy thử ở Bàn thí nghiệm
-                          </button>
-                        )}
-
-                        {step4?.hints && step4.hints.length > 0 && (
-                          <button
-                            type="button"
-                            className={styles.bookSecondaryBtn}
-                            onClick={() =>
-                              setShowHints((prev) => ({
-                                ...prev,
-                                [lessonNo]: !prev[lessonNo],
-                              }))
-                            }
-                          >
-                            {showHints[lessonNo] ? 'Ẩn gợi ý' : '💡 Xem gợi ý'}
-                          </button>
-                        )}
-
-                        {step4?.solutionCode && (
-                          <button
-                            type="button"
-                            className={styles.bookSecondaryBtn}
-                            onClick={() =>
-                              setShowSolution((prev) => ({
-                                ...prev,
-                                [lessonNo]: !prev[lessonNo],
-                              }))
-                            }
-                          >
-                            {showSolution[lessonNo] ? 'Ẩn lời giải mẫu' : '📖 Xem lời giải mẫu'}
-                          </button>
-                        )}
-
-                        <button
-                          type="button"
-                          className={`${styles.bookPrimaryBtn} ${
-                            isCurrentLessonDone ? styles.bookPrimaryBtnDone : ''
-                          }`}
-                          onClick={() => void handleCompleteLesson()}
-                        >
-                          {isCurrentLessonDone
-                            ? `✓ Bài ${lessonNo} đã xong`
-                            : `✓ Đánh dấu bài ${lessonNo} đã xong (+${currentCatalog.xp} XP)`}
-                        </button>
+                    ) : (
+                      <div className={styles.pageBodyFlow}>
+                        <p className={styles.pageSectionLabel}>KIỂM TRA NHANH</p>
+                        <h2 className={styles.pageMainTitle}>Chi tiết phản hồi máy chủ</h2>
+                        <p className={styles.pageLeadParagraph}>
+                          {lessonError.kind === 'not_found'
+                            ? 'Bài học này chưa có trong cơ sở dữ liệu. Hãy chạy lại script seed khoá python_advanced rồi bấm Thử lại.'
+                            : lessonError.kind === 'unauthorized'
+                              ? 'Trình duyệt chưa có hoặc đã hết phiên làm việc hợp lệ. Hãy tải lại trang để làm mới phiên.'
+                              : 'Máy chủ đã phản hồi lỗi khi đọc nội dung bài học. Vui lòng bấm Thử lại ở trang đối diện.'}
+                        </p>
                       </div>
-
-                      {showHints[lessonNo] && step4?.hints && (
-                        <div className={styles.bookCalloutNote}>
-                          <b>GỢI Ý CÁCH LÀM</b>
-                          {step4.hints.map((h, idx) => (
-                            <div key={idx} style={{ marginTop: idx > 0 ? 4 : 0 }}>
-                              <strong>{h.title}:</strong> {h.body}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {showSolution[lessonNo] && step4?.solutionCode && (
-                        <div className={styles.bookCodeBox}>
-                          {step4.solutionCode
-                            .trim()
-                            .split('\n')
-                            .map((line, lIdx) => (
-                              <div key={lIdx}>{line}</div>
-                            ))}
-                        </div>
-                      )}
-
-                      {completeBanner && (
-                        <div className={styles.paperFeedback}>{completeBanner}</div>
-                      )}
-                    </div>
-                  )}
+                    )
+                  ) : currentSpread ? (
+                    renderBookPage(currentSpread.right, false)
+                  ) : null}
 
                   <div className={styles.pageFooterRow}>
                     <span>
                       Bài {lessonNo} / {CATALOG_LESSONS.length} ({currentCatalog.code})
                     </span>
-                    <span>Trang {spreadIdx * 2 + 2}</span>
+                    <span>Trang {safeSpreadIdx * 2 + 2}</span>
                   </div>
                 </section>
               </div>
@@ -1259,28 +1956,28 @@ export default function LofiWorkspace({
                 type="button"
                 className={styles.bookNavPrevBtn}
                 onClick={handlePrevSpread}
-                disabled={lessonIdx === 0 && spreadIdx === 0}
+                disabled={lessonIdx === 0 && safeSpreadIdx === 0}
               >
                 &lt; Trang trước
               </button>
 
               <div className={styles.bookNavDotsWrap}>
-                {Array.from({ length: TOTAL_SPREADS }).map((_, idx) => (
+                {Array.from({ length: totalSpreads }).map((_, idx) => (
                   <button
                     key={idx}
                     type="button"
                     aria-label={`Cặp trang ${idx + 1}`}
                     onClick={() => {
-                      setFlipDir(idx > spreadIdx ? 'next' : 'prev');
+                      setFlipDir(idx > safeSpreadIdx ? 'next' : 'prev');
                       setSpreadIdx(idx);
                     }}
                     className={`${styles.bookNavDot} ${
-                      spreadIdx === idx ? styles.bookNavDotActive : ''
+                      safeSpreadIdx === idx ? styles.bookNavDotActive : ''
                     }`}
                   />
                 ))}
                 <span>
-                  {spreadIdx + 1} / {TOTAL_SPREADS}
+                  {safeSpreadIdx + 1} / {totalSpreads}
                 </span>
               </div>
 
@@ -1289,7 +1986,7 @@ export default function LofiWorkspace({
                 className={styles.bookNavNextBtn}
                 onClick={handleNextSpread}
               >
-                {spreadIdx === TOTAL_SPREADS - 1 ? 'Bài tiếp theo >' : 'Trang sau >'}
+                {safeSpreadIdx >= totalSpreads - 1 ? 'Bài tiếp theo >' : 'Trang sau >'}
               </button>
             </div>
           </div>
@@ -1572,7 +2269,7 @@ export default function LofiWorkspace({
               <path d="M5 13l4 4L19 7" />
             </svg>
             <span>
-              {doneLessons.length}/{TOTAL_LESSONS}
+              {doneLessons.length}/{CATALOG_LESSONS.length}
             </span>
           </div>
           <div className={`${styles.topPill} ${styles.topPillXp}`} title="Tổng XP">

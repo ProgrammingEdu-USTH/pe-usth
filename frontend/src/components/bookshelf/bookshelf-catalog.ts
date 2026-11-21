@@ -340,3 +340,5 @@ export const COMING_SOON_BOOKS: ComingSoonBook[] = [
 export function findBookshelfCourse(slug: string): BookshelfCourse | undefined {
   return BOOKSHELF_COURSES.find((c) => c.slug === slug);
 }
+
+export { buildLessonHref } from './bookshelf-progress';

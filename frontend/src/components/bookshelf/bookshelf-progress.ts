@@ -63,6 +63,17 @@ export function getInitialBookshelfProgress(
  * Adapter bất đồng bộ sẵn sàng nối Backend sau này (`GET /api/enrolled`).
  * Hiện tại giữ mock theo `USE_BOOKSHELF_MOCK = true`.
  */
+export function buildLessonHref(
+  baseHref: string | null,
+  lesson: { index: number; no: number },
+): string | null {
+  if (!baseHref) return null;
+  if (baseHref.includes('python_advanced')) {
+    return `${baseHref}?lesson=${lesson.index}`;
+  }
+  return `${baseHref}?lesson=${lesson.no}`;
+}
+
 export async function loadBookshelfProgress(
   slug: string,
   totalLessons: number,

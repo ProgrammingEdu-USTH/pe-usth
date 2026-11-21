@@ -8,6 +8,7 @@ import { useEffect } from 'react';
 
 import LegacyScripts from '@/components/LegacyScripts';
 import { apiFetch } from '@/lib/api';
+import { ensureCourseEnrolled } from '@/lib/lofi-lesson-loader';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const W = () => window as any;
@@ -17,6 +18,7 @@ export default function LessonDbDesign({ courseId }: { courseId: string }) {
     // <body class="lesson-focus-mode" data-course="..."> y hệt template gốc
     document.body.classList.add('lesson-focus-mode');
     document.body.setAttribute('data-course', courseId);
+    void ensureCourseEnrolled(courseId, apiFetch);
     return () => {
       document.body.classList.remove('lesson-focus-mode');
       document.body.removeAttribute('data-course');

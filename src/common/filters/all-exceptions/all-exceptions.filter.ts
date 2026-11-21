@@ -10,26 +10,12 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ThrottlerException, throttlerMessage } from '@nestjs/throttler';
-
-/**
- * Nhận diện lỗi hạ tầng DB tạm thời (cạn pool, mất kết nối, Neon đang ngủ dậy).
- * Phải so theo THÔNG ĐIỆP vì driver adapter Neon ném Error thường, không phải
- * PrismaClientKnownRequestError có mã lỗi.
- */
-const DB_UNAVAILABLE_PATTERNS = [
-  'timeout exceeded when trying to connect',
-  'Connection terminated',
-  "Can't reach database server",
-  'Connection pool timeout',
-  'ECONNREFUSED',
-  'ETIMEDOUT',
-];
-
-function isDbUnavailable(exception: unknown): boolean {
-  if (!(exception instanceof Error)) return false;
-  const msg = exception.message ?? '';
-  return DB_UNAVAILABLE_PATTERNS.some((p) => msg.includes(p));
-}
+import { redactQuery } from 'src/common/logging/redact-url';
+import {
+  classifyDbError,
+  DB_ERROR_MESSAGES,
+  RETRY_AFTER_SECONDS,
+} from 'src/common/db-errors';
 
 @Catch()
 export class AllExceptionsFilter<T> implements ExceptionFilter {
@@ -56,16 +42,14 @@ export class AllExceptionsFilter<T> implements ExceptionFilter {
         exception.message && exception.message !== throttlerMessage
           ? exception.message
           : 'Quá nhiều yêu cầu, vui lòng thử lại sau';
-    } else if (isDbUnavailable(exception)) {
-      // Cạn pool / mất kết nối DB là tình trạng TẠM THỜI của hạ tầng, không
-      // phải lỗi lập trình -> 503 (kèm Retry-After) đúng ngữ nghĩa hơn 500.
-      // Đo tải thực tế cho thấy khi 10.000 người đăng nhập cùng lúc, hàng đợi
-      // xin connection vượt 30 giây và ném "timeout exceeded when trying to
-      // connect"; trước đây tất cả rơi vào nhánh 500 "Đã có lỗi xảy ra" khiến
-      // người dùng chờ rất lâu rồi nhận thông báo vô nghĩa.
+    } else if (classifyDbError(exception)) {
+      // Cạn pool / mất kết nối DB là tình trạng TẠM THỜI của hạ tầng -> 503 + Retry-After, không
+      // phải 500. Câu nói theo NGUYÊN NHÂN (xem db-errors.ts): "quá tải" cho socket bị Neon cắt
+      // là nói sai và khiến người học chờ lâu hơn cần.
+      const kind = classifyDbError(exception)!;
       status = HttpStatus.SERVICE_UNAVAILABLE;
-      message = 'Hệ thống đang quá tải, vui lòng thử lại sau ít phút';
-      response.setHeader?.('Retry-After', '10');
+      message = DB_ERROR_MESSAGES[kind];
+      response.setHeader?.('Retry-After', String(RETRY_AFTER_SECONDS[kind]));
     } else if (exception instanceof HttpException) {
       status = exception.getStatus();
       const res = exception.getResponse();
@@ -111,8 +95,9 @@ export class AllExceptionsFilter<T> implements ExceptionFilter {
 
     if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
       const stack = exception instanceof Error ? exception.stack : undefined;
+      const req = request as Request;
       this.logger.error(
-        `${request.method} ${request.url} -> ${status} ${message}`,
+        `${req.method} ${redactQuery(req.originalUrl ?? req.url)} -> ${status} ${message}`,
         stack,
       );
     }

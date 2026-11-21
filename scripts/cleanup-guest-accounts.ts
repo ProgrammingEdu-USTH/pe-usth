@@ -24,6 +24,7 @@
  * CHẠY (từ thư mục gốc repo, cần .env có DATABASE_URL):
  *   npx ts-node scripts/cleanup-guest-accounts.ts                                   # xem trước
  *   npx ts-node scripts/cleanup-guest-accounts.ts --older-than=60d --include-with-progress
+ *   npx ts-node scripts/cleanup-guest-accounts.ts --progress-older-than=180d         # CHÍNH SÁCH DB6: 30 ngày chưa học, 180 ngày đã học
  *   npx ts-node scripts/cleanup-guest-accounts.ts --apply --backup=guests-backup.json --limit=200
  */
 import 'dotenv/config';
@@ -35,6 +36,7 @@ import {
   DELETE_ORDER,
   GUEST_EMAIL_LIKE,
   parseOlderThan,
+  parseProgressOlderThan,
   selectStaleGuests,
   splitRef,
   type GuestCandidate,
@@ -69,9 +71,11 @@ async function main() {
   }
   const limit = Number(LIMIT_RAW);
   let olderThanDays: number;
+  let progressOlderThanDays: number | undefined;
   try {
     if (!Number.isInteger(limit) || limit < 1) throw new Error(`--limit phải là số nguyên ≥ 1 (nhận "${LIMIT_RAW}").`);
     olderThanDays = parseOlderThan(ARGV);
+    progressOlderThanDays = parseProgressOlderThan(ARGV);
   } catch (err) {
     console.error((err as Error).message);
     process.exitCode = 1;
@@ -102,12 +106,17 @@ async function main() {
       now: new Date(),
       olderThanDays,
       includeWithProgress: INCLUDE_WITH_PROGRESS,
+      progressOlderThanDays,
     });
     const ids = sel.toDelete.slice(0, limit).map((c) => c.id);
 
     console.log(
       `Khách (email LIKE ${GUEST_EMAIL_LIKE}): ${candidates.length}. Ngưỡng: ${olderThanDays} ngày` +
-        (INCLUDE_WITH_PROGRESS ? ', GỒM cả khách đã học.' : ', chỉ khách chưa học.'),
+        (progressOlderThanDays !== undefined
+        ? `, khách đã học: ${progressOlderThanDays} ngày kể từ lần học cuối.`
+        : INCLUDE_WITH_PROGRESS
+          ? ', GỒM cả khách đã học.'
+          : ', chỉ khách chưa học.'),
     );
     const byReason = new Map<SkipReason, number>();
     sel.skipped.forEach((s) => byReason.set(s.reason, (byReason.get(s.reason) ?? 0) + 1));

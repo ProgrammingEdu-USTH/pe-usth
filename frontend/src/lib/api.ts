@@ -112,6 +112,40 @@ export function danhDauPhien(giay?: unknown): void {
   }
 }
 
+/** Xoá `pe_access`, `pe_refresh` và cookie mốc `pe_has_session` (proxy.ts chặn từ server theo cờ này). */
+function xoaPhienCucBo(): void {
+  try {
+    localStorage.removeItem(LS_ACCESS);
+    localStorage.removeItem(LS_LEGACY_REFRESH);
+  } catch {
+    /* private mode */
+  }
+  try {
+    document.cookie = 'pe_has_session=; path=/; max-age=0; SameSite=Lax';
+  } catch {
+    /* non-browser */
+  }
+}
+
+/**
+ * Đăng xuất: máy chủ thu hồi cả chuỗi phiên của thiết bị (POST /auth/logout đọc cookie
+ * refresh httpOnly) rồi xoá phiên cục bộ. Xoá cục bộ LUÔN chạy, kể cả khi mạng lỗi —
+ * người dùng bấm thoát thì không được còn cờ phiên.
+ */
+export async function dangXuat(): Promise<void> {
+  try {
+    await fetch(`${origin()}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh: ls(LS_LEGACY_REFRESH) ?? undefined }),
+    });
+  } catch {
+    /* mạng lỗi: vẫn xoá phiên cục bộ */
+  } finally {
+    xoaPhienCucBo();
+  }
+}
 
 function refreshAccess(): Promise<string | null> {
   if (typeof window !== 'undefined') {
@@ -128,18 +162,7 @@ function refreshAccess(): Promise<string | null> {
     .then((r) => (r.status === 401 ? new Promise((ok) => setTimeout(ok, 400)).then(callRefresh) : r))
     .then(async (rr) => {
       if (rr.status === 401 || rr.status === 403) {
-        try {
-          localStorage.removeItem(LS_ACCESS);
-          localStorage.removeItem(LS_LEGACY_REFRESH);
-        } catch {
-          /* private mode */
-        }
-        // Xoá cookie cờ phiên để proxy.ts chặn từ server (đồng bộ với pe-bridge)
-        try {
-          document.cookie = 'pe_has_session=; path=/; max-age=0; SameSite=Lax';
-        } catch {
-          /* non-browser */
-        }
+        xoaPhienCucBo();
         return null;
       }
       if (!rr.ok) return null; // lỗi mạng/5xx: giữ token, thử lại sau

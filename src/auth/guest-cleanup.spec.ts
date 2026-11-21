@@ -9,6 +9,7 @@ import {
   isGuestEmail,
   lastActivity,
   parseOlderThan,
+  parseProgressOlderThan,
   selectStaleGuests,
   splitRef,
   unknownUserRefs,
@@ -139,6 +140,34 @@ describe('selectStaleGuests', () => {
     );
   });
 
+  it('chính sách 30/180: khách đã học giữ 180 ngày kể từ lần học cuối, khách chưa học 30 ngày', () => {
+    const policy = { ...OPTS, progressOlderThanDays: 180 };
+    const learned = (ago: number) =>
+      guest({
+        createdAt: daysAgo(400),
+        progressCount: 2,
+        xp: 40,
+        lastProgressAt: daysAgo(ago),
+      });
+    expect(reasonOf(guest({ createdAt: daysAgo(31) }), policy)).toBe('xoa');
+    expect(reasonOf(guest({ createdAt: daysAgo(29) }), policy)).toBe(
+      'moi-hoat-dong',
+    );
+    // 100 ngày: qua mốc 30 nhưng chưa tới mốc 180 của người đã học.
+    expect(reasonOf(learned(100), policy)).toBe('moi-hoat-dong');
+    expect(reasonOf(learned(181), policy)).toBe('xoa');
+    // Không truyền mốc thì vẫn giữ nguyên hành vi cũ: khách đã học không bị đụng.
+    expect(reasonOf(learned(181))).toBe('co-tien-do');
+    // Mốc 180 không mở đường cho người thật, khách còn phiên hay khách có bài viết.
+    expect(reasonOf({ ...learned(181), password: 'scrypt:x' }, policy)).toBe(
+      'khong-phai-khach',
+    );
+    expect(reasonOf({ ...learned(181), liveSessions: 1 }, policy)).toBe(
+      'con-phien',
+    );
+    expect(reasonOf({ ...learned(181), posts: 1 }, policy)).toBe('co-bai-viet');
+  });
+
   it('có bài viết/bình luận hoặc là giảng viên thì bỏ qua, kể cả khi bật includeWithProgress', () => {
     const all = { ...OPTS, includeWithProgress: true };
     expect(reasonOf(guest({ posts: 1 }), all)).toBe('co-bai-viet');
@@ -155,6 +184,19 @@ describe('selectStaleGuests', () => {
     );
     expect(sel.toDelete.map((c) => c.id)).toEqual([1, 3]);
     expect(sel.skipped).toEqual([{ id: 2, reason: 'con-phien' }]);
+  });
+});
+
+describe('parseProgressOlderThan', () => {
+  it('thiếu cờ → undefined, có cờ → số ngày, sai → ném lỗi', () => {
+    expect(parseProgressOlderThan([])).toBeUndefined();
+    expect(parseProgressOlderThan(['--progress-older-than=180d'])).toBe(180);
+    expect(() => parseProgressOlderThan(['--progress-older-than=0d'])).toThrow(
+      '--progress-older-than',
+    );
+    expect(() =>
+      parseProgressOlderThan(['--progress-older-than=180']),
+    ).toThrow();
   });
 });
 

@@ -36,8 +36,8 @@ mức này:
 | Hạng mục | Mốc | Đo ngày |
 |---|---|---|
 | Backend typecheck | sạch | 15/11/2026 |
-| Backend test | 47 bộ, 564 ca, tất cả đạt (máy đặt múi giờ UTC thì 1 ca `streak.service.spec.ts` trượt — chạy `TZ=Asia/Ho_Chi_Minh npx jest --ci`) | 20/11/2026 |
-| Backend lint | 155 lỗi, 2 cảnh báo — **mốc trần trong CI là 170, chỉ được hạ** | 15/11/2026 |
+| Backend test | 54 bộ, 607 ca, tất cả đạt (máy đặt múi giờ UTC thì 1 ca `streak.service.spec.ts` trượt — chạy `TZ=Asia/Ho_Chi_Minh npx jest --ci`) | 21/11/2026 |
+| Backend lint | 153 lỗi, 2 cảnh báo — **mốc trần trong CI là 170, chỉ được hạ** | 21/11/2026 |
 | Frontend typecheck | sạch | 15/10/2026 |
 | Frontend lint | 0 lỗi, 118 cảnh báo | 19/10/2026 |
 | Frontend unit test | `cd frontend && npm run test:unit` → 534 ca, 529 đạt; 5 ca trượt có sẵn từ `cd206ad` (đều chỉ vào trang `/demo-minigame`) | 19/10/2026 |
@@ -235,6 +235,8 @@ Hai đường, chọn sai là xoá tiến độ của người đang học:
   cả 48 bài VÀ toàn bộ `lesson_progress` của khoá, rồi đặt mọi ghi danh về
   `completedLessons: 0, progress: 0`. Có sao lưu trước khi xoá, nhưng "sao lưu" không cứu được
   tester đang học dở. Sửa vài chữ trong 4 bài mà chạy cái này là xoá tiến độ của mọi người.
+Hướng dẫn một trang chọn đúng đường nạp (kèm khôi phục từ file sao lưu): [HUONG-DAN-NAP-GIAO-TRINH.md](HUONG-DAN-NAP-GIAO-TRINH.md).
+
 - **`scripts/update-lesson-content.ts` — đường nạp AN TOÀN khi đã có người học.** Chỉ chạy
   `UPDATE lessons SET content_json = …` theo `(course_id, sort_order)` và phải trùng
   `lesson_code` của gói; KHÔNG đụng `lesson_progress`, `enrollments`, `courses`, không tạo/xoá
@@ -272,10 +274,23 @@ kể cả bảng CASCADE, TRƯỚC khi xoá); `--limit` chặn số khách mỗi
 ```bash
 npx ts-node scripts/cleanup-guest-accounts.ts                                  # xem trước
 npx ts-node scripts/cleanup-guest-accounts.ts --older-than=60d --include-with-progress
+npx ts-node scripts/cleanup-guest-accounts.ts --progress-older-than=180d       # CHÍNH SÁCH, xem dưới
 npx ts-node scripts/cleanup-guest-accounts.ts --apply --backup=guests-bak.json --limit=200
 ```
 
 Luật chọn và thứ tự xoá nằm ở `src/auth/guest-cleanup.ts` (có test Jest).
+
+**Chính sách giữ tài khoản khách (DB6, ghi 19/11/2026 theo đề xuất Q9 — Nhân xác nhận trước khi chạy `--apply` đầu tiên):**
+- Khách CHƯA có tiến độ (không `lesson_progress`, xp = 0): xoá sau **30 ngày** không hoạt động.
+- Khách CÓ tiến độ: giữ **180 ngày kể từ lần học cuối** (muộn nhất của `last_study_date`, `lesson_progress`, nhật ký XP) rồi mới xoá.
+- Người đăng nhập thật (mật khẩu không rỗng hoặc có OAuth): **giữ không hạn**; script không bao giờ chọn họ.
+- Luôn bỏ qua khách còn phiên refresh sống, có bài viết/bình luận, hoặc là giảng viên.
+- Một lệnh áp cả hai mốc: `--progress-older-than=180d` (kèm `--older-than=30d` mặc định). Không có cờ này thì khách đã học KHÔNG bị đụng.
+- Khách chỉ giữ được tiến độ lâu hơn 30 ngày nếu refresh token cũng sống lâu hơn: đổi chính sách thì đổi `JWT_REFRESH_EXPIRES`
+  cùng lúc, và đổi cả bốn chỗ ghi cứng `max-age=28800` ở frontend (xem bẫy "Hạn của tài khoản khách").
+- Đo trên branch thử 19/11/2026: 109 khách; chạy thử theo chính sách báo xoá 26, giữ 40 (mới hoạt động) và 43 (còn phiên).
+- `--apply` phải duyệt từng đợt: chạy thử → Nhân duyệt danh sách → `--apply --backup=<file> --limit=<n>`. Không chạy `--apply` từ CI
+  (xem "Lịch chạy các job dọn dữ liệu").
 
 ## Quy ước migration và môi trường DB
 
@@ -324,6 +339,29 @@ host trong biến shell, đừng sửa lệnh. Trước khi chạy bất kỳ l�
   của Run.Test/Submit/Abandon (ca trượt, exception, màn bỏ dở) mà bảng tóm tắt không giữ.
 - Không câu nào trong `truy-van.sql` dùng Heartbeat, nên gộp nó không làm mất kết quả đang có.
 - Mốc cắt theo NGÀY UTC để mỗi (user, ngày) được gộp trọn một lần; chạy lại ngay sau đó là no-op.
+  Mỗi ngày qua đi lại có thêm Heartbeat vượt 7 ngày (đã thấy: một ngày sau lần `--apply` đầu, dry-run báo thêm 3 hàng),
+  nên job phải chạy định kỳ — lịch dry-run nằm ở mục "Lịch chạy các job dọn dữ liệu" ngay dưới.
+- Ước lượng dung lượng — GIẢ ĐỊNH, không phải số đo: 10.000 người học × 30 phút/ngày, nhịp 30 giây
+  ⇒ 60 hàng/người/ngày × ~241 byte ≈ 145 MB/ngày hàng thô Heartbeat. Không gộp thì tăng mãi; gộp sau
+  7 ngày thì trần ≈ 1 GB. `learning_time_daily` ≈ 1 dòng/người/bài/ngày (cỡ 1 MB/ngày, ≈ 90 MB ở trần
+  90 ngày). Số đo thật (15/11, 10 người): 494 → 247 hàng sau lần gộp đầu.
+- Gộp Heartbeat làm mất `screen_key` và payload (`step`, `completed`) của nó: sau 7 ngày chỉ còn thời gian
+  theo BÀI, không theo MÀN. Cần theo màn thì thêm `screen_key` vào khoá bảng tóm tắt trước khi chạy `--apply`
+  trên DB thật (không làm lại được sau khi đã xoá hàng thô).
+
+**Lịch chạy các job dọn dữ liệu (DB12, viết 19/11/2026):**
+- `.github/workflows/db-jobs.yml` chạy **chỉ chế độ CHẠY THỬ** mỗi ngày 02:00 UTC (09:00 giờ Việt Nam): `rollup-heartbeats.ts` (gộp
+  Heartbeat > 7 ngày, xoá sự kiện và tóm tắt > 90 ngày) rồi `cleanup-guest-accounts.ts --progress-older-than=180d`. Kết quả nằm ở trang
+  tóm tắt của lượt chạy (Actions → DB jobs → lượt chạy → Summary).
+- **Chưa bật được thật:** GitHub chỉ chạy cron của workflow trên nhánh mặc định (`main`), nên khi file còn ở nhánh `test` chỉ chạy được
+  bằng Run workflow. Cần thêm secret `DATABASE_URL` (chuỗi `pe_app`, host `-pooler`; branch thử khi thử, DB thật khi vận hành). Chưa có lượt
+  chạy nào trên GitHub; hai lệnh đã chạy thử ở máy trên branch thử, đều ra "CHẠY THỬ — chưa ghi gì".
+- Thất bại báo bằng email GitHub gửi cho người sửa dòng cron gần nhất; thêm secret `DB_JOBS_WEBHOOK_URL` (Slack/Discord, nhận JSON `{"text":…}`)
+  thì báo cả kênh nhóm.
+- **Tắt:** Actions → DB jobs → ⋯ → Disable workflow, hoặc xoá khối `schedule` trong file.
+- `--apply` KHÔNG chạy trên Actions: file `--backup` chứa dữ liệu người dùng mà repo có remote công khai nên không được đẩy lên artifact.
+  Nhân duyệt kết quả chạy thử rồi tự chạy `--apply` ở máy mình. **Trước `--apply` đầu tiên của rollup trên DB thật phải quyết định giữ
+  `screen_key` của Heartbeat hay không** (xem mục trên: gộp xong không làm lại được). Chưa quyết ⇒ chưa `--apply`.
 
 **Hai bẫy đã gặp khi làm việc này:**
 - **DB thật không có cùng giáo trình với gói trong repo.** `python_advanced` trong DB có 179 bài
@@ -346,6 +384,139 @@ host trong biến shell, đừng sửa lệnh. Trước khi chạy bất kỳ l�
 - **Nhánh git lệch migration với DB.** Khi nhánh thiếu migration mà DB đã áp, `prisma migrate dev`
   coi đó là drift và có thể đề nghị RESET. Gộp migration của `main` vào trước, rồi `migrate status`
   phải sạch, rồi mới chạy lệnh nào khác.
+
+## Role DB, sao lưu và áp thay đổi lên DB thật (DB9)
+
+**Role riêng — đã làm và kiểm trên branch `test` ngày 19/11/2026; DB thật CHƯA đổi.** SQL ở `scripts/db/create-app-roles.sql`:
+- `pe_app`: chỉ SELECT/INSERT/UPDATE/DELETE và dùng sequence; không DDL, không đọc `_prisma_migrations`. Dùng cho `DATABASE_URL` (host `-pooler`).
+- `pe_migrator`: CHỦ SỞ HỮU các bảng, dùng cho `DIRECT_URL` (host KHÔNG `-pooler`) khi `migrate deploy`. Không dùng `neondb_owner` làm chủ vì
+  Neon từ chối `GRANT neondb_owner TO …`; muốn chuyển chủ bảng thì chuyển sang chính role mới.
+- Bảng mới do `pe_migrator` tạo tự cấp DML cho `pe_app` (default privileges) — đã thử tạo/xoá một bảng mẫu.
+- Đã đo trên branch thử: `pe_app` bị chặn DROP/ALTER/CREATE TABLE, TRUNCATE, CREATE INDEX và đọc `_prisma_migrations`; backend chạy bằng `pe_app`
+  tạo khách, ghi danh, mở bài, hoàn thành bài (ghi XP) đều chạy, log server không có lỗi quyền; `pe_migrator` chạy `migrate deploy` được
+  (đã áp `20261116000000_forum_post_indexes`), `migrate status` sạch, `migrate diff` rỗng; `check-db-invariants.ts` chạy bằng `pe_app` đạt 7/7.
+- Đổi role = đổi `DATABASE_URL`/`DIRECT_URL` ở Render, Vercel và `.env`. Mật khẩu role nằm ngoài repo (branch thử: `backups/roles-test-branch.env`, git bỏ qua).
+- **Khi áp lên DB thật:** `ALTER … OWNER` đổi chủ MỌI bảng. Làm lúc ít người dùng, sau khi sao lưu, và chạy `check-db-invariants.ts` ngay sau đó.
+
+**Đã kiểm trong mã (19/11/2026):**
+- Mật khẩu giữ định dạng Werkzeug: `src/common/security/` sinh `scrypt:N:r:p$salt$hex` và `pbkdf2:sha256:…`; `check-password.ts` từ chối chuỗi không phải hai dạng đó.
+- Refresh token chỉ lưu hash SHA-256 (`auth/refresh-token.service.ts`, `createHash('sha256')`) kèm `family_id`; không còn token thô trong DB.
+- SQL thô: không có `$queryRawUnsafe`/`$executeRawUnsafe` trong `src/`; chỉ `$queryRaw` dạng tagged template (tham số hoá). (Nghĩa sẽ thêm luật eslint chặn `Unsafe`.)
+- **Log từng rò thông tin — đã sửa:** `AllExceptionsFilter` và `PrismaExceptionFilter` ghi `request.url` thô (kèm `?refresh=<token>&email=…`) và message/stack của lỗi
+  Prisma (V8 lặp message ở đầu stack, mà message Prisma chứa cả giá trị tham số). Nay cả hai che query bằng `src/common/logging/redact-url.ts` (thêm `email`,
+  `phone` vào danh sách che) và Prisma chỉ ghi mã lỗi + các dòng `at …` của stack. Test `redact-url.spec.ts`: trả bản filter cũ về thì 2 ca trượt. Log còn lại
+  chỉ in `user.id` (số), không in email/tên.
+
+**Sao lưu khôi phục theo thời điểm (PITR) của Neon — CHƯA làm, cần tài khoản Neon:** bật ở Neon Console (Settings → Storage → cửa sổ lịch sử; số ngày phụ thuộc gói),
+rồi diễn tập trên branch con: Console → Branches → Create branch → chọn thời điểm → so `SELECT count(*)` các bảng chính với hiện tại. Không diễn tập trên DB thật.
+Việc này không làm từ dòng lệnh được vì repo không có Neon API key.
+
+**Thứ tự áp lên DB thật** (mỗi bước dừng nếu lỗi; Nhân tự gộp và triển khai):
+1. Sao lưu: tạo branch sao lưu của Neon từ production, và xuất hàng sắp sửa ra `backups/` (`courses`, `lessons` nếu đụng tới).
+2. `DIRECT_URL` KHÔNG có `-pooler`; `npx prisma migrate status` — ghi lại migration nào chưa áp.
+3. Câu kiểm trùng ở đầu `prisma/migrations/20261111000000_daily_xp_log_unique/migration.sql` phải ra **0 dòng**; câu kiểm trùng `(course_id, sort_order)` trong README cũng 0 dòng.
+4. `npx prisma migrate deploy`. Với nhánh `test` hiện tại sẽ áp: `20261111000000_daily_xp_log_unique`, `20261115000000_drop_lessons_content_json_gin` (**DROP INDEX — ngoại lệ có
+   lý do, cần Nhân duyệt**), `20261115010000_fk_indexes`, `20261115020000_content_version_and_hash`, `20261115030000_learning_time_daily`, `20261116000000_forum_post_indexes`
+   (và các migration `20261028*` nếu production chưa có). **Phải áp `20261111000000` TRƯỚC khi triển khai code mới**: code ghi XP dùng upsert dựa vào `uq_daily_xp_user_date`.
+5. `UPDATE courses SET lessons = (SELECT count(*) FROM lessons WHERE course_id = 'python_advanced' AND sort_order < 1000) WHERE id = 'python_advanced'` trong một transaction.
+6. `npx ts-node scripts/check-db-invariants.ts` phải "Tất cả đạt".
+7. Ghi nhật ký vào mục "Hai bẫy đã gặp" như lần sửa 172 → 179 trên branch thử.
+8. Sau cùng (nếu duyệt): chạy `scripts/db/create-app-roles.sql`, đổi chuỗi kết nối ở Render/Vercel, chạy lại `check-db-invariants.ts` bằng `pe_app`.
+
+## Đo tải và vùng đặt máy chủ (DB10, DB14)
+
+**Đo tải trên branch thử, 19/11/2026** — `scripts/loadtest-scenarios.js` (`nen` | `don` | `cleanup`), backend `node dist/main` chạy bằng `pe_app`, `THROTTLE_DISABLED=true`,
+`DB_POOL_MAX` mặc định 50. **Chạy cả client lẫn backend trên MỘT máy cá nhân ở Việt Nam, trung vị một vòng tới Neon ≈ 64 ms**; nếu Render xa Neon hơn (mục dưới) thì số
+trên production sẽ CAO hơn. Chưa có route `/api/events` trên nhánh `test` (chỉ ở `main`) nên bài đo không gồm nó.
+
+| Kịch bản | Route | p50 (ms) | p95 (ms) | Lỗi |
+|---|---|---|---|---|
+| NỀN: 20 người, 120 s, ~3,5 req/s | hoàn thành bài (n=90) | 1 659 | 2 101 | 0% (445 request) |
+| | mở nội dung bài (n=239) | 491 | 827 | |
+| | danh sách ghi danh (n=96) | 174 | 260 | |
+| DỒN: 100 người cùng lúc (lần 1) | hoàn thành bài (n=300) | 1 139 | 1 344 | 0% (700 request) |
+| DỒN (lần 2, dữ liệu sạch) | hoàn thành bài (n=300) | 1 169 | 1 337 | 0% (700 request) |
+
+- Tiêu chí đề xuất (p95 hoàn thành bài ≤ 3 s, 5xx < 1%): **đạt cả hai** trong điều kiện trên.
+- **Kết nối DB đỉnh: NỀN 20, DỒN 47 rồi 50/50** — kịch bản DỒN chạm trần pool 50. Vẫn đạt vì mỗi người chỉ có ~7 request, nhưng lớp 100 người làm bài lâu hơn hoặc độ trễ
+  tới Neon tăng lên (Render xa) thì request sẽ xếp hàng chờ connection. **CHƯA đo p95 thời gian chờ connection** (backend không xuất số này; chỉ có đỉnh kết nối từ `pg_stat_activity`).
+  Chưa đo "lỗi khi Neon thức dậy" (không ép được branch suspend từ đây); lần kết nối đầu tiên đo được 341–378 ms.
+- EXPLAIN trên dữ liệu giả (20.117 user, 200.081 `lesson_progress`, 60.033 nhật ký XP; trong transaction rồi rollback, đã kiểm user giả còn 0): bài theo `(course_id, sort_order)`,
+  tiến độ một bài, ghi danh, đếm bài xong, nhật ký XP hôm nay, bảng xếp hạng top 20, đăng nhập theo email đều dùng chỉ mục, 0,03–0,08 ms. Kiểm khoá ngoại `auth_sessions.user_id`
+  ra quét tuần tự vì lần đo này KHÔNG nhân bảng `auth_sessions` (~54 dòng) — không phải lỗi chỉ mục (đã thử ép planner ở lần đo trước: chọn đúng chỉ mục 22/22).
+- **Chỉ mục `idx_scan = 0` (44 cái, bảng còn nhỏ nên phần lớn là bình thường).** Hai cái dư thật, đề xuất bỏ (DROP — ngoại lệ, cần duyệt, CHƯA làm):
+  `idx_daily_xp_user_date` (trùng hệt unique `uq_daily_xp_user_date`) và `quizzes_user_id_course_id_idx` (là tiền tố của `idx_quizzes_user_course_kind`). 22 chỉ mục khoá ngoại và 3 chỉ mục
+  `posts` mới thêm cố ý chưa được dùng: đừng bỏ.
+- Dọn người dùng giả: `node scripts/loadtest-scenarios.js cleanup` (xoá theo `DELETE_ORDER`; đã chạy, còn 0 người `@pe-loadtest.local`).
+
+**Vùng đặt máy chủ (DB14):**
+
+| Dịch vụ | Vùng | Độ trễ một vòng | Nguồn |
+|---|---|---|---|
+| Neon (DB thật và branch `test`) | `ap-southeast-1` (Singapore) | — | đọc từ host `c-2.ap-southeast-1.aws.neon.tech` trong `.env` |
+| Máy dev ở Việt Nam → Neon | — | **p50 64 ms, p95 76–80 ms** (40 vòng `SELECT 1`, 2 lần đo) | đo 19/11/2026 |
+| Render (backend) | **Ohio (us-east-2), Nhân xác nhận 19/11/2026** — xa Neon Singapore | CHƯA ĐO (ước lượng ~200–240 ms/vòng, chưa phải số đo) | Nhân đọc từ Render Dashboard |
+
+- Chú thích trong `src/prisma/prisma.service.ts` và `src/health/health.controller.ts` ghi "Neon us-east-2, ~237 ms/vòng" **đã lỗi thời**: DB đã chuyển sang Singapore ngày 27/10. Con số 237 ms
+  chỉ đúng nếu Render đặt ở xa Singapore (Oregon/Ohio). Cần đo lại từ Render trước khi tin.
+- **Khuyến nghị:** nếu Render không ở Singapore thì chuyển **Render** sang Singapore (dịch vụ không giữ dữ liệu, đổi vùng chỉ là dựng lại service), không chuyển Neon: DB đã ở gần người dùng
+  Việt Nam, và đổi vùng Neon là tạo project mới + `pg_dump`/restore + đổi chuỗi kết nối, rủi ro cao hơn nhiều. Chốt ngày sau khi biết vùng Render (phải xong TRƯỚC 25/11).
+- Cách đo từ Render: mở Shell của service, chạy 30 lần `SELECT 1` trên một kết nối rồi lấy trung vị; hoặc gọi `GET /health/ready` nhiều lần (route này chạm DB).
+
+## Chịu tải và chống phình DB (quyết định 19/11/2026)
+
+Mục tiêu: lớp 100 người vào cùng lúc không làm sập, và DB không tự phình theo thời gian. Mỗi quyết định dưới đây có số đo hoặc lý do kèm theo.
+
+**1. Vách ngăn cho hoàn thành bài — `COMPLETE_LESSON_MAX_CONCURRENT`, mặc định 25** (`src/common/concurrency/semaphore.ts`, dùng trong `LessonsService.completeLesson`).
+- Vì sao: transaction hoàn thành bài giữ một connection 1–2,6 s (11–16 vòng tới Neon). Cả lớp bấm cùng lúc thì chúng chiếm hết pool 50 và route ĐỌC (mở bài, danh sách) phải xếp hàng sau.
+  Vách ngăn dời hàng chờ từ pool (giữ socket) sang bộ nhớ (rẻ). Chờ quá 10 s thì trả 503. `0` = tắt.
+- Đo (branch thử, 100 người DỒN + 1 đầu dò đọc `/api/enrolled` mỗi 100 ms, mỗi mức chạy 2 lần; `scripts/loadtest-scenarios.js don --probe`):
+
+  | Giới hạn | Đầu dò đọc p95 | Lượt đọc phục vụ được | Mở bài p95 | Hoàn thành bài p95 |
+  |---|---|---|---|---|
+  | 0 (tắt) | 735 và 1 015 ms | 25 và 15 | 1 740 và 932 ms | 1 726 và 1 502 ms |
+  | **25** | **255 và 215 ms** | **46 và 43** | **685 và 628 ms** | 2 506 và 2 400 ms |
+  | 30 | 499 ms | 38 | 905 ms | 1 959 ms |
+  | 40 | 404 ms | 25 | 710 ms | 1 988 ms |
+
+- Cái giá: hoàn thành bài chậm hơn (p95 ≈ 1,6 s → 2,4 s) vì phải xếp hàng, vẫn dưới mốc 3 s. Lớp lớn hơn 100 người sẽ vượt 3 s — khi đó tăng `DB_POOL_MAX` trước, không nâng vách ngăn.
+- Mỗi mức chỉ chạy 2 lần trên một máy cá nhân: đủ thấy xu hướng, chưa đủ để chia nhỏ giữa 25 và 30. Đo lại từ Render khi biết vùng đặt.
+- Vách ngăn nằm TRONG từng tiến trình: chạy N bản backend thì tổng đồng thời là N × 25 và pool của mỗi bản vẫn riêng.
+
+**2. Giới hạn thời gian.** Transaction tối đa 20 s và chờ connection 10 s (`src/common/prisma-tx.options.ts`); chờ connection ngoài transaction 30 s (`DB_CONNECT_TIMEOUT_MS`, giữ 30 s vì Neon cần ~10 s để thức dậy; chưa đo nên chưa hạ).
+`statement_timeout` 30 s và `idle_in_transaction_session_timeout` 15 s đặt trên role `pe_app` CHỈ có tác dụng với kết nối trực tiếp, KHÔNG qua pooler (đã đo: `SHOW` trả 0). Đừng tin rằng app nhờ đó mà tự cắt được truy vấn treo.
+
+**3. Chống phình.**
+- Dữ liệu tự lớn: `learning_events` (gộp Heartbeat 7 ngày, giữ 90 ngày), `auth_sessions` (`pruneExpired` mỗi giờ), khách rác (`cleanup-guest-accounts.ts`) — lịch ở mục "Lịch chạy các job dọn dữ liệu".
+- Migration `20261119000000_autovacuum_tuning`: autovacuum chạy khi dead tuple vượt 2% (`learning_events`) và 5% (`auth_sessions`) thay vì 20% mặc định, vì rollup xoá cả loạt mỗi ngày. Chỉ đổi tham số lưu trữ, hoàn tác bằng `RESET`.
+- **Phình ở CHỈ MỤC, không ở bảng, và autovacuum không thu file lại.** Đo trên branch thử: `auth_sessions` 57 hàng mà chỉ mục 16 MB, `lesson_progress` 81 hàng mà chỉ mục 10 MB (do các lần test chèn rồi rollback của tôi); `REINDEX TABLE`
+  đưa cả DB từ 46 MB xuống 12 MB (16 MB → 64 kB, 10 MB → 64 kB). Trên DB thật dùng `REINDEX TABLE CONCURRENTLY` (ngoài transaction, không chặn ghi; Prisma không chạy được trong migration) khi chỉ mục lớn hơn nhiều so với số hàng.
+  Câu kiểm: `SELECT relname, pg_size_pretty(pg_indexes_size(relid)), n_live_tup FROM pg_stat_user_tables ORDER BY pg_indexes_size(relid) DESC LIMIT 10;`
+- Kết quả đo tải chèn/xoá dữ liệu giả trong transaction rồi ROLLBACK vẫn để lại chỉ mục phình: sau mỗi đợt đo trên branch thử nên `REINDEX`.
+- Chỉ mục `idx_users_xp_desc` (bảng xếp hạng) khiến mọi `UPDATE users SET xp` không còn là HOT update, nên mỗi lần hoàn thành bài để lại một phiên bản chỉ mục mới. Chưa đau ở quy mô này; nếu `users` lớn lên
+  thì xem lại (ví dụ bảng xếp hạng tính từ `user_daily_xp_logs`). **Mốc xem lại (Nhân chọn phương án A ngày 19/11/2026, giữ nguyên chỉ mục):** khi `users` vượt ~50.000 dòng,
+  hoặc `n_tup_hot_upd` của `users` (pg_stat_user_tables) gần 0 trong khi ghi XP nhiều. Khi đó cân nhắc phương án B: bảng xếp hạng tính từ `user_daily_xp_logs` (đổi nghĩa thành "XP trong N ngày").
+
+## Tuần demo: chịu tải DB, đăng nhập cho lớp chung mạng (BE11, BE12 — 19/11/2026)
+
+**Đặt trước tuần demo (Render → Environment):**
+
+| Biến | Mặc định | Tuần demo | Vì sao |
+|---|---|---|---|
+| `THROTTLE_REGISTER_LIMIT` | 10/phút/IP | 60 | cả lớp chung một IP NAT; `/auth/upgrade` dùng chung ngưỡng này |
+| `THROTTLE_LOGIN_LIMIT` | 20/phút/IP | 120 | như trên; chặn đoán mật khẩu đã có riêng: 5 lần sai/15 phút mỗi email (trong bộ nhớ, 1 tiến trình) |
+| `THROTTLE_GUEST_LIMIT` | 120/giờ/IP | 600 | mỗi trình duyệt chỉ gọi 1 lần |
+| `DB_CONNECT_TIMEOUT_MS` | 10000 | giữ | hết pool thì 503 + `Retry-After: 3` sau ≤10 s (trước: 30 s). Thấp hơn thời gian Neon thức dậy nên lượt đầu sau khoảng lặng có thể 503 — ping giữ thức bên dưới |
+| `EVENTS_POOL_MAX` / `EVENTS_CONNECT_TIMEOUT_MS` | 5 / 2500 | giữ | pool RIÊNG cho `learning_events` (`EventsPrismaService.tryWrite`): hết thì bỏ lô, không lấy connection của pool chính |
+
+**Ping giữ thức (CHƯA cài — cần tài khoản dịch vụ ngoài):** UptimeRobot/cron-job.org gọi `GET /health/ready` mỗi 4 phút
+(route này chạm DB nên giữ cả Render lẫn Neon thức), từ trước tuần demo đến hết tuần đầu có người dùng thật.
+
+**Còn mở:** (1) route ghi `learning_events` chưa có trên nhánh `test` (chỉ ở `main`) nên `EventsPrismaService` chưa có ai gọi — khi route
+được đưa sang, bọc `createMany` bằng `tryWrite` và trả 202 dù kết quả `undefined`. (2) Migration `20261120000000_users_phone_unique`
+CHƯA áp lên DB nào; chạy 2 câu kiểm trùng ở đầu file (0 dòng) trên branch thử trước. (3) Hàng chờ pool chỉ đo bằng mẫu `waitingCount`
+mỗi giây (log mỗi 60 s; cảnh báo khi >1 s), không phải thời gian chờ từng request.
+
 
 ## Quy ước khi sửa
 

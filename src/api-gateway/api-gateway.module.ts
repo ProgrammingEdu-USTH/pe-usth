@@ -12,6 +12,7 @@ import { JwtStrategy } from 'src/common/guards/jwt-auth/jwt.strategy';
 import { CustomThrottlerGuard } from 'src/common/guards/throttler/custom-throttler.guard';
 import { FixedWindowThrottlerStorage } from 'src/common/guards/throttler/fixed-window-throttler.storage';
 import { ThrottlerStorageModule } from 'src/common/guards/throttler/throttler-storage.module';
+import { RetryReadInterceptor } from 'src/common/interceptors/retry-read/retry-read.interceptor';
 import { RequestLoggerInterceptor } from 'src/common/interceptors/request-logger/request-logger.interceptor';
 import { CorsMiddleware } from 'src/common/middleware/cors/cors.middleware';
 import { OverloadProtectionMiddleware } from 'src/common/middleware/overload-protection/overload-protection.middleware';
@@ -77,6 +78,7 @@ import { SecurityHeadersMiddleware } from 'src/common/middleware/security-header
     SecurityHeadersMiddleware,
     CorsMiddleware,
     { provide: APP_INTERCEPTOR, useClass: RequestLoggerInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: RetryReadInterceptor },
     // JwtAuthGuard TRƯỚC throttler: throttler cần req.user để đếm quota theo
     // user thay vì theo IP. Route @Public() (login/register) vẫn đi qua
     // throttler theo IP như cũ.

@@ -7,10 +7,12 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Prisma } from 'src/generated/prisma';
+import { redactQuery } from 'src/common/logging/redact-url';
 
 // Key = tên CỘT DB (snake_case), nối bằng ',' theo đúng thứ tự Postgres trả về
 const UNIQUE_FIELD_MESSAGES: Record<string, string> = {
   email: 'Email này đã được sử dụng',
+  phone: 'Số điện thoại này đã được sử dụng',
   code: 'Mã này đã tồn tại',
   'course_id,lesson_code': 'Mã bài học đã tồn tại trong khoá học này',
   'user_id,course_id': 'Bạn đã đăng ký khoá học này rồi',
@@ -21,7 +23,7 @@ const UNIQUE_FIELD_MESSAGES: Record<string, string> = {
   user_id: 'Dữ liệu của người dùng này đã tồn tại',
 };
 
-function extractFields(
+export function extractFields(
   exception: Prisma.PrismaClientKnownRequestError,
 ): string[] {
   const meta = exception.meta as any;
@@ -74,9 +76,15 @@ export class PrismaExceptionFilter implements ExceptionFilter {
     const requestId = (request as any).requestId || null;
 
     if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
+      // KHÔNG ghi exception.message/stack nguyên văn: Prisma nhét cả đoạn gọi hàm kèm GIÁ TRỊ
+      // tham số (email, mật khẩu băm…) vào message, mà V8 lặp lại message ở đầu stack.
+      const frames = (exception.stack ?? '')
+        .split('\n')
+        .filter((l) => l.trim().startsWith('at '))
+        .join('\n');
       this.logger.error(
-        `${request.method} ${request.url} -> ${status} Prisma ${exception.code}: ${exception.message}`,
-        exception.stack,
+        `${request.method} ${redactQuery(request.originalUrl ?? request.url)} -> ${status} Prisma ${exception.code}`,
+        frames,
       );
     }
 

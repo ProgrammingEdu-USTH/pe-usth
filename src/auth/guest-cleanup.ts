@@ -23,6 +23,13 @@ export const GUEST_EMAIL_LIKE = 'guest\\_%@guest.local';
 
 export const DEFAULT_OLDER_THAN_DAYS = 30;
 
+/**
+ * Chính sách (DB6, ghi trong AGENTS.md): khách CHƯA có tiến độ xoá sau 30 ngày; khách CÓ
+ * tiến độ giữ 180 ngày kể từ lần học cuối rồi mới xoá; người đăng nhập thật giữ không hạn
+ * (không phải khách nên `skipReason` luôn bỏ qua họ).
+ */
+export const DEFAULT_PROGRESS_OLDER_THAN_DAYS = 180;
+
 export const isGuestEmail = (email: string): boolean =>
   GUEST_EMAIL_RE.test(email);
 
@@ -70,6 +77,8 @@ export const CASCADE_REFS: readonly UserRef[] = [
   'learning_event_consents.user_id',
   // Migration 20261115030000_learning_time_daily: ON DELETE CASCADE.
   'learning_time_daily.user_id',
+  // Migration 20261121000000_placement_attempts: ON DELETE CASCADE (bài kiểm tra đầu vào của khách).
+  'placement_attempts.user_id',
 ];
 
 /**
@@ -96,20 +105,34 @@ export function unknownUserRefs(refs: readonly string[]): string[] {
   return [...new Set(refs)].filter((r) => !known.has(r)).sort();
 }
 
-/** `--older-than=30d` → 30. Thiếu cờ thì lấy mặc định; sai định dạng thì ném lỗi. */
-export function parseOlderThan(argv: readonly string[]): number {
+function parseDaysFlag(
+  argv: readonly string[],
+  flag: string,
+): number | undefined {
   const raw = argv
-    .find((a) => a.startsWith('--older-than='))
-    ?.slice('--older-than='.length);
-  if (raw === undefined) return DEFAULT_OLDER_THAN_DAYS;
+    .find((a) => a.startsWith(`${flag}=`))
+    ?.slice(flag.length + 1);
+  if (raw === undefined) return undefined;
   const m = /^(\d+)d$/.exec(raw);
   // Dưới 1 ngày thì vào thẳng vùng khách vừa rời trang — thường là gõ nhầm.
   if (!m || Number(m[1]) < 1) {
     throw new Error(
-      `--older-than phải dạng <số ngày>d, tối thiểu 1d (nhận "${raw}").`,
+      `${flag} phải dạng <số ngày>d, tối thiểu 1d (nhận "${raw}").`,
     );
   }
   return Number(m[1]);
+}
+
+/** `--older-than=30d` → 30. Thiếu cờ thì lấy mặc định; sai định dạng thì ném lỗi. */
+export function parseOlderThan(argv: readonly string[]): number {
+  return parseDaysFlag(argv, '--older-than') ?? DEFAULT_OLDER_THAN_DAYS;
+}
+
+/** `--progress-older-than=180d` → 180; thiếu cờ → undefined (khách có tiến độ được giữ). */
+export function parseProgressOlderThan(
+  argv: readonly string[],
+): number | undefined {
+  return parseDaysFlag(argv, '--progress-older-than');
 }
 
 /** Bản tóm tắt một khách, đúng các cột câu SQL gom trong script trả về. */
@@ -144,6 +167,12 @@ export interface SelectOptions {
   olderThanDays: number;
   /** Mặc định false: giữ số liệu buổi test của khách đã học. */
   includeWithProgress: boolean;
+  /**
+   * Có giá trị ⇒ khách đã học cũng bị xoá, nhưng chỉ khi mốc hoạt động cuối cũ hơn ngần này
+   * ngày (thường 180, dài hơn `olderThanDays`): một lần chạy áp được cả hai mốc của chính
+   * sách. Không có giá trị thì `includeWithProgress` dùng chung `olderThanDays` như trước.
+   */
+  progressOlderThanDays?: number;
 }
 
 export interface Selection {
@@ -175,8 +204,15 @@ function skipReason(
     return 'khong-phai-khach';
   if (c.liveSessions > 0) return 'con-phien';
   if (lastActivity(c).getTime() >= cutoff) return 'moi-hoat-dong';
-  if (!opts.includeWithProgress && (c.progressCount > 0 || c.xp > 0)) {
-    return 'co-tien-do';
+  if (c.progressCount > 0 || c.xp > 0) {
+    if (!opts.includeWithProgress && opts.progressOlderThanDays === undefined) {
+      return 'co-tien-do';
+    }
+    // Khách đã học giữ lâu hơn khách chưa học: tiến độ là thứ họ quay lại tìm.
+    const progressCutoff =
+      opts.now.getTime() -
+      (opts.progressOlderThanDays ?? opts.olderThanDays) * 86_400_000;
+    if (lastActivity(c).getTime() >= progressCutoff) return 'moi-hoat-dong';
   }
   if (c.posts > 0 || c.comments > 0) return 'co-bai-viet';
   if (c.instructedCourses > 0) return 'la-giang-vien';

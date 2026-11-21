@@ -1,0 +1,1015 @@
+{
+  "ngay_lap": "3/11/2026 (lịch bắt đầu 4/11)",
+  "goi": [
+    {
+      "id": "P1",
+      "ten": "Tài liệu ba môn Python, SQL, Machine Learning",
+      "muc_tieu": "Giáo trình ba môn đủ để đội dev nạp, dựng và để ML tách đề. Tài liệu SQL và ML cộng lại tối đa 2 tuần (31/10 – 13/11).",
+      "ket_qua": "Ba môn có tài liệu đã được Nhân và Kiên review theo checklist “có dễ hiểu không”; mỗi bài có nhãn khái niệm và module để ML dùng; nội dung đã được đọc lại trên nền tảng thật.",
+      "items": [
+        {
+          "ten": "SQL: hoàn tất nền, concept, bài mẫu (N2)",
+          "vai": "Tài liệu",
+          "ai": "Nam Nguyễn",
+          "ngay": "4–5/11",
+          "bd": "2026-11-04",
+          "cong": 2,
+          "lam": [
+            "Chốt concept môn SQL, khung chặng/bài",
+            "Hoàn tất bộ dữ liệu mẫu nhỏ dùng chung cả môn và 3–5 bài mẫu đại diện từng loại màn"
+          ],
+          "tu": [
+            "N2"
+          ]
+        },
+        {
+          "ten": "Machine Learning: nền, concept, bài mẫu (N3)",
+          "vai": "Tài liệu",
+          "ai": "Nam Nguyễn",
+          "ngay": "6–12/11 (13/11 sửa mục chặn)",
+          "bd": "2026-11-06",
+          "cong": 5,
+          "lam": [
+            "Chốt concept môn ML, khung chặng/bài, bài mẫu",
+            "Ghi rõ thư viện cần dùng và giới hạn chạy mã trong trình duyệt ngay ngày đầu (6/11)",
+            "6/11: sửa mục chặn của review SQL; 13/11: sửa mục chặn của review ML"
+          ],
+          "tu": [
+            "N3"
+          ]
+        },
+        {
+          "ten": "Review SQL và ML: có dễ hiểu không (R2, R3)",
+          "vai": "Review",
+          "ai": "Nhân và Kiên",
+          "ngay": "5/11 và 12/11",
+          "bd": "2026-11-05",
+          "cong": 1,
+          "lam": [
+            "Mỗi lần mỗi người đọc tài liệu như người học mới theo checklist 6 mục, chạy thử mọi ví dụ",
+            "Nhân xem khung và thứ tự bài; Kiên xem ví dụ code chạy ra đúng kết quả đã ghi",
+            "Ghi bảng bài | mục checklist | nhận xét | mức (chặn / nên sửa); Nam sửa mục chặn trong ngày kế tiếp"
+          ],
+          "tu": [
+            "R2",
+            "R3"
+          ]
+        },
+        {
+          "ten": "Gắn nhãn khái niệm và module cho từng bài (để ML tách đề)",
+          "vai": "Tài liệu",
+          "ai": "Nam Nguyễn",
+          "ngay": "17–21/11",
+          "bd": "2026-11-17",
+          "cong": 4,
+          "lam": [
+            "Mỗi bài ghi: module (mã module), 3–6 khái niệm chính, mức (cơ bản / trung cấp / nâng cao) và bài tiên quyết",
+            "Chuẩn hoá để ML đọc được: dùng đúng mã module trong bảng course_modules (Nhân tạo ở P6)",
+            "Chốt danh sách module của từng môn (ví dụ Advanced Python 11 module)"
+          ],
+          "goi_y": [
+            "Mỗi bài hiện lưu trong lessons.content_json với step_1 (brief, theory, figure, context, predict, misconception, explain, code), step_2 (mcq, selfExplain), step_3 (task, trace, counter, scaffold), step_4 (task, starterCode, solutionCode, hints, tests, contracts, env). Xem mẫu scripts/pe-v4/out-advanced/lessons/001-P01.json.",
+            "Cột lessons.module hiện là chuỗi tự do (ví dụ “M1 · Python nền tảng”): lấy phần mã (M1…) làm mã module để khớp bảng course_modules.",
+            "Lập một file bảng tính hoặc JSON: bài | module | khái niệm | mức | tiên quyết; giao Nghĩa để dùng ở P8 và P9, Nhân để nạp vào DB."
+          ],
+          "xong": "Mọi bài của ba môn có đủ module, khái niệm, mức; Nghĩa đọc được file bằng script."
+        },
+        {
+          "ten": "Kiểm nội dung trên nền tảng thật (N5)",
+          "vai": "Tài liệu",
+          "ai": "Nam Nguyễn",
+          "ngay": "27–30/11",
+          "bd": "2026-11-27",
+          "cong": 4,
+          "lam": [
+            "Đọc từng bài ở /lesson/<môn> trên giao diện lofi mới, chạy mọi ví dụ",
+            "Ghi lỗi nội dung vào bảng, sửa nguồn, nhờ Nhân nạp lại bằng update-lesson-content.ts"
+          ],
+          "tu": [
+            "N5"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "ten": "Thiết kế giao diện lofi toàn PE và asset (4–8/11)",
+      "muc_tieu": "Góc học (/) hiện đã rất lofi, nhưng bên trong các khoá học thì chưa. Trong 5 ngày 4–8/11 hoàn tất Figma cho toàn PE theo concept lofi của Góc học, cùng asset và concept lofi của từng khoá; xong thì sang dựng ở nhiệm vụ 2.",
+      "ket_qua": "Bộ frame Figma toàn PE được cả nhóm duyệt ngày 8/11; asset đã xuất đúng định dạng cho từng khoá; FE có sẵn danh sách trang và ước công.",
+      "items": [
+        {
+          "ten": "Figma giao diện lofi cho toàn PE",
+          "vai": "Design",
+          "ai": "Thái",
+          "ngay": "4–8/11",
+          "bd": "2026-11-04",
+          "cong": 5,
+          "lam": [
+            "Lấy Góc học làm chuẩn lofi và thiết kế phần còn lại cho cùng ngôn ngữ: trang khoá học (3 môn), trang bài học (lý thuyết, ví dụ, trắc nghiệm, lắp khung mã, viết code, tổng kết), ôn tập hằng ngày, IDE, diễn đàn, hồ sơ và thành tích, bộ câu hỏi đầu vào, đăng nhập/đăng ký",
+            "Mỗi màn vẽ đủ trạng thái (rỗng, đang tải, lỗi, thành công) và bản màn hẹp",
+            "Dựng thư viện component lofi dùng chung: nút, thẻ, thanh tiến độ, hộp phản hồi, thanh điều hướng, token màu và cỡ chữ",
+            "Chốt số phận /dashboard (giữ để đối chiếu hay bỏ)"
+          ],
+          "goi_y": [
+            "Xem concept hiện tại: chạy npm run dev rồi mở /; code cảnh ở frontend/src/components/goc-hoc/ (StudyRoom.tsx, engine.js, scene-data.js, scene.css, shell.js); token ở frontend/public/static/css/studio-tokens.css và design-system-v2.md; mẫu artboard cũ ở design/project/*.dc.html (Tokens, Main, Review, Theory, TheoryBook, Lab).",
+            "Danh sách route cần có frame: /, /courses/[id], /lesson/[id] (từng loại màn trong frontend/src/components/python-studio/screens/), /practice, /practice/challenge, /ide, /forum, /questionnaire, /login.",
+            "Luật phải giữ (design-system-v2.md): không chuỗi ngày, không ổ khoá, màu qua token --ds-*, chữ tối thiểu 15 px (câu người học đọc ≥ 17 px), vùng bấm ≥ 44 px; kiểm tương phản 4,5:1 bằng node frontend/e2e/unit/ds-contrast.mjs trên màu đã chọn.",
+            "Đặt tên frame theo route để FE tìm; ghi chú hành vi (chuyển cảnh, hover, bàn phím) ngay trên frame."
+          ],
+          "xong": "Bộ frame toàn PE được cả nhóm duyệt ngày 8/11; thư viện component và token đã bàn giao cho FE."
+        },
+        {
+          "ten": "Asset và concept lofi cho từng khoá học",
+          "vai": "Design",
+          "ai": "Đức",
+          "ngay": "4–8/11",
+          "bd": "2026-11-04",
+          "cong": 5,
+          "lam": [
+            "Hoàn tất concept lofi riêng cho Python, SQL, Machine Learning: bảng màu, đồ vật đặc trưng, bối cảnh từng khoá",
+            "Vẽ asset: nền cảnh, vật thể, icon theo module, trạng thái chờ và hoàn thành",
+            "Xuất đúng định dạng và dung lượng (SVG cho hình đơn giản, WebP cho cảnh, sprite cho nhóm vật nhỏ), đặt tên theo quy ước",
+            "Lập bảng asset: tên, kích thước, dùng ở đâu"
+          ],
+          "goi_y": [
+            "Asset hiện có: frontend/public/static/ (images, anim, python-studio SVG) và danh sách 39 vật cắt rời của Góc học trong frontend/src/components/goc-hoc/scene-data.js; xem cách đặt tên và kích thước trước khi vẽ mới.",
+            "Ngân sách: theo artifact, Góc học đang nặng khoảng 2,2 MB trên 102 tệp với 56 thẻ ảnh tạo lúc khởi động; mục tiêu dung lượng tải đầu thấp hơn con số đó (đo thật bằng Lighthouse trước/sau).",
+            "Mỗi khoá một thư mục asset riêng (ví dụ frontend/public/static/lofi/python, sql, ml) để nạp riêng từng khoá, không nạp cả ba."
+          ],
+          "xong": "Ba khoá có đủ asset đúng định dạng, có bảng asset; Trí Thành tải về dùng được ngay."
+        },
+        {
+          "ten": "FE chuẩn bị nhận thiết kế",
+          "vai": "FE",
+          "ai": "Trí Thành",
+          "ngay": "4–8/11",
+          "bd": "2026-11-04",
+          "cong": 4,
+          "lam": [
+            "Kiểm kê code Góc học và trang khoá học: token, CSS, component dùng lại được",
+            "Dựng quy trình nạp asset (tách thư mục từng khoá, lazy load, sprite) và thử với một cảnh",
+            "Lập danh sách trang cần dựng cùng ước công cho nhiệm vụ 2; làm sẵn khung component dùng chung chưa có kiểu"
+          ],
+          "goi_y": [
+            "So frontend/src/app/page.tsx, components/goc-hoc/*, app/dashboard/page.tsx, DashboardMap.tsx, home.module.css với app/(standalone)/courses/[courseId]/page.tsx, components/CourseShell.module.css, components/python-studio/studio-chrome.module.css.",
+            "Tìm màu cứng: grep -rn \"#[0-9a-fA-F]\\{6\\}\" trong các file trên; đối chiếu token --ds-* (design-system-v2.md) và alias --st-*.",
+            "Không thêm style={{…}} mới (còn đang dọn để bỏ 'unsafe-inline'); chạy lại frontend/e2e/unit/ds-tokens.test.mjs, ds-wording.test.mjs, ds-type-scale.test.mjs."
+          ],
+          "xong": "Bảng kiểm kê, quy trình asset và danh sách trang kèm ước công; sẵn sàng dựng từ 9/11."
+        },
+        {
+          "ten": "Duyệt Figma và chốt quyết định (cả nhóm)",
+          "vai": "Điều phối",
+          "ai": "Nhân",
+          "ngay": "8/11",
+          "bd": "2026-11-08",
+          "cong": 0.5,
+          "lam": [
+            "Họp 1 giờ duyệt bộ frame và asset; ghi chỉnh sửa phải làm trước khi dev",
+            "Chốt Q10 (cách làm “fine-tune” cho ML) nếu chưa chốt"
+          ],
+          "goi_y": [
+            "Mỗi người xem trước frame của phần mình; ghi ý kiến vào Figma trước buổi họp.",
+            "Biên bản: frame nào đạt, frame nào sửa (ai sửa, hạn), quyết định đã chốt."
+          ],
+          "xong": "Biên bản duyệt; Thái và Đức sửa xong mục chặn trong ngày 9/11."
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "ten": "Dựng giao diện lofi cho toàn PE (nhiệm vụ 2, 9–30/11)",
+      "muc_tieu": "Dựng thiết kế đã duyệt thành giao diện thật, tối ưu asset và hiệu năng; Thái kiểm từng trang so với Figma.",
+      "ket_qua": "Các trang khoá học, bài học, code, ôn tập, diễn đàn, questionnaire, hồ sơ chạy bằng giao diện lofi mới; chụp trước/sau; Lighthouse không tệ hơn bản cũ.",
+      "items": [
+        {
+          "ten": "Thiết kế bổ sung các màn mới",
+          "vai": "Design",
+          "ai": "Thái",
+          "ngay": "9–11/11",
+          "bd": "2026-11-09",
+          "cong": 2,
+          "lam": [
+            "Màn ôn tập hằng ngày có cả câu trắc nghiệm và bài tập code",
+            "Hộp thoại “Học lại khoá này”, màn hồ sơ và thành tích, màn bộ câu hỏi đầu vào chi tiết",
+            "Sửa các mục chặn của buổi duyệt 8/11"
+          ],
+          "goi_y": [
+            "Màn Thử thách ôn hiện có (frontend/src/app/(standalone)/practice/challenge/, design/project/Arena.dc.html thực chất là Thử thách ôn) là mẫu cho cách chốt từng câu, cổng ba trạng thái.",
+            "Bài tập code dùng khung giống màn viết code (frontend/src/components/python-studio/screens/SandboxScreen.tsx) để người học không phải học lại giao diện."
+          ],
+          "xong": "Frame đủ trạng thái cho các màn trên; FE dựng được không cần hỏi thêm."
+        },
+        {
+          "ten": "Khung chung lofi: thanh điều hướng, token, bố cục",
+          "vai": "FE",
+          "ai": "Trí Thành",
+          "ngay": "9–12/11",
+          "bd": "2026-11-09",
+          "cong": 4,
+          "lam": [
+            "Dựng lại thanh điều hướng và token dùng chung theo thư viện component",
+            "Áp bố cục chung cho Góc học/dashboard và các trang con; mỗi trang một commit",
+            "Chạy lại test token, chữ và tương phản; chụp trước/sau"
+          ],
+          "goi_y": [
+            "Sửa trong frontend/src/components/SiteHeader.tsx, frontend/src/app/layout.tsx, frontend/public/static/css/studio-tokens.css, edu-theme.css; không thêm style={{…}}.",
+            "Chạy cd frontend && npm run typecheck && npm run lint && npm run test:unit sau mỗi trang.",
+            "Nạp asset theo quy trình ở P2 (thư mục từng khoá, lazy load)."
+          ],
+          "xong": "Thanh điều hướng, token, bố cục chung dùng ở mọi trang; test ds-* xanh."
+        },
+        {
+          "ten": "Trang khoá học ba môn và kệ sách Góc học",
+          "vai": "FE",
+          "ai": "Đức",
+          "ngay": "9–12/11",
+          "bd": "2026-11-09",
+          "cong": 4,
+          "lam": [
+            "Dựng trang /courses/[id] theo lofi cho Python, SQL, Machine Learning dùng asset từng khoá",
+            "Kệ sách và vùng bấm của Góc học theo ba môn; mục lục chặng/bài hiện đúng module",
+            "Nút Bắt đầu/Tiếp tục theo tiến độ"
+          ],
+          "goi_y": [
+            "Trang hiện tại: frontend/src/app/(standalone)/courses/[courseId]/page.tsx; danh mục khoá ở frontend/src/lib/catalog.ts và curricula.json; CTA ở frontend/src/lib/course-progress.ts (test e2e/unit/course-cta.test.mjs).",
+            "Kệ sách: frontend/src/components/goc-hoc/scene-data.js (shelfKey), scene.css.",
+            "Số bài và thời lượng lấy từ curricula.json, không gõ tay (test catalog-duration.test.mjs)."
+          ],
+          "xong": "Ba khoá hiển thị đúng lofi, số bài và thời lượng khớp giáo trình."
+        },
+        {
+          "ten": "Trang bài học: lý thuyết, ví dụ, trắc nghiệm, tổng kết",
+          "vai": "FE",
+          "ai": "Trí Thành",
+          "ngay": "13–19/11",
+          "bd": "2026-11-13",
+          "cong": 6,
+          "lam": [
+            "Dựng các màn đọc theo lofi: lý thuyết (sách mở), ví dụ, dự đoán kết quả, trắc nghiệm, tóm tắt",
+            "Thanh tiến độ chia đoạn bấm được, nút hành động chính, gợi ý ba tầng giữ nguyên hành vi",
+            "Giữ chấm bài ở trình duyệt (Pyodide) như hiện tại"
+          ],
+          "goi_y": [
+            "Mỗi loại màn là một file trong frontend/src/components/python-studio/screens/ (TheoryScreen, ContextScreen, PredictScreen, McqScreen, RecapScreen…); danh sách màn dựng ở buildScreens() (frontend/src/lib/studio-lesson.ts).",
+            "Không đổi thứ tự hoặc khoá màn: screen_keys() (scripts/pe-v4/sync_curricula.py) phải khớp buildScreens(); đổi thì sửa cả hai.",
+            "Test: e2e/unit/studio-lesson.test.mjs, screen-kinds.test.mjs, lesson-content-wording.test.mjs."
+          ],
+          "xong": "Mọi loại màn đọc chạy với dữ liệu bài thật; test studio-lesson xanh; Thái xác nhận khớp Figma."
+        },
+        {
+          "ten": "Màn lắp khung mã và màn viết code lofi",
+          "vai": "FE",
+          "ai": "Đức",
+          "ngay": "13–18/11",
+          "bd": "2026-11-13",
+          "cong": 5,
+          "lam": [
+            "Hợp nhất hai bản màn lắp khung mã (“sách mở” và ①②③ + gợi ý) thành một component theo Figma",
+            "Hiện đủ 149 gợi ý ô; luôn có cách bấm chọn, không chỉ kéo-thả",
+            "Màn viết code và chạy thử theo lofi, giữ giới hạn chạy 5 giây"
+          ],
+          "goi_y": [
+            "Màn hiện tại: frontend/src/components/python-studio/screens/ScaffoldScreen.tsx, ScaffoldBook.tsx, ScaffoldReview.tsx, SandboxScreen.tsx; logic lắp ở assembleScaffold() (frontend/src/lib/studio-lesson.ts dòng 369).",
+            "Bản ①②③ của nhánh main (hàm bankGroups) lấy vào theo quyết định gộp nhánh (P11); đừng hand-merge, làm từ thiết kế.",
+            "Test: e2e/unit/studio-lesson.test.mjs, screen-kinds.test.mjs; thêm ca bàn phím cho từng trạng thái."
+          ],
+          "xong": "Một component duy nhất chạy với dữ liệu bài thật; đủ 149 gợi ý; test xanh."
+        },
+        {
+          "ten": "Kiểm thiết kế từng trang so với Figma",
+          "vai": "Design",
+          "ai": "Thái",
+          "ngay": "13–30/11",
+          "bd": "2026-11-13",
+          "cong": 4,
+          "lam": [
+            "Sau mỗi trang FE dựng xong, so với Figma và ghi sai lệch (khoảng cách, màu, chữ, trạng thái)",
+            "Sửa Figma khi thực tế đổi; duyệt bản cuối từng trang"
+          ],
+          "goi_y": [
+            "Dùng ảnh chụp trước/sau FE gửi; ghi sai lệch thành danh sách đánh số, mỗi mục kèm ảnh.",
+            "Ưu tiên theo thứ tự: bài học, khoá học, ôn tập, diễn đàn, questionnaire."
+          ],
+          "xong": "Mọi trang đã dựng được Thái xác nhận khớp thiết kế hoặc ghi rõ sai lệch chấp nhận."
+        },
+        {
+          "ten": "Xuất và tối ưu asset",
+          "vai": "Design",
+          "ai": "Thái",
+          "ngay": "24–28/11",
+          "bd": "2026-11-24",
+          "cong": 3,
+          "lam": [
+            "Xuất lại asset theo kích thước thật đang dùng; nén; gom sprite",
+            "Kiểm dung lượng tải đầu từng trang, đối chiếu mục tiêu ở P2"
+          ],
+          "goi_y": [
+            "Đo bằng Lighthouse và tab Network trước/sau; ghi số vào mô tả commit.",
+            "Cùng Trí Thành quyết ảnh nào lazy load, ảnh nào nạp trước."
+          ],
+          "xong": "Dung lượng tải đầu giảm so với bản cũ, có số đo trước/sau."
+        },
+        {
+          "ten": "Tối ưu hiệu năng giao diện",
+          "vai": "FE",
+          "ai": "Đức",
+          "ngay": "29–30/11",
+          "bd": "2026-11-29",
+          "cong": 1,
+          "lam": [
+            "Đo lại Lighthouse các trang chính; sửa chỗ chậm (ảnh, font, script nạp sớm)",
+            "Kiểm HTML từ server vẫn chứa điều hướng chính cho công cụ tìm kiếm"
+          ],
+          "goi_y": [
+            "Test e2e/unit/home-page.test.mjs, seo-copy.test.mjs; so với số đo ở P2.",
+            "Pyodide đã nạp trước khi mở màn viết code (prewarm-gate.ts): giữ nguyên."
+          ],
+          "xong": "Lighthouse các trang chính không tệ hơn bản cũ."
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "ten": "Backend: tối ưu hiệu năng và bảo mật",
+      "muc_tieu": "Không chỉ kiểm code mà phải tối ưu để sau này nhiều người vào không chậm, không lag; và siết bảo mật.",
+      "ket_qua": "Báo cáo đo p95 trước/sau trên các route nóng; không còn truy vấn thừa; bảng 6 bản vá có test; báo cáo bảo mật với bản vá an toàn đã commit.",
+      "items": [
+        {
+          "ten": "Kiểm bảo mật: 6 bản vá, phụ thuộc, bí mật, SQL injection (B1, S1)",
+          "vai": "BE",
+          "ai": "Kiên",
+          "ngay": "5–7/11",
+          "bd": "2026-11-05",
+          "cong": 3,
+          "lam": [
+            "B1: bảng 6 bản vá (d0cfeb2, 143bfc9, ebf51dd, 2c51723, 7b746bf, 39e0b2c) × file test; gỡ từng bản thì test phải trượt",
+            "S1: npm audit (gốc, frontend, runner), quét bí mật trong lịch sử git, ghi nhận CSP unsafe-inline và token trong localStorage",
+            "SQL injection: SQL thô chỉ có ở src/leaderboard/leaderboard.service.ts qua Prisma.sql (tham số hoá, tên cột chọn từ danh sách cố định); thêm test và luật eslint chặn $queryRawUnsafe, $executeRawUnsafe",
+            "Kiểm ValidationPipe toàn cục, giới hạn tần suất, header, CORS còn đúng"
+          ],
+          "tu": [
+            "B1",
+            "S1"
+          ]
+        },
+        {
+          "ten": "Tối ưu hiệu năng API và chống lag",
+          "vai": "BE",
+          "ai": "Kiên",
+          "ngay": "10–13/11",
+          "bd": "2026-11-10",
+          "cong": 4,
+          "lam": [
+            "Đo p95 và số truy vấn trên các route nóng: GET /enrolled, /courses, nội dung bài, /leaderboard, thông báo",
+            "Sửa truy vấn thừa: chọn đúng cột (danh sách bài không kéo content_json), gộp truy vấn lặp, thêm phân trang cho danh sách dài",
+            "Cache phía server cho danh mục ít đổi (khoá, thành tích) và Cache-Control/ETag cho nội dung bài; kiểm lại pool Neon và timeout",
+            "Chạy test tải 1.000 người dùng giả trước/sau",
+            "EXPLAIN ANALYZE các truy vấn nóng cùng Nhân; thêm chỉ mục còn thiếu bằng migration chỉ thêm"
+          ],
+          "goi_y": [
+            "Đo bằng scripts/loadtest-prepare.js và scripts/loadtest.js (tạo người dùng giả rồi bắn tải); runner/load-test.mjs cho phần chạy mã. Ghi p95 trước/sau vào mô tả commit.",
+            "Tham số quyết định thông lượng là DB_POOL_MAX trong src/prisma/prisma.service.ts (mặc định 50); chú thích trong file ghi mỗi truy vấn ~237 ms tới Neon us-east-2: đo lại vì DB nay ở Singapore.",
+            "Nội dung bài: getLessonContent() (src/lessons/lessons.service.ts dòng 189) trả cả content_json; cân nhắc ETag theo lessons.updated_at. Cache danh mục theo mẫu achievementsCache 5 phút trong src/achievements/achievements.service.ts.",
+            "Mỗi thay đổi một commit kèm số đo; không tối ưu thứ chưa đo."
+          ],
+          "xong": "Báo cáo p95 trước/sau, các route nóng giảm rõ; test xanh; không đổi hành vi người dùng thấy."
+        },
+        {
+          "ten": "Test tích hợp các luồng chính của backend",
+          "vai": "BE",
+          "ai": "Nghĩa",
+          "ngay": "27–29/11",
+          "bd": "2026-11-27",
+          "cong": 2,
+          "lam": [
+            "Test chạy qua luồng: khách → ghi danh → hoàn thành bài (XP đúng) → ôn tập → questionnaire → diễn đàn",
+            "Chạy được trong CI"
+          ],
+          "tu": [
+            "B13"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P5",
+      "ten": "Luồng bài học lofi và luồng nạp khoá học vào hệ thống",
+      "muc_tieu": "Chốt cách concept lofi chạy cho lý thuyết và bài học ở cả FE lẫn BE, và cách một khoá được đưa vào hệ thống rồi chạy qua từng bài.",
+      "ket_qua": "Một tài liệu luồng (sơ đồ + danh sách API) cả nhóm đọc được; script nạp giáo trình theo môn chạy được.",
+      "items": [
+        {
+          "ten": "Đặc tả luồng bài học lofi (FE ↔ BE ↔ nội dung)",
+          "vai": "BE",
+          "ai": "Kiên, Thái, Nam Nguyễn",
+          "ngay": "8–9/11",
+          "bd": "2026-11-08",
+          "cong": 2,
+          "lam": [
+            "Vẽ luồng: Góc học → chọn môn → chọn bài → từng màn (lý thuyết, ví dụ, trắc nghiệm, code) → hoàn thành → quay lại Góc học",
+            "Chốt dữ liệu mỗi bước: tải cả bài hay từng màn, lưu nháp ở đâu (hiện trình duyệt), lời giải bài cửa mở khi nào, khi nào gọi hoàn thành",
+            "Chốt cách lý thuyết hiển thị trong concept lofi (sách mở, từng đoạn) và dữ liệu nội dung cần từ Nam; ghi API cần thêm"
+          ],
+          "goi_y": [
+            "Luồng hiện tại đã vẽ ở kien-truc-du-an/lesson-flow.html: GET /courses/:id/lessons/:n/content (getLessonContent, src/lessons/lessons.service.ts dòng 189, giấu lời giải bài cửa bằng withholdSolutionCode) rồi POST /lessons/:n/complete (completeLesson, dòng 282: XP do máy chủ quyết, cộng một lần).",
+            "Bản nháp tiến độ các màn hiện lưu trong localStorage (frontend/src/components/python-studio/useLessonDraft.ts); quyết có lưu lên server không (nối với chính sách ở P7).",
+            "Thái nói trải nghiệm mong muốn, Nam nói cấu trúc nội dung (S1–S4 trong LESSON-IMPORT-FORMAT.md), Kiên nói API; ghi kết quả thành một trang."
+          ],
+          "xong": "Một trang luồng và danh sách API (có / cần thêm); Trí Thành và Nghĩa đọc xong không còn câu hỏi."
+        },
+        {
+          "ten": "Script nạp giáo trình theo môn (B11)",
+          "vai": "BE",
+          "ai": "Kiên",
+          "ngay": "14–15/11",
+          "bd": "2026-11-14",
+          "cong": 2,
+          "lam": [
+            "Script nhận --course, --bundle; mặc định chạy thử; --apply kèm sao lưu; ghi trong một transaction theo (course_id, lesson_code)",
+            "Mọi bài qua validateStudioLesson() trước; còn lỗi thì không ghi bài nào; dùng được cho Python, SQL, ML với course_id riêng"
+          ],
+          "tu": [
+            "B11"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P6",
+      "ten": "DB: tối ưu, chống phình, khoá và migration, an toàn dữ liệu",
+      "muc_tieu": "DB không phình khi có nhiều người dùng, chịu được số lượng người vào lớn, an toàn trước SQL injection và mất dữ liệu, và bài học nối với nhau gọn.",
+      "ket_qua": "Báo cáo kích thước và chỉ mục; migration mới (chỉ thêm) chạy được; chính sách dọn dữ liệu chạy được; không còn SQL thô không tham số hoá.",
+      "items": [
+        {
+          "ten": "Khảo sát và chống phình DB",
+          "vai": "DB",
+          "ai": "Nhân",
+          "ngay": "5–8/11",
+          "bd": "2026-11-05",
+          "cong": 4,
+          "lam": [
+            "Đo kích thước từng bảng và chỉ mục, tốc độ tăng theo người dùng (byte mỗi người mỗi ngày) và dự toán cho 10.000 người dùng",
+            "Tìm chỉ mục chưa dùng: lessons.content_json có chỉ mục GIN nhưng mã nguồn chỉ đọc/ghi cả cột, không truy vấn JSONB nào → đề xuất bỏ (chỉ bỏ chỉ mục, không mất dữ liệu; cần Nhân duyệt vì luật “migration chỉ thêm”)",
+            "Quy định giữ dữ liệu: quizzes chưa nộp, review_quiz_results, notifications, auth_sessions hết hạn, user_daily_xp_logs; chọn thời hạn và cách dọn",
+            "Kiểm autovacuum và bảng sưng (dead tuples)"
+          ],
+          "goi_y": [
+            "Truy vấn đo: SELECT relname, n_live_tup, pg_size_pretty(pg_total_relation_size(relid)) FROM pg_stat_user_tables ORDER BY pg_total_relation_size(relid) DESC; chỉ mục chưa dùng: SELECT indexrelname, idx_scan FROM pg_stat_user_indexes WHERE idx_scan = 0. Chạy trên branch Neon thử, không chạy ghi trên DB có người học.",
+            "Mỗi lần sinh đề, quizzes lưu cả questions_json (JSONB); schema.prisma có chỉ mục (userId, courseId) và (status): kiểm xem quiz “generated” không nộp có tích tụ không.",
+            "auth_sessions có pruneExpired() (src/auth/refresh-token.service.ts dòng 195) chạy qua onModuleInit: kiểm có chạy thật và dọn đủ không.",
+            "Lưu ý: lần đo 3/11 không kết nối được DB (mật khẩu trong .env bị từ chối); số liệu mới nhất là số đo 27/10, cần đo lại khi có chuỗi kết nối đúng."
+          ],
+          "xong": "Báo cáo 2 trang: kích thước, chỉ mục, dự toán, quy định giữ dữ liệu, đề xuất bỏ chỉ mục (nếu có)."
+        },
+        {
+          "ten": "Migration, khoá, module và bảng mới",
+          "vai": "DB",
+          "ai": "Nhân",
+          "ngay": "9–14/11",
+          "bd": "2026-11-09",
+          "cong": 5,
+          "lam": [
+            "Bảng course_modules (id, course_id, code, title, sort_order, unique(course_id, code)) để nối bài với module cho ML và tiến độ theo module",
+            "Học lại: bảng lesson_progress_archive (bản sao tiến độ khi học lại) và cột enrollments.reset_at (nullable)",
+            "Ôn tập hằng ngày: bảng question_bank (id, course_id, lesson_code, module_code, type, payload JSONB, difficulty, status, source, content_hash duy nhất) và question_seen (user_id, question_id, seen_at, correct)",
+            "Tên hiển thị: users.display_name (nullable); ràng buộc user_daily_xp_logs(user_id, log_date) duy nhất sau khi kiểm không trùng",
+            "Quy tắc khoá: bảng mới dùng BIGINT/UUID, thời gian timestamptz, có khoá ngoại và chỉ mục trên mọi khoá ngoại, CHECK cho giá trị hợp lệ (progress 0–100, XP ≥ 0)",
+            "courses.content_version và lessons.content_hash để cache và nạp lại an toàn"
+          ],
+          "goi_y": [
+            "prisma/schema.prisma: thêm model theo cách các model hiện có (tên cột snake_case bằng @map, @@map tên bảng); mỗi nhóm một migration: npx prisma migrate dev --create-only --name <tên>, đọc migration.sql, chỉ ADD COLUMN và CREATE TABLE/INDEX; npx prisma generate.",
+            "Ràng buộc R1 (DB dùng chung với bản Django): không đổi tên, không xoá cột, không đổi kiểu, không DROP bảng; PK ghép của lesson_progress(user_id, lesson_id) giữ nguyên nên học lại dùng bảng archive, không đổi khoá.",
+            "Partial unique index (nếu cần cho display_name) viết tay trong migration.sql: CREATE UNIQUE INDEX ... WHERE display_name IS NOT NULL.",
+            "Chạy toàn bộ trên branch Neon thử rồi mới deploy; deploy bằng prisma migrate deploy với DIRECT_URL (host không có “-pooler”).",
+            "Viết scripts/check-db-vs-curricula.ts so số bài và lesson_code với frontend/src/lib/curricula.json; chạy được ở CI."
+          ],
+          "xong": "Các migration chạy được trên DB thử, prisma generate sạch; Kiên và Nghĩa đọc được bảng mới; script so DB↔curricula chạy."
+        },
+        {
+          "ten": "An toàn dữ liệu: SQL injection, quyền DB, mã hoá, sao lưu",
+          "vai": "DB",
+          "ai": "Nhân",
+          "ngay": "15–16/11",
+          "bd": "2026-11-15",
+          "cong": 1.5,
+          "lam": [
+            "Tạo role DB riêng cho ứng dụng (chỉ SELECT/INSERT/UPDATE/DELETE), không dùng chủ sở hữu neondb_owner cho app; role riêng cho migration",
+            "Xác nhận mật khẩu giữ định dạng hash Werkzeug, refresh token chỉ lưu hash SHA-256, log không in thông tin cá nhân",
+            "Bật sao lưu có thể khôi phục theo thời điểm của Neon và diễn tập khôi phục một lần"
+          ],
+          "goi_y": [
+            "Chuỗi kết nối nằm ở DATABASE_URL (app, host -pooler) và DIRECT_URL (Prisma CLI); đổi role thì đổi ở cả Render và .env.",
+            "Định dạng mật khẩu: src/common/security/; refresh token: src/auth/refresh-token.service.ts (băm SHA-256, family_id).",
+            "Quy trình sao lưu/nạp nội dung: dùng scripts/update-lesson-content.ts (--backup bắt buộc khi --apply)."
+          ],
+          "xong": "App chạy bằng role giới hạn; một lần khôi phục thử thành công; ghi lại quy trình."
+        },
+        {
+          "ten": "Dọn dữ liệu theo chính sách giữ dữ liệu (B8)",
+          "vai": "DB",
+          "ai": "Nhân",
+          "ngay": "17–18/11",
+          "bd": "2026-11-17",
+          "cong": 2,
+          "lam": [
+            "Script dọn: khách không có tiến độ quá hạn, quiz chưa nộp quá hạn, thông báo cũ, phiên hết hạn; mặc định chạy thử (đếm), --apply mới xoá",
+            "Test: không bao giờ chạm tài khoản có tiến độ hoặc không phải khách"
+          ],
+          "tu": [
+            "B8"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P7",
+      "ten": "Tài khoản khách, lưu tiến độ không cần đăng nhập, học lại, đăng nhập",
+      "muc_tieu": "Người vào học được ngay không cần đăng nhập mà tiến độ vẫn được lưu và theo dõi; có chính sách học lại rõ ràng; người muốn giữ lâu thì đăng nhập.",
+      "ket_qua": "Khách giữ tiến độ lâu hơn 8 giờ; người học tự quyết học lại bằng một nút; đăng nhập/đăng ký và nâng cấp khách dùng được; chính sách ghi trong tài liệu.",
+      "items": [
+        {
+          "ten": "Chốt chính sách tiến độ khách, hạn phiên và học lại",
+          "vai": "DB",
+          "ai": "Nhân",
+          "ngay": "4–8/11",
+          "bd": "2026-11-04",
+          "cong": 2,
+          "lam": [
+            "Họp 4/11 chốt chính sách; viết thành một trang cho BE, FE, Design",
+            "Đề xuất mặc định: giữ tài khoản khách 180 ngày kể từ lần học cuối (cửa sổ trượt), người đăng nhập giữ không hạn; học lại do NGƯỜI HỌC quyết bằng nút “Học lại khoá này” có xác nhận, hệ thống không tự đặt lại; học lại không cộng lại XP đã nhận; tiến độ cũ lưu vào lesson_progress_archive",
+            "Dọn khách chưa có tiến độ sau 30 ngày, khách có tiến độ sau 180 ngày không học"
+          ],
+          "goi_y": [
+            "Hiện trạng: tiến độ gắn với users.id; khách nhận tài khoản qua POST /auth/guest (auth.service.ts dòng 148) và cookie refresh; hạn phiên là MỘT giá trị cho mọi người (RefreshTokenService.lifetimeMs, JWT_REFRESH_EXPIRES mặc định 8 giờ, cửa sổ trượt) nên khách nghỉ hơn 8 giờ là mất tài khoản và tiến độ.",
+            "Điều cần quyết: (1) hạn phiên theo loại tài khoản (khách dài hơn); (2) thời hạn giữ; (3) ai quyết học lại; (4) XP khi học lại; viết lý do mỗi quyết định.",
+            "Học lại làm: sao chép lesson_progress của khoá vào lesson_progress_archive, xoá dòng cũ, đặt enrollments về 0 và ghi reset_at; XP/gems giữ nguyên."
+          ],
+          "xong": "Trang chính sách được cả nhóm duyệt; Kiên và Trí Thành làm theo được mà không hỏi thêm."
+        },
+        {
+          "ten": "BE: hạn phiên theo loại tài khoản, hai domain, tắt chatbot (B2, B3, B4)",
+          "vai": "BE",
+          "ai": "Kiên",
+          "ngay": "16–18/11",
+          "bd": "2026-11-16",
+          "cong": 2.5,
+          "lam": [
+            "Hạn phiên do BE quyết trong RefreshTokenService.issue(), dài hơn cho khách theo chính sách; /auth/refresh trả hạn phiên cho FE",
+            "Cấu hình hai domain (ALLOWED_ORIGINS, FRONTEND_URL, REFRESH_COOKIE_SAMESITE=none) và kiểm khách giữ tài khoản",
+            "Cờ CHATBOT_ENABLED mặc định tắt"
+          ],
+          "tu": [
+            "B2",
+            "B3",
+            "B4"
+          ]
+        },
+        {
+          "ten": "FE: bỏ ghi cứng hạn phiên 8 giờ (T3)",
+          "vai": "FE",
+          "ai": "Trí Thành",
+          "ngay": "19/11",
+          "bd": "2026-11-19",
+          "cong": 0.5,
+          "lam": [
+            "Bỏ max-age=28800 ở api.ts (2 chỗ), pe-bridge.js, login.inline.js",
+            "Một hàm duy nhất ghi cookie pe_has_session đọc hạn từ body /auth/refresh"
+          ],
+          "tu": [
+            "T3"
+          ]
+        },
+        {
+          "ten": "BE: học lại khoá",
+          "vai": "BE",
+          "ai": "Kiên",
+          "ngay": "23–24/11",
+          "cong": 1.5,
+          "lam": [
+            "POST /courses/:id/reset: lưu tiến độ vào lesson_progress_archive, đặt lại ghi danh (enrollments), ghi reset_at, không cộng lại XP; chỉ chính chủ, có xác nhận"
+          ],
+          "goi_y": [
+            "Viết trong src/courses/courses.service.ts bên cạnh enroll/unenroll (courses.controller.ts: POST/DELETE courses/:id/enroll); dùng transaction như completeLesson() trong src/lessons/lessons.service.ts.",
+            "XP chỉ cộng ở lần hoàn thành đầu tiên: giữ nguyên quy tắc, học lại không phá quy tắc đó vì users.xp không bị trừ.",
+            "Test theo mẫu quizzes.service.spec.ts: học lại hai lần không nhân đôi XP; người khác không đặt lại được tiến độ của mình."
+          ],
+          "xong": "Điểm cuối chạy đúng, có test; tiến độ cũ nằm trong bảng archive.",
+          "bd": "2026-11-23"
+        },
+        {
+          "ten": "FE: đăng nhập, đăng ký và nâng cấp khách",
+          "vai": "FE",
+          "ai": "Đức",
+          "ngay": "19–21/11",
+          "bd": "2026-11-19",
+          "cong": 3,
+          "lam": [
+            "Trang /login và /register theo Figma, nối POST /auth/login và /auth/register; nút Google/Facebook nối /auth/google, /auth/facebook",
+            "Màn “giữ tiến độ của bạn” cho khách; khách luôn học được không bị chặn"
+          ],
+          "goi_y": [
+            "Trang công khai dùng apiFetchSessionOnly, không apiFetch (apiFetch gặp 401 sẽ tự tạo khách: xem frontend/src/lib/api.ts và bẫy trong AGENTS.md).",
+            "Cookie refresh httpOnly do BE đặt; FE chỉ giữ cờ pe_has_session.",
+            "Chưa có trang đăng nhập nào trong frontend: thêm vào site-nav.ts và route-metadata.test.mjs."
+          ],
+          "xong": "Đăng nhập, đăng ký, nâng cấp khách chạy bằng API thật; test route xanh."
+        },
+        {
+          "ten": "FE: nút học lại và đổi tên hiển thị",
+          "vai": "FE",
+          "ai": "Trí Thành",
+          "ngay": "27–28/11 (sau khi dựng xong ôn tập và questionnaire)",
+          "bd": "2026-11-27",
+          "cong": 1,
+          "lam": [
+            "Hộp thoại “Học lại khoá này” có xác nhận nối POST /courses/:id/reset",
+            "Form đổi tên nối PATCH hồ sơ, hiện lỗi tên không hợp lệ"
+          ],
+          "goi_y": [
+            "Hộp thoại và form theo frontend Figma của Thái (P3, bổ sung 9–11/11).",
+            "Trang công khai dùng apiFetchSessionOnly; lỗi 400 hiện thông báo thân thiện."
+          ],
+          "xong": "Học lại và đổi tên dùng được từ giao diện."
+        },
+        {
+          "ten": "BE: nâng cấp khách thành tài khoản thật và tên hiển thị",
+          "vai": "BE",
+          "ai": "Nghĩa",
+          "ngay": "25–26/11",
+          "bd": "2026-11-25",
+          "cong": 1.5,
+          "lam": [
+            "Nâng cấp khách: gắn email và mật khẩu vào đúng hàng users của khách (giữ id, tiến độ), mật khẩu băm theo định dạng Werkzeug; email trùng bị 400",
+            "Tên hiển thị: PATCH hồ sơ nhận display_name; kiểm độ dài, ký tự điều khiển, từ cấm"
+          ],
+          "goi_y": [
+            "Nâng cấp khách: tái dùng AuthService.register() (src/auth/auth.service.ts dòng 92) để băm mật khẩu và kiểm email; khách nhận diện bằng email @guest.local.",
+            "Tên hiển thị: src/user/user.service.ts updateProfile() (dòng 37) và UpdateProfileDto trong src/user/dto/user.dto.ts; hàm kiểm tên đặt trong src/common/security/. Xem bẫy XSS ở frontend/e2e/unit/forum-xss.test.mjs.",
+            "Test theo mẫu quizzes.service.spec.ts; lỗi trả bằng throw để gateway định dạng (không res.json)."
+          ],
+          "xong": "Khách nâng cấp xong đăng nhập lại được từ trình duyệt khác và thấy đúng tiến độ; tên hợp lệ lưu, tên xấu bị 400."
+        }
+      ]
+    },
+    {
+      "id": "P8",
+      "ten": "ML 1: bộ câu hỏi đầu vào và xếp đúng module cho người học",
+      "muc_tieu": "Từ bộ câu hỏi đầu vào (người đã đăng nhập) phân đúng level và module để học: ví dụ một khoá có 11 module, người A bỏ qua 3 module đầu và học từ module 4, người B học từ đầu.",
+      "ket_qua": "Người học đăng nhập làm bộ câu hỏi và nhận module bắt đầu phù hợp; bộ tham số đã hiệu chỉnh bằng 20 người học mẫu; độ khớp ghi lại được.",
+      "items": [
+        {
+          "ten": "ML: đặc tả questionnaire và cách xếp module",
+          "vai": "ML",
+          "ai": "Nghĩa",
+          "ngay": "4–6/11",
+          "bd": "2026-11-04",
+          "cong": 2,
+          "lam": [
+            "Định nghĩa JSON câu hỏi: id, type (tự đánh giá hoặc xếp lớp), course, module_code, level_tag, options, weight",
+            "Quy tắc xếp module: tính mức nắm vững theo từng module từ câu xếp lớp, bỏ qua module m khi điểm của m và các module trước đều đạt ngưỡng; ghi tham số cần hiệu chỉnh (ngưỡng, số câu mỗi module, trọng số tự đánh giá so với câu làm thật)",
+            "Đặc tả điểm cuối GET /questionnaire và mở rộng POST /user/survey; giao cho Nam (soạn câu hỏi) và Thái (thiết kế)"
+          ],
+          "goi_y": [
+            "Hiện có: POST /user/survey (src/user/user.controller.ts dòng 74 → user.service.ts submitSurvey dòng 183) lưu surveys.data_json, đặt questionnaire_completed = true, sinh lộ trình mẫu bằng pickRoadmapTemplate (src/user/pick-roadmap-template.ts); SurveyDto ở src/user/dto/user.dto.ts. Khách bỏ qua bảng hỏi (auth.service.ts dòng 160).",
+            "Bảng questionnaires (version, title, questions_json, is_active) đã có trong schema.prisma và chưa có mã nào đọc: lưu bộ câu hỏi ở đây, không cần migration.",
+            "Mã module lấy từ bảng course_modules (Nhân tạo ở P6, 14/11); trước đó dùng mã M1, M2… theo lessons.module."
+          ],
+          "xong": "Đặc tả được Nam, Thái, Trí Thành đọc xong không còn câu hỏi."
+        },
+        {
+          "ten": "Tài liệu: soạn câu xếp lớp theo module cho ba môn (N4)",
+          "vai": "Tài liệu",
+          "ai": "Nam Nguyễn",
+          "ngay": "13–15/11",
+          "bd": "2026-11-13",
+          "cong": 2,
+          "lam": [
+            "Mỗi module 2–3 câu xếp lớp, mỗi môn đủ ba mức; có đáp án đúng và lời giải thích",
+            "Giao file cho Nghĩa ngày 16/11"
+          ],
+          "tu": [
+            "N4"
+          ]
+        },
+        {
+          "ten": "ML + BE: dựng questionnaire (nạp câu hỏi, đọc, lưu câu trả lời)",
+          "vai": "BE",
+          "ai": "Nghĩa",
+          "ngay": "19–21/11",
+          "bd": "2026-11-19",
+          "cong": 2.5,
+          "lam": [
+            "Nạp bộ câu hỏi của Nam vào bảng questionnaires bằng scripts/seed-questionnaire.ts",
+            "GET /questionnaire trả bộ đang is_active và bỏ cờ correct; POST /user/survey nhận answers[], lưu vào surveys.data_json",
+            "Với người đã đăng nhập tính module bắt đầu và lưu vào kết quả; khách vẫn bỏ qua được"
+          ],
+          "tu": [
+            "M2"
+          ]
+        },
+        {
+          "ten": "ML: hiệu chỉnh tham số xếp module",
+          "vai": "ML",
+          "ai": "Nghĩa",
+          "ngay": "22–24/11",
+          "bd": "2026-11-22",
+          "cong": 2.5,
+          "lam": [
+            "Lập 20 người học mẫu (câu trả lời → module bắt đầu kỳ vọng) làm bộ kiểm; đo tỉ lệ khớp; chỉnh ngưỡng và trọng số",
+            "Dùng dữ liệu thật để hiệu chỉnh: kết quả từng câu trong review_quiz_results.answers_json và quiz_score trong lesson_progress; ghi lại để lần sau huấn luyện khi đủ dữ liệu"
+          ],
+          "goi_y": [
+            "Hàm xếp module là hàm thuần (đầu vào câu trả lời + bộ câu hỏi, đầu ra module bắt đầu và độ tin cậy), đặt trong src/user/ cạnh pick-roadmap-template.ts để test không cần DB.",
+            "Tham số trong file cấu hình, không rải trong code; test dạng bảng: câu trả lời → module kỳ vọng (jest).",
+            "Hiện chỉ có vài chục người dùng thật nên bộ tham số dựa trên luật hiệu chỉnh bằng bộ kiểm; không kết luận thống kê khi dữ liệu ít."
+          ],
+          "xong": "Báo cáo 1 trang: tỉ lệ khớp, các ca sai, tham số đã chỉnh; bộ 20 người học mẫu nằm trong test chạy lại được."
+        },
+        {
+          "ten": "FE: màn bộ câu hỏi đầu vào",
+          "vai": "FE",
+          "ai": "Trí Thành",
+          "ngay": "25–26/11",
+          "bd": "2026-11-25",
+          "cong": 2,
+          "lam": [
+            "Dựng màn theo Figma: làm, bỏ qua, nộp; hiện module bắt đầu và nút “Bắt đầu từ module này”",
+            "Nối GET /questionnaire và POST /user/survey; chỉ hiện cho người đã đăng nhập, khách vẫn vào học thẳng"
+          ],
+          "tu": [
+            "T14"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P9",
+      "ten": "ML 2: sinh đề luyện tập hằng ngày (trắc nghiệm và bài tập code)",
+      "muc_tieu": "Từ lý thuyết trong bài, máy tạo bộ đề và câu hỏi luyện tập ngẫu nhiên mỗi ngày, gồm cả trắc nghiệm và bài tập code để người học hiểu bản chất code và cách code vận hành.",
+      "ket_qua": "Có ngân hàng câu hỏi đã duyệt (MCQ và bài code) cho ba môn; API ôn tập hằng ngày chọn ngẫu nhiên không lặp; màn ôn tập hằng ngày dùng được.",
+      "items": [
+        {
+          "ten": "ML: thiết kế pipeline sinh đề và cách đánh giá",
+          "vai": "ML",
+          "ai": "Nghĩa",
+          "ngay": "7–8/11",
+          "bd": "2026-11-07",
+          "cong": 1.5,
+          "lam": [
+            "Chốt đầu vào (đoạn lý thuyết, ví dụ, khái niệm), đầu ra (JSON MCQ và JSON bài tập code theo đúng định dạng hiện có), tiêu chí chất lượng",
+            "Chốt cách “fine-tune”: với dữ liệu hiện có (hàng trăm câu MCQ và 130–172 bài tập code đã chấm) trước hết hiệu chỉnh prompt, ví dụ mẫu và tham số (nhiệt độ, số câu), đo chất lượng; chuẩn bị bộ dữ liệu để fine-tune thật khi đủ mẫu đã duyệt"
+          ],
+          "goi_y": [
+            "Định dạng MCQ hiện có: {question, options:[{text, detail, correct}], correct, explanation} (step_2.mcq); bài code: step_4 {task, starterCode, solutionCode, hints, tests:[{name, call, expect}], contracts, env}. Xem scripts/pe-v4/out-advanced/lessons/001-P01.json.",
+            "Gọi mô hình theo mẫu parseWithGemini() trong src/course-admin/lesson-import.service.ts (fetch tới Gemini, cấu hình src/config/gemini.config.ts: GEMINI_API_KEY, GEMINI_MODEL, GEMINI_TIMEOUT_MS).",
+            "Bẫy đã ghi trong AGENTS.md: kho quiz chỉ đọc text/label của lựa chọn (normalizeQuestion trong src/quizzes/quizzes.service.ts); câu dự đoán dùng title: đề sinh ra phải đúng định dạng hoặc phải sửa normalizeQuestion cùng lúc."
+          ],
+          "xong": "Một trang thiết kế được Nhân và Kiên duyệt; có bộ tiêu chí để đo."
+        },
+        {
+          "ten": "ML: sinh trắc nghiệm từ lý thuyết",
+          "vai": "ML",
+          "ai": "Nghĩa",
+          "ngay": "9–13/11",
+          "bd": "2026-11-09",
+          "cong": 3.5,
+          "lam": [
+            "Script scripts/gen-questions/mcq.ts: chọn đoạn lý thuyết → prompt → JSON MCQ đúng định dạng",
+            "Lọc tự động: một đáp án đúng, 3–4 lựa chọn, đáp án không lộ trong câu hỏi, không trùng câu đã có, có giải thích; gắn module và khái niệm",
+            "Lưu vào question_bank với trạng thái draft"
+          ],
+          "goi_y": [
+            "Nguồn: lessons.content_json ở step_1.theory và step_1.explain của từng bài (đọc từ scripts/pe-v4/out-advanced/lessons/*.json, không cần DB).",
+            "Kiểm trùng bằng content_hash và độ giống nội dung với step_2.mcq có sẵn.",
+            "Bảng question_bank do Nhân tạo (P6, 14/11): trước đó ghi ra file JSON rồi nạp sau."
+          ],
+          "xong": "Ít nhất 30 câu mỗi môn qua bộ lọc, sẵn để Nam duyệt."
+        },
+        {
+          "ten": "ML: sinh bài tập code và kiểm chứng tự động",
+          "vai": "ML",
+          "ai": "Nghĩa",
+          "ngay": "14–18/11",
+          "bd": "2026-11-14",
+          "cong": 4.5,
+          "lam": [
+            "Sinh bài tập code: đề, khung mã, lời giải, ca chấm, gợi ý ba tầng",
+            "Kiểm chứng tự động: lời giải phải qua mọi ca chấm, khung trống phải trượt, mỗi ca chấm chạy dưới 5 giây",
+            "Chỉ giữ bài qua kiểm chứng; bài còn lại ghi lý do loại"
+          ],
+          "goi_y": [
+            "Dùng đúng bộ chấm của trình duyệt như scripts/pe-v4/check-pyodide.mjs (cần npm i --no-save pyodide@0.27.7); luật của khoá: 176 biến thể sai và 48 khung trống đều phải trượt, nên tạo thêm biến thể sai bằng cách đổi một toán tử hoặc một hằng số.",
+            "Giới hạn chạy 5 giây và các gói có sẵn (numpy, pandas, matplotlib, sqlite3) trong scripts/pe-da/build.py: PYODIDE_PKGS; ca chấm dạng solve(<input>) == <expected>.",
+            "Bài dùng input() hoặc thư viện ngoài gói thì không chấm tự động: loại."
+          ],
+          "xong": "Ít nhất 15 bài code mỗi môn qua kiểm chứng, sẵn để Nam duyệt."
+        },
+        {
+          "ten": "DB + BE: ngân hàng đề và API ôn tập hằng ngày",
+          "vai": "BE",
+          "ai": "Kiên",
+          "ngay": "19–22/11",
+          "bd": "2026-11-19",
+          "cong": 3.5,
+          "lam": [
+            "GET /practice/daily chọn N câu ngẫu nhiên chưa gặp (question_seen), ưu tiên module đang học và bài hay sai, trộn trắc nghiệm và bài code",
+            "POST nộp: trắc nghiệm chấm ở server; bài code chấm ở trình duyệt, server lưu kết quả",
+            "Đáp án không gửi trước khi nộp; chỉ lấy câu approved"
+          ],
+          "goi_y": [
+            "Mở rộng QuizzesService: buildQuestionPool, weightedSampleWithoutReplacement, persistQuiz, submitQuiz (src/quizzes/quizzes.service.ts dòng 57–319); trọng số hiện có 1 + tỉ lệ sai theo bài (generateReviewQuiz dòng 75).",
+            "Đã có generateDailyReviewQuiz (dòng 113, mỗi ngày một đề); nay thay nguồn câu hỏi bằng question_bank; frontend/e2e/unit/practice-plan.test.mjs mô tả cổng ôn tập.",
+            "Đáp án luôn đi qua stripAnswers(); thêm test chống lộ đáp án trong quizzes.service.spec.ts."
+          ],
+          "xong": "API chạy đúng, đáp án không lộ, không lặp câu đã gặp; test xanh."
+        },
+        {
+          "ten": "FE: ôn tập hằng ngày (trắc nghiệm và bài code)",
+          "vai": "FE",
+          "ai": "Trí Thành",
+          "ngay": "20–24/11",
+          "bd": "2026-11-20",
+          "cong": 4,
+          "lam": [
+            "Dựng màn ôn tập hằng ngày theo Figma: hiện lần lượt câu trắc nghiệm và bài code",
+            "Bài code chạy bằng Pyodide như màn viết code, nộp kết quả cho server",
+            "Tiến độ trong ngày và nút học tiếp"
+          ],
+          "goi_y": [
+            "Màn Thử thách ôn hiện có: frontend/src/app/(standalone)/practice/challenge/ và frontend/src/lib/challenge-run.ts (test e2e/unit/challenge-run.test.mjs): dùng lại khung chốt từng câu.",
+            "Chạy mã: frontend/src/components/python-studio/runner/pyodide-runner.ts và useCodeRunner.ts (giới hạn 5 giây).",
+            "Làm với dữ liệu giả trước khi API xong (22/11)."
+          ],
+          "xong": "Một lượt ôn tập hằng ngày chạy từ đầu đến cuối với dữ liệu thật."
+        },
+        {
+          "ten": "Duyệt đề do máy sinh ra",
+          "vai": "Tài liệu",
+          "ai": "Nam Nguyễn",
+          "ngay": "22–26/11",
+          "bd": "2026-11-22",
+          "cong": 4,
+          "lam": [
+            "Đọc từng câu trắc nghiệm và bài code do máy sinh; duyệt, sửa hoặc loại; gắn mức khó",
+            "Ghi lỗi hay gặp để Nghĩa chỉnh prompt"
+          ],
+          "goi_y": [
+            "Bảng duyệt: câu | môn | module | đúng/sai nội dung | dễ hiểu | quyết định (duyệt, sửa, loại).",
+            "Chạy thử bài code trong trình duyệt trước khi duyệt."
+          ],
+          "xong": "Mỗi môn có ngân hàng đề đã duyệt đủ cho ít nhất 30 ngày luyện tập."
+        },
+        {
+          "ten": "ML: đánh giá chất lượng sinh đề và hiệu chỉnh",
+          "vai": "ML",
+          "ai": "Nghĩa",
+          "ngay": "28–30/11",
+          "bd": "2026-11-28",
+          "cong": 2,
+          "lam": [
+            "Đo tỉ lệ câu được duyệt ngay, tỉ lệ sửa, tỉ lệ loại; phân loại lỗi hay gặp",
+            "Chỉnh prompt, ví dụ mẫu, tham số theo số đo; ghi lại bộ dữ liệu đã duyệt để fine-tune sau"
+          ],
+          "goi_y": [
+            "Số đo lấy từ bảng duyệt của Nam; so trước/sau mỗi lần chỉnh prompt.",
+            "Ghi phiên bản mô hình và prompt đã dùng vào file cấu hình."
+          ],
+          "xong": "Báo cáo 1 trang kèm bộ dữ liệu đã duyệt xuất ra file."
+        }
+      ]
+    },
+    {
+      "id": "P10",
+      "ten": "Diễn đàn",
+      "muc_tieu": "Diễn đàn BE đã có 11 điểm cuối nhưng chưa có giao diện và gần như chưa có test. Làm cho dùng được và an toàn.",
+      "ket_qua": "Người học xem, đăng bài, bình luận, thả cảm xúc ở /forum bằng giao diện lofi; BE có test và hạn mức riêng.",
+      "items": [
+        {
+          "ten": "BE: hợp đồng API diễn đàn (F3)",
+          "vai": "BE",
+          "ai": "Kiên",
+          "ngay": "4/11",
+          "bd": "2026-11-04",
+          "cong": 1,
+          "lam": [
+            "Gọi thật từng điểm cuối bằng token khách, ghi bảng route | request | response | lỗi",
+            "Giao cho Thái và Đức để thiết kế và dựng đúng cái BE có"
+          ],
+          "tu": [
+            "F3"
+          ]
+        },
+        {
+          "ten": "BE: test và chống spam cho diễn đàn (F1, F2)",
+          "vai": "BE",
+          "ai": "Kiên",
+          "ngay": "26–29/11",
+          "bd": "2026-11-26",
+          "cong": 3.5,
+          "lam": [
+            "F1: test cho forum.service.ts: tạo/sửa/xoá bài (quyền tác giả và admin), cảm xúc, cây bình luận, @mention gọi notify đúng người",
+            "F2: hạn mức riêng cho tạo bài và bình luận; kiểm giới hạn độ dài; nội dung có HTML được xử lý an toàn"
+          ],
+          "tu": [
+            "F1",
+            "F2"
+          ]
+        },
+        {
+          "ten": "FE: dựng giao diện diễn đàn (F4)",
+          "vai": "FE",
+          "ai": "Đức",
+          "ngay": "22–26/11",
+          "bd": "2026-11-22",
+          "cong": 5,
+          "lam": [
+            "Route /forum: danh sách có lọc 4 chuyên mục và phân trang; trang chi tiết bài",
+            "Bình luận lồng, 6 loại cảm xúc, đăng bài và bình luận",
+            "Thêm vào site-nav.ts; render văn bản thuần (forum-xss.test.mjs xanh)"
+          ],
+          "tu": [
+            "F4"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P11",
+      "ten": "Nhánh git, nạp giáo trình vào hệ thống, nghiệm thu",
+      "muc_tieu": "Một nhánh làm việc duy nhất; giáo trình ba môn được nạp vào DB và hiện đúng; nghiệm thu cuối tháng.",
+      "ket_qua": "Nhánh đã gộp; DB và giáo trình tĩnh khớp từng môn; bảng Mốc nền là số đo thật; biên bản nghiệm thu.",
+      "items": [
+        {
+          "ten": "Họp chốt quyết định, gộp nhánh và DB môi trường (D1, D2, D3)",
+          "vai": "DB",
+          "ai": "Nhân",
+          "ngay": "4–6/11 (nhóm b, c), 13/11 (đo mốc nền)",
+          "bd": "2026-11-04",
+          "cong": 3,
+          "lam": [
+            "4/11: họp 30 phút chốt Q4 (gộp nhánh), Q8 (giáo trình Python nguồn), Q9 (chính sách tiến độ khách và học lại), Q10 (cách làm fine-tune)",
+            "Soát tay D1-phan-nhom-commit.md (147 commit chỉ có trên origin/main) và đưa từng nhóm vào nhánh làm việc bằng cherry-pick; chạy typecheck và jest sau mỗi nhóm",
+            "Đổi DIRECT_URL sang host trực tiếp, xác định DB thật/thử, tạo branch Neon riêng cho dev; viết quy trình sao lưu và nạp nội dung",
+            "13/11: đo lại mốc nền bằng lệnh CI và sửa bảng trong AGENTS.md cùng commit"
+          ],
+          "goi_y": [
+            "git fetch --all; git log --oneline origin/test..origin/main. Nhóm a (vá và nội dung) vào trước, nhóm b (mini-game, màn học), nhóm c (giao diện). Xung đột ở frontend/src/components/python-studio/screens/ScaffoldScreen.tsx, ScaffoldBook.tsx thuộc việc hợp nhất ở P3: dừng, đừng tự ghép.",
+            "origin/main đang giữ khoá “Python cho Data Analyst” 172 bài (đúng thứ đang có trong DB); origin/test giữ Advanced Python 48 bài: Q8 quyết cái nào là nguồn.",
+            "DIRECT_URL: prisma.config.ts đọc DIRECT_URL cho Prisma CLI (host không có “-pooler”); DATABASE_URL (app) giữ host -pooler. Kiểm bằng npx prisma migrate status.",
+            "Đo mốc: lệnh “Lệnh hay dùng” trong AGENTS.md; eslint backend đúng lệnh CI (npx eslint \"{src,apps,libs,test}/**/*.ts\" --ignore-pattern \"src/generated/**\"), không dùng npm run lint vì có --fix."
+          ],
+          "xong": "Quyết định đã ghi; nhánh làm việc typecheck sạch, test xanh; bảng Mốc nền là số đo thật có ngày."
+        },
+        {
+          "ten": "DB: sao lưu và nạp giáo trình ba môn (D8)",
+          "vai": "DB",
+          "ai": "Nhân",
+          "ngay": "17–19/11 (Python), 20–22/11 (SQL, ML bài mẫu)",
+          "bd": "2026-11-17",
+          "cong": 3,
+          "lam": [
+            "Sao lưu DB; nạp Python rồi SQL, ML (bài mẫu) bằng script B11; mỗi môn course_id riêng và có mã module trong course_modules",
+            "Chạy py scripts/pe-v4/sync_curricula.py và scripts/check-db-vs-curricula.ts; xử lý tiến độ cũ (đo 27/10: 55 ghi danh, 16 dòng tiến độ)"
+          ],
+          "goi_y": [
+            "Chạy xem trước của script (mặc định không ghi) trước khi --apply. seed-python-advanced-v4.ts --apply xoá lesson_progress của khoá đó: chỉ dùng khi chấp nhận đặt lại tiến độ.",
+            "update-lesson-content.ts không dùng được khi bộ lesson_code khác bộ cũ (PY01… so với P01…).",
+            "Sau mỗi lần nạp luôn chạy sync_curricula.py (bẫy “hai nguồn danh sách bài” trong AGENTS.md); báo Trí Thành ngay khi mỗi môn nạp xong."
+          ],
+          "xong": "DB và giáo trình tĩnh khớp từng môn; có file sao lưu và một lần khôi phục thử; ghi rõ số ghi danh/tiến độ bị ảnh hưởng."
+        },
+        {
+          "ten": "FE: nối giáo trình từng môn vào giao diện (T10)",
+          "vai": "FE",
+          "ai": "Trí Thành",
+          "ngay": "20–21/11 (Python), 22/11 (SQL, ML)",
+          "bd": "2026-11-20",
+          "cong": 2,
+          "lam": [
+            "Chép giáo trình từng môn sang curricula.json và LESSON_META bằng bản tham số hoá của sync_curricula.py",
+            "Cập nhật catalog.ts: id, tiêu đề, số bài, thời lượng thật; kiểm screen_keys() khớp buildScreens()"
+          ],
+          "tu": [
+            "T10"
+          ]
+        },
+        {
+          "ten": "Nghiệm thu cuối tháng (D9)",
+          "vai": "DB",
+          "ai": "Nhân",
+          "ngay": "28–30/11",
+          "bd": "2026-11-28",
+          "cong": 1.5,
+          "lam": [
+            "Chạy toàn bộ lệnh kiểm trong AGENTS.md ở hai phía và đo mốc nền lần cuối",
+            "Kiểm tay luồng chính trên bản deploy: / → khoá → bài học → ôn tập hằng ngày → IDE → diễn đàn → questionnaire → học lại",
+            "Biên bản nghiệm thu 1 trang và danh sách việc sang đợt nâng cấp"
+          ],
+          "tu": [
+            "D9"
+          ]
+        }
+      ]
+    }
+  ]
+}

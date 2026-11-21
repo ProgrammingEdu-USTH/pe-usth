@@ -1,0 +1,66 @@
+name: DB jobs
+
+# DB12 — ba job dọn dữ liệu chạy định kỳ ở chế độ CHẠY THỬ (dry-run), kết quả nằm ở trang tóm tắt của lượt chạy:
+#   1. scripts/learning-events/rollup-heartbeats.ts   gộp Heartbeat > 7 ngày thành phút, xoá sự kiện/tóm tắt > 90 ngày
+#   2. scripts/cleanup-guest-accounts.ts              dọn khách rác theo chính sách 30 ngày / 180 ngày (AGENTS.md)
+# --apply KHÔNG chạy ở đây, cả theo lịch lẫn bằng tay: file --backup chứa dữ liệu người dùng, mà repo có remote công
+# khai nên không đẩy lên artifact được. Duyệt kết quả chạy thử xong thì Nhân chạy --apply ở máy mình (xem AGENTS.md).
+# Cách tắt lịch: Actions > DB jobs > ... > Disable workflow (hoặc xoá khối `schedule`). Ghi trong AGENTS.md.
+#
+# LƯU Ý: GitHub chỉ chạy cron của workflow nằm trên NHÁNH MẶC ĐỊNH (main). Trên nhánh `test` file này chỉ chạy
+# được bằng "Run workflow" (workflow_dispatch). Secret DATABASE_URL phải là chuỗi của role ứng dụng (DB9), host
+# `-pooler`, và trỏ branch thử khi thử, DB thật khi vận hành. Không đặt chuỗi kết nối trong repo.
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # 02:00 UTC = 09:00 giờ Việt Nam, mỗi ngày
+  workflow_dispatch:
+
+concurrency:
+  group: db-jobs
+  cancel-in-progress: false # hai lượt cùng gộp một bảng sẽ đạp nhau
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - name: Gộp Heartbeat và xoá quá hạn (chạy thử)
+        run: |
+          set -o pipefail
+          {
+            echo '### rollup-heartbeats (chạy thử)'
+            echo '```'
+            npx ts-node scripts/learning-events/rollup-heartbeats.ts
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Dọn khách rác (chạy thử, chính sách 30/180 ngày)
+        run: |
+          set -o pipefail
+          {
+            echo '### cleanup-guest-accounts (chạy thử)'
+            echo '```'
+            npx ts-node scripts/cleanup-guest-accounts.ts --progress-older-than=180d
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+      # Job đỏ phải có người biết: GitHub gửi email cho người sửa dòng cron gần nhất; thêm secret
+      # DB_JOBS_WEBHOOK_URL (Slack/Discord/Teams, nhận JSON {"text":…}) nếu muốn báo cả kênh nhóm.
+      - name: Báo kênh nhóm khi thất bại
+        if: failure()
+        env:
+          WEBHOOK: ${{ secrets.DB_JOBS_WEBHOOK_URL }}
+        run: |
+          [ -n "$WEBHOOK" ] || exit 0
+          curl -fsS -X POST -H 'Content-Type: application/json' \
+            -d "{\"text\":\"DB jobs THẤT BẠI: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID\"}" "$WEBHOOK"
+

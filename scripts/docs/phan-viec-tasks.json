@@ -1,0 +1,1310 @@
+[
+ {
+  "code": "D1",
+  "title": "Gộp test và main, đo lại mốc nền",
+  "prio": "P0",
+  "urg": "Chặn mọi việc khác",
+  "person": "Nhân",
+  "effort": "2 ngày",
+  "fields": {
+   "Mô tả": "Chạy git fetch --all. Liệt kê các commit chỉ có trên main (73 commit khi fetch 27/10, đầu nhánh b013011; ngày 24/10 mới là 44), chia nhóm: (a) bản vá và nội dung bài (f3363e6…), (b) mini-game và màn học (Sổ quỹ chung, nút Màn trước, màn điền code 1-2-3), (c) bản đồ/giao diện khác. Theo quyết định Q4, đưa từng nhóm vào test (cherry-pick), bỏ các bản sửa “~48 giờ” trùng. Sau đó đo lại bằng đúng lệnh trong AGENTS.md: typecheck và jest backend, eslint backend bằng lệnh CI (không dùng npm run lint vì có --fix), typecheck, lint và test:unit frontend.",
+   "Cách làm (theo source hiện tại)": "1. git fetch --all; git log --oneline origin/test..origin/main để lấy danh sách commit của main (73 commit ngày 27/10).\n2. Lập bảng: mã commit | nhóm a (vá bảo mật, nội dung bài, ví dụ f3363e6) / b (mini-game, màn học, màn điền code 1-2-3) / c (giao diện khác) | đưa vào / bỏ.\n3. Đưa từng nhóm vào nhánh làm việc bằng git cherry-pick; sau mỗi nhóm chạy npm run typecheck và npx jest --ci.\n4. Xung đột ở frontend/src/components/python-studio/screens/ScaffoldScreen.tsx, ScaffoldBook.tsx thuộc quyết định Q3: dừng, đừng tự ghép.\n5. Đo mốc nền bằng đúng lệnh trong AGENTS.md (eslint backend: npx eslint \"{src,apps,libs,test}/**/*.ts\" --ignore-pattern \"src/generated/**\"; không dùng npm run lint vì có --fix) rồi sửa bảng “Mốc nền” trong AGENTS.md CÙNG commit.",
+   "Kết quả cần đạt": "Một danh sách commit đã phân nhóm (đưa vào / bỏ / chờ quyết định); nhánh test sau gộp typecheck sạch và test xanh; bảng mốc trong AGENTS.md sửa cùng commit bằng số đo thật có ngày. Hiện hai nhánh ghi hai bộ số: test (lint backend 155, 534 ca frontend) và main (263 lỗi, 134 ca), hai bộ này phải được giải thích. Ghi cả số commit của main tại thời điểm gộp, vì nhánh này vẫn đang tăng.",
+   "Gợi ý nếu khó": "Làm từng nhóm một và chạy test sau mỗi nhóm. Xung đột ở Assemble.tsx / FeedbackBanner.tsx thuộc về Q3: dừng lại, đừng tự ghép. Nếu số lệch, đo lại trên thư mục sạch (clone mới). Số đo thật thắng, đừng sửa số cho khớp artifact.",
+   "Phụ thuộc": "Cần chốt Q4. Mọi việc FE/BE khác nên bắt đầu sau khi gộp xong nhóm (a)."
+  },
+  "week": "Tuần 1–3",
+  "dates": "27–29/10 (nhóm a), 3/11 (nhóm b, c), 13/11 (đo lại mốc nền)",
+  "people": [
+   "Nhân"
+  ],
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "D2",
+  "title": "Xác nhận môi trường thật (DB nào là thật, DIRECT_URL, migration)",
+  "prio": "P0",
+  "urg": "Chặn mọi việc khác",
+  "person": "Nhân",
+  "effort": "1 ngày",
+  "fields": {
+   "Mô tả": "Cập nhật 27/10: DB trong .env đã đổi sang Neon vùng Singapore. Đã đo bằng truy vấn chỉ đọc: 3/3 migration đã áp, không có bài trùng (course_id, sort_order), 73 người dùng (68 khách), 55 ghi danh, 16 dòng tiến độ. Nhưng khoá python_advanced đang chứa 172 bài Data Analyst chứ không phải 48 bài Advanced (xử lý khi nạp giáo trình mới: D8, giai đoạn 2, 16–18/11). Còn lại của D2: xác định DB này là thật hay thử; DIRECT_URL vẫn dùng host -pooler; tách DB thử khỏi DB thật.",
+   "Cách làm (theo source hiện tại)": "1. Mở prisma.config.ts: Prisma CLI đọc DIRECT_URL; src/prisma/prisma.service.ts dùng PrismaNeon với DATABASE_URL (host -pooler, pool DB_POOL_MAX mặc định 50).\n2. Lấy chuỗi “Direct connection” của Neon (host không có “-pooler”) đặt vào DIRECT_URL; giữ DATABASE_URL là host -pooler.\n3. npx prisma migrate status (đã đo 27/10: 3/3 migration, schema up to date).\n4. Chạy câu kiểm bài trùng (course_id, sort_order) trong README, mục Database và migration.\n5. Ghi một trang: DB thật hay thử, vùng, ai được truy cập; tạo branch Neon riêng cho dev; kiểm sức khoẻ qua GET /health/ready (src/health/health.controller.ts, trả 503 khi DB chết).",
+   "Kết quả cần đạt": "Một trang ghi: DB nào là thật, DB nào là thử (kèm host, vùng, ai được truy cập); DIRECT_URL trỏ host trực tiếp (không có “-pooler”) và `npx prisma migrate status` vẫn chạy; máy dev không còn trỏ thẳng vào DB có người học thật.",
+   "Gợi ý nếu khó": "Neon: lấy chuỗi “Direct connection” ở trang Connection Details. Tạo một branch Neon riêng cho dev. update-lesson-content.ts ở chế độ mặc định chỉ in sha256, không ghi.",
+   "Phụ thuộc": "Làm trước D8. Kết quả D2 quyết định D8 chạy trên DB nào."
+  },
+  "week": "Tuần 1",
+  "dates": "30/10",
+  "people": [
+   "Nhân"
+  ],
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "D3",
+  "title": "Sao lưu trước mọi thay đổi và viết quy trình nạp nội dung",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Nhân",
+  "effort": "0,5 ngày",
+  "fields": {
+   "Mô tả": "Có hai đường nạp, chọn sai là xoá tiến độ người đang học (seed-python-advanced-v4.ts xoá lesson_progress). Viết một trang quy trình ngắn: khi nào dùng đường nào, lệnh mẫu, cách khôi phục từ file backup.",
+   "Cách làm (theo source hiện tại)": "1. Đọc scripts/update-lesson-content.ts (chỉ UPDATE content_json theo (course_id, sort_order), mặc định chạy thử, --apply bắt buộc kèm --backup=<file.json>, --offline xem không cần DB) và scripts/seed-python-advanced-v4.ts (--apply xoá toàn bộ lesson_progress của khoá).\n2. Luật chọn/so sánh nằm ở src/course-admin/lesson-content-update.ts (có test lesson-content-update.spec.ts).\n3. Viết quy trình 1 trang: khi nào dùng cái nào, lệnh mẫu, cách khôi phục từ file backup.\n4. Diễn tập trên branch Neon thử: --apply --backup=bak.json rồi khôi phục từ bak.json.",
+   "Kết quả cần đạt": "Một trang quy trình và một lần diễn tập khôi phục trên DB thử thành công.",
+   "Gợi ý nếu khó": "Lấy nguyên hai khối lệnh trong AGENTS.md làm khung, thêm bước kiểm trước và sau."
+  },
+  "week": "Tuần 2",
+  "dates": "3/11",
+  "people": [
+   "Nhân"
+  ],
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "D4",
+  "title": "Migration: cột tier cho achievements [CHỜ Q2]",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Nhân",
+  "effort": "0,5 ngày",
+  "fields": {
+   "Mô tả": "Thêm cột tier (nullable hoặc có default) vào bảng achievements. Model hiện có: code, name, description, icon, condition_type, condition_value. Tạo migration mới, không sửa migration cũ.",
+   "Cách làm (theo source hiện tại)": "1. prisma/schema.prisma, model Achievement (code, name, description, icon, conditionType, conditionValue): thêm tier String? (nullable) ánh xạ cột tier.\n2. npx prisma migrate dev --create-only --name achievements_tier rồi đọc migration.sql: chỉ được có ALTER TABLE ... ADD COLUMN (ràng buộc R1: DB dùng chung với bản Django).\n3. npx prisma generate; chạy npm run typecheck.\n4. Không sửa 3 migration cũ trong prisma/migrations.",
+   "Kết quả cần đạt": "Migration chạy được trên DB thử; prisma generate sạch; Nghĩa (B7) đọc được cột mới.",
+   "Gợi ý nếu khó": "Chỉ thêm, không đổi tên hay kiểu cột nào (ràng buộc R1 vì DB dùng chung với bản Django). Kiểm lại prisma migrate diff trước khi commit."
+  },
+  "week": "Tuần 4",
+  "dates": "16/11",
+  "people": [
+   "Nhân"
+  ],
+  "backlog": null,
+  "tentative": true,
+  "wait": "Q2 (15/11)"
+ },
+ {
+  "code": "D5",
+  "title": "Migration: display_name cho users [CHỜ Q2]",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Nhân",
+  "effort": "0,5 ngày",
+  "fields": {
+   "Mô tả": "Mọi khách đang có tên “Khách ABCD” (auth.service.ts:155), 4 ký tự đầu của UUID nên dễ trùng. Thêm cột display_name nullable và chỉ mục (không bắt buộc duy nhất vì dữ liệu cũ để trống).",
+   "Cách làm (theo source hiện tại)": "1. prisma/schema.prisma, model User: thêm displayName String? @map(\"display_name\") và @@index.\n2. Nếu muốn duy nhất: Prisma không biểu diễn chỉ mục một phần, nên viết tay trong migration.sql: CREATE UNIQUE INDEX ... ON users(display_name) WHERE display_name IS NOT NULL.\n3. Ngữ cảnh: auth.service.ts, hàm guest() (dòng 148) đặt tên mặc định “Khách” + 4 ký tự đầu của UUID.\n4. Chạy migration trên branch Neon thử trước.",
+   "Kết quả cần đạt": "Cột mới đã áp; truy vấn tìm theo display_name dùng được chỉ mục.",
+   "Gợi ý nếu khó": "Nếu muốn duy nhất, dùng unique index chỉ trên giá trị khác null (partial index) để không vỡ dữ liệu cũ."
+  },
+  "week": "Tuần 4",
+  "dates": "16–17/11",
+  "people": [
+   "Nhân"
+  ],
+  "backlog": null,
+  "tentative": true,
+  "wait": "Q2 (15/11)"
+ },
+ {
+  "code": "D6",
+  "title": "Rà bảng dữ liệu thừa và ràng buộc thiếu",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Nhân",
+  "effort": "1 ngày",
+  "fields": {
+   "Mô tả": "(a) user_daily_xp_logs chưa có ràng buộc duy nhất (user_id, log_date): kiểm tra có trùng không, sạch rồi mới thêm unique index. (b) badges và user_badges không có mã nào dùng: đừng drop (DB dùng chung với Django cũ, R1), chỉ ghi chú “deprecated” trong schema. (c) Viết script so DB với curricula.json (hai nguồn danh sách bài): so số bài VÀ lesson_code theo thứ tự cho mọi khoá đang is_published, để Trí Thành nối vào CI (T6). Trạng thái 27/10 phải làm script này đỏ: python_advanced có 172 bài, curricula.json có 48; sau khi giáo trình mới được nạp (D8) script phải xanh.",
+   "Cách làm (theo source hiện tại)": "1. (a) SELECT user_id, log_date, count(*) FROM user_daily_xp_logs GROUP BY 1,2 HAVING count(*) > 1; sạch mới thêm @@unique([userId, logDate]). Sau khi có ràng buộc, đoạn ghi nhật ký XP trong src/lessons/lessons.service.ts (completeLesson: findFirst rồi update/create) nên đổi sang upsert.\n2. (b) Ghi chú deprecated cho model Badge, UserBadge trong schema.prisma (không DROP, R1).\n3. (c) Script mới scripts/check-db-vs-curricula.ts: đọc lessons theo course_id sắp theo sort_order, so số bài và lesson_code với frontend/src/lib/curricula.json (hình dạng xem scripts/pe-v4/sync_curricula.py: lesson_meta(), main()); thoát mã khác 0 khi lệch; có chế độ offline cho CI.",
+   "Kết quả cần đạt": "Báo cáo ngắn kèm script so DB với curricula.json chạy được; unique index thêm được nếu dữ liệu sạch.",
+   "Gợi ý nếu khó": "Với (a), viết SELECT user_id, log_date, count(*) ... HAVING count(*) > 1 trước. Có trùng thì gộp rồi mới tạo index, nếu không migration sẽ vỡ khi deploy."
+  },
+  "week": "Tuần 3",
+  "dates": "9–11/11",
+  "people": [
+   "Nhân"
+  ],
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "B1",
+  "title": "Kiểm test cho 6 bản vá bảo mật",
+  "prio": "P0",
+  "urg": "Chặn mọi việc khác",
+  "person": "Kiên",
+  "effort": "0,5–1 ngày",
+  "fields": {
+   "Mô tả": "Cả sáu bản vá đã là tổ tiên của origin/test (đã kiểm bằng git merge-base --is-ancestor). Việc còn lại là chứng minh mỗi cái có test bắt được lỗi: (1) d0cfeb2 quiz gửi đáp án về trình duyệt, (2) 143bfc9 login CSRF và lộ lời giải bài cửa, (3) ebf51dd XSS qua tên người dùng, (4) 2c51723 mật khẩu tài khoản test trong repo công khai, (5) 7b746bf đáp án đúng luôn đứng đầu, (6) 39e0b2c bỏ qua cờ is_published. Ngoài ra f3363e6 (lý do bẫy phát đáp án, nội dung T05) chỉ có trên main: ghi lại để D1 đưa sang.",
+   "Cách làm (theo source hiện tại)": "Với mỗi bản vá: git revert --no-commit <hash> trên nhánh tạm, chạy test liên quan, test PHẢI trượt (ghi số ca trượt), rồi bỏ revert.\n(1) d0cfeb2 → src/quizzes/quizzes.service.spec.ts. (2) 143bfc9 → src/auth/oauth-state.spec.ts, refresh-token.service.spec.ts, src/common/guards/jwt-auth/oauth-login-csrf.spec.ts. (3) ebf51dd (XSS forum) → frontend/e2e/unit/forum-xss.test.mjs. (4) 2c51723 (mật khẩu test) → không có test: dùng git grep để chứng minh không còn mật khẩu trong scripts/loadtest-prepare.js và viết test chặn lặp lại nếu được. (5) 7b746bf (đáp án đúng luôn đứng đầu) → kiểm src/lessons/lesson-content.spec.ts và bộ kiểm giáo trình scripts/pe-v4/check-pyodide.mjs. (6) 39e0b2c → src/courses/courses.service.spec.ts.\nGhi kết quả thành bảng 6 dòng.",
+   "Kết quả cần đạt": "Bảng 6 dòng: bản sửa, file test chứng minh, trạng thái (có / thiếu). Mỗi mục thiếu có một commit bổ sung kèm test trượt khi gỡ bản sửa.",
+   "Gợi ý nếu khó": "Lấy hình dạng dữ liệu thật từ scripts/pe-v4/out-advanced/lessons/*.json khi viết fixture (bẫy đã ghi trong AGENTS.md). Với (4), mật khẩu cũ còn trong lịch sử git: kiểm xem có cần đổi ở nơi khác không."
+  },
+  "week": "Tuần 1",
+  "dates": "27–28/10",
+  "people": [
+   "Kiên"
+  ],
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "B2",
+  "title": "/auth/refresh trả hạn phiên",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Kiên",
+  "effort": "1 ngày",
+  "fields": {
+   "Mô tả": "Hạn phiên 8 giờ đang ghi cứng ở 4 chỗ frontend (api.ts hai chỗ, pe-bridge.js, login.inline.js). Cho /auth/refresh trả expiresAt (hoặc maxAge). Luật hạn phải quyết trong RefreshTokenService.issue(), không đặt ở controller.",
+   "Cách làm (theo source hiện tại)": "1. src/auth/refresh-token.service.ts: issue() (dòng 72) tính expiresAt từ lifetimeMs; rotateAndBlacklist() (105) gọi lại issue() nên mỗi lần refresh là một hạn mới: đặt luật hạn ở issue(), không đặt ở controller.\n2. src/auth/auth.service.ts: refresh() (179) trả TokenPair; src/auth/auth.controller.ts: POST refresh (khoảng dòng 129) đặt cookie. Thêm vào body trường hạn phiên (expiresAt hoặc maxAge) lấy từ giá trị issue() đã tính.\n3. Cập nhật src/auth/refresh-token.service.spec.ts và test của controller; đổi JWT_REFRESH_EXPIRES thì giá trị trả về phải đổi theo.\n4. Báo Trí Thành (T3) tên trường mới.",
+   "Kết quả cần đạt": "Phản hồi có trường hạn phiên; jest bao phủ; đổi JWT_REFRESH_EXPIRES thì frontend (T3) theo đúng mà không sửa tay.",
+   "Gợi ý nếu khó": "Hạn là cửa sổ trượt: mỗi lần refresh sinh hạn mới, nên tính trong issue() và trả về từ đó. Hằng lifetimeMs đọc một lần trong constructor, đừng đọc env ở nơi khác.",
+   "Phụ thuộc": "T3 (Trí Thành) cần B2 xong trước."
+  },
+  "week": "Tuần 1",
+  "dates": "29–30/10",
+  "people": [
+   "Kiên"
+  ],
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "B3",
+  "title": "Cấu hình hai domain (frontend và backend tách)",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Kiên",
+  "effort": "1 ngày",
+  "fields": {
+   "Mô tả": "Đặt ALLOWED_ORIGINS (không nhận wildcard), FRONTEND_URL, REFRESH_COOKIE_SAMESITE cho môi trường deploy tách domain (Vercel và Render). Khi dùng SameSite=none, cookie bắt buộc có Secure nên sẽ hỏng trên HTTP thường (kể cả khi dev); ghi rõ vào README.",
+   "Cách làm (theo source hiện tại)": "1. Biến môi trường: src/config/env.validation.ts (REFRESH_COOKIE_SAMESITE dòng 92, FRONTEND_URL 96, ALLOWED_ORIGINS 97 bắt buộc, không wildcard); CORS xử lý ở src/common/middleware/cors/cors.middleware.ts; cookie refresh đặt ở auth.controller.ts.\n2. Khi frontend (Vercel) và backend (Render) khác domain: ALLOWED_ORIGINS = origin frontend; REFRESH_COOKIE_SAMESITE=none (cần HTTPS, cookie có Secure); TRUST_PROXY_HOPS cho rate limit.\n3. Kiểm bằng hai tab ẩn danh trên hai domain thật: mở bài, đợi qua hạn access token, vẫn là tài khoản khách cũ (không có tài khoản mới).\n4. Ghi README: dev trên HTTP không dùng SameSite=none.",
+   "Kết quả cần đạt": "Một khách vào site thật, mở bài, đợi qua hạn access token, vẫn giữ được tài khoản khách (không bị cấp tài khoản mới).",
+   "Gợi ý nếu khó": "Kiểm bằng hai tab ẩn danh trên hai domain thật. Triệu chứng sai cấu hình: cookie không được gửi, khách nhận tài khoản mới và mất tiến độ."
+  },
+  "week": "Tuần 1–2",
+  "dates": "31/10, 2–3/11",
+  "people": [
+   "Kiên"
+  ],
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "B4",
+  "title": "Giới hạn chatbot cho khách khi không có giao diện",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Kiên",
+  "effort": "0,5 ngày",
+  "fields": {
+   "Mô tả": "API chatbot vẫn mở cho mọi tài khoản khách nếu có GEMINI_API_KEY, trong khi không màn hình nào dùng nó. Tắt mặc định bằng cờ cấu hình, hoặc chỉ mở khi có giao diện.",
+   "Cách làm (theo source hiện tại)": "1. Mẫu đã có: GUEST_LOGIN trong src/auth/auth.service.ts, guest() dòng 149 (đọc env, throw ForbiddenException).\n2. Thêm biến CHATBOT_ENABLED (Joi boolean, mặc định false) vào src/config/env.validation.ts; kiểm ở ChatbotService.chat() (src/chatbot/chatbot.service.ts dòng 44) và để GET /chatbot/status (chatbot.controller.ts) trả trạng thái tắt.\n3. Test: tắt thì POST /chatbot/message trả lỗi rõ ràng theo định dạng gateway (throw, không res.json).\n4. Ghi README cách bật.",
+   "Kết quả cần đạt": "Mặc định chatbot trả lỗi rõ ràng khi cờ tắt; có test; README ghi cách bật.",
+   "Gợi ý nếu khó": "Theo mẫu GUEST_LOGIN=off ở env.validation.ts."
+  },
+  "week": "Tuần 2",
+  "dates": "4/11",
+  "people": [
+   "Kiên"
+  ],
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "B5",
+  "title": "Tên hiển thị cho khách [CHỜ Q2]",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Kiên",
+  "effort": "2 ngày",
+  "fields": {
+   "Mô tả": "PATCH cho phép khách đặt display_name: độ dài tối thiểu và tối đa, chặn ký tự điều khiển, lọc từ tục (danh sách tiếng Việt và tiếng Anh), chống XSS khi hiển thị (bản sửa số 3 của B1). Dùng cột từ D5. Frontend hiện chỉ lưu tên ở localStorage của máy, nên người khác vẫn thấy “Khách XXXX”.",
+   "Cách làm (theo source hiện tại)": "1. src/user/user.service.ts updateProfile() (dòng 37) và UpdateProfileDto trong src/user/dto/user.dto.ts: thêm display_name.\n2. Viết hàm kiểm tên trong src/common/security/ (NFC, độ dài 2–30, bỏ ký tự điều khiển, danh sách từ cấm Việt và Anh đặt trong file cấu hình).\n3. Tên mặc định “Khách XXXX” tạo ở auth.service.ts guest(); giữ làm mặc định khi chưa đặt.\n4. XSS: xem bẫy ebf51dd và frontend/e2e/unit/forum-xss.test.mjs; backend lưu tên đã chuẩn hoá, frontend vẫn phải thoát khi in.\n5. Test: tên hợp lệ lưu; tên xấu 400; tên có thẻ HTML không thành HTML.",
+   "Kết quả cần đạt": "Endpoint và test: tên hợp lệ lưu được, tên xấu bị 400, tên có thẻ HTML được thoát; phản hồi lỗi theo định dạng gateway (throw, không res.json).",
+   "Gợi ý nếu khó": "Danh sách từ cấm: bắt đầu nhỏ, để trong file cấu hình, đừng viết regex phức tạp. Chuẩn hoá Unicode (NFC) và bỏ dấu trước khi so sánh để bắt cả biến thể.",
+   "Phụ thuộc": "Cần D5 xong."
+  },
+  "week": "Tuần 4",
+  "dates": "18–19/11",
+  "people": [
+   "Kiên"
+  ],
+  "backlog": null,
+  "tentative": true,
+  "wait": "D5"
+ },
+ {
+  "code": "B6",
+  "title": "Endpoint ngày đã học [CHỜ Q2]",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Kiên",
+  "effort": "1 ngày",
+  "fields": {
+   "Mô tả": "API hiện chỉ trả streak (một con số); lịch tường trong Góc học không vẽ được vì thiếu tập ngày. Thêm endpoint trả các ngày có học trong khoảng, lấy từ user_daily_xp_logs. Chỉ trả danh sách ngày (cho lịch tiến độ), tuyệt đối không tính “chuỗi”: streak đã bị gỡ khỏi sản phẩm.",
+   "Cách làm (theo source hiện tại)": "1. Nhật ký XP ghi trong src/lessons/lessons.service.ts completeLesson() (đoạn tx.userDailyXpLog.findFirst/update/create, khoảng dòng 455–470) theo ngày tính bằng toStudyDate() (src/common/streak/streak.service.ts dòng 34): đọc ngược bằng ĐÚNG hàm đó để không lệch múi giờ.\n2. Thêm GET (ví dụ stats/study-days?from=&to=) ở src/stats/stats.controller.ts và hàm getStudyDays() ở stats.service.ts trả mảng ngày ISO.\n3. Không tính chuỗi ngày (streak đã gỡ khỏi giao diện).\n4. Test ranh giới nửa đêm giờ Việt Nam.",
+   "Kết quả cần đạt": "GET trả mảng ngày (ISO) theo múi giờ Việt Nam, có test về ranh giới nửa đêm.",
+   "Gợi ý nếu khó": "Múi giờ là bẫy: log_date được ghi theo giờ nào thì đọc theo giờ đó. Kiểm trước khi viết truy vấn.",
+   "Phụ thuộc": "Nên chờ D6(a) để biết bảng có trùng không."
+  },
+  "week": "Tuần 4",
+  "dates": "20/11",
+  "people": [
+   "Kiên"
+  ],
+  "backlog": null,
+  "tentative": true,
+  "wait": "D5"
+ },
+ {
+  "code": "B7",
+  "title": "Thành tích: seed 24 định nghĩa và trao thành tích [CHỜ Q2]",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Nghĩa",
+  "effort": "2–3 ngày",
+  "fields": {
+   "Mô tả": "Bảng achievements hiện không có dòng nào và không có mã nào ghi vào (tìm achievement.create/upsert trên src, scripts, prisma ra 0 kết quả) nên màn Thành tựu trống mà không báo lỗi. Viết script seed ~24 định nghĩa (code, tên, mô tả, icon, condition_type, condition_value, tier đồng/bạc/vàng) và kiểm tra AchievementsService trao đúng khi hoàn thành bài.",
+   "Cách làm (theo source hiện tại)": "1. src/achievements/achievements.service.ts: getMetrics() (dòng 20) trả lesson_count, xp_total, course_complete (streak_days có nhưng không dùng cho điều kiện mới); checkAndAwardAchievements() (63) so conditionType/conditionValue; listForUser() (100).\n2. Viết scripts/seed-achievements.ts upsert theo code (cột code đã unique) với ~24 định nghĩa có tier (cột từ D4).\n3. Điều kiện dựa trên số bài đã xong, XP, hoàn thành chặng; tên không giọng thi đua.\n4. Test: chạy seed hai lần không nhân đôi; hoàn thành bài thứ N nhận thành tích đúng một lần.",
+   "Kết quả cần đạt": "Chạy script hai lần không nhân đôi dòng (idempotent); hoàn thành bài thứ N thì nhận thành tích tương ứng đúng một lần; có test.",
+   "Gợi ý nếu khó": "Dùng upsert theo cột code (đã unique). Điều kiện hãy dựa trên thứ có thật: số bài đã xong, XP, hoàn thành chặng; không dùng “chuỗi ngày” vì tính năng đó đã gỡ.",
+   "Phụ thuộc": "Cần D4 (cột tier). Tên thành tích: tránh giọng thi đua."
+  },
+  "week": "Tuần 4",
+  "dates": "19–21/11",
+  "people": [
+   "Nghĩa"
+  ],
+  "backlog": null,
+  "tentative": true,
+  "wait": "D4"
+ },
+ {
+  "code": "B8",
+  "title": "Dọn tài khoản khách không hoạt động",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Nghĩa",
+  "effort": "1–2 ngày",
+  "fields": {
+   "Mô tả": "Bảng users phình dần vì mỗi khách là một dòng. Viết tác vụ dọn: xoá khách (email @guest.local) không hoạt động quá N ngày và chưa có lesson_progress, kèm bước dọn auth_sessions của họ. Mặc định chạy thử (đếm, không xoá).",
+   "Cách làm (theo source hiện tại)": "1. Nhận diện khách: auth.service.ts guest() tạo email guest_<uuid>@guest.local.\n2. Script scripts/cleanup-guests.ts: chọn users có email LIKE '%@guest.local', tạo quá N ngày (mặc định 90), KHÔNG có lesson_progress và KHÔNG có enrollments; xoá auth_sessions của họ trước (khoá ngoại user_id) rồi xoá users.\n3. Mặc định dry-run (in số dòng); --apply mới xoá.\n4. Test: không bao giờ chọn tài khoản có tiến độ hoặc không phải @guest.local.",
+   "Kết quả cần đạt": "Lệnh có chế độ dry-run in số dòng sẽ xoá; có test khoanh vùng đúng: không bao giờ chạm tài khoản có tiến độ hoặc tài khoản thật.",
+   "Gợi ý nếu khó": "Bắt đầu chỉ bằng truy vấn đếm. Chọn ngưỡng bảo thủ (ví dụ 90 ngày); khách có enrollments hoặc lesson_progress thì bỏ qua. Chạy qua cron của host hoặc script thủ công trước, chưa cần scheduler trong Nest."
+  },
+  "week": "Tuần 1",
+  "dates": "27–28/10",
+  "people": [
+   "Nghĩa"
+  ],
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "B9",
+  "title": "Kiểm tra cấu trúc studio-lesson khi lưu bài",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Nghĩa",
+  "effort": "1–2 ngày",
+  "fields": {
+   "Mô tả": "Hiện chỉ đường nhập file kiểm cấu trúc; lưu bài tay vào /admin/lessons có thể ghi JSON sai. Dùng lại bộ kiểm của đường nhập, gắn vào create và update.",
+   "Cách làm (theo source hiện tại)": "1. src/course-admin/studio-lesson.schema.ts: validateStudioLesson(value): string[] (dòng 74), đang được src/course-admin/lesson-import.service.ts dùng.\n2. src/course-admin/course-admin.service.ts: createLesson() (178) và updateLesson() (201) chưa gọi bộ kiểm: gọi và ném BadRequestException kèm danh sách lỗi.\n3. Chạy bộ kiểm mới trên cả 48 file scripts/pe-v4/out-advanced/lessons/*.json trước; nếu bài hiện hữu bị chặn thì nới luật, không sửa bài.\n4. Test trong studio-lesson.schema.spec.ts.",
+   "Kết quả cần đạt": "Lưu JSON thiếu field bắt buộc bị 400 kèm danh sách lỗi; mọi bài hiện có trong out-advanced/lessons vẫn qua được kiểm.",
+   "Gợi ý nếu khó": "Chạy bộ kiểm mới trên cả 48 file trước, nếu có bài hiện hữu bị chặn thì nới luật chứ không sửa bài."
+  },
+  "week": "Tuần 1",
+  "dates": "29–30/10",
+  "people": [
+   "Nghĩa"
+  ],
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "B10",
+  "title": "Hạ trần lint backend",
+  "prio": "P3",
+  "urg": "Thấp",
+  "person": "Nghĩa",
+  "effort": "rải rác",
+  "fields": {
+   "Mô tả": "Mỗi lần dọn xong một module (mẫu: thay : any ở spec bằng kiểu thật), hạ TRAN trong .github/workflows/ci.yml. Chỉ được hạ, không tăng. Số liệu gốc phải lấy sau D1 vì hai nhánh đang ghi hai trần khác nhau (170 và 283). Đợt 2 làm sau khi B7 xong.",
+   "Cách làm (theo source hiện tại)": "1. .github/workflows/ci.yml dòng 58: const TRAN = 170 (chỉ được hạ).\n2. Đo bằng lệnh CI: npx eslint \"{src,apps,libs,test}/**/*.ts\" --ignore-pattern \"src/generated/**\".\n3. Chọn module (ví dụ src/forum sau F1) rồi làm 4 bước trong AGENTS.md: PrismaMock, asyncMock, bỏ “: any”, asRecord/asContent.\n4. Hạ TRAN và sửa bảng Mốc nền cùng commit.",
+   "Kết quả cần đạt": "Trần trong CI giảm sau mỗi lần dọn; bảng mốc AGENTS.md sửa cùng commit.",
+   "Gợi ý nếu khó": "Theo 4 bước trong AGENTS.md (PrismaMock, asyncMock, bỏ : any, asRecord/asContent)."
+  },
+  "week": "Tuần 3",
+  "dates": "13–14/11 (đợt 1), 22–23/11 (đợt 2)",
+  "people": [
+   "Nghĩa"
+  ],
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "T1",
+  "title": "Kiểm seed khoá học khớp “~29 giờ”",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Trí Thành",
+  "effort": "0,25 ngày",
+  "fields": {
+   "Mô tả": "Chữ “~48 giờ” ở catalog.ts đã được sửa thành “~29 giờ” (c817a03) kèm test catalog-duration.test.mjs. Còn lại: AGENTS.md dặn sửa cả prisma/seed-courses.js (nguồn của catalog), kiểm xem seed có còn ghi 48 giờ không; và sau D1 đảm bảo không còn bản sửa trùng (1610a4d từ main).",
+   "Cách làm (theo source hiện tại)": "1. grep -rn \"48 giờ\" trên cây mã (prisma/seed-courses.js, frontend/src/lib/catalog.ts, scripts/pe-v4/).\n2. Số giờ là tổng phút trong LESSON_META (frontend/src/lib/curricula.json) chia 60; đã có test frontend/e2e/unit/catalog-duration.test.mjs: chạy lại sau D1 để chắc không còn bản sửa trùng của main (1610a4d).",
+   "Kết quả cần đạt": "grep “48 giờ” trên cây mã không còn ở chỗ nào hiển thị cho người dùng; test catalog-duration vẫn xanh sau khi gộp.",
+   "Gợi ý nếu khó": "Đừng gõ tay số mới: số giờ là tổng phút của 48 bài (LESSON_META) chia 60, đã có hàm và test."
+  },
+  "week": "Tuần 1",
+  "dates": "27/10",
+  "people": [
+   "Trí Thành"
+  ],
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "T2",
+  "title": "Xử lý 5 ca test /demo-minigame trượt sẵn",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Trí Thành",
+  "effort": "0,5–1 ngày",
+  "fields": {
+   "Mô tả": "AGENTS.md ghi 5 ca trượt có sẵn từ commit cd206ad, đều chỉ vào trang /demo-minigame (số đo 19/10, cần đo lại sau D1). Quyết định: sửa trang cho đúng hoặc bỏ trang và test (nếu không còn dùng).",
+   "Cách làm (theo source hiện tại)": "1. cd frontend && npm run test:unit, ghi lỗi từng ca trong 5 ca trượt (đều vào /demo-minigame).\n2. Trang: frontend/src/app/(standalone)/demo-minigame/page.tsx; component: frontend/src/components/minigame/MinigamePlayer.tsx, minigame-data.ts.\n3. Nếu trang chỉ là demo dữ liệu cứng: xoá trang và test, đối chiếu frontend/e2e/unit/dead-routes.test.mjs trước.\n4. Sửa bảng Mốc nền trong AGENTS.md cùng commit.",
+   "Kết quả cần đạt": "test:unit đạt 100%; bảng mốc AGENTS.md sửa cùng commit.",
+   "Gợi ý nếu khó": "Đọc lỗi của từng ca trước. Nếu trang chỉ là demo dữ liệu cứng, xoá cả trang và test là hợp lý (nhưng đối chiếu với dead-routes.test.mjs)."
+  },
+  "week": "Tuần 1–2",
+  "dates": "30–31/10",
+  "people": [
+   "Trí Thành"
+  ],
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "T3",
+  "title": "Bỏ 4 chỗ ghi cứng hạn phiên 8 giờ",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Trí Thành",
+  "effort": "0,5 ngày",
+  "fields": {
+   "Mô tả": "Đọc hạn từ phản hồi /auth/refresh (B2) ở: api.ts:90, api.ts:130, pe-bridge.js:36, login.inline.js:19; sửa luôn chú thích trong course-progress.ts.",
+   "Cách làm (theo source hiện tại)": "1. Các chỗ ghi cứng max-age=28800: frontend/src/lib/api.ts dòng 96 và 136; frontend/public/static/js/pe-bridge.js dòng 36; frontend/public/static/js/pages/login.inline.js dòng 19; chú thích ở frontend/src/lib/course-progress.ts dòng 37.\n2. Thêm MỘT hàm ghi cookie pe_has_session trong api.ts nhận maxAge từ body /auth/refresh (B2); ba chỗ còn lại gọi hàm đó.\n3. Test: e2e/unit/course-progress.test.mjs; grep 28800 không còn kết quả.",
+   "Kết quả cần đạt": "grep 28800 không còn kết quả; đổi hạn ở backend thì cookie mốc pe_has_session đổi theo.",
+   "Gợi ý nếu khó": "Làm một hàm duy nhất ghi cookie mốc rồi cho 4 chỗ gọi vào, thay vì sửa từng chỗ.",
+   "Phụ thuộc": "Chờ B2."
+  },
+  "week": "Tuần 2",
+  "dates": "2/11 (sau khi B2 xong)",
+  "people": [
+   "Trí Thành"
+  ],
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "T4",
+  "title": "Phím Escape bị bắt toàn trang",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Trí Thành",
+  "effort": "1 ngày",
+  "fields": {
+   "Mô tả": "Engine của Góc học (engine.js) và vài file JS đời cũ nghe Escape. Artifact nói engine bắt Escape toàn trang, sẽ xung đột với hộp thoại React sau này. Kiểm tra từng chỗ có thật sự bắt toàn trang không, thu hẹp phạm vi về phần tử đang focus.",
+   "Cách làm (theo source hiện tại)": "1. frontend/src/components/goc-hoc/engine.js dòng 551: on(window,'keydown', ...) xử lý Escape trên toàn trang (đóng intro, back, peek, lịch).\n2. Thu hẹp: bỏ qua khi có hộp thoại React đang mở (event.defaultPrevented hoặc kiểm phần tử đang focus), hoặc gắn listener lên phần tử cảnh.\n3. Sửa cùng chỗ với phần ghi location.hash cho nút Back (commit d41abf5).\n4. Thêm test thao tác bàn phím trong frontend/e2e/unit/.",
+   "Kết quả cần đạt": "Mở một hộp thoại, nhấn Esc: chỉ hộp thoại đóng, cảnh phía sau không nhận phím. Có test thao tác bàn phím.",
+   "Gợi ý nếu khó": "Dùng listener gắn lên phần tử con (hoặc kiểm tra event.target) thay vì gắn lên document. Commit d41abf5 đã làm engine ghi location.hash cho nút Back: sửa Esc cùng chỗ đó cho gọn."
+  },
+  "week": "Tuần 2",
+  "dates": "5/11",
+  "people": [
+   "Trí Thành"
+  ],
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "T5",
+  "title": "Tên hiển thị và màn Thành tựu [CHỜ Q2]",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Trí Thành",
+  "effort": "2–3 ngày",
+  "fields": {
+   "Mô tả": "Làm giao diện đổi tên hiển thị (nối B5; hiện tên chỉ lưu localStorage) và màn thành tựu có bậc (nối B7) theo thiết kế của Đức. Không dùng apiFetch ở trang công khai: dùng apiFetchSessionOnly (luật của repo).",
+   "Cách làm (theo source hiện tại)": "1. Dữ liệu: frontend/src/lib/goc-hoc.ts và components/goc-hoc/StudyRoom.tsx (apiFetchSessionOnly, asList, findEnrollment); thành tích: GET /api/achievements (achievements.controller listForUser); đổi tên: PATCH hồ sơ nhận display_name (B5).\n2. Màn Thành tựu từng ném TypeError khi danh mục rỗng (#trophy thiếu): giữ test cho ca đó.\n3. Trang công khai chỉ dùng apiFetchSessionOnly; copy theo G3; lỗi 400 hiện thông báo thân thiện.",
+   "Kết quả cần đạt": "Khách đổi tên được, thấy thành tích, lỗi 400 hiện thông báo thân thiện; không có lời gọi API từ trang công khai khi chưa có phiên.",
+   "Gợi ý nếu khó": "Làm khung giao diện với dữ liệu giả trước để không phải chờ BE. Màn Thành tựu từng ném TypeError khi danh mục rỗng (#trophy thiếu); giữ test cho trường hợp đó.",
+   "Phụ thuộc": "Cần G3 (thiết kế) và B5, B7."
+  },
+  "week": "Tuần 5",
+  "dates": "26–28/11",
+  "people": [
+   "Trí Thành"
+  ],
+  "backlog": null,
+  "tentative": true,
+  "wait": "G3, B5, B7"
+ },
+ {
+  "code": "T6",
+  "title": "Nối test vào CI và kiểm code visualizer",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Trí Thành",
+  "effort": "0,5–1 ngày",
+  "fields": {
+   "Mô tả": "Sau mỗi lần nạp nội dung phải chạy sync_curricula.py và kiểm lệch. Thêm vào CI các bước: e2e/unit/dashboard-plan.test.mjs (so cả 48 bài), catalog-duration, script của D6(c). Xác nhận screen_keys() khớp buildScreens(). Ngoài ra, kiểm code visualizer (bước từng dòng, biến, call stack) ở commit 9f2ac92 có nằm trên nhánh sau gộp không trước khi dựng lại. Phần nối script của D6(c) vào CI làm ngay khi D6 xong (12/11).",
+   "Cách làm (theo source hiện tại)": "1. .github/workflows/ci.yml: job frontend (dòng 73) chạy npm run test:unit; kiểm frontend/e2e/unit/dashboard-plan.test.mjs và catalog-duration.test.mjs có nằm trong tập test:unit không, nếu chưa thì thêm.\n2. Job giao-trinh (dòng 208): chạy py scripts/pe-v4/build.py rồi kiểm không lệch; thêm bước chạy script D6(c) ở chế độ offline.\n3. Visualizer: git branch --contains 9f2ac92 và kiểm frontend/src/components/code-visualizer/CodeVisualizer.tsx có trong cây; kết luận một dòng (có / thiếu / cần dựng lại).",
+   "Kết quả cần đạt": "CI đỏ khi curricula.json không khớp pe-v4, dashboard-plan hoặc catalog; kết luận một dòng về visualizer (có / thiếu / cần dựng lại).",
+   "Gợi ý nếu khó": "Không cần viết mới nhiều, chủ yếu nối các test đã có vào quy trình."
+  },
+  "week": "Tuần 2–3",
+  "dates": "3–4/11 (nối test, kết luận visualizer); 12/11 (nối script D6c)",
+  "people": [
+   "Trí Thành"
+  ],
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "T7",
+  "title": "Hiệu năng ảnh và SEO của trang chủ Góc học",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Trí Thành",
+  "effort": "2 ngày",
+  "fields": {
+   "Mô tả": "Artifact ghi ~2,2 MB trên 102 tệp với 56 thẻ ảnh tạo lúc khởi động, và HTML dựng phía server gần như trống. Commit d41abf5 nay đọc giáo trình ở server component nên điểm thứ hai cần đo lại trước khi sửa. Đo bằng Lighthouse hoặc tải HTML thô. Làm TRƯỚC khi dựng giao diện thống nhất (T12) và chỉ giảm dung lượng ảnh/HTML, không đụng bố cục.",
+   "Cách làm (theo source hiện tại)": "1. Trang: frontend/src/app/page.tsx; cảnh: frontend/src/components/goc-hoc/StudyRoom.tsx, scene-data.js (danh sách ảnh), engine.js (tạo thẻ img lúc khởi động).\n2. Đo trước: Lighthouse hoặc curl tải HTML thô (có chứa điều hướng chính không) và tổng dung lượng ảnh.\n3. Giảm: sprite hoặc hạ độ phân giải (loading=lazy ít giúp vì ảnh nằm trong khung ngay từ đầu); đảm bảo HTML server chứa “Lộ trình”, “Khoá học”.\n4. Test: frontend/e2e/unit/home-page.test.mjs, seo-copy.test.mjs. Ghi số đo trước/sau vào mô tả commit.",
+   "Kết quả cần đạt": "Số đo trước và sau: dung lượng ảnh tải lúc đầu giảm có đo, HTML ban đầu chứa điều hướng chính (“Lộ trình”, “Khoá học”).",
+   "Gợi ý nếu khó": "loading=lazy ít giúp với ảnh nằm trong khung từ đầu; dùng sprite hoặc giảm độ phân giải. Ghi số đo vào mô tả commit."
+  },
+  "week": "Tuần 2",
+  "dates": "6–8/11",
+  "people": [
+   "Trí Thành"
+  ],
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "G1",
+  "title": "Sửa cửa sổ hai thời điểm và chốt mô hình kệ sách",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Đức",
+  "effort": "2–3 ngày",
+  "fields": {
+   "Mô tả": "(a) Ô cửa sổ hai thời điểm: lớp trời chạy theo đồng hồ máy còn bức thành phố cố định hoàng hôn (theo artifact; xác nhận trên mã trước khi sửa). (b) Mô hình kệ sách: chốt một cuốn là một bài hay một học phần, nay xét theo ba môn Python, SQL, Machine Learning. Làm sau khi giao diện thống nhất (T12) đã xong.",
+   "Cách làm (theo source hiện tại)": "1. Cảnh: frontend/src/components/goc-hoc/scene-data.js (shelfKey: 3 kệ), scene.css, engine.js (lớp trời theo đồng hồ máy).\n2. (a) Cho bức thành phố theo cùng pha giờ với lớp trời (4–5 pha: sáng, chiều, tối, đêm), không làm mượt liên tục.\n3. (b) Chốt mô hình kệ: một cuốn là một bài hay một học phần, nay xét theo ba môn; đổi thì vẽ lại vùng bấm.\n4. Làm trên nền giao diện đã thống nhất (T12 xong 18/11).",
+   "Kết quả cần đạt": "Frame Figma và cảnh chạy đúng ở các khung giờ sáng, chiều, tối, đêm; một câu quyết định cho (b) ghi vào mô tả commit.",
+   "Gợi ý nếu khó": "Cho bức thành phố cũng theo cùng pha giờ với lớp trời (4–5 pha là đủ), đừng làm mượt liên tục. Với (b) giữ mô hình hiện có và chỉ sửa nhãn nếu không có lý do mạnh."
+  },
+  "week": "Tuần 4",
+  "dates": "20–22/11",
+  "people": [
+   "Đức"
+  ],
+  "backlog": null,
+  "tentative": true,
+  "wait": "T12"
+ },
+ {
+  "code": "G2",
+  "title": "Chốt thiết kế màn lắp khung mã [CHỜ Q3]",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Đức",
+  "effort": "2 ngày",
+  "fields": {
+   "Mô tả": "Hợp nhất hai biến thể: sách mở (Figma) và số thứ tự 1-2-3 cộng gợi ý theo ô. Thiết kế đủ trạng thái: đang kéo, đã đặt, đúng, sai (nêu ô sai, lý do, đáp án cần dùng), gợi ý 3 tầng.",
+   "Cách làm (theo source hiện tại)": "1. Hai bản cần hợp nhất: “sách mở” (frontend/src/components/python-studio/screens/ScaffoldBook.tsx) và ①②③ + gợi ý theo ô của main/chiem-tinh; 149 gợi ý ở slots[].hint.\n2. Thiết kế đủ trạng thái: đang kéo, đã đặt, đúng, sai (nêu ô sai, lý do, đáp án cần dùng), gợi ý 3 tầng; luôn có cách bấm chọn (không chỉ kéo-thả).\n3. Họp 30 phút với người làm bản chiem-tinh để biết họ cần giữ gì; kết quả Q3 (15/11) quyết bản gốc.",
+   "Kết quả cần đạt": "Một frame duy nhất được cả nhóm đồng ý, kèm ghi chú hành vi cho Trí Thành. Không ai ghép tay hai component React.",
+   "Gợi ý nếu khó": "Họp 30 phút với người từng làm bản chiem-tinh để biết họ cần giữ cái gì. Màn đang có thẻ nhóm theo ô, khung kết quả như hộp phản hồi game: giữ các lớp này."
+  },
+  "week": "Tuần 4",
+  "dates": "18–19/11",
+  "people": [
+   "Đức"
+  ],
+  "backlog": null,
+  "tentative": true,
+  "wait": "Q3 (15/11)"
+ },
+ {
+  "code": "G3",
+  "title": "Thiết kế đổi tên hiển thị và màn thành tích [CHỜ Q2]",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Đức",
+  "effort": "1–2 ngày",
+  "fields": {
+   "Mô tả": "Hai màn nhỏ: biểu mẫu đổi tên (kèm thông báo lỗi tên không hợp lệ) và lưới thành tích có bậc (đồng/bạc/vàng). Theo giọng hệ thiết kế v2: không thi đua, không ổ khoá.",
+   "Cách làm (theo source hiện tại)": "1. Đầu vào: kết quả Q2 (họp 15/11) và danh mục thành tích từ B7.\n2. Hai màn: biểu mẫu đổi tên (thông báo lỗi tên không hợp lệ theo luật của B5) và lưới thành tích có bậc đồng/bạc/vàng; thành tích chưa đạt hiển thị trung tính, không ổ khoá.\n3. Theo design-system-v2.md; dùng skill ux-copy cho chữ.",
+   "Kết quả cần đạt": "Frame Figma kèm copy tiếng Việt cho mọi trạng thái và lỗi.",
+   "Gợi ý nếu khó": "Dùng skill ux-copy khi viết chữ. Thành tích chưa đạt hiển thị trung tính (không dùng ổ khoá)."
+  },
+  "week": "Tuần 4",
+  "dates": "16–17/11",
+  "people": [
+   "Đức"
+  ],
+  "backlog": null,
+  "tentative": true,
+  "wait": "Q2 (15/11)"
+ },
+ {
+  "code": "T8",
+  "title": "Làm màn lắp khung mã đã hợp nhất [CHỜ Q3]",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Đức (có Trí Thành duyệt)",
+  "effort": "3–4 ngày",
+  "fields": {
+   "Mô tả": "Cài đặt theo G2. Thêm test cho từng trạng thái: đặt đúng, đặt sai, gợi ý, bàn phím (kéo-thả không thay thế được phím).",
+   "Cách làm (theo source hiện tại)": "1. Màn hiện tại: frontend/src/components/python-studio/screens/ScaffoldScreen.tsx, ScaffoldBook.tsx (sách mở), ScaffoldReview.tsx; logic lắp: assembleScaffold() trong frontend/src/lib/studio-lesson.ts (dòng 369).\n2. Hợp nhất với bản ①②③ + gợi ý của main (hàm bankGroups) theo thiết kế G2 và quyết định Q3; 149 gợi ý ô nằm ở slots[].hint trong scripts/pe-v4/out-advanced/lessons.\n3. Giữ một component, tách trạng thái ra hook để test riêng.\n4. Test: frontend/e2e/unit/studio-lesson.test.mjs, screen-kinds.test.mjs; không đổi buildScreens()/screen_keys() trừ khi thêm loại màn.",
+   "Kết quả cần đạt": "Màn chạy được với dữ liệu bài thật từ out-advanced/lessons; test:unit xanh; hiện đủ 149 gợi ý ô trống; không còn phụ thuộc vào bản của nhánh chiem-tinh.",
+   "Gợi ý nếu khó": "Giữ một component, tách trạng thái ra hook để test riêng. Đừng đụng đến buildScreens()/screen_keys() trừ khi thêm loại màn mới (khi đó phải sửa cả hai và chạy lại sync).",
+   "Phụ thuộc": "Cần G2 và D1 (nhóm b: màn điền code đã gộp)."
+  },
+  "week": "Tuần 5",
+  "dates": "23–26/11 (cần G2)",
+  "people": [
+   "Đức"
+  ],
+  "backlog": null,
+  "tentative": true,
+  "wait": "G2, D1 nhóm b"
+ },
+ {
+  "code": "D8",
+  "title": "Nạp giáo trình mới (Python, SQL, ML) vào DB và giao diện",
+  "prio": "P0",
+  "urg": "Chặn dev nội dung",
+  "person": "Nhân",
+  "effort": "3 ngày",
+  "fields": {
+   "Mô tả": "Sau khi tài liệu hoàn chỉnh cần đưa vào DB và giao diện. Hiện DB (đo 27/10) giữ khoá python_advanced là “Python cho Data Analyst” 172 bài, còn mã, catalog và giáo trình tĩnh là Advanced Python 48 bài; update-lesson-content.ts không dùng được khi bộ lesson_code khác. Việc: quyết số phận khoá cũ và course_id cho từng môn, sao lưu, nạp, chạy sync_curricula.py, kiểm hai nguồn danh sách bài.",
+   "Cách làm (theo source hiện tại)": "1. Họp 15/11 quyết số phận khoá python_advanced đang giữ 172 bài Data Analyst (nạp lại bằng giáo trình mới hay đổi mã).\n2. Dùng script B11 (mỗi môn một course_id riêng, theo mẫu META trong scripts/seed-python-advanced-v4.ts). SQL và ML lúc này chỉ có nền, concept và bài mẫu nên nạp bài mẫu.\n3. Chạy xem trước (mặc định không ghi) rồi --apply kèm sao lưu; nhớ seed-python-advanced-v4.ts --apply xoá lesson_progress của khoá đó: chỉ dùng khi chấp nhận đặt lại tiến độ.\n4. Sau mỗi lần nạp chạy py scripts/pe-v4/sync_curricula.py (AGENTS.md: bẫy hai nguồn danh sách bài), rồi chạy script D6(c).\n5. Báo Trí Thành (T10) ngay khi mỗi môn nạp xong.",
+   "Kết quả cần đạt": "DB và giáo trình tĩnh cùng một khoá; script so DB↔curricula (D6c) xanh; có file sao lưu và một lần diễn tập khôi phục; ghi rõ số ghi danh/tiến độ bị ảnh hưởng.",
+   "Gợi ý nếu khó": "Chạy chế độ xem trước (mặc định không ghi) trước. Đừng chạy --apply khi chưa họp xong về số phận khoá cũ.",
+   "Phụ thuộc": "Python: sau R1. SQL: sau R2. ML: sau R3. Cần B11 (14–15/11) và quyết định Q8 ở họp 15/11."
+  },
+  "week": "Tuần 4",
+  "dates": "16–18/11 (Python); 19–20/11 (SQL, ML: bài mẫu)",
+  "people": [
+   "Nhân"
+  ],
+  "backlog": null,
+  "tentative": true,
+  "wait": "họp 15/11 (số phận khoá cũ); Python sau R1; SQL sau R2; ML sau R3"
+ },
+ {
+  "code": "N1",
+  "title": "Giáo trình môn Python: chốt concept, tài liệu, nội dung",
+  "prio": "P0",
+  "urg": "Chặn dev bắt đầu",
+  "person": "Nam Nguyễn",
+  "people": [
+   "Nam Nguyễn"
+  ],
+  "effort": "4 ngày",
+  "week": "Tuần 1",
+  "dates": "27–30/10",
+  "fields": {
+   "Mô tả": "Chốt concept của môn (người học là ai, đầu ra cuối môn, các chặng), viết tài liệu và nội dung bài của môn Python cho đến khi hoàn chỉnh. Đây là mốc mở đường cho đội dev: từ khi tài liệu Python xong, các việc nạp giáo trình và dựng màn học mới mới bắt đầu được.",
+   "Cách làm (theo source hiện tại)": "1. Đọc LESSON-IMPORT-FORMAT.md và samples/lesson-fstring.md: mỗi bài chia S1 (ngữ cảnh), S2 (giải thích + trắc nghiệm), S3 (lắp khung mã), S4 (viết code + ca chấm).\n2. Xem một bài đã chạy thật: scripts/pe-v4/out-advanced/lessons/001-P01.json (step_1.theory/code/explain, step_2.mcq, step_3.scaffold, step_4.starter/solution/tests, play) để biết một bài đủ gồm những gì; 16 loại màn hiện có ở SRS mục 3.3 (FR-LES-02).\n3. Quy tắc viết lý thuyết: scripts/pe-v4/CONTRACT-THEORY.md; giọng và từ cấm: design-system-v2.md.\n4. Mỗi bài: mục tiêu 1 câu; ví dụ chạy được trong trình duyệt (chỉ có numpy, pandas, matplotlib, sqlite3 và thư viện chuẩn); ≥3 câu trắc nghiệm có giải thích; bài tập có ca chấm.\n5. Chốt khung chặng/bài với Nhân và Kiên trước (30 phút) rồi mới viết nội dung từng bài.",
+   "Kết quả cần đạt": "Bộ tài liệu Python hoàn chỉnh ở một chỗ cả nhóm đọc được: khung chặng và bài, nội dung từng bài, bài tập kèm đáp án và lời giải thích. Nhân và Kiên đã review xong theo checklist (R1) và không còn mục chặn.",
+   "Gợi ý nếu khó": "Duyệt khung chặng/bài trước (30 phút) rồi mới viết nội dung. Đối chiếu LESSON-IMPORT-FORMAT.md và 16 loại màn hiện có (SRS FR-LES-02) để chọn loại màn, để sau này nạp được mà không phải viết lại.",
+   "Phụ thuộc": "Hạn cứng 30/10. R1 diễn ra cùng ngày."
+  },
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "N2",
+  "title": "Giáo trình môn SQL: nền, concept và bài mẫu",
+  "prio": "P0",
+  "urg": "Chặn dev bắt đầu",
+  "person": "Nam Nguyễn",
+  "people": [
+   "Nam Nguyễn"
+  ],
+  "effort": "5 ngày",
+  "week": "Tuần 2",
+  "dates": "31/10–5/11",
+  "fields": {
+   "Mô tả": "Chốt concept và nền của môn SQL: đối tượng người học, đầu ra, khung chặng/bài và các bài mẫu đại diện cho từng loại màn. Tài liệu SQL và ML cộng lại tối đa 2 tuần (31/10 – 13/11), không kéo dài thêm.",
+   "Cách làm (theo source hiện tại)": "1. Dùng lại cấu trúc bài như N1.\n2. SQL chạy trong trình duyệt bằng sqlite3 của Pyodide: chuẩn bị bộ dữ liệu mẫu nhỏ (vài bảng) dùng chung cho cả môn.\n3. Repo đã có 3 khoá thiết kế CSDL (db_design, db_design_tc, db_design_nc trong DB; giao diện ở frontend/src/components/CourseDbDesign.tsx, LessonDbDesign.tsx): đọc để biết cái gì đã có, tránh viết trùng.\n4. Giai đoạn này chỉ cần concept, khung chặng/bài và 3–5 bài mẫu đại diện cho từng loại màn.",
+   "Kết quả cần đạt": "Concept và khung môn SQL được Nhân và Kiên review (R2); có bài mẫu đủ để dev biết dạng nội dung cần dựng.",
+   "Gợi ý nếu khó": "Dùng lại cấu trúc đã chốt ở môn Python để hai môn nhất quán. Lưu ý repo đã có ba khoá CSDL (db_design*) trong DB: kiểm xem có tái sử dụng được không trước khi viết mới.",
+   "Phụ thuộc": "Hạn cứng 5/11."
+  },
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "N3",
+  "title": "Giáo trình môn Machine Learning: nền, concept và bài mẫu",
+  "prio": "P0",
+  "urg": "Chặn dev bắt đầu",
+  "person": "Nam Nguyễn",
+  "people": [
+   "Nam Nguyễn"
+  ],
+  "effort": "5 ngày",
+  "week": "Tuần 2–3",
+  "dates": "6–12/11 (13/11: sửa mục chặn của R3)",
+  "fields": {
+   "Mô tả": "Chốt concept và nền của môn Machine Learning: đối tượng, đầu ra, khung chặng/bài, bài mẫu; ghi rõ điều kiện chạy mã (thư viện cần có, giới hạn của trình chạy trong trình duyệt). Hạn cứng 13/11: sau ngày này không còn việc viết tài liệu SQL/ML.",
+   "Cách làm (theo source hiện tại)": "1. Dùng lại cấu trúc bài như N1 và N2.\n2. Kiểm ngay ngày đầu (6/11): ví dụ nào cần scikit-learn? Gói Pyodide của dự án hiện chỉ có numpy, pandas, matplotlib, sqlite3 (scripts/pe-da/build.py: PYODIDE_PKGS; wheel nằm ở frontend/public/pyodide/v0.27.7). Nếu cần thêm thư viện thì báo Nhân và Trí Thành trong R3 để xếp việc thêm wheel, đừng để lộ ra lúc dev.\n3. Ưu tiên ví dụ chạy bằng numpy/pandas thuần để người học chạy ngay trong trình duyệt.",
+   "Kết quả cần đạt": "Concept và khung môn ML được Nhân và Kiên review (R3); danh sách thư viện và giới hạn chạy mã đã ghi rõ để dev biết có cần hạ tầng thêm không.",
+   "Gợi ý nếu khó": "Kiểm sớm xem ví dụ nào cần scikit-learn hoặc dữ liệu lớn: Pyodide trong trình duyệt chỉ tải numpy, pandas, matplotlib, sqlite3 theo từng bài (SRS FR-LES-07).",
+   "Phụ thuộc": "Hạn cứng 12/11."
+  },
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "R1",
+  "title": "Review tài liệu Python: có dễ hiểu không",
+  "prio": "P0",
+  "urg": "Chặn dev bắt đầu",
+  "person": "Nhân và Kiên",
+  "people": [
+   "Nhân",
+   "Kiên"
+  ],
+  "effort": "0,5 ngày mỗi người",
+  "week": "Tuần 1",
+  "dates": "30/10",
+  "fields": {
+   "Mô tả": "Nhân và Kiên mỗi người đọc tài liệu Python như người học mới và đánh dấu chỗ khó hiểu theo checklist ở đầu mục này. Nhân xem khung và thứ tự bài; Kiên xem ví dụ code có chạy ra đúng kết quả đã ghi không.",
+   "Cách làm (theo source hiện tại)": "1. Đọc theo thứ tự người học: khung chặng → bài đầu → bài giữa → bài cuối.\n2. Chạy từng ví dụ code thật (py hoặc trình duyệt) và so với kết quả đã ghi trong tài liệu.\n3. Ghi nhận xét vào một bảng: bài | mục checklist (1–6) | nhận xét | mức (chặn / nên sửa).\n4. Nhân kiểm khung và thứ tự bài; Kiên kiểm ví dụ code. Cả hai cùng đọc kỹ 2–3 bài ở giữa.",
+   "Kết quả cần đạt": "Mỗi người ghi nhận xét theo từng mục checklist; Nam Nguyễn sửa các mục chặn trong ngày kế tiếp; hai người xác nhận đã sửa.",
+   "Gợi ý nếu khó": "Chạy thử mọi ví dụ code. Nếu có thể, nhờ một người ngoài nhóm đọc thử 1–2 bài."
+  },
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "R2",
+  "title": "Review tài liệu SQL (nền và concept)",
+  "prio": "P0",
+  "urg": "Chặn dev bắt đầu",
+  "person": "Nhân và Kiên",
+  "people": [
+   "Nhân",
+   "Kiên"
+  ],
+  "effort": "0,5 ngày mỗi người",
+  "week": "Tuần 2",
+  "dates": "5/11",
+  "fields": {
+   "Mô tả": "Cùng checklist với R1, áp dụng cho concept và bài mẫu của môn SQL.",
+   "Cách làm (theo source hiện tại)": "Làm như R1; thêm: chạy mọi câu SQL trên dữ liệu mẫu đi kèm (sqlite3) và kiểm kết quả mẫu.",
+   "Kết quả cần đạt": "Nhận xét theo checklist; các mục chặn được Nam Nguyễn sửa.",
+   "Gợi ý nếu khó": "Ví dụ SQL phải chạy được trên dữ liệu mẫu đi kèm."
+  },
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "R3",
+  "title": "Review tài liệu Machine Learning (nền và concept)",
+  "prio": "P0",
+  "urg": "Chặn dev bắt đầu",
+  "person": "Nhân và Kiên",
+  "people": [
+   "Nhân",
+   "Kiên"
+  ],
+  "effort": "0,5 ngày mỗi người",
+  "week": "Tuần 2–3",
+  "dates": "12/11",
+  "fields": {
+   "Mô tả": "Cùng checklist với R1, áp dụng cho concept và bài mẫu của môn Machine Learning; thêm một mục: điều kiện chạy mã có khả thi trong hạ tầng hiện có không.",
+   "Cách làm (theo source hiện tại)": "Làm như R1; thêm: kiểm điều kiện chạy mã của môn ML có nằm trong gói Pyodide hiện có không (xem ghi chú ở N3). Nếu cần thư viện mới, ghi rõ để xếp việc ngay.",
+   "Kết quả cần đạt": "Nhận xét theo checklist; các mục chặn được Nam Nguyễn sửa.",
+   "Gợi ý nếu khó": "Cần đọc kỹ phần thư viện và dữ liệu mẫu."
+  },
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "S1",
+  "title": "Rà soát bảo mật: phụ thuộc, bí mật, cấu hình",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Kiên",
+  "people": [
+   "Kiên"
+  ],
+  "effort": "2 ngày",
+  "week": "Tuần 2",
+  "dates": "5–6/11",
+  "fields": {
+   "Mô tả": "Chạy npm audit cho backend, frontend và runner; quét lịch sử git tìm khoá/chuỗi kết nối thật (nối với B1 mục 4); ghi nhận hiện trạng CSP (style-src 'unsafe-inline' còn hai nguyên nhân trong AGENTS.md), access token lưu localStorage, biến môi trường production, header bảo mật. Đây là phần “tăng tính bảo mật” trong thời gian chờ tài liệu.",
+   "Cách làm (theo source hiện tại)": "1. npm audit --omit=dev ở thư mục gốc, frontend/ và runner/; ghi lỗ hổng theo mức.\n2. Tìm bí mật trong lịch sử git: git log -p -S\"postgresql://\" và -S\"GEMINI_API_KEY\"; phát hiện khoá thật thì xoay khoá.\n3. Ghi nhận hiện trạng: CSP trong frontend/next.config.ts (style-src 'unsafe-inline': hai nguyên nhân trong AGENTS.md); access token lưu localStorage (frontend/src/lib/api.ts); header bảo mật ở src/common/middleware/security-headers/; biến bắt buộc ở src/config/env.validation.ts.\n4. Sửa ngay cái an toàn (nâng bản phụ), ghi nhận cái còn lại.",
+   "Kết quả cần đạt": "Báo cáo ngắn: lỗ hổng theo mức, cái nào sửa ngay, cái nào ghi nhận; các bản sửa an toàn đã commit kèm test.",
+   "Gợi ý nếu khó": "Không nâng bản major khi chưa chạy đủ test. Phát hiện khoá thật trong lịch sử thì xoay khoá chứ không chỉ xoá khỏi repo."
+  },
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "F3",
+  "title": "Diễn đàn: chốt hợp đồng API cho thiết kế và FE",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Kiên",
+  "people": [
+   "Kiên"
+  ],
+  "effort": "1 ngày",
+  "week": "Tuần 2",
+  "dates": "7–8/11",
+  "fields": {
+   "Mô tả": "Diễn đàn BE đã có 11 điểm cuối: danh sách bài có lọc theo 4 chuyên mục (discuss, question, share, help), sắp xếp và phân trang; chi tiết bài; sửa/xoá bài; 6 loại cảm xúc; bình luận lồng nhau; @mention gửi thông báo. Viết tài liệu API (trường trả về, mã lỗi, phân trang) và liệt kê chỗ thiếu (ví dụ tìm kiếm, ghim bài, báo cáo vi phạm) để Đức thiết kế đúng cái BE có.",
+   "Cách làm (theo source hiện tại)": "1. Đọc src/forum/forum.controller.ts: GET posts (dòng 50, query category, mine, sort, page), POST posts (67), GET posts/:id (74), PUT (83), DELETE (93), POST posts/:id/react (103), GET/POST posts/:id/comments (118, 128), POST comments/:id/react (139), PUT/DELETE comments/:id (154, 169).\n2. Giá trị cố định: CATEGORIES = discuss, question, share, help; REACTION_TYPES = like, love, haha, wow, sad, angry (src/forum/forum.service.ts dòng 13–14); DTO ở src/forum/dto/forum.dto.ts (MAX_CONTENT, MAX_TITLE).\n3. Chạy npm run start:dev, gọi thật từng route bằng token khách, ghi bảng: route | request | response | lỗi.\n4. Ghi riêng những thứ chưa có (tìm kiếm, ghim, báo cáo vi phạm) để Đức không thiết kế thứ BE không có.",
+   "Kết quả cần đạt": "Một trang tài liệu API diễn đàn dùng được cho G7 và FE; danh sách chỗ thiếu có đề xuất mức ưu tiên.",
+   "Gợi ý nếu khó": "Lấy từ chính code forum.controller.ts và forum.dto.ts; đừng viết từ trí nhớ."
+  },
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "F1",
+  "title": "Diễn đàn: kiểm chức năng BE và viết test",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Kiên",
+  "people": [
+   "Kiên"
+  ],
+  "effort": "2–3 ngày",
+  "week": "Tuần 3",
+  "dates": "9–11/11",
+  "fields": {
+   "Mô tả": "forum.service.ts dài 576 dòng nhưng chỉ có test cho mention.helper (8 ca): tạo/sửa/xoá bài, quyền tác giả và admin, cảm xúc, cây bình luận, thông báo mention đều chưa có test. Viết test và sửa lỗi lộ ra.",
+   "Cách làm (theo source hiện tại)": "1. src/forum/forum.service.ts: listPosts() (30), createPost, updatePost() (78), deletePost, react (khoảng 165), bình luận (cây theo parentCommentId), notifyMentions() (432) gọi NotificationsService.notify().\n2. Mẫu spec: src/forum/mention.helper.spec.ts và src/quizzes/quizzes.service.spec.ts (PrismaMock, asyncMock theo AGENTS.md).\n3. Ca cần có: sửa/xoá bài của người khác → bị từ chối, admin được; react loại lạ → 400; phân trang; cây bình luận; mention gọi notify đúng người.\n4. Gỡ bản sửa thì test phải trượt; ghi số ca trượt vào mô tả commit.",
+   "Kết quả cần đạt": "Test cho các luồng chính; gỡ bản sửa thì test trượt (ghi số ca trượt vào mô tả commit).",
+   "Gợi ý nếu khó": "Theo mẫu PrismaMock/asyncMock trong AGENTS.md; lấy hình dạng dữ liệu thật từ schema, đừng tự bịa fixture."
+  },
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "F2",
+  "title": "Diễn đàn: chống spam và kiểm duyệt",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Kiên",
+  "people": [
+   "Kiên"
+  ],
+  "effort": "2 ngày",
+  "week": "Tuần 3",
+  "dates": "12–13/11",
+  "fields": {
+   "Mô tả": "Ngoài hạn mức chung theo IP, tạo bài và bình luận chưa có hạn mức riêng; chưa có báo cáo vi phạm (chỉ tác giả hoặc admin xoá/sửa). Thêm hạn mức riêng cho tạo bài và bình luận, kiểm giới hạn độ dài, và (nếu F3 đề xuất) điểm cuối báo cáo bài viết.",
+   "Cách làm (theo source hiện tại)": "1. Mẫu hạn mức: src/python-runner/python-runner.controller.ts: @Throttle({ ip_hour: { limit: Number(process.env.THROTTLE_PY_RUN_LIMIT ?? 10), ttl: seconds(...) } }) và @ThrottleMessage('...').\n2. Áp cho POST posts và POST posts/:id/comments trong forum.controller.ts; ngưỡng đọc từ env (THROTTLE_FORUM_*), khai báo cạnh THROTTLE_PY_RUN_LIMIT trong src/config/env.validation.ts (cả phòng học chung một IP nên không đặt thấp).\n3. Kiểm MAX_CONTENT/MAX_TITLE trong forum.dto.ts; nội dung có thẻ HTML phải được xử lý an toàn (xem forum-xss.test.mjs).\n4. Điểm cuối báo cáo bài viết chỉ làm nếu F3 đề xuất và nhóm duyệt.",
+   "Kết quả cần đạt": "Hạn mức hoạt động có test; thông báo lỗi 429 đúng định dạng gateway; nội dung có thẻ HTML được thoát.",
+   "Gợi ý nếu khó": "Theo mẫu @Throttle trong python-runner.controller.ts; cho ngưỡng đọc từ biến môi trường vì cả phòng học chung một IP.",
+   "Phụ thuộc": "Nên sau F1."
+  },
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "A1",
+  "title": "Arena: khảo sát khả thi phía BE",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Nghĩa",
+  "people": [
+   "Nghĩa"
+  ],
+  "effort": "2 ngày",
+  "week": "Tuần 2",
+  "dates": "3–4/11",
+  "fields": {
+   "Mô tả": "Đã có: bộ sinh và chấm quiz phía server (không gửi đáp án trước khi nộp, nộp một lần), bảng xếp hạng theo XP, thông báo, runner Docker (mặc định 2 bài đồng thời). Chưa có: kênh thời gian thực (không có websocket/SSE/Redis trong package.json), ghép cặp, kho trạng thái dùng chung. Commit e7c41c0 (15/10) từng kết luận không làm đối kháng người–người vì thiếu người chơi, trạng thái trận nằm trong RAM mất mỗi lần deploy, và xếp hạng tiêu cực hại động lực; design-system-v2.md cũng đã bỏ mục “Đấu trường” khỏi thanh điều hướng. DB hiện có 73 người dùng (68 khách). Cần xem lại trong bối cảnh Arena trở thành tính năng mới.",
+   "Cách làm (theo source hiện tại)": "1. Đọc src/quizzes/quizzes.service.ts: generateReviewQuiz() (75), buildQuestionPool, weightedSampleWithoutReplacement, persistQuiz, submitQuiz() (259, chấm ở server, nộp một lần), getQuiz (319); stripAnswers() không gửi đáp án.\n2. Tái dùng được: src/leaderboard/leaderboard.service.ts (fetchTopWeekly dòng 20, fetchTopBy 54); src/notifications/notifications.service.ts notify() (63).\n3. Hạ tầng: src/python-runner/sandbox/run-queue.ts (mặc định 2 bài đồng thời); package.json không có websocket/SSE/Redis.\n4. Đọc commit e7c41c0 (lý do không làm đối kháng) và design-system-v2.md (mục “Đấu trường”).\n5. Viết 1–2 trang cho hai mô hình A và B, mỗi mô hình: BE cần làm gì, ước công, rủi ro; mang đề xuất tới họp 5/11.",
+   "Kết quả cần đạt": "Văn bản 1–2 trang: các mô hình Arena khả thi (ví dụ A: thử thách theo tuần với xếp hạng bất đồng bộ trên hạ tầng hiện có; B: đối kháng thời gian thực cần websocket, Redis, ghép cặp); mỗi mô hình ghi BE phải làm gì, ước công, rủi ro; đề xuất một mô hình để họp 5/11 quyết (Q7).",
+   "Gợi ý nếu khó": "Đọc e7c41c0 và quizzes.service.ts trước. Mô hình A tận dụng được hầu hết cái có sẵn."
+  },
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "A2",
+  "title": "Arena: đặc tả BE theo mô hình đã chọn [CHỜ Q7]",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Nghĩa",
+  "people": [
+   "Nghĩa"
+  ],
+  "effort": "3 ngày",
+  "week": "Tuần 3",
+  "dates": "9–12/11",
+  "fields": {
+   "Mô tả": "Theo mô hình được chọn ở Q7: danh sách điểm cuối, quy tắc tính điểm ở server, chống gian lận (đáp án không lộ, nộp một lần, giới hạn lượt, chống chạy nhiều tab), dữ liệu cần lưu (chỉ liệt kê, thiết kế bảng làm sau), kế hoạch test, ước công và thứ tự dev.",
+   "Cách làm (theo source hiện tại)": "1. Theo mô hình đã chọn ở họp 5/11 (mặc định A: thử thách theo tuần, xếp hạng bất đồng bộ).\n2. Liệt kê điểm cuối (ví dụ GET /arena/current, POST /arena/:id/submit, GET /arena/:id/leaderboard) theo cách src/quizzes/quizzes.controller.ts đang làm; gateway tự thêm tiền tố /api, không viết api/v1.\n3. Tái dùng stripAnswers() (không lộ đáp án) và submitQuiz() (nộp một lần, lần hai trả 409); điểm tính ở server.\n4. Dữ liệu cần lưu: cân nhắc dùng quizzes.questionsJson và review_quiz_results (score, answersJson) trước khi thêm bảng mới (thiết kế bảng làm sau).\n5. Kế hoạch test như quizzes.service.spec.ts; ước công cho A3.",
+   "Kết quả cần đạt": "Đặc tả đủ để chia task dev ở cuộc họp 15/11; chưa viết mã Arena.",
+   "Gợi ý nếu khó": "Nếu Q7 chưa chốt kịp, làm đặc tả cho mô hình A đã đề xuất.",
+   "Phụ thuộc": "Cần Q7 (5/11)."
+  },
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "A3",
+  "title": "Arena: dựng BE (dev)",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Kiên",
+  "people": [
+   "Kiên"
+  ],
+  "effort": "6 ngày",
+  "week": "Tuần 5",
+  "dates": "21–27/11",
+  "fields": {
+   "Mô tả": "Cài đặt BE Arena theo đặc tả A2 của Nghĩa (Nghĩa khảo sát và viết đặc tả, Kiên dựng vì Kiên còn chỗ trống ở giai đoạn 2).",
+   "Cách làm (theo source hiện tại)": "1. Tạo src/arena/ (arena.module.ts, arena.controller.ts, arena.service.ts, dto/) theo mẫu src/quizzes/; đăng ký trong src/app.module.ts.\n2. Controller: @Controller('arena') (không viết api/v1); hạn mức riêng theo mẫu @Throttle của python-runner.controller.ts.\n3. Service: tái dùng cách chọn câu và chấm của QuizzesService (inject hoặc tách hàm dùng chung), điểm tính ở server.\n4. Test theo mẫu quizzes.service.spec.ts, gồm ca đáp án không lộ trước khi nộp.\n5. Báo Đức (A4) khi mỗi điểm cuối sẵn sàng.",
+   "Kết quả cần đạt": "Điểm cuối Arena có test; đáp án không lộ.",
+   "Gợi ý nếu khó": "Chia nhỏ theo điểm cuối.",
+   "Phụ thuộc": "Sau A2 và khi tài liệu xong."
+  },
+  "backlog": null,
+  "tentative": true,
+  "wait": "A2"
+ },
+ {
+  "code": "F4",
+  "title": "Diễn đàn: dựng giao diện (FE)",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Trí Thành",
+  "people": [
+   "Trí Thành"
+  ],
+  "effort": "4 ngày",
+  "week": "Tuần 4–5",
+  "dates": "22–25/11",
+  "fields": {
+   "Mô tả": "Dựng trang diễn đàn theo thiết kế G7 và hợp đồng API F3.",
+   "Cách làm (theo source hiện tại)": "1. Route mới frontend/src/app/(standalone)/forum/page.tsx (và trang chi tiết bài); thêm vào frontend/src/lib/site-nav.ts (test e2e/unit/site-nav.test.mjs, route-metadata.test.mjs).\n2. Gọi theo hợp đồng F3: danh sách công khai dùng apiFetchSessionOnly, đăng bài/bình luận dùng apiFetch; lọc category discuss/question/share/help; phân trang theo page; bình luận lồng theo parentCommentId; 6 loại cảm xúc.\n3. XSS: render văn bản thuần, không dùng dangerouslySetInnerHTML; giữ e2e/unit/forum-xss.test.mjs xanh.\n4. Dùng token và component của giao diện thống nhất (T12).",
+   "Kết quả cần đạt": "Danh sách, chi tiết, bình luận, cảm xúc dùng được; trang công khai dùng apiFetchSessionOnly.",
+   "Gợi ý nếu khó": "Làm khung với dữ liệu giả trước.",
+   "Phụ thuộc": "Cần G7 (13/11), F3 (8/11), F1 (11/11); T12 xong để dùng chung token."
+  },
+  "backlog": null,
+  "tentative": true,
+  "wait": "G7, F3, F1"
+ },
+ {
+  "code": "G6",
+  "title": "Figma: thống nhất giao diện dashboard và khoá học",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Đức",
+  "people": [
+   "Đức"
+  ],
+  "effort": "9 ngày",
+  "week": "Tuần 1–2",
+  "dates": "27/10–8/11",
+  "fields": {
+   "Mô tả": "Hiện hai bề mặt đang khác nhau: Góc học (/ , phòng học lofi) và /dashboard (bản Figma cũ) theo kiểu riêng, còn trang khoá học /courses/[id] và trang bài học theo hệ thiết kế v2. Rà hai giao diện, chốt một ngôn ngữ chung (token, bố cục, thanh điều hướng), thiết kế trên Figma và bàn giao spec cho FE. Không phụ thuộc nội dung tài liệu. Gộp cả việc kiểm tương phản chữ 4,5:1 của Góc học (trước là G4).",
+   "Cách làm (theo source hiện tại)": "1. Tư liệu: design-system-v2.md (luật hệ thiết kế v2); design/project/Tokens.dc.html (token), Main.dc.html (thanh điều hướng), Review.dc.html.\n2. Hiện trạng cần so: Góc học (frontend/src/app/page.tsx), dashboard (/dashboard, bản Figma cũ), trang khoá học và bài học. Dùng bảng T13 làm đầu vào.\n3. Quy trình: rà → hai phương án thống nhất → chọn một → frame Figma (token, bố cục, thanh điều hướng, component) → spec bàn giao cho Trí Thành.\n4. Luật phải giữ: không chuỗi ngày, không ổ khoá, màu qua token --ds-*, chữ ≥ 15 px (câu người học đọc ≥ 17 px), vùng bấm ≥ 44 px; chạy node frontend/e2e/unit/ds-contrast.mjs cho thiết kế mới.",
+   "Kết quả cần đạt": "Bộ frame Figma thống nhất (Góc học/dashboard ↔ khoá học ↔ bài học) kèm spec token và component; một câu quyết định số phận /dashboard; nhóm duyệt 8/11. ds-contrast.mjs không còn cặp trượt trên thiết kế mới.",
+   "Gợi ý nếu khó": "Bắt đầu từ bảng kiểm kê khác biệt của T13 (xong 29/10). Giữ nguyên các luật của hệ thiết kế v2 (không chuỗi ngày, không ổ khoá, màu qua token)."
+  },
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "G7",
+  "title": "Figma: thiết kế diễn đàn",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Đức",
+  "people": [
+   "Đức"
+  ],
+  "effort": "4 ngày",
+  "week": "Tuần 3",
+  "dates": "9–13/11",
+  "fields": {
+   "Mô tả": "Thiết kế màn diễn đàn dựa trên đúng cái BE đang có (F3): danh sách có lọc 4 chuyên mục và phân trang, chi tiết bài, bình luận lồng, 6 loại cảm xúc, thông báo mention. Chuyên mục và luật giọng theo hệ thiết kế v2.",
+   "Cách làm (theo source hiện tại)": "1. Đầu vào: tài liệu API F3 (8/11) và design-system-v2.md; chưa có thiết kế diễn đàn nào trong design/project nên cần vẽ mới.\n2. Màn cần có: danh sách (lọc 4 chuyên mục discuss/question/share/help, sắp xếp, phân trang), chi tiết bài, bình luận lồng, 6 loại cảm xúc, thông báo mention.\n3. Mọi trạng thái: rỗng, đang tải, lỗi, bài của mình (sửa/xoá).\n4. Copy tiếng Việt dùng skill ux-copy; không thiết kế tính năng BE chưa có.",
+   "Kết quả cần đạt": "Frame Figma cho mọi trạng thái (rỗng, lỗi, đang tải, bài của mình) kèm copy tiếng Việt.",
+   "Gợi ý nếu khó": "Dùng skill ux-copy cho chữ. Đừng thiết kế tính năng BE chưa có (tìm kiếm, ghim) trừ khi F3 đề xuất và nhóm duyệt.",
+   "Phụ thuộc": "Cần F3 (8/11)."
+  },
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "T13",
+  "title": "Kiểm kê khác biệt giao diện dashboard và khoá học trong code",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Trí Thành",
+  "people": [
+   "Trí Thành"
+  ],
+  "effort": "1,5 ngày",
+  "week": "Tuần 1",
+  "dates": "28–29/10",
+  "fields": {
+   "Mô tả": "Liệt kê trong code chỗ hai bề mặt khác nhau: token màu và cỡ chữ, bố cục, thanh điều hướng, component dùng chung, CSS riêng. Đầu vào cho G6.",
+   "Cách làm (theo source hiện tại)": "1. So sánh hai nhóm giao diện: Góc học và dashboard (frontend/src/app/page.tsx, app/dashboard/page.tsx, DashboardMap.tsx, home.module.css, components/goc-hoc/scene.css) với trang khoá học và bài học (app/(standalone)/courses/[courseId]/page.tsx, components/CourseShell.module.css, components/python-studio/studio-chrome.module.css).\n2. Tìm màu cứng: grep -rn \"#[0-9a-fA-F]\\{6\\}\" trong các file trên; đối chiếu token --ds-* (design-system-v2.md) và alias --st-*.\n3. Ghi bảng: file | chỗ khác | mức độ (token, bố cục, điều hướng, component). Giao Đức ngày 29/10.",
+   "Kết quả cần đạt": "Bảng kiểm kê (file, chỗ khác, mức độ) giao cho Đức ngày 29/10.",
+   "Gợi ý nếu khó": "Đọc design-system-v2.md; dùng ds-contrast.mjs và các test canh token có sẵn để tìm chỗ lệch."
+  },
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "T12",
+  "title": "Dựng giao diện thống nhất theo thiết kế G6",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Trí Thành",
+  "people": [
+   "Trí Thành"
+  ],
+  "effort": "7 ngày",
+  "week": "Tuần 3–4",
+  "dates": "9–18/11",
+  "fields": {
+   "Mô tả": "Cài đặt thiết kế thống nhất của G6 ở frontend: thanh điều hướng, token, bố cục chung cho Góc học/dashboard và trang khoá học. Không đụng nội dung bài học (chờ tài liệu).",
+   "Cách làm (theo source hiện tại)": "1. Đầu vào: bảng kiểm kê T13 và frame Figma G6.\n2. Token và CSS dùng chung: frontend/public/static/css/studio-tokens.css, edu-theme.css; trang: frontend/src/app/home.module.css, app/dashboard/page.tsx, DashboardMap.tsx, components/SiteHeader.tsx, components/goc-hoc/scene.css.\n3. Làm từng trang một, mỗi trang một commit; không thêm style={{…}} (đang dọn để bỏ 'unsafe-inline').\n4. Chạy lại frontend/e2e/unit/ds-tokens.test.mjs, ds-wording.test.mjs, ds-type-scale.test.mjs và node frontend/e2e/unit/ds-contrast.mjs; chụp trước/sau.",
+   "Kết quả cần đạt": "Các trang đã đổi dùng chung token và bố cục; test:unit, typecheck, lint xanh; chụp trước/sau cho từng trang.",
+   "Gợi ý nếu khó": "Làm từng trang một, mỗi trang một commit; không dùng style={{}} mới (còn đang dọn để bỏ 'unsafe-inline').",
+   "Phụ thuộc": "Cần G6 (8/11)."
+  },
+  "backlog": null,
+  "tentative": false,
+  "wait": ""
+ },
+ {
+  "code": "T10",
+  "title": "Nối giáo trình mới vào giao diện (curricula, catalog, sync)",
+  "prio": "P0",
+  "urg": "Chặn dev nội dung",
+  "person": "Trí Thành",
+  "people": [
+   "Trí Thành"
+  ],
+  "effort": "3 ngày",
+  "week": "Tuần 4",
+  "dates": "19–20/11 (Python); 21/11 (SQL, ML)",
+  "fields": {
+   "Mô tả": "Trang khoá học, Góc học và dashboard đọc frontend/src/lib/curricula.json, LESSON_META và catalog.ts, không đọc DB. Mỗi môn mới phải được chép sang các file này bằng bước tương đương sync_curricula.py (số bài, chặng, phút, XP, danh sách màn), cập nhật catalog.ts, chạy lại test dashboard-plan và catalog-duration.",
+   "Cách làm (theo source hiện tại)": "1. scripts/pe-v4/sync_curricula.py: screen_keys() (dòng 36), lesson_meta() (80), main() (101) chép giáo trình sang frontend/src/lib/curricula.json. Viết bản tham số hoá theo gói bài của từng môn.\n2. Cập nhật frontend/src/lib/catalog.ts (id, tiêu đề, số bài lấy từ curricula.json) và frontend/src/lib/dashboard-plan.ts nếu cần.\n3. Danh sách màn do screen_keys() phải khớp từng khoá với buildScreens() trong frontend/src/lib/studio-lesson.ts: sửa luồng màn thì sửa cả hai.\n4. Chạy frontend/e2e/unit/dashboard-plan.test.mjs, catalog-duration.test.mjs và script D6(c).",
+   "Kết quả cần đạt": "Trang khoá hiện đúng số bài và thời lượng thật của từng môn; screen_keys() (Python) khớp buildScreens() (TS); script so DB↔curricula (D6c) xanh.",
+   "Gợi ý nếu khó": "Đừng gõ tay số bài hay số giờ: lấy từ gói đã dựng. Sửa luồng màn thì sửa cả screen_keys() lẫn buildScreens().",
+   "Phụ thuộc": "Cần D8."
+  },
+  "tentative": true,
+  "wait": "D8 (từng môn)",
+  "backlog": null
+ },
+ {
+  "code": "G8",
+  "title": "Figma: thiết kế màn Arena",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Đức",
+  "people": [
+   "Đức"
+  ],
+  "effort": "2 ngày",
+  "week": "Tuần 5",
+  "dates": "27–28/11",
+  "fields": {
+   "Mô tả": "Thiết kế màn Arena theo mô hình đã chọn (mặc định mô hình A: thử thách theo tuần, xếp hạng bất đồng bộ). Phải tuân theo luật hệ thiết kế v2 (xếp hạng chỉ giữ nếu Q2 cho phép).",
+   "Cách làm (theo source hiện tại)": "1. Đầu vào: đặc tả A2 và mô hình Arena đã chốt ở Q7 (mặc định A: thử thách theo tuần).\n2. Tham khảo bố cục và giọng của Thử thách ôn (design/project/Arena.dc.html, ArenaMobile.dc.html).\n3. Mọi trạng thái (chưa bắt đầu, đang làm, kết quả, bảng xếp hạng nếu Q2 giữ, lỗi); copy tiếng Việt bằng skill ux-copy.",
+   "Kết quả cần đạt": "Frame Figma cho mọi trạng thái, kèm copy tiếng Việt.",
+   "Gợi ý nếu khó": "Dùng skill ux-copy. Màn Thử thách ôn hiện có (design/project/Arena.dc.html thực chất là Thử thách ôn) là mẫu về giọng.",
+   "Phụ thuộc": "Cần A2, Q7."
+  },
+  "tentative": true,
+  "wait": "A2, Q7",
+  "backlog": null
+ },
+ {
+  "code": "A4",
+  "title": "Arena: dựng giao diện tối thiểu (FE)",
+  "prio": "P2",
+  "urg": "Trung bình",
+  "person": "Đức",
+  "people": [
+   "Đức"
+  ],
+  "effort": "2 ngày",
+  "week": "Chốt",
+  "dates": "29–30/11",
+  "fields": {
+   "Mô tả": "Dựng màn Arena tối thiểu theo thiết kế G8, nối điểm cuối của A3. Đức làm cả thiết kế lẫn dựng vì đây là màn nhỏ.",
+   "Cách làm (theo source hiện tại)": "1. Tham khảo màn Thử thách ôn đã có: frontend/src/app/(standalone)/practice/challenge/ và frontend/src/lib/challenge-run.ts (chốt từng câu, nộp cả lượt; test e2e/unit/challenge-run.test.mjs).\n2. Gọi điểm cuối A3 qua frontend/src/lib/api.ts; trang công khai dùng apiFetchSessionOnly.\n3. Dựng đúng một luồng chơi từ đầu đến cuối theo G8; đáp án không lộ trước khi nộp.",
+   "Kết quả cần đạt": "Một luồng chơi Arena chạy được từ đầu đến cuối với dữ liệu thật; đáp án không lộ trước khi nộp.",
+   "Gợi ý nếu khó": "Làm bằng token và component của giao diện thống nhất (T12).",
+   "Phụ thuộc": "Cần G8, A3."
+  },
+  "tentative": true,
+  "wait": "G8, A3",
+  "backlog": null
+ },
+ {
+  "code": "M1",
+  "title": "ML: thiết kế bộ câu hỏi đầu vào (questionnaire) và đặc tả",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Nghĩa",
+  "people": [
+   "Nghĩa"
+  ],
+  "effort": "2 ngày",
+  "fields": {
+   "Mô tả": "Hiện có khảo sát (SurveyDto: job, purpose, experience, language, level, skill_detail, goal, domain) chỉ dùng để chọn lộ trình mẫu; khách bỏ qua bảng hỏi; bảng questionnaires đã có trong DB nhưng chưa có mã nào đọc; frontend chưa có màn bảng hỏi. Thiết kế bộ câu hỏi gồm hai nhóm: tự đánh giá (kinh nghiệm, mục tiêu) và câu xếp lớp cho từng môn Python, SQL, Machine Learning. Phân loại level và gợi ý bài là bước sau, triển khai sau và không nằm trong file này.",
+   "Cách làm (theo source hiện tại)": "1. Nơi đã có: POST /user/survey (src/user/user.controller.ts dòng 74 → src/user/user.service.ts submitSurvey() dòng 183): lưu surveys.data_json, đặt users.questionnaire_completed = true, sinh roadmap mẫu bằng pickRoadmapTemplate() (src/user/pick-roadmap-template.ts). SurveyDto ở src/user/dto/user.dto.ts. Khách bỏ qua bảng hỏi (auth.service.ts dòng 160: questionnaireCompleted: true).\n2. Bảng questionnaires (version, title, questions_json, is_active) đã có trong schema.prisma và chưa có mã nào dùng: lưu bộ câu hỏi ở đây, KHÔNG cần migration.\n3. Định nghĩa JSON câu hỏi: id, type (self_report | placement), course, level_tag, options kèm cờ correct, weight.\n4. Thêm GET /questionnaire trả câu hỏi đang is_active và LOẠI cờ correct (cùng ý stripAnswers() ở quizzes.service.ts); mở rộng POST /user/survey nhận answers[].\n5. Giao đặc tả cho Nam Nguyễn (N4, soạn câu hỏi) và Đức (G9, thiết kế) ngày 8/11.",
+   "Kết quả cần đạt": "Đặc tả JSON bộ câu hỏi (cấu trúc, kiểu câu, cách lưu câu trả lời) và danh sách điểm cuối; Nam Nguyễn nhận đặc tả để soạn câu hỏi (N4); Đức nhận đặc tả để thiết kế (G9).",
+   "Gợi ý nếu khó": "Bắt đầu từ câu trắc nghiệm có sẵn trong bài (step_2.mcq) rồi gắn mức; đừng viết câu mới từ đầu."
+  },
+  "week": "Tuần 2",
+  "dates": "6–8/11",
+  "tentative": false,
+  "wait": "",
+  "backlog": null
+ },
+ {
+  "code": "M2",
+  "title": "ML: dựng BE questionnaire (đọc câu hỏi, nhận và lưu câu trả lời)",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Nghĩa",
+  "people": [
+   "Nghĩa"
+  ],
+  "effort": "3 ngày",
+  "week": "Tuần 4",
+  "dates": "16–18/11",
+  "tentative": true,
+  "wait": "M1, N4",
+  "backlog": null,
+  "fields": {
+   "Mô tả": "Dựng phần BE của questionnaire theo đặc tả M1: nạp bộ câu hỏi của Nam Nguyễn (N4) vào bảng questionnaires, trả câu hỏi cho người học mới và lưu câu trả lời.",
+   "Cách làm (theo source hiện tại)": "1. Nạp: script scripts/seed-questionnaire.ts ghi bộ câu hỏi vào bảng questionnaires (cột version, title, questions_json, is_active); không cần migration.\n2. Đọc: GET /questionnaire trả bộ đang is_active và LOẠI cờ correct (cùng ý stripAnswers() trong src/quizzes/quizzes.service.ts); module mới src/questionnaire/ theo mẫu src/quizzes/, đăng ký trong src/app.module.ts.\n3. Lưu: mở rộng POST /user/survey (src/user/user.controller.ts dòng 74 → user.service.ts submitSurvey() dòng 183): nhận answers[], lưu vào surveys.data_json, vẫn đặt questionnaire_completed = true.\n4. Kiểm: câu trả lời gửi lên phải khớp id câu hỏi đang active (SurveyDto dùng class-validator, xem src/user/dto/user.dto.ts).\n5. Test theo mẫu quizzes.service.spec.ts: đáp án không lộ; nộp lại thì cập nhật chứ không nhân đôi.",
+   "Kết quả cần đạt": "Người học mới lấy được bộ câu hỏi (không có đáp án) và gửi câu trả lời, được lưu lại; có test.",
+   "Gợi ý nếu khó": "Giữ nguyên hành vi cũ của POST /user/survey cho khách (tham số cũ vẫn hợp lệ).",
+   "Phụ thuộc": "Cần M1 và N4 (16/11)."
+  }
+ },
+ {
+  "code": "G9",
+  "title": "Figma: màn bộ câu hỏi đầu vào (questionnaire)",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Đức",
+  "people": [
+   "Đức"
+  ],
+  "effort": "1,5 ngày",
+  "fields": {
+   "Mô tả": "Thiết kế màn làm bộ câu hỏi (tự đánh giá + câu xếp lớp) theo đặc tả M1, từ lúc bắt đầu đến lúc nộp. Chưa thiết kế màn kết quả/gợi ý bài (bước sau).",
+   "Cách làm (theo source hiện tại)": "1. Đầu vào: đặc tả M1 (8/11): hai nhóm câu hỏi tự đánh giá và xếp lớp; kết quả level theo từng môn.\n2. Tham khảo màn Thử thách ôn (design/project/.dc.html thực chất là Thử thách ôn; Mobile.dc.html cho màn hẹp) về cách chốt từng câu và giọng.\n3. Trạng thái: bắt đầu, đang làm, bỏ qua, nộp xong, lỗi.\n4. Khách vẫn vào học thẳng không cần làm bộ câu hỏi.",
+   "Kết quả cần đạt": "Frame Figma cho mọi trạng thái (bắt đầu, đang làm, bỏ qua, nộp xong, lỗi) kèm copy tiếng Việt; người học luôn bỏ qua được và vào học thẳng.",
+   "Gợi ý nếu khó": "Theo giọng hệ thiết kế v2: không ổ khoá, không thi đua. Màn Thử thách ôn đã có là mẫu cho kiểu chốt từng câu.",
+   "Phụ thuộc": "Cần M1 (8/11)."
+  },
+  "week": "Tuần 3",
+  "dates": "14–15/11",
+  "tentative": false,
+  "wait": "",
+  "backlog": null
+ },
+ {
+  "code": "T14",
+  "title": "FE: màn bộ câu hỏi đầu vào (questionnaire)",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Trí Thành",
+  "people": [
+   "Trí Thành"
+  ],
+  "effort": "2 ngày",
+  "fields": {
+   "Mô tả": "Dựng màn bộ câu hỏi theo G9, nối GET /questionnaire và POST /user/survey (M2). Sau khi nộp, đưa người học vào trang khoá học.",
+   "Cách làm (theo source hiện tại)": "1. Route mới hoặc hộp thoại ở trang khoá học (frontend/src/app/(standalone)/courses/[courseId]/page.tsx); nối với CTA hiện có (frontend/src/lib/course-progress.ts; test e2e/unit/course-cta.test.mjs).\n2. Gọi GET /questionnaire và POST /user/survey qua frontend/src/lib/api.ts: trang bài học dùng apiFetch, trang công khai dùng apiFetchSessionOnly.\n3. Bỏ qua được và có trạng thái lỗi; làm khung với dữ liệu giả trước khi API xong.",
+   "Kết quả cần đạt": "Người học mới làm bộ câu hỏi và nộp được; bỏ qua được; không có lời gọi tạo khách từ trang công khai.",
+   "Gợi ý nếu khó": "Làm khung với dữ liệu giả trước khi API xong.",
+   "Phụ thuộc": "Cần G9 (15/11) và M2 (18/11)."
+  },
+  "week": "Chốt",
+  "dates": "29–30/11",
+  "tentative": true,
+  "wait": "G9, M2",
+  "backlog": null
+ },
+ {
+  "code": "D9",
+  "title": "Nghiệm thu cuối tháng 11",
+  "prio": "P0",
+  "urg": "Chặn kết thúc đợt",
+  "person": "Nhân",
+  "people": [
+   "Nhân"
+  ],
+  "effort": "1,5 ngày",
+  "fields": {
+   "Mô tả": "Chạy lại toàn bộ lệnh kiểm của AGENTS.md, đo lại mốc nền lần cuối, kiểm tay các luồng chính trên bản deploy, lập danh sách việc chuyển sang đợt nâng cấp sau.",
+   "Cách làm (theo source hiện tại)": "1. Chạy các lệnh trong AGENTS.md: npm run typecheck; npx jest --ci; cd frontend && npm run typecheck && npm run lint && npm run test:unit; eslint backend bằng lệnh CI.\n2. Kiểm tay trên bản deploy: / → /courses/<môn> → bài học (hoàn thành một bài) → /practice → /ide → diễn đàn → bộ câu hỏi đầu vào.\n3. Sửa bảng “Mốc nền” trong AGENTS.md bằng số đo thật.\n4. Viết biên bản 1 trang: đã xong, việc chuyển sang đợt nâng cấp.",
+   "Kết quả cần đạt": "Typecheck, lint, test hai phía xanh; bảng mốc đã đo lại và sửa; biên bản nghiệm thu 1 trang; mọi việc của đợt này xong.",
+   "Gợi ý nếu khó": "Kiểm theo danh sách luồng chính ở mục Cách làm; việc nào chưa xong ghi rõ lý do và chuyển sang đợt sau, không im lặng bỏ."
+  },
+  "week": "Chốt",
+  "dates": "28–30/11",
+  "tentative": true,
+  "wait": "mọi việc trên",
+  "backlog": null
+ },
+ {
+  "code": "N4",
+  "title": "Soạn bộ câu hỏi xếp lớp cho Python, SQL, ML (nội dung questionnaire)",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Nam Nguyễn",
+  "people": [
+   "Nam Nguyễn"
+  ],
+  "effort": "3 ngày",
+  "week": "Tuần 3",
+  "dates": "13–16/11",
+  "tentative": false,
+  "wait": "",
+  "backlog": null,
+  "fields": {
+   "Mô tả": "Viết 6–8 câu xếp lớp cho mỗi môn (Python, SQL, Machine Learning), mỗi câu gắn mức beginner/intermediate/advanced, có đáp án đúng và lời giải thích. Đây là nội dung của questionnaire mà Nghĩa dựng (M1, M2).",
+   "Cách làm (theo source hiện tại)": "1. Lấy khung câu hỏi và định dạng JSON từ đặc tả M1 (8/11): id, type, course, level_tag, options (có cờ correct), weight.\n2. Câu có thể chọn từ trắc nghiệm trong bài (step_2.mcq của scripts/pe-v4/out-advanced/lessons/*.json) rồi sửa lại cho đứng một mình được; mỗi môn phủ đủ ba mức.\n3. Mỗi câu chỉ kiểm một ý; lựa chọn sai phải là lỗi người mới hay mắc; đáp án có giải thích ngắn.\n4. Giao file cho Nghĩa nạp vào bảng questionnaires (M2).",
+   "Kết quả cần đạt": "Ba bộ câu hỏi (Python, SQL, ML) được Nhân và Kiên đọc qua và Nghĩa nạp được vào questionnaire.",
+   "Gợi ý nếu khó": "Đừng viết câu cần kiến thức của bài chưa học; người mới phải làm được câu mức beginner không cần chuẩn bị.",
+   "Phụ thuộc": "Cần M1 (8/11)."
+  }
+ },
+ {
+  "code": "N5",
+  "title": "Kiểm tra nội dung trên nền tảng sau khi nạp",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Nam Nguyễn",
+  "people": [
+   "Nam Nguyễn"
+  ],
+  "effort": "6 ngày",
+  "week": "Tuần 4–Chốt",
+  "dates": "19–30/11",
+  "tentative": true,
+  "wait": "D8, T10 (từng môn)",
+  "backlog": null,
+  "fields": {
+   "Mô tả": "Sau khi giáo trình được nạp vào DB và nối vào giao diện, đọc từng bài trên giao diện thật như người học, ghi và sửa lỗi nội dung (sai chính tả, ví dụ không chạy, thứ tự màn lạ, câu hỏi mơ hồ).",
+   "Cách làm (theo source hiện tại)": "1. Mở /courses/<môn> rồi từng bài ở /lesson/<môn>; chạy mọi ví dụ trong trình duyệt.\n2. Ghi lỗi vào một bảng: môn | bài | màn | lỗi | đã sửa.\n3. Sửa nội dung ở file nguồn rồi nhờ Nhân nạp lại bằng scripts/update-lesson-content.ts (đường an toàn, không xoá tiến độ; mặc định chạy thử, --apply kèm --backup).\n4. Lỗi giao diện (không phải nội dung) báo Trí Thành.",
+   "Kết quả cần đạt": "Mọi bài của ba môn đã được đọc trên nền tảng thật; bảng lỗi nội dung không còn mục chưa sửa.",
+   "Gợi ý nếu khó": "Làm theo từng môn ngay khi môn đó nạp xong (Python từ 19/11), đừng chờ nạp hết.",
+   "Phụ thuộc": "Cần D8 và T10 (từng môn)."
+  }
+ },
+ {
+  "code": "B11",
+  "title": "Script nạp giáo trình theo môn (course_id riêng)",
+  "prio": "P0",
+  "urg": "Chặn dev nội dung",
+  "person": "Kiên",
+  "people": [
+   "Kiên"
+  ],
+  "effort": "2 ngày",
+  "week": "Tuần 3",
+  "dates": "14–15/11",
+  "tentative": false,
+  "wait": "",
+  "backlog": null,
+  "fields": {
+   "Mô tả": "Cần một đường nạp giáo trình mới (Python, SQL, ML) vào DB: mỗi môn một course_id, mặc định chạy thử, --apply kèm sao lưu, mọi bài qua bộ kiểm trước khi ghi. Nhân dùng script này ở D8.",
+   "Cách làm (theo source hiện tại)": "1. Lấy scripts/seed-python-advanced-v4.ts làm mẫu: đọc gói bài (lessons.json), course_id và META (tiêu đề, phụ đề, mô tả ghi vào courses.content_meta), --apply ghi trong MỘT transaction.\n2. Tách phần chung (đọc gói, kiểm, ghi) thành hàm dùng cho nhiều môn; tham số --course=<id> --bundle=<file>.\n3. Mọi bài đi qua validateStudioLesson() (src/course-admin/studio-lesson.schema.ts dòng 74) trước; còn lỗi thì không ghi bài nào.\n4. KHÔNG xoá lesson_progress của khoá khác; khoá mới chưa có tiến độ nên an toàn.\n5. Test chạy thử trên branch Neon: hai lần liên tiếp không nhân đôi bài (khoá theo (course_id, lesson_code)).",
+   "Kết quả cần đạt": "Chạy được cho một gói mẫu ở chế độ xem trước và --apply trên DB thử; ghi đúng số bài và lesson_code; không đụng khoá khác.",
+   "Gợi ý nếu khó": "Dùng scripts/update-lesson-content.ts cho lần sửa nội dung sau (không xoá tiến độ); script này chỉ cho lần nạp đầu.",
+   "Phụ thuộc": "Cần D3 (quy trình sao lưu, 3/11) và D2."
+  }
+ },
+ {
+  "code": "B13",
+  "title": "Test tích hợp backend cho các luồng chính",
+  "prio": "P1",
+  "urg": "Cao",
+  "person": "Nghĩa",
+  "people": [
+   "Nghĩa"
+  ],
+  "effort": "2 ngày",
+  "week": "Chốt",
+  "dates": "26–28/11",
+  "tentative": true,
+  "wait": "A3, B7, M2",
+  "backlog": null,
+  "fields": {
+   "Mô tả": "Trước nghiệm thu, viết test chạy qua các luồng chính của backend: khách nhận tài khoản → ghi danh → hoàn thành bài (XP đúng) → thành tích → questionnaire → diễn đàn.",
+   "Cách làm (theo source hiện tại)": "1. Dựng app Nest thật trong test như src/python-runner/python-runner.controller.spec.ts (gọi HTTP thật nhiều lượt trong một ca); nhớ jest.testTimeout đã đặt 30 giây trong package.json.\n2. Dùng Prisma mock theo AGENTS.md hoặc DB thử, không dùng DB có người học thật.\n3. Luồng: POST /auth/guest → POST /courses/:id/enroll → GET /courses/:id/lessons/:n/content → POST /lessons/:n/complete (kiểm XP theo scaledXp() trong src/lessons/lessons.service.ts) → GET /achievements → GET /questionnaire → POST /posts.\n4. Gỡ bản sửa của từng bước thì test phải trượt.",
+   "Kết quả cần đạt": "Bộ test tích hợp xanh, chạy được trong CI; mỗi luồng có ít nhất một ca đúng và một ca lỗi.",
+   "Gợi ý nếu khó": "Dùng đúng tên route hiện có; đừng viết lại logic vào test.",
+   "Phụ thuộc": "Cần A3, B7, M2 xong."
+  }
+ }
+]

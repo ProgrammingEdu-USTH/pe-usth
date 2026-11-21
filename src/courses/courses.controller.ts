@@ -40,6 +40,17 @@ export class CoursesController {
   }
 
   // ---------- Task 99 ----------
+  @Get('courses/catalog')
+  catalog(
+    @CurrentUserId() userId: number,
+    @Query('q') q?: string,
+    @Query('level') level?: string,
+    @Query('language') language?: string,
+  ) {
+    return this.courses.getCatalog(userId, q, level, language);
+  }
+
+  // Các route mang tiến độ vẫn no-store ở gateway.
   @Get('enrolled')
   enrolled(@CurrentUserId() userId: number) {
     return this.courses.getEnrolled(userId);

@@ -21,6 +21,7 @@ export class CorsMiddleware implements NestMiddleware {
     this.corsHandler = cors({
       origin: this.configService.get<string[]>('app.allowedOrigins'),
       credentials: true,
+      exposedHeaders: ['ETag'],
       // Đo trên production ngày 13/10/2026: frontend (www.programmingedu.io.vn)
       // và API (api.programmingedu.io.vn) là hai ORIGIN khác nhau, mà mọi lời
       // gọi của `apiFetch` đều đính header `Authorization`. Header đó KHÔNG nằm

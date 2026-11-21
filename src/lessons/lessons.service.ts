@@ -1,4 +1,5 @@
 import { lockCourseEnrollment } from 'src/common/lock-course-enrollment';
+import { cacheVersion } from 'src/api-gateway/http-cache';
 import {
   BadRequestException,
   ForbiddenException,
@@ -227,9 +228,37 @@ export class LessonsService {
         sortOrder: true,
         xpReward: true,
         contentJson: true,
+        updatedAt: true,
+        contentHash: true,
       },
     });
     if (!lesson) throw new NotFoundException('Không tìm thấy bài học');
+    const { updatedAt, contentHash, ...visibleLesson } = lesson;
+    // updatedAt do Prisma cập nhật cả ở update-lesson-content.ts (updateMany).
+    // Luôn dùng cả timestamp: hash nullable/chưa đồng bộ không được che cập nhật mới.
+    const respond = (
+      response: {
+        ok: boolean;
+        lesson: typeof visibleLesson;
+        completed: boolean;
+      },
+      withheld: boolean,
+    ) => {
+      return updatedAt instanceof Date
+        ? cacheVersion(response, [
+            lesson.id,
+            updatedAt.toISOString(),
+            contentHash,
+            lesson.title,
+            lesson.subtitle,
+            lesson.module,
+            lesson.sortOrder,
+            lesson.xpReward,
+            response.completed,
+            withheld,
+          ])
+        : response; // Thiếu mốc phiên bản đáng tin: mặc định không cache.
+    };
 
     const progress = await this.prisma.lessonProgress.findFirst({
       where: { userId, courseId, lessonId: lesson.id, status: 'completed' },
@@ -274,18 +303,21 @@ export class LessonsService {
       // StudioLesson.tsx đã chặn theo role === 'admin' sẵn, và họ không phải
       // người đang được đánh giá.
       if (!isAdmin) {
-        return {
-          ok: true,
-          lesson: {
-            ...lesson,
-            contentJson: withholdSolutionCode(lesson.contentJson),
+        return respond(
+          {
+            ok: true,
+            lesson: {
+              ...visibleLesson,
+              contentJson: withholdSolutionCode(lesson.contentJson),
+            },
+            completed,
           },
-          completed,
-        };
+          true,
+        );
       }
     }
 
-    return { ok: true, lesson, completed };
+    return respond({ ok: true, lesson: visibleLesson, completed }, false);
   }
 
   async completeLesson(

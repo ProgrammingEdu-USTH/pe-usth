@@ -464,6 +464,67 @@ chênh lệch ms ở các ca đó không được quy riêng cho sửa trao thà
 Chưa gộp SELECT/UPDATE user: hai bước chính đã đạt mục tiêu giảm hai vòng;
 giữ logic streak/ngày học hiện tại. Không có migration mới trong BE10.
 
+## Sau BE13: ETag cho bài học và danh mục thuần
+
+Đo ngày 21/11/2026 trên `test`, branch Neon thử `ep-late-hill`, schema ngẫu nhiên
+riêng được xoá khi xong. Controller/service Nest và Prisma thật, HTTP localhost;
+danh tính user đo được gán cố định, không gồm JWT/throttle toàn gateway.
+Mỗi route chạy xen kẽ 30 lượt GET 200 và 30 lượt conditional GET với cùng ETag,
+sau làm nóng. Fixture nội dung lấy từ `001-P01.json` của gói pe-v4, bật cờ gate.
+
+| Route / chế độ | Body JSON (byte, trước nén) | Truy vấn DB | p50 (ms) | p95 (ms) |
+|---|---|---|---|---|
+| Nội dung bài, 200 | 18 961 | 4 | 174 | 241 |
+| Nội dung bài, `If-None-Match` khớp → 304 | **0** | 4 | 172 | 214 |
+| `/api/courses/catalog`, 200 | 314 | 3 | 108 | 174 |
+| `/api/courses/catalog`, ETag khớp → 304 | **0** | 3 | 102 | 174 |
+
+Đây là so 200/304 của bản BE13, không phải benchmark hai commit trước/sau.
+Không tính header hoặc kích thước gói mạng vào cột body. Response 200 trong phép
+đo không yêu cầu nén. Dung lượng thật phụ thuộc bài: không dùng số 4 KB ước lượng
+trong sheet làm số đo. Số DB không giảm, chênh lệch thời gian nhỏ; không kết luận
+BE13 giảm đáng kể latency hoặc áp lực truy vấn. Quyền vẫn phải kiểm mỗi lần.
+
+### Chính sách và phạm vi
+
+- Gateway cấp weak ETag từ phiên bản nhỏ, không băm toàn bộ JSON bài mỗi lượt.
+  Nội dung dùng `updated_at`, `content_hash` nullable, metadata bài, `completed`
+  và trạng thái giữ lời giải. ETag còn phân biệt URL và user; `Vary` có
+  Authorization/Cookie. Metadata phiên bản không xuất hiện trong JSON response.
+- `Cache-Control: private, no-cache`: trình duyệt được giữ bản sao nhưng phải
+  revalidate trước khi dùng. Chọn cách này thay max-age=60 vì ngay sau complete
+  hoặc reset, response có `completed` và quyền mở lời giải đã thay đổi.
+- Guard/service kiểm quyền trước khi xét 304. Mất ghi danh vẫn 403, mất phiên
+  vẫn 401, kể cả client có ETag đúng của lượt trước.
+- `GET /api/courses` hiện có cờ enrolled theo user nên giữ `no-store`.
+  Thêm `GET /api/courses/catalog` dùng cùng bộ lọc/quyền xem khoá nháp, bỏ cờ
+  enrolled. ETag băm các trường thẻ khoá nhỏ. Route mới tái dùng listCourses
+  nên hiện vẫn đọc ghi danh rồi bỏ trường đó; chưa tối ưu số query ở BE13.
+- Các route chưa bật cache, gồm `/enrolled`, mặc định no-store. Tắt ETag tự động
+  của Express; bỏ conditional header ở nhánh không cache vì Express có thể
+  tự trả 304 cho If-None-Match:* dù không sinh ETag.
+- CORS expose ETag; preflight vẫn cho phép If-None-Match. FE hiện dùng fetch
+  mặc định, để HTTP cache của trình duyệt revalidate và ghép lại body; không
+  thêm kho JSON/ETag thủ công trong JavaScript. Các trang danh mục tĩnh hiện
+  chưa chuyển sang route catalog mới nên chưa nhận lợi ích cache của API đó.
+- Thiếu updatedAt đáng tin thì không cache. Các đường ghi qua Prisma, gồm
+  updateMany trong update-lesson-content.ts, cập nhật updatedAt. Nếu ghi SQL
+  tay/bản Django phải đồng thời cập nhật timestamp; chỉ sửa content_json mà
+  giữ nguyên timestamp và hash thì không thể làm ETag biết nội dung đã đổi.
+
+### Kiểm hồi quy và bảo vệ lời giải
+
+Jest qua controller/service thật kiểm: 200→304 không body, danh sách weak/strong
+ETag và wildcard, header sai, đổi nội dung/tiêu đề, hoàn thành/reset, admin/học viên,
+đổi user, mất quyền, catalog thuần và route no-store, CORS, thiếu phiên bản.
+Fixture có hình dạng thực từ gói bài (lựa chọn object, lời giải ở step_4).
+
+Kiểm PostgreSQL thật: updateMany đổi nội dung thì ETag đổi; complete mở lời giải;
+reset ẩn lại; unenroll xong request có ETag cũ vẫn 403. Các schema thử đã dọn.
+Đối chứng tắt cơ chế cấp ETag: 3 ca HTTP trượt; đã khôi phục code sau thử.
+Toàn bộ **48 bộ, 577 test đạt**; typecheck sạch; lint CI giữ **155 lỗi, 2 cảnh báo**.
+Không có migration mới. Chưa kiểm bằng browser trên bản deploy khác origin.
+
 ## Đo lại sau mỗi task
 
 1. Trỏ `.env` vào branch Neon đo (đã có sẵn dữ liệu ở trên, chỉ thiếu người dùng đo).

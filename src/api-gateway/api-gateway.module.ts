@@ -1,4 +1,5 @@
 import { Module, ValidationPipe, Global } from '@nestjs/common';
+import { HttpCacheInterceptor } from './http-cache';
 import { ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
@@ -79,6 +80,7 @@ import { SecurityHeadersMiddleware } from 'src/common/middleware/security-header
     CorsMiddleware,
     { provide: APP_INTERCEPTOR, useClass: RequestLoggerInterceptor },
     { provide: APP_INTERCEPTOR, useClass: RetryReadInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: HttpCacheInterceptor },
     // JwtAuthGuard TRƯỚC throttler: throttler cần req.user để đếm quota theo
     // user thay vì theo IP. Route @Public() (login/register) vẫn đi qua
     // throttler theo IP như cũ.

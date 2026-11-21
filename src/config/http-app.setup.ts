@@ -21,6 +21,8 @@ export function setupHttpApp(app: NestExpressApplication): void {
   // framework để chọn bộ khai thác. Tắt ở cấp ứng dụng Express (không phải
   // middleware xoá header) để cả response do Nest tự sinh như 404 cũng sạch.
   app.disable('x-powered-by');
+  // BE13: chỉ gateway được cấp ETag cho response đã phân biệt quyền/người xem.
+  app.set('etag', false);
 
   // Chặn body quá lớn ngay tại cổng vào: không có trần thì một request duy
   // nhất gửi JSON hàng chục MB (vd lộ trình cá nhân) đủ để ngốn RAM và làm

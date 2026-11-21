@@ -1,4 +1,5 @@
 import { lockCourseEnrollment } from 'src/common/lock-course-enrollment';
+import { cacheVersion } from 'src/api-gateway/http-cache';
 import {
   BadRequestException,
   ForbiddenException,
@@ -156,6 +157,22 @@ export class CoursesService {
       ok: true,
       courses: courses.map((c) => this.mapCourse(c, enrolledIds.has(c.id))),
     };
+  }
+
+  /** Danh mục không mang ghi danh/tiến độ; giữ bộ lọc và quyền xem khoá nháp. */
+  async getCatalog(
+    userId: number,
+    q?: string,
+    level?: string,
+    language?: string,
+  ) {
+    const result = await this.listCourses(userId, q, level, language);
+    const courses = result.courses.map(({ enrolled, ...course }) => {
+      void enrolled;
+      return course;
+    });
+    // Chỉ băm các trường thẻ khoá nhỏ, không băm content_json bài học.
+    return cacheVersion({ ok: true, courses }, courses);
   }
 
   // ---------- Task 89 ----------

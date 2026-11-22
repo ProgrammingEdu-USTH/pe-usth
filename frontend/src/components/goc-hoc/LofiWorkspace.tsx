@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { DATA } from '@/components/goc-hoc/scene-data';
 import { apiFetch, asList, findEnrollment } from '@/lib/api';
 import CURRICULA_JSON from '@/lib/curricula.json';
+import SQL_CATALOG_JSON from '@/lib/sql-catalog.json';
 import {
   readIdeCodeOnLoad,
   sessionStorageOrNull,
@@ -15,12 +16,13 @@ import { isRunnerDown } from '@/lib/runner-error';
 import { PyodideRunner } from '@/components/python-studio/runner/pyodide-runner';
 import DailyPracticeView from '@/components/practice/DailyPracticeView';
 import {
-  COURSE_ID,
+  COURSE_ID as DEFAULT_COURSE_ID,
   ENROLLED_PATH,
   completedLessons,
 } from '@/lib/practice-plan';
 import {
   completeLessonWithAutoEnroll,
+  ensureCourseEnrolled,
   loadLessonContentWithAutoEnroll,
   type LessonLoadErrorKind,
 } from '@/lib/lofi-lesson-loader';
@@ -29,7 +31,28 @@ import {
   type BookPageSpec,
   type IndexedPracticeItem,
   type IndexedReadBlock,
+  type SqlMinigamePageSpec,
 } from '@/lib/lofi-book-spreads';
+import {
+  buildSqlBookSpreads,
+  isSqlCourse,
+  type RawSqlLesson,
+  type SqlConceptCard,
+  type SqlCourseId,
+} from '@/lib/lofi-sql-adapter';
+import {
+  buildSqlitePreviewScript,
+  gradeSqlAnswer,
+  gradeStep3Tokens,
+  parseSqlitePreviewOutput,
+  type SqlSchemaLike,
+  type SqlitePreviewResult,
+} from '@/lib/lofi-sql-grader';
+import {
+  SQL_COURSE_META,
+  loadSqlConceptCards,
+  loadSqlCourseData,
+} from '@/lib/lofi-sql-loader';
 import {
   correctIndex,
   maDeThu,
@@ -82,7 +105,7 @@ const DUST_MOTES: [number, number, number][] = [
 ];
 
 /* ==========================================================================
-   DANH MỤC 48 BÀI HỌC THẬT TỪ CURRICULA.JSON
+   DANH MỤC BÀI HỌC THEO KHOÁ (Python pe-da + 3 khoá SQL)
    ========================================================================== */
 interface CatalogLessonItem {
   no: number;
@@ -94,13 +117,37 @@ interface CatalogLessonItem {
   xp: number;
 }
 
-const CATALOG_LESSONS: CatalogLessonItem[] = (() => {
+type SqlCatalogRow = {
+  no: number;
+  index: number;
+  code: string;
+  title: string;
+  module: number;
+  moduleTitle: string;
+  minutes: number;
+  xp: number;
+};
+
+function getCatalogLessons(courseId: string): CatalogLessonItem[] {
+  if (isSqlCourse(courseId)) {
+    const rows = (SQL_CATALOG_JSON as Record<string, SqlCatalogRow[]>)[courseId] ?? [];
+    return rows.map((row) => ({
+      no: row.no,
+      code: row.code,
+      title: row.title,
+      moduleTitle: row.moduleTitle || `Module ${row.module}`,
+      moduleShort: `M${row.module}`,
+      minutes: row.minutes,
+      xp: row.xp,
+    }));
+  }
+
   const raw = CURRICULA_JSON as unknown as {
     CURRICULA: Record<string, { modules?: { title: string; lessons: string[] }[] }>;
     LESSON_META?: Record<string, { code: string; minutes: number; xp: number }[]>;
   };
-  const mods = raw.CURRICULA[COURSE_ID]?.modules ?? [];
-  const metas = raw.LESSON_META?.[COURSE_ID] ?? [];
+  const mods = raw.CURRICULA[courseId]?.modules ?? [];
+  const metas = raw.LESSON_META?.[courseId] ?? [];
   const out: CatalogLessonItem[] = [];
   let no = 1;
   for (const m of mods) {
@@ -123,7 +170,7 @@ const CATALOG_LESSONS: CatalogLessonItem[] = (() => {
     }
   }
   return out;
-})();
+}
 
 const DEFAULT_IDE_CODE = `import os
 
@@ -200,36 +247,45 @@ function errorHeadingFor(kind: LessonLoadErrorKind): string {
 }
 
 export default function LofiWorkspace({
+  courseId = DEFAULT_COURSE_ID,
   initialScreen = 'lesson',
   initialLessonIdx = 0,
   embedded = false,
   onEmbeddedSwitch,
   onProgressChange,
 }: {
+  courseId?: string;
   initialScreen?: LofiScreenType;
   initialLessonIdx?: number;
   embedded?: boolean;
   onEmbeddedSwitch?: (nextScreen: LofiScreenType, nextLessonIdx?: number) => void;
   onProgressChange?: (doneLessons: number[], xp: number) => void;
 }) {
+  const activeCourseId = courseId || DEFAULT_COURSE_ID;
+  const isSql = isSqlCourse(activeCourseId);
+  const catalogLessons = useMemo(() => getCatalogLessons(activeCourseId), [activeCourseId]);
+
   const [activeScreen, setActiveScreen] = useState<LofiScreenType>(initialScreen);
   const [roomLayout, setRoomLayout] = useState({ scale: 0.65, ox: 0, oy: 0 });
   const [parallax, setParallax] = useState({ x: 0, y: 0 });
 
-  // Tiến độ người học thật (đồng bộ giữa Backend API & localStorage)
+  // Tiến độ người học thật (đồng bộ giữa Backend API & state)
   const [doneLessons, setDoneLessons] = useState<number[]>([]);
   const [xp, setXp] = useState<number>(0);
 
-  // Trạng thái Bài học: Quyển sách mở 2 trang (179 bài thật từ giáo trình)
+  // Trạng thái Bài học: Quyển sách mở 2 trang (179 bài Python hoặc 66 bài SQL)
   const [spreadIdx, setSpreadIdx] = useState(0);
   const [lessonIdx, setLessonIdx] = useState<number>(() => {
-    const safe = Number.isInteger(initialLessonIdx) && initialLessonIdx >= 0 && initialLessonIdx < CATALOG_LESSONS.length
-      ? initialLessonIdx
-      : 0;
+    const safe =
+      Number.isInteger(initialLessonIdx) && initialLessonIdx >= 0 && initialLessonIdx < catalogLessons.length
+        ? initialLessonIdx
+        : 0;
     return safe;
   });
   const [flipDir, setFlipDir] = useState<'next' | 'prev'>('next');
   const [lessonContent, setLessonContent] = useState<StudioLesson | null>(null);
+  const [sqlLesson, setSqlLesson] = useState<RawSqlLesson | null>(null);
+  const [sqlCardsMap, setSqlCardsMap] = useState<Map<string, SqlConceptCard>>(() => new Map());
   const [lessonLoading, setLessonLoading] = useState<boolean>(false);
   const [lessonError, setLessonError] = useState<{
     kind: LessonLoadErrorKind;
@@ -251,14 +307,14 @@ export default function LofiWorkspace({
     if (
       Number.isInteger(initialLessonIdx) &&
       initialLessonIdx >= 0 &&
-      initialLessonIdx < CATALOG_LESSONS.length &&
+      initialLessonIdx < catalogLessons.length &&
       prevInitialLessonIdxRef.current !== initialLessonIdx
     ) {
       prevInitialLessonIdxRef.current = initialLessonIdx;
       setLessonIdx(initialLessonIdx);
       setSpreadIdx(0);
     }
-  }, [initialLessonIdx]);
+  }, [initialLessonIdx, catalogLessons.length]);
 
   // Trạng thái tương tác trên các trang sách của từng bài
   const [pickedPredict, setPickedPredict] = useState<Record<string, number>>({});
@@ -272,6 +328,33 @@ export default function LofiWorkspace({
   const [showHints, setShowHints] = useState<Record<number, boolean>>({});
   const [showSolution, setShowSolution] = useState<Record<number, boolean>>({});
   const [completeBanner, setCompleteBanner] = useState<string>('');
+
+  // Trạng thái tương tác riêng cho bài học SQL (Bước 2 minigame, Bước 3 ghép lệnh, Bước 4 editor + SQLite)
+  const [sqlSelectedChip, setSqlSelectedChip] = useState<Record<string, string | null>>({});
+  const [sqlClassifyPick, setSqlClassifyPick] = useState<Record<string, Record<string, string>>>({});
+  const [sqlClassifyResult, setSqlClassifyResult] = useState<Record<string, { ok: boolean; msg: string } | null>>({});
+  const [sqlMatchLeft, setSqlMatchLeft] = useState<Record<string, string | null>>({});
+  const [sqlMatchPick, setSqlMatchPick] = useState<Record<string, Record<string, string>>>({});
+  const [sqlMatchResult, setSqlMatchResult] = useState<Record<string, { ok: boolean; msg: string } | null>>({});
+  const [sqlOrderList, setSqlOrderList] = useState<Record<string, string[]>>({});
+  const [sqlOrderResult, setSqlOrderResult] = useState<Record<string, { ok: boolean; msg: string } | null>>({});
+  const [sqlBugLine, setSqlBugLine] = useState<Record<string, number | undefined>>({});
+  const [sqlBugResult, setSqlBugResult] = useState<Record<string, { ok: boolean; msg: string } | null>>({});
+  const [sqlBuilderZones, setSqlBuilderZones] = useState<
+    Record<string, Record<string, Array<{ uid: string; token: string; type: string }>>>
+  >({});
+  const [sqlBuilderActiveZone, setSqlBuilderActiveZone] = useState<Record<string, string>>({});
+  const [sqlBuilderResult, setSqlBuilderResult] = useState<Record<string, { ok: boolean; msg: string } | null>>({});
+  const [sqlBuilderHintsOpen, setSqlBuilderHintsOpen] = useState<Record<string, boolean>>({});
+  const [sqlBuilderAnsOpen, setSqlBuilderAnsOpen] = useState<Record<string, boolean>>({});
+  const [sqlEditorCode, setSqlEditorCode] = useState<Record<string, string>>({});
+  const [sqlGradeResult, setSqlGradeResult] = useState<
+    Record<string, { ok: boolean; text: string; suggestion?: string } | null>
+  >({});
+  const [sqlSqlitePreview, setSqlSqlitePreview] = useState<Record<string, SqlitePreviewResult | null>>({});
+  const [sqlRunning, setSqlRunning] = useState<boolean>(false);
+  const [sqlChallengeHintLevel, setSqlChallengeHintLevel] = useState<Record<string, number>>({});
+  const [sqlFillFeedback, setSqlFillFeedback] = useState<Record<string, { ok: boolean; msg: string } | null>>({});
 
   // Trạng thái Bàn thí nghiệm (Laptop VS Code 70/30)
   const [ideCustomCode, setIdeCustomCode] = useState<string>(() => {
@@ -318,7 +401,7 @@ export default function LofiWorkspace({
       const lParam = params.get('lesson');
       if (lParam !== null) {
         const parsed = Number(lParam);
-        if (Number.isInteger(parsed) && parsed >= 0 && parsed < CATALOG_LESSONS.length) {
+        if (Number.isInteger(parsed) && parsed >= 0 && parsed < catalogLessons.length) {
           setLessonIdx(parsed);
           setSpreadIdx(0);
         }
@@ -327,7 +410,7 @@ export default function LofiWorkspace({
     syncFromUrl();
     window.addEventListener('popstate', syncFromUrl);
     return () => window.removeEventListener('popstate', syncFromUrl);
-  }, [embedded]);
+  }, [embedded, catalogLessons.length]);
 
   // Hàm chuyển màn không reload trang, đồng bộ URL thật
   const switchScreen = useCallback(
@@ -341,7 +424,7 @@ export default function LofiWorkspace({
         return;
       }
       if (typeof window !== 'undefined') {
-        let targetUrl = `/lesson/${COURSE_ID}?lesson=${targetLesson}`;
+        let targetUrl = `/lesson/${activeCourseId}?lesson=${targetLesson}`;
         if (nextScreen === 'ide') {
           targetUrl = '/ide';
         } else if (nextScreen === 'practice') {
@@ -352,7 +435,7 @@ export default function LofiWorkspace({
         }
       }
     },
-    [embedded, lessonIdx, onEmbeddedSwitch],
+    [embedded, lessonIdx, onEmbeddedSwitch, activeCourseId],
   );
 
   useEffect(() => {
@@ -376,8 +459,8 @@ export default function LofiWorkspace({
           setXp(userRes.xp);
         }
         if (enrolledRes) {
-          const row = findEnrollment(asList(enrolledRes, 'enrolled'), COURSE_ID);
-          const done = completedLessons(row?.completedLessonNumbers, CATALOG_LESSONS.length);
+          const row = findEnrollment(asList(enrolledRes, 'enrolled'), activeCourseId);
+          const done = completedLessons(row?.completedLessonNumbers, catalogLessons.length);
           if (done.length) {
             setDoneLessons((prev) => Array.from(new Set([...prev, ...done])).sort((a, b) => a - b));
           }
@@ -390,11 +473,20 @@ export default function LofiWorkspace({
     return () => {
       alive = false;
     };
-  }, []);
+  }, [activeCourseId, catalogLessons.length]);
 
-  // Nạp nội dung bài học bắt buộc từ Backend API (tự ghi danh khi gặp 403)
-  const currentCatalog = CATALOG_LESSONS[lessonIdx] ?? CATALOG_LESSONS[0];
+  // Nạp nội dung bài học (Python từ API; SQL từ JSON + auto-enroll nền)
+  const currentCatalog = catalogLessons[lessonIdx] ?? catalogLessons[0] ?? {
+    no: 1,
+    code: 'B01',
+    title: 'Bài 1',
+    moduleTitle: 'Học phần 1',
+    moduleShort: 'M1',
+    minutes: 15,
+    xp: 50,
+  };
   const lessonNo = currentCatalog.no;
+  const lessonKey = `${activeCourseId}-${lessonNo}`;
 
   useEffect(() => {
     let alive = true;
@@ -406,8 +498,48 @@ export default function LofiWorkspace({
       setLessonError(null);
       setCompleteBanner('');
 
+      if (isSqlCourse(activeCourseId)) {
+        void ensureCourseEnrolled(activeCourseId, apiFetch);
+        try {
+          const [lessons, cards] = await Promise.all([
+            loadSqlCourseData(activeCourseId as SqlCourseId),
+            loadSqlConceptCards().catch(() => [] as SqlConceptCard[]),
+          ]);
+          if (!alive) return;
+          const raw = lessons[lessonNo - 1];
+          if (!raw) {
+            setLessonError({
+              kind: 'not_found',
+              message: `Không tìm thấy nội dung bài ${lessonNo} trong khoá ${activeCourseId}.`,
+            });
+            setLessonLoading(false);
+            return;
+          }
+          const cMap = new Map(cards.map((c) => [c.id, c]));
+          const nextSpreads = buildSqlBookSpreads(raw, activeCourseId as SqlCourseId, cMap, tachDeVaCode);
+          setSqlCardsMap(cMap);
+          setSqlLesson(raw);
+          setLessonContent(null);
+          if (pendingLastSpreadRef.current) {
+            setSpreadIdx(Math.max(0, nextSpreads.length - 1));
+            pendingLastSpreadRef.current = false;
+          }
+          setLessonLoading(false);
+          return;
+        } catch (err) {
+          if (!alive) return;
+          pendingLastSpreadRef.current = false;
+          setLessonError({
+            kind: 'server',
+            message: err instanceof Error ? err.message : 'Không tải được dữ liệu bài học SQL.',
+          });
+          setLessonLoading(false);
+          return;
+        }
+      }
+
       const res = await loadLessonContentWithAutoEnroll<StudioLesson>(
-        COURSE_ID,
+        activeCourseId,
         lessonNo,
         apiFetch,
       );
@@ -416,6 +548,7 @@ export default function LofiWorkspace({
       if (res.ok) {
         const nextSpreads = buildBookSpreads(res.lesson, tachDeVaCode);
         setLessonContent(res.lesson);
+        setSqlLesson(null);
         if (pendingLastSpreadRef.current) {
           setSpreadIdx(Math.max(0, nextSpreads.length - 1));
           pendingLastSpreadRef.current = false;
@@ -443,7 +576,7 @@ export default function LofiWorkspace({
     return () => {
       alive = false;
     };
-  }, [lessonNo, lessonReloadKey]);
+  }, [activeCourseId, lessonNo, lessonReloadKey]);
 
   // Căn tỷ lệ khung cảnh 2752 × 1536 chuẩn theo engine.js của Góc học
   useEffect(() => {
@@ -621,7 +754,7 @@ export default function LofiWorkspace({
     }
 
     const res = await completeLessonWithAutoEnroll(
-      COURSE_ID,
+      activeCourseId,
       lessonNo,
       {
         lessonTitle: `${currentCatalog.code} · ${currentCatalog.title}`,
@@ -648,33 +781,112 @@ export default function LofiWorkspace({
         }).`,
       );
     }
-  }, [currentCatalog, doneLessons, lessonNo]);
+  }, [activeCourseId, currentCatalog, doneLessons, lessonNo]);
+
+  const handleRunSqlChallenge = useCallback(
+    async (
+      userSql: string,
+      expectedSql: string,
+      equivSql: string[],
+      schema: SqlSchemaLike | undefined,
+      relatedSchemas: SqlSchemaLike[],
+      successMessage: string,
+    ) => {
+      if (sqlRunning) return;
+      const grade = gradeSqlAnswer(userSql, expectedSql, equivSql);
+      setSqlGradeResult((prev) => ({
+        ...prev,
+        [lessonKey]: {
+          ok: grade.correct,
+          text: grade.correct
+            ? `${successMessage || grade.feedback || 'Chính xác!'}`
+            : grade.error || 'Chưa khớp đáp án.',
+          suggestion: grade.suggestion,
+        },
+      }));
+
+      if (grade.correct) {
+        void handleCompleteLesson();
+      }
+
+      const canPreviewSqlite =
+        Boolean(schema?.columns?.length) &&
+        /\bSELECT\b/i.test(userSql) &&
+        !/\b(?:FUNCTION|PROCEDURE|TRIGGER|CALL|FOR\s+UPDATE)\b/i.test(userSql);
+
+      if (!canPreviewSqlite) {
+        setSqlSqlitePreview((prev) => ({ ...prev, [lessonKey]: null }));
+        return;
+      }
+
+      setSqlRunning(true);
+      try {
+        let runner = pyRunnerRef.current;
+        if (!runner) {
+          runner = new PyodideRunner();
+          pyRunnerRef.current = runner;
+        }
+        const script = buildSqlitePreviewScript(schema, relatedSchemas, userSql);
+        const pyRes = await runner.run({
+          code: script,
+          tests: [],
+          forbid: [],
+          files: [],
+          packages: [],
+        });
+        const parsed = pyRes ? parseSqlitePreviewOutput(pyRes.output || '') : null;
+        if (parsed) {
+          setSqlSqlitePreview((prev) => ({ ...prev, [lessonKey]: parsed }));
+        } else if (pyRes?.error) {
+          setSqlSqlitePreview((prev) => ({
+            ...prev,
+            [lessonKey]: {
+              ok: false,
+              columns: [],
+              rows: [],
+              rowCount: 0,
+              error: pyRes.error,
+            },
+          }));
+        }
+      } catch {
+        /* Không chặn việc chấm SQL nếu trình duyệt chưa nạp xong Pyodide */
+      } finally {
+        setSqlRunning(false);
+      }
+    },
+    [handleCompleteLesson, lessonKey, sqlRunning],
+  );
 
   /* ==========================================================================
-     CHIA NỘI DUNG BÀI HỌC THẬT THÀNH CÁC CẶP TRANG SÁCH MỞ (4–6 SPREADS LINH HOẠT)
+     CHIA NỘI DUNG BÀI HỌC THẬT THÀNH CÁC CẶP TRANG SÁCH MỞ
      ========================================================================== */
-  const spreads = useMemo(
-    () => (lessonContent ? buildBookSpreads(lessonContent, tachDeVaCode) : []),
-    [lessonContent],
-  );
+  const spreads = useMemo(() => {
+    if (isSql) {
+      return sqlLesson
+        ? buildSqlBookSpreads(sqlLesson, activeCourseId as SqlCourseId, sqlCardsMap, tachDeVaCode)
+        : [];
+    }
+    return lessonContent ? buildBookSpreads(lessonContent, tachDeVaCode) : [];
+  }, [isSql, sqlLesson, activeCourseId, sqlCardsMap, lessonContent]);
   const totalSpreads = Math.max(1, spreads.length);
   const safeSpreadIdx = Math.min(spreadIdx, totalSpreads - 1);
   const currentSpread = spreads[safeSpreadIdx] ?? null;
 
   const handleChangeLesson = useCallback(
     (nextIdx: number, targetSpread = 0) => {
-      const clamped = Math.max(0, Math.min(CATALOG_LESSONS.length - 1, nextIdx));
+      const clamped = Math.max(0, Math.min(catalogLessons.length - 1, nextIdx));
       if (targetSpread !== -1) {
         pendingLastSpreadRef.current = false;
         setSpreadIdx(Math.max(0, targetSpread));
       }
       setLessonIdx(clamped);
       if (typeof window !== 'undefined') {
-        const url = `/lesson/${COURSE_ID}?lesson=${clamped}`;
+        const url = `/lesson/${activeCourseId}?lesson=${clamped}`;
         window.history.pushState(null, '', url);
       }
     },
-    [],
+    [activeCourseId, catalogLessons.length],
   );
 
   const handlePrevSpread = () => {
@@ -691,7 +903,7 @@ export default function LofiWorkspace({
     setFlipDir('next');
     if (safeSpreadIdx < totalSpreads - 1) {
       setSpreadIdx((s) => Math.min(s, totalSpreads - 1) + 1);
-    } else if (lessonIdx < CATALOG_LESSONS.length - 1) {
+    } else if (lessonIdx < catalogLessons.length - 1) {
       handleChangeLesson(lessonIdx + 1, 0);
     } else {
       handleChangeLesson(0, 0);
@@ -1484,7 +1696,9 @@ export default function LofiWorkspace({
                   {currentCatalog.moduleTitle.toUpperCase()} · {currentCatalog.minutes} PHÚT
                 </p>
                 <h2 className={styles.pageMainTitle}>
-                  {lessonContent?.title || `${currentCatalog.code} · ${currentCatalog.title}`}
+                  {isSql
+                    ? sqlLesson?.title || `${currentCatalog.code} · ${currentCatalog.title}`
+                    : lessonContent?.title || `${currentCatalog.code} · ${currentCatalog.title}`}
                 </h2>
               </>
             ) : (
@@ -1799,6 +2013,1028 @@ export default function LofiWorkspace({
         return page.side === 'left'
           ? renderLegacyLeft(page.legacySpreadIdx)
           : renderLegacyRight(page.legacySpreadIdx);
+
+      case 'sql-visual':
+        return (
+          <div className={styles.pageBodyFlow}>
+            <p className={styles.pageSectionLabel}>{page.heading.toUpperCase()}</p>
+
+            {page.entities.length > 0 && (
+              <div className={styles.bookDiagramFrame}>
+                <div className={styles.bookDiagramLaneTitle}>Sơ đồ bảng thực thể (ER)</div>
+                <div className={styles.bookCardsGrid}>
+                  {page.entities.map((ent, idx) => (
+                    <div key={idx} className={styles.bookConceptCard}>
+                      <h3 className={styles.bookConceptTitle}>📋 {ent.name}</h3>
+                      <p className={styles.bookConceptDesc}>
+                        {ent.columns
+                          .map((c) => `${c.key ? `[${c.key}] ` : ''}${c.name}${c.type ? `: ${c.type}` : ''}`)
+                          .join('\n')}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                {page.diagramNote && <p className={styles.bookDiagramNote}>{renderInlineCode(page.diagramNote)}</p>}
+              </div>
+            )}
+
+            {page.schema && page.schema.columns.length > 0 && (
+              <div className={styles.bookTableWrap}>
+                <table className={styles.bookTable}>
+                  <thead>
+                    <tr>
+                      <th>Cột ({page.schema.table_name})</th>
+                      <th>Kiểu</th>
+                      <th>Khoá</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {page.schema.columns.map((col, idx) => (
+                      <tr key={idx}>
+                        <td><code>{col.name}</code></td>
+                        <td>{col.type || 'TEXT'}</td>
+                        <td>{col.key ? <span className={styles.sqlKeyBadge}>{col.key}</span> : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {page.dataPreview.length > 0 && page.schema && page.schema.columns.length > 0 && (
+              <div className={styles.bookTableWrap}>
+                <table className={styles.bookTable}>
+                  <thead>
+                    <tr>
+                      {page.schema.columns.map((col, idx) => (
+                        <th key={idx}>{col.name}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {page.dataPreview.map((row, rIdx) => (
+                      <tr key={rIdx}>
+                        {page.schema!.columns.map((_, cIdx) => (
+                          <td key={cIdx}>{row[cIdx] === null ? 'NULL' : String(row[cIdx] ?? '')}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {page.extraVisuals.map((ev, idx) => (
+              <div key={idx} className={styles.bookCalloutNote}>
+                <b>{ev.title}</b>
+                {ev.caption && <div>{renderInlineCode(ev.caption)}</div>}
+                {ev.query && (
+                  <div className={styles.bookMcqCodeBox} style={{ marginTop: 6 }}>
+                    {ev.query}
+                  </div>
+                )}
+                {ev.highlights && ev.highlights.length > 0 && (
+                  <ul className={styles.bookProcedureList} style={{ marginTop: 6 }}>
+                    {ev.highlights.map((h, hIdx) => (
+                      <li key={hIdx}>{renderInlineCode(h)}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+
+            {page.exampleNote && (
+              <div className={styles.bookCalloutNote}>
+                <b>QUAN SÁT NHANH</b>
+                {renderInlineCode(page.exampleNote)}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'sql-minigame': {
+        const mgPage: SqlMinigamePageSpec = page;
+        const renderMinigameInteractive = () => {
+          if (mgPage.gameType === 'classify' && mgPage.chips?.length && mgPage.bins?.length) {
+            const pickedMap = sqlClassifyPick[lessonKey] ?? {};
+            const activeChipId = sqlSelectedChip[lessonKey] ?? null;
+            const unplaced = mgPage.chips.filter((c) => !pickedMap[c.id]);
+            const result = sqlClassifyResult[lessonKey];
+            return (
+              <>
+                <div className={styles.sqlChipGrid}>
+                  {unplaced.map((chip) => (
+                    <button
+                      key={chip.id}
+                      type="button"
+                      className={`${styles.sqlChipBtn} ${activeChipId === chip.id ? styles.sqlChipActive : ''}`}
+                      onClick={() =>
+                        setSqlSelectedChip((prev) => ({
+                          ...prev,
+                          [lessonKey]: prev[lessonKey] === chip.id ? null : chip.id,
+                        }))
+                      }
+                    >
+                      {chip.label}
+                    </button>
+                  ))}
+                  {unplaced.length === 0 && (
+                    <span className={styles.bookDiagramNote}>Đã xếp hết thẻ vào nhóm bên dưới.</span>
+                  )}
+                </div>
+
+                <div className={styles.bookDiagramGrid}>
+                  {mgPage.bins.map((bin) => {
+                    const placedChips = mgPage.chips!.filter((c) => pickedMap[c.id] === bin.id);
+                    return (
+                      <div
+                        key={bin.id}
+                        role="button"
+                        tabIndex={0}
+                        className={`${styles.sqlZoneCard} ${activeChipId ? styles.sqlZoneCardActive : ''}`}
+                        onClick={() => {
+                          const targetChip = activeChipId ?? unplaced[0]?.id ?? null;
+                          if (!targetChip) return;
+                          setSqlClassifyPick((prev) => ({
+                            ...prev,
+                            [lessonKey]: { ...(prev[lessonKey] ?? {}), [targetChip]: bin.id },
+                          }));
+                          setSqlSelectedChip((prev) => ({ ...prev, [lessonKey]: null }));
+                          setSqlClassifyResult((prev) => ({ ...prev, [lessonKey]: null }));
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            const targetChip = activeChipId ?? unplaced[0]?.id ?? null;
+                            if (!targetChip) return;
+                            setSqlClassifyPick((prev) => ({
+                              ...prev,
+                              [lessonKey]: { ...(prev[lessonKey] ?? {}), [targetChip]: bin.id },
+                            }));
+                            setSqlSelectedChip((prev) => ({ ...prev, [lessonKey]: null }));
+                          }
+                        }}
+                      >
+                        <div className={styles.bookDiagramLaneTitle}>{bin.label}</div>
+                        <div className={styles.sqlChipGrid}>
+                          {placedChips.map((c) => (
+                            <button
+                              key={c.id}
+                              type="button"
+                              className={styles.sqlPlacedToken}
+                              title="Bấm để bỏ chọn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSqlClassifyPick((prev) => {
+                                  const next = { ...(prev[lessonKey] ?? {}) };
+                                  delete next[c.id];
+                                  return { ...prev, [lessonKey]: next };
+                                });
+                                setSqlClassifyResult((prev) => ({ ...prev, [lessonKey]: null }));
+                              }}
+                            >
+                              {c.label} ×
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className={styles.bookActionRow}>
+                  <button
+                    type="button"
+                    className={styles.bookPrimaryBtn}
+                    onClick={() => {
+                      const sol = mgPage.classifySolution ?? {};
+                      const total = mgPage.chips!.length;
+                      const matched = mgPage.chips!.filter((c) => pickedMap[c.id] === sol[c.id]).length;
+                      setSqlClassifyResult((prev) => ({
+                        ...prev,
+                        [lessonKey]:
+                          matched === total
+                            ? { ok: true, msg: `✓ Chính xác hoàn toàn (${matched}/${total} thẻ)!` }
+                            : { ok: false, msg: `Đúng ${matched}/${total} thẻ — thử bấm thẻ đặt nhầm để xếp lại.` },
+                      }));
+                    }}
+                  >
+                    Kiểm tra phân loại
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.bookSecondaryBtn}
+                    onClick={() => {
+                      setSqlClassifyPick((prev) => ({ ...prev, [lessonKey]: {} }));
+                      setSqlClassifyResult((prev) => ({ ...prev, [lessonKey]: null }));
+                    }}
+                  >
+                    Làm lại
+                  </button>
+                </div>
+
+                {result && (
+                  <div className={result.ok ? styles.paperFeedback : styles.paperErrorFeedback}>
+                    {result.msg}
+                  </div>
+                )}
+              </>
+            );
+          }
+
+          if (mgPage.gameType === 'match' && mgPage.pairs?.length) {
+            const activeLeft = sqlMatchLeft[lessonKey] ?? null;
+            const matchMap = sqlMatchPick[lessonKey] ?? {};
+            const rightLabels = Array.from(
+              new Map(mgPage.pairs.map((p) => [p.rightId, p.rightLabel])).entries(),
+            );
+            const result = sqlMatchResult[lessonKey];
+            return (
+              <>
+                <div className={styles.sqlMatchGrid}>
+                  <div className={styles.paperOptList}>
+                    {mgPage.pairs.map((pair) => {
+                      const pickedRightId = matchMap[pair.leftId];
+                      const chosenRight = rightLabels.find(([rid]) => rid === pickedRightId)?.[1];
+                      return (
+                        <button
+                          key={pair.leftId}
+                          type="button"
+                          className={`${styles.paperOptBtn} ${activeLeft === pair.leftId ? styles.sqlChipActive : ''}`}
+                          onClick={() =>
+                            setSqlMatchLeft((prev) => ({
+                              ...prev,
+                              [lessonKey]: prev[lessonKey] === pair.leftId ? null : pair.leftId,
+                            }))
+                          }
+                        >
+                          <span>{renderInlineCode(pair.left)}</span>
+                          {chosenRight && <span className={styles.sqlKeyBadge}>{chosenRight}</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className={styles.paperOptList}>
+                    {rightLabels.map(([rid, rlabel]) => (
+                      <button
+                        key={rid}
+                        type="button"
+                        className={styles.paperOptBtn}
+                        onClick={() => {
+                          const targetLeft =
+                            activeLeft ?? mgPage.pairs!.find((p) => !matchMap[p.leftId])?.leftId ?? null;
+                          if (!targetLeft) return;
+                          setSqlMatchPick((prev) => ({
+                            ...prev,
+                            [lessonKey]: { ...(prev[lessonKey] ?? {}), [targetLeft]: rid },
+                          }));
+                          setSqlMatchLeft((prev) => ({ ...prev, [lessonKey]: null }));
+                          setSqlMatchResult((prev) => ({ ...prev, [lessonKey]: null }));
+                        }}
+                      >
+                        <span>{rlabel}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.bookActionRow}>
+                  <button
+                    type="button"
+                    className={styles.bookPrimaryBtn}
+                    onClick={() => {
+                      const total = mgPage.pairs!.length;
+                      const okCount = mgPage.pairs!.filter((p) => matchMap[p.leftId] === p.rightId).length;
+                      setSqlMatchResult((prev) => ({
+                        ...prev,
+                        [lessonKey]:
+                          okCount === total
+                            ? { ok: true, msg: `✓ Ghép đúng toàn bộ ${total} cặp!` }
+                            : { ok: false, msg: `Đúng ${okCount}/${total} cặp — chọn mục bên trái rồi bấm nhãn bên phải để sửa.` },
+                      }));
+                    }}
+                  >
+                    Kiểm tra ghép đôi
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.bookSecondaryBtn}
+                    onClick={() => {
+                      setSqlMatchPick((prev) => ({ ...prev, [lessonKey]: {} }));
+                      setSqlMatchResult((prev) => ({ ...prev, [lessonKey]: null }));
+                    }}
+                  >
+                    Xoá chọn
+                  </button>
+                </div>
+                {result && (
+                  <div className={result.ok ? styles.paperFeedback : styles.paperErrorFeedback}>
+                    {result.msg}
+                  </div>
+                )}
+              </>
+            );
+          }
+
+          if (mgPage.gameType === 'order' && mgPage.orderItems?.length) {
+            const defaultIds = [...mgPage.orderItems.map((i) => i.id)].reverse();
+            const currentOrder = sqlOrderList[lessonKey] ?? defaultIds;
+            const itemMap = new Map(mgPage.orderItems.map((i) => [i.id, i.label]));
+            const result = sqlOrderResult[lessonKey];
+            const swapOrder = (from: number, to: number) => {
+              const next = [...currentOrder];
+              [next[from], next[to]] = [next[to], next[from]];
+              setSqlOrderList((prev) => ({ ...prev, [lessonKey]: next }));
+              setSqlOrderResult((prev) => ({ ...prev, [lessonKey]: null }));
+            };
+            return (
+              <>
+                <div className={styles.paperOptList}>
+                  {currentOrder.map((id, idx) => (
+                    <div key={id} className={styles.sqlOrderRow}>
+                      <span>
+                        <strong>{idx + 1}.</strong> {renderInlineCode(itemMap.get(id) || id)}
+                      </span>
+                      <div className={styles.sqlOrderMoves}>
+                        <button
+                          type="button"
+                          className={styles.sqlMiniMoveBtn}
+                          disabled={idx === 0}
+                          onClick={() => swapOrder(idx, idx - 1)}
+                          aria-label="Lên trên"
+                        >
+                          ↑
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.sqlMiniMoveBtn}
+                          disabled={idx === currentOrder.length - 1}
+                          onClick={() => swapOrder(idx, idx + 1)}
+                          aria-label="Xuống dưới"
+                        >
+                          ↓
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className={styles.bookActionRow}>
+                  <button
+                    type="button"
+                    className={styles.bookPrimaryBtn}
+                    onClick={() => {
+                      const sol = mgPage.orderSolution ?? {};
+                      const allRight = currentOrder.every((id, idx) => sol[id] === idx + 1);
+                      setSqlOrderResult((prev) => ({
+                        ...prev,
+                        [lessonKey]: allRight
+                          ? { ok: true, msg: '✓ Chính xác! Bạn đã sắp đúng trình tự.' }
+                          : { ok: false, msg: 'Thứ tự chưa chuẩn — dùng nút ↑ / ↓ để đổi chỗ các bước.' },
+                      }));
+                    }}
+                  >
+                    Kiểm tra thứ tự
+                  </button>
+                </div>
+                {result && (
+                  <div className={result.ok ? styles.paperFeedback : styles.paperErrorFeedback}>
+                    {result.msg}
+                  </div>
+                )}
+              </>
+            );
+          }
+
+          if (mgPage.gameType === 'bug_spot' && mgPage.bugCode) {
+            const lines = mgPage.bugCode.split('\n');
+            const pickedLine = sqlBugLine[lessonKey];
+            const result = sqlBugResult[lessonKey];
+            return (
+              <>
+                <div className={styles.bookCodeBox}>
+                  {lines.map((lineText, idx) => {
+                    const lineNo = idx + 1;
+                    return (
+                      <button
+                        key={lineNo}
+                        type="button"
+                        className={`${styles.sqlLineBtn} ${pickedLine === lineNo ? styles.sqlLinePicked : ''}`}
+                        onClick={() => {
+                          setSqlBugLine((prev) => ({ ...prev, [lessonKey]: lineNo }));
+                          setSqlBugResult((prev) => ({ ...prev, [lessonKey]: null }));
+                        }}
+                      >
+                        <span style={{ opacity: 0.55, minWidth: 18 }}>{lineNo}</span>
+                        <span>{lineText || ' '}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className={styles.bookActionRow}>
+                  <button
+                    type="button"
+                    className={styles.bookPrimaryBtn}
+                    onClick={() => {
+                      if (!pickedLine) {
+                        setSqlBugResult((prev) => ({
+                          ...prev,
+                          [lessonKey]: { ok: false, msg: 'Hãy bấm vào dòng code có lỗi trước.' },
+                        }));
+                        return;
+                      }
+                      const ok = pickedLine === mgPage.bugLine;
+                      setSqlBugResult((prev) => ({
+                        ...prev,
+                        [lessonKey]: ok
+                          ? { ok: true, msg: `✓ Chuẩn xác (dòng ${pickedLine})! ${mgPage.bugExplain || ''}` }
+                          : { ok: false, msg: `Dòng ${pickedLine} chưa phải vị trí lỗi chính — thử chọn dòng khác.` },
+                      }));
+                    }}
+                  >
+                    Kiểm tra dòng lỗi
+                  </button>
+                </div>
+                {result && (
+                  <div className={result.ok ? styles.paperFeedback : styles.paperErrorFeedback}>
+                    {result.msg}
+                  </div>
+                )}
+              </>
+            );
+          }
+          return null;
+        };
+
+        return (
+          <div className={styles.pageBodyFlow}>
+            <p className={styles.pageSectionLabel}>BÀI TẬP TƯ DUY NHANH</p>
+            <h2 className={styles.pageMainTitle}>{mgPage.title}</h2>
+            {mgPage.instruction && (
+              <p className={styles.pageLeadParagraph}>{renderInlineCode(mgPage.instruction)}</p>
+            )}
+            {renderMinigameInteractive()}
+            {mgPage.decompSummary && (
+              <div className={styles.bookCalloutNote}>
+                <b>{mgPage.decompSummary.ruleLabel}</b>
+                {mgPage.decompSummary.rule && <div>{renderInlineCode(mgPage.decompSummary.rule)}</div>}
+                {mgPage.decompSummary.targetTables.length > 0 && (
+                  <ul className={styles.bookProcedureList} style={{ marginTop: 6 }}>
+                    {mgPage.decompSummary.targetTables.map((t, idx) => (
+                      <li key={idx}>
+                        <strong>{t.name}</strong> ({t.columns.join(', ')})
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      case 'sql-builder-bank': {
+        const zonesPage = currentSpread?.right.kind === 'sql-builder-zones' ? currentSpread.right : null;
+        const placedByZone = sqlBuilderZones[lessonKey] ?? {};
+        const showHintsOpen = Boolean(sqlBuilderHintsOpen[lessonKey]);
+        return (
+          <div className={styles.pageBodyFlow}>
+            <p className={styles.pageSectionLabel}>NHIỆM VỤ GHÉP LỆNH</p>
+            <h2 className={styles.pageMainTitle}>{page.heading}</h2>
+            <p className={styles.pageLeadParagraph}>{renderInlineCode(page.mission)}</p>
+
+            <div className={styles.bookDiagramFrame}>
+              <div className={styles.bookDiagramLaneTitle}>Kho mảnh lệnh (bấm để đưa sang khung bên phải)</div>
+              <div className={styles.sqlChipGrid}>
+                {page.blocks.map((block, bIdx) => (
+                  <button
+                    key={block.id}
+                    type="button"
+                    className={styles.sqlChipBtn}
+                    onClick={() => {
+                      const activeZoneId =
+                        sqlBuilderActiveZone[lessonKey] ||
+                        zonesPage?.dropZones.find((z) => z.accepts.includes(block.type))?.id ||
+                        zonesPage?.dropZones[0]?.id ||
+                        'zone-1';
+                      const curZone = placedByZone[activeZoneId] ?? [];
+                      setSqlBuilderZones((prev) => ({
+                        ...prev,
+                        [lessonKey]: {
+                          ...(prev[lessonKey] ?? {}),
+                          [activeZoneId]: [
+                            ...curZone,
+                            { uid: `${block.id}-${bIdx}-${curZone.length}`, token: block.token, type: block.type },
+                          ],
+                        },
+                      }));
+                      setSqlBuilderResult((prev) => ({ ...prev, [lessonKey]: null }));
+                    }}
+                  >
+                    {block.token}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {page.revealHints.length > 0 && (
+              <>
+                <div className={styles.bookActionRow}>
+                  <button
+                    type="button"
+                    className={styles.bookSecondaryBtn}
+                    onClick={() =>
+                      setSqlBuilderHintsOpen((prev) => ({ ...prev, [lessonKey]: !prev[lessonKey] }))
+                    }
+                  >
+                    {showHintsOpen ? 'Ẩn gợi ý ghép' : `💡 Gợi ý từng dòng (${page.revealHints.length})`}
+                  </button>
+                </div>
+                {showHintsOpen && (
+                  <div className={styles.bookCalloutNote}>
+                    <b>GỢI Ý TỪNG DÒNG</b>
+                    {page.revealHints.map((h, idx) => (
+                      <div key={idx} style={{ marginTop: idx > 0 ? 4 : 0 }}>
+                        <strong>{h.zoneId}:</strong> {renderInlineCode(h.text)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        );
+      }
+
+      case 'sql-builder-zones': {
+        const placedByZone = sqlBuilderZones[lessonKey] ?? {};
+        const activeZoneId = sqlBuilderActiveZone[lessonKey] || page.dropZones[0]?.id || '';
+        const bResult = sqlBuilderResult[lessonKey];
+        const showAns = Boolean(sqlBuilderAnsOpen[lessonKey]);
+        const joinedSql = page.dropZones
+          .map((z) => (placedByZone[z.id] ?? []).map((item) => item.token).join(' '))
+          .filter(Boolean)
+          .join(' ');
+        return (
+          <div className={styles.pageBodyFlow}>
+            <p className={styles.pageSectionLabel}>KHUNG LẮP GHÉP SQL</p>
+            <h2 className={styles.pageMainTitle}>{page.heading}</h2>
+
+            {page.dropZones.map((zone) => {
+              const items = placedByZone[zone.id] ?? [];
+              const isActive = activeZoneId === zone.id;
+              return (
+                <div
+                  key={zone.id}
+                  role="button"
+                  tabIndex={0}
+                  className={`${styles.sqlZoneCard} ${isActive ? styles.sqlZoneCardActive : ''}`}
+                  onClick={() => setSqlBuilderActiveZone((prev) => ({ ...prev, [lessonKey]: zone.id }))}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSqlBuilderActiveZone((prev) => ({ ...prev, [lessonKey]: zone.id }));
+                    }
+                  }}
+                >
+                  <div className={styles.sqlZonePlaceholder}>
+                    {isActive ? '▶ ' : ''}
+                    {zone.placeholder}
+                  </div>
+                  <div className={styles.sqlChipGrid}>
+                    {items.length > 0 ? (
+                      items.map((it) => (
+                        <button
+                          key={it.uid}
+                          type="button"
+                          className={styles.sqlPlacedToken}
+                          title="Bấm để bỏ mảnh này"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSqlBuilderZones((prev) => ({
+                              ...prev,
+                              [lessonKey]: {
+                                ...(prev[lessonKey] ?? {}),
+                                [zone.id]: (prev[lessonKey]?.[zone.id] ?? []).filter((x) => x.uid !== it.uid),
+                              },
+                            }));
+                            setSqlBuilderResult((prev) => ({ ...prev, [lessonKey]: null }));
+                          }}
+                        >
+                          {it.token} ×
+                        </button>
+                      ))
+                    ) : (
+                      <span className={styles.bookDiagramNote}>Bấm để chọn vùng này rồi chọn mảnh bên trái</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
+            {joinedSql && (
+              <div className={styles.bookCodeBox}>{joinedSql};</div>
+            )}
+
+            <div className={styles.bookActionRow}>
+              <button
+                type="button"
+                className={styles.bookPrimaryBtn}
+                onClick={() => {
+                  const res = gradeStep3Tokens(joinedSql, page.expectedSql);
+                  setSqlBuilderResult((prev) => ({
+                    ...prev,
+                    [lessonKey]: { ok: res.correct, msg: res.message },
+                  }));
+                }}
+              >
+                ✓ Kiểm tra ghép lệnh
+              </button>
+              <button
+                type="button"
+                className={styles.bookSecondaryBtn}
+                onClick={() => {
+                  setSqlBuilderZones((prev) => ({ ...prev, [lessonKey]: {} }));
+                  setSqlBuilderResult((prev) => ({ ...prev, [lessonKey]: null }));
+                }}
+              >
+                Xoá hết
+              </button>
+              <button
+                type="button"
+                className={styles.bookSecondaryBtn}
+                onClick={() => setSqlBuilderAnsOpen((prev) => ({ ...prev, [lessonKey]: !prev[lessonKey] }))}
+              >
+                {showAns ? 'Ẩn đáp án' : '👁️ Xem đáp án'}
+              </button>
+            </div>
+
+            {bResult && (
+              <div className={bResult.ok ? styles.paperFeedback : styles.paperErrorFeedback}>
+                {bResult.msg}
+              </div>
+            )}
+            {showAns && page.expectedSql && <div className={styles.bookCodeBox}>{page.expectedSql}</div>}
+          </div>
+        );
+      }
+
+      case 'sql-challenge-brief': {
+        const revealedCount = sqlChallengeHintLevel[lessonKey] ?? 0;
+        return (
+          <div className={styles.pageBodyFlow}>
+            <p className={styles.pageSectionLabel}>ĐỀ BÀI THỰC HÀNH</p>
+            <h2 className={styles.pageMainTitle}>{page.heading}</h2>
+            <p className={styles.pageLeadParagraph}>{renderInlineCode(page.prompt)}</p>
+
+            {page.scenario && (
+              <div className={styles.bookCalloutNote}>
+                <b>TÌNH HUỐNG</b>
+                {renderInlineCode(page.scenario)}
+              </div>
+            )}
+
+            {page.steps.length > 0 && (
+              <ol className={styles.bookProcedureList}>
+                {page.steps.map((st, idx) => (
+                  <li key={idx}>{renderInlineCode(st)}</li>
+                ))}
+              </ol>
+            )}
+
+            {page.example?.code && (
+              <div className={styles.bookCalloutNote}>
+                <b>VÍ DỤ THAM KHẢO</b>
+                {page.example.question && <div>{renderInlineCode(page.example.question)}</div>}
+                <div className={styles.bookMcqCodeBox} style={{ marginTop: 6 }}>
+                  {page.example.code}
+                </div>
+                {page.example.output && <div style={{ marginTop: 4 }}>{renderInlineCode(page.example.output)}</div>}
+              </div>
+            )}
+
+            {page.expectedText && (
+              <div className={styles.bookCalloutNote}>
+                <b>KẾT QUẢ MONG ĐỢI</b>
+                {renderInlineCode(page.expectedText)}
+              </div>
+            )}
+
+            {page.hints.length > 0 && (
+              <>
+                <div className={styles.bookActionRow}>
+                  <button
+                    type="button"
+                    className={styles.bookSecondaryBtn}
+                    onClick={() =>
+                      setSqlChallengeHintLevel((prev) => ({
+                        ...prev,
+                        [lessonKey]: (prev[lessonKey] ?? 0) >= page.hints.length ? 0 : (prev[lessonKey] ?? 0) + 1,
+                      }))
+                    }
+                  >
+                    {revealedCount >= page.hints.length
+                      ? 'Thu gọn gợi ý'
+                      : `💡 Gợi ý (${revealedCount}/${page.hints.length})`}
+                  </button>
+                </div>
+                {revealedCount > 0 && (
+                  <div className={styles.bookCalloutNote}>
+                    <b>GỢI Ý TỪNG MỨC</b>
+                    {page.hints.slice(0, revealedCount).map((h, idx) => (
+                      <div key={idx} style={{ marginTop: idx > 0 ? 4 : 0 }}>
+                        <strong>Mức {h.level}:</strong> {renderInlineCode(h.text)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
+            {page.conceptCardsAfter.length > 0 && (
+              <div className={styles.bookActionRow}>
+                {page.conceptCardsAfter.map((c) => (
+                  <Link key={c.id} href={`/card/${c.id}`} className={styles.bookSecondaryBtn}>
+                    📇 Đọc thêm: {c.title}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      case 'sql-ide': {
+        const currentSql = sqlEditorCode[lessonKey] ?? page.starter;
+        const feedback = sqlGradeResult[lessonKey];
+        const preview = sqlSqlitePreview[lessonKey];
+        const showSol = Boolean(showSolution[lessonNo]);
+        const schemas = [page.schema, ...page.relatedSchemas].filter((s): s is NonNullable<typeof s> => Boolean(s));
+        return (
+          <div className={styles.pageBodyFlow}>
+            <p className={styles.pageSectionLabel}>
+              {page.challengeType === 'bug_fix' ? 'SỬA LỖI TRUY VẤN' : 'THỰC THI & CHẤM SQL'}
+            </p>
+            <h2 className={styles.pageMainTitle}>{page.heading}</h2>
+
+            {schemas.length > 0 && (
+              <div className={styles.sqlChipGrid}>
+                {schemas.map((sc, idx) => (
+                  <span key={idx} className={styles.sqlKeyBadge}>
+                    📋 {sc.table_name} ({sc.columns.map((c) => c.name).join(', ')})
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {page.challengeType === 'bug_fix' && page.buggyLine && (
+              <p className={styles.bookDiagramNote}>
+                Gợi ý vị trí: kiểm tra kỹ quanh dòng {page.buggyLine + 1}.
+              </p>
+            )}
+
+            <textarea
+              aria-label="Trình soạn thảo SQL"
+              className={styles.sqlEditorTextarea}
+              value={currentSql}
+              onChange={(e) =>
+                setSqlEditorCode((prev) => ({ ...prev, [lessonKey]: e.target.value }))
+              }
+              placeholder="Nhập câu lệnh SQL của bạn tại đây..."
+              spellCheck={false}
+            />
+
+            <div className={styles.bookActionRow}>
+              <button
+                type="button"
+                className={styles.bookPrimaryBtn}
+                disabled={sqlRunning}
+                onClick={() =>
+                  void handleRunSqlChallenge(
+                    currentSql,
+                    page.expectedSql,
+                    page.equivSql,
+                    page.schema,
+                    page.relatedSchemas,
+                    page.successMessage,
+                  )
+                }
+              >
+                {sqlRunning ? '⏳ Đang chạy...' : '▶ Chạy & kiểm tra'}
+              </button>
+
+              {page.expectedSql && (
+                <button
+                  type="button"
+                  className={styles.bookSecondaryBtn}
+                  onClick={() =>
+                    setShowSolution((prev) => ({
+                      ...prev,
+                      [lessonNo]: !prev[lessonNo],
+                    }))
+                  }
+                >
+                  {showSol ? 'Ẩn đáp án' : '📖 Xem đáp án mẫu'}
+                </button>
+              )}
+
+              <button
+                type="button"
+                className={`${styles.bookPrimaryBtn} ${
+                  isCurrentLessonDone ? styles.bookPrimaryBtnDone : ''
+                }`}
+                onClick={() => void handleCompleteLesson()}
+              >
+                {isCurrentLessonDone
+                  ? `✓ Bài ${lessonNo} đã xong`
+                  : `✓ Đánh dấu xong (+${currentCatalog.xp} XP)`}
+              </button>
+            </div>
+
+            {feedback && (
+              <div className={feedback.ok ? styles.paperFeedback : styles.paperErrorFeedback}>
+                <div>{renderInlineCode(feedback.text)}</div>
+                {feedback.suggestion && (
+                  <div style={{ marginTop: 4, opacity: 0.9 }}>{renderInlineCode(feedback.suggestion)}</div>
+                )}
+              </div>
+            )}
+
+            {preview && (
+              preview.ok ? (
+                <div className={styles.bookTableWrap}>
+                  <table className={styles.bookTable}>
+                    <thead>
+                      <tr>
+                        {preview.columns.map((col, idx) => (
+                          <th key={idx}>{col}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {preview.rows.length > 0 ? (
+                        preview.rows.map((r, rIdx) => (
+                          <tr key={rIdx}>
+                            {r.map((cell, cIdx) => (
+                              <td key={cIdx}>{cell === null ? 'NULL' : String(cell)}</td>
+                            ))}
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={Math.max(1, preview.columns.length)}>
+                            (0 dòng trả về)
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className={styles.bookDiagramNote}>
+                  SQLite xem trước: {preview.error}
+                </div>
+              )
+            )}
+
+            {showSol && page.expectedSql && <div className={styles.bookCodeBox}>{page.expectedSql}</div>}
+            {completeBanner && <div className={styles.paperFeedback}>{completeBanner}</div>}
+          </div>
+        );
+      }
+
+      case 'sql-fill': {
+        const fb = sqlFillFeedback[lessonKey];
+        const showSol = Boolean(showSolution[lessonNo]);
+        return (
+          <div className={styles.pageBodyFlow}>
+            <p className={styles.pageSectionLabel}>HOÀN THIỆN MẪU CODE</p>
+            <h2 className={styles.pageMainTitle}>{page.heading}</h2>
+
+            <div className={styles.bookCodeBox}>{page.template}</div>
+
+            {page.blanks.map((b, idx) => {
+              const bKey = `${lessonKey}-blank-${b.id}`;
+              return (
+                <div key={b.id} className={styles.bookPracticeCard}>
+                  <label htmlFor={bKey} style={{ fontSize: 12.5, fontWeight: 700, color: '#3a2e24' }}>
+                    Chỗ trống #{idx + 1}: {renderInlineCode(b.hint)}
+                  </label>
+                  <input
+                    id={bKey}
+                    type="text"
+                    className={styles.bookPracticeTextarea}
+                    style={{ minHeight: 36, fontFamily: 'JetBrains Mono, monospace' }}
+                    value={practiceInputs[bKey] ?? ''}
+                    onChange={(e) => {
+                      setPracticeInputs((prev) => ({ ...prev, [bKey]: e.target.value }));
+                      setSqlFillFeedback((prev) => ({ ...prev, [lessonKey]: null }));
+                    }}
+                    placeholder="Nhập từ khoá còn thiếu..."
+                  />
+                </div>
+              );
+            })}
+
+            <div className={styles.bookActionRow}>
+              <button
+                type="button"
+                className={styles.bookPrimaryBtn}
+                onClick={() => {
+                  const okCount = page.blanks.filter((b) => {
+                    const ans = (practiceInputs[`${lessonKey}-blank-${b.id}`] ?? '').trim().toLowerCase();
+                    return ans === b.expected.trim().toLowerCase();
+                  }).length;
+                  const allOk = okCount === page.blanks.length;
+                  setSqlFillFeedback((prev) => ({
+                    ...prev,
+                    [lessonKey]: allOk
+                      ? { ok: true, msg: page.successMessage || '✓ Chính xác hoàn toàn!' }
+                      : { ok: false, msg: `Đúng ${okCount}/${page.blanks.length} ô — kiểm tra lại ô còn sai nhé.` },
+                  }));
+                  if (allOk) void handleCompleteLesson();
+                }}
+              >
+                ✓ Kiểm tra &amp; nộp bài
+              </button>
+              <button
+                type="button"
+                className={styles.bookSecondaryBtn}
+                onClick={() => setShowSolution((prev) => ({ ...prev, [lessonNo]: !prev[lessonNo] }))}
+              >
+                {showSol ? 'Ẩn đáp án' : '👁️ Xem đáp án'}
+              </button>
+            </div>
+
+            {showSol && (
+              <div className={styles.bookCalloutNote}>
+                <b>ĐÁP ÁN CÁC Ô TRỐNG</b>
+                {page.blanks.map((b, i) => (
+                  <div key={b.id}>
+                    Ô #{i + 1}: <code>{b.expected}</code>
+                  </div>
+                ))}
+              </div>
+            )}
+            {fb && (
+              <div className={fb.ok ? styles.paperFeedback : styles.paperErrorFeedback}>{fb.msg}</div>
+            )}
+            {completeBanner && <div className={styles.paperFeedback}>{completeBanner}</div>}
+          </div>
+        );
+      }
+
+      case 'sql-mcq-challenge': {
+        const cKey = `${lessonKey}-s4mcq`;
+        const chosen = pickedMcq[cKey];
+        const isAnswered = chosen !== undefined;
+        const rightIdx = Math.max(
+          0,
+          page.options.findIndex((o) => o.correct),
+        );
+        return (
+          <div className={styles.pageBodyFlow}>
+            <p className={styles.pageSectionLabel}>TRẮC NGHIỆM CHỐT BÀI</p>
+            <h2 className={styles.pageMainTitle}>{page.heading}</h2>
+            <p className={styles.pageLeadParagraph}>{renderInlineCode(page.question)}</p>
+
+            <div className={styles.paperOptList}>
+              {page.options.map((opt, idx) => {
+                let btnClass = styles.paperOptBtn;
+                if (isAnswered && chosen === idx) {
+                  btnClass += opt.correct ? ` ${styles.paperOptCorrect}` : ` ${styles.paperOptWrong}`;
+                } else if (isAnswered && opt.correct) {
+                  btnClass += ` ${styles.paperOptCorrect}`;
+                }
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    className={btnClass}
+                    onClick={() => {
+                      setPickedMcq((prev) => ({ ...prev, [cKey]: idx }));
+                      if (idx === rightIdx) void handleCompleteLesson();
+                    }}
+                  >
+                    <span>
+                      <strong>{LETTERS[idx]}.</strong> {renderInlineCode(opt.text)}
+                    </span>
+                    {isAnswered && opt.correct && <span>✓</span>}
+                  </button>
+                );
+              })}
+            </div>
+
+            {isAnswered && (
+              <div className={chosen === rightIdx ? styles.paperFeedback : styles.paperErrorFeedback}>
+                {renderInlineCode(
+                  page.options[chosen]?.explanation ||
+                    (chosen === rightIdx ? page.successMessage : 'Phương án này chưa chuẩn — xem đáp án xanh bên trên nhé.'),
+                )}
+              </div>
+            )}
+            {completeBanner && <div className={styles.paperFeedback}>{completeBanner}</div>}
+          </div>
+        );
+      }
     }
   };
 
@@ -1825,10 +3061,10 @@ export default function LofiWorkspace({
                       value={lessonIdx}
                       onChange={(e) => handleChangeLesson(Number(e.target.value), 0)}
                     >
-                      {CATALOG_LESSONS.map((item, idx) => (
+                      {catalogLessons.map((item, idx) => (
                         <option key={item.no} value={idx}>
                           {doneLessons.includes(item.no) ? '✓ ' : ''}
-                          Bài {item.no}/{CATALOG_LESSONS.length} · {item.code} · {item.title}
+                          Bài {item.no}/{catalogLessons.length} · {item.code} · {item.title}
                         </option>
                       ))}
                     </select>
@@ -1893,7 +3129,12 @@ export default function LofiWorkspace({
                 {/* ================= TRANG BÊN PHẢI ================= */}
                 <section className={`${styles.bookPage} ${styles.bookPageRight}`}>
                   <div className={styles.pageHeaderLine}>
-                    <span>SỔ TAY NHÀ PHÁT MINH · {currentCatalog.moduleShort}</span>
+                    <span>
+                      {isSql
+                        ? SQL_COURSE_META[activeCourseId as SqlCourseId].title.toUpperCase()
+                        : 'SỔ TAY NHÀ PHÁT MINH'}{' '}
+                      · {currentCatalog.moduleShort}
+                    </span>
                     <span>
                       {lessonLoading
                         ? 'ĐANG TẢI'
@@ -1929,7 +3170,7 @@ export default function LofiWorkspace({
                         <h2 className={styles.pageMainTitle}>Chi tiết phản hồi máy chủ</h2>
                         <p className={styles.pageLeadParagraph}>
                           {lessonError.kind === 'not_found'
-                            ? 'Bài học này chưa có trong cơ sở dữ liệu. Hãy chạy lại script seed khoá python_advanced rồi bấm Thử lại.'
+                            ? `Bài học này chưa có trong khoá ${activeCourseId}. Vui lòng kiểm tra dữ liệu và bấm Thử lại.`
                             : lessonError.kind === 'unauthorized'
                               ? 'Trình duyệt chưa có hoặc đã hết phiên làm việc hợp lệ. Hãy tải lại trang để làm mới phiên.'
                               : 'Máy chủ đã phản hồi lỗi khi đọc nội dung bài học. Vui lòng bấm Thử lại ở trang đối diện.'}
@@ -1942,7 +3183,7 @@ export default function LofiWorkspace({
 
                   <div className={styles.pageFooterRow}>
                     <span>
-                      Bài {lessonNo} / {CATALOG_LESSONS.length} ({currentCatalog.code})
+                      Bài {lessonNo} / {catalogLessons.length} ({currentCatalog.code})
                     </span>
                     <span>Trang {safeSpreadIdx * 2 + 2}</span>
                   </div>
@@ -2269,7 +3510,7 @@ export default function LofiWorkspace({
               <path d="M5 13l4 4L19 7" />
             </svg>
             <span>
-              {doneLessons.length}/{CATALOG_LESSONS.length}
+              {doneLessons.length}/{catalogLessons.length}
             </span>
           </div>
           <div className={`${styles.topPill} ${styles.topPillXp}`} title="Tổng XP">

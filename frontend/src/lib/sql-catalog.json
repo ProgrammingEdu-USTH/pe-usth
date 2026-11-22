@@ -1,0 +1,668 @@
+{
+  "db_design": [
+    {
+      "no": 1,
+      "index": 0,
+      "code": "DB_01",
+      "title": "Entity Set & Primary Key",
+      "module": 1,
+      "moduleTitle": "Giới thiệu & Nền tảng Database",
+      "minutes": 18,
+      "xp": 50
+    },
+    {
+      "no": 2,
+      "index": 1,
+      "code": "DB_02",
+      "title": "Composite, Multivalued & Derived Attributes",
+      "module": 1,
+      "moduleTitle": "Giới thiệu & Nền tảng Database",
+      "minutes": 22,
+      "xp": 50
+    },
+    {
+      "no": 3,
+      "index": 2,
+      "code": "DB_03",
+      "title": "Foreign Key & JOIN",
+      "module": 1,
+      "moduleTitle": "Giới thiệu & Nền tảng Database",
+      "minutes": 25,
+      "xp": 60
+    },
+    {
+      "no": 4,
+      "index": 3,
+      "code": "DB_04",
+      "title": "Foreign Key & Mối quan hệ 1:N",
+      "module": 1,
+      "moduleTitle": "Giới thiệu & Nền tảng Database",
+      "minutes": 22,
+      "xp": 55
+    },
+    {
+      "no": 5,
+      "index": 4,
+      "code": "DB_19",
+      "title": "Mối quan hệ M:N & Bảng trung gian",
+      "module": 1,
+      "moduleTitle": "Giới thiệu & Nền tảng Database",
+      "minutes": 22,
+      "xp": 60
+    },
+    {
+      "no": 6,
+      "index": 5,
+      "code": "DB_05",
+      "title": "Weak Entity & Khóa chính tổng hợp",
+      "module": 1,
+      "moduleTitle": "Giới thiệu & Nền tảng Database",
+      "minutes": 24,
+      "xp": 60
+    },
+    {
+      "no": 7,
+      "index": 6,
+      "code": "DB_06",
+      "title": "Mapping ER → Bảng quan hệ",
+      "module": 1,
+      "moduleTitle": "Giới thiệu & Nền tảng Database",
+      "minutes": 22,
+      "xp": 65
+    },
+    {
+      "no": 8,
+      "index": 7,
+      "code": "DB_07",
+      "title": "Redundancy & Phụ thuộc hàm (FD)",
+      "module": 2,
+      "moduleTitle": "Chuẩn hóa dữ liệu (Normal Forms)",
+      "minutes": 22,
+      "xp": 70
+    },
+    {
+      "no": 9,
+      "index": 8,
+      "code": "DB_08",
+      "title": "Dạng chuẩn 1 (1NF) — Atomic Domains",
+      "module": 2,
+      "moduleTitle": "Chuẩn hóa dữ liệu (Normal Forms)",
+      "minutes": 22,
+      "xp": 70
+    },
+    {
+      "no": 10,
+      "index": 9,
+      "code": "DB_09",
+      "title": "Dạng chuẩn 2 (2NF) — Phụ thuộc hàm đầy đủ",
+      "module": 2,
+      "moduleTitle": "Chuẩn hóa dữ liệu (Normal Forms)",
+      "minutes": 22,
+      "xp": 70
+    },
+    {
+      "no": 11,
+      "index": 10,
+      "code": "DB_11",
+      "title": "Dạng chuẩn 3 (3NF) & Sự thỏa hiệp",
+      "module": 2,
+      "moduleTitle": "Chuẩn hóa dữ liệu (Normal Forms)",
+      "minutes": 25,
+      "xp": 80
+    },
+    {
+      "no": 12,
+      "index": 11,
+      "code": "DB_10",
+      "title": "Dạng chuẩn BCNF & Phân rã Phi tổn thất",
+      "module": 2,
+      "moduleTitle": "Chuẩn hóa dữ liệu (Normal Forms)",
+      "minutes": 25,
+      "xp": 80
+    },
+    {
+      "no": 13,
+      "index": 12,
+      "code": "DB_12",
+      "title": "Dạng chuẩn 4 (4NF) — Phụ thuộc đa trị",
+      "module": 2,
+      "moduleTitle": "Chuẩn hóa dữ liệu (Normal Forms)",
+      "minutes": 22,
+      "xp": 75
+    },
+    {
+      "no": 14,
+      "index": 13,
+      "code": "DB_13",
+      "title": "Trận chiến cuối — Siêu hệ thống chuẩn hóa",
+      "module": 2,
+      "moduleTitle": "Chuẩn hóa dữ liệu (Normal Forms)",
+      "minutes": 30,
+      "xp": 100
+    },
+    {
+      "no": 15,
+      "index": 14,
+      "code": "DB_14",
+      "title": "JSON trong Database — Path Expressions",
+      "module": 3,
+      "moduleTitle": "Application Design",
+      "minutes": 18,
+      "xp": 60
+    },
+    {
+      "no": 16,
+      "index": 15,
+      "code": "DB_15",
+      "title": "Spatial Data — Dữ liệu Không gian",
+      "module": 3,
+      "moduleTitle": "Application Design",
+      "minutes": 18,
+      "xp": 60
+    },
+    {
+      "no": 17,
+      "index": 16,
+      "code": "DB_16",
+      "title": "ORM với Django — Ánh xạ Class ↔ Table",
+      "module": 3,
+      "moduleTitle": "Application Design",
+      "minutes": 18,
+      "xp": 60
+    },
+    {
+      "no": 18,
+      "index": 17,
+      "code": "DB_20",
+      "title": "Web Services — REST/AJAX nối App với Database",
+      "module": 3,
+      "moduleTitle": "Application Design",
+      "minutes": 22,
+      "xp": 70
+    },
+    {
+      "no": 19,
+      "index": 18,
+      "code": "DB_17",
+      "title": "SQL Injection — Lỗ hổng chết người",
+      "module": 3,
+      "moduleTitle": "Application Design",
+      "minutes": 18,
+      "xp": 60
+    },
+    {
+      "no": 20,
+      "index": 19,
+      "code": "DB_18",
+      "title": "Password Security — Salt & Hashing",
+      "module": 3,
+      "moduleTitle": "Application Design",
+      "minutes": 18,
+      "xp": 70
+    }
+  ],
+  "db_design_tc": [
+    {
+      "no": 1,
+      "index": 0,
+      "code": "TC_01",
+      "title": "SQL từ ngôn ngữ lập trình — JDBC, Embedded SQL & Cursor",
+      "module": 4,
+      "moduleTitle": "Advanced SQL",
+      "minutes": 25,
+      "xp": 120
+    },
+    {
+      "no": 2,
+      "index": 1,
+      "code": "TC_02",
+      "title": "Functions & Stored Procedures — gói việc vào database",
+      "module": 4,
+      "moduleTitle": "Advanced SQL",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 3,
+      "index": 2,
+      "code": "TC_03",
+      "title": "Trigger — database tự phản ứng",
+      "module": 4,
+      "moduleTitle": "Advanced SQL",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 4,
+      "index": 3,
+      "code": "TC_04",
+      "title": "Recursive Queries — WITH RECURSIVE",
+      "module": 4,
+      "moduleTitle": "Advanced SQL",
+      "minutes": 22,
+      "xp": 120
+    },
+    {
+      "no": 5,
+      "index": 4,
+      "code": "TC_05",
+      "title": "Star Schema — Fact & Dimension",
+      "module": 5,
+      "moduleTitle": "Big Data & Analytics",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 6,
+      "index": 5,
+      "code": "TC_06",
+      "title": "ROLLUP & CUBE — mọi tầng tổng trong một query",
+      "module": 5,
+      "moduleTitle": "Big Data & Analytics",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 7,
+      "index": 6,
+      "code": "TC_07",
+      "title": "MapReduce — chia để trị trên cụm máy",
+      "module": 5,
+      "moduleTitle": "Big Data & Analytics",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 8,
+      "index": 7,
+      "code": "TC_08",
+      "title": "JSON Document Store — mỗi hồ sơ một document",
+      "module": 5,
+      "moduleTitle": "Big Data & Analytics",
+      "minutes": 18,
+      "xp": 120
+    },
+    {
+      "no": 9,
+      "index": 8,
+      "code": "TC_09",
+      "title": "OLAP — Slice, Dice & Drill-down",
+      "module": 5,
+      "moduleTitle": "Big Data & Analytics",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 10,
+      "index": 9,
+      "code": "TC_10",
+      "title": "Tumbling Windows — đếm trên dòng chảy",
+      "module": 5,
+      "moduleTitle": "Big Data & Analytics",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 11,
+      "index": 10,
+      "code": "TC_11",
+      "title": "Storage Hierarchy — dữ liệu thật sự nằm ở đâu",
+      "module": 6,
+      "moduleTitle": "Storage, Indexing & Performance",
+      "minutes": 15,
+      "xp": 120
+    },
+    {
+      "no": 12,
+      "index": 11,
+      "code": "TC_12",
+      "title": "Sequential vs Random — cách chạm đĩa quyết định tốc độ",
+      "module": 6,
+      "moduleTitle": "Storage, Indexing & Performance",
+      "minutes": 15,
+      "xp": 120
+    },
+    {
+      "no": 13,
+      "index": 12,
+      "code": "TC_13",
+      "title": "Buffer Manager — trí nhớ ngắn hạn của database",
+      "module": 6,
+      "moduleTitle": "Storage, Indexing & Performance",
+      "minutes": 18,
+      "xp": 120
+    },
+    {
+      "no": 14,
+      "index": 13,
+      "code": "TC_14",
+      "title": "Record Layout & Heap File — dòng nằm trên trang thế nào",
+      "module": 6,
+      "moduleTitle": "Storage, Indexing & Performance",
+      "minutes": 18,
+      "xp": 120
+    },
+    {
+      "no": 15,
+      "index": 14,
+      "code": "TC_15",
+      "title": "Row-Store vs Column-Store — xếp ngang hay xếp dọc",
+      "module": 6,
+      "moduleTitle": "Storage, Indexing & Performance",
+      "minutes": 15,
+      "xp": 120
+    },
+    {
+      "no": 16,
+      "index": 15,
+      "code": "TC_16",
+      "title": "Index — mục lục cho 2 triệu dòng",
+      "module": 6,
+      "moduleTitle": "Storage, Indexing & Performance",
+      "minutes": 15,
+      "xp": 120
+    },
+    {
+      "no": 17,
+      "index": 16,
+      "code": "TC_17",
+      "title": "Dense vs Sparse · Clustering vs Secondary — bốn kiểu mục lục",
+      "module": 6,
+      "moduleTitle": "Storage, Indexing & Performance",
+      "minutes": 15,
+      "xp": 120
+    },
+    {
+      "no": 18,
+      "index": 17,
+      "code": "TC_18",
+      "title": "B+-Tree — cái cây sống trong mọi index",
+      "module": 6,
+      "moduleTitle": "Storage, Indexing & Performance",
+      "minutes": 15,
+      "xp": 120
+    },
+    {
+      "no": 19,
+      "index": 18,
+      "code": "TC_19",
+      "title": "Composite & Bitmap — mục lục hai lớp và mục lục bàn cờ",
+      "module": 6,
+      "moduleTitle": "Storage, Indexing & Performance",
+      "minutes": 15,
+      "xp": 120
+    },
+    {
+      "no": 20,
+      "index": 19,
+      "code": "TC_20",
+      "title": "Capstone: EXPLAIN — bắt máy khai nó định làm gì",
+      "module": 6,
+      "moduleTitle": "Storage, Indexing & Performance",
+      "minutes": 18,
+      "xp": 140
+    },
+    {
+      "no": 21,
+      "index": 20,
+      "code": "TC_21",
+      "title": "BOSS · Social Graph Detective — chuyên án tốt nghiệp",
+      "module": 6,
+      "moduleTitle": "Storage, Indexing & Performance",
+      "minutes": 30,
+      "xp": 200
+    }
+  ],
+  "db_design_nc": [
+    {
+      "no": 1,
+      "index": 0,
+      "code": "NC_01",
+      "title": "Từ SQL đến Execution Plan — dây chuyền trong engine",
+      "module": 7,
+      "moduleTitle": "Engine Room — Query Processing",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 2,
+      "index": 1,
+      "code": "NC_02",
+      "title": "Vì sao query có giá? Block Transfer, Random I/O & Memory",
+      "module": 7,
+      "moduleTitle": "Engine Room — Query Processing",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 3,
+      "index": 2,
+      "code": "NC_03",
+      "title": "Full Scan vs Index Scan — index không phải lúc nào cũng nhanh",
+      "module": 7,
+      "moduleTitle": "Engine Room — Query Processing",
+      "minutes": 18,
+      "xp": 120
+    },
+    {
+      "no": 4,
+      "index": 3,
+      "code": "NC_04",
+      "title": "External Sort-Merge — sắp xếp thứ TO HƠN bộ nhớ",
+      "module": 7,
+      "moduleTitle": "Engine Room — Query Processing",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 5,
+      "index": 4,
+      "code": "NC_05",
+      "title": "Join I — Nested Loop ba đời: từng dòng, từng block, tra index",
+      "module": 7,
+      "moduleTitle": "Engine Room — Query Processing",
+      "minutes": 22,
+      "xp": 120
+    },
+    {
+      "no": 6,
+      "index": 5,
+      "code": "NC_06",
+      "title": "Join II — Merge Join & Hash Join: hai võ sĩ hạng nặng",
+      "module": 7,
+      "moduleTitle": "Engine Room — Query Processing",
+      "minutes": 22,
+      "xp": 120
+    },
+    {
+      "no": 7,
+      "index": 6,
+      "code": "NC_07",
+      "title": "Aggregation — GROUP BY cả sàn giá bằng một lần quét",
+      "module": 7,
+      "moduleTitle": "Engine Room — Query Processing",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 8,
+      "index": 7,
+      "code": "NC_08",
+      "title": "Materialization vs Pipelining — nối toán tử kiểu gì?",
+      "module": 7,
+      "moduleTitle": "Engine Room — Query Processing",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 9,
+      "index": 8,
+      "code": "NC_09",
+      "title": "Optimizer viết lại query — pushdown, đảo join, né Descartes",
+      "module": 7,
+      "moduleTitle": "Engine Room — Query Processing",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 10,
+      "index": 9,
+      "code": "NC_10",
+      "title": "Cost-Based Optimizer — sổ thống kê, EXPLAIN & materialized view",
+      "module": 7,
+      "moduleTitle": "Engine Room — Query Processing",
+      "minutes": 22,
+      "xp": 140
+    },
+    {
+      "no": 11,
+      "index": 10,
+      "code": "NC_11",
+      "title": "Hai giao dịch một mili-giây — vì sao gem bốc hơi?",
+      "module": 8,
+      "moduleTitle": "Trading Floor — Giao dịch & Concurrency",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 12,
+      "index": 11,
+      "code": "NC_12",
+      "title": "Khóa S/X — ai đọc chung được, ai phải xếp hàng?",
+      "module": 8,
+      "moduleTitle": "Trading Floor — Giao dịch & Concurrency",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 13,
+      "index": 12,
+      "code": "NC_13",
+      "title": "Two-Phase Locking — gom cho hết, rồi mới buông",
+      "module": 8,
+      "moduleTitle": "Trading Floor — Giao dịch & Concurrency",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 14,
+      "index": 13,
+      "code": "NC_14",
+      "title": "Deadlock — vòng tròn chờ nhau đến vĩnh viễn",
+      "module": 8,
+      "moduleTitle": "Trading Floor — Giao dịch & Concurrency",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 15,
+      "index": 14,
+      "code": "NC_15",
+      "title": "Multiple Granularity — khóa cả bảng, hay từng dòng?",
+      "module": 8,
+      "moduleTitle": "Trading Floor — Giao dịch & Concurrency",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 16,
+      "index": 15,
+      "code": "NC_16",
+      "title": "Phantom — con ma lọt lưới khóa dòng",
+      "module": 8,
+      "moduleTitle": "Trading Floor — Giao dịch & Concurrency",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 17,
+      "index": 16,
+      "code": "NC_17",
+      "title": "Optimistic — cứ chạy trên nháp, nộp bài mới soát",
+      "module": 8,
+      "moduleTitle": "Trading Floor — Giao dịch & Concurrency",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 18,
+      "index": 17,
+      "code": "NC_18",
+      "title": "MVCC — sổ không tẩy xóa, mỗi lần ghi là dán bản mới",
+      "module": 8,
+      "moduleTitle": "Trading Floor — Giao dịch & Concurrency",
+      "minutes": 22,
+      "xp": 120
+    },
+    {
+      "no": 19,
+      "index": 18,
+      "code": "NC_19",
+      "title": "Write Skew — hai bài soát đều đậu, cái két vẫn thủng",
+      "module": 8,
+      "moduleTitle": "Trading Floor — Giao dịch & Concurrency",
+      "minutes": 22,
+      "xp": 120
+    },
+    {
+      "no": 20,
+      "index": 19,
+      "code": "NC_20",
+      "title": "Version Number — cái ghế nhớ nó đã đổi chủ mấy lần",
+      "module": 8,
+      "moduleTitle": "Trading Floor — Giao dịch & Concurrency",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 21,
+      "index": 20,
+      "code": "NC_21",
+      "title": "Máy sập lúc 23:47 — dữ liệu mới đang nằm ở đâu?",
+      "module": 9,
+      "moduleTitle": "Hộp Đen — Sự cố & Phục hồi",
+      "minutes": 18,
+      "xp": 120
+    },
+    {
+      "no": 22,
+      "index": 21,
+      "code": "NC_22",
+      "title": "Hộp Đen — cái log kể lại mọi chuyện sau khi máy sập",
+      "module": 9,
+      "moduleTitle": "Hộp Đen — Sự cố & Phục hồi",
+      "minutes": 20,
+      "xp": 120
+    },
+    {
+      "no": 23,
+      "index": 22,
+      "code": "NC_23",
+      "title": "WAL — cuốn log phải xuống trước cái data",
+      "module": 9,
+      "moduleTitle": "Hộp Đen — Sự cố & Phục hồi",
+      "minutes": 22,
+      "xp": 120
+    },
+    {
+      "no": 24,
+      "index": 23,
+      "code": "NC_24",
+      "title": "ARIES — phục hồi 3 pass, và mẹo bỏ qua việc thừa",
+      "module": 9,
+      "moduleTitle": "Hộp Đen — Sự cố & Phục hồi",
+      "minutes": 24,
+      "xp": 130
+    },
+    {
+      "no": 25,
+      "index": 24,
+      "code": "NC_25",
+      "title": "BOSS — Engine Under Fire",
+      "module": 9,
+      "moduleTitle": "Hộp Đen — Sự cố & Phục hồi",
+      "minutes": 30,
+      "xp": 200
+    }
+  ]
+}

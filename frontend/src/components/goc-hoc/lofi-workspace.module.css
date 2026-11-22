@@ -1996,6 +1996,191 @@
   color: #292524;
 }
 
+/* ── BỔ SUNG CHO SÁCH MỞ SQL (tái sử dụng bảng, thẻ, nút sẵn có) ─────────── */
+.sqlChipGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sqlChipBtn {
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(107, 33, 168, 0.3);
+  background: #ffffff;
+  color: #2c221b;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sqlChipBtn:hover {
+  border-color: #6b21a8;
+  background: #faf5ff;
+}
+
+.sqlChipActive {
+  background: #6b21a8 !important;
+  color: #ffffff !important;
+  border-color: #6b21a8 !important;
+}
+
+.sqlZoneCard {
+  padding: 9px 11px;
+  border-radius: 10px;
+  border: 1.5px dashed rgba(120, 95, 70, 0.38);
+  background: rgba(255, 255, 255, 0.72);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.sqlZoneCardActive {
+  border-style: solid;
+  border-color: #6b21a8;
+  background: #faf5ff;
+}
+
+.sqlZonePlaceholder {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #7c6753;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.sqlPlacedToken {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #1f1924;
+  color: #f3e8ff;
+  border: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sqlPlacedToken:hover {
+  background: #4c1d95;
+}
+
+.sqlMatchGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.sqlOrderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: #ffffff;
+  border: 1px solid rgba(120, 95, 70, 0.24);
+  font-size: 12.5px;
+  color: #2c221b;
+}
+
+.sqlOrderMoves {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.sqlMiniMoveBtn {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid rgba(120, 95, 70, 0.3);
+  background: #f5efe2;
+  color: #3a2e24;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sqlMiniMoveBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.sqlLineBtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #f3e8ff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sqlLineBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sqlLinePicked {
+  background: rgba(239, 193, 104, 0.25) !important;
+  color: #ffe8b3;
+}
+
+.sqlKeyBadge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: rgba(107, 33, 168, 0.12);
+  color: #581c87;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.sqlEditorTextarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 112px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(107, 33, 168, 0.35);
+  background: #1f1924;
+  color: #f3e8ff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.55;
+  white-space: pre;
+  overflow-x: auto;
+  resize: vertical;
+}
+
+.sqlEditorTextarea:focus {
+  outline: none;
+  border-color: #a855f7;
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.22);
+}
+
+.paperErrorFeedback {
+  padding: 9px 12px;
+  border-radius: 9px;
+  background: #fef2f2;
+  border-left: 3px solid #dc2626;
+  font-size: 12.2px;
+  line-height: 1.45;
+  color: #7f1d1d;
+}
+
 @media (max-width: 900px) {
   .topTabs {
     display: none;
@@ -2003,7 +2188,8 @@
   .openBookSpread,
   .ideWorkspace,
   .bookCardsGrid,
-  .bookDiagramGrid {
+  .bookDiagramGrid,
+  .sqlMatchGrid {
     grid-template-columns: 1fr;
   }
   .openBookSpread::after {

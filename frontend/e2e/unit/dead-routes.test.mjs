@@ -42,6 +42,8 @@ const REMOVED = [
   [['src', 'components', 'lesson-chrome'], 'khung bài học v2 cũ'],
   [['src', 'components', 'code-visualizer'], 'trình trực quan hoá của IdeClient cũ'],
   [['src', 'lib', 'python-studio.ts'], 'đề bài/lời giải cứng của demo cũ'],
+  [['src', 'components', 'LessonDbDesign.tsx'], 'giao diện SQL trắng-kem cũ đã chuyển sang LofiWorkspace'],
+  [['src', 'components', 'LegacyScripts.tsx'], 'bộ nạp script legacy chỉ còn LessonDbDesign & concept_card dùng'],
 ];
 
 test('route cũ, nhóm (auth)/(standalone) và component mồ côi đã xoá hẳn khỏi src/**', () => {
@@ -79,6 +81,19 @@ const REMOVED_STATIC = [
   ['public', 'static', 'css', 'pages', 'lesson_java.inline.css'],
   ['public', 'static', 'css', 'pages', 'lesson_htmlcss.inline.css'],
   ['public', 'static', 'css', 'pages', 'interface.inline.css'],
+  ['public', 'static', 'js', 'lesson_db_design.js'],
+  ['public', 'static', 'js', 'lesson_content.js'],
+  ['public', 'static', 'js', 'lesson_content_tc.js'],
+  ['public', 'static', 'js', 'lesson_content_nc.js'],
+  ['public', 'static', 'js', 'table_explorer.js'],
+  ['public', 'static', 'js', 'drag_game.js'],
+  ['public', 'static', 'js', 'decomp_game.js'],
+  ['public', 'static', 'js', 'pages', 'concept_card.inline.js'],
+  ['public', 'static', 'css', 'lesson_db_design.css'],
+  ['public', 'static', 'css', 'edu-db.css'],
+  ['public', 'static', 'css', 'edu-card.css'],
+  ['public', 'static', 'css', 'edu-theme.css'],
+  ['public', 'static', 'css', 'pages', 'concept_card.inline.css'],
   ['public', 'static', 'python-studio'],
 ];
 
@@ -159,8 +174,6 @@ test('/lesson/[courseId] không còn chuyển hướng sang /interface hay /cour
 const ALLOW = [
   ['src/lib/learning-events.ts', 'streak', 'repeatStreak là trường telemetry đếm chuỗi lỗi lặp, không phải chuỗi ngày học trên UI'],
   ['src/app/layout.tsx', 'streak', '.streak-overlay là CSS nội tuyến ẩn sớm các lớp overlay cũ nếu còn sót class'],
-  ['src/components/LessonDbDesign.tsx', 'streak', 'trang bài học SQL cũ giữ nguyên trong lúc chờ bản Lofi SQL'],
-  ['src/components/LessonDbDesign.tsx', 'giữ chuỗi', 'trang bài học SQL cũ giữ nguyên trong lúc chờ bản Lofi SQL'],
 ];
 
 const BANNED = [
@@ -210,6 +223,15 @@ const ALIVE = [
   [['src', 'components', 'python-studio', 'useCodeRunner.ts'], 'Hook chạy code Python'],
   [['src', 'components', 'python-studio', 'useLessonProgress.ts'], 'Hook tiến độ chạy code'],
   [['src', 'components', 'python-studio', 'prewarm-gate.ts'], 'Cổng làm ấm Pyodide'],
+  [['src', 'components', 'bookshelf', 'LofiConceptCardView.tsx'], 'Concept Card SQL phong cách Lofi'],
+  [['src', 'lib', 'lofi-sql-adapter.ts'], 'Bộ chuyển đổi 66 bài SQL sang BookSpread Lofi'],
+  [['src', 'lib', 'lofi-sql-grader.ts'], 'Bộ chấm câu lệnh SQL & sinh script SQLite preview'],
+  [['src', 'lib', 'lofi-sql-loader.ts'], 'Bộ nạp JSON bài học SQL & Concept Card'],
+  [['src', 'lib', 'sql-catalog.json'], 'Danh mục 66 bài học SQL'],
+  [['public', 'static', 'sql', 'db_design.json'], 'Giáo trình SQL Cơ bản (20 bài)'],
+  [['public', 'static', 'sql', 'db_design_tc.json'], 'Giáo trình SQL Trung cấp (21 bài)'],
+  [['public', 'static', 'sql', 'db_design_nc.json'], 'Giáo trình SQL Nâng cao (25 bài)'],
+  [['public', 'static', 'sql', 'concept_cards.json'], 'Dữ liệu 22 Concept Card SQL'],
 ];
 
 test('toàn bộ 12 route sống, Diễn đàn và lõi Pyodide vẫn còn đầy đủ', () => {

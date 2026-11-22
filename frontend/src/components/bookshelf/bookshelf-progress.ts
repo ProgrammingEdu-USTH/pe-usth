@@ -68,10 +68,7 @@ export function buildLessonHref(
   lesson: { index: number; no: number },
 ): string | null {
   if (!baseHref) return null;
-  if (baseHref.includes('python_advanced')) {
-    return `${baseHref}?lesson=${lesson.index}`;
-  }
-  return `${baseHref}?lesson=${lesson.no}`;
+  return `${baseHref}?lesson=${lesson.index}`;
 }
 
 export async function loadBookshelfProgress(

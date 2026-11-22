@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import LessonDbDesign from '@/components/LessonDbDesign';
+import LofiWorkspace from '@/components/goc-hoc/LofiWorkspace';
 import PageStyles from '@/components/PageStyles';
+import { soBaiTuTruyVan } from '@/lib/nhap-bai';
 
 const DB_COURSES = ['db_design', 'db_design_tc', 'db_design_nc'];
 
@@ -13,16 +14,21 @@ export const metadata: Metadata = {
 
 export default async function LessonDispatchPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ courseId: string }>;
+  searchParams: Promise<{ lesson?: string }>;
 }) {
   const { courseId } = await params;
   if (!DB_COURSES.includes(courseId)) notFound();
 
+  const { lesson } = await searchParams;
+  const lessonIdx = Math.max(0, soBaiTuTruyVan(lesson) - 1);
+
   return (
     <>
-      <PageStyles hrefs={['/static/css/lesson_db_design.css', '/static/css/edu-theme.css', '/static/css/edu-db.css']} />
-      <LessonDbDesign courseId={courseId} />
+      <PageStyles hrefs={[]} />
+      <LofiWorkspace courseId={courseId} initialScreen="lesson" initialLessonIdx={lessonIdx} />
     </>
   );
 }

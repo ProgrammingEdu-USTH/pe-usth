@@ -39,6 +39,132 @@ export type IndexedPracticeItem = {
   item: PracticeItem;
 };
 
+export type SqlSchemaColumnSpec = {
+  name: string;
+  type?: string;
+  key?: string;
+  icon?: string;
+};
+
+export type SqlTableSchemaSpec = {
+  table_name: string;
+  columns: SqlSchemaColumnSpec[];
+  data?: unknown[][];
+};
+
+export type SqlVisualPageSpec = {
+  kind: 'sql-visual';
+  tag: string;
+  heading: string;
+  entities: Array<{
+    name: string;
+    columns: Array<{ name: string; type?: string; key?: string }>;
+  }>;
+  diagramNote?: string;
+  schema?: SqlTableSchemaSpec;
+  dataPreview: unknown[][];
+  extraVisuals: Array<{
+    title: string;
+    caption?: string;
+    query?: string;
+    highlights?: string[];
+  }>;
+  exampleNote?: string;
+};
+
+export type SqlMinigamePageSpec = {
+  kind: 'sql-minigame';
+  tag: string;
+  heading: string;
+  gameType: 'classify' | 'match' | 'order' | 'bug_spot';
+  title: string;
+  instruction?: string;
+  chips?: Array<{ id: string; label: string }>;
+  bins?: Array<{ id: string; label: string; correct?: string }>;
+  classifySolution?: Record<string, string>;
+  pairs?: Array<{ left: string; leftId: string; rightId: string; rightLabel: string }>;
+  orderItems?: Array<{ id: string; label: string }>;
+  orderSolution?: Record<string, number>;
+  bugCode?: string;
+  bugLine?: number;
+  bugExplain?: string;
+  decompSummary?: {
+    ruleLabel: string;
+    rule: string;
+    sourceTableName: string;
+    targetTables: Array<{ name: string; columns: string[]; pkNote?: string; fkNote?: string }>;
+  };
+};
+
+export type SqlBuilderBankPageSpec = {
+  kind: 'sql-builder-bank';
+  tag: string;
+  heading: string;
+  mission: string;
+  blocks: Array<{ id: string; type: string; token: string; slot?: string }>;
+  revealHints: Array<{ zoneId: string; text: string }>;
+};
+
+export type SqlBuilderZonesPageSpec = {
+  kind: 'sql-builder-zones';
+  tag: string;
+  heading: string;
+  dropZones: Array<{ id: string; placeholder: string; accepts: string[]; multi?: boolean }>;
+  expectedSql: string;
+};
+
+export type SqlChallengeBriefPageSpec = {
+  kind: 'sql-challenge-brief';
+  tag: string;
+  heading: string;
+  prompt: string;
+  scenario?: string;
+  realWorld?: string;
+  steps: string[];
+  example?: { question?: string; code?: string; output?: string };
+  expectedText?: string;
+  hintExplore?: string;
+  schema?: SqlTableSchemaSpec;
+  relatedSchemas: SqlTableSchemaSpec[];
+  hints: Array<{ level: number; text: string }>;
+  conceptCardsAfter: Array<{ id: string; title: string }>;
+};
+
+export type SqlIdeChallengePageSpec = {
+  kind: 'sql-ide';
+  tag: string;
+  heading: string;
+  challengeType: 'full_ide' | 'bug_fix';
+  starter: string;
+  buggyLine?: number;
+  expectedSql: string;
+  equivSql: string[];
+  schema?: SqlTableSchemaSpec;
+  relatedSchemas: SqlTableSchemaSpec[];
+  successMessage: string;
+  xpReward: number;
+};
+
+export type SqlFillChallengePageSpec = {
+  kind: 'sql-fill';
+  tag: string;
+  heading: string;
+  template: string;
+  blanks: Array<{ id: string; hint: string; expected: string }>;
+  successMessage: string;
+  xpReward: number;
+};
+
+export type SqlMcqChallengePageSpec = {
+  kind: 'sql-mcq-challenge';
+  tag: string;
+  heading: string;
+  question: string;
+  options: Array<{ text: string; correct: boolean; explanation?: string }>;
+  successMessage: string;
+  xpReward: number;
+};
+
 export type BookPageSpec =
   | {
       kind: 'read-slice';
@@ -75,7 +201,15 @@ export type BookPageSpec =
       tag: string;
       legacySpreadIdx: 0 | 1 | 2;
       side: 'left' | 'right';
-    };
+    }
+  | SqlVisualPageSpec
+  | SqlMinigamePageSpec
+  | SqlBuilderBankPageSpec
+  | SqlBuilderZonesPageSpec
+  | SqlChallengeBriefPageSpec
+  | SqlIdeChallengePageSpec
+  | SqlFillChallengePageSpec
+  | SqlMcqChallengePageSpec;
 
 export type BookSpread = {
   id: string;
@@ -132,6 +266,34 @@ export function isBookPageNonEmpty(page: BookPageSpec): boolean {
       );
     case 'legacy':
       return true;
+    case 'sql-visual':
+      return Boolean(
+        page.entities.length ||
+          page.schema?.columns?.length ||
+          page.dataPreview.length ||
+          page.extraVisuals.length ||
+          page.exampleNote,
+      );
+    case 'sql-minigame':
+      return Boolean(
+        page.chips?.length ||
+          page.pairs?.length ||
+          page.orderItems?.length ||
+          page.bugCode ||
+          page.decompSummary,
+      );
+    case 'sql-builder-bank':
+      return Boolean(page.mission || page.blocks.length);
+    case 'sql-builder-zones':
+      return Boolean(page.dropZones.length || page.expectedSql);
+    case 'sql-challenge-brief':
+      return Boolean(page.prompt || page.scenario || page.steps.length);
+    case 'sql-ide':
+      return Boolean(page.expectedSql || page.starter);
+    case 'sql-fill':
+      return Boolean(page.template && page.blanks.length);
+    case 'sql-mcq-challenge':
+      return Boolean(page.question && page.options.length);
     default: {
       const _exhaustive: never = page;
       return Boolean(_exhaustive);

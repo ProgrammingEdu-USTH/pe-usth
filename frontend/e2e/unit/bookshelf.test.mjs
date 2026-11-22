@@ -207,10 +207,10 @@ test('bấm "Về tủ sách" hoặc Esc có hiệu ứng cất sách 3D ngượ
   assert.match(cssSrc, /\.coverStageExiting/);
 });
 
-test('buildLessonHref tạo đúng query ?lesson= 0-based cho Python và 1-based cho SQL', () => {
+test('buildLessonHref tạo đúng query ?lesson= 0-based đồng nhất cho Python và SQL', () => {
   assert.equal(buildLessonHref('/lesson/python_advanced', { index: 0, no: 1 }), '/lesson/python_advanced?lesson=0');
   assert.equal(buildLessonHref('/lesson/python_advanced', { index: 14, no: 15 }), '/lesson/python_advanced?lesson=14');
-  assert.equal(buildLessonHref('/lesson/db_design', { index: 0, no: 1 }), '/lesson/db_design?lesson=1');
-  assert.equal(buildLessonHref('/lesson/db_design', { index: 11, no: 12 }), '/lesson/db_design?lesson=12');
+  assert.equal(buildLessonHref('/lesson/db_design', { index: 0, no: 1 }), '/lesson/db_design?lesson=0');
+  assert.equal(buildLessonHref('/lesson/db_design', { index: 11, no: 12 }), '/lesson/db_design?lesson=11');
   assert.equal(buildLessonHref(null, { index: 0, no: 1 }), null);
 });

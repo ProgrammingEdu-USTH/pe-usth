@@ -126,11 +126,3 @@ test('defaultSelection + stageDoneCount: chọn sẵn bài chưa xong nhỏ nh�
   assert.deepEqual(defaultSelection(STAGES, 999), { stage: 0, lesson: 0 });
 });
 
-test('NỐI DÂY: DashboardMap không tạo tài khoản khách và không viết style nội tuyến', () => {
-  const src = readFileSync(join(FE, 'src', 'app', 'DashboardMap.tsx'), 'utf8');
-  // Trang công khai: apiFetch gặp 401 sẽ gọi ensureGuest() (bẫy trong AGENTS.md).
-  assert.ok(!/\bapiFetch\(/.test(src), 'dùng apiFetchSessionOnly, không dùng apiFetch');
-  assert.ok(/loadCompletedLessons\(/.test(src), 'mọi lời gọi API phải đi qua cổng phiên loadCompletedLessons');
-  // style={{…}} bị `style-src` của CSP chặn khi SSR tuần tự hoá (AGENTS.md).
-  assert.ok(!/style=\{\{/.test(src), 'style nội tuyến — dùng CSS module');
-});

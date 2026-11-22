@@ -194,15 +194,6 @@ test('NỐI DÂY: PageStyles tự thêm edu-fonts.css vào MỌI trang', () => {
   assert.deepEqual(offenders, [], `trang tự nạp edu-fonts.css (đã có ở PageStyles): ${offenders.join(', ')}`);
 });
 
-test('/ide không còn chuỗi monospace viết tay — code dùng var(--edu-mono)', () => {
-  const css = stripCss(read('src', 'app', 'ide', 'ide.module.css'));
-  assert.ok(
-    !/font-family:\s*ui-monospace/.test(css),
-    'ide.module.css còn chuỗi mono viết tay; phải đọc var(--edu-mono) để có JetBrains Mono',
-  );
-  assert.ok(css.includes('var(--edu-mono)'), 'ide.module.css phải dùng var(--edu-mono)');
-});
-
 /* ═══ 2 · chính tả và tên gọi ══════════════════════════════════════════ */
 
 /**
@@ -211,9 +202,7 @@ test('/ide không còn chuỗi monospace viết tay — code dùng var(--edu-mon
  * khóa ngoại" (thuật ngữ CSDL, viết thế nào là chuyện của khoá đó).
  */
 const CLEANED = [
-  ['src', 'app', '(standalone)', 'courses', '[courseId]', 'CourseDetail.tsx'],
   ['src', 'app', 'ide', 'page.tsx'],
-  ['src', 'app', 'ide', 'IdeClient.tsx'],
   ['src', 'app', 'home.module.css'],
   ['src', 'components', 'SiteHeader.module.css'],
 ];
@@ -234,13 +223,6 @@ test('file đã dọn không còn "khóa" — thống nhất một kiểu viết
   );
 });
 
-test('trang khoá dùng đúng ba chuỗi đã sửa chính tả', () => {
-  const cd = read('src', 'app', '(standalone)', 'courses', '[courseId]', 'CourseDetail.tsx');
-  for (const s of ['Tất cả khoá học', 'Nội dung khoá học', 'Tổng quan khoá học', 'KHOÁ HỌC BAO GỒM']) {
-    assert.ok(cd.includes(s), `không thấy chuỗi "${s}" — đổi chữ thì sửa cả ca test này`);
-  }
-});
-
 test('trình soạn code có MỘT tên: "Bàn thí nghiệm" (kể cả tiêu đề tab)', () => {
   const page = read('src', 'app', 'ide', 'page.tsx');
   assert.match(
@@ -249,7 +231,7 @@ test('trình soạn code có MỘT tên: "Bàn thí nghiệm" (kể cả tiêu �
     + 'tên này nhiều nhất (tab, bookmark, lịch sử)',
   );
   const offenders = [];
-  for (const p of [['src', 'app', 'ide', 'page.tsx'], ['src', 'app', 'ide', 'IdeClient.tsx']]) {
+  for (const p of [['src', 'app', 'ide', 'page.tsx']]) {
     const code = stripJs(read(...p));
     // Chỉ soi CHỮ HIỆN RA: `IDE_EXAMPLES`, `/ide`, `IDE_CODE_PARAM` là định
     // danh kỹ thuật, bản thiết kế nói rõ chúng GIỮ NGUYÊN.
@@ -259,10 +241,6 @@ test('trình soạn code có MỘT tên: "Bàn thí nghiệm" (kể cả tiêu �
     }
   }
   assert.deepEqual(offenders, [], `chuỗi hiện ra còn gọi "IDE":\n${offenders.join('\n')}`);
-  assert.ok(
-    !stripJs(read('src', 'app', 'ide', 'IdeClient.tsx')).includes('Python IDE'),
-    'IdeClient còn dựng tiêu đề "Python IDE"',
-  );
 });
 
 /* ═══ 3 · curricula.json không còn khoá đã xoá ═════════════════════════ */

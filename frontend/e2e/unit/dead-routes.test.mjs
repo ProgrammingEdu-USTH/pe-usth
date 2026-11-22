@@ -67,6 +67,12 @@ const REMOVED = [
     'CSS riêng của PythonStudio.tsx + studio-ui.tsx'],
   [['src', 'lib', 'python-studio.ts'],
     'đề bài/lời giải viết cứng của bài demo ?demo=list'],
+  [['src', 'app', 'dashboard'], 'bảng điều khiển bản Figma cũ; trang chủ nay là phòng học lofi'],
+  [['src', 'app', '(standalone)', 'courses'], 'trang khoá học cũ; giá sách /bookshelf thay thế'],
+  [['src', 'app', '(standalone)', 'lesson', '[courseId]'], 'trang bài học dùng khung cũ; chỉ còn lesson/python_advanced'],
+  [['src', 'app', '(standalone)', 'practice', 'challenge'], 'màn thử thách giao diện cũ'],
+  [['src', 'app', 'ide', 'IdeClient.tsx'], '/ide nay dùng LofiWorkspace'],
+  [['src', 'components', 'LegacyScripts.tsx'], 'chỉ các trang JS legacy đã xoá dùng'],
 ];
 
 test('route chết và component chỉ phục vụ nó đã xoá hẳn khỏi src/**', () => {
@@ -163,14 +169,6 @@ test('src/** không còn nạp hay dẫn tới route/asset đã xoá', () => {
   assert.deepEqual(offenders, [], `trỏ tới thứ đã xoá:\n${offenders.join('\n')}`);
 });
 
-test('/lesson/[courseId] không còn chuyển hướng sang /interface', () => {
-  const code = stripComments(
-    readFileSync(at('src', 'app', '(standalone)', 'lesson', '[courseId]', 'page.tsx'), 'utf8'),
-  );
-  assert.ok(!code.includes('/interface'), 'vẫn còn bảng LESSON_URLS đẩy khoá cpp sang /interface đã xoá');
-  assert.ok(!/\bcpp\b/.test(code), 'vẫn còn nhánh riêng cho khoá cpp — khoá đó không còn trang nào');
-});
-
 /* ── 4 · chữ nghĩa: không còn chuỗi ngày trên bề mặt sản phẩm ───────────── */
 
 /**
@@ -219,10 +217,10 @@ test('mã chạy trong src/** không còn mảnh nào của chuỗi ngày (strea
 /* ── 5 · phanh: bốn trang sống không được dọn lây ────────────────────────── */
 
 const ALIVE = [
-  [['src', 'app', 'dashboard', 'page.tsx'], 'bảng điều khiển bản Figma (từng là trang chủ)'],
-  [['src', 'app', '(standalone)', 'courses', '[courseId]', 'page.tsx'], '/courses/python_advanced'],
   [['src', 'app', '(standalone)', 'lesson', 'python_advanced', 'page.tsx'], 'trang bài học'],
+  [['src', 'app', 'page.tsx'], 'trang chủ / (phòng học lofi)'],
   [['src', 'app', 'ide', 'page.tsx'], 'Bàn thí nghiệm /ide'],
+  [['src', 'app', '(auth)', 'bookshelf', 'page.tsx'], 'giá sách /bookshelf'],
   [['src', 'components', 'python-studio', 'StudioLesson.tsx'], 'bộ dựng 48 bài'],
   [['src', 'components', 'python-studio', 'studio-chrome.module.css'], 'CSS của 48 bài'],
 ];

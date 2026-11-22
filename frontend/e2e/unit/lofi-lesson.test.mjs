@@ -280,7 +280,7 @@ test('buildBookSpreads: tương thích ngược bài pe-v4 không có step_1.rea
   assert.equal(spreads[2].right.kind, 'legacy');
 });
 
-test('LofiWorkspace.tsx và LessonDbDesign.tsx nối đúng loader, spreads, auto-enroll và không còn cứng /48', () => {
+test('LofiWorkspace.tsx nối đúng loader, spreads, auto-enroll và không còn cứng /48', () => {
   const lofiSrc = stripComments(
     readFileSync(join(FE, 'src', 'components', 'goc-hoc', 'LofiWorkspace.tsx'), 'utf8'),
   );
@@ -289,8 +289,4 @@ test('LofiWorkspace.tsx và LessonDbDesign.tsx nối đúng loader, spreads, aut
   assert.match(lofiSrc, /buildBookSpreads/);
   assert.equal(/\/48\b/.test(lofiSrc), false, 'LofiWorkspace.tsx không được hard-code /48');
 
-  const dbSrc = stripComments(
-    readFileSync(join(FE, 'src', 'components', 'LessonDbDesign.tsx'), 'utf8'),
-  );
-  assert.match(dbSrc, /ensureCourseEnrolled\(/);
 });

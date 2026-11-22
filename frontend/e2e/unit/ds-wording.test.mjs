@@ -91,12 +91,6 @@ function walk(dir, out = []) {
  * sửa bảng màu/CSS legacy là làm dở nửa vời.
  */
 const EXEMPT = [
-  ['src/components/CourseDbDesign.tsx',
-    'Trang khoá db_design cũ: "Khóa Cơ bản: 20 bài · 3 module", "Boss Battle", '
-    + '"khóa ngoại" (thuật ngữ CSDL, không phải "khoá học"). Cả cụm này chờ một đợt '
-    + 'chuyển riêng cùng CSS legacy edu-course-detail.css.'],
-  ['src/app/(standalone)/card/[cardId]/page.tsx',
-    '"Về roadmap khóa học" — cùng cụm db_design cũ, cùng đợt chuyển.'],
   ['src/components/python-studio/useLessonProgress.ts',
     'Ô "+10 điểm · Combo x3 🔥" bật lên TRONG lượt làm bài. Bảng sửa chuỗi chỉ đích '
     + 'danh chỉ số "Combo cao nhất" ở màn tổng kết (đã bỏ); bỏ emoji nói chung thì '
@@ -470,7 +464,6 @@ test('Bàn thí nghiệm không nói "sandbox" với người học', () => {
      hai chỗ đó xong — lúc này nới là làm đỏ việc của người khác. */
   const SOI = [
     ['src', 'app', 'ide', 'page.tsx'],
-    ['src', 'app', 'ide', 'IdeClient.tsx'],
   ];
   // Tự kiểm phép so trên đúng hai chuỗi cũ trước khi đem soi chuỗi mới.
   const CU = [
@@ -498,8 +491,6 @@ test('Bàn thí nghiệm không nói "sandbox" với người học', () => {
   );
 
   // Và dòng chờ phải nói NƠI CHẠY, không chỉ "đang chạy".
-  const IDE = codeOnly(read('src', 'app', 'ide', 'IdeClient.tsx'));
-  assert.match(IDE, /Đang chạy trên máy chủ/);
   assert.match(codeOnly(read('src', 'app', 'ide', 'page.tsx')), /môi trường cách ly/);
 });
 

@@ -108,10 +108,8 @@ test('bề mặt quét là MỌI route có metadata, không phải riêng layout
   for (const must of [
     'src/app/layout.tsx',
     'src/app/(standalone)/lesson/python_advanced/page.tsx',
-    'src/app/(standalone)/courses/[courseId]/page.tsx',
     'src/app/ide/page.tsx',
     'src/app/(standalone)/practice/page.tsx',
-    'src/app/(standalone)/practice/challenge/page.tsx',
   ]) {
     assert.ok(paths.includes(must), `không bóc được metadata của ${must}`);
   }

@@ -48,7 +48,6 @@ const TEP = [
   'src/components/lesson-chrome/LessonChrome.module.css',
   'src/components/python-studio/studio-chrome.module.css',
   'src/components/lesson-chrome/exercises/exercises.module.css',
-  'src/app/ide/ide.module.css',
   'src/components/code-visualizer/CodeVisualizer.module.css',
   // Thêm 09/11/2026. Phép đo mở vòng ấy: đếm `cursor: pointer` trên TOÀN
   // `frontend/src` ra **44 rule** trong khi cổng chỉ phủ **30** — tức 32%
@@ -64,7 +63,6 @@ const TEP = [
   'src/components/python-studio/review-quiz.module.css',
   'src/components/lesson-chrome/ShellB.module.css',
   'src/components/python-studio/consent-banner.module.css',
-  'src/components/CourseShell.module.css',
   'src/app/error.module.css',
   // Thêm vì PHÉP TỰ KIỂM ngay dưới bắt được: phép đếm mở vòng CÓ kể nó
   // (SiteHeader 1 rule) mà danh sách này thì tôi gõ thiếu. `.theme` đã 48×48
@@ -143,8 +141,6 @@ const CHUA_DO = {
   // hàng do nội dung quyết thì KHAI NỢ kèm đường đo.
   '.phuongAn':
     'ReviewQuiz.tsx — phương án của đề ôn tập, hàng full-width `padding: 10px 12px` font 14px nên bề cao do số dòng của câu quyết. Đo được khi người học xong ≥ 2 bài: `MIN_POOL` đòi 5 câu và mỗi bài phát 3 câu.',
-  '.moduleHead':
-    'CourseDetail.tsx qua CourseShell.module.css — hàng tiêu đề học phần bấm được ở trang khoá học, `padding: 13px 4px` và chữ là một heading nên bề cao gần chắc đã ≥ 44 do nội dung. Đo được bằng cách mở `/courses/python_advanced` ở 390×844; chưa làm vì vòng này đã có một bản sửa đo được.',
   '.theoryFigure figcaption a':
     'ReadScreen.tsx — link nguồn trong chú thích hình, chỉ có ở bài mà hình mang '
     + 'link. Là thẻ `a` INLINE nên `min-height` không áp được: bản sửa ở đó phải '
@@ -490,18 +486,14 @@ test('đích bấm: năm nút đã đo không quay về dưới sàn', () => {
     // (cùng công thức CSS với `.practiceRun`) và đo ra 36 — một công thức giống
     // nhau cho một con số GẦN nhau, không cho CÙNG con số.
     '.onGianCachTiep': [36, 1],
-    // `/ide`, đo 08/11/2026 ở 390×844. `.stop` KHÔNG đo trực tiếp (nó chỉ
-    // hiện lúc đang chạy) — nó khai CÙNG `height: 42px` với `.run`, nên con
-    // số suy ra từ khai báo chứ không từ màn hình, và nói ra ở đây.
-    '.select': [42, 3], '.run': [42, 3], '.stop': [42, 3],
-    '.restoredAction': [31, 3], '.restoredClose': [26, 3],
     // Code visualizer. `.ctrl` là năm nút bước, dưới sàn ở CẢ HAI trục.
     // `.start`: 38 là phép đo LỊCH SỬ ở 390×844 trước khi có sàn. Nền DESKTOP
     // của nó đã đi 38 → 42 ngày 10/11/2026 (nó đứng cùng hàng flex với `.run`,
     // xem `ide-thanh-cong-cu.test.mjs`), nên một bản 'dọn cho gọn' gỡ sàn mobile
     // ra thì nay rơi xuống 42, không phải 38.
-    '.ctrl': [36, 4], '.start': [38, 4], '.scrub': [16, 4],
-    '.detail summary': [16, 4],
+    // Chỉ số 3 = CodeVisualizer.module.css. Mục .ctrl đã gỡ: sàn của nó ở ide.module.css (đã xoá) và component nay mồ côi.
+    '.start': [38, 3], '.scrub': [16, 3],
+    '.detail summary': [16, 3],
   };
   for (const [sel, [cu, i]] of Object.entries(CU)) {
     const tep = TEP[i];

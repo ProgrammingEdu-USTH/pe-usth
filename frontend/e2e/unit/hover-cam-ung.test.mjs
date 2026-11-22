@@ -65,11 +65,6 @@ const NGOAI_TAM = {
     + 'Góc học / minigame / leaderboard: nghiên cứu kết luận bằng chứng hướng âm '
     + 'hoặc không có). 13 rule `:hover`, trong đó `.bk:not(.lock):hover` đổi '
     + '`transform: translateY(-8px)` — tức nó CÓ dính, chỉ là ngoài phạm vi.',
-  'src/components/python-studio/studio.module.css':
-    'PythonStudio — component đã khai CHẾT-MÀ-GIỮ ở vòng #142 (`/lesson/python` nay '
-    + '404 ở MỌI tham số, 0 chỗ mount). 2 rule `:hover`. Sửa CSS của một component '
-    + 'không ai tới là việc không có người dùng; nó nằm trong danh sách bốn việc '
-    + 'phải làm nếu có ngày hồi sinh demo.',
 };
 
 const laGuard = (media) => media !== null

@@ -71,7 +71,7 @@ export default function MinigamePlayer() {
       <div className={styles.headerWrapper}>
         <header className={styles.header}>
           <div className={styles.brand}>
-            <Link href="/dashboard" className={styles.brand}>
+            <Link href="/" className={styles.brand}>
               <span className={styles.brandIcon}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polygon points="5 3 19 12 5 21 5 3" />
@@ -82,7 +82,7 @@ export default function MinigamePlayer() {
           </div>
 
           <nav className={styles.headerNav}>
-            <Link href="/dashboard" className={`${styles.navBtn} ${styles.navBtnActive}`}>
+            <Link href="/" className={`${styles.navBtn} ${styles.navBtnActive}`}>
               Bản đồ
             </Link>
             <Link href="/ide" className={styles.navBtn}>
@@ -298,7 +298,7 @@ export default function MinigamePlayer() {
 
               <div className={styles.feedbackFooter}>
                 <span className={styles.readyText}>Sẵn sàng cho phần tiếp theo?</span>
-                <Link href="/dashboard" className={styles.nextBtn}>
+                <Link href="/" className={styles.nextBtn}>
                   Tiếp theo / Next &rarr;
                 </Link>
               </div>
@@ -341,7 +341,7 @@ export default function MinigamePlayer() {
 
       {/* ── FOOTER NAV ── */}
       <footer className={styles.footerNav}>
-        <Link href="/dashboard" className={styles.footerBtn}>
+        <Link href="/" className={styles.footerBtn}>
           Back
         </Link>
         <span className={styles.footerStep}>
@@ -352,7 +352,7 @@ export default function MinigamePlayer() {
           className={styles.footerBtn}
           onClick={() => {
             if (gameStatus === 'SUCCESS') {
-              window.location.href = '/dashboard';
+              window.location.href = '/';
             }
           }}
         >

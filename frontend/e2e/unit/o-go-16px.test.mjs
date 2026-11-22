@@ -43,13 +43,6 @@ const O_GO = [
     vi: 'ô chạy thử ở màn luyện tập',
   },
   {
-    lop: 'fallbackInput',
-    sel: '.fallbackInput',
-    css: 'src/app/ide/ide.module.css',
-    tsx: 'src/app/ide/IdeClient.tsx',
-    vi: 'ô dự phòng của /ide khi trình soạn thật không nạp được',
-  },
-  {
     lop: 'tracePredictInput',
     sel: '.tracePredictInput',
     css: 'src/components/python-studio/studio-chrome.module.css',
@@ -96,7 +89,7 @@ function timFontSize(van, sel) {
 
 test('ô gõ: phép đọc tìm được mọi tệp đã khai (tự kiểm)', () => {
   // Đọc trượt thì mọi luật dưới đạt RỖNG mà không chứng minh gì.
-  assert.ok(O_GO.length >= 4, `danh sách chỉ có ${O_GO.length} mục`);
+  assert.ok(O_GO.length >= 3, `danh sách chỉ có ${O_GO.length} mục`);
   for (const o of O_GO) {
     assert.ok(doc(o.css).length > 500, `${o.css} quá ngắn — đọc trượt?`);
     assert.ok(doc(o.tsx).length > 500, `${o.tsx} quá ngắn — đọc trượt?`);

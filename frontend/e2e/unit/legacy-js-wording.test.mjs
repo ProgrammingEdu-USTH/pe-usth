@@ -76,6 +76,7 @@ const DEAD = [
   'pages/landing.inline.js',
   'pages/login.inline.js',
   'pages/register.inline.js',
+  'pe-bridge.js',
 ];
 
 /** File CÒN CHẠY: bề mặt chịu bảng thuật ngữ. */
@@ -96,40 +97,7 @@ const SOURCES = LIVE.map((f) => [f, codeOnly(readFileSync(join(JS_DIR, f), 'utf8
  * dòng dưới đây là ĐÚNG cụm đó, nhìn từ phía JS.
  */
 const EXEMPT = [
-  ['lesson_content.js', '*',
-    'Dữ liệu GIÁO TRÌNH của khoá db_design (20 bài, 5349 dòng): tên bài '
-    + '"Boss Battle — …", văn dạy "Hãy nghĩ JSONB như tủ đồ", "khóa chính/ngoại". '
-    + 'Sửa câu chữ ở đây là sửa NỘI DUNG một khoá ngoài danh mục — cùng đợt với '
-    + 'CourseDbDesign.tsx, không phải đợt dọn giọng hệ thống này.'],
-  ['lesson_content_tc.js', '*',
-    'Dữ liệu giáo trình db_design_tc (25 bài). Ba chỗ "nhé" là DỮ LIỆU MẪU — '
-    + 'dòng bình luận giả "Admin GuildBoard là bạn tôi đấy nhé" trong bảng ví dụ '
-    + 'của bài SQL injection, tức lời của một nhân vật, không phải giọng hệ thống.'],
-  ['lesson_content_nc.js', '*',
-    'Dữ liệu giáo trình db_design_nc (25 bài, 6504 dòng). Hai lưu ý đã đo: 🔥 ở '
-    + 'đây gắn với "BOSS BATTLE — Engine Under Fire" và nhãn sự cố "🔥 P0 · '
-    + 'LATENCY" (lửa = đám cháy, không phải chuỗi ngày); 11 chỗ "vĩnh viễn" là '
-    + 'văn kỹ thuật đúng ("hai giao dịch chờ nhau vĩnh viễn" — deadlock), KHÔNG '
-    + 'phải lời hứa trọn đời, nên không có luật nào bắt chúng.'],
-  ['course_db_design.js', ['khoá', 'module'],
-    'Nhãn giáo trình "Khóa Cơ bản: 20 bài · 3 module" (và bản Nâng cao) — ĐÚNG '
-    + 'chuỗi mà ds-wording trích trong dòng miễn của CourseDbDesign.tsx: JS này '
-    + 'ghi đè bản mặc định trong JSX đó, nên đổi một phía là hai lớp lệch chính '
-    + 'tả nhau. Phải đổi cùng lúc với CourseDbDesign.tsx.'],
-  ['course_db_design.js', ['Boss'],
-    'TÊN BÀI của khoá db_design: "Boss Battle — Social Graph Detective", '
-    + '"Boss Battle — Engine Under Fire", "Boss Battle — Diễn đàn GuildBoard". '
-    + 'Đổi tên bài là việc của đợt chuyển cụm đó, không phải của đợt dọn giọng.'],
-  ['lesson_db_design.js', ['Boss', '⚔️', '🔥'],
-    'Vỏ BOSS/SEV-1 của khoá db_design: cờ `l.boss`, hàm `applyBossSkin`, tiêu đề '
-    + 'SVG "⚔ BOSS: AUDIT DIỄN ĐÀN GUILDBOARD ⚔" và "🔥 BOSS — ENGINE UNDER FIRE", '
-    + 'biên bản sự cố "🔥 <đám cháy>". Gắn '
-    + 'với TÊN BÀI nên thuộc nợ đã khai; giọng hệ thống trong file này (dỗ dành, '
-    + 'reo hộ, "hoàn thành", ▶ trong tên nút) đã dọn trong đợt này.'],
-  ['decomp_game.js', ['Boss'],
-    'Chú dẫn mini-game cho bài cuối chặng của khoá db_design, nhãn nút "Xong Boss '
-    + 'Battle!" lấy đúng TÊN BÀI. Phần "Hoàn thành" đã đổi thành "Xong" trong đợt '
-    + 'này; còn chữ "Boss" thì chờ đổi tên bài.'],
+
 ];
 
 /** Cặp (file, luật) nào đã THẬT SỰ che một vi phạm — xem ca cuối file. */
@@ -182,8 +150,8 @@ test('bề mặt quét không rỗng — vòng lặp rỗng là cách một bộ
      chạy 0 lượt và mọi `assert.deepEqual(found, [])` đều đạt. Ca này phải
      đứng TRƯỚC các ca luật, và phải nói con số, không chỉ "> 0". */
   const all = walkJs();
-  assert.ok(all.length >= 22, `chỉ đọc ra ${all.length} file .js trong public/static/js`);
-  assert.ok(LIVE.length >= 8, `chỉ còn ${LIVE.length} file CÒN CHẠY trong bề mặt`);
+  assert.ok(all.length >= 10, `chỉ đọc ra ${all.length} file .js trong public/static/js`);
+  assert.ok(LIVE.length >= 3, `chỉ còn ${LIVE.length} file CÒN CHẠY trong bề mặt`);
   assert.equal(all.length, LIVE.length + DEAD.length,
     'có file .js không nằm trong LIVE lẫn DEAD — phân loại nó trước đã');
   // Và mỗi file phải đọc ra mã thật, không phải chuỗi rỗng.

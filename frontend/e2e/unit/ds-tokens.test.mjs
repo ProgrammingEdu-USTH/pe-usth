@@ -161,7 +161,6 @@ test('mọi màu trong bảng token đều là mã hex 6 chữ số, không có 
 const SURFACE_CSS = [
   ['src', 'app', 'home.module.css'],
   ['src', 'components', 'SiteHeader.module.css'],
-  ['src', 'components', 'CourseShell.module.css'],
   // 15/10/2026 — bỏ `python-studio/studio.module.css`: file đó chỉ vẽ trang demo
   // `/lesson/python?demo=list` (PythonStudio.tsx), và cả route lẫn component đã
   // xoá trong đợt dọn route chết, nên đọc file là ném ENOENT.
@@ -352,51 +351,6 @@ const WIRING = [
     'nút icon theo bản thiết kế §1.4 là viền `ink` 2px; bản cũ dùng viền trắng '
     + '85% nên gần như không thấy'],
 
-  // ── trang khoá /courses/[courseId] (15/10/2026)
-  // Đã ĐO thác đổ trên trang thật trước khi sửa (DevTools, duyệt
-  // document.styleSheets + el.matches). Mỗi dòng dưới đây là một khối mà phép
-  // đo đó chỉ ra đang bị một file LEGACY tô màu xanh dương.
-  [['src', 'components', 'CourseShell.module.css'],
-    '.page', 'background', '--ds-page',
-    'nền xanh của trang khoá do `body` trong edu-theme.css vẽ (mesh ba quầng '
-    + '--edu-bg-image). Không đặt nền ở `.page` thì đổi hết token vẫn ra thẻ '
-    + 'kem trên nền xanh — đúng lỗi đã gặp ở trang chủ'],
-  [['src', 'components', 'CourseShell.module.css'],
-    '.lesson', 'border', '--ds-sketch',
-    'mỗi bài là một <a> bấm được. Quy tắc thắng cũ là `.edu-cd-lesson` của '
-    + 'edu-course-detail.css, viền --edu-input-border = trắng 90% trên nền '
-    + 'trắng 60%, tức gần như không có viền'],
-  [['src', 'components', 'CourseShell.module.css'],
-    '.lessonIconDone', 'background', '--ds-ink',
-    'bản thiết kế §1.4 "Nút trạng thái bài": đã xong = nền `ink` + dấu tích '
-    + '`page`. Bản cũ nền xanh lá #22c55e với `color: white !important` — màu '
-    + 'code cứng không đảo theo bản nền, và bảng v2 không có xanh lá'],
-  [['src', 'components', 'CourseShell.module.css'],
-    '.btnPrimary', 'background', '--ds-action',
-    '--ds-action chỉ có một vai: nền nút chính. Bản cũ là --edu-accent-grad '
-    + '(gradient xanh) + box-shadow quầng xanh'],
-  [['src', 'components', 'CourseShell.module.css'],
-    '.btnPrimary', 'color', '--ds-on-action',
-    'bản cũ viết cứng `color:#fff`; ở bản đêm nền nút sáng lên nên chữ trắng '
-    + 'tụt dưới ngưỡng'],
-  [['src', 'components', 'CourseShell.module.css'],
-    '.btnSecondary', 'border', '--ds-ink', 'bản thiết kế chốt nút phụ = viền ink 2px'],
-  [['src', 'components', 'CourseShell.module.css'],
-    '.resumeCard', 'background', '--ds-ink',
-    'bản thiết kế §1.4: khối hệ thống gợi ý có nền `ink`, chữ `page` — cặp này '
-    + 'tự đảo theo bản nền nên không phải khai riêng cho chế độ tối'],
-  [['src', 'components', 'CourseShell.module.css'],
-    '.block', 'border', '--ds-line',
-    'khối nội dung KHÔNG bấm được nên `line` là đúng vai. Quy tắc thắng cũ là '
-    + 'hai dòng !important của edu-theme.css (`.section-card,…,.cd-block`) phủ '
-    + 'sheen xanh/đỏ + backdrop-filter lên nó'],
-  [['src', 'components', 'CourseShell.module.css'],
-    '.blockIcon', 'background', '--ds-violet-tint',
-    'ô icon tiêu đề mục; bản cũ --edu-accent-soft (xanh 10%) và bên trong là '
-    + 'EMOJI trần, không đổi màu theo bản nền'],
-  [['src', 'components', 'CourseShell.module.css'],
-    '.outcomeDot', 'background', '--ds-violet',
-    'chấm đầu dòng "Bạn sẽ học được"; bản cũ --edu-accent #2563eb'],
 ];
 
 test('NỐI DÂY: những chỗ load-bearing dùng đúng token mà bảng đo giả định', () => {
@@ -694,7 +648,6 @@ test('không chỗ nào hạ ĐỘ ĐỤC để làm chữ nhạt đi — phải
    cả hai file đã không còn mã hex nào — đó là luật tuyệt đối, không phải trần. */
 const DEBT_CSS = [
   { path: ['src', 'components', 'code-visualizer', 'CodeVisualizer.module.css'], color: 7, edu: 44, opacity: 3 },
-  { path: ['src', 'app', 'ide', 'ide.module.css'], color: 6, edu: 38, opacity: 1 },
 ];
 
 test('nợ màu của /ide và Xem-từng-bước không được phình thêm (mốc chỉ được hạ)', () => {

@@ -96,8 +96,6 @@ function hienThi(code) {
   return out.filter(Boolean);
 }
 
-const CLIENT = ['src', 'app', '(standalone)', 'practice', 'PracticeClient.tsx'];
-const CSS = ['src', 'app', '(standalone)', 'practice', 'practice.module.css'];
 
 /* ───────────────── 1. Đúng endpoint có trọng số, không hai cái kia ──────── */
 
@@ -121,27 +119,6 @@ test('KHÔNG dùng quiz/generate (random đều) và quiz/generate-review (cổn
   assert.equal(REJECTED_PATHS.length, 2);
   assert.ok(REJECTED_PATHS[0].why.includes('trọng số'));
   assert.ok(REJECTED_PATHS[1].why.includes('mỗi ngày'));
-});
-
-test('mã nguồn trang chỉ gọi đúng ba đường của backend, không tự dựng đường khác', () => {
-  const src = codeOnly(read(...CLIENT));
-  assert.ok(src.includes('reviewPath(COURSE_ID)'), 'trang không gọi reviewPath()');
-  // Không chuỗi đường dẫn nào viết thẳng trong JSX: viết thẳng là chỗ để lầm.
-  const literals = src.match(/['"`]\/api\/[^'"`]*['"`]/g) ?? [];
-  assert.deepEqual(literals, [], `đường dẫn viết thẳng trong trang: ${literals.join(' ')}`);
-  assert.ok(!src.includes('generate-today'), 'generate-today bó vào bài học HÔM NAY, không phải ôn');
-  assert.equal(submitPath(7), '/api/quizzes/7/submit');
-  assert.equal(historyPath('a b'), '/api/courses/a%20b/quiz/history');
-  assert.equal(ENROLLED_PATH, '/api/enrolled');
-});
-
-test('/practice là trang SAU đăng nhập: dùng apiFetch, không phải apiFetchSessionOnly', () => {
-  const src = codeOnly(read(...CLIENT));
-  assert.ok(src.includes('apiFetch('), 'trang phải gọi apiFetch (tự lấy tài khoản khách khi cần)');
-  assert.ok(
-    !src.includes('apiFetchSessionOnly'),
-    'apiFetchSessionOnly là đường của TRANG CÔNG KHAI; ở đây khách mới sẽ không bao giờ ôn được',
-  );
 });
 
 /* ───────── 2. Câu trả lời gửi lên phải khớp cách chấm của backend ───────── */
@@ -313,17 +290,6 @@ test('với dữ liệu backend đang gửi, optionFeedback LUÔN null (chưa c�
   assert.equal(rows[1].isCorrect, true);
 });
 
-test('giao diện chỉ có một chỗ đọc optionFeedback, và chỉ khi nó có thật', () => {
-  const src = codeOnly(read(...CLIENT));
-  // Hôm nay màn hình KHÔNG được vẽ phản hồi theo từng phương án: dữ liệu chưa
-  // có. Chỗ gắn vào sau này nằm ở GradedQuestion.optionFeedback (practice-plan).
-  assert.ok(
-    !src.includes('optionFeedback'),
-    'trang đang vẽ phản hồi mức-lựa-chọn, nhưng backend chưa gửi detail của từng phương án',
-  );
-  assert.ok(src.includes('row.explanation'), 'phải hiện lời giải thích MỨC CÂU');
-});
-
 test('khi nào backend gửi option_details thì hàm đọc được ngay (chỗ gắn đã chừa)', () => {
   const quiz = readGeneratedQuiz(generatedBody());
   const body = gradedBody([1, 0, 0]);
@@ -385,34 +351,6 @@ test('"Những lần ôn gần đây" đọc từ quiz/history, viết ngày ki�
   assert.equal(recentReviews([{ score: 1, total: 1, submittedAt: '2026-10-14' }], 0).length, 0);
 });
 
-test('không có bảng lịch Leitner nào bị bịa ra trên màn hình', () => {
-  const src = textOnly(read(...CLIENT));
-  // Hộp Leitner (1·3·7·14 ngày) chưa có bảng lưu. Màn hình chỉ được NÓI là
-  // chưa có, không được vẽ hộp, không được vẽ biểu đồ 14 ngày.
-  for (const bad of ['Hộp 1', 'Hộp 2', 'hộp 3', '14 ngày tới', 'gặp lại sau']) {
-    assert.ok(!src.includes(bad), `vẽ lịch Leitner chưa có dữ liệu: "${bad}"`);
-  }
-  // ĐẢO CHIỀU 15/10/2026. Ca cũ ĐÒI màn hình nói "Chưa có lịch ôn theo ngày"
-  // rồi giải thích rằng hệ thống không hẹn ngày gặp lại cho từng câu — tức
-  // một đoạn văn về thứ hệ thống KHÔNG làm, đứng trong một khối viền nét đứt.
-  // Không vẽ lịch Leitner thì không cần nói gì cả: không ai hỏi.
-  for (const nope of ['Chưa có lịch ôn theo ngày', 'không hẹn ngày gặp lại', 'cân lại tỉ lệ']) {
-    assert.ok(!src.includes(nope), `giải thích thứ hệ thống KHÔNG làm: "${nope}"`);
-  }
-  assert.ok(src.includes('mã khôi phục'), 'phải nói mã khôi phục là ĐỀ XUẤT chưa có');
-});
-
-test('điểm viết cộng dồn, không phần trăm, không xếp loại, không so với ai', () => {
-  assert.equal(scoreLine(4, 6), 'Đúng 4 trên 6');
-  const src = codeOnly(read(...CLIENT));
-  // 'quá hạn' và 'đến hạn' nằm trong bảng thuật ngữ KHÔNG DÙNG: thẻ ôn chỉ chờ,
-  // không có gì bị trừ. 'phần trăm', 'xếp hạng', 'Boss', so sánh với người khác
-  // là bốn nhóm câu chữ bản thiết kế bắt bỏ.
-  for (const bad of ['%', 'xếp hạng', 'chuỗi ngày', 'streak', 'Boss', 'giỏi hơn', 'quá hạn', 'đến hạn']) {
-    assert.ok(!src.includes(bad), `câu chữ lệch triết lý tự học: "${bad}"`);
-  }
-});
-
 test('ngày viết "thứ Tư 14/10"; ngày không đọc được trả null chứ không "Invalid Date"', () => {
   assert.equal(formatStudyDay(new Date(2026, 9, 14)), 'thứ Tư 14/10');
   assert.equal(formatStudyDay(new Date(2026, 9, 18)), 'Chủ nhật 18/10');
@@ -441,48 +379,6 @@ test('ngày viết "thứ Tư 14/10"; ngày không đọc được trả null ch
  * sản phẩm: cổng "xong 2 bài mới ôn được" — không biết thì bấm rồi nhận 400.
  * Nhưng nói bằng MỘT câu, không bằng một đoạn.
  */
-test('/practice không kể về cơ chế, không rào đón, không giải thích trước', () => {
-  const CAM = [
-    [/hệ thống chọn|do hệ thống|Hệ thống lấy|AI (?:chọn|đề xuất)/i, 'kể về cơ chế bên trong'],
-    [/không phải lệnh|chỉ là gợi ý|bạn tự quyết/i, 'rào đón cho một gợi ý'],
-    [/vì sao: bạn đã xong|bài trống đầu tiên|khác luật/i, 'trả lời câu hỏi chưa ai hỏi'],
-    [/tự chọn bài/i, 'lối ra thừa: trang khoá đã ở trên thanh điều hướng'],
-    [/chưa có lần ôn nào|sẽ nằm ở đây|chưa có lịch ôn/i, 'đoạn văn nói rằng rỗng là rỗng'],
-  ];
-  const be_mat = [
-    ...[0, 1, 2, 48].flatMap((n) => {
-      const g = planPractice({ completed: Array.from({ length: n }, (_, i) => i + 1) });
-      return [g.headline, g.body, g.ctaLabel ?? ''];
-    }),
-    gateFromError(planPractice({ completed: [1, 2] }), 'Chưa đủ câu hỏi để tạo quiz').body,
-    ...hienThi(codeOnly(read(...CLIENT))),
-  ];
-  for (const [mau, ly_do] of CAM) {
-    const dinh = be_mat.filter((x) => mau.test(x));
-    assert.deepEqual(dinh, [], ly_do + ':\n' + dinh.join('\n'));
-  }
-
-  // Thông tin phải CÒN: cổng 2 bài, và nói bằng MỘT câu.
-  const trong = planPractice({ completed: [] });
-  assert.ok(trong.body.includes(String(MIN_LESSONS)), 'mất con số "xong 2 bài"');
-  assert.ok(trong.body.length <= 60, `thân dài ${trong.body.length} ký tự — một câu là đủ`);
-
-  // Tự kiểm năm phép so trên chính câu chữ CŨ: một hàng rào không bắt nổi bản
-  // cũ là hàng rào chết mà vẫn báo đạt.
-  const CU = [
-    'Gợi ý bước tiếp · hệ thống chọn',
-    'Đây là gợi ý, không phải lệnh. Bạn tự quyết đường đi:',
-    'Vì sao: bạn đã xong 0/48 bài, và P01 là bài trống đầu tiên trong giáo trình',
-    'Tự chọn bài',
-    'Chưa có lần ôn nào được lưu. Phần ôn đầu tiên của bạn sẽ nằm ở đây.',
-  ];
-  for (let k = 0; k < CAM.length; k += 1) {
-    assert.ok(CAM[k][0].test(CU[k]), `mẫu ${k} không bắt nổi chuỗi cũ: ${CU[k]}`);
-  }
-  // Và đoạn giới thiệu "Chế độ thử thách" cũ phải bị mẫu thứ ba bắt được.
-  assert.ok(CAM[2][0].test('Cùng kho câu này, khác luật: đi một câu một lần'));
-});
-
 /* ─────────────────── 6. Nhãn bài lấy từ giáo trình tĩnh ─────────────────── */
 
 test('nhãn bài phẳng theo số bài, kèm tên chặng (không ghép thêm mã bài)', () => {
@@ -505,26 +401,6 @@ test('giáo trình thật có đúng 48 bài — nhãn không lệch với TOTAL
 });
 
 /* ───────────────────────── 7. Màu và cỡ chữ qua token ───────────────────── */
-
-test('CSS của trang không viết mã màu nào (chỉ var(--ds-…))', () => {
-  const css = read(...CSS).replace(/\/\*[\s\S]*?\*\//g, ' ');
-  const hex = css.match(/#[0-9a-fA-F]{3,8}\b/g) ?? [];
-  const fn = css.match(/\b(?:rgba?|hsla?)\(/g) ?? [];
-  assert.deepEqual(hex, [], `còn mã màu hex: ${hex.join(' ')}`);
-  assert.deepEqual(fn, [], `còn màu viết bằng ${fn.join(' ')} — phải qua token`);
-  // Cỡ chữ cũng qua thang token: không có cỡ thứ chín, và không có chữ < 15px.
-  const sizes = css.match(/font-size:\s*[^;]+;/g) ?? [];
-  const raw = sizes.filter((s) => !s.includes('var(--ds-fs-'));
-  assert.deepEqual(raw, [], `cỡ chữ viết thẳng: ${raw.join(' ')}`);
-});
-
-test('TSX của trang không viết mã màu, không style nội tuyến', () => {
-  const src = codeOnly(read(...CLIENT));
-  const hex = src.match(/#[0-9a-fA-F]{3,8}\b/g) ?? [];
-  assert.deepEqual(hex, [], `màu viết thẳng trong TSX: ${hex.join(' ')}`);
-  // style={{…}} bị `style-src` của CSP chặn khi SSR tuần tự hoá (xem AGENTS.md).
-  assert.ok(!/style=\{\{/.test(src), 'style nội tuyến — dùng CSS module');
-});
 
 /*
  * ── BẰNG CHỨNG BỘ CA NÀY BẮT ĐƯỢC LỖI (đo 15/10/2026) ─────────────────────

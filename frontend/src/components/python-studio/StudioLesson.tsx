@@ -444,7 +444,7 @@ export default function StudioLesson({
     // đếm từ 1, còn link ở trang khoá học là chỉ số phẳng đếm từ 0. Quên trừ
     // thì nó mở đúng module trong hầu hết trường hợp nên trông như chạy được,
     // chỉ sai ở bài ĐẦU của mỗi module — đúng kiểu lỗi không ai thấy.
-    window.location.assign(`/courses/${courseId}?lesson=${lessonNo - 1}`);
+    window.location.assign('/bookshelf');
   }
 
   // ---------- Vỏ ----------

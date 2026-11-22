@@ -44,7 +44,7 @@ import styles from './error.module.css';
 
 // Đường về phải là route CÓ THẬT — một trang lỗi trỏ sang một 404 thì tệ hơn
 // không có đường về, vì nó trông như có. Ca test đối chiếu với cây `src/app`.
-const DUONG_VE = ['/courses/python_advanced', '/'] as const;
+const DUONG_VE = ['/bookshelf', '/'] as const;
 
 /**
  * Các khoá nháp của ĐÚNG bài mà URL đang nói tới.

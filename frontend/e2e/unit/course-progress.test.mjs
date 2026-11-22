@@ -278,9 +278,6 @@ test('trang khoá không kể về cơ chế, không rào đón, không giải t
   const be_mat = [
     ...[0, 1, 2, 3, 48].map((n) => resumeButtonLabel(planResume(range(1, n), TOTAL))),
     ...vietStrings(codeOnly(read('src', 'lib', 'course-progress.ts'))),
-    ...vietStrings(codeOnly(
-      read('src', 'app', '(standalone)', 'courses', '[courseId]', 'CourseDetail.tsx'),
-    )),
   ];
   for (const [mau, ly_do] of CAM) {
     const dinh = be_mat.filter((x) => mau.test(x));

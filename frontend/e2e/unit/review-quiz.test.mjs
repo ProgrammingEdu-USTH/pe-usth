@@ -354,7 +354,7 @@ test('trang công khai KHÔNG tự gọi API, và không mount đề ôn', () =>
   //
   // Và nó từng ĐỎ OAN vì không bỏ chú thích: page.tsx GIẢI THÍCH vì sao không
   // gọi `apiFetch`, và chính câu giải thích ấy khớp regex.
-  for (const f of ['src/app/page.tsx', 'src/app/(standalone)/courses/[courseId]/page.tsx']) {
+  for (const f of ['src/app/page.tsx']) {
     const s = boChuThich(doc(`../../${f}`));
     assert.doesNotMatch(s, /apiFetch|ReviewQuiz|quiz\/generate|quiz\/status/, f);
   }
@@ -383,14 +383,6 @@ test('trang công khai CHỈ gọi API khi máy đã có phiên — bot không c
   assert.ok(goiDoc.length > 0 && goiDoc.every((i) => i > chan),
     'Có lời gọi doc(...) đứng TRƯỚC phép chặn phiên trong StudyRoom.');
 
-  // Trang khoá: lời gọi duy nhất nằm trong `fetchCompleted`, mà
-  // `loadCompletedLessons` chặn phiên ngay dòng đầu.
-  const detail = boChuThich(doc('../../src/app/(standalone)/courses/[courseId]/CourseDetail.tsx'));
-  const goiCD = [...detail.matchAll(/apiFetch\(/g)].map((m) => m.index);
-  const fc = detail.indexOf('fetchCompleted:');
-  assert.equal(goiCD.length, 1, 'CourseDetail phải có ĐÚNG MỘT lời gọi apiFetch( (trong fetchCompleted).');
-  assert.ok(fc >= 0 && goiCD[0] > fc && goiCD[0] - fc < 200,
-    'Lời gọi apiFetch( của CourseDetail không nằm trong fetchCompleted.');
   const prog = boChuThich(doc('../../src/lib/course-progress.ts'));
   assert.match(prog,
     /export async function loadCompletedLessons\([\s\S]*?\): Promise<number\[\] \| null> \{\s*if \(!hasStoredSession\(input\.session\)\) return null;/,

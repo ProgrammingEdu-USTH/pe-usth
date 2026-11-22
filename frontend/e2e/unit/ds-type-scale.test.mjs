@@ -216,7 +216,6 @@ test('7 file CSS đã chuyển không còn khai báo font-size bằng px', () =>
    KHÔNG rỗng: nó đọc hai file có thật và so với hai con số đo được. */
 const DEBT_FONT_PX = [
   { path: ['src', 'components', 'code-visualizer', 'CodeVisualizer.module.css'], max: 20 },
-  { path: ['src', 'app', 'ide', 'ide.module.css'], max: 12 },
 ];
 
 test('nợ cỡ chữ px của /ide và Xem-từng-bước không được phình thêm', () => {

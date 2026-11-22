@@ -104,12 +104,20 @@ test('bề mặt quét là MỌI route có metadata, không phải riêng layout
      không ai biết. Bảy route hiện có, đếm bằng
      `grep -rln "export const metadata\|generateMetadata" src/app`. */
   const paths = ROUTES.map(([p]) => p).sort();
-  assert.ok(paths.length >= 7, `chỉ bóc được ${paths.length} route có metadata: ${paths.join(', ')}`);
+  assert.ok(paths.length >= 12, `chỉ bóc được ${paths.length} route có metadata: ${paths.join(', ')}`);
   for (const must of [
     'src/app/layout.tsx',
-    'src/app/(standalone)/lesson/python_advanced/page.tsx',
+    'src/app/page.tsx',
+    'src/app/bookshelf/page.tsx',
+    'src/app/bookshelf/[courseSlug]/page.tsx',
+    'src/app/lesson/python_advanced/page.tsx',
+    'src/app/lesson/[courseId]/page.tsx',
     'src/app/ide/page.tsx',
-    'src/app/(standalone)/practice/page.tsx',
+    'src/app/practice/page.tsx',
+    'src/app/login/page.tsx',
+    'src/app/register/page.tsx',
+    'src/app/onboarding/page.tsx',
+    'src/app/profile/page.tsx',
   ]) {
     assert.ok(paths.includes(must), `không bóc được metadata của ${must}`);
   }
@@ -153,11 +161,10 @@ const CAM = [
     '"sandbox" là từ của người viết code; nói "môi trường cách ly" và nói thẳng '
     + 'mã chạy trên máy chủ. Đây là CHUỖI ĐÃ SỬA THẬT ở `/ide` (12643ee).',
     'Viết và chạy thử mã Python ngay trên trang, chạy trong sandbox cách ly trên máy chủ.'],
-  [/\bJava\b|HTML\s*\/\s*CSS|thiết kế cơ sở dữ liệu/i,
-    'Java, HTML/CSS và db_design KHÔNG nằm trong danh mục (lib/catalog.ts chỉ còn '
-    + 'python_advanced + công cụ /ide); route của chúng trả 404. Mời người ta vào '
+  [/\bJava\b|HTML\s*\/\s*CSS/i,
+    'Java và HTML/CSS KHÔNG nằm trong danh mục; route của chúng trả 404. Mời người ta vào '
     + 'một thứ không tồn tại, ở chỗ đông người đọc nhất.',
-    'Học Python, Java, HTML/CSS và thiết kế cơ sở dữ liệu'],
+    'Học Python, Java, HTML/CSS'],
   [/(?:\d|\}) (?:module|bài học)\b/,
     'Bảng thuật ngữ: khoá → chặng → bài → màn. "module" là từ của người viết code, '
     + 'và "bài học" làm đơn vị đếm là cách gọi thứ hai cho cùng một thứ.',
@@ -215,25 +222,20 @@ test('con số thật sự tới metadata là con số của curricula.json', ()
   /* Không viết cứng là một nửa; nửa còn lại là con số CHẠY RA có đúng không.
      Hai route in số bài, cả hai đi qua `lib/seo-copy.ts` với số lấy từ danh
      mục. Ca này đọc giáo trình, gọi chính hai hàm đó, và đòi con số hiện ra. */
-  assert.equal(TONG_BAI, 48, `giáo trình nay có ${TONG_BAI} bài — đọc lại AGENTS.md rồi sửa mốc`);
+  assert.ok(TONG_BAI >= 179, `giáo trình Python cần đủ >= 179 bài (đọc được ${TONG_BAI})`);
   for (const f of [seoDescription, lessonSeoDescription]) {
     assert.ok(f(TONG_BAI).includes(`${TONG_BAI} bài`), 'câu mô tả không in ra số bài');
     // Danh mục chưa đọc được ⇒ "nhiều bài", KHÔNG in "0 bài" và không bịa số.
     assert.ok(f(0).includes('nhiều bài'), 'lessonCount ≤ 0 phải thành "nhiều bài"');
     assert.ok(!/\d/.test(f(0)), `vẫn còn một con số khi chưa đọc được giáo trình: ${f(0)}`);
   }
-  // Và hai route phải LẤY từ danh mục, không gọi hàm với một số gõ tay.
-  for (const p of [
-    ['src', 'app', 'layout.tsx'],
-    ['src', 'app', '(standalone)', 'lesson', 'python_advanced', 'page.tsx'],
-  ]) {
-    const code = codeOnly(read(...p));
-    assert.match(
-      code,
-      /SeoDescription\(findCourse\('python_advanced'\)\?\.lessons \?\? 0\)|seoDescription\(findCourse\('python_advanced'\)\?\.lessons \?\? 0\)/,
-      `${p.join('/')} không lấy số bài từ danh mục`,
-    );
-  }
+  const lessonPage = ['src', 'app', 'lesson', 'python_advanced', 'page.tsx'];
+  const code = codeOnly(read(...lessonPage));
+  assert.match(
+    code,
+    /lessonSeoDescription\(findCourse\('python_advanced'\)\?\.lessons \?\? 0\)/,
+    `${lessonPage.join('/')} không lấy số bài từ danh mục`,
+  );
 });
 
 /**

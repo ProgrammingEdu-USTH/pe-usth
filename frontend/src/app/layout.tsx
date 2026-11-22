@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   // không trang nào có. Đặt ở layout gốc thì mọi route thừa hưởng; route nào
   // cần câu riêng (ví dụ trang bài học) tự khai lại `description` của nó.
   description:
-    'Programming EDU — học lập trình Python, Java, HTML/CSS và thiết kế cơ sở dữ liệu '
+    'Programming EDU — học lập trình Python và thiết kế cơ sở dữ liệu '
     + 'bằng bài tập chạy ngay trong trình duyệt, có chấm tự động và theo dõi tiến độ.',
   // KHÔNG khai `icons` ở đây. Biểu tượng nay là `src/app/icon.svg` — quy ước
   // FILE của App Router, và quy ước file THẮNG `metadata.icons`. Dòng cũ khai

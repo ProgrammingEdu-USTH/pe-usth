@@ -90,8 +90,7 @@ function lienKet() {
     for (const m of s.matchAll(re)) {
       const tho = m[2];
       if (tho.startsWith('//')) continue; // //cdn… — không phải đường dẫn nội bộ
-      // /lesson/${khoá}: chỉ còn một khoá có trang — đổi chỗ trống thành khoá đó để khớp route.
-      const u = tho.replace(/^\/lesson\/\$\{[^}]*\}/, '/lesson/python_advanced').replace(/\$\{[^}]*\}/g, 'x').replace(/\/$/, '') || '/';
+      const u = tho.replace(/\$\{[^}]*\}/g, 'x').replace(/\/$/, '') || '/';
       if (BO_QUA.test(u)) continue;
       out.push({ tep: relative(FE, p), u });
     }
@@ -110,8 +109,10 @@ test('phép quét có răng: đọc ra route và liên kết thật', () => {
 test('phép khớp route không dễ dãi', () => {
   assert.equal(khopRoute('/'), true);
   assert.equal(khopRoute('/bookshelf/python'), true, '`[courseSlug]` phải khớp một đoạn');
+  assert.equal(khopRoute('/courses/python_advanced'), false, 'route cũ đã xoá không được khớp');
   assert.equal(khopRoute('/route-khong-co'), false, 'route không có lại được coi là có');
-  assert.equal(khopRoute('/bookshelf/python/thua'), false, 'thừa một đoạn sau `[courseSlug]` mà vẫn khớp');
+  assert.equal(khopRoute('/lesson'), false, '`/lesson/[courseId]` không được khớp `/lesson` trần');
+  assert.equal(khopRoute('/card'), false, '`/card/[cardId]` không được khớp `/card` trần');
   assert.equal(khopRoute('/ide/thua'), false, 'thừa một đoạn mà vẫn khớp');
 });
 

@@ -4,7 +4,7 @@ import {
   taiDanhSachBai,
   taoTrangThaiDienDan,
   wireForumInteractions,
-} from './forum-lofi';
+} from '../forum/forum-lofi';
 
 /*
  * Góc học PE — động cơ cảnh, port từ artifact cùng tên.

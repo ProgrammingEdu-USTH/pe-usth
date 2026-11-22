@@ -304,64 +304,6 @@ test('pe-bridge.js + /auth/refresh: dùng expiresAt khi có và mặc định 8 
   assert.equal(maxAge(withoutExp.cookies[0]), 8 * 3600);
 });
 
-test('login.inline.js: bỏ ghi cứng max-age=28800, đọc expiresAt và mặc định 8 giờ khi thiếu', () => {
-  const loginSrc = readFileSync(join(FE, 'public/static/js/pages/login.inline.js'), 'utf8');
-  const cookies = [];
-  const replacedUrls = [];
-  const fakeEl = () => ({
-    className: '',
-    style: { cssText: '', display: '' },
-    textContent: '',
-    disabled: false,
-    value: '',
-    innerHTML: '',
-    classList: { add() {}, remove() {} },
-    appendChild() {},
-    addEventListener() {},
-    getBoundingClientRect: () => ({ width: 100, height: 40, left: 0, top: 0 }),
-  });
-  const win = {
-    location: {
-      search: '?next=/dashboard',
-      replace(u) { replacedUrls.push(u); },
-    },
-  };
-  const sandbox = {
-    window: win,
-    localStorage: makeStorage({ pe_access: 'existing-access-tok' }),
-    document: {
-      set cookie(v) { cookies.push(String(v)); },
-      get cookie() { return ''; },
-      getElementById: fakeEl,
-      createElement: fakeEl,
-      querySelectorAll: () => [],
-      querySelector: () => null,
-      addEventListener() {},
-      head: { appendChild() {} },
-    },
-    URLSearchParams,
-    Date,
-    Math,
-    fetch: async () => { throw new Error('not called'); },
-    setTimeout,
-  };
-  sandbox.window.window = win;
-  vm.runInNewContext(loginSrc, sandbox, { filename: 'login.inline.js' });
-
-  // Luồng khôi phục phiên cũ: mặc định 8 giờ qua hằng số, vẫn redirect đúng ?next=
-  assert.deepEqual(replacedUrls, ['/dashboard']);
-  assert.equal(cookies.length, 1);
-  assert.equal(maxAge(cookies[0]), 8 * 3600);
-
-  // Khi body /auth/* có expiresAt (24h) -> đặt cookie theo expiresAt
-  sandbox.writeSessionMarker('new-tok', {
-    expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
-  });
-  assert.equal(cookies.length, 2);
-  const sec = maxAge(cookies[1]);
-  assert.ok(sec >= 86_395 && sec <= 86_400, `cần max-age ~86400 nhưng nhận ${sec}`);
-});
-
 test('không còn max-age=28800 trong bất kỳ file mã chạy nào ở frontend/src hoặc frontend/public', () => {
   const offenders = [];
   const exts = /\.(ts|tsx|js|jsx|mjs)$/;

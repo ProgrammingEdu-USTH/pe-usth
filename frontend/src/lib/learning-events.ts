@@ -93,7 +93,7 @@
 //
 // Sàn hỗ trợ `fetch(keepalive)`: Chrome 66 / Edge 15 / Safari 13 /
 // **Firefox 133** (26/11/2024) — Firefox là bên đến muộn, không phải Safari.
-import { apiFetch } from './api.ts';
+import { apiFetch } from './api';
 import {
   GIOI_HAN,
   NGUONG_PHIEN_MS,
@@ -102,7 +102,7 @@ import {
   TRAN_KHOANG_CACH_MS,
   type LearningEventKind,
   type MoiTruongChay,
-} from './learning-event-kinds.ts';
+} from './learning-event-kinds';
 
 /** Bài học đang mở. Không có nó thì không sự kiện nào được gửi (luật 2). */
 export type BoiCanhBai = {

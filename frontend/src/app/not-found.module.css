@@ -1,25 +1,33 @@
-/* Trang 404 — chỉ dùng token của `edu-theme.css`.
- *
- * KHÔNG dùng token brand (`--edu-accent`, `--edu-accent-2`, `--edu-brand*`):
- * nhóm đã chốt đi theo theme lofi chill, và `ds-contrast.test.mjs` giữ một
- * danh sách bề mặt ĐÃ SÁNG mà chỉ được dài thêm. Mọi màu ở đây là token ấm
- * của bảng hiện hành.
- *
- * Nút chính lấy `background: var(--edu-t1)` và `color: var(--edu-bg-solid)` —
- * tức ĐẢO đúng cặp mà `edu-theme.css` đặt cho `body`. Nhờ vậy nó tự đúng ở cả
- * hai chế độ: ban ngày là nâu đen trên giấy kem (13,80:1), ban đêm là chữ sáng
- * trên nền tối, không phải khai thêm một cặp màu thứ hai sẽ trôi.
- */
+/* Trang 404 — tông Lofi tím tối đồng bộ Góc học & Tủ sách. */
 
 .wrap {
   min-height: 100dvh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* 16px gutter hai bên: luật khổ điện thoại của repo. */
   padding: 48px 16px;
   box-sizing: border-box;
+  background-color: #14121b;
+  background-image:
+    radial-gradient(640px 420px at 20% 18%, rgba(169, 140, 245, 0.16), transparent 65%),
+    radial-gradient(560px 380px at 82% 80%, rgba(239, 193, 104, 0.12), transparent 65%);
+  color: var(--bs-ink, #f5f0ff);
+}
+
+.card {
+  width: 100%;
+  max-width: 520px;
+  padding: 36px 28px;
+  box-sizing: border-box;
+  border-radius: 20px;
+  background: rgba(26, 22, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 50px var(--bs-shadow, rgba(6, 4, 12, 0.48));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
   gap: 14px;
 }
@@ -29,10 +37,7 @@
   font-size: 56px;
   font-weight: 800;
   line-height: 1;
-  /* Con số chỉ là mốc, không phải thông tin chính — nên nó NHẠT hơn tiêu đề,
-     đúng thứ bậc mà `feedback-rank.test.mjs` đã phải sửa một lần ở chỗ khác
-     (phần MANG THÔNG TIN không được nhỏ hơn và nhạt hơn phần đặt tên). */
-  color: var(--edu-t3);
+  color: var(--bs-pill-xp-ink, #ffc97a);
   letter-spacing: -0.02em;
 }
 
@@ -40,7 +45,7 @@
   margin: 0;
   font-size: 24px;
   font-weight: 700;
-  color: var(--edu-t1);
+  color: #f5f0ff;
 }
 
 .than {
@@ -48,14 +53,11 @@
   max-width: 44ch;
   font-size: 16px;
   line-height: 1.6;
-  color: var(--edu-t2);
+  color: #c9c1dc;
 }
 
 .hangNut {
   display: flex;
-  /* XUỐNG HÀNG, không co lại — cùng quyết định đã đo ở hàng nút điều hướng của
-     cảnh Góc học: ở 360px hai nút cạnh nhau tràn mép, mà co chip xuống dưới
-     cỡ ngón tay thì tệ hơn. */
   flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
@@ -67,8 +69,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* 44px là cỡ đích bấm nhỏ nhất dùng được bằng ngón tay. Repo này đã phải sửa
-     một đích bấm 13×6px một lần, nên con số ở đây là sàn, không phải thẩm mỹ. */
   min-height: 44px;
   padding: 0 18px;
   border-radius: 12px;
@@ -76,19 +76,27 @@
   font-size: 15px;
   font-weight: 600;
   text-decoration: none;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
 }
 
 .nutChinh {
-  background: var(--edu-t1);
-  color: var(--edu-bg-solid);
-  border: 1px solid var(--edu-t1);
+  background: var(--bs-cta-bg, #efc168);
+  color: var(--bs-cta-ink, #1e1608);
+  border: 1px solid rgba(255, 220, 160, 0.45);
+}
+
+.nutChinh:hover {
+  transform: translateY(-1px);
+  background: #f5cd7c;
 }
 
 .nutPhu {
-  background: var(--edu-panel-bg-solid);
-  color: var(--edu-t1);
-  /* Đường kẻ THẤY ĐƯỢC trên thẻ sáng: `--edu-card-line` là token đã được
-     `ds-contrast.test.mjs` canh cả hai chiều ngày/đêm. Dùng `--edu-card-border`
-     ở đây là dựng lại đúng lỗi "trắng trên trắng" đã gặp bốn lần. */
-  border: 1px solid var(--edu-card-line);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5f0ff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.nutPhu:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.14);
 }

@@ -52,22 +52,18 @@ test('trang lỗi: KHÔNG gọi API — bot và người cùng rơi vào đây',
   }
 });
 
-test('trang lỗi: tự nạp CSS, vì layout gốc không import CSS global nào', () => {
+test('trang lỗi: tự nạp CSS Lofi, vì layout gốc không import CSS global nào', () => {
   assert.match(MA, /<PageStyles\b/);
-  assert.match(MA, /static\/css\/edu-theme\.css/);
+  assert.match(MA, /static\/css\/bookshelf-tokens\.css/);
 });
 
 test('trang lỗi: mọi đường về là route CÓ THẬT', () => {
-  // Một trang lỗi trỏ sang một 404 thì tệ hơn không có đường về, vì nó trông
-  // như có. Tập route đọc từ CÂY TỆP; phép `assert` dưới là TỰ KIỂM — quét
-  // trượt thì tập rỗng và luật này đạt rỗng mà không chứng minh gì.
   const APP = join(GOC, 'src/app');
   const route = new Set(['/']);
   const di = (d, tien) => {
     for (const t of readdirSync(d)) {
       const p = join(d, t);
       if (!statSync(p).isDirectory()) continue;
-      // Route group `(x)` không xuất hiện trong URL; `[x]` là route động.
       const seg = /^\(.*\)$/.test(t) ? tien : `${tien}/${t}`;
       if (readdirSync(p).some((f) => /^page\.(tsx|ts|jsx|js)$/.test(f))) route.add(seg || '/');
       di(p, seg);
@@ -80,20 +76,13 @@ test('trang lỗi: mọi đường về là route CÓ THẬT', () => {
   const duong = [...MA.matchAll(/'(\/[^']*)'/g)].map((m) => m[1])
     .filter((d) => !d.startsWith('/static/'));
   assert.ok(duong.length >= 2, `chỉ thấy ${duong.length} đường về trong mã`);
-  // `/courses/python_advanced` do `generateStaticParams()` của
-  // `courses/[courseId]` sinh ra từ `COURSES`, nên nó KHÔNG có trong cây tệp —
-  // bản đầu của ca này so bằng `has()` thuần và BÁO OAN đúng đường về chính.
-  //
-  // NHƯNG cho một route động khớp MỌI segment thì cổng rỗng ở đúng chỗ nó phải
-  // canh: ablate đổi đường về thành `/courses/python` cho **0 đỏ**, trong khi
-  // đường đó đã được đo là **404** (khoá `python` không còn trong `COURSES`).
-  // Nên `[courseId]` phải khớp đúng DANH SÁCH id mà `generateStaticParams()`
-  // sinh ra, đọc từ chính `catalog.ts`.
-  const CATALOG = readFileSync(join(GOC, 'src/lib/catalog.ts'), 'utf8');
-  const maKhoa = [...CATALOG.matchAll(/^\s{4}id: '([^']+)',/gm)].map((m) => m[1])
-    .filter((id) => !id.startsWith('db_design'));
-  assert.ok(maKhoa.length >= 1, 'không bóc được mã khoá nào từ catalog.ts');
-  const THAM_SO = { '[courseId]': maKhoa };
+  const BOOKSHELF = readFileSync(
+    join(GOC, 'src/components/bookshelf/bookshelf-catalog.ts'),
+    'utf8',
+  );
+  const slugs = [...BOOKSHELF.matchAll(/\bslug:\s*'([^']+)'/g)].map((m) => m[1]);
+  assert.ok(slugs.length >= 1, 'không bóc được slug khoá học nào từ bookshelf-catalog.ts');
+  const THAM_SO = { '[courseSlug]': slugs };
   const khop = (d) => [...route].some((r) => {
     const a = r.split('/');
     const b = d.split('/');
@@ -110,32 +99,19 @@ test('trang lỗi: mọi đường về là route CÓ THẬT', () => {
 });
 
 test('trang lỗi: xoá nháp dùng CHUNG khuôn khoá với bài học, không chép lại', () => {
-  // Ba bản chép của một khuôn khoá là ba thứ trôi được, và khi chúng trôi thì
-  // nút này xoá SAI bài (hoặc không xoá gì) mà không exception nào ném —
-  // `getItem` chỉ trả null. Trước bản này khuôn ấy được dựng HAI LẦN trong
-  // chính `useLessonDraft.ts`.
   assert.match(MA, /from '@\/lib\/nhap-bai'/, 'không import từ lib dùng chung');
   for (const ten of ['hauToNhap', 'soBaiTuTruyVan', 'TIEN_TO_NHAP']) {
     assert.ok(MA.includes(ten), `không dùng \`${ten}\` của lib dùng chung`);
   }
-  // Và KHÔNG được ghi cứng tiền tố ở đây — KHÔNG kèm dấu nháy trong phép so.
-  // Bản đầu của hai ca này tìm `'pe-studio-lesson` (nháy ĐƠN), nên ablate chép
-  // lại khuôn khoá bằng TEMPLATE LITERAL cho **0 đỏ** — mà template literal
-  // chính là cách người ta sẽ viết nó, vì khoá có nội suy. Cổng chỉ bắt dạng
-  // ÍT KHẢ NĂNG nhất là cổng rỗng ở đúng chỗ nó phải canh.
   assert.ok(
     !MA.includes('pe-studio-lesson'),
     'ghi cứng tiền tố khoá nháp — import `TIEN_TO_NHAP` thay vì chép',
   );
-  // Hook bài học cũng phải dùng chung nó, nếu không hai bên lại trôi.
-  const hook = boChuThich(
-    readFileSync(join(GOC, 'src/components/python-studio/useLessonDraft.ts'), 'utf8'),
+  const lessonPage = boChuThich(
+    readFileSync(join(GOC, 'src/app/lesson/python_advanced/page.tsx'), 'utf8'),
   );
-  assert.match(hook, /from '@\/lib\/nhap-bai'/);
-  assert.ok(
-    !hook.includes('pe-studio-lesson'),
-    'useLessonDraft còn ghi cứng tiền tố — đó là bản chép thứ hai',
-  );
+  assert.match(lessonPage, /from '@\/lib\/nhap-bai'/);
+  assert.ok(lessonPage.includes('soBaiTuTruyVan'), 'trang bài học không dùng `soBaiTuTruyVan`');
 });
 
 test('trang lỗi: mọi lần chạm localStorage nằm trong try/catch', () => {

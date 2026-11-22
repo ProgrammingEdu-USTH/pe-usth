@@ -1,27 +1,33 @@
-/* Trang lỗi — chỉ dùng token của `edu-theme.css`, cùng luật như `not-found`.
- *
- * KHÔNG dùng token brand (`--edu-accent`, `--edu-accent-2`, `--edu-brand*`):
- * nhóm đã chốt đi theo theme lofi chill, và `ds-contrast.test.mjs` giữ một
- * danh sách bề mặt ĐÃ SÁNG mà chỉ được dài thêm.
- *
- * Nút chính lấy `background: var(--edu-t1)` và `color: var(--edu-bg-solid)` —
- * ĐẢO đúng cặp mà `edu-theme.css` đặt cho `body`, nên nó tự đúng ở cả hai chế
- * độ mà không phải khai một cặp màu thứ hai sẽ trôi.
- *
- * KHÔNG đỏ, không biểu tượng cảnh báo: người đọc trang này đang mất chỗ trong
- * bài, và một màn đỏ làm họ nghĩ mình vừa phá cái gì. Thứ bậc ở đây là CÂU
- * TRẢ LỜI ("làm gì tiếp") chứ không phải TIN XẤU.
- */
+/* Trang lỗi — tông Lofi tím tối dịu nhẹ, không chói đỏ. */
 
 .wrap {
   min-height: 100dvh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* 16px gutter hai bên: luật khổ điện thoại của repo. */
   padding: 48px 16px;
   box-sizing: border-box;
+  background-color: #14121b;
+  background-image:
+    radial-gradient(640px 420px at 22% 20%, rgba(169, 140, 245, 0.16), transparent 65%),
+    radial-gradient(560px 380px at 80% 82%, rgba(239, 193, 104, 0.12), transparent 65%);
+  color: var(--bs-ink, #f5f0ff);
+}
+
+.card {
+  width: 100%;
+  max-width: 540px;
+  padding: 36px 28px;
+  box-sizing: border-box;
+  border-radius: 20px;
+  background: rgba(26, 22, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 50px var(--bs-shadow, rgba(6, 4, 12, 0.48));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
   gap: 14px;
 }
@@ -31,7 +37,7 @@
   font-size: 26px;
   font-weight: 700;
   line-height: 1.25;
-  color: var(--edu-t1);
+  color: #f5f0ff;
 }
 
 .than {
@@ -39,12 +45,9 @@
   max-width: 52ch;
   font-size: 15px;
   line-height: 1.6;
-  color: var(--edu-t2);
+  color: #c9c1dc;
 }
 
-/* Hàng nút XUỐNG HÀNG ở khổ nhỏ. Luật đã phải đặt một lần cho hàng nút của
-   cảnh Góc học: ở 360×640 một hàng ba nút tràn mép, và co chúng lại thì đích
-   bấm tụt dưới cỡ ngón tay. Ba nút ở đây cũng vậy. */
 .hangNut {
   display: flex;
   flex-wrap: wrap;
@@ -58,7 +61,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* 44px: đích bấm tối thiểu. Repo đã phải sửa một đích 13×6px một lần. */
   min-height: 44px;
   padding: 0 18px;
   border-radius: 12px;
@@ -67,28 +69,35 @@
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
 }
 
 .nutChinh {
-  background: var(--edu-t1);
-  color: var(--edu-bg-solid);
-  border: 1px solid var(--edu-t1);
+  background: var(--bs-cta-bg, #efc168);
+  color: var(--bs-cta-ink, #1e1608);
+  border: 1px solid rgba(255, 220, 160, 0.45);
+}
+
+.nutChinh:hover {
+  transform: translateY(-1px);
+  background: #f5cd7c;
 }
 
 .nutPhu {
-  background: var(--edu-panel-bg-solid);
-  color: var(--edu-t1);
-  /* `--edu-card-line`, KHÔNG `--edu-card-border`: token kia là
-     `rgba(255,255,255,.85)`, tức trắng trên thẻ trắng — lỗi đã gặp bốn lần. */
-  border: 1px solid var(--edu-card-line);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5f0ff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-/* Khối xoá nháp: tách khỏi hàng nút bằng một đường kẻ, vì nó là một lựa chọn
-   CÓ GIÁ (mất code đang viết) chứ không phải một đường thoát ngang hàng. */
+.nutPhu:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.14);
+}
+
 .nhap {
   margin-top: 18px;
   padding-top: 18px;
-  border-top: 1px solid var(--edu-card-line);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -100,5 +109,5 @@
   margin: 0;
   font-size: 14px;
   line-height: 1.6;
-  color: var(--edu-t2);
+  color: #c9c1dc;
 }

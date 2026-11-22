@@ -34,7 +34,7 @@ import {
   taoTrangThaiDienDan,
   tongBinhLuan,
   tongCamXuc,
-} from '../../src/components/goc-hoc/forum-lofi.js';
+} from '../../src/components/forum/forum-lofi.js';
 
 const GOC = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const THU_MUC_ASSET = join(GOC, 'public', 'forum-lofi');
@@ -243,7 +243,7 @@ test('lối vào Diễn đàn có mặt ở cả Thanh bên phải (shell.js) v�
 });
 
 test('nối API thật BE7: không còn dữ liệu diễn đàn trong localStorage và không mở route /forum mồ côi', () => {
-  const forumJs = readFileSync(join(GOC, 'src', 'components', 'goc-hoc', 'forum-lofi.js'), 'utf8');
+  const forumJs = readFileSync(join(GOC, 'src', 'components', 'forum', 'forum-lofi.js'), 'utf8');
   const engineJs = readFileSync(join(GOC, 'src', 'components', 'goc-hoc', 'engine.js'), 'utf8');
   const studyRoom = readFileSync(join(GOC, 'src', 'components', 'goc-hoc', 'StudyRoom.tsx'), 'utf8');
 

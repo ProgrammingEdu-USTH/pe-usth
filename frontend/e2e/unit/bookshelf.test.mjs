@@ -42,8 +42,8 @@ const stripComments = (s) =>
 test('bookshelf routes, LofiRoomChrome và BookshelfCabinet tồn tại đầy đủ', () => {
   const required = [
     ['public', 'static', 'css', 'bookshelf-tokens.css'],
-    ['src', 'app', '(auth)', 'bookshelf', 'page.tsx'],
-    ['src', 'app', '(auth)', 'bookshelf', '[courseSlug]', 'page.tsx'],
+    ['src', 'app', 'bookshelf', 'page.tsx'],
+    ['src', 'app', 'bookshelf', '[courseSlug]', 'page.tsx'],
     ['src', 'components', 'ui', 'LofiRoomChrome.tsx'],
     ['src', 'components', 'ui', 'lofi-room-chrome.module.css'],
     ['src', 'components', 'bookshelf', 'bookshelf-catalog.ts'],

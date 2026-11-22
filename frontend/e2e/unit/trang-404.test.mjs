@@ -91,14 +91,20 @@ test('404: có đường về, và mỗi đường về là route CÓ THẬT', (
   assert.ok(routes.size >= 8, `phép quét route trượt, chỉ thấy ${routes.size}`);
   assert.ok(routes.has('/'), 'phép quét route không thấy trang chủ');
 
+  const BOOKSHELF = readFileSync(
+    join(GOC, 'src/components/bookshelf/bookshelf-catalog.ts'),
+    'utf8',
+  );
+  const slugs = [...BOOKSHELF.matchAll(/\bslug:\s*'([^']+)'/g)].map((m) => m[1]);
+  assert.ok(slugs.length >= 1, 'không bóc được slug khoá học nào từ bookshelf-catalog.ts');
+
   for (const h of hrefs) {
     const co = routes.has(h)
-      // route động: `/courses/python_advanced` do `[courseId]` sinh ra.
       || [...routes].some((r) => {
         const a = r.split('/');
         const b = h.split('/');
         return a.length === b.length
-          && a.every((seg, i) => seg === b[i] || /^\[.*\]$/.test(seg));
+          && a.every((seg, i) => (seg === '[courseSlug]' ? slugs.includes(b[i]) : seg === b[i] || /^\[.*\]$/.test(seg)));
       });
     assert.ok(co, `đường về ${h} KHÔNG khớp route nào trong src/app — một trang `
       + '404 trỏ sang một 404 khác tệ hơn không có đường về');
@@ -111,10 +117,10 @@ test('404: có đường về, và mỗi đường về là route CÓ THẬT', (
   }
 });
 
-test('404: tự nạp edu-theme.css — layout gốc không import CSS global nào', () => {
+test('404: tự nạp bookshelf-tokens.css — layout gốc không import CSS global nào', () => {
   const than = boChuThich(nguon);
   assert.match(than, /PageStyles/);
-  assert.match(than, /\/static\/css\/edu-theme\.css/);
+  assert.match(than, /\/static\/css\/bookshelf-tokens\.css/);
   // Phép kiểm chéo: layout gốc vẫn KHÔNG được import CSS global. Ngày nó import
   // thì luật trên hết lý do tồn tại, và ca này phải được đọc lại chứ không im
   // lặng xanh.
@@ -131,17 +137,12 @@ test('404: KHÔNG gọi API (apiFetch gặp 401 là tự tạo tài khoản khá
     'trang 404 là trang công khai — mỗi lượt bot quét sẽ sinh một tài khoản khách');
 });
 
-test('404: CSS không dùng token brand xanh–đỏ', () => {
+test('404: CSS dùng giao diện Lofi tối và không dùng token brand cũ', () => {
   const than = boChuThich(css);
-  for (const t of ['--edu-accent', '--edu-accent-2', '--edu-brand', '--edu-sheen']) {
-    assert.ok(!than.includes(t), `CSS trang 404 còn dùng token brand ${t}`);
+  for (const t of ['--edu-accent', '--edu-accent-2', '--edu-brand', '--edu-sheen', '--edu-card-border']) {
+    assert.ok(!than.includes(t), `CSS trang 404 còn dùng token cũ ${t}`);
   }
-  // Đường kẻ của nút phụ phải là token ĐÃ ĐƯỢC CANH cả hai chiều ngày/đêm.
-  // `--edu-card-border` là `rgba(255,255,255,.85)` — trắng trên thẻ trắng, lỗi
-  // đã gặp bốn lần.
-  assert.ok(!than.includes('--edu-card-border'),
-    'dùng --edu-card-line, không phải --edu-card-border (trắng trên trắng)');
-  assert.match(than, /--edu-card-line/);
+  assert.match(than, /background-color:\s*#14121b/);
   // Đích bấm: repo này đã phải sửa một đích 13×6px một lần.
   assert.match(than, /min-height:\s*44px/);
 });

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Prisma } from 'src/generated/prisma';
+import { redactQuery } from 'src/common/logging/redact-url';
 
 // Key = tên CỘT DB (snake_case), nối bằng ',' theo đúng thứ tự Postgres trả về
 const UNIQUE_FIELD_MESSAGES: Record<string, string> = {
@@ -142,8 +143,11 @@ export class PrismaExceptionFilter implements ExceptionFilter {
     const requestId = request.requestId || null;
 
     if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
+      // Che query của URL (xem redact-url.ts). CHƯA che exception.message/stack: bản test còn bỏ cả
+      // hai vì sợ Prisma nhét giá trị tham số vào message, nhưng chưa ai kiểm Prisma 7 có làm thế
+      // không, và bỏ message là mất tên cột của P2022 — thứ giúp chẩn đoán "code đi trước DB".
       this.logger.error(
-        `${request.method} ${request.url} -> ${status} Prisma ${exception.code}: ${exception.message}`,
+        `${request.method} ${redactQuery(request.originalUrl ?? request.url)} -> ${status} Prisma ${exception.code}: ${exception.message}`,
         exception.stack,
       );
     }

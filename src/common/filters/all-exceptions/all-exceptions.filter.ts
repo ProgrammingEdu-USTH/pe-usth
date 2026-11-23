@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ThrottlerException, throttlerMessage } from '@nestjs/throttler';
+import { redactQuery } from 'src/common/logging/redact-url';
 
 /**
  * Nhận diện lỗi hạ tầng DB tạm thời (cạn pool, mất kết nối, Neon đang ngủ dậy).
@@ -150,8 +151,10 @@ export class AllExceptionsFilter<T> implements ExceptionFilter {
 
     if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
       const stack = exception instanceof Error ? exception.stack : undefined;
+      // `request.url` thô từng ghi nguyên query: một lỗi 5xx trên /auth/logout?refresh=…
+      // ghi refresh token vào log. redactQuery che giá trị của tham số nhạy cảm.
       this.logger.error(
-        `${request.method} ${request.url} -> ${status} ${message}`,
+        `${request.method} ${redactQuery(request.originalUrl ?? request.url)} -> ${status} ${message}`,
         stack,
       );
     }

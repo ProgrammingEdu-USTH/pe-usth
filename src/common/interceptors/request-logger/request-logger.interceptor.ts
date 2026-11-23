@@ -7,37 +7,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Observable, tap } from 'rxjs';
-
-/** Tham số mang bí mật — giá trị phải bị che trước khi ghi log. */
-const SENSITIVE_PARAMS = [
-  'refresh',
-  'access',
-  'token',
-  'password',
-  'code',
-  'secret',
-];
-
-/**
- * Giữ nguyên path, che giá trị của các query param nhạy cảm.
- * Ví dụ: /auth/logout?refresh=abc123 -> /auth/logout?refresh=[REDACTED]
- */
-function redactQuery(originalUrl: string): string {
-  const idx = originalUrl.indexOf('?');
-  if (idx === -1) return originalUrl;
-
-  const path = originalUrl.slice(0, idx);
-  const params = new URLSearchParams(originalUrl.slice(idx + 1));
-
-  for (const key of params.keys()) {
-    if (SENSITIVE_PARAMS.includes(key.toLowerCase())) {
-      params.set(key, '[REDACTED]');
-    }
-  }
-
-  const qs = params.toString();
-  return qs ? `${path}?${qs}` : path;
-}
+import { redactQuery } from 'src/common/logging/redact-url';
 
 @Injectable()
 export class RequestLoggerInterceptor implements NestInterceptor {

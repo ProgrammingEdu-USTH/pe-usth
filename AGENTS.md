@@ -24,6 +24,9 @@ py scripts/pe-v4/anim/check.py --strict # thêm: hình chưa bài nào khai cũn
 npm i --no-save pyodide@0.27.7         # CẢ HAI lệnh dưới đều import pyodide
 node scripts/pe-v4/check-advanced.mjs  # chấm thử game chạy code trong Pyodide
 node scripts/pe-v4/check-pyodide.mjs   # chấm thử 427 ca bằng chính bộ chấm của trình duyệt
+
+# Sinh trắc nghiệm (ML, docs/ml-pipeline.md §8) — mặc định chạy thử, không chạm DB
+npx ts-node scripts/gen-questions/mcq.ts --codes=P01,N01
 ```
 
 Trên Windows dùng `py`, không dùng `python` — `python` là stub của Microsoft Store.
@@ -192,6 +195,11 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   thêm `?? o.title` thì MỌI lựa chọn thành **chuỗi rỗng** và gửi thẳng ra frontend — không ngoại
   lệ nào được ném, không log nào đỏ, chỉ là 4 nút trắng. Hiện kho quiz chỉ lấy `step_2.mcq` nên
   chưa vỡ; đổi nguồn câu hỏi thì phải đổi `normalizeQuestion` CÙNG LÚC.
+- **71% câu trắc nghiệm của khoá Advanced đoán được bằng "chọn câu dài nhất".** Đo 23/11/2026:
+  104/146 câu `step_2.mcq` có đáp án đúng dài hơn 1,5 lần lựa chọn sai dài nhất (luật A5 của
+  `src/question-gen/mcq-filters.ts`; G03#2 là 43 ký tự so với 4). Pipeline sinh đề vì thế chỉ
+  lấy câu qua A5 làm ví dụ few-shot. Viết thêm câu cho giáo trình thì để các lựa chọn dài tương
+  đương, phần giải thích dời sang `detail`.
 - **Muốn ôn tập phải xong 2 bài, không phải 1.** `buildQuestionPool` đòi `MIN_POOL = 5` câu mới
   cho ra đề, mà mỗi bài Advanced chỉ có **3** câu trắc nghiệm (46/48 bài có 3 câu, 2 bài có 4 —
   đếm `step_2.mcq`). Nên thực tế học viên phải hoàn thành 2 bài mới mở được quiz ôn. Thông báo

@@ -29,6 +29,13 @@ Mỗi bài thành một **chunk**:
 
 Bộ đọc nguồn là một hàm riêng nhận đường dẫn gói bài. Thêm môn mới = thêm bộ đọc, không sửa lõi.
 
+**Lệch so với thiết kế trên (đo 23/11/2026, đã cài trong `src/question-gen/lesson-chunks.ts`):**
+28/48 bài (toàn bộ M4–M8, `X01…DA02`) **không có `step_1.theory`**. Lấy `concepts` đúng như
+trên thì 28 bài đó có 0 khái niệm và mọi câu sinh ra trượt A7. Nên bài không có theory dùng
+`concepts = [brief.title]` và lý thuyết lấy từ `step_1.context` (title, body, example).
+`step_1.misconception` có ở cả 48 bài và luôn được đưa vào prompt: đó là chất liệu cho lựa
+chọn sai "có sức hút".
+
 ## 2. Đầu ra
 
 Đầu ra phải **đúng định dạng repo đang dùng**, để frontend và kho quiz hiển thị ngay, không cần bước chuyển.
@@ -115,6 +122,15 @@ gói bài ──► chọn chunk ──► dựng prompt ──► Gemini ──
 | A8 | Ba luật Pyodide ở mục 3, mỗi lần chạy < 5 giây | code |
 | A9 | Không dùng `input()`; `packages` chỉ nằm trong numpy, pandas, matplotlib, sqlite3 | code |
 
+**A5 trên chính giáo trình (đo 23/11/2026):** 146 câu `step_2.mcq` có sẵn đều qua A1–A4 và A6,
+nhưng **104/146 (71%) trượt A5 vế độ dài**: đáp án đúng dài hơn 1,5 lần lựa chọn sai dài nhất
+(G03#2: 43 ký tự so với 4; X01#1: 42 so với 2). Người học đoán mò "chọn câu dài nhất" là đúng
+phần lớn câu của khoá. Hai hệ quả:
+- Few-shot **chỉ lấy câu tự qua A2–A5** (`isGoodExample` trong `src/question-gen/mcq-prompt.ts`),
+  không thì prompt dạy mô hình đúng thói này rồi A5 loại hết câu sinh ra. Mỗi bài vẫn đủ 2 ví dụ.
+- Đây là việc nội dung cho người viết giáo trình (rút ngắn đáp án đúng, dời phần giải thích sang
+  `detail`), không phải lý do nới ngưỡng A5.
+
 Mỗi luật là một hàm thuần trả về `{ ok, reason }`, có test Jest. Fixture lấy đúng hình dạng thật
 từ `scripts/pe-v4/out-advanced/lessons/*.json`, theo bẫy đầu tiên trong AGENTS.md: fixture không
 giống dữ liệu thật thì test vô dụng.
@@ -179,6 +195,28 @@ Bảng `question_bank` do việc "sinh trắc nghiệm" (Tuần 2) tự tạo b�
 `id BIGSERIAL, course_id, lesson_code, module_code, type ('mcq'|'code'), payload JSONB,
 difficulty, status ('draft'|'approved'|'rejected', có CHECK), source, prompt_version,
 content_hash UNIQUE, created_at timestamptz`, chỉ mục `(course_id, module_code)`.
+
+Đã tạo: migration `20261123000000_question_bank`, áp lên branch Neon thử ngày 23/11/2026. Thêm
+so với danh sách trên: cột `meta JSONB` giữ `{ concepts[], model, temperature }` (metadata §2
+không có cột riêng), CHECK cho `difficulty` (`basic|intermediate|advanced` hoặc NULL), khoá
+ngoại `course_id → courses`.
+
+## 8. Chạy
+
+```bash
+npx ts-node scripts/gen-questions/mcq.ts --codes=P01,N01      # chạy thử 2 bài, ghi out/mcq-<…>.json
+npx ts-node scripts/gen-questions/mcq.ts                      # chạy thử cả 48 bài
+npx ts-node scripts/gen-questions/mcq.ts --apply --expected-host=<host DIRECT_URL> \
+    --from=scripts/gen-questions/out/mcq-<…>.json             # ghi đúng các câu đã xem vào DB
+```
+
+Chạy thử không kết nối DB. `--apply` dừng trước khi kết nối nếu host của `DIRECT_URL` khác
+`--expected-host`. Ghi bằng `skipDuplicates` trên `content_hash`, nên chạy lại không nhân đôi.
+Núm §5: `--prompt=mcq-v1 --few-shot=2 --temperature=0.4 --per-lesson=3`. Logic nằm ở
+`src/question-gen/` (có test Jest); prompt ở `scripts/gen-questions/prompts/`.
+
+**Số đo lần chạy đầu: CHƯA CÓ.** Ngày 23/11/2026 `GEMINI_API_KEY` trong `.env` trống nên chưa gọi
+được Gemini. Có key thì chạy lệnh thứ hai, chép khối "Báo cáo" vào §4 và đặt lại mục tiêu.
 
 Liên quan: [questionnaire-spec.md](questionnaire-spec.md). Câu `approved` của `question_bank` dùng
 được cho bộ câu đầu vào vì cùng định dạng lựa chọn `text`.

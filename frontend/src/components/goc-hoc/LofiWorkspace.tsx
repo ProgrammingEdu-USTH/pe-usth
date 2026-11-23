@@ -193,16 +193,6 @@ export interface StickyNoteItem {
   tip: string;
 }
 
-interface PoolMcqItem {
-  lessonNo: number;
-  lessonCode: string;
-  lessonTitle: string;
-  question: string;
-  options: string[];
-  correct: number;
-  explanation: string;
-}
-
 const ALL_META_ENTRIES = Object.entries(DATA.meta) as [string, [number, number, number, number]][];
 
 function renderInlineCode(text: string): React.ReactNode {
@@ -478,15 +468,20 @@ export default function LofiWorkspace({
   }, [activeCourseId, catalogLessons.length]);
 
   // Nạp nội dung bài học (Python từ API; SQL từ JSON + auto-enroll nền)
-  const currentCatalog = catalogLessons[lessonIdx] ?? catalogLessons[0] ?? {
-    no: 1,
-    code: 'B01',
-    title: 'Bài 1',
-    moduleTitle: 'Học phần 1',
-    moduleShort: 'M1',
-    minutes: 15,
-    xp: 50,
-  };
+  const currentCatalog = useMemo(
+    () =>
+      catalogLessons[lessonIdx] ??
+      catalogLessons[0] ?? {
+        no: 1,
+        code: 'B01',
+        title: 'Bài 1',
+        moduleTitle: 'Học phần 1',
+        moduleShort: 'M1',
+        minutes: 15,
+        xp: 50,
+      },
+    [catalogLessons, lessonIdx],
+  );
   const lessonNo = currentCatalog.no;
   const lessonKey = `${activeCourseId}-${lessonNo}`;
 

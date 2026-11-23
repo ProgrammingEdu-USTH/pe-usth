@@ -38,11 +38,9 @@ mức này:
 | Backend typecheck | sạch | 15/11/2026 |
 | Backend test | 54 bộ, 607 ca, tất cả đạt (máy đặt múi giờ UTC thì 1 ca `streak.service.spec.ts` trượt — chạy `TZ=Asia/Ho_Chi_Minh npx jest --ci`) | 21/11/2026 |
 | Backend lint | 153 lỗi, 2 cảnh báo — **mốc trần trong CI là 170, chỉ được hạ** | 21/11/2026 |
-| Frontend typecheck | sạch | 15/10/2026 |
-| Frontend lint | 0 lỗi, 86 cảnh báo | 22/11/2026 |
-| Frontend unit test | `cd frontend && npm run test:unit` → 534 ca, 529 đạt; 5 ca trượt có sẵn từ `cd206ad` (đều chỉ vào trang `/demo-minigame`) | 19/10/2026 |
-
-(22/11/2026 xoá giao diện cũ — dashboard, `/courses/*`, `/lesson/[courseId]|java|htmlcss|python`, `/practice/challenge`, PracticeClient/IdeClient/CourseDbDesign/LessonDbDesign… — và cắt các ca test canh chúng. Dòng unit test ở trên CHƯA đo lại: chạy trong thư mục không dấu cách (đường dẫn có dấu cách làm ca đọc `import.meta.url` ENOENT giả), so cùng một cách trước/sau xoá được 133 → 95 ca trượt, 0 ca trượt mới. Đo lại bằng `npm run test:unit` rồi sửa dòng đó.)
+| Frontend typecheck | sạch | 23/11/2026 |
+| Frontend lint | 0 lỗi, 42 cảnh báo | 23/11/2026 |
+| Frontend unit test | `cd frontend && npm run test:unit` → 158 ca, 158 đạt, 0 trượt | 23/11/2026 |
 | Giáo trình pe-v4 | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt | 15/10/2026 |
 
 **CẬP NHẬT BẢNG NÀY MỖI KHI SỐ ĐO ĐỔI ĐÁNG KỂ, không chỉ ở commit đầu phiên.**

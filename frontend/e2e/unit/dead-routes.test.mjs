@@ -44,6 +44,8 @@ const REMOVED = [
   [['src', 'lib', 'python-studio.ts'], 'đề bài/lời giải cứng của demo cũ'],
   [['src', 'components', 'LessonDbDesign.tsx'], 'giao diện SQL trắng-kem cũ đã chuyển sang LofiWorkspace'],
   [['src', 'components', 'LegacyScripts.tsx'], 'bộ nạp script legacy chỉ còn LessonDbDesign & concept_card dùng'],
+  [['src', 'components', 'auth', 'PhoneAuthView.tsx'], 'màn hình đăng nhập điện thoại cũ không còn nơi gọi'],
+  [['src', 'lib', 'runner-error.ts'], 'helper lỗi runner của khung VS Code cũ đã thay bằng may-tinh/'],
 ];
 
 test('route cũ, nhóm (auth)/(standalone) và component mồ côi đã xoá hẳn khỏi src/**', () => {

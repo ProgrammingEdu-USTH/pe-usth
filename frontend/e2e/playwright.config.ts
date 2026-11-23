@@ -1,18 +1,10 @@
-// Cấu hình Playwright cho bộ e2e regression engine chấm SQL (port từ
-// test_e2.py + regression_b6.py của bản Flask — quyết định chủ dự án 2026-07-14).
+// Cấu hình Playwright cho bộ e2e kiểm thử trên trình duyệt.
 //
-// Hai nhóm spec, yêu cầu chạy KHÁC NHAU — đừng chạy cả thư mục:
-//
-//  1. `python-advanced` — giả lập toàn bộ API bằng `page.route`, Pyodide tự host
-//     trong repo (`public/pyodide/v314.0.7/`), nên KHÔNG cần backend, DB, mạng:
-//       cd frontend && npx playwright test -c e2e/playwright.config.ts python-advanced
-//     `mobile-responsive` cũng không cần backend (chỉ đo trang chủ + chi tiết khóa) nên chạy chung nhóm này trong CI.
-//
-//  2. `pe-run-sql`, `drag-regression` — dùng `helpers.login()`
-//     đăng nhập UI thật, nên cần backend Django (cổng 9000) + DB có content_json
-//     + tài khoản test (E2E_EMAIL/E2E_PASSWORD). Chỉ chạy được ở máy có môi
-//     trường đó:
-//       cd backend && .venv/Scripts/python manage.py runserver 9000
+// Các spec chạy hoàn toàn bằng dữ liệu giả lập (`page.route`) + Pyodide tự host
+// (`public/pyodide/`), không cần backend hay DB:
+// - `python-advanced`: luồng bài học LofiWorkspace + Pyodide
+// - `mobile-responsive`: kiểm tra co giãn giao diện trên màn hình nhỏ
+// Chạy: cd frontend && npm run test:e2e
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({

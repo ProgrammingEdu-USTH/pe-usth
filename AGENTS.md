@@ -85,7 +85,7 @@ học nó.
 | Hạng mục | Mốc |
 |---|---|
 | Backend typecheck | sạch — nay phủ **cả `scripts/**/*.ts`** (10 script, 0 lỗi) |
-| Backend test | **39 bộ, 572 ca**, tất cả đạt (chạy RIÊNG — xem bẫy tranh CPU). Đo lại 23/11/2026 sau khi port từ `tester/test`: +4 ca `lessons.service.spec.ts` (BE3, d0ede61), +1 bộ / +26 ca `forum.service.spec.ts` (BE7, 047ad35) +5 ca `courses.service.spec.ts` (BE5, 846eea1 + 2e5d04d) +1 bộ / +2 ca `pending-migrations.spec.ts` (71d3337) và +1 bộ / +3 ca `redact-url.spec.ts` (che URL ở log 5xx, port tay từ 736a82a) |
+| Backend test | **40 bộ, 597 ca**, tất cả đạt (chạy RIÊNG — xem bẫy tranh CPU). Đo lại 23/11/2026 sau khi port từ `tester/test`: +4 ca `lessons.service.spec.ts` (BE3, d0ede61), +1 bộ / +26 ca `forum.service.spec.ts` (BE7, 047ad35) +5 ca `courses.service.spec.ts` (BE5, 846eea1 + 2e5d04d) +1 bộ / +2 ca `pending-migrations.spec.ts` (71d3337) +1 bộ / +3 ca `redact-url.spec.ts` (che URL ở log 5xx, port tay từ 736a82a) và +1 bộ / +25 ca `guest-cleanup.spec.ts` (83e1cf1) |
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
@@ -109,7 +109,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **47 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 747 · backend 39 bộ/572 · tracer 69 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/364 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 747 · backend 40 bộ/597 · tracer 69 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/364 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -461,6 +461,29 @@ Hai đường, chọn sai là xoá tiến độ của người đang học:
 
 Sau MỌI lần nạp, vẫn phải chạy `py scripts/pe-v4/sync_curricula.py` — xem bẫy "Hai nguồn
 danh sách bài" ở trên.
+
+### Dọn tài khoản khách (port từ `tester/test` 83e1cf1, 23/11/2026 — CHƯA từng chạy trên DB nào)
+
+**Đừng `DELETE FROM users WHERE email LIKE '%@guest.local'`**: nó vỡ ở bảng con đầu tiên (các khoá ngoại tới
+`users` là `ON DELETE RESTRICT`, trừ vài bảng CASCADE) và còn trúng cả người thật đăng ký bằng email đuôi ấy.
+Dùng `scripts/cleanup-guest-accounts.ts`. Nó chỉ chọn khách mà không ai vào lại được nữa: email đúng định dạng
+`guest_<uuid>@guest.local`, mật khẩu rỗng, không OAuth, không còn phiên refresh sống, mốc hoạt động cuối cũ
+hơn N ngày (mặc định 30), và CHƯA học (không `lesson_progress`, xp = 0; `--include-with-progress` mới xoá
+khách đã học). Khách có bài viết/bình luận hoặc là giảng viên luôn bị bỏ qua và in ra để xử lý tay.
+Mặc định CHẠY THỬ; `--apply` bắt buộc kèm `--backup=<file.json>` (ghi `users` + mọi hàng con, kể cả bảng CASCADE),
+`--limit` chặn số khách mỗi lần, xoá trong MỘT transaction.
+
+```bash
+npx ts-node scripts/cleanup-guest-accounts.ts                       # xem trước
+npx ts-node scripts/cleanup-guest-accounts.ts --apply --backup=guests-bak.json --limit=200
+```
+
+Luật chọn và thứ tự xoá nằm ở `src/auth/guest-cleanup.ts`. **Thêm bảng trỏ vào `users` thì phải khai ở đó**:
+`guest-cleanup.spec.ts` đọc migration và đỏ nếu thiếu. Hai bảng `learning_events` và
+`learning_event_consents` (CASCADE) đã khai khi port; bản gốc chưa biết chúng, và regex của spec gốc chỉ đọc
+`ALTER TABLE` trên MỘT dòng nên mù với migration `consents` viết nhiều dòng — nay đã sửa. Hai bảng này là bằng
+chứng đồng ý ghi nhật ký (Luật 91/2025): xoá khách thì chúng đi theo, đó là chủ ý của CASCADE, nhưng hãy đọc lại
+trước khi chạy `--apply` đầu tiên.
 
 ## Quy ước khi sửa
 

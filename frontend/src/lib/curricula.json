@@ -760,5 +760,904 @@
     "htmlcss": "/lesson/htmlcss",
     "cpp": "/interface",
     "db_design": "/lesson/db_design"
+  },
+  "LESSON_META": {
+    "python_advanced": [
+      {
+        "code": "PY01",
+        "minutes": 16,
+        "xp": 10
+      },
+      {
+        "code": "PY02",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "PY03",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "PY04",
+        "minutes": 17,
+        "xp": 10
+      },
+      {
+        "code": "PY05",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "PY06",
+        "minutes": 12,
+        "xp": 8
+      },
+      {
+        "code": "PY07",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "PY08",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "PY09",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "PY10",
+        "minutes": 17,
+        "xp": 10
+      },
+      {
+        "code": "PY11",
+        "minutes": 15,
+        "xp": 9
+      },
+      {
+        "code": "PY12",
+        "minutes": 15,
+        "xp": 9
+      },
+      {
+        "code": "PY13",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "PY14",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "PY15",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "PY16",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "PY17",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "PY18",
+        "minutes": 15,
+        "xp": 9
+      },
+      {
+        "code": "NP01",
+        "minutes": 10,
+        "xp": 8
+      },
+      {
+        "code": "NP02",
+        "minutes": 10,
+        "xp": 8
+      },
+      {
+        "code": "NP03",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "NP04",
+        "minutes": 10,
+        "xp": 8
+      },
+      {
+        "code": "NP05",
+        "minutes": 10,
+        "xp": 8
+      },
+      {
+        "code": "NP06",
+        "minutes": 10,
+        "xp": 8
+      },
+      {
+        "code": "NP07",
+        "minutes": 10,
+        "xp": 8
+      },
+      {
+        "code": "NP08",
+        "minutes": 10,
+        "xp": 8
+      },
+      {
+        "code": "NP09",
+        "minutes": 10,
+        "xp": 8
+      },
+      {
+        "code": "NP10",
+        "minutes": 10,
+        "xp": 8
+      },
+      {
+        "code": "NP11",
+        "minutes": 10,
+        "xp": 8
+      },
+      {
+        "code": "NP12",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "NP13",
+        "minutes": 10,
+        "xp": 8
+      },
+      {
+        "code": "NP14",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "NP15",
+        "minutes": 10,
+        "xp": 8
+      },
+      {
+        "code": "NP16",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "NP17",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "NP18",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "NP19",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "NP20",
+        "minutes": 10,
+        "xp": 8
+      },
+      {
+        "code": "NP21",
+        "minutes": 12,
+        "xp": 8
+      },
+      {
+        "code": "NP22",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "NP23",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD01",
+        "minutes": 10,
+        "xp": 8
+      },
+      {
+        "code": "PD02",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "PD03",
+        "minutes": 12,
+        "xp": 8
+      },
+      {
+        "code": "PD04",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD05",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD06",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD07",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD08",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD09",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD10",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD11",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD12",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "PD13",
+        "minutes": 17,
+        "xp": 10
+      },
+      {
+        "code": "PD14",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD15",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD16",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "PD17",
+        "minutes": 12,
+        "xp": 8
+      },
+      {
+        "code": "PD18",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD19",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD20",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD21",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD22",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD23",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD24",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD25",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD26",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD27",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "PD28",
+        "minutes": 12,
+        "xp": 8
+      },
+      {
+        "code": "PD29",
+        "minutes": 12,
+        "xp": 8
+      },
+      {
+        "code": "PD30",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "PD31",
+        "minutes": 12,
+        "xp": 8
+      },
+      {
+        "code": "PD32",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "VZ01",
+        "minutes": 16,
+        "xp": 10
+      },
+      {
+        "code": "VZ02",
+        "minutes": 17,
+        "xp": 10
+      },
+      {
+        "code": "VZ03",
+        "minutes": 16,
+        "xp": 10
+      },
+      {
+        "code": "VZ04",
+        "minutes": 16,
+        "xp": 10
+      },
+      {
+        "code": "VZ05",
+        "minutes": 16,
+        "xp": 10
+      },
+      {
+        "code": "VZ06",
+        "minutes": 15,
+        "xp": 9
+      },
+      {
+        "code": "VZ07",
+        "minutes": 18,
+        "xp": 11
+      },
+      {
+        "code": "VZ08",
+        "minutes": 19,
+        "xp": 11
+      },
+      {
+        "code": "VZ09",
+        "minutes": 18,
+        "xp": 11
+      },
+      {
+        "code": "VZ10",
+        "minutes": 18,
+        "xp": 11
+      },
+      {
+        "code": "VZ11",
+        "minutes": 20,
+        "xp": 12
+      },
+      {
+        "code": "VZ12",
+        "minutes": 20,
+        "xp": 12
+      },
+      {
+        "code": "VZ13",
+        "minutes": 17,
+        "xp": 10
+      },
+      {
+        "code": "VZ14",
+        "minutes": 18,
+        "xp": 11
+      },
+      {
+        "code": "VZ15",
+        "minutes": 16,
+        "xp": 10
+      },
+      {
+        "code": "VZ16",
+        "minutes": 17,
+        "xp": 10
+      },
+      {
+        "code": "VZ17",
+        "minutes": 16,
+        "xp": 10
+      },
+      {
+        "code": "VZ18",
+        "minutes": 17,
+        "xp": 10
+      },
+      {
+        "code": "VZ19",
+        "minutes": 16,
+        "xp": 10
+      },
+      {
+        "code": "VZ20",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "VZ21",
+        "minutes": 15,
+        "xp": 9
+      },
+      {
+        "code": "VZ22",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "VZ23",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "VZ24",
+        "minutes": 17,
+        "xp": 10
+      },
+      {
+        "code": "VZ25",
+        "minutes": 19,
+        "xp": 11
+      },
+      {
+        "code": "VZ26",
+        "minutes": 17,
+        "xp": 10
+      },
+      {
+        "code": "VZ27",
+        "minutes": 16,
+        "xp": 10
+      },
+      {
+        "code": "VZ28",
+        "minutes": 18,
+        "xp": 11
+      },
+      {
+        "code": "VZ29",
+        "minutes": 18,
+        "xp": 11
+      },
+      {
+        "code": "VZ30",
+        "minutes": 19,
+        "xp": 11
+      },
+      {
+        "code": "SY01",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "SY02",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "SY03",
+        "minutes": 12,
+        "xp": 8
+      },
+      {
+        "code": "SY04",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "SY05",
+        "minutes": 16,
+        "xp": 10
+      },
+      {
+        "code": "SY06",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "SY07",
+        "minutes": 16,
+        "xp": 10
+      },
+      {
+        "code": "SY08",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "SY09",
+        "minutes": 17,
+        "xp": 10
+      },
+      {
+        "code": "SY10",
+        "minutes": 15,
+        "xp": 9
+      },
+      {
+        "code": "SY11",
+        "minutes": 15,
+        "xp": 9
+      },
+      {
+        "code": "SY12",
+        "minutes": 16,
+        "xp": 10
+      },
+      {
+        "code": "SY13",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "SY14",
+        "minutes": 12,
+        "xp": 8
+      },
+      {
+        "code": "SY15",
+        "minutes": 16,
+        "xp": 10
+      },
+      {
+        "code": "SY16",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "SY17",
+        "minutes": 17,
+        "xp": 10
+      },
+      {
+        "code": "SY18",
+        "minutes": 21,
+        "xp": 13
+      },
+      {
+        "code": "SY19",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "SY20",
+        "minutes": 15,
+        "xp": 9
+      },
+      {
+        "code": "SY21",
+        "minutes": 15,
+        "xp": 9
+      },
+      {
+        "code": "SY22",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "SY23",
+        "minutes": 15,
+        "xp": 9
+      },
+      {
+        "code": "SY24",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "SY25",
+        "minutes": 12,
+        "xp": 8
+      },
+      {
+        "code": "SY26",
+        "minutes": 16,
+        "xp": 10
+      },
+      {
+        "code": "SY27",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "SY28",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "CT01",
+        "minutes": 20,
+        "xp": 12
+      },
+      {
+        "code": "CT02",
+        "minutes": 19,
+        "xp": 11
+      },
+      {
+        "code": "CT03",
+        "minutes": 21,
+        "xp": 13
+      },
+      {
+        "code": "CT04",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "CT05",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "CT06",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "CT07",
+        "minutes": 16,
+        "xp": 10
+      },
+      {
+        "code": "CT08",
+        "minutes": 18,
+        "xp": 11
+      },
+      {
+        "code": "CT09",
+        "minutes": 22,
+        "xp": 13
+      },
+      {
+        "code": "CT10",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "CT11",
+        "minutes": 15,
+        "xp": 9
+      },
+      {
+        "code": "CT12",
+        "minutes": 16,
+        "xp": 10
+      },
+      {
+        "code": "CT13",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "CT14",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "CT15",
+        "minutes": 12,
+        "xp": 8
+      },
+      {
+        "code": "RC01",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "GU01",
+        "minutes": 18,
+        "xp": 11
+      },
+      {
+        "code": "GU02",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "GU03",
+        "minutes": 15,
+        "xp": 9
+      },
+      {
+        "code": "GU04",
+        "minutes": 15,
+        "xp": 9
+      },
+      {
+        "code": "GU05",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "GU06",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "GU07",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "GU08",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "GU09",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "GU10",
+        "minutes": 14,
+        "xp": 8
+      },
+      {
+        "code": "GU11",
+        "minutes": 17,
+        "xp": 10
+      },
+      {
+        "code": "GU12",
+        "minutes": 12,
+        "xp": 8
+      },
+      {
+        "code": "EX01",
+        "minutes": 17,
+        "xp": 10
+      },
+      {
+        "code": "EX02",
+        "minutes": 12,
+        "xp": 8
+      },
+      {
+        "code": "EX03",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "EX04",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "EX05",
+        "minutes": 15,
+        "xp": 9
+      },
+      {
+        "code": "EX06",
+        "minutes": 17,
+        "xp": 10
+      },
+      {
+        "code": "EX07",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "EX08",
+        "minutes": 17,
+        "xp": 10
+      },
+      {
+        "code": "RD01",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "RD02",
+        "minutes": 11,
+        "xp": 8
+      },
+      {
+        "code": "RD03",
+        "minutes": 12,
+        "xp": 8
+      },
+      {
+        "code": "RD04",
+        "minutes": 12,
+        "xp": 8
+      },
+      {
+        "code": "RD05",
+        "minutes": 13,
+        "xp": 8
+      },
+      {
+        "code": "TH01",
+        "minutes": 9,
+        "xp": 8
+      },
+      {
+        "code": "TH02",
+        "minutes": 8,
+        "xp": 8
+      },
+      {
+        "code": "TH03",
+        "minutes": 9,
+        "xp": 8
+      },
+      {
+        "code": "TH04",
+        "minutes": 9,
+        "xp": 8
+      },
+      {
+        "code": "TH05",
+        "minutes": 9,
+        "xp": 8
+      },
+      {
+        "code": "TH06",
+        "minutes": 8,
+        "xp": 8
+      },
+      {
+        "code": "TH07",
+        "minutes": 10,
+        "xp": 8
+      }
+    ]
   }
 }

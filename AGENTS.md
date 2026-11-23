@@ -85,7 +85,7 @@ học nó.
 | Hạng mục | Mốc |
 |---|---|
 | Backend typecheck | sạch — nay phủ **cả `scripts/**/*.ts`** (10 script, 0 lỗi) |
-| Backend test | **43 bộ, 628 ca**, tất cả đạt (chạy RIÊNG — xem bẫy tranh CPU). Đo lại 23/11/2026 sau khi port từ `tester/test`: +4 ca `lessons.service.spec.ts` (BE3, d0ede61), +1 bộ / +26 ca `forum.service.spec.ts` (BE7, 047ad35) +5 ca `courses.service.spec.ts` (BE5, 846eea1 + 2e5d04d) +1 bộ / +2 ca `pending-migrations.spec.ts` (71d3337) +1 bộ / +3 ca `redact-url.spec.ts` (che URL ở log 5xx, port tay từ 736a82a) +1 bộ / +25 ca `guest-cleanup.spec.ts` (83e1cf1) và +1 bộ / +20 ca (`forum.controller.spec.ts` + 4 khoá `THROTTLE_FORUM_*` ở `env.validation.spec.ts`, 8a7af2e) và +1 bộ / +5 ca (`course-lesson-count.spec.ts` + 2 ca biên `completeLesson`, 41b5096) và +1 bộ / +6 ca (`db-overload.spec.ts`: phân loại lỗi DB + đọc lại GET, 736a82a) |
+| Backend test | **44 bộ, 633 ca**, tất cả đạt (chạy RIÊNG — xem bẫy tranh CPU). Đo lại 23/11/2026 sau khi port từ `tester/test`: +4 ca `lessons.service.spec.ts` (BE3, d0ede61), +1 bộ / +26 ca `forum.service.spec.ts` (BE7, 047ad35) +5 ca `courses.service.spec.ts` (BE5, 846eea1 + 2e5d04d) +1 bộ / +2 ca `pending-migrations.spec.ts` (71d3337) +1 bộ / +3 ca `redact-url.spec.ts` (che URL ở log 5xx, port tay từ 736a82a) +1 bộ / +25 ca `guest-cleanup.spec.ts` (83e1cf1) và +1 bộ / +20 ca (`forum.controller.spec.ts` + 4 khoá `THROTTLE_FORUM_*` ở `env.validation.spec.ts`, 8a7af2e) và +1 bộ / +5 ca (`course-lesson-count.spec.ts` + 2 ca biên `completeLesson`, 41b5096) và +1 bộ / +6 ca (`db-overload.spec.ts`: phân loại lỗi DB + đọc lại GET, 736a82a) và +1 bộ / +5 ca (`semaphore.spec.ts` 4 ca + 1 ca `completeGate` ở `lessons.service.spec.ts`, 736a82a) |
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
@@ -109,7 +109,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **47 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 749 · backend 43 bộ/628 · tracer 69 · e2e 12 · pyodide 154/420 · practice 143/480/773 · vanphong 68/364 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 749 · backend 44 bộ/633 · tracer 69 · e2e 12 · pyodide 154/420 · practice 143/480/773 · vanphong 68/364 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -507,6 +507,17 @@ interceptor toàn cục) chạy lại handler **GET** đúng MỘT lần, sau 20
 (có thể đã commit một phần), `pool-timeout` cũng không (chỉ xếp hàng thêm). **Hợp đồng mới cho mọi route GET: phải IDEMPOTENT** — bị chạy hai lần là
 vô hại. Đã quét 23/11/2026: GET duy nhất có ghi DB là `notifications/getSettings`, và nó là `upsert` lấy-hoặc-tạo. Thêm một GET có ghi không idempotent
 (đếm lượt xem, cộng XP…) thì phải tắt đọc lại cho route đó hoặc đổi sang POST. Không port `neon-pool`/`PoolWaitMonitor`/`events-prisma` cùng commit gốc.
+
+### Vách ngăn hoàn thành bài: `COMPLETE_LESSON_MAX_CONCURRENT`, mặc định 25 (port từ `tester/test` 736a82a, 23/11/2026)
+
+`LessonsService.completeLesson` bọc transaction trong `completeGate = new Semaphore(25)` (`src/common/concurrency/semaphore.ts`). Vì sao: transaction đó
+giữ MỘT connection của pool ~1–2,6 s (11–16 vòng tới Neon); cả lớp bấm cùng lúc thì chúng chiếm hết pool và mọi route ĐỌC (mở bài, danh sách) xếp hàng
+sau chúng. Vách ngăn dời hàng chờ từ pool (giữ socket) sang bộ nhớ (rẻ); chờ quá 10 s thì trả 503; `0` = tắt. **Số đo là của TÁC GIẢ, chưa tái hiện ở đây**
+(nhánh test, 100 người dồn + một đầu dò đọc `/api/enrolled` mỗi 100 ms, mỗi mức chạy 2 lần trên một máy cá nhân, `scripts/loadtest-scenarios.js` — không
+mang sang): đầu dò đọc p95 735–1 015 ms (tắt) → 215–255 ms (25); cái giá: hoàn thành bài p95 ≈ 1,6 → 2,4 s. Với quy mô người thử hiện nay (dưới 25 người
+hoàn thành bài CÙNG LÚC) nó không kích hoạt. Nằm TRONG từng tiến trình: chạy N bản backend thì tổng đồng thời là N × 25 và pool mỗi bản vẫn riêng. Lớp lớn
+hơn 100 người sẽ vượt 3 s — khi đó tăng `DB_POOL_MAX` trước, đừng nâng vách ngăn. Biến này đọc thẳng `process.env` ở constructor (không qua
+`env.validation.ts`), nên đặt giá trị không hợp lệ (chữ) ra `NaN` và `NaN <= 0` là false ⇒ vách ngăn chạy với `max = NaN` (không giới hạn thật sự): đặt số.
 
 ## Quy ước khi sửa
 

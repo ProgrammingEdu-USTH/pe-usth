@@ -5,6 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { Semaphore } from 'src/common/concurrency/semaphore';
 import { Prisma } from 'src/generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { StreakService, toStudyDate } from 'src/common/streak/streak.service';
@@ -101,6 +102,16 @@ export function withholdSolutionCode(
 @Injectable()
 export class LessonsService {
   private readonly logger = new Logger(LessonsService.name);
+
+  // Vách ngăn cho transaction hoàn thành bài. Transaction này giữ MỘT connection của pool ~1–2,6 s (11–16 vòng tới
+  // Neon); cả lớp bấm cùng lúc thì chúng chiếm hết pool và mọi route ĐỌC (mở bài, danh sách) phải xếp hàng sau. Hàng
+  // chờ ở ĐÂY (bộ nhớ, rẻ) thay cho hàng chờ ở pool (giữ socket). Số đo của tác giả (nhánh test, 100 người dồn,
+  // `scripts/loadtest-scenarios.js`, mỗi mức 2 lần trên một máy cá nhân — CHƯA tái hiện ở đây): đầu dò đọc p95
+  // 735–1 015 ms (tắt) → 215–255 ms (25); cái giá: hoàn thành bài p95 ≈ 1,6 → 2,4 s. Chờ quá 10 s thì 503.
+  // `0` = tắt. Nằm TRONG từng tiến trình: N bản backend thì tổng đồng thời là N × giá trị này.
+  private readonly completeGate = new Semaphore(
+    Number(process.env.COMPLETE_LESSON_MAX_CONCURRENT ?? 25),
+  );
 
   constructor(
     private readonly prisma: PrismaService,
@@ -384,137 +395,139 @@ export class LessonsService {
       );
     }
 
-    const result = await this.prisma.$transaction(async (tx) => {
-      const lesson = await this.resolveLesson(
-        tx,
-        courseId,
-        lessonNo,
-        lessonTitle,
-      );
-      const lessonId = lesson.id;
+    const result = await this.completeGate.run(() =>
+      this.prisma.$transaction(async (tx) => {
+        const lesson = await this.resolveLesson(
+          tx,
+          courseId,
+          lessonNo,
+          lessonTitle,
+        );
+        const lessonId = lesson.id;
 
-      // XP do SERVER quyết định, không lấy theo lời khai của client.
-      // Trước đây dùng thẳng body.xpEarned (chỉ chặn <= 500), nên client sửa
-      // payload là tự thưởng cho mình gấp 10 lần mỗi bài. Giá trị chuẩn nằm ở
-      // cột lessons.xp_reward; bài chưa cấu hình (=0) thì dùng mặc định.
-      const baseXp =
-        lesson.xpReward > 0 ? Math.min(lesson.xpReward, MAX_XP) : DEFAULT_XP;
-      const xpGain = SCORED_XP_COURSES.includes(courseId)
-        ? scaledXp(baseXp, quizScore)
-        : baseXp;
+        // XP do SERVER quyết định, không lấy theo lời khai của client.
+        // Trước đây dùng thẳng body.xpEarned (chỉ chặn <= 500), nên client sửa
+        // payload là tự thưởng cho mình gấp 10 lần mỗi bài. Giá trị chuẩn nằm ở
+        // cột lessons.xp_reward; bài chưa cấu hình (=0) thì dùng mặc định.
+        const baseXp =
+          lesson.xpReward > 0 ? Math.min(lesson.xpReward, MAX_XP) : DEFAULT_XP;
+        const xpGain = SCORED_XP_COURSES.includes(courseId)
+          ? scaledXp(baseXp, quizScore)
+          : baseXp;
 
-      // Bước 2: CHIẾM QUYỀN "người hoàn thành đầu tiên" một cách NGUYÊN TỬ.
-      //
-      // Bản cũ đọc trạng thái rồi mới ghi (findUnique -> upsert). Ở mức cô lập
-      // READ COMMITTED (mặc định của Postgres), hai request giống hệt nhau gửi
-      // song song (bấm đúp, client tự thử lại) đều đọc ra "chưa hoàn thành" rồi
-      // CẢ HAI cùng cộng XP. Ở đây dùng compare-and-set: Postgres đánh giá lại
-      // điều kiện WHERE sau khi khoá dòng, nên đúng MỘT request thắng.
-      const created = await tx.lessonProgress.createMany({
-        data: [
-          {
-            userId,
-            lessonId,
-            courseId,
-            status: 'completed',
-            quizScore: quizScore ?? 0,
-            xpEarned: xpGain,
-          },
-        ],
-        skipDuplicates: true,
-      });
-
-      let isFirstCompletion = created.count === 1;
-
-      if (!isFirstCompletion) {
-        const claimed = await tx.lessonProgress.updateMany({
-          where: { userId, lessonId, status: { not: 'completed' } },
-          data: {
-            status: 'completed',
-            xpEarned: xpGain,
-            ...(quizScore !== undefined ? { quizScore } : {}),
-          },
+        // Bước 2: CHIẾM QUYỀN "người hoàn thành đầu tiên" một cách NGUYÊN TỬ.
+        //
+        // Bản cũ đọc trạng thái rồi mới ghi (findUnique -> upsert). Ở mức cô lập
+        // READ COMMITTED (mặc định của Postgres), hai request giống hệt nhau gửi
+        // song song (bấm đúp, client tự thử lại) đều đọc ra "chưa hoàn thành" rồi
+        // CẢ HAI cùng cộng XP. Ở đây dùng compare-and-set: Postgres đánh giá lại
+        // điều kiện WHERE sau khi khoá dòng, nên đúng MỘT request thắng.
+        const created = await tx.lessonProgress.createMany({
+          data: [
+            {
+              userId,
+              lessonId,
+              courseId,
+              status: 'completed',
+              quizScore: quizScore ?? 0,
+              xpEarned: xpGain,
+            },
+          ],
+          skipDuplicates: true,
         });
-        isFirstCompletion = claimed.count === 1;
+
+        let isFirstCompletion = created.count === 1;
 
         if (!isFirstCompletion) {
-          // Đã hoàn thành từ trước: không cộng thưởng nữa, chỉ nâng điểm nếu
-          // lần này cao hơn (không bao giờ hạ thành tích đã đạt).
-          await tx.lessonProgress.updateMany({
-            where: { userId, lessonId, xpEarned: { lt: xpGain } },
-            data: { xpEarned: xpGain },
+          const claimed = await tx.lessonProgress.updateMany({
+            where: { userId, lessonId, status: { not: 'completed' } },
+            data: {
+              status: 'completed',
+              xpEarned: xpGain,
+              ...(quizScore !== undefined ? { quizScore } : {}),
+            },
           });
-          if (quizScore !== undefined) {
+          isFirstCompletion = claimed.count === 1;
+
+          if (!isFirstCompletion) {
+            // Đã hoàn thành từ trước: không cộng thưởng nữa, chỉ nâng điểm nếu
+            // lần này cao hơn (không bao giờ hạ thành tích đã đạt).
             await tx.lessonProgress.updateMany({
-              where: { userId, lessonId, quizScore: { lt: quizScore } },
-              data: { quizScore },
+              where: { userId, lessonId, xpEarned: { lt: xpGain } },
+              data: { xpEarned: xpGain },
+            });
+            if (quizScore !== undefined) {
+              await tx.lessonProgress.updateMany({
+                where: { userId, lessonId, quizScore: { lt: quizScore } },
+                data: { quizScore },
+              });
+            }
+          }
+        }
+
+        const alreadyCompleted = !isFirstCompletion;
+
+        // Bước 4: tính lại tiến độ khoá học.
+        const progress = await this.courses.recomputeProgress(
+          tx,
+          userId,
+          courseId,
+          course.lessonCount,
+        );
+
+        // Bước 5-6: CHỈ khi lần đầu hoàn thành mới cộng XP/gems/streak.
+        let newStreak: number | null = null;
+
+        if (!alreadyCompleted) {
+          const user = await tx.user.findUnique({
+            where: { id: userId },
+            select: { streak: true, lastStudyDate: true },
+          });
+
+          const today = new Date();
+          newStreak = this.streak.computeNewStreak(
+            user?.lastStudyDate,
+            user?.streak ?? 0,
+            today,
+          );
+
+          await tx.user.update({
+            where: { id: userId },
+            data: {
+              xp: { increment: xpGain },
+              gems: { increment: xpGain },
+              streak: newStreak,
+              // toStudyDate: cột @db.Date lưu ở UTC midnight, ghi thẳng new Date() sẽ lệch ngày.
+              lastStudyDate: toStudyDate(today),
+            },
+          });
+
+          // Bước 6: log XP theo ngày (cộng dồn nếu đã có bản ghi hôm nay).
+          const logDate = toStudyDate(today);
+          const existingLog = await tx.userDailyXpLog.findFirst({
+            where: { userId, logDate },
+          });
+          if (existingLog) {
+            await tx.userDailyXpLog.update({
+              where: { id: existingLog.id },
+              data: { xpEarned: { increment: xpGain } },
+            });
+          } else {
+            await tx.userDailyXpLog.create({
+              data: { userId, logDate, xpEarned: xpGain },
             });
           }
         }
-      }
 
-      const alreadyCompleted = !isFirstCompletion;
-
-      // Bước 4: tính lại tiến độ khoá học.
-      const progress = await this.courses.recomputeProgress(
-        tx,
-        userId,
-        courseId,
-        course.lessonCount,
-      );
-
-      // Bước 5-6: CHỈ khi lần đầu hoàn thành mới cộng XP/gems/streak.
-      let newStreak: number | null = null;
-
-      if (!alreadyCompleted) {
-        const user = await tx.user.findUnique({
-          where: { id: userId },
-          select: { streak: true, lastStudyDate: true },
-        });
-
-        const today = new Date();
-        newStreak = this.streak.computeNewStreak(
-          user?.lastStudyDate,
-          user?.streak ?? 0,
-          today,
-        );
-
-        await tx.user.update({
-          where: { id: userId },
-          data: {
-            xp: { increment: xpGain },
-            gems: { increment: xpGain },
-            streak: newStreak,
-            // toStudyDate: cột @db.Date lưu ở UTC midnight, ghi thẳng new Date() sẽ lệch ngày.
-            lastStudyDate: toStudyDate(today),
-          },
-        });
-
-        // Bước 6: log XP theo ngày (cộng dồn nếu đã có bản ghi hôm nay).
-        const logDate = toStudyDate(today);
-        const existingLog = await tx.userDailyXpLog.findFirst({
-          where: { userId, logDate },
-        });
-        if (existingLog) {
-          await tx.userDailyXpLog.update({
-            where: { id: existingLog.id },
-            data: { xpEarned: { increment: xpGain } },
-          });
-        } else {
-          await tx.userDailyXpLog.create({
-            data: { userId, logDate, xpEarned: xpGain },
-          });
-        }
-      }
-
-      return {
-        completedLessons: progress.completedLessons,
-        progress: progress.progress,
-        xpGain,
-        newStreak,
-        alreadyCompleted,
-      };
-    }, TX_OPTIONS);
+        return {
+          completedLessons: progress.completedLessons,
+          progress: progress.progress,
+          xpGain,
+          newStreak,
+          alreadyCompleted,
+        };
+      }, TX_OPTIONS),
+    );
 
     // Trao thành tích SAU KHI transaction đã commit.
     //

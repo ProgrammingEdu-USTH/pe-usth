@@ -8,6 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { StreakService } from 'src/common/streak/streak.service';
 import { AchievementsService } from 'src/achievements/achievements.service';
 import { CoursesService } from 'src/courses/courses.service';
+import { Semaphore } from 'src/common/concurrency/semaphore';
 import { LessonsService, scaledXp } from './lessons.service';
 
 /**
@@ -285,6 +286,24 @@ describe('LessonsService.completeLesson', () => {
       await expect(
         service.completeLesson(1, 20, { courseId: 'python' }),
       ).resolves.toMatchObject({ ok: true });
+    });
+
+    // Vách ngăn (bulkhead): transaction hoàn thành bài PHẢI đi qua `completeGate`. Gỡ lời gọi `completeGate.run` khỏi
+    // completeLesson thì vách ngăn vẫn "tồn tại" mà không chặn gì — semaphore.spec.ts không thấy được chuyện đó, ca này thấy.
+    it('transaction hoàn thành bài đi qua vách ngăn completeGate đúng một lần', async () => {
+      prisma.course.findUnique.mockResolvedValue(COURSE);
+      prisma.enrollment.findUnique.mockResolvedValue({
+        userId: 1,
+        courseId: 'python',
+      });
+      prisma.lesson.findFirst.mockResolvedValue({ id: 20, xpReward: 0 });
+      const gate = (service as unknown as { completeGate: Semaphore })
+        .completeGate;
+      const run = jest.spyOn(gate, 'run');
+
+      await service.completeLesson(1, 20, { courseId: 'python' });
+
+      expect(run).toHaveBeenCalledTimes(1);
     });
 
     it('lessonNo ngay sau lessonCount -> 400, không tạo bài rác', async () => {

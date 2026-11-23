@@ -13,6 +13,16 @@ của gói đó — bản HTML dựng lại được từ `reading`, giữ lại
 Hình dạng bài đích: [SCHEMA.md](SCHEMA.md). Khoá cũ 48 bài vẫn nằm ở
 [../pe-v4/](../pe-v4/), giữ lại nhưng không còn xuất bản — xem AGENTS.md.
 
+> **Nội dung soạn ở repo Giao_Trinh_PE, không ở đây (từ 23/11/2026).** `source/`, `thuatngu.json`,
+> `boi-canh.json`, `mcq-bo-code.json`, `van-phong-moc.json`, các tài liệu `.md`, `check_vanphong.py`,
+> `gen_dulieu.py`, `dulieu/` và các hình, dữ liệu ở `frontend/public/static/da*` là BẢN CHÉP từ
+> [Giao_Trinh_PE/PE_Python_DA](https://github.com/ProgrammingEdu-USTH/Giao_Trinh_PE/tree/main/PE_Python_DA)
+> tại SHA ghim trong [giao-trinh.json](giao-trinh.json). Đừng sửa chúng ở đây: `node scripts/giao-trinh.mjs` sẽ đỏ.
+> Sửa bên đó, merge, rồi `node scripts/giao-trinh.mjs lay --sha <SHA>`. Ở lại repo này: `build.py`, `check.py`,
+> các `check-*.mjs`, `gen_traces.py` + `traces.json`, `build_posttest.py`, `sync_curricula.py`, `out/`,
+> `da-nap.json` và việc nạp DB. Câu "nguồn là gói python-da, ngoài repo này" ở trên là lịch sử: nó đúng cho
+> lần nhập đầu; nguồn hiện hành là repo nội dung.
+
 ## Dựng và kiểm
 
 ```bash

@@ -80,6 +80,12 @@ RA_DEV = HERE / 'dulieu'
 # máy người soạn. Nên tầng 2 đi sang một thư mục ANH EM, cùng origin nên CSP
 # `connect-src 'self'` của ba worker vẫn phủ được (next.config.ts).
 RA_WEB = REPO / 'frontend' / 'public' / 'static' / 'da-dulieu'
+# Tệp này có HAI nhà: repo nền tảng (bản chép, có `build.py` cạnh nó) và repo nội dung
+# Giao_Trinh_PE (bản gốc, tầng 2 nằm ở data/ ngay cạnh). Dấu hiệu là build.py chứ không phải
+# "có thư mục frontend ở trên hai cấp": ở repo nội dung `REPO` là thư mục BÊN NGOÀI repo, và
+# nếu người soạn tình cờ có một thư mục frontend ở đó thì bộ sinh sẽ ghi đè lên nó.
+if not (HERE / 'build.py').is_file():
+    RA_WEB = HERE / 'data'
 
 SEED_GOC = 20261029
 

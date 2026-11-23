@@ -48,7 +48,6 @@ export const envValidationSchema = Joi.object({
   // nhìn thấy: `.default()` ở đây chỉ để ghi lại mặc định, và phải trùng với
   // `?? <số>` ở nơi dùng. Việc Joi làm được là TỪ CHỐI KHỞI ĐỘNG khi giá trị
   // sai — đúng cái cần, vì các lỗi dưới đây đều im lặng:
-  //   - `THROTTLE_PY_RUN_LIMIT=` để trống → `?? 10` không áp (chuỗi rỗng không
   //     phải undefined) → Number('') = 0 → mọi lượt Chạy bị 429.
   //   - gõ "1o" thay "10" → NaN → throttler so sánh với NaN, không bao giờ chặn.
   //   - `TRUST_PROXY_HOPS=one` → NaN → `NaN > 0` là false → trust proxy TẮT,
@@ -56,7 +55,7 @@ export const envValidationSchema = Joi.object({
   // Không có .empty(''): chuỗi rỗng phải bị từ chối, không được coi như "chưa đặt".
   //
   // Nơi dùng: throttle.config.ts, auth.controller.ts, python-runner.controller.ts,
-  // notifications.controller.ts, fixed-window-throttler.storage.ts,
+  // notifications.controller.ts, forum.controller.ts, fixed-window-throttler.storage.ts,
   // api-gateway.setup.ts. Thêm biến THROTTLE_* mới thì khai ở đây.
   THROTTLE_IP_HOUR_LIMIT: throttleLimit(1000),
   THROTTLE_IP_DAY_LIMIT: throttleLimit(10000),
@@ -77,6 +76,10 @@ export const envValidationSchema = Joi.object({
   // append-only không có khoá unique — xem learning-events.controller.ts.
   THROTTLE_CONSENT_LIMIT: throttleLimit(20),
   THROTTLE_CONSENT_TTL_SECONDS: throttleTtl(3600),
+  THROTTLE_FORUM_POST_LIMIT: throttleLimit(10),
+  THROTTLE_FORUM_POST_TTL_SECONDS: throttleTtl(600),
+  THROTTLE_FORUM_COMMENT_LIMIT: throttleLimit(30),
+  THROTTLE_FORUM_COMMENT_TTL_SECONDS: throttleTtl(600),
   // Chu kỳ quét key hết hạn của FixedWindowThrottlerStorage; 0/NaN làm
   // setInterval chạy liên tục hoặc không bao giờ dọn.
   THROTTLE_SWEEP_INTERVAL_MS: Joi.number()

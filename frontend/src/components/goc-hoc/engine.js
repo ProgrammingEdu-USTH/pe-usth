@@ -110,7 +110,7 @@ const KIND = {laptop:'laptop',notebook:'notebook',phone:'phone',mug:'mug',calend
   cupTop:'trophy',cupLow:'trophy',medalTop:'medal',medalLow:'medal',medalHang:'medal'};
 const ORIGIN = {calendar:'126px 38px',mug:'50% 85%',medalTop:'50% 22%',medalLow:'50% 20%',medalHang:'50% 14%',corkboard:'50% 0',phone:'50% 50%',notebook:'50% 80%'};
 const GROUPS = [
-  {g:'ide', route:'ide', label:'Laptop · Bàn thí nghiệm', keys:['laptop']},
+  {g:'ide', route:'ide', label:'Laptop', keys:['laptop']},
   {g:'roadmap', route:'roadmap', label:'Bảng ghim · Lộ trình ' + MODULES.length + ' học phần', keys:['corkboard']},
   {g:'calendar', route:'calendar', label:'Lịch · Hôm nay', keys:['calendar']},
   {g:'practice', route:'practice', label:'Cuốn sổ · Ôn tập', keys:['notebook']},
@@ -234,7 +234,7 @@ const FOCUS = {
   pb:[1990,990,2350,1230], tb:[1990,1255,2350,1505], courses:[1945,480,2400,1520], calendar:[745,520,960,800]
 };
 const ROUTES = ['learn','ide','roadmap','courses','practice','achievements','phone'];
-const NAMES = {learn:'Học tiếp',ide:'Bàn thí nghiệm',roadmap:'Lộ trình',courses:'Khoá học',practice:'Ôn tập',achievements:'Thành tựu',phone:'Điện thoại'};
+const NAMES = {learn:'Học tiếp',ide:'Laptop',roadmap:'Lộ trình',courses:'Khoá học',practice:'Ôn tập',achievements:'Thành tựu',phone:'Điện thoại'};
 const FORUM_USER = state.forumUser
   ? { ...state.forumUser }
   : { id: null, name: USER.name || null, role: null };

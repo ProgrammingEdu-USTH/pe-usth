@@ -12,7 +12,6 @@ import {
   forgetIdeReloadCode,
   IDE_RELOAD_CODE_KEY,
 } from '@/lib/ide-handoff';
-import { isRunnerDown } from '@/lib/runner-error';
 import { PyodideRunner } from '@/components/python-studio/runner/pyodide-runner';
 import DailyPracticeView from '@/components/practice/DailyPracticeView';
 import {
@@ -181,12 +180,6 @@ def khoi_tao_tien_trinh(ten_tac_vu: str):
 if __name__ == "__main__":
     khoi_tao_tien_trinh("Lofi_Rain_Synthesizer")
     khoi_tao_tien_trinh("Python_Code_Runner")`;
-
-const DEFAULT_IDE_OUT = `$ python3 main.py
-🚀 [PID 4821] Đang chạy tác vụ: Lofi_Rain_Synthesizer
-🚀 [PID 4821] Đang chạy tác vụ: Python_Code_Runner
-
-✓ Chương trình đã chạy xong.`;
 
 export interface StickyNoteItem {
   id: number;
@@ -361,11 +354,20 @@ export default function LofiWorkspace({
     if (typeof window === 'undefined') return DEFAULT_IDE_CODE;
     return readIdeCodeOnLoad(window.location.hash, sessionStorageOrNull()) ?? DEFAULT_IDE_CODE;
   });
-  const [ideOutput, setIdeOutput] = useState<string>(DEFAULT_IDE_OUT);
-  const [ideRunning, setIdeRunning] = useState<boolean>(false);
   const pyRunnerRef = useRef<PyodideRunner | null>(null);
 
   const shellRef = useRef<HTMLDivElement>(null);
+
+  // Máy tính macOS (iframe) báo 'đã tắt máy': thoát như bấm nút ‹ Góc học của cảnh — laptop gập về bàn.
+  useEffect(() => {
+    if (activeScreen !== 'ide') return;
+    const onMsg = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin || (e.data as { type?: string } | null)?.type !== 'pe-mac:off') return;
+      document.getElementById('backBtn')?.click();
+    };
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
+  }, [activeScreen]);
 
   // Xoá mã tạm sau khi nạp từ sessionStorage (chuẩn IdeClient)
   useEffect(() => {
@@ -609,118 +611,6 @@ export default function LofiWorkspace({
     }
   };
 
-  /* ==========================================================================
-     BƯỚC 1: ĐỘNG CƠ CHẠY CODE PYTHON THẬT TRONG BÀN THÍ NGHIỆM (IDE)
-     ========================================================================== */
-  const handleRunIdeCode = useCallback(async () => {
-    if (ideRunning) return;
-    setIdeRunning(true);
-    setIdeOutput('$ python3 main.py\n⏳ Đang chạy mã Python...');
-
-    const codeToRun = ideCustomCode;
-    const t0 = performance.now();
-
-    // 1. Thử gửi lên máy chủ POST /api/python/run (với trần chờ 3.2s)
-    try {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 3200);
-      const res = await apiFetch('/api/python/run', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: codeToRun }),
-        signal: ctrl.signal,
-      });
-      clearTimeout(timer);
-
-      if (res.ok) {
-        const body = (await res.json().catch(() => null)) as {
-          stdout?: string;
-          stderr?: string;
-          exitCode?: number | null;
-          timedOut?: boolean;
-          outputTruncated?: boolean;
-          durationMs?: number;
-        } | null;
-
-        if (
-          body &&
-          typeof body.stdout === 'string' &&
-          typeof body.stderr === 'string' &&
-          !isRunnerDown({
-            stdout: body.stdout,
-            stderr: body.stderr,
-            exitCode: body.exitCode ?? 0,
-            timedOut: Boolean(body.timedOut),
-            outputTruncated: Boolean(body.outputTruncated),
-          })
-        ) {
-          const outLines = ['$ python3 main.py'];
-          if (body.stdout.trim()) outLines.push(body.stdout.trimEnd());
-          if (body.stderr.trim()) outLines.push(body.stderr.trimEnd());
-          if (!body.stdout.trim() && !body.stderr.trim()) {
-            outLines.push('(Chương trình kết thúc không có đầu ra)');
-          }
-          const sec = ((body.durationMs ?? performance.now() - t0) / 1000).toFixed(2);
-          outLines.push(`\n✓ Đã chạy xong trong ${sec}s (Mã thoát: ${body.exitCode ?? 0}).`);
-          setIdeOutput(outLines.join('\n'));
-          setIdeRunning(false);
-          return;
-        }
-      }
-    } catch {
-      /* Máy chủ tắt hoặc không có Docker -> chuyển sang chạy bằng Pyodide trong trình duyệt */
-    }
-
-    // 2. Chạy thật bằng Pyodide Web Worker (CPython 3.12 ngay trong trình duyệt)
-    try {
-      let runner = pyRunnerRef.current;
-      if (!runner) {
-        runner = new PyodideRunner();
-        pyRunnerRef.current = runner;
-      }
-      const pyRes = await runner.run(
-        {
-          code: codeToRun,
-          tests: [],
-          forbid: [],
-          files: lessonContent?.step_4?.files ?? [],
-          packages: lessonContent?.step_4?.packages ?? [],
-        },
-        (statusText) => {
-          setIdeOutput(`$ python3 main.py\n⏳ ${statusText}`);
-        },
-      );
-
-      if (pyRes) {
-        const outLines = ['$ python3 main.py'];
-        if (pyRes.output && pyRes.output.trim()) {
-          outLines.push(pyRes.output.trimEnd());
-        }
-        if (pyRes.error && pyRes.error.trim()) {
-          outLines.push(`⚠️ ${pyRes.error.trimEnd()}`);
-        }
-        if ((!pyRes.output || !pyRes.output.trim()) && (!pyRes.error || !pyRes.error.trim())) {
-          outLines.push('(Chương trình đã chạy xong, không có đầu ra in lên màn hình)');
-        }
-        const durSec = ((pyRes.duration || performance.now() - t0) / 1000).toFixed(2);
-        outLines.push(
-          `\n${pyRes.error ? '✗ Dừng do lỗi' : '✓ Chương trình đã chạy xong'} (${durSec}s · ${
-            pyRes.version ? `Python ${pyRes.version}` : 'Python 3.12'
-          }).`,
-        );
-        setIdeOutput(outLines.join('\n'));
-      } else {
-        setIdeOutput('$ python3 main.py\n⚠️ Lượt chạy đã bị huỷ.');
-      }
-    } catch (err) {
-      setIdeOutput(
-        `$ python3 main.py\n⚠️ Không chạy được mã: ${err instanceof Error ? err.message : 'Lỗi không xác định'}`,
-      );
-    } finally {
-      setIdeRunning(false);
-    }
-  }, [ideCustomCode, ideRunning, lessonContent]);
-
   // Mở nhanh một đoạn mã từ Sách Bài học sang Laptop Bàn thí nghiệm
   const openCodeInIde = useCallback(
     (codeSnippet: string) => {
@@ -728,9 +618,6 @@ export default function LofiWorkspace({
         sessionStorageOrNull()?.setItem(IDE_RELOAD_CODE_KEY, codeSnippet);
       } catch {}
       setIdeCustomCode(codeSnippet);
-      setIdeOutput(
-        '$ python3 main.py\n💡 Đã nạp mã từ bài học vào main.py.\nBấm nút "Run Code" trên thanh tiêu đề (hoặc Ctrl+Enter) để chạy thử!',
-      );
       switchScreen('ide');
     },
     [switchScreen],
@@ -923,7 +810,6 @@ export default function LofiWorkspace({
   );
   const explainItems = useMemo(() => step1?.explain ?? [], [step1]);
   const mcqList = useMemo(() => step2?.mcq ?? [], [step2]);
-  const codeLineCount = Math.max(12, ideCustomCode.split('\n').length);
 
   const renderReadBlock = ({ block, sliceIndex, blockIndex }: IndexedReadBlock) => {
     const bKey = `${lessonNo}-s${sliceIndex}-b${blockIndex}`;
@@ -3235,74 +3121,21 @@ export default function LofiWorkspace({
 
         {activeScreen === 'ide' && (
           /* ------------------------------------------------------------------
-             TRANG 2: BÀN THÍ NGHIỆM — MÀN HÌNH LAPTOP VS CODE (70% CODE / 30% KẾT QUẢ)
+             TRANG 2: BÀN THÍ NGHIỆM — MÁY TÍNH macOS TRÊN BÀN (public/goc-hoc/may-tinh)
+             Nằm trong iframe để CSS/JS của nó không đụng scene.css; cùng origin nên Pyodide
+             và localStorage dùng chung với phần còn lại của app.
              ------------------------------------------------------------------ */
           <div ref={shellRef} className={styles.laptopScreenShell}>
             <div className={styles.laptopCameraNotch} aria-hidden="true" />
-
-            <div className={styles.vscodeWindow}>
-              <div className={styles.vscodeTitlebar}>
-                <div className={styles.vscodeTitleLeft}>
-                  <div className={styles.macTrafficLights} aria-hidden="true">
-                    <span className={styles.macDotRed} />
-                    <span className={styles.macDotYellow} />
-                    <span className={styles.macDotGreen} />
-                  </div>
-                  <div className={styles.vscodeFileTab}>
-                    <span>🐍</span>
-                    <span>main.py</span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  className={styles.runActionBtn}
-                  onClick={() => void handleRunIdeCode()}
-                  disabled={ideRunning}
-                >
-                  <span aria-hidden="true">▶</span> {ideRunning ? 'Running...' : 'Run Code'}
-                </button>
-              </div>
-
-              <div className={styles.ideWorkspace}>
-                <section className={styles.ideEditorCenter}>
-                  <div className={styles.lineNumbersGutter} aria-hidden="true">
-                    {Array.from({ length: codeLineCount }).map((_, idx) => (
-                      <div key={idx}>{idx + 1}</div>
-                    ))}
-                  </div>
-                  <textarea
-                    className={styles.ideTextarea}
-                    value={ideCustomCode}
-                    onChange={(e) => setIdeCustomCode(e.target.value)}
-                    onKeyDown={(e) => {
-                      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                        e.preventDefault();
-                        void handleRunIdeCode();
-                      }
-                    }}
-                    onScroll={(e) => {
-                      if (e.currentTarget.scrollLeft !== 0) {
-                        e.currentTarget.scrollLeft = 0;
-                      }
-                    }}
-                    placeholder="Nhập code Python của bạn tại đây..."
-                    wrap="soft"
-                    spellCheck={false}
-                  />
-                </section>
-
-                <aside className={styles.ideOutputPane}>
-                  <div className={styles.idePaneHeader}>
-                    <span>TERMINAL · OUTPUT</span>
-                  </div>
-
-                  <div className={styles.terminalBox}>
-                    <pre className={styles.terminalPre}>{ideOutput}</pre>
-                  </div>
-                </aside>
-              </div>
-            </div>
+            <iframe
+              className={styles.macFrame}
+              title="Máy tính Góc học"
+              src={
+                ideCustomCode === DEFAULT_IDE_CODE
+                  ? '/goc-hoc/may-tinh/index.html'
+                  : `/goc-hoc/may-tinh/index.html#code=${encodeURIComponent(ideCustomCode)}`
+              }
+            />
           </div>
         )}
 
@@ -3480,7 +3313,7 @@ export default function LofiWorkspace({
             aria-current={activeScreen === 'ide' ? 'page' : undefined}
             onClick={() => switchScreen('ide')}
           >
-            Bàn thí nghiệm
+            Laptop
           </button>
           <Link href="/#roadmap" className={styles.topTab}>
             Lộ trình

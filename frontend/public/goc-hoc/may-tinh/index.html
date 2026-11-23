@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Máy tính Góc học</title>
+<link rel="icon" href="data:,"><link rel="stylesheet" href="mac.css">
+</head><body>
+<div class="screen" id="screen">
+  <div class="os mac-boot" id="os">
+    <div class="wall"><div class="moon"></div><div id="stars"></div><canvas id="city" width="320" height="90"></canvas></div>
+    <div class="menubar">
+      <div class="l"><button class="apple" id="apple" aria-haspopup="menu" aria-label="Menu máy">☾</button><b id="appName">Finder</b><span>Tệp</span><span>Sửa</span><span>Xem</span><span>Cửa sổ</span><span>Trợ giúp</span></div>
+      <div class="r">
+                <svg viewBox="0 0 16 16" fill="#fff"><path d="M8 12.5a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4zM3.4 9.6a6.5 6.5 0 0 1 9.2 0l-1.1 1.1a5 5 0 0 0-7 0zM1 7.2a9.9 9.9 0 0 1 14 0l-1.1 1.1a8.4 8.4 0 0 0-11.8 0z"/></svg>
+                <svg viewBox="0 0 24 12"><rect x=".5" y=".5" width="20" height="11" rx="3" fill="none" stroke="#fff" opacity=".6"/><rect x="2" y="2" width="14" height="8" rx="1.5" fill="#fff"/><rect x="21.5" y="4" width="1.5" height="4" rx=".7" fill="#fff" opacity=".6"/></svg>
+                <span id="clock">T5 21:30</span>
+      </div>
+    </div>
+    <div class="appmenu" id="appmenu" hidden role="menu">
+      <button role="menuitem" data-m="about">Giới thiệu về máy này</button><hr>
+      <button role="menuitem" data-m="learn">Mở Sổ Học</button><button role="menuitem" data-m="project">Mở Bàn thí nghiệm</button><button role="menuitem" data-m="arena">Mở Arena</button><button role="menuitem" data-m="arcade">Mở Pixel Quán</button><hr><button role="menuitem" data-m="off">Tắt máy…</button>
+    </div>
+    <button class="pwr" id="pwr" aria-label="Tắt máy" title="Tắt máy"><svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"><path d="M8 1.8v5.4M4.6 3.9a5 5 0 1 0 6.8 0"/></svg></button>
+    <div class="icons" id="icons"></div>
+    <div id="wins"></div>
+    <div class="notes" id="notes"></div>
+    <nav class="dock" id="dock" aria-label="Dock"></nav>
+  </div>
+</div>
+<div class="offscr" id="offscr" hidden><button id="pwron" aria-label="Bật máy"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M8 1.8v5.4M4.6 3.9a5 5 0 1 0 6.8 0"/></svg></button><span>Bấm để bật máy</span></div>
+<div class="toastS" id="toastS" hidden role="status"></div>
+<script src="mac.js"></script>
+</body></html>

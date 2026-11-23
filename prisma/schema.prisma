@@ -160,6 +160,7 @@ model Course {
   courseRatings         CourseRating[]
   missions              Mission[]
   quizzes               Quiz[]
+  questionBank          QuestionBank[]
 
   // Khoá ngoại không đứng đầu chỉ mục nào: tra/xoá theo cha sẽ quét cả bảng (migration fk_indexes).
   @@index([instructorId])
@@ -744,4 +745,30 @@ model LessonProgressArchive {
   @@index([lessonId])
   @@index([courseId])
   @@map("lesson_progress_archive")
+}
+
+/// Câu do pipeline sinh đề tạo (docs/ml-pipeline.md §7), chờ duyệt. Chưa route nào đọc bảng
+/// này; khi đọc phải đi qua cùng stripAnswers() như step_2.mcq.
+/// type/status/difficulty có CHECK trong migration 20261123000000_question_bank.
+model QuestionBank {
+  id            BigInt   @id @default(autoincrement())
+  courseId      String   @map("course_id")
+  lessonCode    String   @map("lesson_code")
+  moduleCode    String   @map("module_code")
+  type          String
+  /// Đúng định dạng step_2.mcq (mcq) hoặc step_4 (code), để FE hiện được không cần chuyển.
+  payload       Json
+  /// { concepts[], model, temperature }: không gửi FE.
+  meta          Json     @default("{}")
+  difficulty    String?
+  status        String   @default("draft")
+  source        String   @default("gen")
+  promptVersion String?  @map("prompt_version")
+  contentHash   String   @unique @map("content_hash")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  course        Course   @relation(fields: [courseId], references: [id])
+
+  // Dẫn đầu bằng course_id nên cũng là chỉ mục của khoá ngoại.
+  @@index([courseId, moduleCode])
+  @@map("question_bank")
 }

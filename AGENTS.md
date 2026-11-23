@@ -4,6 +4,7 @@ Nền tảng học lập trình: NestJS 11 + Prisma 7 + PostgreSQL (Neon), Next.
 giáo trình Python chạy trong trình duyệt bằng Pyodide. Chi tiết kiến trúc: [README.md](README.md).
 **Vì sao chọn từng công nghệ, và nó đổi lấy gì** — kèm giá đã tra và so với các cách khác:
 [docs/cong-nghe-va-ha-tang.md](docs/cong-nghe-va-ha-tang.md).
+**Nhánh `test` của các thành viên — cái gì đã lấy về `main`, cái gì cố ý chưa, và vì sao:** [NHANH-TEST.md](NHANH-TEST.md). Đọc nó TRƯỚC khi cherry-pick bất cứ thứ gì từ `tester/test`.
 
 ## Lệnh hay dùng
 

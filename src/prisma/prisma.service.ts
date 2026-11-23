@@ -46,7 +46,10 @@ export class PrismaService
     void this.canhBaoMigrationThieu();
   }
 
-  /** Chỉ CẢNH BÁO, không chặn khởi động: role `pe_app` không đọc được `_prisma_migrations` (AGENTS.md). */
+  /**
+   * Chỉ CẢNH BÁO, không chặn khởi động. Nếu `DATABASE_URL` dùng một role không đọc được `_prisma_migrations` (vd. role hạn chế
+   * kiểu `pe_app` của kế hoạch DB9 trên nhánh `test`, CHƯA có trên main — xem NHANH-TEST.md) thì bỏ qua im lặng.
+   */
   private async canhBaoMigrationThieu() {
     const trongRepo = readRepoMigrations();
     if (!trongRepo) return;

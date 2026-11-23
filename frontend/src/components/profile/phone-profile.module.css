@@ -208,9 +208,14 @@
   font-family: inherit;
 }
 
-.resetCourseBtn:hover {
+.resetCourseBtn:hover:not(:disabled) {
   background: #fde68a;
   border-color: #d97706;
+}
+
+.resetCourseBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Bảng xếp hạng */

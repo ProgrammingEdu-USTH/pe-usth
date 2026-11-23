@@ -12,7 +12,7 @@ import { friendlyApiError } from './friendly-api-error.mjs';
 export type FetcherLike = (path: string, opts?: RequestInit) => Promise<Response>;
 
 export const USE_COURSE_RESET_MOCK =
-  process.env.NEXT_PUBLIC_COURSE_RESET_MOCK !== 'false';
+  process.env.NEXT_PUBLIC_COURSE_RESET_MOCK === 'true';
 
 export type CourseResetResponse = {
   ok: true;

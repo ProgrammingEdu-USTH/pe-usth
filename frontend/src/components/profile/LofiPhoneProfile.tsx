@@ -53,8 +53,8 @@ export interface LofiPhoneProfileProps {
 
 export function LofiPhoneProfile({
   courseId = DEFAULT_COURSE_ID,
-  initialDoneLessons = 12,
-  initialXp = 1250,
+  initialDoneLessons = 0,
+  initialXp = 0,
   totalLessons,
   courseTitle = 'Python cho Data Analyst',
   onResetProgress,
@@ -66,6 +66,8 @@ export function LofiPhoneProfile({
   const [displayName, setDisplayName] = useState('Học viên Lofi');
   const [doneLessons, setDoneLessons] = useState(initialDoneLessons);
   const [xp, setXp] = useState(initialXp);
+  const [badgesCount, setBadgesCount] = useState<number | null>(null);
+  const [rankValue, setRankValue] = useState<number | null>(null);
   const [currentLessonNo, setCurrentLessonNo] = useState(
     initialDoneLessons > 0 ? Math.min(resolvedTotal, initialDoneLessons + 1) : 1,
   );
@@ -127,9 +129,21 @@ export function LofiPhoneProfile({
       }
 
       if (statsRes?.ok) {
-        const s = (await statsRes.json().catch(() => null)) as { xp?: unknown } | null;
-        if (!cancelled && typeof s?.xp === 'number' && Number.isFinite(s.xp)) {
-          setXp(s.xp);
+        const s = (await statsRes.json().catch(() => null)) as {
+          xp?: unknown;
+          badgesCount?: unknown;
+          rank?: unknown;
+        } | null;
+        if (!cancelled) {
+          if (typeof s?.xp === 'number' && Number.isFinite(s.xp)) {
+            setXp(s.xp);
+          }
+          if (typeof s?.badgesCount === 'number' && Number.isFinite(s.badgesCount)) {
+            setBadgesCount(s.badgesCount);
+          }
+          if (typeof s?.rank === 'number' && Number.isFinite(s.rank)) {
+            setRankValue(s.rank);
+          }
         }
       }
     }
@@ -346,11 +360,15 @@ export function LofiPhoneProfile({
               <span className={styles.statLabel}>bài đã xong</span>
             </div>
             <div className={styles.statBox}>
-              <span className={styles.statVal}>5</span>
+              <span className={styles.statVal}>
+                {signedIn && badgesCount !== null ? badgesCount : '—'}
+              </span>
               <span className={styles.statLabel}>huy hiệu</span>
             </div>
             <div className={styles.statBox}>
-              <span className={styles.statVal}>#3</span>
+              <span className={styles.statVal}>
+                {signedIn && rankValue !== null ? `#${rankValue}` : '—'}
+              </span>
               <span className={styles.statLabel}>hạng theo XP</span>
             </div>
           </div>
@@ -385,16 +403,23 @@ export function LofiPhoneProfile({
             <button
               type="button"
               className={styles.resetCourseBtn}
+              disabled={!USE_COURSE_RESET_MOCK && !signedIn}
               onClick={() => {
+                if (!USE_COURSE_RESET_MOCK && !signedIn) return;
                 setResetError(null);
                 setShowResetModal(true);
               }}
             >
               <span aria-hidden="true">🔄</span> Học lại khoá này
             </button>
+            {!USE_COURSE_RESET_MOCK && !signedIn && (
+              <p className={styles.mockHint}>
+                Cần đăng nhập hoặc có phiên học để đặt lại tiến độ trên máy chủ.
+              </p>
+            )}
             {USE_COURSE_RESET_MOCK && (
               <p className={styles.mockHint}>
-                Đang bật cờ dữ liệu giả (`NEXT_PUBLIC_COURSE_RESET_MOCK=false` để gọi API thật).
+                Đang bật cờ dữ liệu giả (NEXT_PUBLIC_COURSE_RESET_MOCK=true).
               </p>
             )}
           </div>

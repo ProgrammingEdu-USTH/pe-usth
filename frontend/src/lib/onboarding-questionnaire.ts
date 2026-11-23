@@ -11,7 +11,7 @@ import { friendlyApiError } from './friendly-api-error.mjs';
 export { friendlyApiError };
 
 export const USE_QUESTIONNAIRE_MOCK =
-  process.env.NEXT_PUBLIC_QUESTIONNAIRE_MOCK !== 'false';
+  process.env.NEXT_PUBLIC_QUESTIONNAIRE_MOCK === 'true';
 
 export type QuestionnaireOption = {
   text: string;
@@ -54,11 +54,36 @@ export type QuestionnaireAnswerKey = Record<
 export type QuestionnairePayload = {
   course_id: string;
   version: number;
+  questionnaire_id?: number;
   title?: string;
   params: QuestionnaireParams;
   self_assess?: QuestionnaireSelfAssess[];
   items: QuestionnaireItem[];
   mock_answer_key?: QuestionnaireAnswerKey;
+};
+
+export type BackendPlacementQuestion = {
+  id: number;
+  topic?: string;
+  question: string;
+  code?: string | null;
+  options: string[];
+};
+
+export type BackendPlacementQuestionsResponse = {
+  ok: true;
+  questionnaire_id: number;
+  version: number;
+  questions: BackendPlacementQuestion[];
+};
+
+export type BackendPlacementSubmitResponse = {
+  ok: true;
+  done: true;
+  repeated?: boolean;
+  score: number;
+  total: number;
+  level: 'beginner' | 'intermediate' | 'advanced';
 };
 
 export type PlacementExplanation = {
@@ -77,6 +102,10 @@ export type PlacementResult = {
   level_title: string;
   skipped_all: boolean;
   explanations?: Record<string, string>;
+  score?: number;
+  total?: number;
+  level?: 'beginner' | 'intermediate' | 'advanced';
+  repeated?: boolean;
 };
 
 export type ModuleCurriculumRow = {
@@ -415,6 +444,157 @@ export function classifyOnboardingViewer(profile: unknown): OnboardingViewerKind
   return 'anonymous';
 }
 
+const PLACEMENT_LEVEL_META: Record<
+  'beginner' | 'intermediate' | 'advanced',
+  { startModule: string; levelTitle: string; surveyLevel: string }
+> = {
+  beginner: {
+    startModule: 'M1',
+    levelTitle: 'Khởi đầu vững chắc',
+    surveyLevel: 'Cơ bản',
+  },
+  intermediate: {
+    startModule: 'M4',
+    levelTitle: 'Nền tảng vững vàng',
+    surveyLevel: 'Trung cấp',
+  },
+  advanced: {
+    startModule: 'M7',
+    levelTitle: 'Sẵn sàng bứt phá',
+    surveyLevel: 'Nâng cao',
+  },
+};
+
+export function vietnameseLevelForPlacement(level?: string): string {
+  if (level === 'advanced') return PLACEMENT_LEVEL_META.advanced.surveyLevel;
+  if (level === 'intermediate') return PLACEMENT_LEVEL_META.intermediate.surveyLevel;
+  return PLACEMENT_LEVEL_META.beginner.surveyLevel;
+}
+
+/** Kiểm định phản hồi GET /api/placement/questions và đảm bảo không lộ đáp án. */
+export function validateBackendPlacementQuestions(raw: unknown): string[] {
+  const errors: string[] = [];
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return ['Phản hồi /api/placement/questions phải là object JSON.'];
+  }
+  const r = raw as Record<string, unknown>;
+  if (r.ok !== true) errors.push('`ok` phải bằng true.');
+  if (typeof r.questionnaire_id !== 'number' || !Number.isInteger(r.questionnaire_id) || r.questionnaire_id < 1) {
+    errors.push('Thiếu hoặc sai `questionnaire_id`.');
+  }
+  if (typeof r.version !== 'number' || !Number.isInteger(r.version) || r.version < 1) {
+    errors.push('Thiếu hoặc sai `version`.');
+  }
+  if (!Array.isArray(r.questions) || r.questions.length === 0) {
+    errors.push('`questions` phải là mảng có ít nhất 1 câu hỏi.');
+    return errors;
+  }
+  r.questions.forEach((entry, idx) => {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+      errors.push(`questions[${idx}] phải là object.`);
+      return;
+    }
+    const q = entry as Record<string, unknown>;
+    if (typeof q.id !== 'number' || !Number.isInteger(q.id)) {
+      errors.push(`questions[${idx}] thiếu id nguyên.`);
+    }
+    if (!isNonEmptyString(q.question)) {
+      errors.push(`questions[${idx}] thiếu question.`);
+    }
+    if ('correctIndex' in q || 'correct' in q) {
+      errors.push(`questions[${idx}] không được phép chứa đáp án đúng.`);
+    }
+    if (!Array.isArray(q.options) || q.options.length < 2 || q.options.length > 10) {
+      errors.push(`questions[${idx}].options phải có từ 2 đến 10 lựa chọn.`);
+    } else {
+      q.options.forEach((opt, j) => {
+        if (!isNonEmptyString(opt)) {
+          errors.push(`questions[${idx}].options[${j}] phải là chuỗi không rỗng.`);
+        }
+      });
+    }
+  });
+  return errors;
+}
+
+export function adaptPlacementQuestionsPayload(
+  raw: BackendPlacementQuestionsResponse,
+  courseId: string,
+): QuestionnairePayload {
+  return {
+    course_id: courseId,
+    version: raw.version,
+    questionnaire_id: raw.questionnaire_id,
+    params: {
+      mastery_threshold: 0.67,
+      self_assess_weight: 0,
+      skip_policy: 'wrong',
+    },
+    items: raw.questions.map((q) => ({
+      id: String(q.id),
+      module_code: isNonEmptyString(q.topic) ? q.topic.trim() : 'Python',
+      question: q.question,
+      code: typeof q.code === 'string' && q.code.length > 0 ? q.code : null,
+      options: q.options.map((text) => ({ text })),
+    })),
+  };
+}
+
+export function validateBackendPlacementSubmitResponse(raw: unknown): string[] {
+  const errors: string[] = [];
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return ['Kết quả từ /api/placement phải là object JSON.'];
+  }
+  const r = raw as Record<string, unknown>;
+  if (typeof r.score !== 'number' || !Number.isInteger(r.score) || r.score < 0) {
+    errors.push('Thiếu hoặc sai `score`.');
+  }
+  if (typeof r.total !== 'number' || !Number.isInteger(r.total) || r.total < 1) {
+    errors.push('Thiếu hoặc sai `total`.');
+  }
+  if (r.level !== 'beginner' && r.level !== 'intermediate' && r.level !== 'advanced') {
+    errors.push('`level` phải là beginner, intermediate hoặc advanced.');
+  }
+  return errors;
+}
+
+export function mapPlacementApiResult(
+  raw: BackendPlacementSubmitResponse,
+  modules: ModuleCurriculumRow[],
+  skippedAll = false,
+): PlacementResult {
+  const meta = PLACEMENT_LEVEL_META[raw.level] ?? PLACEMENT_LEVEL_META.beginner;
+  const loc = resolveModuleStartLesson(modules, meta.startModule);
+  return {
+    start_module: meta.startModule,
+    start_lesson_no: loc.lessonNo,
+    module_scores: {},
+    review_modules: [],
+    level_title: meta.levelTitle,
+    skipped_all: Boolean(skippedAll),
+    score: raw.score,
+    total: raw.total,
+    level: raw.level,
+    repeated: Boolean(raw.repeated),
+  };
+}
+
+export async function loadMyPlacement(opts: {
+  fetcher: FetcherLike;
+  modules: ModuleCurriculumRow[];
+}): Promise<PlacementResult | null> {
+  try {
+    const res = await opts.fetcher('/api/me/placement');
+    if (!res.ok) return null;
+    const body = (await res.json().catch(() => null)) as Record<string, unknown> | null;
+    if (!body || typeof body !== 'object' || body.done !== true) return null;
+    if (validateBackendPlacementSubmitResponse(body).length > 0) return null;
+    return mapPlacementApiResult(body as unknown as BackendPlacementSubmitResponse, opts.modules, false);
+  } catch {
+    return null;
+  }
+}
+
 export function getMockQuestionnaire(): QuestionnairePayload {
   const raw = mockQuestionnaire as unknown as QuestionnairePayload;
   const errs = validateQuestionnaire(raw);
@@ -433,18 +613,29 @@ export async function loadQuestionnaire(
     return { questionnaire: getMockQuestionnaire(), source: 'mock' };
   }
   if (!opts.fetcher) {
-    throw new Error('Thiếu hàm fetcher để gọi GET /api/questionnaire.');
+    throw new Error('Thiếu hàm fetcher để gọi GET /api/placement/questions.');
   }
-  const res = await opts.fetcher(`/api/questionnaire/${encodeURIComponent(courseId)}`);
+  let res: Response;
+  try {
+    res = await opts.fetcher('/api/placement/questions');
+  } catch {
+    throw new Error(friendlyApiError(0, null));
+  }
   const body = await res.json().catch(() => null);
+  if (res.status === 404) {
+    throw new Error('Chưa có bộ câu hỏi đầu vào trên máy chủ.');
+  }
   if (!res.ok) {
     throw new Error(friendlyApiError(res.status, body, 'Không tải được bộ câu hỏi đầu vào.'));
   }
-  const errs = validateQuestionnaire(body);
+  const errs = validateBackendPlacementQuestions(body);
   if (errs.length > 0) {
-    throw new Error(`Dữ liệu /api/questionnaire không hợp lệ: ${errs.join('; ')}`);
+    throw new Error(`Dữ liệu /api/placement/questions không hợp lệ: ${errs.join('; ')}`);
   }
-  return { questionnaire: body as QuestionnairePayload, source: 'api' };
+  return {
+    questionnaire: adaptPlacementQuestionsPayload(body as BackendPlacementQuestionsResponse, courseId),
+    source: 'api',
+  };
 }
 
 export async function submitQuestionnaireAndSurvey(params: {
@@ -469,8 +660,12 @@ export async function submitQuestionnaireAndSurvey(params: {
   let surveyError: string | null = null;
   let roadmapId: string | null = null;
 
-  if (params.saveSurvey && params.fetcher) {
-    const payload = buildSurveyDtoPayload(params.surveyInput);
+  const saveSurveyRequest = async (overrideLevel?: string) => {
+    if (!params.saveSurvey || !params.fetcher) return;
+    const rawSurvey = overrideLevel
+      ? { ...params.surveyInput, level: overrideLevel }
+      : params.surveyInput;
+    const payload = buildSurveyDtoPayload(rawSurvey);
     try {
       const res = await params.fetcher('/api/survey', {
         method: 'POST',
@@ -489,9 +684,10 @@ export async function submitQuestionnaireAndSurvey(params: {
     } catch {
       surveyError = friendlyApiError(0, null);
     }
-  }
+  };
 
   if (useMock) {
+    await saveSurveyRequest();
     const placement = scoreQuestionnaireMock(
       params.questionnaire,
       params.answers,
@@ -514,27 +710,50 @@ export async function submitQuestionnaireAndSurvey(params: {
   if (!params.fetcher) {
     throw new Error('Thiếu hàm fetcher để nộp bộ câu hỏi.');
   }
-  const submitRes = await params.fetcher(
-    `/api/questionnaire/${encodeURIComponent(params.courseId)}/submit`,
-    {
+  if (typeof params.questionnaire.questionnaire_id !== 'number') {
+    throw new Error('Thiếu mã bộ câu hỏi (`questionnaire_id`) — hãy tải lại trang.');
+  }
+
+  const orderedAnswers = params.questionnaire.items.map((it) => {
+    const val = params.answers[it.id];
+    return typeof val === 'number' && Number.isInteger(val) && val >= 0 ? val : -1;
+  });
+
+  let submitRes: Response;
+  try {
+    submitRes = await params.fetcher('/api/placement/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        answers: params.answers,
-        self: params.selfAnswers,
+        questionnaireId: params.questionnaire.questionnaire_id,
+        answers: orderedAnswers,
       }),
-    },
-  );
+    });
+  } catch {
+    throw new Error(friendlyApiError(0, null));
+  }
+
   const submitBody = await submitRes.json().catch(() => null);
+  if (submitRes.status === 409) {
+    throw new Error('Bộ câu hỏi vừa được cập nhật, hãy tải lại trang để làm bản mới.');
+  }
   if (!submitRes.ok) {
     throw new Error(friendlyApiError(submitRes.status, submitBody, 'Không nộp được bộ câu hỏi.'));
   }
-  const errs = validatePlacementResult(submitBody);
-  if (errs.length > 0) {
-    throw new Error(`Kết quả xếp module không hợp lệ: ${errs.join('; ')}`);
+  const submitErrs = validateBackendPlacementSubmitResponse(submitBody);
+  if (submitErrs.length > 0) {
+    throw new Error(`Kết quả xếp hạng không hợp lệ: ${submitErrs.join('; ')}`);
   }
+
+  const typedBody = submitBody as BackendPlacementSubmitResponse;
+  const skippedAll = orderedAnswers.every((a) => a === -1);
+  const placement = mapPlacementApiResult(typedBody, params.modules, skippedAll);
+
+  // Nộp placement xong mới lưu survey để apiFetch đã tạo xong phiên khách (nếu là khách mới)
+  await saveSurveyRequest(vietnameseLevelForPlacement(typedBody.level));
+
   return {
-    placement: submitBody as PlacementResult,
+    placement,
     surveySaved,
     surveyError,
     roadmapId,

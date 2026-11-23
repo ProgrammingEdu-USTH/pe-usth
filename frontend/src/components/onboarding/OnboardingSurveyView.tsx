@@ -5,11 +5,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { LofiButton, LofiProgressBar } from '@/components/ui';
 import CURRICULA_JSON from '@/lib/curricula.json';
-import { apiFetchSessionOnly } from '@/lib/api';
+import { apiFetch, apiFetchSessionOnly } from '@/lib/api';
 import { hasStoredSession, LS_ACCESS, LS_LEGACY_REFRESH } from '@/lib/course-progress';
 import {
+  buildSurveyDtoPayload,
   classifyOnboardingViewer,
   friendlyApiError,
+  loadMyPlacement,
   loadQuestionnaire,
   resolveModuleStartLesson,
   submitQuestionnaireAndSurvey,
@@ -70,6 +72,8 @@ export function OnboardingSurveyView() {
   const [skipBusy, setSkipBusy] = useState(false);
 
   const [placement, setPlacement] = useState<PlacementResult | null>(null);
+  const [placementSource, setPlacementSource] = useState<'mock' | 'api' | null>(null);
+  const [existingLoaded, setExistingLoaded] = useState(false);
   const [surveySaved, setSurveySaved] = useState(false);
   const [surveyError, setSurveyError] = useState<string | null>(null);
 
@@ -99,9 +103,10 @@ export function OnboardingSurveyView() {
         legacyRefresh: lsRead(LS_LEGACY_REFRESH),
         cookie: typeof document === 'undefined' ? null : document.cookie,
       };
+      const hasSession = hasStoredSession(session);
 
       const detectViewer = async (): Promise<OnboardingViewerKind> => {
-        if (!hasStoredSession(session)) return 'anonymous';
+        if (!hasSession) return 'anonymous';
         try {
           const res = await apiFetchSessionOnly('/api/user');
           if (!res.ok) return 'anonymous';
@@ -112,9 +117,24 @@ export function OnboardingSurveyView() {
         }
       };
 
-      const [kind] = await Promise.all([detectViewer(), fetchQuiz()]);
+      const fetchSavedPlacement = async (): Promise<PlacementResult | null> => {
+        if (!hasSession || USE_QUESTIONNAIRE_MOCK) return null;
+        return loadMyPlacement({ fetcher: apiFetchSessionOnly, modules: CURRICULA_MODULES });
+      };
+
+      const [kind, savedPlacement] = await Promise.all([
+        detectViewer(),
+        fetchSavedPlacement(),
+        fetchQuiz(),
+      ]);
       if (!cancelled) {
         setViewerKind(kind);
+        if (savedPlacement) {
+          setPlacement(savedPlacement);
+          setPlacementSource('api');
+          setSurveySaved(true);
+          setExistingLoaded(true);
+        }
       }
     }
 
@@ -170,6 +190,7 @@ export function OnboardingSurveyView() {
     setSubmitting(true);
     setSubmitError(null);
     setSurveyError(null);
+    const submitFetcher = USE_QUESTIONNAIRE_MOCK ? apiFetchSessionOnly : apiFetch;
     try {
       const res = await submitQuestionnaireAndSurvey({
         courseId: COURSE_ID,
@@ -178,13 +199,18 @@ export function OnboardingSurveyView() {
         selfAnswers,
         surveyInput: buildSurveyInput(),
         modules: CURRICULA_MODULES,
-        saveSurvey: canSaveToServer,
+        saveSurvey: USE_QUESTIONNAIRE_MOCK ? canSaveToServer : true,
         useMock: USE_QUESTIONNAIRE_MOCK,
-        fetcher: apiFetchSessionOnly,
+        fetcher: submitFetcher,
       });
       setPlacement(res.placement);
+      setPlacementSource(res.placementSource);
+      setExistingLoaded(false);
       setSurveySaved(res.surveySaved);
       setSurveyError(res.surveyError);
+      if (!USE_QUESTIONNAIRE_MOCK && res.placementSource === 'api' && viewerKind === 'anonymous') {
+        setViewerKind('guest');
+      }
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : friendlyApiError(0, null));
     } finally {
@@ -193,21 +219,16 @@ export function OnboardingSurveyView() {
   };
 
   const handleRetrySaveSurvey = async () => {
-    if (!canSaveToServer || submitting) return;
+    if ((USE_QUESTIONNAIRE_MOCK && !canSaveToServer) || submitting) return;
     setSubmitting(true);
     setSurveyError(null);
+    const fetcher = USE_QUESTIONNAIRE_MOCK ? apiFetchSessionOnly : apiFetch;
     try {
-      const payload = buildSurveyInput();
-      const res = await apiFetchSessionOnly('/api/survey', {
+      const payload = buildSurveyDtoPayload(buildSurveyInput());
+      const res = await fetcher('/api/survey', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(
-          Object.fromEntries(
-            Object.entries(payload)
-              .map(([k, v]) => [k, Array.isArray(v) ? v.join(', ') : v])
-              .filter(([, v]) => typeof v === 'string' && v.trim() !== ''),
-          ),
-        ),
+        body: JSON.stringify(payload),
       });
       const body = await res.json().catch(() => null);
       if (res.ok) {
@@ -273,6 +294,8 @@ export function OnboardingSurveyView() {
     setSelfAnswers({});
     setItemAnswers({});
     setPlacement(null);
+    setPlacementSource(null);
+    setExistingLoaded(false);
     setSubmitError(null);
     setSurveyError(null);
     setSurveySaved(false);
@@ -349,12 +372,16 @@ export function OnboardingSurveyView() {
             <p className={styles.resultSubtitle}>
               {placement.skipped_all
                 ? 'Bạn đã bỏ qua toàn bộ câu hỏi nên lộ trình bắt đầu từ nền tảng M1.'
-                : 'Hệ thống đã chấm điểm theo từng module để chọn điểm bắt đầu phù hợp nhất.'}
+                : typeof placement.score === 'number' && typeof placement.total === 'number'
+                  ? `Điểm kiểm tra: ${placement.score}/${placement.total} câu đúng — hệ thống đã chọn điểm bắt đầu phù hợp nhất.`
+                  : 'Hệ thống đã chấm điểm theo từng module để chọn điểm bắt đầu phù hợp nhất.'}
             </p>
 
             {surveySaved ? (
               <div className={styles.successAlert} role="status">
-                Đã lưu kết quả khảo sát vào hồ sơ học tập của bạn.
+                {existingLoaded || placement.repeated
+                  ? 'Đây là kết quả định vị đã lưu của bạn cho bộ câu hỏi hiện tại.'
+                  : 'Đã lưu kết quả định vị & khảo sát vào hồ sơ học tập của bạn.'}
               </div>
             ) : surveyError ? (
               <div className={styles.errorAlert} role="alert">
@@ -367,6 +394,10 @@ export function OnboardingSurveyView() {
                 >
                   Thử lưu lại
                 </button>
+              </div>
+            ) : placementSource === 'api' ? (
+              <div className={styles.successAlert} role="status">
+                Đã chấm và lưu kết quả định vị trên máy chủ.
               </div>
             ) : (
               <div className={styles.modeNote}>
@@ -390,13 +421,15 @@ export function OnboardingSurveyView() {
               )}
             </div>
 
-            <div className={styles.scoreGrid}>
-              {Object.entries(placement.module_scores).map(([modCode, score]) => (
-                <div key={modCode} className={styles.scoreChip}>
-                  <strong>{modCode}</strong>: {Math.round(score * 100)}%
-                </div>
-              ))}
-            </div>
+            {Object.keys(placement.module_scores).length > 0 && (
+              <div className={styles.scoreGrid}>
+                {Object.entries(placement.module_scores).map(([modCode, score]) => (
+                  <div key={modCode} className={styles.scoreChip}>
+                    <strong>{modCode}</strong>: {Math.round(score * 100)}%
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div className={styles.resultActionRow}>
               <button

@@ -38,7 +38,7 @@
      },
      {
       "type": "paragraph",
-      "text": "Môi trường ảo giữ thư viện của từng dự án riêng nhau. Mở terminal (cửa sổ bạn gõ câu lệnh vào) trong thư mục dự án rồi chạy lệnh sau. Đây là lệnh gõ trong cửa sổ đó, không phải code để dán vào một ô code:"
+      "text": "Môi trường ảo giữ thư viện của từng dự án riêng nhau. Phần lệnh bên dưới chỉ cần khi bạn muốn chạy Python trên máy riêng. Học trong trình duyệt thì bạn đọc lướt cũng đủ. Để thử, mở terminal (cửa sổ bạn gõ câu lệnh vào) trong thư mục dự án rồi chạy lệnh sau. Đây là lệnh gõ trong cửa sổ đó, không phải code để dán vào một ô code:"
      },
      {
       "type": "terminal",

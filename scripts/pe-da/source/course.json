@@ -411,7 +411,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Môi trường ảo giữ thư viện của từng dự án riêng nhau. Mở terminal (cửa sổ bạn gõ câu lệnh vào) trong thư mục dự án rồi chạy lệnh sau. Đây là lệnh gõ trong cửa sổ đó, không phải code để dán vào một ô code:"
+          "text": "Môi trường ảo giữ thư viện của từng dự án riêng nhau. Phần lệnh bên dưới chỉ cần khi bạn muốn chạy Python trên máy riêng. Học trong trình duyệt thì bạn đọc lướt cũng đủ. Để thử, mở terminal (cửa sổ bạn gõ câu lệnh vào) trong thư mục dự án rồi chạy lệnh sau. Đây là lệnh gõ trong cửa sổ đó, không phải code để dán vào một ô code:"
         },
         {
           "type": "code",
@@ -513,7 +513,7 @@
       "reading": [
         {
           "type": "paragraph",
-          "text": "Môi trường bạn vừa tạo ở bài trước quyết định Python nào sẽ chạy; giờ chọn chỗ để gõ. Trong một notebook, bạn chạy ô gán `cups = 12` lúc đầu buổi, lát sau chạy ô in `cups`. Con số cũ vẫn còn vì kernel (tiến trình Python chạy phía sau trang đó) giữ biến của ô trước. Một lần chạy đủ đầu vào trông như sau:"
+          "text": "Ở bài trước bạn đã kiểm tra Python nào đang chạy; giờ chọn chỗ để gõ. Trong một notebook, bạn chạy ô gán `cups = 12` lúc đầu buổi, lát sau chạy ô in `cups`. Con số cũ vẫn còn vì kernel (tiến trình Python chạy phía sau trang đó) giữ biến của ô trước. Một lần chạy trọn vẹn trông như sau:"
         },
         {
           "type": "code",
@@ -544,7 +544,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Nếu máy chưa có Notebook, chạy `python -m pip install notebook` trong terminal của môi trường đã chọn, rồi chạy `jupyter notebook` để mở. Đây là lệnh terminal; đừng dán chúng vào một ô rồi coi là câu Python."
+          "text": "Bước này chỉ cần khi bạn học trên máy riêng. Nếu máy chưa có Notebook, chạy `python -m pip install notebook` trong terminal của môi trường đã chọn, rồi chạy `jupyter notebook` để mở. Đây là lệnh terminal; đừng dán chúng vào một ô rồi coi là câu Python."
         }
       ],
       "drills": [

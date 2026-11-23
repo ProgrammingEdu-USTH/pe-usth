@@ -443,6 +443,12 @@ Hai đường, chọn sai là xoá tiến độ của người đang học:
 
   Luật chọn/so sánh nằm ở `src/course-admin/lesson-content-update.ts` (có test Jest).
 
+  **Đường quay lui: `scripts/restore-lesson-content.ts --from=<file --backup>`** (port từ `tester/test`, 23/11/2026).
+  Cùng khuôn an toàn: mặc định CHẠY THỬ, `--apply` ghi trong một transaction, mỗi câu phải trúng đúng 1 hàng, chỉ
+  `UPDATE lessons SET content_json`. **KHÔNG cập nhật `scripts/pe-da/da-nap.json`**, nên sau khi khôi phục
+  `check-da-nap` vẫn nói "khớp" trong khi DB đã về bản cũ — biên nhận chỉ nói lần nạp ĐÃ xảy ra. Chưa có test Jest
+  (cần DB); đã thử đường kiểm tra tệp hỏng và thiếu `--from`, chưa chạy `--apply` trên DB nào.
+
   **Hạn transaction phải NÓI RA — mặc định 5 giây không nạp nổi cả khoá.** Lần đầu nạp 124
   bài (27/10/2026): 124 câu UPDATE trong một transaction tương tác chạy 5 140 ms trên Neon,
   Prisma huỷ ở mốc 5 000 ms. Transaction rollback nên DB không hỏng — nhưng file sao lưu ĐÃ

@@ -398,6 +398,26 @@ describe('CoursesService — cổng is_published', () => {
       ]);
     });
 
+    it('/courses-enrolled chỉ lấy đúng cột mapCourse() đọc', async () => {
+      await service.getCoursesEnrolled(1);
+      const select = prisma.course.findMany.mock.calls[0][0]?.select;
+      expect(select).toBeDefined();
+      expect(Object.keys(select ?? {}).sort()).toEqual(
+        [
+          'accentColor',
+          'contentMeta',
+          'id',
+          'isPublished',
+          'language',
+          'lessonCount',
+          'level',
+          'rating',
+          'title',
+          'xp_reward',
+        ].sort(),
+      );
+    });
+
     it('chưa ghi danh khoá nào: trả danh sách rỗng, không vỡ', async () => {
       mockSql([], [{ courseId: 'python_advanced', sortOrder: 1 }]);
       const res = await service.getEnrolled(1);

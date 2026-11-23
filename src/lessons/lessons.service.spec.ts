@@ -274,6 +274,32 @@ describe('LessonsService.completeLesson', () => {
       expect(prisma.user.update).not.toHaveBeenCalled();
     });
 
+    it('lessonNo đúng bằng lessonCount -> hoàn thành được bài cuối', async () => {
+      prisma.course.findUnique.mockResolvedValue(COURSE);
+      prisma.enrollment.findUnique.mockResolvedValue({
+        userId: 1,
+        courseId: 'python',
+      });
+      prisma.lesson.findFirst.mockResolvedValue({ id: 20, xpReward: 0 });
+
+      await expect(
+        service.completeLesson(1, 20, { courseId: 'python' }),
+      ).resolves.toMatchObject({ ok: true });
+    });
+
+    it('lessonNo ngay sau lessonCount -> 400, không tạo bài rác', async () => {
+      prisma.course.findUnique.mockResolvedValue(COURSE);
+      prisma.enrollment.findUnique.mockResolvedValue({
+        userId: 1,
+        courseId: 'python',
+      });
+
+      await expect(
+        service.completeLesson(1, 21, { courseId: 'python' }),
+      ).rejects.toThrow(BadRequestException);
+      expect(prisma.lesson.create).not.toHaveBeenCalled();
+    });
+
     it('khoá lessonCount = 0 -> chặn MỌI lessonNo, không còn farm XP vô hạn', async () => {
       // Khoá mới tạo mặc định 0 bài; guard cũ (lessonCount > 0 && ...) cho qua
       // hết nên gọi N=1,2,3,... là tự tạo bài rác + cộng 50 XP mỗi lần.

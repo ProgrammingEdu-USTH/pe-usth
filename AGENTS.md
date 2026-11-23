@@ -85,7 +85,7 @@ học nó.
 | Hạng mục | Mốc |
 |---|---|
 | Backend typecheck | sạch — nay phủ **cả `scripts/**/*.ts`** (10 script, 0 lỗi) |
-| Backend test | **41 bộ, 617 ca**, tất cả đạt (chạy RIÊNG — xem bẫy tranh CPU). Đo lại 23/11/2026 sau khi port từ `tester/test`: +4 ca `lessons.service.spec.ts` (BE3, d0ede61), +1 bộ / +26 ca `forum.service.spec.ts` (BE7, 047ad35) +5 ca `courses.service.spec.ts` (BE5, 846eea1 + 2e5d04d) +1 bộ / +2 ca `pending-migrations.spec.ts` (71d3337) +1 bộ / +3 ca `redact-url.spec.ts` (che URL ở log 5xx, port tay từ 736a82a) +1 bộ / +25 ca `guest-cleanup.spec.ts` (83e1cf1) và +1 bộ / +20 ca (`forum.controller.spec.ts` + 4 khoá `THROTTLE_FORUM_*` ở `env.validation.spec.ts`, 8a7af2e) |
+| Backend test | **42 bộ, 622 ca**, tất cả đạt (chạy RIÊNG — xem bẫy tranh CPU). Đo lại 23/11/2026 sau khi port từ `tester/test`: +4 ca `lessons.service.spec.ts` (BE3, d0ede61), +1 bộ / +26 ca `forum.service.spec.ts` (BE7, 047ad35) +5 ca `courses.service.spec.ts` (BE5, 846eea1 + 2e5d04d) +1 bộ / +2 ca `pending-migrations.spec.ts` (71d3337) +1 bộ / +3 ca `redact-url.spec.ts` (che URL ở log 5xx, port tay từ 736a82a) +1 bộ / +25 ca `guest-cleanup.spec.ts` (83e1cf1) và +1 bộ / +20 ca (`forum.controller.spec.ts` + 4 khoá `THROTTLE_FORUM_*` ở `env.validation.spec.ts`, 8a7af2e) và +1 bộ / +5 ca (`course-lesson-count.spec.ts` + 2 ca biên `completeLesson`, 41b5096) |
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
@@ -109,7 +109,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **47 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 749 · backend 41 bộ/617 · tracer 69 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/364 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 749 · backend 42 bộ/622 · tracer 69 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/364 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -484,6 +484,19 @@ Luật chọn và thứ tự xoá nằm ở `src/auth/guest-cleanup.ts`. **Thêm
 `ALTER TABLE` trên MỘT dòng nên mù với migration `consents` viết nhiều dòng — nay đã sửa. Hai bảng này là bằng
 chứng đồng ý ghi nhật ký (Luật 91/2025): xoá khách thì chúng đi theo, đó là chủ ý của CASCADE, nhưng hãy đọc lại
 trước khi chạy `--apply` đầu tiên.
+
+### Kiểm bất biến DB (CHỈ ĐỌC) và đồng bộ số bài (port từ `tester/test` 41b5096, 23/11/2026)
+
+`npx ts-node scripts/check-db-invariants.ts` (cần `DATABASE_URL`; không câu nào ghi, thoát 1 nếu có mục trượt) chạy 8 câu
+SQL: `courses.lessons` bằng số bài thật, `sort_order` liên tiếp từ 1, không trùng `(course_id, sort_order)`,
+`lesson_progress.course_id` khớp `lessons.course_id`, `enrollments.progress/completed_lessons` khớp công thức
+`recomputeProgress`, `progress` trong 0..100, mọi khoá ngoại có chỉ mục dẫn đầu, không chỉ mục hỏng. Vì sao: `courses.lessons` là
+số do tay khai — bản trên `tester/test` từng ghi 172 trong khi có 179 bài, và `POST /lessons/:n/complete` trả 400 cho bài 173–179.
+**Mục 7 sẽ TRƯỢT trên schema hiện tại** (đo trên Postgres thật: 22 khoá ngoại chưa có chỉ mục dẫn đầu) cho tới khi áp migration
+`fk_indexes`; đó là tín hiệu thật, không phải lỗi script. `scripts/fix-course-lessons.ts` là phần sửa của mục 1: mặc định CHẠY THỬ,
+`--apply` bắt buộc `--backup=<file>`, một transaction, dừng nếu dãy bài bị hở. Luật đếm "bài hoạt động" là `1 <= sort_order < 1000`
+(`src/course-admin/course-lesson-count.ts`) — dùng chung cho admin, script và kiểm bất biến; bài 0/âm không còn được tính.
+Đã kiểm 8 câu SQL trên Postgres thật (PGlite): dữ liệu sạch → đạt; gieo từng loại vi phạm → đúng mục trượt. CHƯA chạy lần nào trên DB thật.
 
 ## Quy ước khi sửa
 

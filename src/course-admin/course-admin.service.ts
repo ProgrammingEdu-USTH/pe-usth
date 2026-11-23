@@ -7,13 +7,13 @@ import {
 import { CourseLevel, Prisma } from 'src/generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
-  ARCHIVED_SORT_ORDER,
   COURSE_META_FIELDS,
   CreateCourseDto,
   CreateLessonDto,
   UpdateCourseDto,
   UpdateLessonDto,
 } from './dto/course-admin.dto';
+import { ACTIVE_LESSON_SORT_ORDER } from './course-lesson-count';
 
 /**
  * Gom các trường mô tả (không có cột riêng) thành object cho content_meta.
@@ -241,7 +241,7 @@ export class CourseAdminService {
    */
   private async syncLessonCount(courseId: string) {
     const lessonCount = await this.prisma.lesson.count({
-      where: { courseId, sortOrder: { lt: ARCHIVED_SORT_ORDER } },
+      where: { courseId, sortOrder: ACTIVE_LESSON_SORT_ORDER },
     });
     await this.prisma.course.update({
       where: { id: courseId },

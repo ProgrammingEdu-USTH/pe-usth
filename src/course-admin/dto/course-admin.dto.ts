@@ -1,14 +1,13 @@
 import { Transform } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, IsString } from 'class-validator';
 import { emptyToUndefined } from 'src/auth/dto/register.dto';
+export { ARCHIVED_SORT_ORDER } from '../course-lesson-count';
 
 /**
  * Bài có sort_order từ mốc này trở lên là bài LƯU TRỮ của giáo trình cũ —
  * scripts/seed-pe-v3.ts dời toàn bộ bài cũ của khoá python sang 1000 + số cũ để
  * giữ lesson_progress của học viên mà không lẫn vào giáo trình mới.
  */
-export const ARCHIVED_SORT_ORDER = 1000;
-
 /** Giá trị hợp lệ của enum course_level trong DB. */
 export const COURSE_LEVELS = ['beginner', 'intermediate', 'advanced'] as const;
 

@@ -972,4 +972,114 @@ describe('QuizzesService', () => {
       expect(tong).toBeGreaterThanOrEqual(files.length * 3);
     });
   });
+
+  // ---------- BE14 ----------
+  describe('BE14: GET /courses/:id/quiz/status', () => {
+    const KHOA = 'python_advanced';
+
+    /** Bài THẬT thứ `i` (0-based) của gói đang seed — fixture phải giống thật. */
+    const baiThat = (i: number): LessonFixture => {
+      const dir = join(__dirname, '../../scripts/pe-v4/out-advanced/lessons');
+      const f = readdirSync(dir)
+        .filter((x) => x.endsWith('.json'))
+        .sort()[i];
+      const raw = JSON.parse(readFileSync(join(dir, f), 'utf8')) as {
+        content_json: unknown;
+      };
+      return { id: i + 1, courseId: KHOA, contentJson: raw.content_json };
+    };
+    const soCau = (b: LessonFixture) =>
+      (step2Of(b.contentJson) as { mcq: unknown[] }).mcq.length;
+
+    const daXong = (...ids: number[]) =>
+      prisma.lessonProgress.findMany.mockResolvedValue(
+        ids.map((lessonId) => ({ lessonId })),
+      );
+
+    it('chưa xong bài nào: 0 câu, ngưỡng MIN_POOL, không ném lỗi, không đọc lessons', async () => {
+      daXong();
+      const res = await service.getCourseQuizStatus(1, KHOA);
+
+      expect(res).toEqual({
+        ok: true,
+        lessons_completed: 0,
+        lessons_counted: 0,
+        questions_available: 0,
+        min_questions: 5,
+        can_quiz: false,
+      });
+      expect(prisma.$queryRaw).not.toHaveBeenCalled();
+    });
+
+    it('xong 1 bài thật (3 câu): chưa mở đề — MIN_POOL đếm theo câu', async () => {
+      const b1 = baiThat(0);
+      daXong(1);
+      mockLessons([b1]);
+
+      const res = await service.getCourseQuizStatus(1, KHOA);
+      expect(soCau(b1)).toBeLessThan(5);
+      expect(res.lessons_completed).toBe(1);
+      expect(res.lessons_counted).toBe(1);
+      expect(res.questions_available).toBe(soCau(b1));
+      expect(res.can_quiz).toBe(false);
+    });
+
+    it('xong 2 bài thật: mở đề, đếm đúng số câu; chỉ lọc bài của chính khoá và chính người đó', async () => {
+      const b1 = baiThat(0);
+      const b2 = baiThat(1);
+      daXong(1, 2);
+      mockLessons([b1, b2]);
+
+      const res = await service.getCourseQuizStatus(7, KHOA);
+      expect(res.lessons_completed).toBe(2);
+      expect(res.lessons_counted).toBe(2);
+      expect(res.questions_available).toBe(soCau(b1) + soCau(b2));
+      expect(res.can_quiz).toBe(true);
+
+      expect(prisma.lessonProgress.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { userId: 7, courseId: KHOA, status: 'completed' },
+        }),
+      );
+      expect(sqlCall().values).toContain(KHOA);
+    });
+
+    it('lessons_counted chỉ đếm bài THỰC SỰ góp câu, không đếm bài xong mà không có trắc nghiệm', async () => {
+      daXong(1, 2);
+      mockLessons([baiThat(0), { id: 2, courseId: KHOA, contentJson: {} }]);
+
+      const res = await service.getCourseQuizStatus(1, KHOA);
+      expect(res.lessons_completed).toBe(2);
+      expect(res.lessons_counted).toBe(1);
+    });
+
+    it('chỉ trả số đếm: không lộ câu hỏi, đáp án hay lời giải thích', async () => {
+      daXong(1, 2);
+      mockLessons([baiThat(0), baiThat(1)]);
+
+      const res = await service.getCourseQuizStatus(1, KHOA);
+      expect(Object.keys(res).sort()).toEqual([
+        'can_quiz',
+        'lessons_completed',
+        'lessons_counted',
+        'min_questions',
+        'ok',
+        'questions_available',
+      ]);
+    });
+
+    it('can_quiz nói đúng điều generateReviewQuiz sẽ làm ở lần bấm kế tiếp', async () => {
+      prisma.reviewQuizResult.findMany.mockResolvedValue([]);
+      prisma.quiz.create.mockResolvedValue({ id: 1 });
+
+      for (const bai of [[baiThat(0)], [baiThat(0), baiThat(1)]]) {
+        daXong(...bai.map((b) => b.id ?? 0));
+        mockLessons(bai);
+        const { can_quiz } = await service.getCourseQuizStatus(1, KHOA);
+        const de = service.generateReviewQuiz(1, KHOA);
+        if (can_quiz) await expect(de).resolves.toMatchObject({ ok: true });
+        else await expect(de).rejects.toThrow(BadRequestException);
+      }
+    });
+  });
 });

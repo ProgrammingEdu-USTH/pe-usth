@@ -241,6 +241,42 @@ export class QuizzesService {
     };
   }
 
+  // ---------- BE14 ----------
+  /**
+   * Trạng thái đề ôn của MỘT khoá, cho ô đề ôn sau bài (ReviewQuiz.tsx) quyết
+   * định hiện nút hay hiện câu "còn thiếu mấy bài" — thay vì để người học bấm
+   * rồi mới nhận 400 của `generateReviewQuiz()`.
+   *
+   * Cùng pool với `buildQuestionPool()` (cùng bộ lọc, cùng `layStep2`), nên
+   * `can_quiz` nói đúng điều mà lần bấm kế tiếp sẽ gặp. Khác ở chỗ KHÔNG ném lỗi
+   * khi thiếu câu: thiếu câu là một trạng thái hợp lệ để hiển thị.
+   *
+   * `lessons_counted` là số bài THỰC SỰ góp câu, không phải số bài đã xong: FE
+   * chia `questions_available / lessons_counted` ra "mỗi bài mấy câu" để nói còn
+   * thiếu mấy BÀI (MIN_POOL đếm theo câu, mỗi bài ~3 câu — xem AGENTS.md).
+   */
+  async getCourseQuizStatus(userId: number, courseId: string) {
+    const done = await this.prisma.lessonProgress.findMany({
+      where: { userId, courseId, status: 'completed' },
+      select: { lessonId: true },
+    });
+
+    const lessons = await this.layStep2(
+      done.map((d) => d.lessonId),
+      courseId,
+    );
+    const pool = this.collectQuestions(lessons);
+
+    return {
+      ok: true,
+      lessons_completed: done.length,
+      lessons_counted: new Set(pool.map((q) => q.lessonId)).size,
+      questions_available: pool.length,
+      min_questions: MIN_POOL,
+      can_quiz: pool.length >= MIN_POOL,
+    };
+  }
+
   // ---------- Task 140 ----------
   /**
    * Đề tổng hợp từ ĐÚNG những bài đã học trong ngày hôm nay.

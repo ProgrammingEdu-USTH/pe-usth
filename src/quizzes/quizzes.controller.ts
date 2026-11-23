@@ -89,6 +89,13 @@ export class QuizzesController {
     return this.quizzes.getQuiz(userId, quizId);
   }
 
+  // ---------- BE14 ----------
+  /** Ô đề ôn sau bài hỏi trước: đủ câu chưa, còn thiếu mấy bài. Không ghi gì. */
+  @Get('courses/:id/quiz/status')
+  status(@CurrentUserId() userId: number, @Param('id') courseId: string) {
+    return this.quizzes.getCourseQuizStatus(userId, courseId);
+  }
+
   // ---------- Task 134 ----------
   @Get('courses/:id/quiz/history')
   history(@CurrentUserId() userId: number, @Param('id') courseId: string) {

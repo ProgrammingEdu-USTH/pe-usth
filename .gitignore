@@ -31,3 +31,6 @@ NHAT-KY-SUA.md
 # Sao lưu DB cục bộ (có thể chứa dữ liệu người dùng) — không commit
 backups/
 *.dump
+
+# Kết quả chạy sinh đề (scripts/gen-questions/mcq.ts): sinh lại được, số đo chép vào docs/ml-pipeline.md
+scripts/gen-questions/out/

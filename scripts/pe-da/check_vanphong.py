@@ -204,6 +204,11 @@ from collections import Counter
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+# Tệp này có HAI nhà: repo nội dung (Giao_Trinh_PE, bản gốc) và repo nền tảng (pe-usth,
+# bản chép cùng đường dẫn scripts/pe-da/). Chỉ ở nền tảng mới có `build.py` ngay cạnh,
+# nên đó là dấu hiệu DUY NHẤT để biết mình đang ở đâu. Đừng đoán bằng đường dẫn lên thư mục
+# cha: ở repo nội dung `HERE.parent.parent` là thư mục BÊN NGOÀI repo.
+LA_NEN_TANG = (HERE / 'build.py').is_file()
 SOURCE = HERE / 'source' / 'course.json'
 # Gói bài tập + trắc nghiệm của người soạn. Luật TL đọc nó cho §8: số đo của
 # NGÂN HÀNG NGUỒN khác số đo của bản phát ra, vì phép trộn vị trí nằm ở build.
@@ -1174,8 +1179,13 @@ def kiem_tai_lieu(bai: list[dict], bank: list[Muc]) -> None:
     # TRẦN LINT BACKEND là một BẢN SAO của `ci.yml`, và §12 tự ghi rằng trích dẫn
     # ở đó "từng ghi 245 suốt nhiều tháng". Nay nó được so với CHÍNH nguồn —
     # cùng tệp mà `scripts/nguong-mot-chieu.json` đọc trần ấy từ.
+    # Chỉ đối chiếu ở nền tảng: `ci.yml` là của pe-usth, repo nội dung không có nó, và ở đó
+    # câu trích trong §12 chỉ là một lời khai về nền tảng, không có gì để đối chiếu. Ở nền
+    # tảng thiếu `ci.yml` vẫn là LỖI như trước — nhánh bỏ qua chỉ mở khi không có build.py.
     ci = HERE.parent.parent / '.github' / 'workflows' / 'ci.yml'
-    if not ci.is_file():
+    if not LA_NEN_TANG:
+        pass
+    elif not ci.is_file():
         loi('TL', 'không tìm thấy .github/workflows/ci.yml — không đối chiếu được '
                   'trần lint mà §12 trích')
     else:

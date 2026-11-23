@@ -22,6 +22,8 @@ cd frontend && npm run dev # cổng 3000
 py scripts/pe-da/build.py              # course.json -> scripts/pe-da/out/ + chép 80 ảnh
 py scripts/pe-da/check.py --strict     # kiểm cấu trúc (CI chạy bản này)
 py scripts/pe-da/sync_curricula.py     # chép giáo trình sang frontend/src/lib/curricula.json
+node scripts/giao-trinh.mjs            # NỘI DUNG chép ở đây có đúng Giao_Trinh_PE @ SHA ghim không (cần mạng)
+node scripts/giao-trinh.mjs lay --sha <SHA|main>   # lấy nội dung mới từ Giao_Trinh_PE và ghim SHA
 py scripts/pe-da/gen_traces.py         # SINH LẠI traces.json (bảng từng bước) — ~20 phút,
                                        # chỉ chạy khi code bài ĐỔI; cần numpy/pandas/matplotlib
                                        # trên máy, nên KHÔNG chạy được trên CI (xem bẫy dưới)
@@ -67,6 +69,29 @@ node scripts/pe-v4/check-pyodide.mjs   # chấm thử 427 ca bằng chính bộ 
 ```
 
 Trên Windows dùng `py`, không dùng `python` — `python` là stub của Microsoft Store.
+
+## Nội dung giáo trình soạn ở Giao_Trinh_PE (từ 23/11/2026)
+
+Chủ dự án quyết: mọi việc tổng hợp và thay đổi nội dung giáo trình làm ở repo
+[Giao_Trinh_PE](https://github.com/ProgrammingEdu-USTH/Giao_Trinh_PE) (gói `PE_Python_DA/`), không ở repo này.
+Ở đây chỉ còn BẢN CHÉP nội dung (danh sách tệp ở `PE_Python_DA/tools/anh-xa.json` bên đó) cộng phần của nền tảng:
+`build.py`, `check.py`, các `check-*.mjs`, `gen_traces.py` + `traces.json`, `out/`, `da-nap.json` và việc nạp DB.
+
+- **Đừng vá `scripts/pe-da/source/*`, sổ thuật ngữ, tài liệu `.md`, hình hay dữ liệu ở đây.**
+  `node scripts/giao-trinh.mjs` so bản chép với SHA ghim ở `scripts/pe-da/giao-trinh.json` và ĐỎ nếu lệch. Đã ablate
+  (ca 9 = 8 phép gieo/đối chứng + nền sạch): sửa 1 byte, xoá một tệp, thả tệp lạ vào thư mục được ánh xạ → thoát 1; ghim nhầm SHA
+  cũ, SHA không tồn tại, ghim rỗng → thoát 2; tệp văn bản bị Windows đổi CRLF → vẫn 0 (đối chứng ngược, không đỏ oan).
+- **Quy trình:** sửa và chạy cổng nội dung bên Giao_Trinh_PE (`check_vanphong.py --doi-chieu`, `gen_dulieu.py`; CI bên đó chạy lại)
+  → merge → ở đây `node scripts/giao-trinh.mjs lay --sha <SHA đầy đủ | main>` → `build.py`, `gen_traces.py` nếu code bài đổi,
+  các cổng của nền tảng, nạp DB, ghi biên nhận. Cổng văn phong đòi sửa `VAN-PHONG.md` mục 2 khi số câu giảng đổi: sửa BÊN ĐÓ.
+- **Đọc ánh xạ TẠI SHA đã ghim**, không có bản khai thứ hai ở đây để lệch. Lấy nội dung bằng git: thư mục `PE_GIAO_TRINH` hoặc
+  `../Giao_Trinh_PE` nếu chứa SHA; không thì `git fetch --depth 1` từ GitHub (repo công khai, không cần khoá). Thoát 1 = lệch,
+  2 = không đo được — đừng gộp hai thứ: "lệch" là lỗi nội dung, "không đo được" là lỗi chỗ đứng.
+- `check_vanphong.py` và `gen_dulieu.py` là bản chép của script bên đó và chạy ở đây không đổi hành vi (đo: văn phong 68/364, sổ mốc
+  0 lỗi; sinh lại dữ liệu không đổi byte nào). Chúng nhận ra nơi mình đứng bằng sự có mặt của `build.py` ngay cạnh.
+- **Giới hạn:** ghim không kiểm SHA có nằm trên `main` của repo nội dung hay không. CI của repo này mới chạy ở `master` (xem bẫy
+  L3400), nên bước CI mới chưa chạy tự động ở `main` cho tới khi trigger được lật; chạy tay bằng lệnh trên. Thêm tệp vào giáo
+  trình thì thêm vào `anh-xa.json` BÊN ĐÓ trước, rồi `lay`.
 
 ## Mốc nền
 

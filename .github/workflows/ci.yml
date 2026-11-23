@@ -346,6 +346,13 @@ jobs:
         with:
           node-version: '22'
 
+      # Nội dung giáo trình SOẠN ở repo Giao_Trinh_PE; bản chép ở cây này (source/, sổ thuật
+      # ngữ, tài liệu, hình, dữ liệu, cổng văn phong, bộ sinh dữ liệu) phải đúng với SHA đã ghim
+      # ở scripts/pe-da/giao-trinh.json. Đứng TRƯỚC build.py có chủ ý: nếu bản chép đã lệch thì
+      # mọi bước dưới đo một thứ không ai soạn, và lỗi nên hiện ở đây chứ không ở một bài đỏ
+      # ngẫu nhiên. Cần mạng (git fetch --depth 1 từ repo công khai, không cần khoá).
+      - run: node scripts/giao-trinh.mjs
+
       # Dựng lại từ source/course.json. Ảnh lấy từ bản đã commit (gói gốc chỉ có
       # trên máy người soạn) — thiếu ảnh thì build tự thoát khác 0.
       - run: python scripts/pe-da/build.py

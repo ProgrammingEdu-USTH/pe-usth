@@ -207,7 +207,7 @@ tiêu là chạy tới xanh rồi mới bàn giao, không hỏi giữa chừng.
 
 ## Những cái bẫy đã gặp
 
-Chi tiết 184 bẫy (triệu chứng → nguyên nhân → số đã đo → ablate → giới hạn) nằm ở [BAY-DA-GAP.md](BAY-DA-GAP.md),
+Chi tiết 185 bẫy (triệu chứng → nguyên nhân → số đã đo → ablate → giới hạn) nằm ở [BAY-DA-GAP.md](BAY-DA-GAP.md),
 nguyên văn như trước 17/11/2026 (#227). Chúng không còn nạp vào mỗi phiên: chiếm 662 KB trong 714 KB của tệp này.
 **Trước khi sửa một vùng, tìm tên vùng trong mục lục dưới đây rồi `Read` tệp lưu trữ từ số dòng ghi sau mũi tên** (L123 = dòng 123).
 Bẫy mới: thêm vào cuối phần 1 của BAY-DA-GAP.md và thêm MỘT dòng vào mục lục này.
@@ -229,7 +229,7 @@ Bẫy mới: thêm vào cuối phần 1 của BAY-DA-GAP.md và thêm MỘT dòn
 13. **Đầu ra của `git push` và CÂU của một cổng là PHÉP ĐO, không phải tiếng ồn.** Dòng `remote:` báo repo đã dời; `check-da-nap` in sẵn câu trả lời "mọi bài đã nạp" trong khi người ta lặp "153 bài chưa nạp". Chạy cổng canh việc rồi đọc CÂU, không đọc màu. Khi `check-da-deploy` cảnh báo thì production có thể đang chạy bản cũ dù CI xanh.
 14. **Nghi phép đo trước khi nghi sản phẩm — nhất là khi một phép đo cho hai giá trị KHÔNG THỂ cùng đúng.** `color` và `border-color` cùng một `var()` mà khác nhau (transition đang chạy), 43,3px so với computed 44px (hoạt ảnh), fetch + so HTML trang render ở client (luôn bằng nhau theo cấu tạo), `ℹ` multibyte, tab renderer khác chạy rAF. Kiểm `response.status` trước khi kết luận về sản phẩm; một lượt mở trang bài học trên production bằng trình duyệt là một phép đo CÓ GHI (tạo tài khoản khách).
 
-### Mục lục (184 bẫy, theo thứ tự trong tệp lưu trữ)
+### Mục lục (185 bẫy, theo thứ tự trong tệp lưu trữ)
 
 - 508 khối code màn đọc chia vào nhóm nào — nay KHAI RA, và bộ bắt-tất từng làm cổng RỖNG. → L12
 - PHỄU TIẾN ĐỘ: `lesson_progress` KHÔNG phải mẫu số, và `scripts/` chưa bao giờ được typecheck. → L45
@@ -415,6 +415,7 @@ Bẫy mới: thêm vào cuối phần 1 của BAY-DA-GAP.md và thêm MỘT dòn
 - GIAO DIỆN THỨ HAI "ĐÀI THIÊN VĂN" — vòng B1: một TRỤC chọn riêng, token ở TỆP RIÊNG, và bản design KHÔNG phải thứ tôi tưởng. → L6751
 - THEME CHIÊM TINH PHỦ TRANG CHỦ — và vì sao nó là lớp KHOÁC, không phải cảnh mới (vòng H1, 12/11/2026). → L6894
 - THEME CHIÊM TINH Ở /ide, 404, TRANG LỖI — và MONACO KHÔNG ĐỌC CSS (vòng H2, 12/11/2026). → L6911
+- WORKTREE MỚI TRÊN WINDOWS ĐỎ 2 BỘ JEST Ở `main` NGUYÊN VẸN (`autocrlf` hệ thống) — và hai cách nữa để "đã ablate" mà không đo được gì: gỡ hẳn bản sửa làm chết tiến trình, và mock che mất logic JOIN. → L6921
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

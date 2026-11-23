@@ -1,6 +1,15 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { PrismaClient } from 'src/generated/prisma';
 import { PrismaNeon } from '@prisma/adapter-neon';
+import {
+  findPendingMigrations,
+  readRepoMigrations,
+} from './pending-migrations';
 
 @Injectable()
 export class PrismaService
@@ -34,6 +43,30 @@ export class PrismaService
 
   async onModuleInit() {
     await this.$connect();
+    void this.canhBaoMigrationThieu();
+  }
+
+  /** Chỉ CẢNH BÁO, không chặn khởi động: role `pe_app` không đọc được `_prisma_migrations` (AGENTS.md). */
+  private async canhBaoMigrationThieu() {
+    const trongRepo = readRepoMigrations();
+    if (!trongRepo) return;
+    try {
+      const rows = await this.$queryRaw<
+        Array<{ migration_name: string }>
+      >`SELECT migration_name FROM _prisma_migrations WHERE finished_at IS NOT NULL`;
+      const thieu = findPendingMigrations(
+        trongRepo,
+        rows.map((r) => r.migration_name),
+      );
+      if (thieu.length) {
+        new Logger(PrismaService.name).error(
+          `DB CHƯA áp ${thieu.length} migration của code: ${thieu.join(', ')}. ` +
+            'Route đọc cột mới sẽ lỗi 500. Chạy: npx prisma migrate deploy (DIRECT_URL không có -pooler).',
+        );
+      }
+    } catch {
+      /* không đọc được bảng migration: bỏ qua */
+    }
   }
 
   async onModuleDestroy() {

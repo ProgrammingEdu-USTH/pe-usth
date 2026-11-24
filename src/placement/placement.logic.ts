@@ -7,6 +7,11 @@
  * `correctIndex` là ĐÁP ÁN ĐÚNG: chỉ server được thấy. publicView() bỏ nó trước khi gửi ra
  * (bẫy "lộ đáp án" trong AGENTS.md: spec phải giữ fixture đúng hình dữ liệu thật).
  */
+import {
+  isQuestionnaireDoc,
+  parseQuestionnaireDoc,
+} from '../questionnaire/questionnaire.logic';
+
 export type PlacementQuestion = {
   id: number;
   topic: string;
@@ -27,11 +32,32 @@ const isObj = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v);
 
 /**
+ * Bộ câu định dạng theo module (docs/questionnaire-spec.md §2, src/questionnaire/) →
+ * dạng câu của placement. Cả hai route đọc CÙNG bản `is_active` của bảng `questionnaires`,
+ * nên thiếu nhánh này thì nạp bộ câu mới (scripts/seed-questionnaire.ts) là
+ * `/placement/questions` ném 500 "phải là mảng" — mà FE đang gọi đúng route đó.
+ * Thứ tự câu giữ nguyên: answers[i] của placement và của questionnaire trỏ cùng một câu.
+ */
+function fromQuestionnaireDoc(json: unknown): PlacementQuestion[] {
+  const doc = parseQuestionnaireDoc(json);
+  return doc.items.map((it, i) => ({
+    id: i + 1,
+    topic: it.module_code,
+    question: it.question,
+    ...(it.code ? { code: it.code } : {}),
+    options: it.options.map((o) => o.text),
+    correctIndex: it.correct,
+  }));
+}
+
+/**
  * Kiểm `questions_json` đọc từ DB hoặc từ file nạp. Ném Error có câu tiếng Việt chỉ rõ câu nào sai:
  * dữ liệu sai hình mà để lọt thì người học thấy nút trắng hoặc câu không có đáp án đúng,
  * và không có log nào đỏ (cùng kiểu lỗi với `normalizeQuestion` ở kho quiz).
+ * Nhận cả bản mảng cũ lẫn bộ câu theo module (object có `items`).
  */
 export function parseQuestions(json: unknown): PlacementQuestion[] {
+  if (isQuestionnaireDoc(json)) return fromQuestionnaireDoc(json);
   if (!Array.isArray(json) || json.length === 0)
     throw new Error('Bộ câu hỏi phải là mảng có ít nhất 1 câu.');
   const seen = new Set<number>();

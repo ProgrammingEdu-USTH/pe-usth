@@ -158,3 +158,34 @@ describe('PlacementService', () => {
     expect(await svc.getMine(1)).toEqual({ ok: true, done: false });
   });
 });
+
+// Bộ câu theo module (scripts/seed-questionnaire.ts) nằm CÙNG bảng, CÙNG cờ is_active với
+// bản mảng cũ. Thiếu nhánh đọc định dạng này thì bật bộ câu mới là /placement/questions 500.
+describe('placement.logic — bộ câu theo module', () => {
+  const doc: unknown = JSON.parse(
+    readFileSync(
+      join(
+        __dirname,
+        '../../scripts/placement/questionnaire-python_advanced.json',
+      ),
+      'utf8',
+    ),
+  );
+  // Gọi trong từng ca (không ở thân describe) để lỗi hiện thành ca trượt có tên.
+  const load = () => parseQuestions(doc);
+
+  it('đọc được, giữ thứ tự câu, chủ đề là mã module', () => {
+    const qs = load();
+    expect(qs).toHaveLength(24);
+    expect(qs[0]).toMatchObject({ id: 1, topic: 'M1' });
+    expect(qs[23]).toMatchObject({ id: 24, topic: 'M8' });
+    for (const q of qs) expect(q.options.every((o) => o.trim())).toBe(true);
+  });
+
+  it('publicView vẫn không lộ đáp án, grade chấm đúng theo bộ câu', () => {
+    const qs = load();
+    expect(JSON.stringify(publicView(qs))).not.toContain('correctIndex');
+    const all = qs.map((q) => q.correctIndex);
+    expect(grade(qs, all)).toEqual({ score: 24, total: 24 });
+  });
+});

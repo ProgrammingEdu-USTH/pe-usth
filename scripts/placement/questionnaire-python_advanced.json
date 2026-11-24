@@ -1,0 +1,646 @@
+{
+  "course_id": "python_advanced",
+  "title": "Bài kiểm tra đầu vào theo module",
+  "params": {
+    "mastery_threshold": 0.66,
+    "self_assess_weight": 0.2,
+    "skip_policy": "wrong",
+    "items_per_module": 3,
+    "max_duration_min": 10
+  },
+  "modules": [
+    {
+      "code": "M1",
+      "first_lesson_no": 1,
+      "title": "M1 · Python nền tảng"
+    },
+    {
+      "code": "M2",
+      "first_lesson_no": 19,
+      "title": "M2 · NumPy từ dãy số đến bảng"
+    },
+    {
+      "code": "M3",
+      "first_lesson_no": 42,
+      "title": "M3 · pandas: từ bảng đầu tiên đến quy trình phân tích"
+    },
+    {
+      "code": "M4",
+      "first_lesson_no": 74,
+      "title": "M4 · Trực quan hóa dữ liệu: Matplotlib, seaborn, Plotly và dashboard"
+    },
+    {
+      "code": "M5",
+      "first_lesson_no": 104,
+      "title": "M5 · Python ứng dụng, OOP và dữ liệu lưu trữ"
+    },
+    {
+      "code": "M6",
+      "first_lesson_no": 132,
+      "title": "M6 · Hệ điều hành, tiến trình và đa luồng"
+    },
+    {
+      "code": "M7",
+      "first_lesson_no": 145,
+      "title": "M7 · Multiprocessing và shell thực hành"
+    },
+    {
+      "code": "M8",
+      "first_lesson_no": 148,
+      "title": "M8 · Tkinter: từ form nhỏ đến màn hình nhận đơn"
+    },
+    {
+      "code": "M9",
+      "first_lesson_no": 160,
+      "title": "M9 · Ôn tập và thực hành các chi tiết trong slide"
+    },
+    {
+      "code": "M10",
+      "first_lesson_no": 168,
+      "title": "M10 · Ôn API trực quan hóa và mở rộng NumPy cho phân tích"
+    },
+    {
+      "code": "M11",
+      "first_lesson_no": 173,
+      "title": "M11 · Thực hành trên số liệu thật của một quán khác"
+    }
+  ],
+  "items": [
+    {
+      "id": "q-m1-1",
+      "module_code": "M1",
+      "question": "Chạy morning = 8; afternoon = 11; print(morning + afternoon) sẽ in gì?",
+      "options": [
+        {
+          "text": "19"
+        },
+        {
+          "text": "811"
+        },
+        {
+          "text": "morning + afternoon"
+        }
+      ],
+      "correct": 0,
+      "level": "basic",
+      "explanation": "Đúng. Python cộng hai giá trị 8 và 11 rồi print kết quả.",
+      "source": {
+        "lesson_code": "PY01",
+        "sort_order": 1,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m1-2",
+      "module_code": "M1",
+      "question": "Đọc ký tự đầu của mã file. Kết quả ở lệnh print cuối có giá trị nào?\n\nname = \"sales.csv\"\nprint(name[0])",
+      "options": [
+        {
+          "text": "'a'"
+        },
+        {
+          "text": "'sales'"
+        },
+        {
+          "text": "'s'"
+        }
+      ],
+      "correct": 2,
+      "level": "intermediate",
+      "explanation": "Chỉ số 0 trỏ ký tự đầu tiên.",
+      "source": {
+        "lesson_code": "PY07",
+        "sort_order": 7,
+        "index": 1
+      }
+    },
+    {
+      "id": "q-m1-3",
+      "module_code": "M1",
+      "question": "Đã đăng ký {A,B,C}, đã nộp {B,C}. Phép nào tìm người chưa nộp?",
+      "options": [
+        {
+          "text": "registered - submitted"
+        },
+        {
+          "text": "registered & submitted"
+        },
+        {
+          "text": "submitted - registered"
+        }
+      ],
+      "correct": 0,
+      "level": "advanced",
+      "explanation": "Đúng. Giữ người thuộc đăng ký nhưng không thuộc đã nộp.",
+      "source": {
+        "lesson_code": "PY13",
+        "sort_order": 13,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m2-1",
+      "module_code": "M2",
+      "question": "a = np.array([4, 2, 9]). Khi in a, thứ tự nào được giữ?",
+      "options": [
+        {
+          "text": "[4 2 9]"
+        },
+        {
+          "text": "[9 2 4]"
+        },
+        {
+          "text": "[2 4 9]"
+        }
+      ],
+      "correct": 0,
+      "level": "basic",
+      "explanation": "Đúng. np.array giữ thứ tự dữ liệu nhập.",
+      "source": {
+        "lesson_code": "NP01",
+        "sort_order": 19,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m2-2",
+      "module_code": "M2",
+      "question": "Có 8 số. Cách xếp nào vừa đủ?",
+      "options": [
+        {
+          "text": "reshape(4,2)"
+        },
+        {
+          "text": "reshape(2,3)"
+        },
+        {
+          "text": "reshape(3,3)"
+        }
+      ],
+      "correct": 0,
+      "level": "intermediate",
+      "explanation": "Đúng. 4×2=8.",
+      "source": {
+        "lesson_code": "NP08",
+        "sort_order": 26,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m2-3",
+      "module_code": "M2",
+      "question": "Điểm [6,9], tín chỉ [1,3]. Trung bình có trọng số bằng gì?",
+      "options": [
+        {
+          "text": "7.5"
+        },
+        {
+          "text": "8.25"
+        },
+        {
+          "text": "16.5"
+        }
+      ],
+      "correct": 1,
+      "level": "advanced",
+      "explanation": "Đúng. (6×1+9×3)/(1+3)=33/4.",
+      "source": {
+        "lesson_code": "NP16",
+        "sort_order": 34,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m3-1",
+      "module_code": "M3",
+      "question": "s = pd.Series([4, 9], index=[\"AM\", \"PM\"]). s.loc[\"PM\"] trả gì?",
+      "options": [
+        {
+          "text": "1"
+        },
+        {
+          "text": "4"
+        },
+        {
+          "text": "9"
+        }
+      ],
+      "correct": 2,
+      "level": "basic",
+      "explanation": "loc dùng nhãn, không dùng vị trí số của phần tử.",
+      "source": {
+        "lesson_code": "PD01",
+        "sort_order": 42,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m3-2",
+      "module_code": "M3",
+      "question": "Series [10, None, 30] có count và size thế nào?",
+      "options": [
+        {
+          "text": "3 và 3"
+        },
+        {
+          "text": "2 và 3"
+        },
+        {
+          "text": "3 và 2"
+        }
+      ],
+      "correct": 1,
+      "level": "intermediate",
+      "explanation": "Số ô trong cột khác số giá trị có thể dùng để tính.",
+      "source": {
+        "lesson_code": "PD11",
+        "sort_order": 52,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m3-3",
+      "module_code": "M3",
+      "question": "MS trong resample dùng nhãn ở đầu hay cuối tháng?\n\nimport pandas as pd\ndf = pd.DataFrame({'date': ['2026-01-01', '2026-01-20', '2026-02-03'], 'amount': [10, 20, 40]})\ndf['date'] = pd.to_datetime(df['date'])\nmonthly = df.set_index('date')['amount'].resample('MS').sum()\nprint(monthly.index.strftime('%Y-%m-%d').tolist())\nprint(monthly.tolist())",
+      "options": [
+        {
+          "text": "Cuối tháng."
+        },
+        {
+          "text": "Đầu tháng."
+        },
+        {
+          "text": "Ngày cuối cùng có giao dịch trong tháng."
+        }
+      ],
+      "correct": 1,
+      "level": "advanced",
+      "explanation": "Đầu tháng.",
+      "source": {
+        "lesson_code": "PD22",
+        "sort_order": 63,
+        "index": 1
+      }
+    },
+    {
+      "id": "q-m4-1",
+      "module_code": "M4",
+      "question": "Muốn so số sách bán ở ba quầy, dạng hình nào phù hợp nhất?",
+      "options": [
+        {
+          "text": "Bar chart"
+        },
+        {
+          "text": "Histogram của tên quầy"
+        },
+        {
+          "text": "Line chart nối tên quầy"
+        }
+      ],
+      "correct": 0,
+      "level": "basic",
+      "explanation": "Loại biểu đồ đi theo câu hỏi, không phải chỉ vì thư viện vẽ được.",
+      "source": {
+        "lesson_code": "VZ01",
+        "sort_order": 74,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m4-2",
+      "module_code": "M4",
+      "question": "Trên thang log10, 1→10 và 10→100 có khoảng cách thế nào?",
+      "options": [
+        {
+          "text": "Khoảng sau lớn gấp 10"
+        },
+        {
+          "text": "Bằng nhau vì cùng gấp 10"
+        },
+        {
+          "text": "Tùy số hàng bảng"
+        }
+      ],
+      "correct": 1,
+      "level": "intermediate",
+      "explanation": "Cần phân biệt hiệu số bằng nhau với tỷ số bằng nhau.",
+      "source": {
+        "lesson_code": "VZ11",
+        "sort_order": 84,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m4-3",
+      "module_code": "M4",
+      "question": "Figure có hai trace A,B. visible=[False,True] hiện trace nào?",
+      "options": [
+        {
+          "text": "A"
+        },
+        {
+          "text": "B"
+        },
+        {
+          "text": "Cả hai"
+        }
+      ],
+      "correct": 1,
+      "level": "advanced",
+      "explanation": "visible có một giá trị cho mỗi trace, theo đúng thứ tự.",
+      "source": {
+        "lesson_code": "VZ21",
+        "sort_order": 94,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m5-1",
+      "module_code": "M5",
+      "question": "Ngày 2024-02-28 cộng 2 ngày bằng timedelta là ngày nào?",
+      "options": [
+        {
+          "text": "2024-02-30"
+        },
+        {
+          "text": "2024-03-01"
+        },
+        {
+          "text": "2024-03-02"
+        }
+      ],
+      "correct": 1,
+      "level": "basic",
+      "explanation": "Năm 2024 có ngày 29/02; timedelta đi qua ranh giới tháng.",
+      "source": {
+        "lesson_code": "SY01",
+        "sort_order": 104,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m5-2",
+      "module_code": "M5",
+      "question": "Điểm cũ là 8. Setter kiểm đầu vào mới 11 trước phép gán rồi raise ValueError. Điểm cũ còn bao nhiêu?",
+      "options": [
+        {
+          "text": "11"
+        },
+        {
+          "text": "8"
+        },
+        {
+          "text": "None"
+        }
+      ],
+      "correct": 1,
+      "level": "intermediate",
+      "explanation": "Ngoại lệ xảy ra trước phép gán nên trạng thái cũ còn nguyên.",
+      "source": {
+        "lesson_code": "SY10",
+        "sort_order": 113,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m5-3",
+      "module_code": "M5",
+      "question": "zlib.compress(\"hello\") dùng chuỗi str trực tiếp có đúng không?",
+      "options": [
+        {
+          "text": "Không; văn bản không thể nén"
+        },
+        {
+          "text": "Không; cần encode thành bytes"
+        },
+        {
+          "text": "Có; mọi API tự encode UTF-8"
+        }
+      ],
+      "correct": 1,
+      "level": "advanced",
+      "explanation": "API nén byte cần dữ liệu byte; sau giải nén mới decode thành văn bản.",
+      "source": {
+        "lesson_code": "SY19",
+        "sort_order": 122,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m6-1",
+      "module_code": "M6",
+      "question": "Một editor được mở hai lần từ cùng file chương trình. Hai lần mở có bắt buộc cùng PID không?",
+      "options": [
+        {
+          "text": "Không thể chạy cùng program hai lần"
+        },
+        {
+          "text": "Không; đó có thể là hai tiến trình có PID riêng"
+        },
+        {
+          "text": "Có; PID là tên file chương trình"
+        }
+      ],
+      "correct": 1,
+      "level": "basic",
+      "explanation": "Program là mã chương trình; process là một lần thực thi có trạng thái và tài nguyên.",
+      "source": {
+        "lesson_code": "CT01",
+        "sort_order": 132,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m6-2",
+      "module_code": "M6",
+      "question": "SRTF: A còn 5 ms; B vừa đến cần 2 ms. Điều gì xảy ra nếu bỏ qua overhead?",
+      "options": [
+        {
+          "text": "B chỉ được chạy nếu deadline gần hơn"
+        },
+        {
+          "text": "B có thể lấy CPU vì thời gian còn lại ngắn hơn"
+        },
+        {
+          "text": "A luôn chạy tới hết vì đến trước"
+        }
+      ],
+      "correct": 1,
+      "level": "intermediate",
+      "explanation": "SRTF so thời gian còn lại và có thể ngắt job hiện tại.",
+      "source": {
+        "lesson_code": "CT05",
+        "sort_order": 136,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m6-3",
+      "module_code": "M6",
+      "question": "Hai thread trong cùng process có bắt buộc hai heap độc lập như hai process không?",
+      "options": [
+        {
+          "text": "Có; mọi biến luôn bị sao chép khi start"
+        },
+        {
+          "text": "Không; chúng dùng chung heap của process"
+        },
+        {
+          "text": "Không; vậy chúng cũng chung một stack duy nhất"
+        }
+      ],
+      "correct": 1,
+      "level": "advanced",
+      "explanation": "Mỗi thread có stack/PC/thanh ghi riêng nhưng có thể truy cập các object chung.",
+      "source": {
+        "lesson_code": "CT09",
+        "sort_order": 140,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m7-1",
+      "module_code": "M7",
+      "question": "Con sửa một list Python thông thường sau spawn. List ở cha có tự đổi không?",
+      "options": [
+        {
+          "text": "Có; giống hai thread cùng heap"
+        },
+        {
+          "text": "Không; process không thể gửi kết quả"
+        },
+        {
+          "text": "Không; hai process có không gian dữ liệu riêng"
+        }
+      ],
+      "correct": 2,
+      "level": "basic",
+      "explanation": "Cần cơ chế trao đổi như multiprocessing.Queue nếu muốn gửi kết quả.",
+      "source": {
+        "lesson_code": "CT14",
+        "sort_order": 145,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m7-2",
+      "module_code": "M7",
+      "question": "Lệnh chứa đối số \"two words\" có thể tách đúng bằng str.split() trong mọi trường hợp không?",
+      "options": [
+        {
+          "text": "Không; split không hiểu dấu nháy của lệnh"
+        },
+        {
+          "text": "Có; khoảng trắng luôn tách đối số"
+        },
+        {
+          "text": "Không; phải dùng eval lệnh người nhập"
+        }
+      ],
+      "correct": 0,
+      "level": "intermediate",
+      "explanation": "shlex.split giúp phân nhóm từ có quote theo quy tắc đã chọn.",
+      "source": {
+        "lesson_code": "CT15",
+        "sort_order": 146,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m7-3",
+      "module_code": "M7",
+      "question": "Với spawn, vì sao worker cần định nghĩa ở mức module?",
+      "options": [
+        {
+          "text": "Để không cần truyền đối số"
+        },
+        {
+          "text": "Để process con import được hàm cần chạy"
+        },
+        {
+          "text": "Để worker tự dùng chung heap với cha"
+        }
+      ],
+      "correct": 1,
+      "level": "advanced",
+      "explanation": "Spawn khởi động interpreter mới; hàm worker cần có tên import được.",
+      "source": {
+        "lesson_code": "CT14",
+        "sort_order": 145,
+        "index": 1
+      }
+    },
+    {
+      "id": "q-m8-1",
+      "module_code": "M8",
+      "question": "Hàm tính thành tiền phải viết hai công thức khác nhau cho CLI và GUI không?",
+      "options": [
+        {
+          "text": "Không; hai giao diện có thể gọi cùng hàm nghiệp vụ"
+        },
+        {
+          "text": "Không; GUI tự biết mọi công thức"
+        },
+        {
+          "text": "Có; Tkinter không gọi được hàm Python thường"
+        }
+      ],
+      "correct": 0,
+      "level": "basic",
+      "explanation": "Cách nhận/hiển thị dữ liệu thay đổi; công thức không phụ thuộc widget.",
+      "source": {
+        "lesson_code": "GU01",
+        "sort_order": 148,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m8-2",
+      "module_code": "M8",
+      "question": "Entry có show=\"*\" có mã hóa mật khẩu được lưu không?",
+      "options": [
+        {
+          "text": "Có; get sẽ trả các dấu sao"
+        },
+        {
+          "text": "Không; nó chỉ che cách hiển thị"
+        },
+        {
+          "text": "Có; mọi dữ liệu tự thành bytes mã hóa"
+        }
+      ],
+      "correct": 1,
+      "level": "intermediate",
+      "explanation": "Entry.get vẫn trả nội dung; lưu trữ và bảo vệ dữ liệu là chuyện khác.",
+      "source": {
+        "lesson_code": "GU05",
+        "sort_order": 152,
+        "index": 0
+      }
+    },
+    {
+      "id": "q-m8-3",
+      "module_code": "M8",
+      "question": "place(relx=0.5, rely=0.5, anchor=\"center\") đặt điểm nào của widget ở giữa parent?",
+      "options": [
+        {
+          "text": "Tâm widget"
+        },
+        {
+          "text": "Góc trên trái widget"
+        },
+        {
+          "text": "Tâm toàn màn hình bất kể parent"
+        }
+      ],
+      "correct": 0,
+      "level": "advanced",
+      "explanation": "relx/rely chọn vị trí trong parent; anchor chọn điểm widget gắn vào đó.",
+      "source": {
+        "lesson_code": "GU09",
+        "sort_order": 156,
+        "index": 0
+      }
+    }
+  ]
+}

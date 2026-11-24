@@ -1,4 +1,4 @@
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsEmail,
   IsOptional,
@@ -6,7 +6,9 @@ import {
   Matches,
   MaxLength,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
+import { QuestionnaireAnswersDto } from 'src/questionnaire/dto/questionnaire.dto';
 import {
   emptyToUndefined,
   PHONE_MESSAGE,
@@ -151,4 +153,14 @@ export class SurveyDto {
   @Transform(toCommaString)
   @IsString(INVALID('thời hạn đạt mục tiêu'))
   timeline?: string;
+
+  /**
+   * Câu trả lời bộ câu hỏi đầu vào gửi KÈM khảo sát (tuỳ chọn). Server chấm, xếp module và
+   * lưu vào surveys.data_json.placement — xem src/questionnaire/. Phải khai ở đây vì
+   * forbidNonWhitelisted: thiếu thì FE gửi kèm là cả khảo sát bị 400.
+   */
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => QuestionnaireAnswersDto)
+  questionnaire?: QuestionnaireAnswersDto;
 }

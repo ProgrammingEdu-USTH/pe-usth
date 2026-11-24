@@ -185,10 +185,34 @@ export class UserService {
     // ID cố định theo user -> gọi lại nhiều lần chỉ update, không sinh bản trùng.
     const roadmapId = `u${userId}_generated`;
 
+    // Phần câu trả lời bộ câu hỏi do QuestionnaireService chấm và lưu riêng (controller).
+    const { questionnaire: _answers, ...fields } = dto;
+    void _answers;
+
     const result = await this.prisma.$transaction(async (tx) => {
+      // Kết quả xếp module nằm trong survey MỚI NHẤT (src/questionnaire/). Mỗi lần khảo sát
+      // tạo một bản mới; không mang theo thì làm bài đầu vào trước rồi khảo sát sau là mất
+      // kết quả, vì GET /me/questionnaire chỉ đọc bản mới nhất.
+      const prev = await tx.survey.findFirst({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        select: { dataJson: true },
+      });
+      const prevData = prev?.dataJson;
+      const placement =
+        prevData && typeof prevData === 'object' && !Array.isArray(prevData)
+          ? prevData.placement
+          : undefined;
+
       // Bước 1: lưu survey + đánh dấu đã hoàn thành khảo sát.
       const survey = await tx.survey.create({
-        data: { userId, dataJson: dto as unknown as Prisma.InputJsonValue },
+        data: {
+          userId,
+          dataJson: {
+            ...fields,
+            ...(placement ? { placement } : {}),
+          },
+        },
       });
 
       await tx.user.update({

@@ -10,6 +10,55 @@ Tài liệu này là đầu vào cho ba việc khác, nhưng không việc nào 
 - **ML (Nghĩa, Tuần 3): dựng questionnaire và API.** Cài đặt mục 3 và 5.
 - **Tài liệu (Nam, N4):** câu xếp level theo module. Cột của bảng Nam khớp với trường ở mục 2.
 
+## 0. Đã cài đặt (24/11/2026) — đọc mục này trước khi nối FE
+
+Code: `src/questionnaire/` (logic thuần + service + controller), nạp câu bằng
+`scripts/seed-questionnaire.ts`. Đã chạy thật trên branch Neon thử: bộ câu version 1 đang bật.
+
+**Route** (gateway thêm tiền tố `/api`; cả route theo sheet và route theo mục 5 đều có):
+
+| Route | Quyền | Trả về |
+|---|---|---|
+| `GET /api/questionnaire` (tuỳ chọn `?course_id=`, mặc định `python_advanced`) | công khai | `{ ok, questionnaire_id, course_id, version, title, params, modules, self_assess, items }` — đúng `QuestionnairePayload` của `onboarding-questionnaire.ts`, **không có** `correct`/`explanation` |
+| `GET /api/questionnaire/:courseId` | công khai | như trên |
+| `POST /api/questionnaire/:courseId/submit` body `{ questionnaire_id?, answers, self? }` | JWT (khách cũng được) | `{ ok, done, updated, start_module, start_lesson_no, module_scores, review_modules, level_title, skipped_all, score, total, level, explanations, review }` |
+| `POST /api/survey` hoặc `POST /api/user/survey` | JWT | như cũ; gửi thêm trường `questionnaire: { course_id?, questionnaire_id?, answers, self? }` thì kèm `placement: <kết quả như dòng trên>` |
+| `GET /api/me/questionnaire/:courseId` | JWT | kết quả đã lưu, hoặc `{ ok, done: false }` |
+
+`/api/placement/*` (điểm tổng, của Nhân) vẫn chạy và đọc CÙNG bộ câu đang bật: `parseQuestions` nhận
+cả định dạng mới. FE dùng tiếp `/api/placement/*` cũng được, nhưng chỉ `/api/questionnaire/*` có xếp module.
+
+Lỗi: id câu lạ hoặc chỉ số ngoài khoảng → 400 (câu tiếng Việt nói câu nào); `questionnaire_id` khác bản đang
+bật → 409 "tải lại trang"; chưa có bộ câu cho khoá → 404; trường lạ (ví dụ `score`) → 400.
+
+**Lệch so với các mục dưới (mục dưới viết trước khi đối chiếu DB):**
+
+- **Giáo trình là 11 module, 179 bài, không phải 8 module, 48 bài.** DB (thật và thử) và `curricula.json`
+  của FE dùng gói `scripts/pe-da/out/lessons.json`: M1 = Python nền tảng, M2 = NumPy… Bảng module ở mục 3
+  là của gói pe-v4, KHÔNG dùng. Bài đầu từng module tính lúc chạy từ bảng `lessons` (M2 bắt đầu ở bài 19).
+- **Hỏi M1–M8, 3 câu mỗi module = 24 câu** (sheet: ít nhất 20). M9–M11 là ôn tập và thực hành tổng hợp nên
+  không hỏi; đạt hết M1–M8 thì bắt đầu ở M9 (bài 160).
+- **Ngưỡng 0,66 thay cho 0,67**: với 3 câu/module điểm chỉ có 0; 0,33; 0,67; 1. Giữ 0,67 thì 2/3 = 0,6667
+  là trượt, tức phải đúng cả ba câu. 0,66 nghĩa là đúng ≥ 2/3. Tham số nằm trong bộ câu, đổi bằng bản mới.
+- **Câu lấy từ `step_2.mcq` của chính các bài**, chỉ nhận câu qua luật A2–A5 (đáp án đúng không dài vượt
+  trội nên không đoán được bằng "chọn câu dài nhất") và không dựa vào ngữ cảnh bài ("ở trên", "của bài",
+  "trong sơ đồ"…). Ba câu của một module lấy từ đầu, giữa, cuối module, gắn mức basic/intermediate/advanced.
+  Danh sách câu để duyệt: `scripts/placement/questionnaire-python_advanced.json` (có đáp án).
+- **Chưa có câu tự khai** (`self_assess` rỗng): logic đã hỗ trợ (`w = 0,2`), chờ câu của Nam.
+- **Không có bảng `placement_results`.** Kết quả lưu ở hai chỗ, trong một transaction:
+  `placement_attempts` (bảng của /placement, một dòng mỗi người mỗi bản câu hỏi, nộp lại thì CẬP NHẬT) và
+  `surveys.data_json.placement[courseId]` của bản survey MỚI NHẤT (gộp vào, không tạo bản mới, để không
+  mất `career_target` mà lộ trình đang dùng). POST /survey về sau mang `placement` sang bản mới.
+  Người chưa từng khảo sát thì có thêm một bản survey chỉ chứa `placement`.
+
+**Nạp hoặc đổi bộ câu** (mặc định chạy thử, không chạm DB):
+
+```bash
+npx ts-node scripts/seed-questionnaire.ts                                   # dựng lại từ pe-da, ghi file để duyệt
+npx ts-node scripts/seed-questionnaire.ts --file=data/questionnaire/x.json  # bộ câu Nam soạn (định dạng mục 2)
+npx ts-node scripts/seed-questionnaire.ts --apply --activate --expected-host=<host của DIRECT_URL>
+```
+
 ## 1. Hiện trạng và vì sao cần đặc tả mới
 
 | Thành phần | Tình trạng |

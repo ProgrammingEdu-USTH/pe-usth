@@ -21,6 +21,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { ForumModule } from './forum/forum.module';
 import { RoadmapModule } from './roadmap/roadmap.module';
 import { PlacementModule } from './placement/placement.module';
+import { QuestionnaireModule } from './questionnaire/questionnaire.module';
 import { CourseAdminModule } from './course-admin/course-admin.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
 import { PythonRunnerModule } from './python-runner/python-runner.module';
@@ -47,6 +48,7 @@ import { LearningEventsModule } from './learning-events/learning-events.module';
     ForumModule,
     RoadmapModule,
     PlacementModule,
+    QuestionnaireModule,
     CourseAdminModule,
     ChatbotModule,
     PythonRunnerModule,

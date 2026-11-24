@@ -11,6 +11,10 @@ import {
   Put,
 } from '@nestjs/common';
 import { CurrentUserId } from 'src/common/decorators/current-user.decorator';
+import {
+  DEFAULT_COURSE_ID,
+  QuestionnaireService,
+} from 'src/questionnaire/questionnaire.service';
 import { ChangePasswordDto, SurveyDto, UpdateProfileDto } from './dto/user.dto';
 import { UserService } from './user.service';
 
@@ -18,7 +22,10 @@ import { UserService } from './user.service';
 // (api-getway.setup.ts) — module nghiệp vụ không tự gắn prefix.
 @Controller()
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly questionnaire: QuestionnaireService,
+  ) {}
 
   // ---------- Task 75 ----------
   @Get('user')
@@ -71,9 +78,24 @@ export class UserController {
   }
 
   // ---------- Task 81 ----------
-  @Post('survey')
+  // 'user/survey' là đường dẫn sheet phân việc ghi; FE hiện gọi 'survey'. Hai đường một hàm.
+  @Post(['survey', 'user/survey'])
   @HttpCode(HttpStatus.OK)
-  submitSurvey(@CurrentUserId() userId: number, @Body() dto: SurveyDto) {
-    return this.userService.submitSurvey(userId, dto);
+  async submitSurvey(@CurrentUserId() userId: number, @Body() dto: SurveyDto) {
+    const { questionnaire, ...fields } = dto;
+    // Chấm TRƯỚC khi ghi khảo sát: bộ câu đã đổi (409) hay câu trả lời sai hình (400) thì
+    // trả lỗi khi chưa ghi gì, không để lại bản khảo sát nửa vời.
+    const prepared = questionnaire
+      ? await this.questionnaire.prepare(
+          questionnaire.course_id ?? DEFAULT_COURSE_ID,
+          questionnaire,
+        )
+      : null;
+    const res = await this.userService.submitSurvey(userId, fields);
+    if (!prepared) return res;
+    return {
+      ...res,
+      placement: await this.questionnaire.persist(userId, prepared),
+    };
   }
 }

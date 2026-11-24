@@ -43,6 +43,7 @@ import {
   type RuleFailure,
   runMcqFilters,
 } from '../../src/question-gen/mcq-filters';
+import { Pacer, retryWaitMs } from '../../src/question-gen/gemini-pacing';
 import {
   buildMcqPrompt,
   conceptsOf,
@@ -79,11 +80,16 @@ const PROMPT_VERSION = arg('prompt') ?? 'mcq-v1';
 const PER_LESSON = num('per-lesson', 3);
 const FEW_SHOT = num('few-shot', 2);
 const TEMPERATURE = num('temperature', 0.4);
-const CONCURRENCY = Math.max(1, num('concurrency', 4));
+// Mặc định 1 bài một lúc: gói miễn phí chỉ cho 5 yêu cầu/phút, song song 4 bài vượt ngay
+// (đo 23/11/2026: HTTP 429). Muốn nhanh hơn thì tăng --concurrency VÀ giữ --min-interval-ms.
+const CONCURRENCY = Math.max(1, num('concurrency', 1));
+// 13 s giữa hai lượt gọi = tối đa ~4,6 yêu cầu/phút, dưới trần 5 của gói miễn phí.
+const MIN_INTERVAL_MS = num('min-interval-ms', 13_000);
 // gemini.config mặc định 30 s là trần cho chatbot trả lời ngắn; sinh 3 câu kèm giải thích
 // với gemini-2.5-flash (có bước "thinking") đo được lâu hơn, nên script có trần riêng.
 const TIMEOUT_MS = num('timeout-ms', 120_000);
-const RETRIES = 2;
+// Mỗi lần thử lại cũng ăn vào quota NGÀY (gói miễn phí: 20 yêu cầu/ngày), nên giữ thấp.
+const RETRIES = num('retries', 2);
 
 // ---------- kiểu của file kết quả ----------
 interface AcceptedItem {
@@ -119,6 +125,7 @@ interface RunFile {
 // ---------- Gemini ----------
 const cfg = geminiConfig();
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const pacer = new Pacer(MIN_INTERVAL_MS);
 
 /** Một lượt generateContent, theo mẫu parseWithGemini() (lesson-import.service.ts). */
 async function callGemini(prompt: PromptParts): Promise<string> {
@@ -133,7 +140,7 @@ async function callGemini(prompt: PromptParts): Promise<string> {
   };
   let lastErr = '';
   for (let attempt = 0; attempt <= RETRIES; attempt++) {
-    if (attempt) await sleep(2000 * 2 ** attempt);
+    await pacer.wait();
     let res: Response;
     try {
       res = await fetch(`${cfg.baseUrl}/${cfg.model}:generateContent`, {
@@ -147,6 +154,7 @@ async function callGemini(prompt: PromptParts): Promise<string> {
       });
     } catch (err) {
       lastErr = `mạng/timeout: ${(err as Error).message}`;
+      await sleep(15_000);
       continue;
     }
     const data = (await res.json().catch(() => null)) as {
@@ -158,9 +166,15 @@ async function callGemini(prompt: PromptParts): Promise<string> {
     } | null;
     if (!res.ok) {
       lastErr = `HTTP ${res.status}: ${data?.error?.message ?? 'không rõ'}`;
-      // 429 và 5xx là lỗi tạm thời, đáng thử lại; 4xx khác (key sai, model không có) thì không.
-      if (res.status === 429 || res.status >= 500) continue;
-      throw new Error(lastErr);
+      // 429 (hết quota/phút) và 5xx (quá tải) là lỗi tạm thời: chờ đúng thời gian Google yêu cầu.
+      // Lỗi khác (key sai, model không có) thì dừng ngay.
+      const wait = retryWaitMs(res.status, data, attempt + 1, RETRIES);
+      if (wait === null) throw new Error(lastErr);
+      console.log(
+        `    … ${lastErr.slice(0, 60)}… chờ ${Math.round(wait / 1000)} s rồi thử lại`,
+      );
+      await sleep(wait);
+      continue;
     }
     const cand = data?.candidates?.[0];
     const text = cand?.content?.parts?.map((p) => p.text ?? '').join('') ?? '';

@@ -41,7 +41,7 @@ export default function ShellB({
   const open = controlled ? hintOpen : internalOpen;
 
   return (
-    <section className={styles.card}>
+    <section className={styles.card} data-gh-card="">
       <div className={centered ? styles.headerCentered : styles.header}>
         <span className={styles.eyebrow}>
           {eyebrowIcon}

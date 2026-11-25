@@ -1,0 +1,324 @@
+/* Da "sách mở trong Góc học" cho màn bài học.
+ *
+ * Chỉ đổi cách vẽ: mọi màn, nút và cách chấm giữ nguyên. Ai chọn giao diện
+ * "Đài thiên văn" thì không rule nào ở đây áp dụng. Bảng màu đi qua đúng các
+ * token --ds-* / --edu-* mà màn bài học đã dùng.
+ */
+html:not([data-theme="thien-van"]) [data-gh-page],
+html:not([data-theme="thien-van"]) [data-gh-outline] {
+  --ds-page: #f3ead7;
+  --ds-card: #fbf6ea;
+  --ds-paper: #f3ead7;
+  --ds-tint: #ece1c6;
+  --ds-desk: #ddd0b2;
+  --ds-line: #d6c6a2;
+  --ds-sketch: #6f5f45;
+  --ds-ink: #2a2018;
+  --ds-soft: #54452f;
+  --ds-violet: #244a86;
+  --ds-violet-deep: #1a3763;
+  --ds-violet-tint: #e2e4ea;
+  --ds-action: #2d558f;
+  --ds-on-action: #ffffff;
+  --ds-sanguine: #a81c30;
+  --ds-sanguine-tint: #f6e0da;
+  --ds-ochre: #05603f;
+  --ds-ochre-tint: #dfeadb;
+  --edu-t1: var(--ds-ink);
+  --edu-t2: var(--ds-ink);
+  --edu-t3: var(--ds-soft);
+  --edu-t4: var(--ds-soft);
+  --edu-t5: var(--ds-soft);
+  --edu-t6: var(--ds-soft);
+  --edu-panel-bg: var(--ds-card);
+  --edu-panel-bg-solid: var(--ds-card);
+  --edu-card-bg: var(--ds-card);
+  --edu-card-line: var(--ds-line);
+  --edu-card-border: var(--ds-line);
+  --edu-panel-border: var(--ds-line);
+  --edu-sidebar-border: var(--ds-line);
+  --edu-accent: var(--ds-action);
+  --edu-accent-text: var(--ds-violet);
+  --edu-accent-soft: var(--ds-violet-tint);
+  --edu-track-bg: var(--ds-desk);
+  --edu-code-inline-bg: var(--ds-tint);
+  color: var(--ds-ink);
+}
+html:not([data-theme="thien-van"]) body.dark [data-gh-page],
+html:not([data-theme="thien-van"]) body.dark [data-gh-outline] {
+  --ds-page: #2a221b;
+  --ds-card: #332a21;
+  --ds-paper: #2a221b;
+  --ds-tint: #3d3228;
+  --ds-desk: #4a3d30;
+  --ds-line: #574738;
+  --ds-sketch: #b8a583;
+  --ds-ink: #f3ead7;
+  --ds-soft: #d3c3a3;
+  --ds-violet: #a9c6ff;
+  --ds-violet-deep: #cdddff;
+  --ds-violet-tint: #33364a;
+  --ds-action: #e8b45a;
+  --ds-on-action: #241608;
+  --ds-sanguine: #ff9aa6;
+  --ds-sanguine-tint: #46272a;
+  --ds-ochre: #6fd6a8;
+  --ds-ochre-tint: #223a2d;
+  --edu-t1: var(--ds-ink);
+  --edu-t2: var(--ds-ink);
+  --edu-t3: var(--ds-soft);
+  --edu-t4: var(--ds-soft);
+  --edu-t5: var(--ds-soft);
+  --edu-t6: var(--ds-soft);
+  --edu-panel-bg: var(--ds-card);
+  --edu-panel-bg-solid: var(--ds-card);
+  --edu-card-bg: var(--ds-card);
+  --edu-card-line: var(--ds-line);
+  --edu-card-border: var(--ds-line);
+  --edu-panel-border: var(--ds-line);
+  --edu-sidebar-border: var(--ds-line);
+  --edu-accent: var(--ds-action);
+  --edu-accent-text: var(--ds-violet);
+  --edu-accent-soft: var(--ds-violet-tint);
+  --edu-track-bg: var(--ds-desk);
+  --edu-code-inline-bg: var(--ds-tint);
+  color: var(--ds-ink);
+}
+html:not([data-theme="thien-van"]) [data-gh-bar] {
+  --ds-page: #171019;
+  --ds-card: #2a2030;
+  --ds-paper: #1d1522;
+  --ds-tint: #33273b;
+  --ds-desk: #4a3a52;
+  --ds-line: #4a3a52;
+  --ds-sketch: #c8b6c8;
+  --ds-ink: #fff6ee;
+  --ds-soft: #d9c8d6;
+  --ds-violet: #ffd08a;
+  --ds-violet-deep: #ffe2b5;
+  --ds-violet-tint: #3d2f3a;
+  --ds-action: #e8b45a;
+  --ds-on-action: #241608;
+  --ds-sanguine: #ff9aa6;
+  --ds-sanguine-tint: #46272a;
+  --ds-ochre: #8be3a8;
+  --ds-ochre-tint: #223a2d;
+  --edu-t1: var(--ds-ink);
+  --edu-t2: var(--ds-ink);
+  --edu-t3: var(--ds-soft);
+  --edu-t4: var(--ds-soft);
+  --edu-t5: var(--ds-soft);
+  --edu-t6: var(--ds-soft);
+  --edu-panel-bg: var(--ds-card);
+  --edu-panel-bg-solid: var(--ds-card);
+  --edu-card-bg: var(--ds-card);
+  --edu-card-line: var(--ds-line);
+  --edu-card-border: var(--ds-line);
+  --edu-panel-border: var(--ds-line);
+  --edu-sidebar-border: var(--ds-line);
+  --edu-accent: var(--ds-action);
+  --edu-accent-text: var(--ds-violet);
+  --edu-accent-soft: var(--ds-violet-tint);
+  --edu-track-bg: var(--ds-desk);
+  --edu-code-inline-bg: var(--ds-tint);
+  color: var(--ds-ink);
+}
+
+/* Rãnh thanh cuộn được chừa sẵn lấy nền của trang, nên trang cũng phải tối. */
+html:not([data-theme="thien-van"]):has([data-gh-room]),
+html:not([data-theme="thien-van"]) body:has([data-gh-room]) {
+  background: #171019;
+}
+
+html:not([data-theme="thien-van"]) [data-gh-room] {
+  background: #171019 url(/goc-hoc/room-blur.webp) center / cover fixed;
+}
+
+html:not([data-theme="thien-van"]) [data-gh-bar] {
+  background: rgb(23 16 25 / 0.9);
+  border-color: rgb(255 246 238 / 0.14);
+  backdrop-filter: blur(10px);
+}
+
+html:not([data-theme="thien-van"]) [data-gh-spread] {
+  padding-top: 24px;
+  padding-bottom: 24px;
+  box-sizing: border-box;
+}
+
+/* Cuốn sách: giấy trong bìa da, một dải đánh dấu trang. */
+html:not([data-theme="thien-van"]) [data-gh-spread] > [data-gh-page] {
+  position: relative;
+  box-sizing: border-box;
+  max-width: calc(var(--st-col) + 96px);
+  padding: 20px 28px;
+  background: var(--ds-page);
+  border: 8px solid #5a3b26;
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgb(0 0 0 / 0.45), inset 0 0 40px rgb(90 59 38 / 0.12);
+}
+
+html:not([data-theme="thien-van"]) [data-gh-spread] > [data-gh-page]::after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  right: 34px;
+  width: 22px;
+  height: 46px;
+  background: #e0ae55;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 76%, 0 100%);
+  pointer-events: none;
+}
+
+html:not([data-theme="thien-van"]) [data-gh-spread="wide"] > [data-gh-page] {
+  max-width: var(--st-col-wide);
+}
+
+/* Thẻ trong trang không vẽ thêm một hộp nữa: nó chính là trang giấy. */
+html:not([data-theme="thien-van"]) [data-gh-page] [data-gh-card] {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+[data-gh-outline] {
+  display: none;
+}
+
+@media (min-width: 1180px) {
+  html:not([data-theme="thien-van"]) [data-gh-spread=""] > [data-gh-outline] {
+    display: block;
+    flex: 0 0 300px;
+    box-sizing: border-box;
+    padding: 32px 24px;
+    background: linear-gradient(90deg, var(--ds-page) 82%, var(--ds-desk));
+    border: 8px solid #5a3b26;
+    border-right-width: 0;
+    border-radius: 20px 0 0 20px;
+    box-shadow: 0 24px 60px rgb(0 0 0 / 0.45);
+  }
+
+  html:not([data-theme="thien-van"]) [data-gh-spread=""] > [data-gh-page] {
+    margin: 0;
+    border-radius: 0 20px 20px 0;
+    max-width: calc(var(--st-col) + 120px);
+    background: linear-gradient(90deg, var(--ds-desk), var(--ds-page) 6%);
+  }
+}
+
+[data-gh-outline] h2 {
+  margin: 6px 0 4px;
+  font: 700 20px/1.35 var(--edu-font-display);
+}
+
+[data-gh-outline] p {
+  margin: 0 0 12px;
+  font-size: 15px;
+  color: var(--ds-soft);
+}
+
+[data-gh-outline] [data-gh-eyebrow] {
+  margin: 16px 0 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+[data-gh-grid] {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+[data-gh-outline] button {
+  width: 100%;
+  min-height: 44px;
+  border: 1.5px solid var(--ds-sketch);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ds-ink);
+  font: 600 15px var(--edu-font);
+  cursor: pointer;
+}
+
+[data-gh-outline] button[data-done] {
+  background: var(--ds-ochre-tint);
+  border-color: var(--ds-ochre);
+}
+
+[data-gh-outline] button[aria-current] {
+  background: var(--ds-action);
+  border-color: var(--ds-action);
+  color: var(--ds-on-action);
+}
+
+[data-gh-outline] button:disabled {
+  border-style: dashed;
+  cursor: default;
+}
+
+[data-gh-outline] button:focus-visible {
+  outline: 3px solid var(--ds-violet);
+  outline-offset: 2px;
+}
+
+@media (max-width: 560px) {
+  html:not([data-theme="thien-van"]) [data-gh-spread] {
+    padding: 8px;
+  }
+
+  html:not([data-theme="thien-van"]) [data-gh-spread] > [data-gh-page] {
+    padding: 8px 4px;
+    border-width: 4px;
+    border-radius: 14px;
+  }
+
+  html:not([data-theme="thien-van"]) [data-gh-spread] > [data-gh-page]::after {
+    display: none;
+  }
+}
+
+/* Bí danh --st-* thế var() tại nơi khai (xem studio-tokens.css), nên bề mặt đổi
+   bảng --ds-* phải khai lại chúng. */
+html:not([data-theme="thien-van"]) :is([data-gh-bar], [data-gh-page], [data-gh-outline]) {
+  --st-ok-bg: var(--ds-ochre-tint);
+  --st-ok-text: var(--ds-ochre);
+  --st-ok-line: var(--ds-ochre);
+  --st-err-bg: var(--ds-sanguine-tint);
+  --st-err-text: var(--ds-sanguine);
+  --st-err-line: var(--ds-sanguine);
+  --st-warn-bg: var(--ds-sanguine-tint);
+  --st-warn-text: var(--ds-sanguine);
+  --st-warn-line: var(--ds-sanguine);
+  --st-info-bg: var(--ds-violet-tint);
+  --st-info-text: var(--ds-violet-deep);
+  --st-info-line: var(--ds-violet);
+  --st-streak-bg: var(--ds-violet-tint);
+  --st-code-bg: var(--ds-code-bg);
+  --st-code-radius: var(--ds-r-lg);
+  --st-code-gutter: var(--ds-code-line);
+  --st-syn-keyword: var(--ds-code-kw);
+  --st-syn-string: var(--ds-code-str);
+  --st-syn-number: var(--ds-mark-sanguine);
+  --st-syn-comment: var(--ds-code-num);
+  --st-syn-plain: var(--ds-code-fg);
+  --st-chip-bg: var(--ds-card);
+  --st-chip-border: var(--ds-sketch);
+  --st-slot-bg: var(--ds-violet-tint);
+  --st-slot-border: var(--ds-violet);
+  --st-drag-shadow: var(--ds-shadow-open);
+  --st-shadow-sm: var(--ds-shadow-open);
+  --st-shadow-md: var(--ds-shadow-open);
+  --st-card-radius: var(--ds-r-lg);
+  --st-page-bg: var(--ds-page);
+  --st-track: var(--ds-desk);
+  --st-predict-bg: var(--ds-sanguine-tint);
+  --st-code-bar: var(--ds-code-line);
+  --st-code-meta: var(--ds-code-meta);
+  --st-reflect-bg: var(--ds-violet-tint);
+  --st-reflect-text: var(--ds-violet-deep);
+  --st-code-edge: var(--ds-code-line);
+}

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { BookshelfHubView } from '@/components/bookshelf/BookshelfHubView';
+import BookshelfExtras from '@/components/bookshelf/BookshelfExtras';
 import LofiDarkPageShell from '@/components/ui/LofiDarkPageShell';
 
 export const metadata: Metadata = {
@@ -11,6 +12,7 @@ export default function BookshelfPage() {
   return (
     <LofiDarkPageShell>
       <BookshelfHubView />
+      <BookshelfExtras />
     </LofiDarkPageShell>
   );
 }

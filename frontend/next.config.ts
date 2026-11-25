@@ -83,6 +83,13 @@ const nextConfig: NextConfig = {
     // Manifest". Ghim cứng ở đây thì id luôn là "[project]/src/app/...".
     root: __dirname,
   },
+  // Trang khoá học cũ đã gộp vào Tủ sách. Tham số `?lesson=` đi theo sang đích.
+  async redirects() {
+    return [
+      { source: "/courses/python_advanced", destination: "/bookshelf/python", permanent: false },
+      { source: "/courses/db_design", destination: "/bookshelf/sql", permanent: false },
+    ];
+  },
   async headers() {
     return [
       {

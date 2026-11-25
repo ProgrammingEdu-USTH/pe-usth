@@ -65,7 +65,7 @@ async function expectNoHorizontalOverflow(page: Page, label: string) {
 // dùng JS legacy (db_design — route tĩnh riêng nên vẫn mở được bằng đường dẫn).
 // Bản trước đo thêm /courses/java (giáo trình dài nhất, 110 bài): java đã rời
 // danh mục tĩnh 13/10/2026 nên route động trả 404, đo một trang 404 là đo vô ích.
-for (const path of ['/', '/courses/python_advanced', '/courses/db_design']) {
+for (const path of ['/', '/courses/python_advanced', '/courses/db_design', '/bookshelf']) {
   test(`không tràn ngang: ${path}`, async ({ page }) => {
     await page.goto(path, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(1500); // chờ font/script legacy dựng xong nội dung
@@ -73,31 +73,19 @@ for (const path of ['/', '/courses/python_advanced', '/courses/db_design']) {
   });
 }
 
-test('trang chủ chỉ còn ô Python và ô công cụ Python IDE', async ({ page }) => {
+test('trang chủ dẫn vào Tủ sách, đường khoá học cũ chuyển về đó', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
-  const tiles = page.locator('a[href^="/courses/"]');
-  // 13/10/2026: 6 khoá còn lại (cpp, java, htmlcss, db_design*) đã gỡ khỏi danh
-  // mục tĩnh cho buổi dùng thử — xem src/lib/catalog.ts. Còn đúng một ô khoá.
-  await expect(tiles).toHaveCount(1);
-  const hrefs = await tiles.evaluateAll((els) => els.map((el) => el.getAttribute('href')));
-  expect(hrefs).toEqual(['/courses/python_advanced']);
+  const link = page.locator('#courseLink');
+  await expect(link).toHaveAttribute('href', '/bookshelf/python');
+  // Không còn liên kết nào tới trang khoá học cũ.
+  await expect(page.locator('a[href^="/courses/"]')).toHaveCount(0);
 
-  // 08/11/2026: ô "Python IDE" của trang chủ CŨ đã mất cùng `CatalogTile` khi
-  // trang chủ đổi sang cảnh "Góc học" (4d5f86d). Đo trên production: trang chủ
-  // có ĐÚNG MỘT liên kết nội bộ, `/courses/python_advanced`.
-  //
-  // Ca này vì vậy KHÔNG còn đòi `/ide` ở đây — nhưng nó cũng KHÔNG bỏ phép kiểm
-  // đi. Nó chuyển assert sang ĐÚNG CHỖ `/ide` tới được bây giờ: trang khoá học,
-  // nơi `SiteHeader` dựng lối vào. Bỏ hẳn assert là làm ca mất răng; đổi chỗ thì
-  // nó vẫn đỏ vào ngày `/ide` thật sự mồ côi.
-  await expect(page.locator('a[href="/ide"]')).toHaveCount(0);
+  await page.goto('/courses/python_advanced?lesson=19', { waitUntil: 'domcontentloaded' });
+  await expect(page).toHaveURL(/\/bookshelf\/python\?lesson=19$/);
+  // `?lesson=` mở đúng mục lục của chặng chứa bài đó (bài 20 thuộc chặng 2).
+  await expect(page.getByRole('link', { name: /Bài 20 · Lấy một phần tử/ })).toBeVisible();
 
-  await page.locator('a[href="/courses/python_advanced"]').click();
-  await expect(page).toHaveURL(/\/courses\/python_advanced$/);
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Python');
-
-  // `/ide` phải còn một lối vào THẤY ĐƯỢC. 411 nút "Thử ngay trong IDE" ở màn
-  // đọc là lối kia và `check-duong-toi.mjs` canh chúng; đây là lối cho người
-  // CHƯA mở bài nào.
+  // `/ide` phải còn một lối vào THẤY ĐƯỢC cho người chưa mở bài nào.
+  await page.goto('/bookshelf', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('a[href="/ide"]').first()).toBeVisible();
 });

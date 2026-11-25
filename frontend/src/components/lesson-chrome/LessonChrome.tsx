@@ -75,6 +75,16 @@ export interface LessonChromeProps {
   children: React.ReactNode;
 }
 
+/** Cắt dãy 1..tổng thành các phần theo mốc mở đầu (xem `mocPhan`). */
+function chiaPhan(tong: number, moc: number[] = []): number[][] {
+  const phan: number[][] = [];
+  for (let n = 1; n <= tong; n += 1) {
+    if (n === 1 || moc.includes(n)) phan.push([]);
+    phan[phan.length - 1].push(n);
+  }
+  return phan;
+}
+
 export default function LessonChrome({
   step,
   totalSteps,
@@ -110,8 +120,8 @@ export default function LessonChrome({
     // mang thuộc tính này (`html[data-theme]:has([data-tv-surface])`), nên trang
     // chưa thiết kế không đổi màu nửa vời. Gắn ở gốc khung (không ở `.main`)
     // vì overlay/toast dựng ở `document.body` cần token từ phần tử <html>.
-    <div className={styles.chrome} data-tv-surface="">
-      <header className={styles.topBar}>
+    <div className={styles.chrome} data-tv-surface="" data-gh-room="">
+      <header className={styles.topBar} data-gh-bar="">
         <div className={styles.topBarInner}>
           <button
             type="button"
@@ -199,8 +209,43 @@ export default function LessonChrome({
         </div>
       </header>
 
-      <main className={styles.main}>
-        <div className={wide ? `${styles.contentContainer} ${styles.contentWide}` : styles.contentContainer}>
+      <main className={styles.main} data-gh-spread={wide ? 'wide' : ''}>
+        {/* Trang trái của cuốn sách: mục lục các trang trong bài. Chỉ hiện ở màn
+            rộng của giao diện mặc định (goc-hoc-lesson.css); thanh tiến độ phía
+            trên vẫn là đường chính ở mọi khổ. */}
+        {!wide && (
+          <aside data-gh-outline="" aria-label="Mục lục bài học">
+            <p data-gh-eyebrow="">Mục lục bài</p>
+            <h2>{courseLabel}</h2>
+            <p>
+              Trang {step}/{totalSteps}
+            </p>
+            {chiaPhan(totalSteps, mocPhan).map((phan, i, ds) => (
+              <div key={phan[0]}>
+                {ds.length > 1 && <p data-gh-eyebrow="">Phần {i + 1}</p>}
+                <div data-gh-grid="">
+                  {phan.map((idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      aria-label={`Mở trang ${idx} trong mục lục`}
+                      aria-current={idx === step ? 'step' : undefined}
+                      data-done={doneSteps?.[idx - 1] ? '' : undefined}
+                      disabled={!onSeek || idx > (seekMax ?? step)}
+                      onClick={() => onSeek?.(idx)}
+                    >
+                      {idx}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </aside>
+        )}
+        <div
+          className={wide ? `${styles.contentContainer} ${styles.contentWide}` : styles.contentContainer}
+          data-gh-page=""
+        >
           {/* key={step} để mỗi lần đổi bước là một lần chạy lại animation vào */}
           <div key={step} className={styles.stepEnter}>
             {children}
@@ -210,7 +255,7 @@ export default function LessonChrome({
 
       {/* `data-thanh-duoi`: mép TRÊN của thanh này là đáy phần màn người học thấy được — màn bài
           tập chấm đo nó để biết ô kết quả vừa về có nằm sau thanh không (SandboxEditor). */}
-      <footer className={styles.bottomBar} data-thanh-duoi="">
+      <footer className={styles.bottomBar} data-thanh-duoi="" data-gh-bar="">
         {/* data-co-nut-phu: có nút phụ (Gợi ý / Chọn lại) thì ở khổ điện thoại nhãn
             "Tiến độ tự lưu" nhường chỗ — xem `.bottomBarInner[data-co-nut-phu]`. */}
         <div className={styles.bottomBarInner} data-co-nut-phu={secondaryLabel ? '1' : undefined}>

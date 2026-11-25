@@ -97,8 +97,8 @@ export const SHELL_HTML = /* html */ `
     <nav class="menu" aria-label="Điều hướng">
       <button class="mi glass" data-go="roadmap"><span class="ic c-map"><svg class="i"><use href="#i-map"/></svg></span><span><b>Lộ trình</b><small id="navRoadmap"></small></span><svg class="i chev"><use href="#i-right"/></svg></button>
       <button class="mi glass" data-go="courses"><span class="ic c-book"><svg class="i"><use href="#i-book"/></svg></span><span><b>Khoá học</b><small id="navCourses"></small></span><svg class="i chev"><use href="#i-right"/></svg></button>
-      <a class="mi glass" href="/bookshelf"><span class="ic c-book"><svg class="i"><use href="#i-book"/></svg></span><span><b>Tủ sách</b><small>Chọn khoá và mục lục bài</small></span><svg class="i chev"><use href="#i-right"/></svg></a>
       <a class="mi glass" href="/may-tinh"><span class="ic c-pen"><svg class="i"><use href="#i-play"/></svg></span><span><b>Máy tính</b><small>Tra hàm, chạy thử Python</small></span><svg class="i chev"><use href="#i-right"/></svg></a>
+      <a class="mi glass" href="/quan-may?ds=1"><span class="ic c-map"><svg class="i"><use href="#i-spark"/></svg></span><span><b>Quán Mây</b><small>Chuyện ở quán · thử nghiệm</small></span><svg class="i chev"><use href="#i-right"/></svg></a>
       <button class="mi glass" data-go="practice"><span class="ic c-pen"><svg class="i"><use href="#i-pen"/></svg></span><span><b>Ôn tập</b><small id="navPractice"></small></span><svg class="i chev"><use href="#i-right"/></svg></button>
       <button class="mi glass" data-go="achievements"><span class="ic c-tro"><svg class="i"><use href="#i-trophy"/></svg></span><span><b>Thành tựu</b><small id="navAchv"></small></span><svg class="i chev"><use href="#i-right"/></svg></button>
       <button class="mi glass" data-go="phone" data-tab="rank"><span class="ic c-ph"><svg class="i"><use href="#i-phone"/></svg></span><span><b>Bảng xếp hạng</b><small id="navRank"></small></span><svg class="i chev"><use href="#i-right"/></svg></button>
@@ -107,7 +107,7 @@ export const SHELL_HTML = /* html */ `
       <h3>Khoá đang học <span id="courseDone">—</span></h3>
       <div class="prog"><i id="courseProg"></i></div>
       <p class="cnote" id="courseNote"></p>
-      <div class="event"><div style="flex:1;min-width:0"><b id="courseName"></b><small id="courseSub"></small></div><a class="btn" id="courseLink" href="/courses/python_advanced">Mở khoá học</a></div>
+      <div class="event"><div style="flex:1;min-width:0"><b id="courseName"></b><small id="courseSub"></small></div><a class="btn" id="courseLink" href="/bookshelf/python">Mở khoá học</a></div>
       <a class="fb" id="fbLink" target="_blank" rel="noopener noreferrer" title="Khảo sát ẩn danh về khoá học, mở ở tab mới" hidden>Góp ý cho nhóm làm khoá ↗</a>
     </section>
     <div class="music glass" id="music"><button class="ib" id="musicBtn" aria-label="Phát nhạc lofi"><svg class="i"><use href="#i-play"/></svg></button><div class="eq"><i></i><i></i><i></i><i></i></div><span id="musicTxt">Nhạc lofi · đang tắt</span></div>

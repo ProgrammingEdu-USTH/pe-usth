@@ -833,7 +833,15 @@ function uiIn(){ const d = RM?1:700; [$('#side'),$('#profile'),$('#hint')].forEa
 const focusKey = (r,o) => (r==='learn' && o.from==='book' && MODULES[o.shelf||0] && MODULES[o.shelf||0].focus)
   ? MODULES[o.shelf||0].focus : r;
 
+/* "Khoá học" là Tủ sách (/bookshelf), không còn màn kệ riêng trong phòng. Cả hai
+   đường mở màn (`go` từ phòng, `sibling` từ tab bên trong một màn) đi qua đây.
+   Mở bằng `#courses` thì THAY mục history, nếu không nút Back quay lại đúng chỗ
+   vừa chuyển đi và bị đẩy tiếp. */
+function veTuSach(){
+  if (location.hash === '#courses') location.replace('/bookshelf'); else location.assign('/bookshelf');
+}
 async function go(r, o={}){
+  if (r==='courses') return veTuSach();
   if (busy || route || peeking || app.classList.contains('intro')) return; busy = true; route = r; opts = o; ghiHash(r);
   closeDemo(); $('#calPop').hidden = true; app.classList.add('away'); clearHover(); hidePop(true); HITEL.forEach(h=>h.setAttribute('tabindex','-1')); notesEl.style.pointerEvents='none';
   host.querySelectorAll('.hl').forEach(m=>m.classList.remove('hl')); room.style.translate='0px 0px';
@@ -872,6 +880,7 @@ async function back(){
   busy = false;
 }
 async function sibling(r, o={}){
+  if (r==='courses') return veTuSach();
   if (busy) return; busy = true;
   const dir = ROUTES.indexOf(r) >= ROUTES.indexOf(route) ? -1 : 1;
   const content = page.querySelector('.stagearea');
@@ -1218,7 +1227,7 @@ function apDungSo(){
   const hp = $('#heroProg'); if (hp) hp.style.width = (USER.lessonsDone == null ? 0 : PCT) + '%';
 
   T('navRoadmap', `${MODULES.length} học phần · ${TOTAL} bài`);
-  T('navCourses', 'Mỗi cuốn sách trên kệ là một bài');
+  T('navCourses', 'Tủ sách: Python · SQL · Machine Learning');
   T('navPractice', USER.lessonsDone == null ? 'Câu hỏi lấy từ bài đã xong' : `Kho câu từ ${USER.lessonsDone} bài đã xong`);
   // "Chưa có phiên" KHÁC "có phiên mà đọc hỏng": người mở trang lần đầu từng
   // thấy "chưa đọc được" ở hai ô này — đọc ra là trang hỏng, trong khi máy chủ
@@ -1234,7 +1243,7 @@ function apDungSo(){
     : `Đang ở học phần ${CUR ? CUR.m.short : '—'}.`);
   T('courseName', CONTENT.course.name);
   T('courseSub', CUR ? `Bài tiếp theo: ${CUR.l.title}` : '');
-  const cl = $('#courseLink'); if (cl) cl.href = `/courses/${CONTENT.course.id}`;
+  const cl = $('#courseLink'); if (cl) cl.href = '/bookshelf/python';
   // Link góp ý: chỉ hiện khi trang (server) đưa xuống một địa chỉ đã qua
   // feedbackHref(). Không có thì GIỮ `hidden` — đặt biến môi trường rỗng là
   // cố ý tắt nút, không được rơi về một địa chỉ đoán.

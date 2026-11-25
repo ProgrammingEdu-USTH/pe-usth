@@ -49,7 +49,18 @@ export function CourseBookView({ courseSlug }: CourseBookViewProps) {
     const reqStep = params.get('step');
     const reqStage = Number(params.get('stage'));
 
+    // `?lesson=` (đếm từ 0) là đường ra của màn bài học: mở đúng chặng chứa bài.
+    const rawLesson = params.get('lesson');
+    const lessonStage =
+      rawLesson === null
+        ? -1
+        : (course?.stages.findIndex((st) => st.lessons.some((l) => l.index === Number(rawLesson))) ?? -1);
+
     const t = setTimeout(() => {
+      if (lessonStage >= 0) {
+        setStep('lessons');
+        setActiveStageIdx(lessonStage);
+      }
       if (reqStep === 'syllabus' || reqStep === 'lessons' || reqStep === 'cover') {
         setStep(reqStep);
       }

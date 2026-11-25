@@ -57,6 +57,8 @@ const RANK: Record<string, number> = {
   // giao diện thứ hai "Đài thiên văn" — CHỈ ghi đè token, sau studio-tokens
   // (cùng độ ưu tiên thì file sau thắng) và trước lớp co giãn
   'theme-thien-van.css': 55,
+  // da "sách mở trong Góc học" của bài học — sau bảng token để ghi đè được
+  'goc-hoc-lesson.css': 56,
   // lớp co giãn điện thoại/tablet — PHẢI cuối cùng, xem RESPONSIVE_CSS bên dưới
   'edu-responsive.css': 60,
 };

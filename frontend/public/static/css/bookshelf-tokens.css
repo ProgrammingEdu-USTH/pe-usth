@@ -5,6 +5,12 @@
    ══════════════════════════════════════════════════════════════════════ */
 
 :root {
+  --bs-extras-bg: #17111d;
+  --bs-extras-fg: #fff6ee;
+  --bs-extras-soft: #d9c8d6;
+  --bs-extras-line: #4a3a52;
+  --bs-extras-accent: #ffd08a;
+  --bs-extras-accent-tint: #3d2f3a;
   /* Nền phòng Lofi & lớp phủ đồng bộ với #scrim trong scene.css */
   --bs-bg: #0d0b13;
   --bs-scrim-center: rgba(14, 10, 24, 0.35);

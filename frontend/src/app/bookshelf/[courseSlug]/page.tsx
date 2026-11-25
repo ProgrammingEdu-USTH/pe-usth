@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { BOOKSHELF_COURSES, findBookshelfCourse } from '@/components/bookshelf/bookshelf-catalog';
 import { CourseBookView } from '@/components/bookshelf/CourseBookView';
+import BookshelfExtras from '@/components/bookshelf/BookshelfExtras';
 import LofiDarkPageShell from '@/components/ui/LofiDarkPageShell';
 
 export const dynamicParams = false;
@@ -35,6 +36,7 @@ export default async function BookshelfCoursePage({
   return (
     <LofiDarkPageShell>
       <CourseBookView courseSlug={course.slug} />
+      <BookshelfExtras />
     </LofiDarkPageShell>
   );
 }

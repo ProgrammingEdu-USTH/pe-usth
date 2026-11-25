@@ -30,11 +30,11 @@ import PageStyles from '@/components/PageStyles';
 import styles from './not-found.module.css';
 
 // Đường về phải là route CÓ THẬT. Cả hai đều có trong `src/app`:
-// `/` là `src/app/page.tsx`, `/courses/python_advanced` do
+// `/` là `src/app/page.tsx`, `/bookshelf` là `src/app/bookshelf/page.tsx`. Trước đây đường đầu là `/courses/python_advanced` do
 // `generateStaticParams()` của route khoá sinh ra từ `COURSES`. Ca test đối
 // chiếu chúng với cây route — một trang 404 trỏ sang một 404 khác thì tệ hơn
 // không có đường về, vì nó trông như có.
-const DUONG_VE = ['/courses/python_advanced', '/'] as const;
+const DUONG_VE = ['/bookshelf', '/'] as const;
 
 export default function NotFound() {
   return (

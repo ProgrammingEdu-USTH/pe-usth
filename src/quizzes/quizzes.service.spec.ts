@@ -9,7 +9,38 @@ import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { Prisma } from 'src/generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { lessonItems, type LessonItem } from 'src/question-gen/lesson-items';
 import { QuizzesService, STEP2_CACHE_MAX } from './quizzes.service';
+
+/** Giáo trình đang chạy trên DB (pe-da), đổi bằng đúng hàm của script nhập ngân hàng đề. */
+const PE_DA = JSON.parse(
+  readFileSync(join(__dirname, '../../scripts/pe-da/out/lessons.json'), 'utf8'),
+) as { lessons: unknown[] };
+const REAL_ITEMS: LessonItem[] = PE_DA.lessons.flatMap(
+  (l) => lessonItems(l).items,
+);
+
+/** Một hàng của câu SQL chọn câu từ `question_bank` (bankCandidates). */
+type BankRowFixture = {
+  id: bigint;
+  type: string;
+  content_hash: string;
+  lesson_id: number;
+  course_id: string;
+  lesson_title: string | null;
+  correct: boolean | null;
+  seen_at: Date | null;
+};
+
+/** Một mục của snapshot đề ôn hằng ngày (`quizzes.questions_json`). */
+type SavedDaily = {
+  type: 'mcq' | 'code';
+  itemId: string;
+  bankId: number | null;
+  correct?: number | string;
+  tests?: { call: string; expected: string }[];
+  solutionCode?: string;
+};
 
 /** `jsonb -> 'step_2'`: khoá con của một object, còn lại là NULL. */
 function step2Of(contentJson: unknown): unknown {
@@ -73,6 +104,7 @@ type QuizCreateArg = {
     userId: number;
     courseId: string;
     status: string;
+    kind?: string;
     questionsJson: SavedQuestion[];
   };
 };
@@ -116,9 +148,13 @@ type PrismaMock = {
   quiz: {
     create: AsyncMock<[QuizCreateArg]>;
     findUnique: AsyncMock;
+    findMany: AsyncMock;
     update: AsyncMock;
     updateMany: AsyncMock;
   };
+  questionBank: { findMany: AsyncMock<[{ where: { id: { in: bigint[] } } }]> };
+  /** Tagged template: đối số là (chuỗi tĩnh, ...giá trị tham số). */
+  $executeRaw: AsyncMock<[TemplateStringsArray, ...unknown[]]>;
   reviewQuizResult: {
     findFirst: AsyncMock;
     findMany: AsyncMock;
@@ -138,6 +174,8 @@ describe('QuizzesService', () => {
       quiz: {
         create: asyncMock<[QuizCreateArg]>(),
         findUnique: asyncMock(),
+        // Đề ôn hằng ngày tìm đề chưa nộp trong ngày; mặc định không có.
+        findMany: asyncMock().mockResolvedValue([]),
         update: asyncMock(),
         // CAS generated -> submitted trong submitQuiz; mặc định giành được quyền.
         updateMany: asyncMock().mockResolvedValue({ count: 1 }),
@@ -147,6 +185,12 @@ describe('QuizzesService', () => {
         findMany: asyncMock(),
         create: asyncMock(),
       },
+      questionBank: {
+        findMany: asyncMock<
+          [{ where: { id: { in: bigint[] } } }]
+        >().mockResolvedValue([]),
+      },
+      $executeRaw: asyncMock<[TemplateStringsArray, ...unknown[]]>(),
       $transaction: jest.fn<
         Promise<unknown>,
         [(tx: PrismaMock) => Promise<unknown>]
@@ -160,18 +204,29 @@ describe('QuizzesService', () => {
   });
 
   /** Mô phỏng `content_json->'step_2'`: DB chỉ trả phần `step_2`. */
+  const lessonRows = (rows: LessonFixture[]) =>
+    rows.map((r) => ({
+      id: r.id,
+      courseId: r.courseId,
+      title: r.title ?? null,
+      module: r.module ?? null,
+      courseTitle: r.course?.title ?? null,
+      ver: 'v1',
+      hit: false,
+      step2: step2Of(r.contentJson),
+    }));
   const mockLessons = (rows: LessonFixture[]) =>
-    prisma.$queryRaw.mockResolvedValue(
-      rows.map((r) => ({
-        id: r.id,
-        courseId: r.courseId,
-        title: r.title ?? null,
-        module: r.module ?? null,
-        courseTitle: r.course?.title ?? null,
-        ver: 'v1',
-        hit: false,
-        step2: step2Of(r.contentJson),
-      })),
+    prisma.$queryRaw.mockResolvedValue(lessonRows(rows));
+
+  /**
+   * Đề ôn hằng ngày chạy HAI câu SQL thô: chọn câu từ `question_bank` và (khi ngân hàng
+   * thiếu) đọc step_2 của bài. Trả theo câu SQL, không theo thứ tự gọi.
+   */
+  const routeRaw = (lessons: LessonFixture[], bank: BankRowFixture[]) =>
+    prisma.$queryRaw.mockImplementation((q) =>
+      Promise.resolve(
+        q.sql.includes('question_bank') ? bank : lessonRows(lessons),
+      ),
     );
 
   /** Câu SQL của lần gọi `$queryRaw` thứ `i`. */
@@ -437,87 +492,277 @@ describe('QuizzesService', () => {
   });
 
   // ---------- Task 138 ----------
-  describe('generateDailyReviewQuiz (đề ôn hằng ngày, gộp mọi khoá)', () => {
-    const q = (n: string) => ({
-      question: n,
-      options: ['a', 'b'],
-      correct: 0,
-      explanation: 'vì a',
-    });
-    // Khoá 'python' 8 câu, khoá 'cpp' 4 câu -> python là khoá áp đảo.
-    const mockPool = () => {
+  describe('generateDailyReviewQuiz (đề ôn hằng ngày từ ngân hàng đề)', () => {
+    /**
+     * Câu THẬT của giáo trình đang chạy (gói pe-da), đổi bằng đúng hàm mà script nhập ngân
+     * hàng dùng — payload trong DB có đúng hình dạng này (AGENTS.md: fixture phải giống dữ
+     * liệu thật, không thì test chống lộ đáp án vô dụng).
+     */
+    const MCQ = REAL_ITEMS.filter((i) => i.type === 'mcq');
+    const CODE = REAL_ITEMS.filter((i) => i.type === 'code');
+
+    /** Ngân hàng giả: hàng của câu SQL chọn câu + payload trả theo id khi được hỏi. */
+    const mockBank = (
+      rows: Array<{ item: LessonItem } & Partial<BankRowFixture>>,
+      lessons: LessonFixture[] = [],
+    ) => {
+      const payloads = new Map<bigint, unknown>();
+      const bank = rows.map(({ item, ...over }, k) => {
+        const id = over.id ?? BigInt(1000 + k);
+        payloads.set(id, item.payload);
+        return {
+          id,
+          type: item.type,
+          content_hash: item.content_hash,
+          lesson_id: 1,
+          course_id: 'python_advanced',
+          lesson_title: `Bài của ${item.lesson_code}`,
+          correct: null,
+          seen_at: null,
+          ...over,
+        };
+      });
+      routeRaw(lessons, bank);
+      prisma.questionBank.findMany.mockImplementation(({ where }) =>
+        Promise.resolve(
+          where.id.in.map((id) => ({ id, payload: payloads.get(id) })),
+        ),
+      );
+      return bank;
+    };
+
+    const fresh = () => {
       prisma.lessonProgress.findMany.mockResolvedValue([
         { lessonId: 1 },
         { lessonId: 2 },
       ]);
-      mockLessons([
-        {
-          id: 1,
-          courseId: 'python',
-          contentJson: {
-            step_2: {
-              mcq: [
-                q('P1'),
-                q('P2'),
-                q('P3'),
-                q('P4'),
-                q('P5'),
-                q('P6'),
-                q('P7'),
-                q('P8'),
-              ],
-            },
-          },
-        },
-        {
-          id: 2,
-          courseId: 'cpp',
-          contentJson: {
-            step_2: { mcq: [q('C1'), q('C2'), q('C3'), q('C4')] },
-          },
-        },
-      ]);
+      prisma.reviewQuizResult.findFirst.mockResolvedValue(null);
+      prisma.reviewQuizResult.findMany.mockResolvedValue([]);
       prisma.quiz.create.mockResolvedValue({ id: 31 });
     };
 
-    it('chưa ôn hôm nay -> ra đề, trộn câu từ NHIỀU khoá', async () => {
-      mockPool();
-      // Lần nộp gần nhất là hôm kia -> không chặn.
-      prisma.reviewQuizResult.findFirst.mockResolvedValue({
-        submittedAt: new Date(Date.now() - 2 * 86_400_000),
-      });
-      prisma.reviewQuizResult.findMany.mockResolvedValue([]);
+    /** Snapshot mà service vừa ghi vào `quizzes.questions_json`. */
+    const savedEntries = () =>
+      prisma.quiz.create.mock.calls[0][0].data
+        .questionsJson as unknown as SavedDaily[];
+
+    const BANK_8_3 = () => [
+      ...MCQ.slice(0, 8).map((item) => ({ item })),
+      ...CODE.slice(0, 3).map((item) => ({ item })),
+    ];
+
+    it('ra 5 trắc nghiệm rồi 2 bài code, đúng hình dạng DailyPracticeSession của FE', async () => {
+      fresh();
+      mockBank(BANK_8_3());
 
       const res = await service.generateDailyReviewQuiz(1);
 
-      expect(res.ok).toBe(true);
-      expect(res.quiz_id).toBe(31);
-      expect(res.questions).toHaveLength(10);
-
-      const saved = prisma.quiz.create.mock.calls[0][0].data.questionsJson;
-      const courses = new Set(saved.map((x) => x.courseId));
-      expect(courses.size).toBeGreaterThan(1); // thật sự gộp khoá
-
-      // Không lộ gì thừa ra FE.
-      const serialized = JSON.stringify(res);
-      expect(serialized).not.toContain('correct');
-      expect(serialized).not.toContain('courseId');
-      expect(serialized).not.toContain('lessonId');
+      expect(res).toMatchObject({
+        ok: true,
+        quiz_id: 31,
+        session_id: '31',
+        course_id: 'python_advanced',
+        total_items: 7,
+      });
+      expect(res.title.trim()).not.toBe('');
+      expect(res.items.map((i) => i.type)).toEqual([
+        'quiz',
+        'quiz',
+        'quiz',
+        'quiz',
+        'quiz',
+        'code',
+        'code',
+      ]);
+      expect(new Set(res.items.map((i) => i.id)).size).toBe(7);
+      for (const it of res.items) {
+        expect(it.lesson_title.trim()).not.toBe('');
+        if (it.type === 'quiz') {
+          expect(it.options.length).toBeGreaterThanOrEqual(2);
+          expect(it.options.every((o) => o.trim() !== '')).toBe(true);
+        } else {
+          expect(it.starterCode.trim()).not.toBe('');
+          expect(it.tests.length).toBeGreaterThan(0);
+          for (const t of it.tests) {
+            expect(t.call).toMatch(/\S/);
+            expect(t.expected).toMatch(/\S/);
+          }
+        }
+      }
+      // `questions` cũ: chỉ trắc nghiệm, `index` là vị trí trong `items`.
+      expect(res.questions.map((q) => q.index)).toEqual([0, 1, 2, 3, 4]);
+      expect(prisma.quiz.create.mock.calls[0][0].data.kind).toBe('daily');
+      // Payload chỉ đọc cho 7 câu đã chọn, không cho cả 11 câu của ngân hàng.
+      expect(
+        prisma.questionBank.findMany.mock.calls[0][0].where.id.in,
+      ).toHaveLength(7);
     });
 
-    it('đề trộn khoá vẫn ghi vào khoá đóng góp nhiều câu nhất', async () => {
-      mockPool();
-      prisma.reviewQuizResult.findFirst.mockResolvedValue(null);
-      prisma.reviewQuizResult.findMany.mockResolvedValue([]);
+    it('KHÔNG lộ đáp án, lời giải hay code mẫu; snapshot DB thì vẫn giữ để chấm', async () => {
+      fresh();
+      mockBank(BANK_8_3());
+
+      const res = await service.generateDailyReviewQuiz(1);
+
+      const json = JSON.stringify(res);
+      for (const word of [
+        'correctIndex',
+        '"correct"',
+        'explanation',
+        '"detail"',
+        'solution',
+        'bankId',
+      ]) {
+        expect(json).not.toContain(word);
+      }
+      const saved = savedEntries();
+      const code = saved.filter((e) => e.type === 'code');
+      expect(code).toHaveLength(2);
+      for (const e of code) {
+        expect(e.solutionCode).toBeTruthy();
+        expect(json).not.toContain(JSON.stringify(e.solutionCode).slice(1, -1));
+      }
+      expect(
+        saved
+          .filter((e) => e.type === 'mcq')
+          .every((e) => typeof e.correct === 'number'),
+      ).toBe(true);
+    });
+
+    it('ưu tiên câu CHƯA gặp; hết câu chưa gặp thì câu từng làm sai đi trước', async () => {
+      fresh();
+      const old = new Date('2026-11-01T00:00:00Z');
+      const bank = mockBank([
+        ...MCQ.slice(0, 3).map((item) => ({ item })),
+        ...MCQ.slice(3, 5).map((item) => ({
+          item,
+          seen_at: old,
+          correct: false,
+        })),
+        ...MCQ.slice(5, 9).map((item) => ({
+          item,
+          seen_at: old,
+          correct: true,
+        })),
+      ]);
+
+      const res = await service.generateDailyReviewQuiz(1);
+
+      const want = bank.slice(0, 5).map((b) => `qb-${b.id}`);
+      expect(res.items.map((i) => i.id).sort()).toEqual(want.sort());
+    });
+
+    it('chỉ còn câu đã gặp: câu làm sai trước, rồi câu gặp LÂU nhất', async () => {
+      fresh();
+      const day = (d: number) => new Date(Date.UTC(2026, 10, d));
+      const bank = mockBank([
+        { item: MCQ[0], seen_at: day(20), correct: false },
+        { item: MCQ[1], seen_at: day(24), correct: true },
+        { item: MCQ[2], seen_at: day(2), correct: true },
+        { item: MCQ[3], seen_at: day(3), correct: null },
+        { item: MCQ[4], seen_at: day(4), correct: true },
+        { item: MCQ[5], seen_at: day(5), correct: true },
+      ]);
+
+      const res = await service.generateDailyReviewQuiz(1);
+
+      // Mới nhất (ngày 24) là câu duy nhất bị bỏ.
+      expect(res.items.map((i) => i.id)).not.toContain(`qb-${bank[1].id}`);
+      expect(res.items).toHaveLength(5);
+    });
+
+    it('chỉ hỏi câu của bài ĐÃ hoàn thành, trạng thái approved; draft chỉ khi bật cờ', async () => {
+      fresh();
+      mockBank(BANK_8_3());
+      const bankSql = () =>
+        prisma.$queryRaw.mock.calls
+          .map((c) => c[0])
+          .filter((q) => q.sql.includes('question_bank'));
 
       await service.generateDailyReviewQuiz(1);
+      expect(bankSql()[0].values).toEqual(
+        expect.arrayContaining([[1, 2], ['approved']]),
+      );
 
-      // Pool 12 câu (8 python / 4 cpp), lấy 10 -> python luôn chiếm đa số.
-      expect(prisma.quiz.create.mock.calls[0][0].data.courseId).toBe('python');
+      process.env.DAILY_REVIEW_ALLOW_DRAFT = 'true';
+      try {
+        await service.generateDailyReviewQuiz(1);
+      } finally {
+        delete process.env.DAILY_REVIEW_ALLOW_DRAFT;
+      }
+      expect(bankSql()[1].values).toEqual(
+        expect.arrayContaining([['approved', 'draft']]),
+      );
+    });
+
+    it('ghi question_seen lúc GIAO đề, trong cùng transaction với đề', async () => {
+      fresh();
+      const bank = mockBank(BANK_8_3());
+      prisma.$transaction.mockImplementation(async (cb) => {
+        const r = await cb(prisma);
+        // Đề đã được tạo trước khi đánh dấu đã gặp, và cả hai trong một transaction.
+        expect(prisma.quiz.create).toHaveBeenCalled();
+        expect(prisma.$executeRaw).toHaveBeenCalledTimes(1);
+        return r;
+      });
+
+      const res = await service.generateDailyReviewQuiz(1);
+
+      const [strings, userId, ids] = prisma.$executeRaw.mock.calls[0];
+      expect(strings.join('?')).toContain('INSERT INTO question_seen');
+      expect(strings.join('?')).toContain('times = question_seen.times + 1');
+      expect(userId).toBe(1);
+      const picked = res.items.map((i) => i.id);
+      expect((ids as number[]).map((id) => `qb-${id}`).sort()).toEqual(
+        picked.sort(),
+      );
+      expect(bank).toHaveLength(11);
+    });
+
+    it('gọi lại khi CHƯA nộp: trả đúng đề cũ, không tạo đề mới, không tính gặp thêm', async () => {
+      fresh();
+      mockBank(BANK_8_3());
+      const first = await service.generateDailyReviewQuiz(1);
+      const saved = prisma.quiz.create.mock.calls[0][0].data.questionsJson;
+      jest.clearAllMocks();
+      fresh();
+      prisma.quiz.findMany.mockResolvedValue([
+        {
+          id: 31,
+          courseId: 'python_advanced',
+          questionsJson: saved,
+          createdAt: new Date(),
+        },
+      ]);
+
+      const again = await service.generateDailyReviewQuiz(1);
+
+      expect(again).toEqual(first);
+      expect(prisma.quiz.create).not.toHaveBeenCalled();
+      expect(prisma.$executeRaw).not.toHaveBeenCalled();
+      expect(prisma.$queryRaw).not.toHaveBeenCalled();
+    });
+
+    it('đề chưa nộp của HÔM QUA không được dùng lại', async () => {
+      fresh();
+      mockBank(BANK_8_3());
+      prisma.quiz.findMany.mockResolvedValue([
+        {
+          id: 5,
+          courseId: 'python_advanced',
+          questionsJson: [],
+          createdAt: new Date(Date.now() - 36 * 3_600_000),
+        },
+      ]);
+
+      const res = await service.generateDailyReviewQuiz(1);
+      expect(res.session_id).toBe('31');
+      expect(prisma.quiz.create).toHaveBeenCalledTimes(1);
     });
 
     it('đã nộp trong ngày hôm nay -> chặn, không tạo đề mới', async () => {
-      mockPool();
+      fresh();
+      mockBank(BANK_8_3());
       prisma.reviewQuizResult.findFirst.mockResolvedValue({
         submittedAt: new Date(),
       });
@@ -528,14 +773,174 @@ describe('QuizzesService', () => {
       expect(prisma.quiz.create).not.toHaveBeenCalled();
     });
 
-    it('chưa từng ôn lần nào -> vẫn ra đề bình thường', async () => {
-      mockPool();
-      prisma.reviewQuizResult.findFirst.mockResolvedValue(null);
-      prisma.reviewQuizResult.findMany.mockResolvedValue([]);
+    it('ngân hàng thiếu trắc nghiệm -> bù từ step_2 của bài, không lặp câu đã có trong ngân hàng', async () => {
+      fresh();
+      // Hai bài thật: hai câu đầu của bài A đã nằm trong ngân hàng, câu thứ ba thì chưa.
+      const [a, b] = PE_DA.lessons.slice(0, 2) as Array<{
+        lesson_code: string;
+        title: string;
+        content_json: { step_2: unknown };
+      }>;
+      const inBank = REAL_ITEMS.filter(
+        (i) => i.type === 'mcq' && i.lesson_code === a.lesson_code,
+      ).slice(0, 2);
+      mockBank(
+        [...inBank.map((item) => ({ item })), { item: CODE[0] }],
+        [
+          {
+            id: 1,
+            courseId: 'python_advanced',
+            title: a.title,
+            contentJson: a.content_json,
+          },
+          {
+            id: 2,
+            courseId: 'python_advanced',
+            title: b.title,
+            contentJson: b.content_json,
+          },
+        ],
+      );
 
-      const res = await service.generateDailyReviewQuiz(1);
-      expect(res.ok).toBe(true);
-      expect(res.questions).toHaveLength(10);
+      // Đòi 7 trắc nghiệm: ngân hàng có 2, step_2 của hai bài có 6 câu nhưng 2 câu trong đó
+      // TRÙNG ngân hàng, nên chỉ bù được 4. Không lọc trùng thì bù đủ 5 và lặp câu — tất
+      // định, không phụ thuộc lần bốc ngẫu nhiên.
+      process.env.DAILY_REVIEW_MCQ = '7';
+      let res: Awaited<ReturnType<typeof service.generateDailyReviewQuiz>>;
+      try {
+        res = await service.generateDailyReviewQuiz(1);
+      } finally {
+        delete process.env.DAILY_REVIEW_MCQ;
+      }
+
+      const quiz = res.items.filter((i) => i.type === 'quiz');
+      expect(quiz).toHaveLength(6);
+      const texts = quiz.map((q) => q.question);
+      expect(new Set(texts).size).toBe(6);
+      // Câu bù mang id theo bài, không có id ngân hàng.
+      expect(quiz.filter((q) => q.id.startsWith('l'))).toHaveLength(4);
+      expect(res.items[6].type).toBe('code');
+    });
+
+    it('cả ngân hàng lẫn step_2 chưa đủ 5 câu -> 400 như trước', async () => {
+      fresh();
+      mockBank([
+        ...MCQ.slice(0, 3).map((item) => ({ item })),
+        { item: CODE[0] },
+      ]);
+
+      await expect(service.generateDailyReviewQuiz(1)).rejects.toThrow(
+        'Chưa đủ câu hỏi',
+      );
+      expect(prisma.quiz.create).not.toHaveBeenCalled();
+    });
+
+    describe('nộp đề ôn hằng ngày', () => {
+      const generateThenOpen = async () => {
+        fresh();
+        mockBank(BANK_8_3());
+        await service.generateDailyReviewQuiz(1);
+        const saved = savedEntries();
+        prisma.quiz.findUnique.mockResolvedValue({
+          id: 31,
+          userId: 1,
+          courseId: 'python_advanced',
+          kind: 'daily',
+          status: 'generated',
+          questionsJson: saved,
+        });
+        prisma.$executeRaw.mockClear();
+        return saved;
+      };
+
+      it('trắc nghiệm chấm ở SERVER; bài code theo kết quả trình duyệt; ghi đúng/sai vào question_seen', async () => {
+        const saved = await generateThenOpen();
+        const mcq = saved.filter((e) => e.type === 'mcq');
+        const code = saved.filter((e) => e.type === 'code');
+        // Câu 1 đúng, 4 câu sau sai; bài code 1 qua hết, bài 2 trượt một ca.
+        const answers: unknown[] = saved.map((e, i) =>
+          e.type === 'mcq'
+            ? i === 0
+              ? e.correct
+              : Number(e.correct) + 1
+            : null,
+        );
+        const n0 = code[0].tests?.length ?? 0;
+        const n1 = code[1].tests?.length ?? 0;
+        const codeResults = {
+          [code[0].itemId]: { passed: n0, total: n0 },
+          [code[1].itemId]: { passed: n1 - 1, total: n1 },
+        };
+
+        const res = await service.submitQuiz(1, 31, answers, codeResults);
+
+        expect(res.score).toBe(2);
+        expect(res.total).toBe(7);
+        const [strings, userId, ids, corrects] =
+          prisma.$executeRaw.mock.calls[0];
+        expect(strings.join('?')).toContain('correct = EXCLUDED.correct');
+        expect(userId).toBe(1);
+        expect(ids).toEqual(saved.map((e) => e.bankId));
+        expect(corrects).toEqual([
+          true,
+          false,
+          false,
+          false,
+          false,
+          true,
+          false,
+        ]);
+        expect(mcq).toHaveLength(5);
+      });
+
+      it('lời giải mẫu chỉ có trong response SAU khi nộp, không lưu vào answers_json', async () => {
+        const saved = await generateThenOpen();
+        const res = await service.submitQuiz(1, 31, []);
+
+        const codeDetail = res.detail.filter((d) => 'solution' in d);
+        expect(codeDetail).toHaveLength(2);
+        const stored = JSON.stringify(
+          (
+            prisma.reviewQuizResult.create.mock.calls[0][0] as {
+              data: { answersJson: unknown };
+            }
+          ).data.answersJson,
+        );
+        expect(stored).not.toContain('solution');
+        const sol = saved.find((e) => e.type === 'code')?.solutionCode ?? '';
+        expect(stored).not.toContain(JSON.stringify(sol).slice(1, -1));
+      });
+
+      it('bài code: total khác số ca của đề, hay passed < total, đều KHÔNG tính đạt', async () => {
+        const saved = await generateThenOpen();
+        const code = saved.filter((e) => e.type === 'code');
+        const res = await service.submitQuiz(1, 31, [], {
+          [code[0].itemId]: { passed: 1, total: 1 },
+          [code[1].itemId]: { passed: 2.5, total: 3 },
+        });
+        expect(res.score).toBe(0);
+      });
+
+      it('nhận kết quả bài code ngay trong answers[i] (không có codeResults)', async () => {
+        const saved = await generateThenOpen();
+        const answers = saved.map((e) =>
+          e.type === 'code'
+            ? { passed: e.tests?.length, total: e.tests?.length }
+            : -1,
+        );
+        const res = await service.submitQuiz(1, 31, answers);
+        expect(res.score).toBe(2);
+      });
+
+      it('getQuiz đề ôn chưa nộp: trả items, vẫn không lộ đáp án', async () => {
+        await generateThenOpen();
+        const res = await service.getQuiz(1, 31);
+        expect(res).toMatchObject({ session_id: '31', total_items: 7 });
+        const json = JSON.stringify(res);
+        expect(json).not.toContain('"correct"');
+        expect(json).not.toContain('explanation');
+        expect(json).not.toContain('solution');
+      });
     });
   });
 
@@ -894,7 +1299,8 @@ describe('QuizzesService', () => {
 
     it('đề theo khoá vẫn lọc course_id; đề hằng ngày thì không', async () => {
       prisma.lessonProgress.findMany.mockResolvedValue([{ lessonId: 7 }]);
-      mockLessons([{ id: 7, courseId: 'python', contentJson: NAM_CAU }]);
+      // Ngân hàng rỗng -> đề hằng ngày bù bằng step_2, tức đi qua layStep2().
+      routeRaw([{ id: 7, courseId: 'python', contentJson: NAM_CAU }], []);
       prisma.quiz.create.mockResolvedValue({ id: 1 });
       prisma.reviewQuizResult.findFirst.mockResolvedValue(null);
       prisma.reviewQuizResult.findMany.mockResolvedValue([]);
@@ -904,8 +1310,13 @@ describe('QuizzesService', () => {
 
       expect(sqlCall(0).sql).toContain('l.course_id =');
       expect(sqlCall(0).values).toContain('python');
-      expect(sqlCall(1).sql).not.toContain('l.course_id =');
-      expect(sqlCall(1).values).not.toContain('python');
+      const daily = prisma.$queryRaw.mock.calls
+        .slice(1)
+        .map((c) => c[0])
+        .find((q) => q.sql.includes(`content_json->'step_2'`));
+      expect(daily).toBeDefined();
+      expect(daily?.sql).not.toContain('l.course_id =');
+      expect(daily?.values).not.toContain('python');
     });
 
     it('bài không có step_2 (DB trả NULL) -> không sinh câu, không vỡ', async () => {

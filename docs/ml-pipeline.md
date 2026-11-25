@@ -220,3 +220,81 @@ Núm §5: `--prompt=mcq-v1 --few-shot=2 --temperature=0.4 --per-lesson=3`. Logic
 
 Liên quan: [questionnaire-spec.md](questionnaire-spec.md). Câu `approved` của `question_bank` dùng
 được cho bộ câu đầu vào vì cùng định dạng lựa chọn `text`.
+
+## 9. Ôn tập hằng ngày từ ngân hàng đề (đã cài 25/11/2026)
+
+### 9.1 Đổ câu của giáo trình vào ngân hàng
+
+Ngân hàng rỗng tới khi Gemini sinh được câu (quota gói miễn phí), nên câu có sẵn của giáo trình
+đang chạy (pe-da, 179 bài) được nhập trước với `status = 'approved'`, `source = 'lesson'`:
+
+```bash
+npx ts-node scripts/gen-questions/import-lesson-items.ts      # chạy thử → out/lesson-items.json
+node scripts/gen-questions/check-lesson-items.mjs             # kiểm bài code bằng Pyodide của trình duyệt
+npx ts-node scripts/gen-questions/import-lesson-items.ts --apply --expected-host=<host DIRECT_URL>
+```
+
+`--apply` từ chối nếu còn bài code chưa qua bước kiểm (so theo `content_hash`, nên bài sửa sau lần
+kiểm cũng bị chặn). Số đo 25/11/2026 trên branch thử:
+
+| | Số câu |
+|---|---|
+| Trắc nghiệm `step_2.mcq` (qua A1–A4) | **537 / 537** |
+| Bài code có ca chấm | 143 |
+| Bỏ vì hợp đồng `script` (tiêm biến, không viết được thành một biểu thức `call`) | 13 |
+| Bỏ vì cần file dữ liệu (màn ôn không gửi file) | 7 |
+| Bỏ vì ghim kiểu trả về `numpy.ndarray` | 2 |
+| Bỏ vì cần gói trình duyệt không có (`sqlalchemy`) | 1 |
+| Đổi được, đem chạy Pyodide 314.0.7 | 120 |
+| **Trượt khi chạy** (18 bài trả `ndarray`, 2 bài trả tuple trong khi ca mong list) | 20 |
+| **Bài code đã nhập** | **100** |
+
+Vì sao có bước chạy thật: màn ôn của FE chỉ nhận ca dạng biểu thức `{name, call, expected}`, còn pe-da
+viết ca dạng dữ liệu `{input, expected}`. Bộ chấm chuẩn hoá ca dữ liệu (tuple/ndarray về list) nhưng so
+ca `call` bằng `==` trần, nên lời giải đúng ở bài học có thể trượt ở màn ôn. 20 bài như vậy bị bỏ,
+không sửa tay. Cả 637 câu đã nhập đều khớp `(course_id, lesson_code)` và `module_code` của DB.
+
+### 9.2 API (mở rộng route cũ, không thêm route)
+
+`POST /api/quiz/generate-review` → giữ `ok`, `quiz_id`, `questions` cũ, thêm hình dạng
+`DailyPracticeSession` của `frontend/src/lib/daily-practice.ts`:
+
+```jsonc
+{
+  "ok": true, "quiz_id": 31, "questions": [{ "index": 0, "question": "…", "options": ["…"] }],
+  "session_id": "31", "course_id": "python_advanced", "title": "Ôn tập hằng ngày", "total_items": 7,
+  "items": [
+    { "id": "qb-12", "type": "quiz", "lesson_id": 347, "lesson_title": "…", "question": "…", "options": ["…"] },
+    { "id": "qb-50", "type": "code", "lesson_id": 362, "lesson_title": "…", "title": "…", "description": "…",
+      "starterCode": "…", "tests": [{ "name": "…", "call": "solve([4, 6, 8])", "expected": "6" }],
+      "hints": [{ "title": "…", "body": "…" }], "packages": [] }
+  ]
+}
+```
+
+- **Không gửi** `correctIndex`, `explanation`, `solution` (hợp đồng đã chốt trong sheet phân việc:
+  "đáp án không lộ"). Trắc nghiệm chấm ở server khi nộp; bài code chấm ở trình duyệt.
+- Mặc định 5 trắc nghiệm rồi 2 bài code (`DAILY_REVIEW_MCQ`, `DAILY_REVIEW_CODE`). Chỉ lấy câu của bài
+  ĐÃ hoàn thành; `approved`, thêm `draft` khi `DAILY_REVIEW_ALLOW_DRAFT=true`.
+- Thứ tự ưu tiên: câu chưa gặp → câu từng làm sai → câu gặp lâu nhất (bảng `question_seen`, ghi lúc
+  GIAO đề). Hai tầng đầu bốc có trọng số `1 + tỉ lệ sai theo bài` như đề cũ.
+- Ngân hàng thiếu trắc nghiệm thì bù bằng `step_2.mcq` của bài (id dạng `l<id bài>-<k>`), bỏ câu trùng
+  ngân hàng. Tổng dưới 5 câu thì 400 như trước (thực tế vẫn cần xong 2 bài).
+- Gọi lại khi đề hôm nay chưa nộp: trả lại đúng đề đó (`quizzes.kind = 'daily'`). Đã nộp hôm nay: 400.
+- Người chỉ mới xong những bài không có bài code nhập được (vd PY01, PY04–PY15 là kiểu `script`) nhận đề **không có mục code**.
+
+`POST /api/quizzes/:session_id/submit`, thân `{ answers, codeResults? }`:
+- `answers[i]` theo thứ tự `items`: chỉ số lựa chọn cho trắc nghiệm (bỏ qua = `null`/`-1`).
+- Bài code: `codeResults: { "qb-50": { "passed": 4, "total": 4 } }` (hoặc đặt `{passed, total}` ngay vào
+  `answers[i]`). Đạt khi `passed = total = số ca của đề`. Server TIN con số này: ôn tập không cộng XP/gems.
+- Trả `{ ok, score, total, detail[] }`; mỗi `detail` có `item_id`, `is_correct`; trắc nghiệm có `correct`
+  và `explanation`, bài code có `solution` (chỉ trong response, không lưu DB).
+- `GET /api/quizzes/:id` của đề chưa nộp trả cùng hình dạng `items` (không đáp án).
+
+### 9.3 Việc phía FE (Trí Thành)
+
+1. Bỏ `correctIndex`/`explanation` khỏi điều kiện của `validateDailyPracticeSession`, và nới luật "phải
+   có ít nhất 1 bài code" — không thì FE lặng lẽ rơi về dữ liệu giả.
+2. Màn trắc nghiệm hết chấm tại chỗ: hiện đúng/sai và lời giải từ `detail` sau khi nộp.
+3. Khi xong phiên gọi `POST /api/quizzes/{session_id}/submit` (hiện màn ôn chưa gọi submit nào).
+4. Tắt `NEXT_PUBLIC_DAILY_PRACTICE_MOCK`.

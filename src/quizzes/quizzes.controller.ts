@@ -8,13 +8,18 @@ import {
   ParseIntPipe,
   Post,
 } from '@nestjs/common';
-import { IsArray } from 'class-validator';
+import { IsArray, IsObject, IsOptional } from 'class-validator';
 import { CurrentUserId } from 'src/common/decorators/current-user.decorator';
 import { QuizzesService } from './quizzes.service';
 
 export class SubmitQuizDto {
   @IsArray({ message: 'Danh sách câu trả lời không hợp lệ' })
   answers!: unknown[];
+
+  /** Đề ôn hằng ngày: `{ [id mục]: { passed, total } }` của bài code do trình duyệt chấm. */
+  @IsOptional()
+  @IsObject({ message: 'codeResults phải là object theo id mục' })
+  codeResults?: Record<string, unknown>;
 }
 
 @Controller()
@@ -46,7 +51,8 @@ export class QuizzesController {
   // ---------- Task 138 ----------
   /**
    * Đề ôn HẰNG NGÀY — không gắn với khoá nào, trộn câu từ mọi khoá đã học.
-   * Mỗi ngày học chỉ một đề; đã nộp hôm nay thì trả 400 kèm lời nhắc.
+   * Mỗi ngày học chỉ một đề; đã nộp hôm nay thì trả 400 kèm lời nhắc. Gọi lại khi
+   * chưa nộp thì nhận lại đúng đề đó. Câu lấy từ `question_bank` (trắc nghiệm + bài code).
    */
   @Post('quiz/generate-review')
   @HttpCode(HttpStatus.OK)
@@ -77,7 +83,12 @@ export class QuizzesController {
     @Param('id', ParseIntPipe) quizId: number,
     @Body() dto: SubmitQuizDto,
   ) {
-    return this.quizzes.submitQuiz(userId, quizId, dto.answers);
+    return this.quizzes.submitQuiz(
+      userId,
+      quizId,
+      dto.answers,
+      dto.codeResults,
+    );
   }
 
   // ---------- Task 133 ----------

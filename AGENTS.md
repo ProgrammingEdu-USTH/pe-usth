@@ -28,6 +28,11 @@ node scripts/pe-v4/check-pyodide.mjs   # chấm thử 427 ca bằng chính bộ 
 # Sinh trắc nghiệm (ML, docs/ml-pipeline.md §8) — mặc định chạy thử, không chạm DB
 npx ts-node scripts/gen-questions/mcq.ts --codes=P01,N01
 
+# Ngân hàng đề cho ôn tập hằng ngày (docs/ml-pipeline.md §9) — chạy thử → kiểm Pyodide → --apply
+npx ts-node scripts/gen-questions/import-lesson-items.ts
+node scripts/gen-questions/check-lesson-items.mjs
+npx ts-node scripts/gen-questions/import-lesson-items.ts --apply --expected-host=<host DIRECT_URL>
+
 # Bộ câu hỏi đầu vào xếp module (docs/questionnaire-spec.md §0) — mặc định chạy thử, không chạm DB
 npx ts-node scripts/seed-questionnaire.ts
 npx ts-node scripts/seed-questionnaire.ts --apply --activate --expected-host=<host DIRECT_URL>
@@ -43,7 +48,7 @@ mức này:
 | Hạng mục | Mốc | Đo ngày |
 |---|---|---|
 | Backend typecheck | sạch | 15/11/2026 |
-| Backend test | 65 bộ, 763 ca, tất cả đạt (máy đặt múi giờ UTC thì 1 ca `streak.service.spec.ts` trượt — chạy `TZ=Asia/Ho_Chi_Minh npx jest --ci`) | 24/11/2026 |
+| Backend test | 66 bộ, 798 ca, tất cả đạt (máy đặt múi giờ UTC thì 1 ca `streak.service.spec.ts` trượt — chạy `TZ=Asia/Ho_Chi_Minh npx jest --ci`) | 25/11/2026 |
 | Backend lint | 157 lỗi, 2 cảnh báo — **mốc trần trong CI là 170, chỉ được hạ** | 23/11/2026 |
 | Frontend typecheck | sạch | 23/11/2026 |
 | Frontend lint | 0 lỗi, 42 cảnh báo | 23/11/2026 |
@@ -208,14 +213,22 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   (48 bài, 8 module: M1 = tiến trình) KHÔNG phải giáo trình đang chạy; DB (thật và thử) và `curricula.json`
   dùng gói `scripts/pe-da/out/lessons.json` (179 bài, 11 module: M1 = Python nền tảng, M2 = NumPy). Câu
   sinh từ pe-v4 mà gắn `module_code` rồi đem xếp module hay chọn đề ôn tập theo DB là sai chủ đề, không
-  lỗi nào báo. Bộ câu đầu vào (`scripts/seed-questionnaire.ts`) đọc pe-da; `question_bank` do
-  `scripts/gen-questions/mcq.ts` sinh (mặc định đọc pe-v4) còn mang mã của pe-v4 — đổi nguồn trước khi
-  dùng cho API ôn tập.
+  lỗi nào báo. Bộ câu đầu vào (`scripts/seed-questionnaire.ts`) và câu nhập từ giáo trình
+  (`scripts/gen-questions/import-lesson-items.ts`) đọc pe-da. `scripts/gen-questions/mcq.ts` (Gemini)
+  mặc định đọc pe-v4: câu của nó không khớp `lesson_code` nào trong DB nên đề ôn hằng ngày tự bỏ qua,
+  nhưng vẫn phải đổi nguồn sang pe-da trước khi sinh câu thật cho ôn tập.
+- **Ca chấm dạng `call` so bằng `==` trần, ca dạng dữ liệu thì được chuẩn hoá.** Bài pe-da trả
+  `ndarray` hay tuple vẫn đạt ở trang bài học (bộ chấm hạ về list) nhưng trượt nếu đổi ca sang
+  `solve(...)` cho màn ôn: đo 25/11/2026 là 20/120 bài. Vì vậy bài code vào `question_bank` phải qua
+  `node scripts/gen-questions/check-lesson-items.mjs` (Pyodide 314.0.7 của trình duyệt); script cũ
+  `scripts/pe-da/check-pyodide.mjs` còn trỏ v0.27.7 trong khi worker đã dùng v314.0.7.
 - **Muốn ôn tập phải xong 2 bài, không phải 1.** `buildQuestionPool` đòi `MIN_POOL = 5` câu mới
   cho ra đề, mà mỗi bài Advanced chỉ có **3** câu trắc nghiệm (46/48 bài có 3 câu, 2 bài có 4 —
   đếm `step_2.mcq`). Nên thực tế học viên phải hoàn thành 2 bài mới mở được quiz ôn. Thông báo
   gửi FE (`min_questions: 5`) nói theo SỐ CÂU nên dễ đọc nhầm thành "xong 1 bài là đủ"; sửa
-  `MIN_POOL` là đổi hành vi người dùng thấy được.
+  `MIN_POOL` là đổi hành vi người dùng thấy được. Đề ôn HẰNG NGÀY (từ 25/11/2026) đếm cả bài code
+  của ngân hàng đề vào `MIN_POOL`, nhưng một bài pe-da chỉ có 3 câu + tối đa 1 bài code = 4 < 5,
+  nên vẫn là 2 bài.
 - **Hạn của tài khoản khách là cửa sổ TRƯỢT, và frontend đang ghi cứng 8 giờ ở nhiều chỗ.**
   `JWT_REFRESH_EXPIRES` mặc định `'8h'` (`src/config/env.validation.ts`), nhưng
   `RefreshTokenService.lifetimeMs` là hằng đọc MỘT LẦN trong constructor và `expiresAt` được

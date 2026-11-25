@@ -8,6 +8,8 @@ import {
 import { Prisma } from 'src/generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { toStudyDate } from 'src/common/streak/streak.service';
+import { contentHash } from 'src/question-gen/mcq-filters';
+import type { CodePayload, CodeTest } from 'src/question-gen/lesson-items';
 
 /**
  * `content_json` là JSON TỰ DO (quản trị dán vào, hoặc do scripts/pe-v4 sinh),
@@ -54,6 +56,88 @@ interface QuizQuestion {
    * có khoá ngoại, không nhận null. Cũng chỉ backend đọc.
    */
   courseId: string;
+}
+
+/** `quizzes.kind` của đề ôn hằng ngày — để tìm lại đề chưa nộp trong ngày. */
+export const DAILY_KIND = 'daily';
+const DAILY_TITLE = 'Ôn tập hằng ngày';
+
+/**
+ * Số câu mỗi đề ôn hằng ngày và có lấy câu `draft` hay không. Đọc mỗi lần gọi (không phải
+ * lúc nạp module) để đổi env ở Render không cần đổi code, và để test đặt được.
+ * Câu `draft` trong `question_bank` là câu Gemini sinh đã qua lọc tự động nhưng CHƯA ai duyệt.
+ */
+export function dailyReviewConfig() {
+  const int = (name: string, def: number) => {
+    const n = Number(process.env[name]);
+    return Number.isInteger(n) && n >= 0 ? n : def;
+  };
+  return {
+    mcq: int('DAILY_REVIEW_MCQ', 5),
+    code: int('DAILY_REVIEW_CODE', 2),
+    statuses:
+      process.env.DAILY_REVIEW_ALLOW_DRAFT === 'true'
+        ? ['approved', 'draft']
+        : ['approved'],
+  };
+}
+
+/**
+ * Một câu trắc nghiệm của đề ôn hằng ngày trong SNAPSHOT `quizzes.questions_json`.
+ * Cùng các trường của `QuizQuestion` (nên submit/tally đọc được như đề cũ), thêm:
+ * `itemId` (id FE dùng), `bankId` (id `question_bank`; null = câu lấy thẳng từ step_2 của bài
+ * khi ngân hàng chưa đủ), `lessonTitle`.
+ */
+interface DailyMcqEntry extends QuizQuestion {
+  type: 'mcq';
+  itemId: string;
+  bankId: number | null;
+  lessonTitle: string;
+}
+
+/** Một bài code của đề ôn hằng ngày. `solutionCode` chỉ trả FE SAU khi nộp. */
+interface DailyCodeEntry extends CodePayload {
+  type: 'code';
+  itemId: string;
+  bankId: number;
+  lessonId: number;
+  courseId: string;
+  lessonTitle: string;
+}
+
+type DailyEntry = DailyMcqEntry | DailyCodeEntry;
+
+/** Một hàng của câu SQL chọn câu từ `question_bank` (chưa kèm payload). */
+type BankCandidate = {
+  id: bigint;
+  type: string;
+  content_hash: string;
+  lesson_id: number;
+  course_id: string;
+  lesson_title: string | null;
+  correct: boolean | null;
+  seen_at: Date | null;
+};
+
+const isCodeEntry = (e: unknown): e is DailyCodeEntry =>
+  asRecord(e)?.type === 'code';
+
+/** Kết quả bài code do TRÌNH DUYỆT chấm (server không chạy Python), dạng `{passed, total}`. */
+function asCodeResult(v: unknown): { passed: number; total: number } | null {
+  const r = asRecord(v);
+  if (!r) return null;
+  const { passed, total } = r;
+  if (
+    typeof passed !== 'number' ||
+    typeof total !== 'number' ||
+    !Number.isInteger(passed) ||
+    !Number.isInteger(total) ||
+    passed < 0 ||
+    passed > total
+  ) {
+    return null;
+  }
+  return { passed, total };
 }
 
 /**
@@ -138,50 +222,174 @@ export class QuizzesService {
    *    đều thay vì dồn một hôm.
    *
    * Vẫn dùng chung trọng số "hay sai thì hay gặp lại" như generateReviewQuiz().
+   *
+   * Nguồn câu (ML: API ôn tập từ ngân hàng đề): `question_bank` — trắc nghiệm VÀ bài code
+   * của những bài đã hoàn thành, ưu tiên câu CHƯA gặp (`question_seen`), hết câu chưa gặp
+   * thì câu từng làm sai, cuối cùng câu đã gặp lâu nhất. Ngân hàng thiếu trắc nghiệm thì bù
+   * bằng `step_2.mcq` của bài như trước. Response giữ `quiz_id`/`questions` cũ và thêm hình
+   * dạng `DailyPracticeSession` của FE (`items`), KHÔNG kèm đáp án, lời giải hay code mẫu:
+   * trắc nghiệm chấm ở `submitQuiz`, bài code chấm ở trình duyệt.
+   *
+   * Đề CHƯA nộp của hôm nay được trả lại nguyên vẹn thay vì sinh đề mới: trước đây mỗi lần
+   * tải lại màn ôn là thêm một dòng `quizzes`, và câu đã giao bị tính "đã gặp" thêm lần nữa.
    */
   async generateDailyReviewQuiz(userId: number) {
+    const today = toStudyDate().getTime();
     // Chặn theo NGÀY HỌC (múi giờ nghiệp vụ), giống hệt cách tính của thẻ ở
     // Bảng điều khiển, để giao diện và backend không bao giờ nói khác nhau.
-    const latest = await this.prisma.reviewQuizResult.findFirst({
-      where: { userId },
-      orderBy: { submittedAt: 'desc' },
-      select: { submittedAt: true },
-    });
-    if (
-      latest &&
-      toStudyDate(latest.submittedAt).getTime() === toStudyDate().getTime()
-    ) {
+    const [latest, open] = await Promise.all([
+      this.prisma.reviewQuizResult.findFirst({
+        where: { userId },
+        orderBy: { submittedAt: 'desc' },
+        select: { submittedAt: true },
+      }),
+      this.prisma.quiz.findMany({
+        where: {
+          userId,
+          kind: DAILY_KIND,
+          status: 'generated',
+          createdAt: { gte: new Date(Date.now() - 48 * 3_600_000) },
+        },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          courseId: true,
+          questionsJson: true,
+          createdAt: true,
+        },
+      }),
+    ]);
+    if (latest && toStudyDate(latest.submittedAt).getTime() === today) {
       throw new BadRequestException(
         'Hôm nay bạn đã ôn tập rồi, quay lại vào ngày mai nhé',
       );
     }
+    const reuse = open.find(
+      (q) => toStudyDate(q.createdAt).getTime() === today,
+    );
+    if (reuse) {
+      return this.dailyResponse(
+        reuse.id,
+        reuse.courseId,
+        reuse.questionsJson as unknown as DailyEntry[],
+      );
+    }
 
-    const pool = await this.buildAllCoursesPool(userId);
+    const done = await this.prisma.lessonProgress.findMany({
+      where: { userId, status: 'completed' },
+      select: { lessonId: true },
+    });
+    if (done.length === 0) {
+      throw new BadRequestException(
+        'Bạn cần hoàn thành ít nhất một bài học trước khi làm quiz',
+      );
+    }
+    const lessonIds = done.map((d) => d.lessonId);
+    const cfg = dailyReviewConfig();
 
     // Lịch sử TOÀN BỘ (không lọc theo khoá) vì đề này cũng trộn mọi khoá.
-    const history = await this.prisma.reviewQuizResult.findMany({
-      where: { userId },
-      select: { answersJson: true },
-    });
+    const [candidates, history] = await Promise.all([
+      this.bankCandidates(userId, lessonIds, cfg.statuses),
+      this.prisma.reviewQuizResult.findMany({
+        where: { userId },
+        select: { answersJson: true },
+      }),
+    ]);
     const { totalByLesson, wrongByLesson } =
       this.tallyMistakesByLesson(history);
-
-    const weights = pool.map((q) => {
-      const total = totalByLesson.get(q.lessonId) ?? 0;
-      const wrong = wrongByLesson.get(q.lessonId) ?? 0;
+    const weightOf = (lessonId: number) => {
+      const total = totalByLesson.get(lessonId) ?? 0;
+      const wrong = wrongByLesson.get(lessonId) ?? 0;
       return 1 + (total > 0 ? wrong / total : 0);
-    });
+    };
 
-    const picked = this.weightedSampleWithoutReplacement(
-      pool,
-      weights,
-      this.sampleSize(pool.length),
+    const pickedCode = this.pickBySeen(
+      candidates.filter((c) => c.type === 'code'),
+      weightOf,
+      cfg.code,
     );
+    const pickedMcq = this.pickBySeen(
+      candidates.filter((c) => c.type === 'mcq'),
+      weightOf,
+      cfg.mcq,
+    );
+    const picked = [...pickedMcq, ...pickedCode];
+
+    // Payload chỉ đọc cho câu ĐÃ chọn (≤ vài câu), không cho cả ngân hàng: bài code mang
+    // theo lời giải và khung, đọc payload của mọi câu là lặp lại đúng lỗi BE4 (kéo ~1 MB
+    // mỗi request chỉ để bốc vài câu). Bù step_2 chạy song song nếu ngân hàng thiếu.
+    const need = cfg.mcq - pickedMcq.length;
+    const [payloads, fallback] = await Promise.all([
+      picked.length
+        ? this.prisma.questionBank.findMany({
+            where: { id: { in: picked.map((c) => c.id) } },
+            select: { id: true, payload: true },
+          })
+        : Promise.resolve([]),
+      need > 0
+        ? this.fallbackMcq(
+            lessonIds,
+            new Set(candidates.map((c) => c.content_hash)),
+            weightOf,
+            need,
+          )
+        : Promise.resolve([]),
+    ]);
+    // Khoá là bigint ở cả hai phía (Prisma và $queryRaw); Map so bigint theo GIÁ TRỊ.
+    const payloadById = new Map<bigint, unknown>(
+      payloads.map((p: { id: bigint; payload: unknown }): [bigint, unknown] => [
+        p.id,
+        p.payload,
+      ]),
+    );
+
+    const fromBank = (list: BankCandidate[]) =>
+      list.flatMap((c) => {
+        const e = this.bankEntry(c, payloadById.get(c.id));
+        return e ? [e] : [];
+      });
+    // Trắc nghiệm trước, bài code sau: FE đi lần lượt, code tốn thời gian nhất để cuối.
+    const entries: DailyEntry[] = [
+      ...fromBank(pickedMcq),
+      ...fallback,
+      ...fromBank(pickedCode),
+    ];
+
+    if (entries.length < MIN_POOL) {
+      throw new BadRequestException(
+        'Chưa đủ câu hỏi để tạo quiz, hãy hoàn thành thêm bài học',
+      );
+    }
 
     // Cột `quizzes.course_id` là NOT NULL kèm khoá ngoại nên đề trộn nhiều khoá
     // vẫn phải chọn một khoá để ghi. Lấy khoá đóng góp nhiều câu nhất — đó cũng
     // là khoá đề này nói về nhiều nhất, nên lịch sử theo khoá vẫn đọc được.
-    return this.persistQuiz(userId, this.dominantCourseId(picked), picked);
+    const courseId = this.dominantCourseId(entries);
+    const bankIds = entries.flatMap((e) =>
+      e.bankId === null ? [] : [e.bankId],
+    );
+    // Đề và dấu "đã gặp" ghi CÙNG transaction: ghi đề mà mất dấu thì ngày mai gặp lại
+    // đúng những câu này. Ghi lúc GIAO, không chờ nộp, vì màn ôn có thể bị bỏ dở.
+    const quiz = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.quiz.create({
+        data: {
+          userId,
+          courseId,
+          status: 'generated',
+          kind: DAILY_KIND,
+          questionsJson: entries as unknown as Prisma.InputJsonValue,
+        },
+      });
+      if (bankIds.length) {
+        await tx.$executeRaw`
+          INSERT INTO question_seen (user_id, question_id)
+          SELECT ${userId}, q FROM unnest(${bankIds}::bigint[]) AS t(q)
+          ON CONFLICT (user_id, question_id)
+          DO UPDATE SET times = question_seen.times + 1, seen_at = now()`;
+      }
+      return created;
+    });
+    return this.dailyResponse(quiz.id, courseId, entries);
   }
 
   // ---------- Task 139 ----------
@@ -308,7 +516,17 @@ export class QuizzesService {
   }
 
   // ---------- Task 126-128 ----------
-  async submitQuiz(userId: number, quizId: number, answers: unknown[]) {
+  /**
+   * `codeResults` (đề ôn hằng ngày): kết quả bài code do TRÌNH DUYỆT chấm, theo id mục
+   * (`{ "qb-12": { passed, total } }`); cũng nhận dạng đó ngay trong `answers[i]`. Server
+   * không chạy Python nên TIN con số này — được vì ôn tập không cộng XP hay gems.
+   */
+  async submitQuiz(
+    userId: number,
+    quizId: number,
+    answers: unknown[],
+    codeResults?: Record<string, unknown>,
+  ) {
     const quiz = await this.prisma.quiz.findUnique({ where: { id: quizId } });
     if (!quiz) throw new NotFoundException('Không tìm thấy quiz');
 
@@ -321,13 +539,43 @@ export class QuizzesService {
     }
 
     // Bước 2: chấm điểm theo SNAPSHOT trong DB, KHÔNG tin dữ liệu client gửi.
-    const questions = quiz.questionsJson as unknown as QuizQuestion[];
+    const questions = quiz.questionsJson as unknown as Array<
+      QuizQuestion | DailyEntry
+    >;
     let score = 0;
+    const seen: Array<{ bankId: number; correct: boolean }> = [];
+    // Lời giải mẫu của bài code chỉ đi trong RESPONSE (đã nộp rồi mới xem), không vào
+    // answersJson: lưu lại thì mỗi lần nộp nhân bản toàn bộ code mẫu vào DB.
+    const solutions = new Map<number, string>();
     const detail = questions.map((q, i) => {
+      const daily =
+        'itemId' in q ? { item_id: q.itemId, type: q.type } : undefined;
+      if (isCodeEntry(q)) {
+        const res = asCodeResult(codeResults?.[q.itemId] ?? answers?.[i]);
+        // Đạt = qua MỌI ca của đề đã giao; `total` khác số ca là kết quả của đề khác.
+        const correct =
+          res !== null &&
+          res.total === q.tests.length &&
+          res.passed === res.total;
+        if (correct) score += 1;
+        seen.push({ bankId: q.bankId, correct });
+        solutions.set(i, q.solutionCode);
+        return {
+          ...daily,
+          question: q.title,
+          given: res,
+          is_correct: correct,
+          lesson_id: q.lessonId,
+        };
+      }
       const given = answers?.[i];
       const correct = this.isCorrect(q.correct, given);
       if (correct) score += 1;
+      if ('bankId' in q && q.bankId !== null) {
+        seen.push({ bankId: q.bankId, correct });
+      }
       return {
+        ...daily,
         question: q.question,
         given: given ?? null,
         correct: q.correct,
@@ -362,9 +610,27 @@ export class QuizzesService {
           answersJson: detail,
         },
       });
+      // Đúng/sai lần này cho `question_seen`: đề sau ưu tiên câu làm sai (pickBySeen). Một
+      // câu SQL cho cả đề; dòng đã có từ lúc giao đề nên thường chỉ là UPDATE.
+      if (seen.length) {
+        await tx.$executeRaw`
+          INSERT INTO question_seen (user_id, question_id, correct, answered_at)
+          SELECT ${userId}, t.q, t.c, now()
+          FROM unnest(${seen.map((s) => s.bankId)}::bigint[],
+                      ${seen.map((s) => s.correct)}::boolean[]) AS t(q, c)
+          ON CONFLICT (user_id, question_id)
+          DO UPDATE SET correct = EXCLUDED.correct, answered_at = EXCLUDED.answered_at`;
+      }
     });
 
-    return { ok: true, score, total: questions.length, detail };
+    return {
+      ok: true,
+      score,
+      total: questions.length,
+      detail: detail.map((d, i) =>
+        solutions.has(i) ? { ...d, solution: solutions.get(i) } : d,
+      ),
+    };
   }
 
   // ---------- Task 129 ----------
@@ -379,6 +645,16 @@ export class QuizzesService {
 
     if (quiz.status !== 'submitted') {
       // CHƯA nộp -> vẫn phải giấu đáp án.
+      if (quiz.kind === DAILY_KIND) {
+        return {
+          ...this.dailyResponse(
+            quiz.id,
+            quiz.courseId,
+            quiz.questionsJson as unknown as DailyEntry[],
+          ),
+          status: quiz.status,
+        };
+      }
       return {
         ok: true,
         quiz_id: quiz.id,
@@ -419,6 +695,211 @@ export class QuizzesService {
     return { ok: true, history: rows };
   }
 
+  // ---------- helpers: đề ôn hằng ngày ----------
+
+  /**
+   * Câu của `question_bank` thuộc những bài đã hoàn thành, kèm lần gặp của người này. MỘT
+   * câu SQL: nối bài qua (course_id, lesson_code) — ngân hàng không giữ id bài vì gói nhập
+   * và DB khớp nhau theo mã — và LEFT JOIN `question_seen` của đúng người này.
+   * KHÔNG đọc `payload` ở đây (xem chỗ gọi).
+   */
+  private bankCandidates(
+    userId: number,
+    lessonIds: number[],
+    statuses: string[],
+  ): Promise<BankCandidate[]> {
+    return this.prisma.$queryRaw<BankCandidate[]>(Prisma.sql`
+      SELECT q.id, q.type, q.content_hash, l.id AS lesson_id, l.course_id,
+             l.title AS lesson_title, s.correct, s.seen_at
+      FROM question_bank q
+      JOIN lessons l ON l.course_id = q.course_id AND l.lesson_code = q.lesson_code
+      LEFT JOIN question_seen s ON s.question_id = q.id AND s.user_id = ${userId}
+      WHERE l.id = ANY(${lessonIds}::int[])
+        AND q.status = ANY(${statuses}::text[])
+    `);
+  }
+
+  /**
+   * Chọn `n` câu theo ba tầng: chưa gặp → từng làm sai → đã gặp lâu nhất. Hai tầng đầu bốc
+   * có trọng số theo bài (như đề cũ); tầng cuối xếp theo `seen_at` để câu gặp lâu rồi quay
+   * lại trước. Tầng sau chỉ dùng khi tầng trước hết câu.
+   */
+  private pickBySeen(
+    cands: BankCandidate[],
+    weightOf: (lessonId: number) => number,
+    n: number,
+  ): BankCandidate[] {
+    if (n <= 0) return [];
+    const sample = (list: BankCandidate[], k: number) =>
+      this.weightedSampleWithoutReplacement(
+        list,
+        list.map((c) => weightOf(c.lesson_id)),
+        k,
+      );
+    const unseen = cands.filter((c) => c.seen_at === null);
+    const wrong = cands.filter(
+      (c) => c.seen_at !== null && c.correct === false,
+    );
+    const rest = cands
+      .filter((c) => c.seen_at !== null && c.correct !== false)
+      .sort(
+        (a, b) => (a.seen_at?.getTime() ?? 0) - (b.seen_at?.getTime() ?? 0),
+      );
+
+    const out = sample(unseen, n);
+    if (out.length < n) out.push(...sample(wrong, n - out.length));
+    if (out.length < n) out.push(...rest.slice(0, n - out.length));
+    return out;
+  }
+
+  /**
+   * Bù trắc nghiệm từ `step_2.mcq` của bài khi ngân hàng chưa đủ (khoá chưa nhập ngân hàng,
+   * hoặc câu chỉ còn draft). Câu trùng nội dung với một câu đã có trong ngân hàng bị bỏ —
+   * gói nhập lấy đúng `step_2.mcq` nên không bỏ thì cùng một câu ra hai lần trong một đề.
+   */
+  private async fallbackMcq(
+    lessonIds: number[],
+    bankHashes: Set<string>,
+    weightOf: (lessonId: number) => number,
+    need: number,
+  ): Promise<DailyMcqEntry[]> {
+    const lessons = await this.layStep2(lessonIds);
+    const titles = new Map(
+      lessons.map((l) => [l.id, l.title ?? l.module ?? `Bài ${l.id}`]),
+    );
+    const perLesson = new Map<number, number>();
+    const pool: DailyMcqEntry[] = [];
+    for (const q of this.collectQuestions(lessons)) {
+      const k = perLesson.get(q.lessonId) ?? 0;
+      perLesson.set(q.lessonId, k + 1);
+      const hash = contentHash({
+        question: q.question,
+        options: q.options.map((text) => ({
+          text,
+          detail: '',
+          correct: false,
+        })),
+      });
+      if (bankHashes.has(hash)) continue;
+      pool.push({
+        ...q,
+        type: 'mcq',
+        itemId: `l${q.lessonId}-${k}`,
+        bankId: null,
+        lessonTitle: titles.get(q.lessonId) ?? '',
+      });
+    }
+    return this.weightedSampleWithoutReplacement(
+      pool,
+      pool.map((q) => weightOf(q.lessonId)),
+      need,
+    );
+  }
+
+  /** Câu của ngân hàng → mục snapshot; payload hỏng thì null (bỏ câu, không vỡ cả đề). */
+  private bankEntry(c: BankCandidate, payload: unknown): DailyEntry | null {
+    const base = {
+      itemId: `qb-${c.id}`,
+      bankId: Number(c.id),
+      lessonId: c.lesson_id,
+      courseId: c.course_id,
+      lessonTitle: c.lesson_title ?? `Bài ${c.lesson_id}`,
+    };
+    if (c.type !== 'code') {
+      const q = this.normalizeQuestion(payload);
+      return q ? { ...q, type: 'mcq', ...base } : null;
+    }
+    const p = asRecord(payload);
+    if (!p) return null;
+    const str = (v: unknown) => (typeof v === 'string' ? v : '');
+    const list = (v: unknown): unknown[] => (Array.isArray(v) ? v : []);
+    const tests: CodeTest[] = list(p.tests).flatMap((t) => {
+      const r = asRecord(t);
+      return r && typeof r.call === 'string' && typeof r.expected === 'string'
+        ? [
+            {
+              name: str(r.name) || 'Kiểm tra',
+              call: r.call,
+              expected: r.expected,
+            },
+          ]
+        : [];
+    });
+    if (tests.length === 0 || !str(p.starterCode)) return null;
+    return {
+      type: 'code',
+      ...base,
+      title: str(p.title),
+      description: str(p.description),
+      starterCode: str(p.starterCode),
+      solutionCode: str(p.solutionCode),
+      tests,
+      hints: list(p.hints).flatMap((h) => {
+        const r = asRecord(h);
+        return r ? [{ title: str(r.title), body: str(r.body) }] : [];
+      }),
+      packages: list(p.packages).map(String),
+    };
+  }
+
+  /**
+   * Response của đề ôn hằng ngày. Giữ `quiz_id`/`questions` (client cũ) và thêm đúng hình
+   * dạng `DailyPracticeSession` của frontend/src/lib/daily-practice.ts — trừ `correctIndex`,
+   * `explanation` và `solution`: đáp án chỉ ra ở `submitQuiz` (hợp đồng đã chốt trong sheet
+   * phân việc: "đáp án không lộ").
+   * `questions[].index` là vị trí trong `items`, nên `answers[index]` của bản nộp cũ vẫn đúng.
+   */
+  private dailyResponse(
+    quizId: number,
+    courseId: string,
+    entries: DailyEntry[],
+  ) {
+    return {
+      ok: true as const,
+      quiz_id: quizId,
+      questions: entries.flatMap((e, i) =>
+        isCodeEntry(e)
+          ? []
+          : [{ index: i, question: e.question, options: e.options }],
+      ),
+      session_id: String(quizId),
+      course_id: courseId,
+      title: DAILY_TITLE,
+      total_items: entries.length,
+      items: entries.map((e) => this.publicDailyItem(e)),
+    };
+  }
+
+  /** CHỌN trường để gửi (không xoá trường): trường mới thêm vào snapshot không tự lọt ra. */
+  private publicDailyItem(e: DailyEntry) {
+    if (isCodeEntry(e)) {
+      return {
+        id: e.itemId,
+        type: 'code' as const,
+        lesson_id: e.lessonId,
+        lesson_title: e.lessonTitle,
+        title: e.title,
+        description: e.description,
+        starterCode: e.starterCode,
+        tests: e.tests.map((t) => ({
+          name: t.name,
+          call: t.call,
+          expected: t.expected,
+        })),
+        hints: e.hints.map((h) => ({ title: h.title, body: h.body })),
+        packages: e.packages,
+      };
+    }
+    return {
+      id: e.itemId,
+      type: 'quiz' as const,
+      lesson_id: e.lessonId,
+      lesson_title: e.lessonTitle,
+      question: e.question,
+      options: e.options,
+    };
+  }
+
   // ---------- helpers ----------
 
   /**
@@ -457,32 +938,6 @@ export class QuizzesService {
   }
 
   /**
-   * Pool trộn câu từ MỌI khoá học viên đã học — dùng cho đề ôn hằng ngày.
-   * Cùng luật gom câu với `buildQuestionPool()`, chỉ bỏ điều kiện lọc theo khoá.
-   */
-  private async buildAllCoursesPool(userId: number): Promise<QuizQuestion[]> {
-    const done = await this.prisma.lessonProgress.findMany({
-      where: { userId, status: 'completed' },
-      select: { lessonId: true },
-    });
-    if (done.length === 0) {
-      throw new BadRequestException(
-        'Bạn cần hoàn thành ít nhất một bài học trước khi làm quiz',
-      );
-    }
-
-    const lessons = await this.layStep2(done.map((d) => d.lessonId));
-
-    const pool = this.collectQuestions(lessons);
-    if (pool.length < MIN_POOL) {
-      throw new BadRequestException(
-        'Chưa đủ câu hỏi để tạo quiz, hãy hoàn thành thêm bài học',
-      );
-    }
-    return pool;
-  }
-
-  /**
    * Các bản ghi tiến độ hoàn thành TRONG NGÀY HỌC hôm nay.
    *
    * Lọc thô 48 giờ ở SQL rồi so ngày trong JS bằng `toStudyDate()` — cùng hàm
@@ -505,7 +960,7 @@ export class QuizzesService {
   }
 
   /** Khoá đóng góp nhiều câu nhất trong đề (hoà thì lấy khoá gặp trước). */
-  private dominantCourseId(picked: QuizQuestion[]): string {
+  private dominantCourseId(picked: Array<{ courseId: string }>): string {
     const count = new Map<string, number>();
     for (const q of picked) {
       count.set(q.courseId, (count.get(q.courseId) ?? 0) + 1);

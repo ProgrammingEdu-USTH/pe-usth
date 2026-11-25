@@ -282,7 +282,6 @@ const DA_PHU = {
 /** Ô gõ KHÔNG có đường tới khoá đang xuất bản — mỗi mục kèm VÌ SAO. */
 const NGOAI_TAM_GO = {
   'src/components/Chatbot.tsx': [1, 'chỉ được dựng ở `lesson/java` và `lesson/htmlcss` — hai trang minigame di sản ngoài phạm vi (quyết định 13/10), khoá python_advanced không có chatbot.'],
-  'src/components/LessonDbDesign.tsx': [1, '`<select>` ngôn ngữ của trang `db_design*` di sản — khoá 179 bài không mount nó, và hướng DB mới (b) sẽ dựng lại màn bằng sqlite3 chứ không dùng tệp này.'],
   'src/components/lesson-chrome/exercises/SelfExplain.tsx': [1, 'màn `selfExplain` do mini-game của pe-v4 dựng — 0/179 bài pe-da có màn đó; đã có `fontSize` nội tuyến 13 nên ngày bật lại phải sửa cùng lúc.'],
   'src/components/lesson-chrome/exercises/TraceTable.tsx': [1, 'màn `traceTable` của mini-game pe-v4 — 0/179 bài pe-da; ô nhập 48px chỉ dùng trong bảng vết viết tay (`step_3.trace`, 0/179).'],
   'src/components/python-studio/PythonStudio.tsx': [2, 'component CHẾT-MÀ-GIỮ (xem `GIU_DU_CHET` ở check-tai-nguyen-chet và `NGOAI_TAM` của o-go-16px): hai ô `.explanationInput`/`.codeInput` dưới 16px đã khai ở việc (4).'],

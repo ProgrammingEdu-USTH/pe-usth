@@ -24,7 +24,7 @@ export default function ConceptCardPage({ params }: { params: Promise<{ cardId: 
       <div className="cc-top">
         {/* Full-load có chủ đích (tổ hợp CSS khác trang đích) — không dùng <Link> */}
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-        <a className="cc-back" id="cc-back-link" href="/courses/db_design_tc">← Về roadmap khóa học</a>
+        <a className="cc-back" id="cc-back-link" href="/bookshelf/sql">← Về roadmap khóa học</a>
       </div>
       <main id="card-root"><div className="cc-missing">Đang mở hồ sơ…</div></main>
 

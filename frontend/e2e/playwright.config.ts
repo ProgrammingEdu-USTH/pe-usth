@@ -1,18 +1,13 @@
-// Cấu hình Playwright cho bộ e2e regression engine chấm SQL (port từ
-// test_e2.py + regression_b6.py của bản Flask — quyết định chủ dự án 2026-07-14).
+// Cấu hình Playwright cho bộ e2e.
 //
-// Hai nhóm spec, yêu cầu chạy KHÁC NHAU — đừng chạy cả thư mục:
+// `python-advanced` giả lập toàn bộ API bằng `page.route`, Pyodide tự host trong
+// repo (`public/pyodide/v314.0.7/`), nên KHÔNG cần backend, DB, mạng:
+//   cd frontend && npx playwright test -c e2e/playwright.config.ts python-advanced
+// `mobile-responsive` cũng không cần backend (chỉ đo trang chủ + chi tiết khóa)
+// nên chạy chung trong CI.
 //
-//  1. `python-advanced` — giả lập toàn bộ API bằng `page.route`, Pyodide tự host
-//     trong repo (`public/pyodide/v314.0.7/`), nên KHÔNG cần backend, DB, mạng:
-//       cd frontend && npx playwright test -c e2e/playwright.config.ts python-advanced
-//     `mobile-responsive` cũng không cần backend (chỉ đo trang chủ + chi tiết khóa) nên chạy chung nhóm này trong CI.
-//
-//  2. `pe-run-sql`, `drag-regression` — dùng `helpers.login()`
-//     đăng nhập UI thật, nên cần backend Django (cổng 9000) + DB có content_json
-//     + tài khoản test (E2E_EMAIL/E2E_PASSWORD). Chỉ chạy được ở máy có môi
-//     trường đó:
-//       cd backend && .venv/Scripts/python manage.py runserver 9000
+// Bộ regression engine chấm SQL (`pe-run-sql`, `drag-regression`) đã xoá ngày
+// 25/11/2026 cùng trang bài SQL cũ mà nó đo; hai spec đó cần trang /login đã gỡ.
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({

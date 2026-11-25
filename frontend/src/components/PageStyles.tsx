@@ -30,26 +30,15 @@ import { withAssetVersion } from '@/lib/assetVersion';
 
 /**
  * Thứ tự nạp toàn cục. Ràng buộc thật sự cần giữ:
- *   · style/dashboard/pages/dark-mode  TRƯỚC  edu-theme
  *   · edu-theme  TRƯỚC  mọi file edu-* còn lại (chúng đè lên token của nó)
- *   · course_db_design, lesson_db_design  TRƯỚC  edu-db
  * Những file không liệt kê ở đây rơi vào hạng mặc định (giữa nhóm gốc và nhóm
  * edu-*), đủ an toàn vì chúng đều là CSS riêng của một trang.
  */
 const RANK: Record<string, number> = {
-  'style.css': 12,
-  'dashboard.css': 13,
-  'pages.css': 14,
-  'dark-mode.css': 17,
   'lesson.css': 22,
-  'lesson_db_design.css': 23,
   'chatbot.css': 24,
-  'course_db_design.css': 26,
   // các file pages/*.inline.css → 30 (mặc định)
   'edu-theme.css': 40,
-  'edu-dashboard.css': 41,
-  'edu-course-detail.css': 42,
-  'edu-db.css': 43,
   'edu-lesson.css': 44,
   'edu-card.css': 47,
   // token riêng của Python Studio — sau edu-theme, trước lớp co giãn

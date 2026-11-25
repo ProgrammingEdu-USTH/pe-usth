@@ -103,12 +103,12 @@ jobs:
       # một biến bị bỏ lại, và đó là thứ để sửa. Siết thì `check-nguong` in
       # `GHI SỔ` và vẫn xanh, nên hạ con số này không có ma sát nào.
       #
-      # 146 = 132 `no-unused-vars` (127 ở JS di sản `public/static/js/`, 5 ở
-      # `goc-hoc/engine.js`) + 6 `no-unused-expressions` + 5
-      # `no-page-custom-font` + 2 `no-img-element`. Đo bằng DÒNG TỔNG KẾT của
-      # eslint, không bằng `grep -c warning` — phép grep ra 148 vì hai dòng khác
-      # cũng chứa chữ ấy.
-      - run: npm run lint -- --max-warnings 146
+      # 90 (hạ từ 146 ngày 25/11/2026, khi xoá engine bài SQL cũ) = 80
+      # `no-unused-vars` (75 ở JS di sản `public/static/js/`) + 4
+      # `no-unused-expressions` + 4 `no-page-custom-font` + 1 `no-img-element`
+      # + 1 chỉ thị `eslint-disable` thừa. Đo bằng DÒNG TỔNG KẾT của
+      # eslint, không bằng `grep -c warning` — hai dòng khác cũng chứa chữ ấy.
+      - run: npm run lint -- --max-warnings 90
 
       # Bộ chấm bài nằm hẳn ở trình duyệt (AGENTS.md: server tin `quizScore` do
       # client gửi), nên `src/lib/studio-lesson.ts` là thứ duy nhất quyết định
@@ -148,12 +148,8 @@ jobs:
   #     13,2 MB, cùng origin) nên không còn tải ~10 MB từ CDN trong lúc test
   #     đang bị bấm đồng hồ — nguồn đỏ giả vì mạng đã mất.
   #
-  # Chạy `python-advanced` (8 ca) và `mobile-responsive` (5 ca). Hai spec còn lại
-  # (`pe-run-sql`, `drag-regression`) CỐ Ý không chạy: cả hai gọi `helpers.login()`
-  # đăng nhập UI thật, tức cần backend Django cổng 9000 + DB có content_json +
-  # tài khoản E2E_EMAIL/E2E_PASSWORD — runner không có, và trang /login đã gỡ
-  # khỏi frontend nên hiện không chạy được ở đâu cả. Đo ở máy ngày 12/10/2026,
-  # không có backend: cả hai trượt vì `openLesson()` hết 30s chờ `LESSON_CONTENT`.
+  # Chạy `python-advanced` và `mobile-responsive`. Hai spec SQL cũ (`pe-run-sql`,
+  # `drag-regression`) đã xoá ngày 25/11/2026 cùng trang bài SQL cũ.
   # `mobile-responsive` được viết lại chỉ đo trang chủ + trang chi tiết khóa
   # (không cần login, không cần backend) — bản cũ đo cả dashboard/login/
   # questionaire, những trang đã bị gỡ.

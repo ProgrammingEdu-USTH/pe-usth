@@ -93,6 +93,10 @@ const nextConfig: NextConfig = {
       { source: "/courses/db_design", destination: "/bookshelf/sql", permanent: false },
       { source: "/courses/db_design_tc", destination: "/bookshelf/sql", permanent: false },
       { source: "/courses/db_design_nc", destination: "/bookshelf/sql", permanent: false },
+      // Trang bài học SQL cũ đã xoá; khoá Database trên Tủ sách thay nó.
+      { source: "/lesson/db_design", destination: "/bookshelf/sql", permanent: false },
+      { source: "/lesson/db_design_tc", destination: "/bookshelf/sql", permanent: false },
+      { source: "/lesson/db_design_nc", destination: "/bookshelf/sql", permanent: false },
     ];
   },
   // Quán Mây là một trang tĩnh tự chứa ở public/quan-may.

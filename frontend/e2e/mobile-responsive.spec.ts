@@ -61,11 +61,10 @@ async function expectNoHorizontalOverflow(page: Page, label: string) {
 }
 
 // ── Trang chủ + chi tiết khóa học ───────────────────────────────────────────
-// Một đại diện cho mỗi nhánh render: khóa React thuần (python_advanced) và khóa
-// dùng JS legacy (db_design — route tĩnh riêng nên vẫn mở được bằng đường dẫn).
-// Bản trước đo thêm /courses/java (giáo trình dài nhất, 110 bài): java đã rời
+// Đại diện khóa dùng JS legacy (/courses/db_design) đã đi cùng trang của nó ngày
+// 25/11/2026 — đường đó nay chuyển hướng về Tủ sách. Bản trước đo thêm /courses/java (giáo trình dài nhất, 110 bài): java đã rời
 // danh mục tĩnh 13/10/2026 nên route động trả 404, đo một trang 404 là đo vô ích.
-for (const path of ['/', '/courses/python_advanced', '/courses/db_design', '/bookshelf']) {
+for (const path of ['/', '/courses/python_advanced', '/bookshelf']) {
   test(`không tràn ngang: ${path}`, async ({ page }) => {
     await page.goto(path, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(1500); // chờ font/script legacy dựng xong nội dung

@@ -10,7 +10,7 @@
       var root = document.getElementById('card-root');
       if (!card) {
         root.innerHTML = '<div class="cc-missing">Không tìm thấy hồ sơ <code>' +
-          String(id).replace(/[<>&]/g, '') + '</code>.<br><br><a class="cc-back" href="/courses/db_design_tc">← Về roadmap</a></div>';
+          String(id).replace(/[<>&]/g, '') + '</code>.<br><br><a class="cc-back" href="/bookshelf/sql">← Về roadmap</a></div>';
         return;
       }
       document.title = card.title + ' — Concept Card';

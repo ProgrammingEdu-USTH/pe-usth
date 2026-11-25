@@ -108,8 +108,10 @@ và bản nháp nằm ở `localStorage`. Chỗ rẽ nhánh duy nhất là `useL
   câu tự luyện: **không chấm SQL trong trình duyệt**; fixture `.sql` được phát để chạy trên máy.
 - Machine Learning có ca chấm: cả 28 lời giải mẫu đạt 6/6 trong Pyodide trên trình duyệt thật (25/11/2026, đo tay,
   chưa có cổng tự động).
-- Bài SQL cũ (`/lesson/db_design*`) vẫn mở được bằng đường dẫn trực tiếp vì bộ e2e kéo-thả và chạy SQL đang đo trên
-  nó; kệ sách không còn trỏ tới.
+- Trang bài SQL cũ và ba trang khoá `db_design*` đã **xoá** (25/11/2026, chủ dự án quyết): engine kéo-thả/chạy SQL,
+  CSS của chúng và hai e2e `pe-run-sql`, `drag-regression`. `/lesson/db_design*` và `/courses/db_design*` chuyển về
+  `/bookshelf/sql`. **Còn giữ** `public/static/js/lesson_content{,_tc,_nc}.js` vì `scripts/seed-lesson-questions.js`
+  và trang `/card/[cardId]` đọc chúng; dữ liệu khoá `db_design*` trong DB không đụng tới.
 
 ## Quán Mây (`/quan-may`, từ 25/11/2026)
 
@@ -144,7 +146,7 @@ học nó.
 | Backend test | **36 bộ, 532 ca**, tất cả đạt (chạy RIÊNG — xem bẫy tranh CPU) |
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
-| Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
+| Frontend lint | 0 lỗi, **90 cảnh báo** (hạ từ 146 ngày 25/11/2026 khi xoá engine bài SQL cũ). CI chạy `npm run lint -- --max-warnings 90` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 80 `no-unused-vars` (75 ở JS di sản) · 4 `no-unused-expressions` · 4 `no-page-custom-font` · 1 `no-img-element` · 1 chỉ thị `eslint-disable` thừa |
 | Frontend unit test | `cd frontend && npm run test:unit` → **770 ca** / 74 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **69 phép kiểm**, trượt 0 |
@@ -158,7 +160,7 @@ học nó.
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
 | Xuất hình cho người học | `node scripts/check-figures.mjs` → 16 ca, **0 hỏng** |
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **19 mục, 15 có đường tới, 4 còn tối (đã khai lý do)**, 0 lỗi |
-| Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **2 mục chết, 2 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **22 CSS module trong `src/`** |
+| Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **3 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **22 CSS module trong `src/`** |
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
 | Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **179/179 khớp, 0 bài chờ nạp**. Lần nạp gần nhất: **2026-11-23T15:36 UTC** (22:36 giờ Việt Nam) — HAI bài PY02 · PY03 (#310 A2-nhẹ: nói thẳng phần terminal/notebook chỉ cần khi học trên máy riêng, bỏ câu mở bài PY03 giả định đã tạo môi trường ảo), nạp bằng `--codes=PY02,PY03 --apply --backup=bak-py02-03-2026-11-23.json` sau khi chạy thử `--all` xác nhận ĐÚNG 2/179 bài lệch và 177 bài còn lại khớp DB từng byte; chạy thử lại sau khi nạp cho 0/179 lệch. Biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Lần nạp trước: 2026-11-19T07:08 UTC (PY01, #310 A1, `--codes=PY01`); trước nữa 2026-11-19T06:55 UTC (15 bài PD02 · PD03 · PD05 · PD07 · PD14 · PD15 · PD18 · PD23 · PD25 · PD26 · VZ02 · VZ03 · VZ12 · VZ14 · VZ22, `--codes=<15 mã>`); và 2026-11-16T17:41 UTC `--all`. CÓ biên nhận rồi thì một bài lệch là ĐỎ CỨNG (`check-da-nap` thoát 1, CI chạy nó) — số chờ nạp ĐÃ về 0, nên điều kiện để lật trigger `ci.yml` sang `main` về phía nội dung đã đủ. GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó (lần chạy thử `--all` ở trên là phép đo trực tiếp DB, và nó đo ngay trước và ngay sau lúc nạp). |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |

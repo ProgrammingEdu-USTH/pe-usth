@@ -38,7 +38,7 @@ function routeTinh() {
 
 // Renderer dựng nội dung bài từ `lessons.content_json`. `PythonStudio` KHÔNG ở
 // đây: nó là một bài dựng tay, không đọc khoá nào, nên nó không cần giáo trình.
-const DUNG_NOI_DUNG = ['StudioLesson', 'LessonDbDesign'];
+const DUNG_NOI_DUNG = ['StudioLesson'];
 
 test('route /lesson tĩnh: phép quét tìm được đủ route và giáo trình', () => {
   const rs = routeTinh();

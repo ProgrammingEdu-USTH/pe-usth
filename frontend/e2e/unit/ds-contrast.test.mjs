@@ -459,8 +459,6 @@ const DA_SANG_LOFI = [
   // thì đã gỡ: hai chip nó canh chỉ sống trong file đã xoá — xem AGENTS.md.)
   ['src/components/goc-hoc/scene.css',
     readFileSync(join(__dirname, '..', '..', 'src', 'components', 'goc-hoc', 'scene.css'), 'utf8')],
-  ['public/static/css/edu-course-detail.css',
-    readFileSync(join(__dirname, '..', '..', 'public', 'static', 'css', 'edu-course-detail.css'), 'utf8')],
   ['src/components/CourseShell.module.css',
     readFileSync(join(__dirname, '..', '..', 'src', 'components', 'CourseShell.module.css'), 'utf8')],
   // 04/11 — /ide (6ac5a0c, 19 khai báo brand → 0) và màn BÀI HỌC (7 file, tới

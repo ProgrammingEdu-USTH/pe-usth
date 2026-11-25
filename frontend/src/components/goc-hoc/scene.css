@@ -358,6 +358,9 @@ svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-widt
 
 .menu{display:flex;flex-direction:column;gap:8px}
 .mi{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:11px 14px;border-radius:16px;transition:transform .4s var(--ease),background .3s,border-color .3s}
+a.mi{color:inherit;text-decoration:none;box-sizing:border-box}
+/* Cột phải cuộn được, nên thẻ bài học không được co lại khi menu dài. */
+#side>.hero,#side .menu{flex-shrink:0}
 .mi:hover,.mi.hl{transform:translateX(-4px);background:var(--glass-hi);border-color:var(--line-hi)}
 .mi .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none}
 .mi b{display:block;font-family:var(--f-display);font-weight:600;font-size:16.5px;line-height:1.15}

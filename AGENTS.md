@@ -114,7 +114,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
-| Frontend unit test | `cd frontend && npm run test:unit` → **747 ca** / 71 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **752 ca** / 72 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **69 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -134,7 +134,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **47 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 747 · backend 36 bộ/532 · tracer 69 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/364 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 752 · backend 36 bộ/532 · tracer 69 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/364 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -153,7 +153,7 @@ chín vòng. Đây là lần THỨ HAI cùng con số này trôi — lần trư�
 và mười tệp test mới (`ablate-trung-thuc`, `dich-bam-vo-bai-hoc`, `khoa-roi-giao-trinh`,
 `lesson-chrome-sticky`, `o-go-16px`, `trang-404`, `trang-loi`…) chưa bao giờ có mặt ở đây.
 Phân rã hiện tại, ĐO chứ không cộng tay:
-ablate-trung-thuc 19 · catalog-duration 2 · catalog-naming 4 · consent-banner 15 ·
+ablate-trung-thuc 19 · bookshelf-progress 5 · catalog-duration 2 · catalog-naming 4 · consent-banner 15 ·
 course-resume 17 · danh-thuc-may-chu 6 · data-files 18 · dich-bam-vo-bai-hoc 8 · ds-contrast 18 ·
 editor-load-gate 14 · feedback-link 9 · feedback-rank 3 · forum-xss 1 · giam-chuyen-dong 3 ·
 giao-dien 7 · giao-dien-chuyen-dong 5 · giao-dien-monaco 4 · giao-dien-trang-chu 4 ·
@@ -168,7 +168,7 @@ o-nhap-nhieu-dong 2 · phan-bai 8 · practice-contract 15 · practice-run 9 · p
 read-diagram 12 · read-guess 19 · read-trace 17 · read-try-it 23 · recap-recall 7 ·
 review-quiz 34 · run-stale 15 · sandbox-cuon-ket-qua 6 · session-marker 5 · spaced-review 18 ·
 studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 · trang-404 6 · trang-loi 12 ·
-trap-leak 3 · worker-csp 7 = 747.
+trap-leak 3 · worker-csp 7 = 752.
 Lịch sử các lần số ca đổi ("Mốc trước là 736; …") nằm ở [BAY-DA-GAP.md](BAY-DA-GAP.md), phần 2 — mỗi dòng ghi VÌ SAO con số đổi. Khối phân rã ở trên là số HIỆN TẠI; thêm/bớt một tệp test thì sửa CẢ hàng mốc nền LẪN khối này (`node scripts/dem-ca-test.mjs` in đúng khuôn).
 
 **Đếm phân rã bằng `sed`, đừng bằng `grep -E "^. pass"`** — dòng tổng kết của

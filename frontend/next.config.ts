@@ -102,6 +102,11 @@ const nextConfig: NextConfig = {
         headers: [{ key: "Content-Security-Policy", value: workerCsp }],
       })),
       {
+        // Worker Python của máy tính Góc học cũng chạy mã học viên.
+        source: "/goc-hoc/may-tinh/py-worker.js",
+        headers: [{ key: "Content-Security-Policy", value: workerCsp }],
+      },
+      {
         // Runtime Pyodide (~32 MB: wasm + stdlib + wheel numpy/pandas/matplotlib)
         // nằm trong thư mục ĐÃ GHIM PHIÊN BẢN, nên nội dung không bao giờ đổi:
         // muốn nâng cấp là đổi sang /pyodide/v0.28.x/, không ghi đè file cũ.

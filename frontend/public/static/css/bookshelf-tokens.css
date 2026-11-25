@@ -1,0 +1,146 @@
+/* ══════════════════════════════════════════════════════════════════════
+   BOOKSHELF TOKENS — Bảng màu cho Tủ sách & 3 Khoá học Lofi
+   Đặt trong public/static/css để các CSS Module chỉ dùng var(--bs-*)
+   và đạt chuẩn lint:tokens + tương phản WCAG AA (>= 4.5:1).
+   ══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Nền phòng Lofi & lớp phủ đồng bộ với #scrim trong scene.css */
+  --bs-bg: #0d0b13;
+  --bs-scrim-center: rgba(14, 10, 24, 0.35);
+  --bs-scrim-edge: rgba(10, 7, 18, 0.72);
+  --bs-glass: rgba(30, 21, 42, 0.58);
+  --bs-glass-hi: rgba(52, 38, 68, 0.68);
+  --bs-glass-line: rgba(255, 236, 220, 0.14);
+  --bs-glass-line-hi: rgba(255, 236, 220, 0.28);
+  --bs-tab-active-bg: #fff6ee;
+  --bs-tab-active-ink: #2a1a26;
+  --bs-pill-done-ink: #8be3a8;
+  --bs-pill-xp-ink: #ffc97a;
+  --bs-surface: rgba(25, 19, 36, 0.84);
+  --bs-surface-hi: rgba(36, 28, 52, 0.92);
+  --bs-surface-border: rgba(255, 240, 224, 0.16);
+  --bs-surface-border-hi: rgba(255, 220, 175, 0.34);
+
+  /* Chữ trên nền tối */
+  --bs-ink: #f8f3eb;
+  --bs-ink-soft: #d4c8e2;
+  --bs-ink-muted: #a699b6;
+
+  /* Kệ gỗ tủ sách */
+  --bs-wood: #835737;
+  --bs-wood-hi: #a36e48;
+  --bs-wood-dark: #4a2d1b;
+  --bs-wood-slot: #231927;
+  --bs-wood-label: #f4dfbe;
+
+  /* Mặt giấy sách mở màu kem ấm */
+  --bs-paper: #f3ead6;
+  --bs-paper-edge: #ded0b2;
+  --bs-paper-spine: rgba(65, 44, 24, 0.14);
+  --bs-paper-card: #e8dcc1;
+  --bs-paper-card-hover: #efe4cc;
+  --bs-paper-border: #cbbba0;
+  --bs-paper-ink: #2a1e16;
+  --bs-paper-mute: #594638;
+
+  /* Trạng thái trung tính & hoàn thành */
+  --bs-ok: #1b7f5a;
+  --bs-ok-ink: #ffffff;
+  --bs-ok-soft: rgba(27, 127, 90, 0.14);
+  --bs-soon-bg: rgba(45, 36, 56, 0.56);
+  --bs-soon-border: rgba(255, 240, 224, 0.22);
+  --bs-soon-ink: #cfc5dc;
+  --bs-pill-new-bg: #efc168;
+  --bs-pill-new-ink: #241805;
+
+  /* Thanh cuộn rõ nét trên nền giấy kem */
+  --bs-scrollbar-thumb: rgba(89, 70, 56, 0.55);
+  --bs-scrollbar-track: rgba(203, 187, 160, 0.38);
+
+  /* Token cho đồ vật trang trí SVG / bảng mã */
+  --bs-code-bg: rgba(18, 16, 28, 0.92);
+  --bs-code-border: rgba(255, 236, 220, 0.14);
+  --bs-code-green: #8be3a8;
+  --bs-code-amber: #ffc97a;
+  --bs-code-pink: #ff9db8;
+  --bs-code-blue: #9ad8ff;
+  --bs-sticky-bg: #ebd089;
+  --bs-sticky-ink: #2c1d0f;
+  --bs-tape-bg: rgba(255, 248, 225, 0.45);
+  --bs-shadow: rgba(6, 4, 12, 0.48);
+
+  /* Giá trị mặc định (sẽ được ghi đè bởi [data-course]) */
+  --bs-primary: #4f7bb5;
+  --bs-primary-text: #1f4578;
+  --bs-primary-soft: rgba(79, 123, 181, 0.16);
+  --bs-accent: #efc168;
+  --bs-cover: #2f4d78;
+  --bs-cover-deep: #223a5c;
+  --bs-cover-border: #e0b768;
+  --bs-cta-bg: #efc168;
+  --bs-cta-ink: #1e1608;
+  --bs-cta-alt-bg: #365c8d;
+  --bs-cta-alt-ink: #ffffff;
+  --bs-ribbon: #e0b158;
+  --bs-spine-bg: #345786;
+  --bs-spine-ink: #f8f5ef;
+  --bs-spine-band: #d6ab56;
+}
+
+/* Khoá 1: Python — Xanh bụi & vàng nắng */
+[data-course="python"] {
+  --bs-primary: #4f7bb5;
+  --bs-primary-text: #1f4578;
+  --bs-primary-soft: rgba(79, 123, 181, 0.16);
+  --bs-accent: #efc168;
+  --bs-cover: #2f4d78;
+  --bs-cover-deep: #223a5c;
+  --bs-cover-border: #e0b768;
+  --bs-cta-bg: #efc168;
+  --bs-cta-ink: #1e1608;
+  --bs-cta-alt-bg: #365c8d;
+  --bs-cta-alt-ink: #ffffff;
+  --bs-ribbon: #e0b158;
+  --bs-spine-bg: #345786;
+  --bs-spine-ink: #f8f5ef;
+  --bs-spine-band: #d6ab56;
+}
+
+/* Khoá 2: SQL — Xanh ngọc & hổ phách */
+[data-course="sql"] {
+  --bs-primary: #2b857e;
+  --bs-primary-text: #145c56;
+  --bs-primary-soft: rgba(43, 133, 126, 0.16);
+  --bs-accent: #e8a85a;
+  --bs-cover: #21615d;
+  --bs-cover-deep: #174744;
+  --bs-cover-border: #deb06b;
+  --bs-cta-bg: #e8a85a;
+  --bs-cta-ink: #1f1506;
+  --bs-cta-alt-bg: #1e6b64;
+  --bs-cta-alt-ink: #ffffff;
+  --bs-ribbon: #e39d52;
+  --bs-spine-bg: #236964;
+  --bs-spine-ink: #f7f6f2;
+  --bs-spine-band: #dba258;
+}
+
+/* Khoá 3: Machine Learning — Tím oải hương & hồng phấn */
+[data-course="machine-learning"] {
+  --bs-primary: #7d61b8;
+  --bs-primary-text: #4c3582;
+  --bs-primary-soft: rgba(125, 97, 184, 0.16);
+  --bs-accent: #e59eb7;
+  --bs-cover: #554087;
+  --bs-cover-deep: #3d2d63;
+  --bs-cover-border: #d4a9c8;
+  --bs-cta-bg: #e8a6bd;
+  --bs-cta-ink: #26111c;
+  --bs-cta-alt-bg: #61479b;
+  --bs-cta-alt-ink: #ffffff;
+  --bs-ribbon: #e593b3;
+  --bs-spine-bg: #5d4594;
+  --bs-spine-ink: #f9f5fb;
+  --bs-spine-band: #c99bc2;
+}

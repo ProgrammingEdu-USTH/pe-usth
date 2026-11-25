@@ -97,6 +97,8 @@ export const SHELL_HTML = /* html */ `
     <nav class="menu" aria-label="Điều hướng">
       <button class="mi glass" data-go="roadmap"><span class="ic c-map"><svg class="i"><use href="#i-map"/></svg></span><span><b>Lộ trình</b><small id="navRoadmap"></small></span><svg class="i chev"><use href="#i-right"/></svg></button>
       <button class="mi glass" data-go="courses"><span class="ic c-book"><svg class="i"><use href="#i-book"/></svg></span><span><b>Khoá học</b><small id="navCourses"></small></span><svg class="i chev"><use href="#i-right"/></svg></button>
+      <a class="mi glass" href="/bookshelf"><span class="ic c-book"><svg class="i"><use href="#i-book"/></svg></span><span><b>Tủ sách</b><small>Chọn khoá và mục lục bài</small></span><svg class="i chev"><use href="#i-right"/></svg></a>
+      <a class="mi glass" href="/may-tinh"><span class="ic c-pen"><svg class="i"><use href="#i-play"/></svg></span><span><b>Máy tính</b><small>Tra hàm, chạy thử Python</small></span><svg class="i chev"><use href="#i-right"/></svg></a>
       <button class="mi glass" data-go="practice"><span class="ic c-pen"><svg class="i"><use href="#i-pen"/></svg></span><span><b>Ôn tập</b><small id="navPractice"></small></span><svg class="i chev"><use href="#i-right"/></svg></button>
       <button class="mi glass" data-go="achievements"><span class="ic c-tro"><svg class="i"><use href="#i-trophy"/></svg></span><span><b>Thành tựu</b><small id="navAchv"></small></span><svg class="i chev"><use href="#i-right"/></svg></button>
       <button class="mi glass" data-go="phone" data-tab="rank"><span class="ic c-ph"><svg class="i"><use href="#i-phone"/></svg></span><span><b>Bảng xếp hạng</b><small id="navRank"></small></span><svg class="i chev"><use href="#i-right"/></svg></button>

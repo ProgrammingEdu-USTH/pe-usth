@@ -75,6 +75,9 @@ const TEP = [
   // `.opt` cao 44, bề rộng 100%. Nút này mount ở thanh trên của MỌI màn bài học
   // (từ 861px) nên không được đứng ngoài cổng đích bấm.
   'src/components/ThemePicker.module.css',
+  // Tủ sách và nút Lofi dùng chung (đưa từ nhánh test sang).
+  'src/components/bookshelf/bookshelf.module.css',
+  'src/components/ui/lofi-ui.module.css',
 ];
 
 /**

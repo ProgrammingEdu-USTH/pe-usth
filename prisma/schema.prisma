@@ -60,6 +60,7 @@ model User {
   reviewQuizResults     ReviewQuizResult[]
   surveys               Survey[]
   placementAttempts     PlacementAttempt[]
+  questionSeen          QuestionSeen[]
   roadmaps              RoadMap[]
   roadmapProgress       RoadMapProgress[]
   dailyXpLogs           UserDailyXpLog[]
@@ -402,7 +403,8 @@ model Quiz {
   /// đề do `generateQuiz`/`generateReviewQuiz`/`generateTodayQuiz` phát).
   /// `'post_test'` = BÀI HẬU KIỂM CÓ TRỄ, thứ chỉ được phát MỘT LẦN cho mỗi
   /// học viên mỗi khoá — và cột này là chỗ duy nhất trả lời được câu "đã phát
-  /// chưa". Là chuỗi tự do chứ KHÔNG phải enum: thêm giá trị vào một enum
+  /// chưa". `'daily'` = đề ôn HẰNG NGÀY (`generateDailyReviewQuiz`), để tìm lại
+  /// đề chưa nộp trong ngày. Là chuỗi tự do chứ KHÔNG phải enum: thêm giá trị vào một enum
   /// Postgres đang dùng chung với bản Django là đổi kiểu, mà luật của repo chỉ
   /// cho THÊM cột nullable / thêm index.
   kind          String?     @map("kind")
@@ -767,8 +769,30 @@ model QuestionBank {
   contentHash   String   @unique @map("content_hash")
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   course        Course   @relation(fields: [courseId], references: [id])
+  seenBy        QuestionSeen[]
 
   // Dẫn đầu bằng course_id nên cũng là chỉ mục của khoá ngoại.
   @@index([courseId, moduleCode])
   @@map("question_bank")
+}
+
+/// Người học đã được giao câu nào của `question_bank` trong đề ôn hằng ngày, để đề sau
+/// ưu tiên câu chưa gặp. Một dòng cho mỗi (người, câu).
+model QuestionSeen {
+  id         BigInt    @id @default(autoincrement())
+  userId     Int       @map("user_id")
+  questionId BigInt    @map("question_id")
+  /// Số đề ôn đã giao câu này.
+  times      Int       @default(1)
+  /// Kết quả lần nộp gần nhất; NULL = đã giao nhưng chưa nộp.
+  correct    Boolean?
+  seenAt     DateTime  @default(now()) @map("seen_at") @db.Timestamptz(6)
+  answeredAt DateTime? @map("answered_at") @db.Timestamptz(6)
+
+  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question QuestionBank @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questionId], map: "uq_question_seen_user_question")
+  @@index([questionId], map: "idx_question_seen_question")
+  @@map("question_seen")
 }

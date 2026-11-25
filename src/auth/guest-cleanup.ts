@@ -79,6 +79,8 @@ export const CASCADE_REFS: readonly UserRef[] = [
   'learning_time_daily.user_id',
   // Migration 20261121000000_placement_attempts: ON DELETE CASCADE (bài kiểm tra đầu vào của khách).
   'placement_attempts.user_id',
+  // Migration 20261125000000_question_seen: ON DELETE CASCADE (câu ôn tập đã giao cho khách).
+  'question_seen.user_id',
 ];
 
 /**

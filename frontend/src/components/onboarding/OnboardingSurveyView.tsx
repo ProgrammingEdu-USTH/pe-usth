@@ -11,14 +11,16 @@ import {
   buildSurveyDtoPayload,
   classifyOnboardingViewer,
   friendlyApiError,
+  isVersionConflictError,
   loadMyPlacement,
   loadQuestionnaire,
-  resolveModuleStartLesson,
+  resolvePlacementModuleTitle,
   submitQuestionnaireAndSurvey,
   USE_QUESTIONNAIRE_MOCK,
   type ModuleCurriculumRow,
   type OnboardingViewerKind,
   type PlacementResult,
+  type QuestionnaireItem,
   type QuestionnairePayload,
 } from '@/lib/onboarding-questionnaire';
 import styles from './onboarding-survey.module.css';
@@ -69,6 +71,7 @@ export function OnboardingSurveyView() {
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [versionConflict, setVersionConflict] = useState(false);
   const [skipBusy, setSkipBusy] = useState(false);
 
   const [placement, setPlacement] = useState<PlacementResult | null>(null);
@@ -76,10 +79,12 @@ export function OnboardingSurveyView() {
   const [existingLoaded, setExistingLoaded] = useState(false);
   const [surveySaved, setSurveySaved] = useState(false);
   const [surveyError, setSurveyError] = useState<string | null>(null);
+  const [showReview, setShowReview] = useState(false);
 
   const fetchQuiz = useCallback(async () => {
     setLoadingQuiz(true);
     setLoadError(null);
+    setVersionConflict(false);
     try {
       const { questionnaire: loaded, source } = await loadQuestionnaire(COURSE_ID, {
         useMock: USE_QUESTIONNAIRE_MOCK,
@@ -119,7 +124,7 @@ export function OnboardingSurveyView() {
 
       const fetchSavedPlacement = async (): Promise<PlacementResult | null> => {
         if (!hasSession || USE_QUESTIONNAIRE_MOCK) return null;
-        return loadMyPlacement({ fetcher: apiFetchSessionOnly, modules: CURRICULA_MODULES });
+        return loadMyPlacement({ courseId: COURSE_ID, fetcher: apiFetchSessionOnly });
       };
 
       const [kind, savedPlacement] = await Promise.all([
@@ -156,6 +161,14 @@ export function OnboardingSurveyView() {
     return list;
   }, [questionnaire]);
 
+  const itemById = useMemo(() => {
+    const map = new Map<string, QuestionnaireItem>();
+    for (const it of questionnaire?.items ?? []) {
+      map.set(it.id, it);
+    }
+    return map;
+  }, [questionnaire]);
+
   const canSaveToServer = viewerKind === 'authenticated' || viewerKind === 'guest';
   const currentSlide = slides[slideIdx];
   const totalSlides = slides.length;
@@ -166,21 +179,20 @@ export function OnboardingSurveyView() {
   };
 
   const buildSurveyInput = (): Record<string, unknown> => {
-    const answeredCount = questionnaire
-      ? questionnaire.items.filter((it) => typeof itemAnswers[it.id] === 'number').length
-      : 0;
     const derivedLevel =
-      experience === 'Có kinh nghiệm > 1 năm' || answeredCount >= 6
+      experience === 'Có kinh nghiệm > 1 năm'
         ? 'Nâng cao'
-        : experience === 'Đã làm dự án nhỏ' || answeredCount >= 3
+        : experience === 'Đã làm dự án nhỏ'
           ? 'Trung cấp'
-          : 'Cơ bản';
+          : experience === 'Biết cơ bản' || experience === 'Chưa biết lập trình'
+            ? 'Cơ bản'
+            : '';
 
     return {
       job,
       purpose: purposes,
       experience,
-      language: languages.length > 0 ? languages : ['Python'],
+      language: languages,
       level: derivedLevel,
     };
   };
@@ -189,7 +201,9 @@ export function OnboardingSurveyView() {
     if (!questionnaire || submitting) return;
     setSubmitting(true);
     setSubmitError(null);
+    setVersionConflict(false);
     setSurveyError(null);
+    setShowReview(false);
     const submitFetcher = USE_QUESTIONNAIRE_MOCK ? apiFetchSessionOnly : apiFetch;
     try {
       const res = await submitQuestionnaireAndSurvey({
@@ -212,6 +226,7 @@ export function OnboardingSurveyView() {
         setViewerKind('guest');
       }
     } catch (err) {
+      setVersionConflict(isVersionConflictError(err));
       setSubmitError(err instanceof Error ? err.message : friendlyApiError(0, null));
     } finally {
       setSubmitting(false);
@@ -289,6 +304,15 @@ export function OnboardingSurveyView() {
     router.push(`/lesson/${COURSE_ID}`);
   };
 
+  const handleReloadQuestionnaire = () => {
+    setSlideIdx(0);
+    setSelfAnswers({});
+    setItemAnswers({});
+    setSubmitError(null);
+    setVersionConflict(false);
+    void fetchQuiz();
+  };
+
   const handleRetake = () => {
     setSlideIdx(0);
     setSelfAnswers({});
@@ -297,8 +321,10 @@ export function OnboardingSurveyView() {
     setPlacementSource(null);
     setExistingLoaded(false);
     setSubmitError(null);
+    setVersionConflict(false);
     setSurveyError(null);
     setSurveySaved(false);
+    setShowReview(false);
   };
 
   const currentSelectionDone = (() => {
@@ -312,9 +338,16 @@ export function OnboardingSurveyView() {
     return it ? typeof itemAnswers[it.id] === 'number' : false;
   })();
 
-  const startLoc = placement
-    ? resolveModuleStartLesson(CURRICULA_MODULES, placement.start_module)
-    : null;
+  const startModuleTitle = placement
+    ? resolvePlacementModuleTitle(questionnaire?.modules, CURRICULA_MODULES, placement.start_module)
+    : '';
+  const masteryThreshold = questionnaire?.params.mastery_threshold ?? 0.66;
+  const durationLabel =
+    questionnaire &&
+    typeof questionnaire.params.max_duration_min === 'number' &&
+    questionnaire.params.max_duration_min > 0
+      ? `~${questionnaire.params.max_duration_min} phút · `
+      : '';
 
   return (
     <div className={styles.onboardingPageWrap}>
@@ -379,9 +412,11 @@ export function OnboardingSurveyView() {
 
             {surveySaved ? (
               <div className={styles.successAlert} role="status">
-                {existingLoaded || placement.repeated
+                {existingLoaded
                   ? 'Đây là kết quả định vị đã lưu của bạn cho bộ câu hỏi hiện tại.'
-                  : 'Đã lưu kết quả định vị & khảo sát vào hồ sơ học tập của bạn.'}
+                  : placement.updated
+                    ? 'Đã cập nhật kết quả định vị mới & khảo sát vào hồ sơ học tập của bạn.'
+                    : 'Đã lưu kết quả định vị & khảo sát vào hồ sơ học tập của bạn.'}
               </div>
             ) : surveyError ? (
               <div className={styles.errorAlert} role="alert">
@@ -408,9 +443,7 @@ export function OnboardingSurveyView() {
 
             <div className={styles.resultRecBox}>
               <div className={styles.recLabel}>MODULE BẮT ĐẦU ĐỀ XUẤT</div>
-              <h3 className={styles.recCourseTitle}>
-                {startLoc?.moduleTitle ?? placement.start_module}
-              </h3>
+              <h3 className={styles.recCourseTitle}>{startModuleTitle}</h3>
               <p className={styles.recDesc}>
                 Bắt đầu từ <strong>Bài {placement.start_lesson_no}</strong>. Mọi bài học khác trong khoá vẫn mở tự do nếu bạn muốn xem lại hoặc học nhảy chặng.
               </p>
@@ -423,11 +456,101 @@ export function OnboardingSurveyView() {
 
             {Object.keys(placement.module_scores).length > 0 && (
               <div className={styles.scoreGrid}>
-                {Object.entries(placement.module_scores).map(([modCode, score]) => (
-                  <div key={modCode} className={styles.scoreChip}>
-                    <strong>{modCode}</strong>: {Math.round(score * 100)}%
+                {Object.entries(placement.module_scores).map(([modCode, score]) => {
+                  const passed = score >= masteryThreshold;
+                  const isStart =
+                    modCode.trim().toUpperCase() === placement.start_module.trim().toUpperCase();
+                  const statusText = passed ? 'Đạt' : isStart ? 'Bắt đầu' : 'Cần học';
+                  return (
+                    <div
+                      key={modCode}
+                      className={`${styles.scoreChip} ${
+                        passed ? styles.scoreChipPassed : styles.scoreChipNeedsWork
+                      }`}
+                    >
+                      <div className={styles.scoreChipTop}>
+                        <strong>{modCode}</strong>
+                        <span className={styles.scoreChipStatus}>{statusText}</span>
+                      </div>
+                      <div className={styles.scoreChipValue}>{Math.round(score * 100)}%</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {placement.review && placement.review.length > 0 && (
+              <div className={styles.reviewSection}>
+                <button
+                  type="button"
+                  className={styles.reviewToggleBtn}
+                  aria-expanded={showReview}
+                  onClick={() => setShowReview((prev) => !prev)}
+                >
+                  <span>
+                    Xem lại đáp án & giải thích (
+                    {typeof placement.score === 'number' && typeof placement.total === 'number'
+                      ? `${placement.score}/${placement.total} câu đúng`
+                      : `${placement.review.filter((r) => r.is_correct).length}/${placement.review.length} câu đúng`}
+                    )
+                  </span>
+                  <span aria-hidden="true">{showReview ? '▲' : '▼'}</span>
+                </button>
+
+                {showReview && (
+                  <div className={styles.reviewList}>
+                    {placement.review.map((r, idx) => {
+                      const item = itemById.get(r.item_id);
+                      const skipped = r.picked === null;
+                      const badgeClass = skipped
+                        ? styles.reviewBadgeSkipped
+                        : r.is_correct
+                          ? styles.reviewBadgeCorrect
+                          : styles.reviewBadgeWrong;
+                      const badgeLabel = skipped ? 'Bỏ qua' : r.is_correct ? 'Đúng' : 'Sai';
+                      const pickedText =
+                        r.picked !== null
+                          ? (item?.options[r.picked]?.text ??
+                            `Lựa chọn ${LETTERS[r.picked] ?? r.picked + 1}`)
+                          : null;
+                      const correctText =
+                        item?.options[r.correct]?.text ??
+                        `Lựa chọn ${LETTERS[r.correct] ?? r.correct + 1}`;
+                      const explanationText =
+                        r.explanation ?? placement.explanations?.[r.item_id];
+
+                      return (
+                        <div key={r.item_id} className={styles.reviewItem}>
+                          <div className={styles.reviewItemHeader}>
+                            <span className={styles.reviewItemMeta}>
+                              Câu {idx + 1}
+                              {r.module_code
+                                ? ` · ${r.module_code}`
+                                : item?.module_code
+                                  ? ` · ${item.module_code}`
+                                  : ''}
+                            </span>
+                            <span className={badgeClass}>{badgeLabel}</span>
+                          </div>
+                          <div className={styles.reviewQuestion}>
+                            {item?.question ?? `Câu ${r.item_id}`}
+                          </div>
+                          <div className={styles.reviewAnswerLine}>
+                            {skipped ? 'Bạn đã bỏ qua câu này.' : `Bạn chọn: ${pickedText}`}
+                          </div>
+                          {!r.is_correct && (
+                            <div className={styles.reviewAnswerLine}>
+                              <strong>Đáp án đúng:</strong> {correctText}
+                            </div>
+                          )}
+                          {explanationText && (
+                            <div className={styles.reviewExplanation}>{explanationText}</div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
+                )}
               </div>
             )}
 
@@ -441,7 +564,7 @@ export function OnboardingSurveyView() {
               </button>
 
               <Link
-                href={`/lesson/${COURSE_ID}?lesson=${startLoc?.lessonIndex ?? Math.max(0, placement.start_lesson_no - 1)}`}
+                href={`/lesson/${COURSE_ID}?lesson=${Math.max(0, placement.start_lesson_no - 1)}`}
                 className={styles.backHomeLink}
               >
                 <LofiButton
@@ -461,7 +584,7 @@ export function OnboardingSurveyView() {
                 <span>{quizSource === 'mock' ? 'Khảo sát định vị (Mẫu)' : 'Khảo sát định vị'}</span>
               </div>
               <span className={styles.stepIndicator}>
-                Bước {slideIdx + 1} / {totalSlides}
+                {durationLabel}Bước {slideIdx + 1} / {totalSlides}
               </span>
             </div>
 
@@ -471,7 +594,20 @@ export function OnboardingSurveyView() {
 
             {submitError && (
               <div className={styles.errorAlert} role="alert">
-                {submitError}
+                <span>{submitError}</span>
+                {versionConflict && (
+                  <>
+                    {' '}
+                    <button
+                      type="button"
+                      className={styles.skipQuestionBtn}
+                      onClick={handleReloadQuestionnaire}
+                      disabled={loadingQuiz}
+                    >
+                      Tải bản mới
+                    </button>
+                  </>
+                )}
               </div>
             )}
 

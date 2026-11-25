@@ -51,47 +51,40 @@ export type QuestionnaireAnswerKey = Record<
   { correct: number; explanation?: string }
 >;
 
+export type QuestionnaireModuleRow = {
+  code: string;
+  first_lesson_no: number;
+  title?: string;
+};
+
 export type QuestionnairePayload = {
   course_id: string;
   version: number;
   questionnaire_id?: number;
   title?: string;
   params: QuestionnaireParams;
+  modules?: QuestionnaireModuleRow[];
   self_assess?: QuestionnaireSelfAssess[];
   items: QuestionnaireItem[];
   mock_answer_key?: QuestionnaireAnswerKey;
 };
 
-export type BackendPlacementQuestion = {
-  id: number;
-  topic?: string;
-  question: string;
-  code?: string | null;
-  options: string[];
-};
-
-export type BackendPlacementQuestionsResponse = {
-  ok: true;
-  questionnaire_id: number;
-  version: number;
-  questions: BackendPlacementQuestion[];
-};
-
-export type BackendPlacementSubmitResponse = {
-  ok: true;
-  done: true;
-  repeated?: boolean;
-  score: number;
-  total: number;
-  level: 'beginner' | 'intermediate' | 'advanced';
-};
-
-export type PlacementExplanation = {
+export type PlacementItemReview = {
   item_id: string;
+  module_code?: string;
   correct: number;
   picked: number | null;
   is_correct: boolean;
   explanation?: string;
+};
+
+export type PlacementExplanation = PlacementItemReview;
+
+export type QuestionnaireAnswersPayload = {
+  course_id?: string;
+  questionnaire_id?: number;
+  answers: Record<string, number | null>;
+  self?: Record<string, number | null>;
 };
 
 export type PlacementResult = {
@@ -102,10 +95,14 @@ export type PlacementResult = {
   level_title: string;
   skipped_all: boolean;
   explanations?: Record<string, string>;
+  review?: PlacementItemReview[];
   score?: number;
   total?: number;
   level?: 'beginner' | 'intermediate' | 'advanced';
-  repeated?: boolean;
+  updated?: boolean;
+  questionnaire_id?: number;
+  version?: number;
+  submitted_at?: string;
 };
 
 export type ModuleCurriculumRow = {
@@ -150,6 +147,14 @@ export function validateQuestionnaire(raw: unknown): string[] {
   if (typeof q.version !== 'number' || !Number.isFinite(q.version) || q.version < 1) {
     errors.push('Thiếu hoặc sai `version`.');
   }
+  if (
+    q.questionnaire_id !== undefined &&
+    (typeof q.questionnaire_id !== 'number' ||
+      !Number.isInteger(q.questionnaire_id) ||
+      q.questionnaire_id < 1)
+  ) {
+    errors.push('Sai `questionnaire_id`.');
+  }
   if (!q.params || typeof q.params !== 'object') {
     errors.push('Thiếu `params` cấu hình chấm điểm.');
   } else {
@@ -169,6 +174,28 @@ export function validateQuestionnaire(raw: unknown): string[] {
       p.self_assess_weight > 1
     ) {
       errors.push('`params.self_assess_weight` phải nằm trong [0, 1].');
+    }
+  }
+
+  if (q.modules !== undefined) {
+    if (!Array.isArray(q.modules)) {
+      errors.push('`modules` phải là mảng.');
+    } else {
+      q.modules.forEach((entry, i) => {
+        if (!entry || typeof entry !== 'object') {
+          errors.push(`modules[${i}] phải là object.`);
+          return;
+        }
+        const m = entry as Record<string, unknown>;
+        if (!isNonEmptyString(m.code)) errors.push(`modules[${i}] thiếu code.`);
+        if (
+          typeof m.first_lesson_no !== 'number' ||
+          !Number.isInteger(m.first_lesson_no) ||
+          m.first_lesson_no < 1
+        ) {
+          errors.push(`modules[${i}] sai first_lesson_no.`);
+        }
+      });
     }
   }
 
@@ -216,6 +243,9 @@ export function validateQuestionnaire(raw: unknown): string[] {
       else if (seen.has(it.id)) errors.push(`items[${idx}] trùng id "${it.id}".`);
       else seen.add(it.id);
 
+      if ('correct' in it || 'correctIndex' in it) {
+        errors.push(`items[${idx}] không được phép chứa đáp án đúng.`);
+      }
       if (!isNonEmptyString(it.module_code)) errors.push(`items[${idx}] thiếu module_code.`);
       if (!isNonEmptyString(it.question)) errors.push(`items[${idx}] thiếu question.`);
       if (!Array.isArray(it.options) || it.options.length < 2) {
@@ -279,6 +309,27 @@ export function resolveModuleStartLesson(
   };
 }
 
+/** Lấy tiêu đề hiển thị cho module bắt đầu: ưu tiên `modules` từ đề thi rồi tới `curricula.json`. */
+export function resolvePlacementModuleTitle(
+  questionnaireModules: QuestionnaireModuleRow[] | null | undefined,
+  curriculaModules: ModuleCurriculumRow[] | null | undefined,
+  moduleCode: string,
+): string {
+  const normalized = moduleCode.trim().toUpperCase();
+  const fromQ = (questionnaireModules ?? []).find(
+    (m) => m.code.trim().toUpperCase() === normalized && isNonEmptyString(m.title),
+  );
+  if (fromQ?.title) return fromQ.title.trim();
+
+  for (const mod of curriculaModules ?? []) {
+    const match = /^(M\d+)\b/i.exec(mod.title.trim());
+    if (match && match[1].toUpperCase() === normalized) {
+      return mod.title.trim();
+    }
+  }
+  return normalized || moduleCode;
+}
+
 /** Chấm xếp module ở chế độ mock đúng công thức §3 docs/questionnaire-spec.md. */
 export function scoreQuestionnaireMock(
   questionnaire: QuestionnairePayload,
@@ -322,6 +373,28 @@ export function scoreQuestionnaireMock(
   const round4 = (n: number) => Math.round(n * 10000) / 10000;
   const moduleScores: Record<string, number> = {};
   const explanations: Record<string, string> = {};
+  const review: PlacementItemReview[] = [];
+  let correctCount = 0;
+
+  for (const it of questionnaire.items) {
+    const rawPicked = answers[it.id];
+    const picked = typeof rawPicked === 'number' && Number.isInteger(rawPicked) ? rawPicked : null;
+    const keyEntry = answerKey?.[it.id];
+    const expected = keyEntry?.correct ?? (it as { correct?: number }).correct;
+    if (keyEntry?.explanation) explanations[it.id] = keyEntry.explanation;
+    const isCorrect = typeof expected === 'number' && picked === expected;
+    if (isCorrect) correctCount += 1;
+    if (typeof expected === 'number') {
+      review.push({
+        item_id: it.id,
+        module_code: it.module_code.trim().toUpperCase(),
+        picked,
+        correct: expected,
+        is_correct: isCorrect,
+        ...(keyEntry?.explanation ? { explanation: keyEntry.explanation } : {}),
+      });
+    }
+  }
 
   if (allItemsSkipped) {
     for (const modCode of testedSet) {
@@ -336,6 +409,8 @@ export function scoreQuestionnaireMock(
       review_modules: [],
       level_title: 'Khởi đầu vững chắc',
       skipped_all: true,
+      ...(review.length > 0 ? { score: 0, total: questionnaire.items.length, review } : {}),
+      ...(Object.keys(explanations).length > 0 ? { explanations } : {}),
     };
   }
 
@@ -349,7 +424,6 @@ export function scoreQuestionnaireMock(
       const picked = answers[it.id];
       const keyEntry = answerKey?.[it.id];
       const expected = keyEntry?.correct ?? (it as { correct?: number }).correct;
-      if (keyEntry?.explanation) explanations[it.id] = keyEntry.explanation;
 
       if (picked === undefined || picked === null) {
         if (skipPolicy !== 'exclude') denom += 1;
@@ -382,7 +456,7 @@ export function scoreQuestionnaireMock(
     startModule = testedSet[failIdx];
     reviewModules = testedSet.slice(failIdx + 1).filter((m) => moduleScores[m] < threshold);
   } else {
-    // Mọi module được hỏi đều đạt -> tiến tới module kế tiếp trong giáo trình (vd M5 hoặc M8).
+    // Mọi module được hỏi đều đạt -> tiến tới module kế tiếp trong giáo trình (vd M5 hoặc M9).
     const lastTested = testedSet[testedSet.length - 1];
     const lastPos = lastTested ? modulePosMap.get(lastTested) : undefined;
     const nextModRow =
@@ -407,6 +481,7 @@ export function scoreQuestionnaireMock(
     review_modules: reviewModules,
     level_title: levelTitle,
     skipped_all: false,
+    ...(review.length > 0 ? { score: correctCount, total: questionnaire.items.length, review } : {}),
     ...(Object.keys(explanations).length > 0 ? { explanations } : {}),
   };
 }
@@ -444,152 +519,150 @@ export function classifyOnboardingViewer(profile: unknown): OnboardingViewerKind
   return 'anonymous';
 }
 
-const PLACEMENT_LEVEL_META: Record<
-  'beginner' | 'intermediate' | 'advanced',
-  { startModule: string; levelTitle: string; surveyLevel: string }
-> = {
-  beginner: {
-    startModule: 'M1',
-    levelTitle: 'Khởi đầu vững chắc',
-    surveyLevel: 'Cơ bản',
-  },
-  intermediate: {
-    startModule: 'M4',
-    levelTitle: 'Nền tảng vững vàng',
-    surveyLevel: 'Trung cấp',
-  },
-  advanced: {
-    startModule: 'M7',
-    levelTitle: 'Sẵn sàng bứt phá',
-    surveyLevel: 'Nâng cao',
-  },
-};
+export class QuestionnaireConflictError extends Error {
+  readonly status = 409;
 
-export function vietnameseLevelForPlacement(level?: string): string {
-  if (level === 'advanced') return PLACEMENT_LEVEL_META.advanced.surveyLevel;
-  if (level === 'intermediate') return PLACEMENT_LEVEL_META.intermediate.surveyLevel;
-  return PLACEMENT_LEVEL_META.beginner.surveyLevel;
+  constructor(
+    message = 'Bộ câu hỏi vừa được cập nhật, hãy tải lại trang để làm bản mới.',
+  ) {
+    super(message);
+    this.name = 'QuestionnaireConflictError';
+  }
 }
 
-/** Kiểm định phản hồi GET /api/placement/questions và đảm bảo không lộ đáp án. */
-export function validateBackendPlacementQuestions(raw: unknown): string[] {
-  const errors: string[] = [];
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    return ['Phản hồi /api/placement/questions phải là object JSON.'];
-  }
-  const r = raw as Record<string, unknown>;
-  if (r.ok !== true) errors.push('`ok` phải bằng true.');
-  if (typeof r.questionnaire_id !== 'number' || !Number.isInteger(r.questionnaire_id) || r.questionnaire_id < 1) {
-    errors.push('Thiếu hoặc sai `questionnaire_id`.');
-  }
-  if (typeof r.version !== 'number' || !Number.isInteger(r.version) || r.version < 1) {
-    errors.push('Thiếu hoặc sai `version`.');
-  }
-  if (!Array.isArray(r.questions) || r.questions.length === 0) {
-    errors.push('`questions` phải là mảng có ít nhất 1 câu hỏi.');
-    return errors;
-  }
-  r.questions.forEach((entry, idx) => {
-    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
-      errors.push(`questions[${idx}] phải là object.`);
-      return;
-    }
-    const q = entry as Record<string, unknown>;
-    if (typeof q.id !== 'number' || !Number.isInteger(q.id)) {
-      errors.push(`questions[${idx}] thiếu id nguyên.`);
-    }
-    if (!isNonEmptyString(q.question)) {
-      errors.push(`questions[${idx}] thiếu question.`);
-    }
-    if ('correctIndex' in q || 'correct' in q) {
-      errors.push(`questions[${idx}] không được phép chứa đáp án đúng.`);
-    }
-    if (!Array.isArray(q.options) || q.options.length < 2 || q.options.length > 10) {
-      errors.push(`questions[${idx}].options phải có từ 2 đến 10 lựa chọn.`);
-    } else {
-      q.options.forEach((opt, j) => {
-        if (!isNonEmptyString(opt)) {
-          errors.push(`questions[${idx}].options[${j}] phải là chuỗi không rỗng.`);
-        }
-      });
-    }
-  });
-  return errors;
+export function isVersionConflictError(err: unknown): boolean {
+  return (
+    err instanceof QuestionnaireConflictError ||
+    (typeof err === 'object' &&
+      err !== null &&
+      (err as { status?: unknown }).status === 409)
+  );
 }
 
-export function adaptPlacementQuestionsPayload(
-  raw: BackendPlacementQuestionsResponse,
+/**
+ * Chuẩn hoá payload `questionnaire` gửi kèm `POST /api/survey` hoặc `POST /api/questionnaire/:courseId/submit`:
+ * chỉ giữ id thuộc bộ câu đang dùng để tránh `BadRequestException` khi payload chứa key lạ.
+ */
+export function buildQuestionnaireAnswersPayload(
   courseId: string,
-): QuestionnairePayload {
+  questionnaire: QuestionnairePayload,
+  answers: Record<string, number | null | undefined>,
+  selfAnswers: Record<string, number | null | undefined> = {},
+): QuestionnaireAnswersPayload {
+  const cleanAnswers: Record<string, number | null> = {};
+  for (const it of questionnaire.items) {
+    const val = answers[it.id];
+    if (val === null) {
+      cleanAnswers[it.id] = null;
+    } else if (
+      typeof val === 'number' &&
+      Number.isInteger(val) &&
+      val >= 0 &&
+      val < it.options.length
+    ) {
+      cleanAnswers[it.id] = val;
+    }
+  }
+
+  const cleanSelf: Record<string, number | null> = {};
+  for (const sa of questionnaire.self_assess ?? []) {
+    const val = selfAnswers[sa.id];
+    if (val === null) {
+      cleanSelf[sa.id] = null;
+    } else if (
+      typeof val === 'number' &&
+      Number.isInteger(val) &&
+      val >= 0 &&
+      val < sa.options.length
+    ) {
+      cleanSelf[sa.id] = val;
+    }
+  }
+
+  const hasSelfAssess = (questionnaire.self_assess ?? []).length > 0;
   return {
     course_id: courseId,
-    version: raw.version,
-    questionnaire_id: raw.questionnaire_id,
-    params: {
-      mastery_threshold: 0.67,
-      self_assess_weight: 0,
-      skip_policy: 'wrong',
-    },
-    items: raw.questions.map((q) => ({
-      id: String(q.id),
-      module_code: isNonEmptyString(q.topic) ? q.topic.trim() : 'Python',
-      question: q.question,
-      code: typeof q.code === 'string' && q.code.length > 0 ? q.code : null,
-      options: q.options.map((text) => ({ text })),
-    })),
+    ...(typeof questionnaire.questionnaire_id === 'number' &&
+    Number.isInteger(questionnaire.questionnaire_id)
+      ? { questionnaire_id: questionnaire.questionnaire_id }
+      : {}),
+    answers: cleanAnswers,
+    ...(hasSelfAssess && Object.keys(cleanSelf).length > 0 ? { self: cleanSelf } : {}),
   };
 }
 
-export function validateBackendPlacementSubmitResponse(raw: unknown): string[] {
-  const errors: string[] = [];
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    return ['Kết quả từ /api/placement phải là object JSON.'];
+function normalizePlacementResult(raw: Record<string, unknown>): PlacementResult {
+  const scoresRaw = (raw.module_scores ?? {}) as Record<string, unknown>;
+  const module_scores: Record<string, number> = {};
+  for (const [k, v] of Object.entries(scoresRaw)) {
+    if (typeof v === 'number' && Number.isFinite(v)) {
+      module_scores[k] = v;
+    }
   }
-  const r = raw as Record<string, unknown>;
-  if (typeof r.score !== 'number' || !Number.isInteger(r.score) || r.score < 0) {
-    errors.push('Thiếu hoặc sai `score`.');
-  }
-  if (typeof r.total !== 'number' || !Number.isInteger(r.total) || r.total < 1) {
-    errors.push('Thiếu hoặc sai `total`.');
-  }
-  if (r.level !== 'beginner' && r.level !== 'intermediate' && r.level !== 'advanced') {
-    errors.push('`level` phải là beginner, intermediate hoặc advanced.');
-  }
-  return errors;
-}
 
-export function mapPlacementApiResult(
-  raw: BackendPlacementSubmitResponse,
-  modules: ModuleCurriculumRow[],
-  skippedAll = false,
-): PlacementResult {
-  const meta = PLACEMENT_LEVEL_META[raw.level] ?? PLACEMENT_LEVEL_META.beginner;
-  const loc = resolveModuleStartLesson(modules, meta.startModule);
+  const review_modules = Array.isArray(raw.review_modules)
+    ? raw.review_modules.filter((x): x is string => isNonEmptyString(x))
+    : [];
+
+  const explanations: Record<string, string> = {};
+  if (raw.explanations && typeof raw.explanations === 'object' && !Array.isArray(raw.explanations)) {
+    for (const [k, v] of Object.entries(raw.explanations as Record<string, unknown>)) {
+      if (isNonEmptyString(v)) explanations[k] = v;
+    }
+  }
+
+  const review: PlacementItemReview[] = [];
+  if (Array.isArray(raw.review)) {
+    for (const entry of raw.review) {
+      if (!entry || typeof entry !== 'object') continue;
+      const r = entry as Record<string, unknown>;
+      if (!isNonEmptyString(r.item_id) || typeof r.correct !== 'number') continue;
+      const picked = typeof r.picked === 'number' ? r.picked : null;
+      review.push({
+        item_id: r.item_id,
+        ...(isNonEmptyString(r.module_code) ? { module_code: r.module_code } : {}),
+        correct: r.correct,
+        picked,
+        is_correct: typeof r.is_correct === 'boolean' ? r.is_correct : picked === r.correct,
+        ...(isNonEmptyString(r.explanation) ? { explanation: r.explanation } : {}),
+      });
+    }
+  }
+
   return {
-    start_module: meta.startModule,
-    start_lesson_no: loc.lessonNo,
-    module_scores: {},
-    review_modules: [],
-    level_title: meta.levelTitle,
-    skipped_all: Boolean(skippedAll),
-    score: raw.score,
-    total: raw.total,
-    level: raw.level,
-    repeated: Boolean(raw.repeated),
+    start_module: String(raw.start_module).trim(),
+    start_lesson_no: raw.start_lesson_no as number,
+    module_scores,
+    review_modules,
+    level_title: String(raw.level_title).trim(),
+    skipped_all: Boolean(raw.skipped_all),
+    ...(Object.keys(explanations).length > 0 ? { explanations } : {}),
+    ...(review.length > 0 ? { review } : {}),
+    ...(typeof raw.score === 'number' ? { score: raw.score } : {}),
+    ...(typeof raw.total === 'number' ? { total: raw.total } : {}),
+    ...(raw.level === 'beginner' || raw.level === 'intermediate' || raw.level === 'advanced'
+      ? { level: raw.level }
+      : {}),
+    ...(typeof raw.updated === 'boolean' ? { updated: raw.updated } : {}),
+    ...(typeof raw.questionnaire_id === 'number' ? { questionnaire_id: raw.questionnaire_id } : {}),
+    ...(typeof raw.version === 'number' ? { version: raw.version } : {}),
+    ...(typeof raw.submitted_at === 'string' ? { submitted_at: raw.submitted_at } : {}),
   };
 }
 
 export async function loadMyPlacement(opts: {
+  courseId: string;
   fetcher: FetcherLike;
-  modules: ModuleCurriculumRow[];
 }): Promise<PlacementResult | null> {
   try {
-    const res = await opts.fetcher('/api/me/placement');
+    const res = await opts.fetcher(
+      `/api/me/questionnaire/${encodeURIComponent(opts.courseId)}`,
+    );
     if (!res.ok) return null;
     const body = (await res.json().catch(() => null)) as Record<string, unknown> | null;
     if (!body || typeof body !== 'object' || body.done !== true) return null;
-    if (validateBackendPlacementSubmitResponse(body).length > 0) return null;
-    return mapPlacementApiResult(body as unknown as BackendPlacementSubmitResponse, opts.modules, false);
+    if (validatePlacementResult(body).length > 0) return null;
+    return normalizePlacementResult(body);
   } catch {
     return null;
   }
@@ -612,28 +685,38 @@ export async function loadQuestionnaire(
   if (useMock) {
     return { questionnaire: getMockQuestionnaire(), source: 'mock' };
   }
+  const path = `/api/questionnaire/${encodeURIComponent(courseId)}`;
   if (!opts.fetcher) {
-    throw new Error('Thiếu hàm fetcher để gọi GET /api/placement/questions.');
+    throw new Error(`Thiếu hàm fetcher để gọi GET ${path}.`);
   }
   let res: Response;
   try {
-    res = await opts.fetcher('/api/placement/questions');
+    res = await opts.fetcher(path);
   } catch {
     throw new Error(friendlyApiError(0, null));
   }
   const body = await res.json().catch(() => null);
   if (res.status === 404) {
-    throw new Error('Chưa có bộ câu hỏi đầu vào trên máy chủ.');
+    throw new Error('Chưa có bộ câu hỏi đầu vào cho khoá học này.');
   }
   if (!res.ok) {
     throw new Error(friendlyApiError(res.status, body, 'Không tải được bộ câu hỏi đầu vào.'));
   }
-  const errs = validateBackendPlacementQuestions(body);
+  const errs = validateQuestionnaire(body);
+  const rec = body && typeof body === 'object' ? (body as Record<string, unknown>) : null;
+  if (
+    !rec ||
+    typeof rec.questionnaire_id !== 'number' ||
+    !Number.isInteger(rec.questionnaire_id) ||
+    rec.questionnaire_id < 1
+  ) {
+    errs.push('Thiếu hoặc sai `questionnaire_id`.');
+  }
   if (errs.length > 0) {
-    throw new Error(`Dữ liệu /api/placement/questions không hợp lệ: ${errs.join('; ')}`);
+    throw new Error(`Dữ liệu ${path} không hợp lệ: ${errs.join('; ')}`);
   }
   return {
-    questionnaire: adaptPlacementQuestionsPayload(body as BackendPlacementQuestionsResponse, courseId),
+    questionnaire: body as QuestionnairePayload,
     source: 'api',
   };
 }
@@ -656,38 +739,34 @@ export async function submitQuestionnaireAndSurvey(params: {
   placementSource: 'mock' | 'api';
 }> {
   const useMock = params.useMock ?? USE_QUESTIONNAIRE_MOCK;
-  let surveySaved = false;
-  let surveyError: string | null = null;
-  let roadmapId: string | null = null;
-
-  const saveSurveyRequest = async (overrideLevel?: string) => {
-    if (!params.saveSurvey || !params.fetcher) return;
-    const rawSurvey = overrideLevel
-      ? { ...params.surveyInput, level: overrideLevel }
-      : params.surveyInput;
-    const payload = buildSurveyDtoPayload(rawSurvey);
-    try {
-      const res = await params.fetcher('/api/survey', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const body = await res.json().catch(() => null);
-      if (res.ok) {
-        surveySaved = true;
-        if (body && typeof body === 'object' && typeof (body as { roadmap_id?: unknown }).roadmap_id === 'string') {
-          roadmapId = (body as { roadmap_id: string }).roadmap_id;
-        }
-      } else {
-        surveyError = friendlyApiError(res.status, body, 'Không lưu được khảo sát.');
-      }
-    } catch {
-      surveyError = friendlyApiError(0, null);
-    }
-  };
 
   if (useMock) {
-    await saveSurveyRequest();
+    let surveySaved = false;
+    let surveyError: string | null = null;
+    let roadmapId: string | null = null;
+
+    if (params.saveSurvey && params.fetcher) {
+      const payload = buildSurveyDtoPayload(params.surveyInput);
+      try {
+        const res = await params.fetcher('/api/survey', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const body = await res.json().catch(() => null);
+        if (res.ok) {
+          surveySaved = true;
+          if (body && typeof body === 'object' && typeof (body as { roadmap_id?: unknown }).roadmap_id === 'string') {
+            roadmapId = (body as { roadmap_id: string }).roadmap_id;
+          }
+        } else {
+          surveyError = friendlyApiError(res.status, body, 'Không lưu được khảo sát.');
+        }
+      } catch {
+        surveyError = friendlyApiError(0, null);
+      }
+    }
+
     const placement = scoreQuestionnaireMock(
       params.questionnaire,
       params.answers,
@@ -714,19 +793,22 @@ export async function submitQuestionnaireAndSurvey(params: {
     throw new Error('Thiếu mã bộ câu hỏi (`questionnaire_id`) — hãy tải lại trang.');
   }
 
-  const orderedAnswers = params.questionnaire.items.map((it) => {
-    const val = params.answers[it.id];
-    return typeof val === 'number' && Number.isInteger(val) && val >= 0 ? val : -1;
-  });
+  const surveyFields = buildSurveyDtoPayload(params.surveyInput);
+  const questionnairePayload = buildQuestionnaireAnswersPayload(
+    params.courseId,
+    params.questionnaire,
+    params.answers,
+    params.selfAnswers,
+  );
 
   let submitRes: Response;
   try {
-    submitRes = await params.fetcher('/api/placement/submit', {
+    submitRes = await params.fetcher('/api/survey', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        questionnaireId: params.questionnaire.questionnaire_id,
-        answers: orderedAnswers,
+        ...surveyFields,
+        questionnaire: questionnairePayload,
       }),
     });
   } catch {
@@ -735,27 +817,26 @@ export async function submitQuestionnaireAndSurvey(params: {
 
   const submitBody = await submitRes.json().catch(() => null);
   if (submitRes.status === 409) {
-    throw new Error('Bộ câu hỏi vừa được cập nhật, hãy tải lại trang để làm bản mới.');
+    throw new QuestionnaireConflictError();
   }
   if (!submitRes.ok) {
     throw new Error(friendlyApiError(submitRes.status, submitBody, 'Không nộp được bộ câu hỏi.'));
   }
-  const submitErrs = validateBackendPlacementSubmitResponse(submitBody);
-  if (submitErrs.length > 0) {
-    throw new Error(`Kết quả xếp hạng không hợp lệ: ${submitErrs.join('; ')}`);
+
+  const bodyObj = submitBody && typeof submitBody === 'object' ? (submitBody as Record<string, unknown>) : null;
+  const rawPlacement = bodyObj?.placement;
+  const placementErrs = validatePlacementResult(rawPlacement);
+  if (placementErrs.length > 0) {
+    throw new Error(`Kết quả xếp module không hợp lệ: ${placementErrs.join('; ')}`);
   }
 
-  const typedBody = submitBody as BackendPlacementSubmitResponse;
-  const skippedAll = orderedAnswers.every((a) => a === -1);
-  const placement = mapPlacementApiResult(typedBody, params.modules, skippedAll);
-
-  // Nộp placement xong mới lưu survey để apiFetch đã tạo xong phiên khách (nếu là khách mới)
-  await saveSurveyRequest(vietnameseLevelForPlacement(typedBody.level));
+  const placement = normalizePlacementResult(rawPlacement as Record<string, unknown>);
+  const roadmapId = typeof bodyObj?.roadmap_id === 'string' ? bodyObj.roadmap_id : null;
 
   return {
     placement,
-    surveySaved,
-    surveyError,
+    surveySaved: true,
+    surveyError: null,
     roadmapId,
     placementSource: 'api',
   };

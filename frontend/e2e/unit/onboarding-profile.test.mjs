@@ -24,21 +24,20 @@ import {
   validateResetResponse,
 } from '../../src/lib/course-reset-profile.ts';
 import {
-  adaptPlacementQuestionsPayload,
+  buildQuestionnaireAnswersPayload,
   buildSurveyDtoPayload,
   classifyOnboardingViewer,
   friendlyApiError,
   getMockQuestionnaire,
+  isVersionConflictError,
   loadMyPlacement,
   loadQuestionnaire,
-  mapPlacementApiResult,
   resolveModuleStartLesson,
+  resolvePlacementModuleTitle,
   scoreQuestionnaireMock,
   submitQuestionnaireAndSurvey,
   SURVEY_DTO_FIELDS,
   USE_QUESTIONNAIRE_MOCK,
-  validateBackendPlacementQuestions,
-  validateBackendPlacementSubmitResponse,
   validatePlacementResult,
   validateQuestionnaire,
 } from '../../src/lib/onboarding-questionnaire.ts';
@@ -258,7 +257,8 @@ test('apiFetchSessionOnly gặp 401 khi không có phiên hợp lệ không bao 
   }
 });
 
-test('loadQuestionnaire & submitQuestionnaireAndSurvey: nối POST /api/survey, chuyển cờ API thật và xử lý 400 thân thiện', async () => {
+test('loadQuestionnaire & submitQuestionnaireAndSurvey: nối POST /api/survey + GET /api/questionnaire, dọn /api/placement và xử lý lỗi 400/404/409', async () => {
+  // 1. Mock mode vẫn chạy & sinh review/score đầy đủ từ mock_answer_key
   const calls = [];
   const resMock = await submitQuestionnaireAndSurvey({
     courseId: 'python_advanced',
@@ -289,8 +289,11 @@ test('loadQuestionnaire & submitQuestionnaireAndSurvey: nối POST /api/survey, 
   assert.equal(resMock.roadmapId, 'u7_generated');
   assert.equal(resMock.placementSource, 'mock');
   assert.equal(resMock.placement.start_module, 'M2');
+  assert.equal(resMock.placement.review?.length, MOCK_Q.items.length);
+  assert.equal(resMock.placement.score, 2);
+  assert.equal(resMock.placement.total, MOCK_Q.items.length);
 
-  // Ca lỗi 400 từ POST /api/survey -> trả thông báo thân thiện, không làm crash
+  // Ca lỗi 400 ở mock mode -> trả thông báo thân thiện
   const res400 = await submitQuestionnaireAndSurvey({
     courseId: 'python_advanced',
     questionnaire: MOCK_Q,
@@ -309,37 +312,59 @@ test('loadQuestionnaire & submitQuestionnaireAndSurvey: nối POST /api/survey, 
   assert.equal(res400.surveySaved, false);
   assert.match(res400.surveyError, /Dữ liệu chưa hợp lệ/);
 
-  // Khi chạy API thật (useMock: false): gọi GET /api/placement/questions, POST /api/placement/submit & POST /api/survey
-  const sampleBackendQuestions = {
+  // 2. Bộ câu 24 câu của Nghĩa (sau khi strip đáp án đúng giống publicQuestionnaire của BE) đạt validateQuestionnaire
+  const rawSeedQ = JSON.parse(
+    readFileSync(join(ROOT, 'scripts/placement/questionnaire-python_advanced.json'), 'utf8'),
+  );
+  const publicSeedQ = {
     ok: true,
     questionnaire_id: 1,
+    course_id: rawSeedQ.course_id,
     version: 1,
-    questions: [
-      { id: 1, topic: 'Cú pháp', question: 'Câu 1?', code: '[x*2 for x in range(3)]', options: ['[0, 2, 4]', '[1, 2, 3]'] },
-      { id: 2, topic: 'Tệp', question: 'Câu 2?', options: ['with open(...)', 'open()'] },
-      { id: 3, topic: 'Pandas', question: 'Câu 3?', options: ['DataFrame', 'Series'] },
-    ],
+    title: rawSeedQ.title,
+    params: rawSeedQ.params,
+    modules: rawSeedQ.modules,
+    self_assess: rawSeedQ.self_assess ?? [],
+    items: rawSeedQ.items.map((it) => ({
+      id: it.id,
+      module_code: it.module_code,
+      ...(it.level ? { level: it.level } : {}),
+      question: it.question,
+      code: it.code ?? null,
+      options: it.options.map((o) => ({ text: o.text })),
+    })),
   };
-  assert.deepEqual(validateBackendPlacementQuestions(sampleBackendQuestions), []);
+  assert.deepEqual(validateQuestionnaire(publicSeedQ), []);
   assert.ok(
-    validateBackendPlacementQuestions({
-      ...sampleBackendQuestions,
-      questions: [{ ...sampleBackendQuestions.questions[0], correctIndex: 0 }],
+    validateQuestionnaire({
+      ...publicSeedQ,
+      items: [{ ...publicSeedQ.items[0], correct: 0 }],
     }).length > 0,
-    'phản hồi /api/placement/questions không được phép lộ correctIndex',
+    'validateQuestionnaire phải chặn items chứa correct',
+  );
+  assert.ok(
+    validateQuestionnaire({
+      ...publicSeedQ,
+      items: [{ ...publicSeedQ.items[0], correctIndex: 0 }],
+    }).length > 0,
+    'validateQuestionnaire phải chặn items chứa correctIndex',
   );
 
+  // 3. loadQuestionnaire gọi GET /api/questionnaire/:courseId & kiểm tra 404
   const apiLoad = await loadQuestionnaire('python_advanced', {
     useMock: false,
     fetcher: async (path) => {
-      assert.equal(path, '/api/placement/questions');
-      return { ok: true, status: 200, json: async () => sampleBackendQuestions };
+      assert.equal(path, '/api/questionnaire/python_advanced');
+      return { ok: true, status: 200, json: async () => publicSeedQ };
     },
   });
   assert.equal(apiLoad.source, 'api');
   assert.equal(apiLoad.questionnaire.questionnaire_id, 1);
-  assert.equal(apiLoad.questionnaire.items.length, 3);
-  assert.equal(adaptPlacementQuestionsPayload(sampleBackendQuestions, 'python_advanced').items[0].id, '1');
+  assert.equal(apiLoad.questionnaire.items.length, 24);
+  assert.equal(
+    resolvePlacementModuleTitle(apiLoad.questionnaire.modules, PY_MODULES, 'M9'),
+    'M9 · Ôn tập và thực hành các chi tiết trong slide',
+  );
 
   await assert.rejects(
     () =>
@@ -350,86 +375,203 @@ test('loadQuestionnaire & submitQuestionnaireAndSurvey: nối POST /api/survey, 
     /Chưa có bộ câu hỏi đầu vào/,
   );
 
-  const submitOrder = [];
-  let surveySentBody = null;
+  // 4. buildQuestionnaireAnswersPayload lọc bỏ id lạ & self rỗng
+  const sanitized = buildQuestionnaireAnswersPayload(
+    'python_advanced',
+    apiLoad.questionnaire,
+    { 'q-m1-1': 0, 'q-m1-2': null, 'la-item': 1, 'q-m2-1': 99 },
+    { 'sa-la': 1 },
+  );
+  assert.deepEqual(sanitized, {
+    course_id: 'python_advanced',
+    questionnaire_id: 1,
+    answers: { 'q-m1-1': 0, 'q-m1-2': null },
+  });
+  assert.equal('self' in sanitized, false, 'đề không có self_assess thì không gửi trường self rỗng');
+
+  // 5. submitQuestionnaireAndSurvey (API thật): gửi đúng 1 request POST /api/survey kèm trường questionnaire
+  const submitCalls = [];
+  let sentBody = null;
+  const samplePlacementOutcome = {
+    ok: true,
+    done: true,
+    updated: true,
+    course_id: 'python_advanced',
+    questionnaire_id: 1,
+    version: 1,
+    start_module: 'M3',
+    start_lesson_no: 42,
+    module_scores: { M1: 1, M2: 0.67, M3: 0.33 },
+    review_modules: ['M4'],
+    level_title: 'Nền tảng vững vàng',
+    skipped_all: false,
+    score: 14,
+    total: 24,
+    level: 'intermediate',
+    explanations: { 'q-m1-1': 'Phép cộng hai số nguyên ra 19.' },
+    review: [
+      {
+        item_id: 'q-m1-1',
+        module_code: 'M1',
+        picked: 0,
+        correct: 0,
+        is_correct: true,
+        explanation: 'Phép cộng hai số nguyên ra 19.',
+      },
+    ],
+  };
+
   const apiSubmitted = await submitQuestionnaireAndSurvey({
     courseId: 'python_advanced',
     questionnaire: apiLoad.questionnaire,
-    answers: { '1': 0, '3': 1 },
+    answers: { 'q-m1-1': 0, 'q-m1-2': null },
     selfAnswers: {},
     surveyInput: { job: 'Sinh viên', purpose: ['Phân tích dữ liệu'], language: ['Python'] },
     modules: PY_MODULES,
     saveSurvey: true,
     useMock: false,
     fetcher: async (path, opts) => {
-      submitOrder.push(path);
-      if (path === '/api/placement/submit') {
-        const parsed = JSON.parse(opts.body);
-        assert.equal(parsed.questionnaireId, 1);
-        assert.deepEqual(parsed.answers, [0, -1, 1]);
-        return {
+      submitCalls.push(path);
+      sentBody = JSON.parse(opts.body);
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
           ok: true,
-          status: 200,
-          json: async () => ({ ok: true, done: true, repeated: false, score: 2, total: 3, level: 'intermediate' }),
-        };
-      }
-      assert.equal(path, '/api/survey');
-      surveySentBody = JSON.parse(opts.body);
-      return { ok: true, status: 200, json: async () => ({ ok: true, roadmap_id: 'u9_generated' }) };
+          template: 'data',
+          roadmap_id: 'u9_generated',
+          placement: samplePlacementOutcome,
+        }),
+      };
     },
   });
-  assert.deepEqual(submitOrder, ['/api/placement/submit', '/api/survey']);
-  assert.equal(surveySentBody.level, 'Trung cấp');
+  assert.deepEqual(submitCalls, ['/api/survey']);
+  assert.equal(sentBody.job, 'Sinh viên');
+  assert.equal(sentBody.purpose, 'Phân tích dữ liệu');
+  assert.equal(sentBody.language, 'Python');
+  assert.deepEqual(sentBody.questionnaire, {
+    course_id: 'python_advanced',
+    questionnaire_id: 1,
+    answers: { 'q-m1-1': 0, 'q-m1-2': null },
+  });
   assert.equal(apiSubmitted.placementSource, 'api');
-  assert.equal(apiSubmitted.placement.start_module, 'M4');
-  assert.equal(apiSubmitted.placement.score, 2);
-  assert.equal(apiSubmitted.placement.total, 3);
   assert.equal(apiSubmitted.surveySaved, true);
+  assert.equal(apiSubmitted.roadmapId, 'u9_generated');
+  assert.equal(apiSubmitted.placement.start_module, 'M3');
+  assert.equal(apiSubmitted.placement.start_lesson_no, 42);
+  assert.equal(apiSubmitted.placement.updated, true);
+  assert.equal(apiSubmitted.placement.review?.[0].is_correct, true);
+
+  // Bỏ qua toàn bộ câu hỏi qua API thật -> skipped_all = true, start_module = M1
+  const skippedRes = await submitQuestionnaireAndSurvey({
+    courseId: 'python_advanced',
+    questionnaire: apiLoad.questionnaire,
+    answers: Object.fromEntries(apiLoad.questionnaire.items.map((it) => [it.id, null])),
+    selfAnswers: {},
+    surveyInput: {},
+    modules: PY_MODULES,
+    saveSurvey: true,
+    useMock: false,
+    fetcher: async (_path, opts) => {
+      const parsed = JSON.parse(opts.body);
+      assert.equal(Object.values(parsed.questionnaire.answers).every((v) => v === null), true);
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          ok: true,
+          roadmap_id: 'u9_generated',
+          placement: {
+            ok: true,
+            done: true,
+            updated: false,
+            start_module: 'M1',
+            start_lesson_no: 1,
+            module_scores: { M1: 0, M2: 0 },
+            review_modules: [],
+            level_title: 'Khởi đầu vững chắc',
+            skipped_all: true,
+            score: 0,
+            total: 24,
+          },
+        }),
+      };
+    },
+  });
+  assert.equal(skippedRes.placement.skipped_all, true);
+  assert.equal(skippedRes.placement.start_module, 'M1');
+  assert.equal(skippedRes.placement.start_lesson_no, 1);
+
+  // 6. Ca lỗi 409 (version conflict) & 400 (sai đáp án) từ POST /api/survey
+  let caught409 = null;
+  try {
+    await submitQuestionnaireAndSurvey({
+      courseId: 'python_advanced',
+      questionnaire: apiLoad.questionnaire,
+      answers: { 'q-m1-1': 0 },
+      selfAnswers: {},
+      surveyInput: {},
+      modules: PY_MODULES,
+      saveSurvey: true,
+      useMock: false,
+      fetcher: async () => ({ ok: false, status: 409, json: async () => ({ message: 'Bộ câu hỏi đã được cập nhật' }) }),
+    });
+  } catch (err) {
+    caught409 = err;
+  }
+  assert.ok(caught409);
+  assert.equal(isVersionConflictError(caught409), true);
+  assert.match(caught409.message, /tải lại trang/);
 
   await assert.rejects(
     () =>
       submitQuestionnaireAndSurvey({
         courseId: 'python_advanced',
         questionnaire: apiLoad.questionnaire,
-        answers: { '1': 0 },
+        answers: { 'q-m1-1': 0 },
         selfAnswers: {},
         surveyInput: {},
         modules: PY_MODULES,
-        saveSurvey: false,
+        saveSurvey: true,
         useMock: false,
-        fetcher: async () => ({ ok: false, status: 409, json: async () => ({}) }),
+        fetcher: async () => ({
+          ok: false,
+          status: 400,
+          json: async () => ({ message: 'answers: câu "x" không thuộc bộ câu đang dùng.' }),
+        }),
       }),
-    /tải lại trang/,
+    /Dữ liệu chưa hợp lệ: answers: câu "x" không thuộc bộ câu đang dùng/,
   );
 
-  const mappedAdv = mapPlacementApiResult(
-    { ok: true, done: true, repeated: true, score: 5, total: 5, level: 'advanced' },
-    PY_MODULES,
-    false,
-  );
-  assert.equal(mappedAdv.start_module, 'M7');
-  assert.equal(mappedAdv.repeated, true);
-  assert.equal(validateBackendPlacementSubmitResponse({ score: 5, total: 5, level: 'advanced' }).length, 0);
-
+  // 7. loadMyPlacement gọi GET /api/me/questionnaire/:courseId
   const notDone = await loadMyPlacement({
-    modules: PY_MODULES,
+    courseId: 'python_advanced',
     fetcher: async (path) => {
-      assert.equal(path, '/api/me/placement');
-      return { ok: true, status: 200, json: async () => ({ ok: true, done: false }) };
+      assert.equal(path, '/api/me/questionnaire/python_advanced');
+      return { ok: true, status: 200, json: async () => ({ ok: true, done: false, course_id: 'python_advanced' }) };
     },
   });
   assert.equal(notDone, null);
 
   const donePlacement = await loadMyPlacement({
-    modules: PY_MODULES,
-    fetcher: async () => ({
-      ok: true,
-      status: 200,
-      json: async () => ({ ok: true, done: true, repeated: true, score: 4, total: 5, level: 'advanced' }),
-    }),
+    courseId: 'python_advanced',
+    fetcher: async (path) => {
+      assert.equal(path, '/api/me/questionnaire/python_advanced');
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          ...samplePlacementOutcome,
+          submitted_at: '2026-11-24T16:15:00.000Z',
+        }),
+      };
+    },
   });
-  assert.equal(donePlacement.start_module, 'M7');
-  assert.equal(donePlacement.score, 4);
+  assert.equal(donePlacement.start_module, 'M3');
+  assert.equal(donePlacement.start_lesson_no, 42);
+  assert.equal(donePlacement.module_scores.M1, 1);
+  assert.deepEqual(donePlacement.review_modules, ['M4']);
+  assert.equal(donePlacement.submitted_at, '2026-11-24T16:15:00.000Z');
 });
 
 test('submitCourseReset & submitDisplayName: cờ mock, API thật BE8, PUT /api/user và lỗi 400/403/429 thân thiện', async () => {
@@ -493,15 +635,19 @@ test('submitCourseReset & submitDisplayName: cờ mock, API thật BE8, PUT /api
   assert.equal(friendlyApiError(400, { message: 'Họ tên không hợp lệ' }), 'Dữ liệu chưa hợp lệ: Họ tên không hợp lệ');
 });
 
-test('NỐI DÂY UI: OnboardingSurveyView tách passive load (apiFetchSessionOnly) với nút nộp (apiFetch), không đọc correctIndex; LofiPhoneProfile giữ 0/0 mặc định', () => {
+test('NỐI DÂY UI: OnboardingSurveyView tách passive load (apiFetchSessionOnly) với nút nộp (apiFetch), không đọc correctIndex hay /api/placement; LofiPhoneProfile giữ 0/0 mặc định', () => {
   const onboardingSrc = readFileSync(join(FE, 'src/components/onboarding/OnboardingSurveyView.tsx'), 'utf8');
   assert.match(onboardingSrc, /apiFetchSessionOnly\(/);
   assert.match(onboardingSrc, /\bapiFetch\b/);
   assert.ok(!onboardingSrc.includes('correctIndex'), 'UI onboarding không được chứa hay đọc correctIndex');
+  assert.ok(!onboardingSrc.includes('/api/placement'), 'UI onboarding không còn gọi /api/placement');
   assert.equal(onboardingSrc.includes('Khảo sát chỉ dành cho tài khoản đã đăng nhập'), false, 'cả khách và người đăng nhập đều làm được bài test');
   assert.match(onboardingSrc, /loadQuestionnaire/);
   assert.match(onboardingSrc, /loadMyPlacement/);
   assert.match(onboardingSrc, /submitQuestionnaireAndSurvey/);
+  assert.match(onboardingSrc, /max_duration_min/);
+  assert.match(onboardingSrc, /mastery_threshold/);
+  assert.match(onboardingSrc, /Xem lại đáp án/);
   assert.match(onboardingSrc, /\/api\/survey/);
   assert.match(onboardingSrc, /classifyOnboardingViewer/);
 

@@ -426,19 +426,161 @@
 
 .scoreGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
   gap: 8px;
   margin-bottom: 18px;
 }
 
 .scoreChip {
-  padding: 8px 10px;
+  padding: 9px 11px;
   border-radius: 10px;
   border: 1px solid #e2e8f0;
   background: #f8fafc;
   font-size: 12px;
   color: #334155;
   text-align: left;
+}
+
+.scoreChipPassed {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.scoreChipNeedsWork {
+  background: #fff7ed;
+  border-color: #fdba74;
+  color: #9a3412;
+}
+
+.scoreChipTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.scoreChipStatus {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.scoreChipValue {
+  margin-top: 2px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.reviewSection {
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.reviewToggleBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.reviewToggleBtn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.reviewList {
+  margin-top: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 4px;
+}
+
+.reviewItem {
+  padding: 11px 13px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.reviewItemHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.reviewItemMeta {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.reviewBadgeCorrect,
+.reviewBadgeWrong,
+.reviewBadgeSkipped {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.reviewBadgeCorrect {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.reviewBadgeWrong {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.reviewBadgeSkipped {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.reviewQuestion {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.45;
+  margin-bottom: 5px;
+}
+
+.reviewAnswerLine {
+  font-size: 12px;
+  color: #334155;
+  line-height: 1.45;
+}
+
+.reviewExplanation {
+  margin-top: 6px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border-left: 3px solid #94a3b8;
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.45;
 }
 
 .reviewLine {

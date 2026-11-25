@@ -87,10 +87,17 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: "/courses/python_advanced", destination: "/bookshelf/python", permanent: false },
+      // Hai tập Quán Mây của bản thử đầu nay là tập 2 và 3 của bản đủ mười tập.
+      { source: "/quan-may/xep-don", destination: "/quan-may#ep2", permanent: false },
+      { source: "/quan-may/ket-hut-tien", destination: "/quan-may#ep3", permanent: false },
       { source: "/courses/db_design", destination: "/bookshelf/sql", permanent: false },
       { source: "/courses/db_design_tc", destination: "/bookshelf/sql", permanent: false },
       { source: "/courses/db_design_nc", destination: "/bookshelf/sql", permanent: false },
     ];
+  },
+  // Quán Mây là một trang tĩnh tự chứa ở public/quan-may.
+  async rewrites() {
+    return [{ source: "/quan-may", destination: "/quan-may/index.html" }];
   },
   async headers() {
     return [

@@ -277,7 +277,6 @@ const DA_PHU = {
   'src/components/python-studio/screens/PracticeScreen.tsx': 1,
   'src/components/python-studio/screens/ReadScreen.tsx': 2,
   'src/components/python-studio/screens/StepTrace.tsx': 1, // dùng chung `.tracePredictInput`
-  'src/components/quan-may/TillEpisode.tsx': 3, // ba `<select>` WHERE, `.query select` 16px ở quan-may.module.css
 };
 
 /** Ô gõ KHÔNG có đường tới khoá đang xuất bản — mỗi mục kèm VÌ SAO. */

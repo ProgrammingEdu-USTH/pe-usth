@@ -111,6 +111,18 @@ và bản nháp nằm ở `localStorage`. Chỗ rẽ nhánh duy nhất là `useL
 - Bài SQL cũ (`/lesson/db_design*`) vẫn mở được bằng đường dẫn trực tiếp vì bộ e2e kéo-thả và chạy SQL đang đo trên
   nó; kệ sách không còn trỏ tới.
 
+## Quán Mây (`/quan-may`, từ 25/11/2026)
+
+Một trang tĩnh tự chứa ở `frontend/public/quan-may/` (HTML, CSS, JS), lấy từ bản thử của nhóm (artifact `f3d755bb`, bản
+`1795568344-61d5`): 10 tập, hai ngôn ngữ, bản đồ 56 môn. Nó thay bản React hai tập trước đó; `/quan-may/xep-don` và
+`/quan-may/ket-hut-tien` chuyển sang `#ep2`, `#ep3`. Từ nay **sửa ở repo này**; sửa artifact không tự sang web.
+
+- Phần thêm cho web: đường về Góc học, dòng "chuyện vừa rồi / việc bây giờ / đến lượt quyết" ở mọi tập, lưu chỗ đang
+  chơi qua lần tải lại (`quanmay.runs.v1`), liên kết tới khoá có thật trên site, đích bấm 44px và ô gõ 16px trên cảm ứng.
+- Không gọi mạng, không tài khoản; tiến độ nằm ở `localStorage`. `e2e/unit/quan-may.test.mjs` chạy script với DOM giả và
+  hỏi từng nhiệm vụ có thắng được không; đổi luật chơi thì ca đó đổi theo. Chưa có e2e trình duyệt trong repo.
+- Phông chữ tải từ Google Fonts.
+
 ## Mốc nền
 
 **Đo lại ngày 04/11/2026 — MỌI hàng, bằng cách tự chạy từng lệnh.** Đừng để tụt xuống
@@ -133,7 +145,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
-| Frontend unit test | `cd frontend && npm run test:unit` → **765 ca** / 74 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **770 ca** / 74 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **69 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -146,14 +158,14 @@ học nó.
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
 | Xuất hình cho người học | `node scripts/check-figures.mjs` → 16 ca, **0 hỏng** |
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **19 mục, 15 có đường tới, 4 còn tối (đã khai lý do)**, 0 lỗi |
-| Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **2 mục chết, 2 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **23 CSS module trong `src/`** |
+| Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **2 mục chết, 2 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **22 CSS module trong `src/`** |
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
 | Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **179/179 khớp, 0 bài chờ nạp**. Lần nạp gần nhất: **2026-11-23T15:36 UTC** (22:36 giờ Việt Nam) — HAI bài PY02 · PY03 (#310 A2-nhẹ: nói thẳng phần terminal/notebook chỉ cần khi học trên máy riêng, bỏ câu mở bài PY03 giả định đã tạo môi trường ảo), nạp bằng `--codes=PY02,PY03 --apply --backup=bak-py02-03-2026-11-23.json` sau khi chạy thử `--all` xác nhận ĐÚNG 2/179 bài lệch và 177 bài còn lại khớp DB từng byte; chạy thử lại sau khi nạp cho 0/179 lệch. Biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Lần nạp trước: 2026-11-19T07:08 UTC (PY01, #310 A1, `--codes=PY01`); trước nữa 2026-11-19T06:55 UTC (15 bài PD02 · PD03 · PD05 · PD07 · PD14 · PD15 · PD18 · PD23 · PD25 · PD26 · VZ02 · VZ03 · VZ12 · VZ14 · VZ22, `--codes=<15 mã>`); và 2026-11-16T17:41 UTC `--all`. CÓ biên nhận rồi thì một bài lệch là ĐỎ CỨNG (`check-da-nap` thoát 1, CI chạy nó) — số chờ nạp ĐÃ về 0, nên điều kiện để lật trigger `ci.yml` sang `main` về phía nội dung đã đủ. GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó (lần chạy thử `--all` ở trên là phép đo trực tiếp DB, và nó đo ngay trước và ngay sau lúc nạp). |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **47 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 765 · backend 36 bộ/532 · tracer 69 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/364 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 770 · backend 36 bộ/532 · tracer 69 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/364 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -183,11 +195,11 @@ ide-output-scroll 6 · ide-partial-output 10 · ide-stop-autosave 27 · ide-than
 ide-trace 38 · ide-trace-nap-goi 5 · inline-code 7 · insert-gate-sync 2 · khoa-roi-giao-trinh 5 ·
 label-version 3 · learning-events 50 · lesson-back 19 · lesson-chrome-sticky 4 · lesson-load 7 ·
 lien-ket-noi-bo 3 · loi-python 6 · mcq-code 12 · mcq-next-after-wrong 23 · o-go-16px 10 ·
-o-nhap-nhieu-dong 2 · phan-bai 8 · practice-contract 15 · practice-run 9 · prewarm-gate 5 · quan-may 5 ·
+o-nhap-nhieu-dong 2 · phan-bai 8 · practice-contract 15 · practice-run 9 · prewarm-gate 5 · quan-may 10 ·
 read-diagram 12 · read-guess 19 · read-trace 17 · read-try-it 23 · recap-recall 7 ·
 review-quiz 34 · run-stale 15 · sandbox-cuon-ket-qua 6 · session-marker 5 · spaced-review 18 ·
 static-courses 8 · studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 · trang-404 6 · trang-loi 12 ·
-trap-leak 3 · worker-csp 7 = 765.
+trap-leak 3 · worker-csp 7 = 770.
 Lịch sử các lần số ca đổi ("Mốc trước là 736; …") nằm ở [BAY-DA-GAP.md](BAY-DA-GAP.md), phần 2 — mỗi dòng ghi VÌ SAO con số đổi. Khối phân rã ở trên là số HIỆN TẠI; thêm/bớt một tệp test thì sửa CẢ hàng mốc nền LẪN khối này (`node scripts/dem-ca-test.mjs` in đúng khuôn).
 
 **Đếm phân rã bằng `sed`, đừng bằng `grep -E "^. pass"`** — dòng tổng kết của

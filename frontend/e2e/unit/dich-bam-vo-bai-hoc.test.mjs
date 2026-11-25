@@ -78,7 +78,6 @@ const TEP = [
   // Tủ sách và nút Lofi dùng chung (đưa từ nhánh test sang).
   'src/components/bookshelf/bookshelf.module.css',
   'src/components/ui/lofi-ui.module.css',
-  'src/components/quan-may/quan-may.module.css',
 ];
 
 /**

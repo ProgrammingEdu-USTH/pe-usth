@@ -6889,7 +6889,9 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   thế nào khi lật sang màn thứ hai" thì chưa. (2) Nhiễu của phép đo nhịp trống (±30–70%) lớn hơn khác biệt cần phát hiện;
   nó chỉ bắt được một lớp nền gây sụt LỚN (như 133 animation của trang chủ), không bắt được +15%. Muốn bắt mức đó phải đo
   bằng vết DevTools (câu "AI", không phải "BAO LÂU" — xem mục đo hiệu năng) hoặc lặp ≥ 10 lần. (3) Chưa có chuyển động
-  cho thanh tiến độ, phương án, phản hồi, overlay — đó là B4, B5, B8 và dùng phần ngân sách còn lại (hôm nay 3/12).
+  cho thanh tiến độ, phương án, phản hồi, overlay — đó là B4, B5, B8 và dùng phần ngân sách còn lại (hôm nay 3/12).
+
+
 
 - **THEME CHIÊM TINH PHỦ TRANG CHỦ — và vì sao nó là lớp KHOÁC, không phải cảnh mới (vòng H1, 12/11/2026).**
   Chủ dự án hỏi "sao chỉ áp vào kia": theme mới có ở màn bài học và trang khoá, còn trang chủ vẫn dòng chữ
@@ -6922,6 +6924,7 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
 
 Mỗi dòng ghi một lần số ca đổi và VÌ SAO. Dời từ mục "Mốc nền" của AGENTS.md; con số HIỆN TẠI và khối phân rã theo tệp vẫn ở AGENTS.md.
 
+Mốc trước là 765; quan-may 5 → 10 (QUÁN MÂY THAY BẢN: trang tĩnh mười tập từ bản thử của nhóm thế bản React hai tập — ca mới hỏi từng nhiệm vụ có thắng được không và lời giải sai có thua không, dữ liệu lưu hỏng không làm trang chết, trang không gọi mạng, hover/ô gõ/đích bấm trên cảm ứng); o-go-16px và dich-bam bỏ dòng khai của bản React đã xoá — 25/11/2026.
 Mốc trước là 757; thêm static-courses 8 (BA KHOÁ TĨNH Database, Database Advanced, Machine Learning: danh mục khớp tệp bài và đánh số liền; mọi bài dựng được màn, tiêu đề không đứng cuối trang; hình và liên kết nội bộ có thật; nhánh tĩnh rời đi trước mọi lượt gọi API và trước khi mở cổng ghi sự kiện; Markdown nội tuyến không nhận `javascript:` hay `//máy-khác`; trang tương tác ML chạy sandbox khác nguồn); bookshelf-progress giữ 5 ca (kệ không còn trỏ `/lesson/db_design`) — 25/11/2026.
 Mốc trước là 740; thêm ide-trace-nap-goi 5 ("XEM TỪNG BƯỚC" CỦA /ide chết với `ModuleNotFoundError: No module named 'pandas'` nếu người học chưa bấm "Chạy" trước: `trace()` không nạp gói, chỉ `run()` nạp — nay dùng chung `napGoi`; và hai yêu cầu chạy CHỒNG trên worker dùng chung làm kết quả của "Chạy" bị bên ghi vết nhận nhầm → TypeError ở <CodeVisualizer> — nay worker xử lý tuần tự và gắn `loai` vào kết quả); ide-partial-output giữ 10 ca (ca thứ tự "nạp gói trước khi bấm giờ" đọc `napGoi`) — 17/11/2026.
 Mốc trước là 737; thêm ide-gia-tri-nhieu-dong 3 (GIÁ TRỊ NHIỀU DÒNG trong bước-từng-dòng của /ide: tracer ghi DataFrame/Series bằng ruột nội bộ — `DataFrame(_mgr=BlockManager(), _attrs={}, …)` — nay là bảng chữ ≤ 6×6; `.varPre` giữ khoảng trắng nên cột thẳng hàng) và bộ ghi vết 65 → 69 phép kiểm (bốn phép cho nhánh pandas, chạy được cả khi máy không có pandas) — 17/11/2026.

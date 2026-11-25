@@ -1,108 +1,148 @@
+// Quán Mây là một trang tĩnh (public/quan-may). Bộ này chạy script của trang với
+// một DOM giả để hỏi đúng LUẬT của nó: nhiệm vụ nào cũng thắng được, và lời
+// giải sai thì không thắng.
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import vm from 'node:vm';
 
-import {
-  ARRIVAL_ORDER,
-  averageWait,
-  CULPRIT,
-  groupByCode,
-  ORDERS,
-  schedule,
-  SHORTFALL,
-  SOLUTIONS,
-  WAIT_GOAL,
-  where,
-  ZERO_ROWS,
-  evaluate,
-} from '../../src/lib/quan-may/episodes.ts';
-import {
-  currentRun,
-  freshProgress,
-  parseSave,
-  reduce,
-  SOLUTION_AFTER,
-  STEPS,
-  unlocked,
-} from '../../src/lib/quan-may/progress.ts';
+const root = new URL('../../', import.meta.url);
+const text = (path) => readFileSync(new URL(path, root), 'utf8');
+const JS = text('public/quan-may/quan-may.js');
+const CSS = text('public/quan-may/quan-may.css');
 
-const play = (id, actions, from = freshProgress()) => actions.reduce((p, a) => reduce(id, p, a), from);
-const next = { type: 'next' };
+/** Một phần tử nhận mọi lệnh và không làm gì: đủ để trang đầu dựng xong. */
+function stub() {
+  const own = { children: [], style: {}, dataset: {}, classList: { add() {}, remove() {}, toggle() {} } };
+  const self = new Proxy(function () {}, {
+    get: (_, key) =>
+      key in own ? own[key]
+      : key === 'querySelectorAll' ? () => []
+      : key === Symbol.toPrimitive ? () => ''
+      : self,
+    set: (_, key, value) => ((own[key] = value), true),
+    apply: () => self,
+  });
+  return self;
+}
 
-const toStep3 = [
-  { type: 'predict', value: '?' },
-  next,
-  { type: 'watch', to: 5, total: 5 },
-  next,
-];
+function load(storage = {}) {
+  const memory = new Map(Object.entries(storage));
+  const window = { addEventListener() {}, scrollTo() {} };
+  const context = {
+    window,
+    document: { querySelector: stub, createElement: stub, createTextNode: stub, documentElement: stub(), addEventListener() {} },
+    location: { hash: '' },
+    localStorage: { getItem: (k) => memory.get(k) ?? null, setItem: (k, v) => void memory.set(k, v) },
+    matchMedia: () => ({ matches: true }),
+    setTimeout: () => 0, clearTimeout() {}, setInterval: () => 0, clearInterval() {},
+    requestAnimationFrame: () => 0, cancelAnimationFrame() {},
+  };
+  window.matchMedia = context.matchMedia;
+  vm.runInNewContext(JS, context);
+  return window.QuanMay;
+}
 
-test('quán mây: con số trên màn hình tính ra đúng', () => {
-  assert.equal(averageWait(schedule(ARRIVAL_ORDER)), 9.8);
-  assert.ok(averageWait(schedule(SOLUTIONS['xep-don'])) <= WAIT_GOAL);
-  const all = (rest) => (rest.length < 2 ? [rest] : rest.flatMap((x) => all(rest.filter((y) => y !== x)).map((t) => [x, ...t])));
-  assert.equal(all(ORDERS.map((o) => o.id)).filter((o) => evaluate('xep-don', o)).length, 3);
-  assert.equal(ZERO_ROWS.length, 6);
-  const culprit = groupByCode(ZERO_ROWS).find((g) => g.code === CULPRIT);
-  assert.deepEqual([culprit.count, culprit.total], [5, SHORTFALL]);
-  assert.equal(where('ma_giam', '=', 'TEST100').length, 5);
-  assert.equal(evaluate('ket-hut-tien', ['gia', '=', '0']), false);
-  assert.equal(evaluate('ket-hut-tien', SOLUTIONS['ket-hut-tien']), true);
-});
+const QM = load();
+const rules = (id) => QM.eps[id].rules;
+const permutations = (xs) => (xs.length < 2 ? [xs] : xs.flatMap((x) => permutations(xs.filter((y) => y !== x)).map((rest) => [x, ...rest])));
+const mean = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length;
 
-test('quán mây: không thể hoàn thành mà không chơi', () => {
-  let p = freshProgress();
-  for (let i = 0; i < 20; i += 1) p = reduce('ket-hut-tien', p, next);
-  assert.equal(p.current, 1);
-  assert.equal(p.best, 'none');
-  // Hành động của bước sau bị bỏ qua khi đang đứng ở bước trước.
-  p = play('ket-hut-tien', [{ type: 'decide', value: 'one' }, { type: 'group' }, { type: 'run' }]);
-  assert.deepEqual(p.passed, []);
-  // Dữ liệu lưu tự khai đang ở bước 6 bị đưa về bước đã mở.
-  const saved = parseSave(JSON.stringify({ v: 2, episodes: { 'xep-don': { current: 6, passed: [5] } } }));
-  assert.equal(saved.episodes['xep-don'].current, 1);
-});
-
-test('quán mây: đổi đầu vào thì kết quả cũ không còn và bước sau khoá lại', () => {
-  let p = play('xep-don', [...toStep3, { type: 'work', work: SOLUTIONS['xep-don'] }, { type: 'run' }]);
-  assert.equal(currentRun(p).ok, true);
-  assert.equal(unlocked(p), 4);
-  p = reduce('xep-don', p, { type: 'work', work: ARRIVAL_ORDER });
-  assert.equal(currentRun(p), null);
-  assert.equal(unlocked(p), 3);
-  assert.equal(reduce('xep-don', p, next).current, 3);
-  // Một lastRun đạt nhưng thuộc cấu hình khác cũng không được hiện.
-  assert.equal(currentRun({ ...p, lastRun: { key: 'cấu hình khác', ok: true } }), null);
-});
-
-test('quán mây: tải lại giữ nguyên tiến độ, dữ liệu hỏng không làm sập', () => {
-  const p = play('xep-don', [...toStep3, { type: 'work', work: SOLUTIONS['xep-don'] }, { type: 'run' }, next]);
-  const again = parseSave(JSON.stringify({ v: 2, episodes: { 'xep-don': p } }));
-  assert.deepEqual(again.episodes['xep-don'], p);
-  for (const bad of [null, '', 'rác', '{"done":null}', 'null', '[]', '{"v":2,"episodes":null}', '{"v":2,"episodes":{"xep-don":5}}']) {
-    const save = parseSave(bad);
-    assert.equal(save.v, 2);
-    for (const ep of Object.values(save.episodes)) assert.equal(ep.current, 1);
+test('đủ mười tập, mỗi tập có chuyện, quyết định và đúc kết', () => {
+  assert.deepEqual([...QM.order], Array.from({ length: 10 }, (_, i) => `ep${i + 1}`));
+  for (const id of QM.order) {
+    const ep = QM.eps[id];
+    assert.ok(ep.intro.length >= 2, id);
+    for (const part of [ep.play, ep.choice, ep.scene, ep.after]) assert.equal(typeof part, 'function', id);
+    assert.ok(ep.debrief.term && ep.debrief.thanks.vi && ep.debrief.thanks.en && ep.debrief.points.length >= 3, id);
   }
 });
 
-test('quán mây: đi trọn hai tập, trả lời một lần, xem lời giải được ghi riêng', () => {
-  let p = play('xep-don', [...toStep3, { type: 'work', work: SOLUTIONS['xep-don'] }, { type: 'run' }, next, next]);
-  assert.equal(p.current, 5);
-  p = play('xep-don', [{ type: 'decide', value: 'swap' }, { type: 'decide', value: 'last' }], p);
-  assert.equal(p.decision, 'swap');
-  p = reduce('xep-don', p, next);
-  assert.equal(p.current, STEPS);
-  assert.equal(p.best, 'done');
-  assert.equal(reduce('xep-don', p, { type: 'replay' }).best, 'done');
+test('tập 2: cả hai ca giờ cao điểm thắng được, thứ tự đến thì không', () => {
+  const r = rules('ep2');
+  const average = (order) => mean(Object.values(r.simulate(order, 'fcfs').wait));
+  assert.ok(average([...r.L1]) > r.AVG_GOAL);
+  assert.ok(permutations([...r.L1]).some((order) => average(order) <= r.AVG_GOAL));
+  const meets = (policy, q) => {
+    const sim = r.simulate(r.L2, policy, q, r.SWITCH);
+    return r.L2.filter((o) => !o.party).every((o) => sim.turn[o.id] <= r.SMALL_LIMIT + 1e-9) && sim.finish.P <= r.PARTY_LIMIT + 1e-9;
+  };
+  assert.equal(meets('fcfs', 1), false);
+  assert.ok([1, 2, 3, 4, 5, 6, 7, 8].some((q) => meets('rr', q)));
+});
 
-  const wrong = [{ type: 'work', work: ['gia', '=', '0'] }, { type: 'run' }];
-  let q = play('ket-hut-tien', [...toStep3.slice(0, 2), { type: 'watch', to: 1, total: 1 }, next]);
-  assert.equal(reduce('ket-hut-tien', q, { type: 'solution' }).solutionShown, false);
-  for (let i = 0; i < SOLUTION_AFTER; i += 1) q = play('ket-hut-tien', wrong, q);
-  q = play('ket-hut-tien', [{ type: 'solution' }, { type: 'run' }, next], q);
-  assert.equal(q.current, 4);
-  assert.equal(play('ket-hut-tien', [{ type: 'suspect', code: CULPRIT }], q).passed.includes(4), false);
-  q = play('ket-hut-tien', [{ type: 'group' }, { type: 'suspect', code: 'SINHNHAT' }, next], q);
-  assert.equal(q.current, 4);
-  q = play('ket-hut-tien', [{ type: 'suspect', code: CULPRIT }, next, { type: 'decide', value: 'all' }, next], q);
-  assert.equal(q.best, 'seen');
+test('tập 3: sáu đơn 0₫, và năm đơn TEST100 đúng bằng số tiền hụt', () => {
+  const r = rules('ep3');
+  const zero = r.ROWS.filter((row) => r.test(row, { col: 'da_tra', op: '=', val: 0 }));
+  assert.equal(zero.length, 6);
+  const guilty = zero.filter((row) => row.ma_giam === 'TEST100');
+  assert.equal(guilty.length, 5);
+  // Con số trong lời thoại: két hụt 120.000₫.
+  assert.equal(guilty.reduce((sum, row) => sum + row.gia, 0), 120000);
+  assert.equal(r.ROWS.filter((row) => r.test(row, { col: 'ma_giam', op: '<>', val: 'TEST100' })).some((row) => row.ma_giam === null), false, 'NULL không khớp phép so sánh nào');
+});
+
+test('tập 5 và 6: có kế hoạch giao đủ việc chính, và có một cách nối dây đúng', () => {
+  const se = rules('ep5');
+  const done = se.build({ must: ['menu', 'order', 'counter'], should: ['qr', 'verify'], later: [] });
+  assert.ok(se.EVENTS.every((e) => done.built.has(e.need)) && done.left >= 0);
+  assert.ok(se.FEATURES.reduce((sum, f) => sum + f.pts, 0) > se.CAP, 'phải chọn, không làm hết được');
+  const net = rules('ep6');
+  for (const device of net.DEVICES) assert.ok(net.pathTo([...net.RIGHT], device, 'net').includes('router'));
+  assert.equal(net.pathTo([], 'pc', 'net'), null);
+});
+
+test('tập 7: chia đôi thắng trong giới hạn, nhích từng đơn thì không', () => {
+  const r = rules('ep7');
+  const right = r.run100k({ mid: '(lo + hi) // 2', less: 'lo = mid + 1', more: 'hi = mid - 1' });
+  assert.ok(right.found && right.steps <= r.GOAL);
+  const slow = r.run100k({ mid: 'lo', less: 'lo = mid + 1', more: 'hi = mid - 1' });
+  assert.ok(slow.steps > r.GOAL);
+});
+
+test('tập 8: chỉ truy vấn tham số qua cả bốn ca', () => {
+  const r = rules('ep8');
+  const winners = r.FIXES.filter((fix) => r.CASES.every((c) => r.passes(c, fix.run(c.input)))).map((fix) => fix.id);
+  assert.deepEqual([...winners], ['param']);
+  assert.equal(r.pasted("ít đá', 0) --").price, 0);
+});
+
+test('tập 9: một ngưỡng không bắt hết, hai ngưỡng thì được', () => {
+  const r = rules('ep9');
+  const one = [];
+  const two = [];
+  for (let a = 3; a <= 40; a += 1) {
+    one.push(r.judge(a, null));
+    for (let b = 2; b <= 10; b += 1) two.push(r.judge(a, b));
+  }
+  assert.ok(one.some((x) => x.caught >= 7 && x.fp <= r.FP_MAX));
+  assert.equal(one.some((x) => x.caught === r.ATTACKS && x.fp <= r.FP_MAX), false);
+  assert.ok(two.some((x) => x.caught === r.ATTACKS && x.fp <= r.FP_MAX));
+});
+
+test('dữ liệu đã lưu bị hỏng không làm trang chết', () => {
+  for (const bad of ['rác', 'null', '[]', '{"done":null,"fx":5,"lang":"constructor"}']) {
+    assert.equal(load({ 'quanmay.v1': bad, 'quanmay.runs.v1': bad }).order.length, 10);
+  }
+  const restored = load({ 'quanmay.runs.v1': JSON.stringify({ ep2: { phase: 'play', beat: 0, level: 1 }, ep3: { phase: 'hack' }, lạ: { phase: 'play' } }) });
+  assert.deepEqual(Object.keys(restored.runs), ['ep2']);
+});
+
+test('trang không gọi mạng, không dẫn ra bản nháp ngoài site, và có đường tới nó', () => {
+  assert.doesNotMatch(JS, /\bfetch\(|XMLHttpRequest|sendBeacon|WebSocket|\beval\(|new Function|document\.cookie/);
+  assert.doesNotMatch(JS, /claude\.ai\/artifact\/(?!f3d755bb)[A-Za-z0-9]{8,}/);
+  const config = text('next.config.ts');
+  assert.match(config, /source: "\/quan-may", destination: "\/quan-may\/index\.html"/);
+  for (const [old, ep] of [['xep-don', 'ep2'], ['ket-hut-tien', 'ep3']])
+    assert.ok(config.includes(`source: "/quan-may/${old}", destination: "/quan-may#${ep}"`));
+  for (const [, href] of JS.matchAll(/\['(\/bookshelf\/[a-z-]+)'/g))
+    assert.ok(text('src/lib/static-courses.ts').includes(`'${href.split('/')[2]}'`) || href === '/bookshelf/python', href);
+});
+
+test('màn cảm ứng: ô gõ 16px, đích bấm 44px, hover chỉ cho con trỏ thật', () => {
+  const coarse = CSS.slice(CSS.indexOf('@media (pointer: coarse)'));
+  assert.match(coarse, /select, input\[type="text"\] \{ font-size: 16px !important; min-height: 44px; \}/);
+  assert.match(coarse, /\.btn, \.option[^{]*\{ min-height: 44px; \}/);
+  const bare = CSS.replace(/@media \(hover: hover\) and \(pointer: fine\) \{[\s\S]*?\n\}/, '');
+  assert.doesNotMatch(bare, /:hover/);
 });

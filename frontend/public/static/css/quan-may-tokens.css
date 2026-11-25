@@ -1,0 +1,40 @@
+/* Bảng màu Quán Mây (bản thử nghiệm). Chữ trên nền đạt tối thiểu 4,5:1. */
+:root {
+  --qm-bg: #f4f1ea;
+  --qm-card: #fffdf8;
+  --qm-ink: #1b2a26;
+  --qm-soft: #475a54;
+  --qm-line: #cfc7b6;
+  --qm-edge: #1b2a26;
+  --qm-brand: #0f6155;
+  --qm-on-brand: #ffffff;
+  --qm-tint: #dcece6;
+  --qm-warm: #f9e3cf;
+  --qm-ok: #0b6a42;
+  --qm-ok-bg: #ddf0e4;
+  --qm-bad: #a12929;
+  --qm-bad-bg: #f9e0df;
+  --qm-bar: #c4621f;
+  --qm-code-bg: #16302a;
+  --qm-code-ink: #e2f3ec;
+}
+
+body.dark {
+  --qm-bg: #101a18;
+  --qm-card: #172522;
+  --qm-ink: #eaf3ef;
+  --qm-soft: #b3c8c1;
+  --qm-line: #34504a;
+  --qm-edge: #8fb5aa;
+  --qm-brand: #6fd0ba;
+  --qm-on-brand: #05201a;
+  --qm-tint: #1f3a34;
+  --qm-warm: #3d2b1c;
+  --qm-ok: #6edba4;
+  --qm-ok-bg: #12332a;
+  --qm-bad: #ff9d99;
+  --qm-bad-bg: #3d1f21;
+  --qm-bar: #f0914f;
+  --qm-code-bg: #08130f;
+  --qm-code-ink: #cdeadf;
+}

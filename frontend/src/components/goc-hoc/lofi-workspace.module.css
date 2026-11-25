@@ -36,429 +36,29 @@
   user-select: none;
 }
 
-/* ── 1. BACKGROUND PHÒNG HỌC 2752 × 1536 GIỐNG HỆT TRANG GÓC HỌC ─────────── */
-.cam {
-  position: absolute;
-  left: 0;
-  top: 0;
-  transform-origin: 0 0;
-  will-change: transform;
-}
-
-.room {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 2752px;
-  height: 1536px;
-  transform-origin: 0 0;
-  will-change: transform;
-  transition: translate 0.25s ease-out;
-}
-
-.room > * {
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-
-.roomImg {
-  width: 2752px;
-  height: 1536px;
+/* ── 1. NỀN PHÒNG HỌC LOFI MỜ NHẸ (/goc-hoc/room-blur.webp) ───────────────── */
+.roomBackdrop {
+  position: fixed;
+  inset: 0;
+  background-color: var(--ground);
+  background-image: url('/goc-hoc/room-blur.webp');
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
   pointer-events: none;
   user-select: none;
-  -webkit-user-drag: none;
-  -webkit-mask-image: linear-gradient(90deg, #000 94%, transparent);
-  mask-image: linear-gradient(90deg, #000 94%, transparent);
 }
 
-.blurFull {
-  width: 2752px;
-  height: 1536px;
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-drag: none;
-  opacity: 1;
-}
-
-/* Bầu trời hoàng hôn / đêm + Mây trôi + Sao chuẩn scene.css */
-.skyWrap {
+.srOnly {
   position: absolute;
-  left: 1046px !important;
-  top: 162px !important;
-  width: 788px;
-  height: 606px;
-  overflow: hidden;
-  pointer-events: none;
-  -webkit-mask-image: url('/goc-hoc/sky-mask.png');
-  mask-image: url('/goc-hoc/sky-mask.png');
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-}
-
-.skyGrad {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    #8c76bd 0%,
-    #9882c5 10%,
-    #bc9ac6 41%,
-    #cfa6c6 58%,
-    #e1b2bb 74%,
-    #e1b2bb 100%
-  );
-}
-
-.cloudLayer {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 2592px;
-  height: 606px;
-  -webkit-mask-repeat: repeat-x;
-  mask-repeat: repeat-x;
-  -webkit-mask-size: 648px 606px;
-  mask-size: 648px 606px;
-  will-change: transform;
-  animation: cloudDrift 110s linear infinite;
-}
-
-.cloudBody {
-  background: #a07aae;
-  opacity: 0.95;
-  -webkit-mask-image: url('/goc-hoc/cloud-body.png');
-  mask-image: url('/goc-hoc/cloud-body.png');
-}
-
-.cloudLight {
-  background: #f0c0bc;
-  opacity: 0.55;
-  -webkit-mask-image: url('/goc-hoc/cloud-light.png');
-  mask-image: url('/goc-hoc/cloud-light.png');
-}
-
-@keyframes cloudDrift {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-648px);
-  }
-}
-
-.starsWrap {
-  position: absolute;
-  inset: 0;
-  opacity: 0.35;
-}
-
-.star {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, #fff, transparent);
-  animation: twinkle 3.4s ease-in-out infinite;
-}
-
-@keyframes twinkle {
-  0%,
-  100% {
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-/* Cửa sổ 2 cánh (#win), Dây cờ (#swag) & Tiền cảnh (#front) chuẩn scene.css */
-.winWrap {
-  position: absolute;
-  left: 1036px !important;
-  top: 158px !important;
-  width: 806px;
-  height: 930px;
-  perspective: 2600px;
-  perspective-origin: 50% 45%;
-  pointer-events: none;
-}
-
-.sash {
-  position: absolute;
-  top: 0;
-  width: 403px;
-  height: 930px;
-  transition: transform 1.9s cubic-bezier(0.3, 0.08, 0.2, 1);
-}
-
-.sashTex {
-  position: absolute;
-  inset: 0;
-  background-size: 403px 930px;
-}
-
-.sashL {
-  left: 0;
-  transform-origin: 0 50%;
-}
-.sashL .sashTex {
-  background-image: url('/goc-hoc/sash-l.webp');
-}
-
-.sashR {
-  left: 403px;
-  transform-origin: 100% 50%;
-}
-.sashR .sashTex {
-  background-image: url('/goc-hoc/sash-r.webp');
-}
-
-.paneGlass {
-  position: absolute;
-  background: linear-gradient(
-    118deg,
-    rgba(255, 255, 255, 0.07),
-    transparent 32%,
-    transparent 58%,
-    rgba(255, 255, 255, 0.05) 64%,
-    transparent 74%
-  );
-}
-
-.swagImg {
-  position: absolute;
-  left: 1046px !important;
-  top: 158px !important;
-  width: 788px;
-  height: 62px;
-  pointer-events: none;
-}
-
-.frontImg {
-  position: absolute;
-  left: 910px !important;
-  top: 810px !important;
-  width: 1166px;
-  height: 637px;
-  pointer-events: none;
-}
-
-/* Đồ vật cắt rời (Cut-out Objects) & Viền sáng (-g.webp) */
-.itemsLayer,
-.itemsTopLayer,
-.glowsLayer {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 2752px;
-  height: 1536px;
-  pointer-events: none;
-}
-
-.itemObj,
-.glowObj {
-  position: absolute;
-  transition: transform 0.5s var(--ease), opacity 0.4s ease;
-}
-
-.itemObj img,
-.glowObj img {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-.glowObj {
-  opacity: 0;
-}
-
-@keyframes breathe {
-  0%,
-  100% {
-    opacity: 0.1;
-  }
-  50% {
-    opacity: 0.28;
-  }
-}
-
-/* Đèn thành phố, Khói cà phê, Bụi nắng, Đèn bàn & 54 Bóng đèn đom đóm */
-.cityLight {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  mix-blend-mode: screen;
-  background: radial-gradient(
-    closest-side,
-    rgba(255, 214, 140, 0.75),
-    rgba(255, 190, 110, 0.18) 60%,
-    transparent
-  );
-  animation: cityPulse 9s ease-in-out infinite;
-}
-
-@keyframes cityPulse {
-  0%,
-  100% {
-    opacity: 0.55;
-  }
-  45% {
-    opacity: 0.9;
-  }
-  52% {
-    opacity: 0.35;
-  }
-  60% {
-    opacity: 0.85;
-  }
-}
-
-.steamGroup {
-  position: absolute;
-  left: 1300px !important;
-  top: 1050px !important;
   width: 1px;
   height: 1px;
-  pointer-events: none;
-}
-
-.wisp {
-  position: absolute;
-  left: -30px;
-  top: 0;
-  width: 60px;
-  height: 150px;
-  border-radius: 50%;
-  background: radial-gradient(
-    closest-side,
-    rgba(255, 250, 244, 0.75),
-    rgba(255, 246, 236, 0.25) 55%,
-    transparent
-  );
-  filter: blur(6px);
-  opacity: 0;
-  animation: steam 5.6s ease-in-out infinite;
-  pointer-events: none;
-}
-
-@keyframes steam {
-  0% {
-    transform: translate(0, 60px) scale(0.45, 0.4);
-    opacity: 0;
-  }
-  22% {
-    opacity: 0.8;
-  }
-  55% {
-    transform: translate(14px, -60px) scale(1.1, 1);
-    opacity: 0.5;
-  }
-  100% {
-    transform: translate(-16px, -190px) scale(1.8, 1.25);
-    opacity: 0;
-  }
-}
-
-.mote {
-  position: absolute;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: rgba(255, 236, 200, 0.9);
-  box-shadow: 0 0 10px rgba(255, 210, 150, 0.9);
-  animation: moteFloat 8s ease-in-out infinite;
-  pointer-events: none;
-}
-
-@keyframes moteFloat {
-  0%,
-  100% {
-    transform: translate(0, 0);
-    opacity: 0;
-  }
-  25% {
-    opacity: 0.85;
-  }
-  50% {
-    transform: translate(24px, -38px);
-    opacity: 0.5;
-  }
-  80% {
-    opacity: 0.8;
-  }
-}
-
-.lampPool {
-  position: absolute;
-  left: 560px !important;
-  top: 950px !important;
-  width: 980px;
-  height: 520px;
-  border-radius: 50%;
-  background: radial-gradient(
-    closest-side,
-    rgba(255, 196, 120, 0.42),
-    rgba(255, 170, 90, 0.12) 55%,
-    transparent
-  );
-  mix-blend-mode: screen;
-  pointer-events: none;
-}
-
-.lampHalo {
-  position: absolute;
-  left: 880px !important;
-  top: 830px !important;
-  width: 230px;
-  height: 230px;
-  border-radius: 50%;
-  background: radial-gradient(
-    closest-side,
-    rgba(255, 236, 190, 0.95),
-    rgba(255, 200, 120, 0.35) 45%,
-    transparent
-  );
-  mix-blend-mode: screen;
-  pointer-events: none;
-}
-
-.bulb {
-  position: absolute;
-  width: 46px;
-  height: 46px;
-  margin: -23px 0 0 -23px;
-  pointer-events: none;
-}
-
-.bulb i {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: radial-gradient(
-    closest-side,
-    rgba(255, 244, 214, 1),
-    rgba(255, 206, 130, 0.55) 40%,
-    transparent
-  );
-  mix-blend-mode: screen;
-  animation: bulbTwinkle 3.2s ease-in-out infinite;
-}
-
-@keyframes bulbTwinkle {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.45;
-  }
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Lớp phủ #scrim chuẩn scene.css khi mở trang trên nền Góc học */
@@ -2204,5 +1804,17 @@
   }
   .openBookSpread::after {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bookStageWrap,
+  .laptopScreenShell,
+  .flipNextAnim .bookPageRight,
+  .flipNextAnim .bookPageLeft,
+  .flipPrevAnim .bookPageLeft,
+  .flipPrevAnim .bookPageRight {
+    animation: none !important;
+    transition: none !important;
   }
 }

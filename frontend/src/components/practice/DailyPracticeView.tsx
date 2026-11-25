@@ -368,7 +368,7 @@ export function DailyPracticeView({
             <div className={ws.pageBodyFlow}>
               <div className={dp.codePromptCard}>
                 <div className={dp.codeEyebrow}>{cell.item.lesson_title}</div>
-                <h3 className={dp.codeTitle}>{cell.item.title}</h3>
+                <h2 className={dp.codeTitle}>{cell.item.title}</h2>
                 <p className={dp.codeDesc}>{cell.item.description}</p>
               </div>
 
@@ -650,7 +650,7 @@ export function DailyPracticeView({
         </div>
       ) : error ? (
         <div className={dp.centerStateBox}>
-          <h3 className={dp.errorHeading}>Thông báo ôn tập hằng ngày</h3>
+          <h2 className={dp.errorHeading}>Thông báo ôn tập hằng ngày</h2>
           <p className={dp.errorBody}>{error}</p>
           <button type="button" className={ws.freshDeckBtn} onClick={handleRestartSession}>
             ↻ Thử nạp lại

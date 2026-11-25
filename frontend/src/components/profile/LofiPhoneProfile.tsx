@@ -290,7 +290,7 @@ export function LofiPhoneProfile({
             </div>
             <div className={styles.userInfo}>
               <div className={styles.userRowTop}>
-                <h3 className={styles.userName}>{displayName}</h3>
+                <h2 className={styles.userName}>{displayName}</h2>
                 {!editingName && (
                   <button
                     type="button"
@@ -380,7 +380,7 @@ export function LofiPhoneProfile({
                 {progressPercent}%
               </span>
             </div>
-            <h4 className={styles.courseName}>{courseTitle}</h4>
+            <h3 className={styles.courseName}>{courseTitle}</h3>
             <p className={styles.courseLessonTitle}>
               {doneLessons === 0 ? 'Bài 1: Khởi đầu' : `Bài ${currentLessonNo}: Tiếp tục lộ trình`}
             </p>
@@ -430,7 +430,7 @@ export function LofiPhoneProfile({
                 <div className={styles.modalIcon} aria-hidden="true">
                   🔄
                 </div>
-                <h4 className={styles.modalTitle}>Học lại khoá học này?</h4>
+                <h3 className={styles.modalTitle}>Học lại khoá học này?</h3>
                 <p className={styles.modalText}>
                   Tiến độ bài học sẽ trở về 0 để bạn bắt đầu lại từ Bài 1.
                 </p>

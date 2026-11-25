@@ -100,7 +100,7 @@ export function DoorAuthView({
   };
 
   return (
-    <div className={styles.doorGatewayWrapper}>
+    <main className={styles.doorGatewayWrapper}>
       {/* Thẻ Chìa khoá / Cánh cửa vào Bàn học Lofi */}
       <div className={styles.doorCard}>
         {/* Phần đầu thẻ: Biểu tượng Chìa khoá & Tiêu đề phòng */}
@@ -405,7 +405,7 @@ export function DoorAuthView({
           </button>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 

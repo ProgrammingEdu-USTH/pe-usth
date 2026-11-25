@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Link from 'next/link';
-import { DATA } from '@/components/goc-hoc/scene-data';
 import { apiFetch, asList, findEnrollment } from '@/lib/api';
 import CURRICULA_JSON from '@/lib/curricula.json';
 import SQL_CATALOG_JSON from '@/lib/sql-catalog.json';
@@ -12,6 +11,7 @@ import {
   forgetIdeReloadCode,
   IDE_RELOAD_CODE_KEY,
 } from '@/lib/ide-handoff';
+import { shouldPrewarm } from '@/components/python-studio/prewarm-gate';
 import { PyodideRunner } from '@/components/python-studio/runner/pyodide-runner';
 import DailyPracticeView from '@/components/practice/DailyPracticeView';
 import {
@@ -68,40 +68,6 @@ export type ChillScreenType = LofiScreenType;
 
 
 const LETTERS = ['A', 'B', 'C', 'D', 'E'];
-
-/* ==========================================================================
-   THÔNG SỐ CẢNH PHÒNG HỌC GỐC TỪ GÓC HỌC (2752 × 1536)
-   ========================================================================== */
-const BULBS: [number, number][] = [
-  [1430, 112], [1012, 116], [1870, 122], [1451, 130], [1405, 138], [1031, 142],
-  [1489, 146], [1823, 150], [1884, 156], [1076, 157], [1358, 162], [1258, 168],
-  [1589, 171], [1004, 172], [1179, 172], [1544, 173], [1768, 173], [1670, 174],
-  [1313, 177], [1138, 181], [1724, 184], [1226, 191], [1638, 192], [1888, 200],
-  [988, 220],  [1866, 244], [991, 284],  [1885, 303], [1009, 320], [1869, 354],
-  [1011, 359], [1883, 399], [990, 414],  [1878, 461], [1000, 466], [988, 504],
-  [1857, 508], [1008, 557], [1881, 567], [995, 610],  [1871, 625], [995, 657],
-  [1877, 676], [1861, 714], [1007, 718], [1874, 769], [1004, 774], [1880, 806],
-  [1019, 820], [1872, 874], [1878, 913], [1894, 957], [1892, 1043], [1900, 1068],
-];
-
-const CITY_LIGHTS: [number, number, number, number][] = [
-  [1112, 722, 34, 48],
-  [1282, 990, 130, 100],
-  [1748, 902, 150, 110],
-  [1535, 920, 30, 40],
-  [1580, 745, 28, 38],
-];
-
-const STARS_POS: [number, number, number][] = [
-  [85, 42, -0.4], [164, 96, -1.8], [248, 54, -2.5], [312, 128, -0.9],
-  [448, 68, -1.3], [526, 118, -2.9], [612, 52, -0.7], [698, 104, -2.1],
-  [742, 156, -1.5], [128, 182, -3.1], [584, 192, -0.2], [280, 210, -2.4],
-];
-
-const DUST_MOTES: [number, number, number][] = [
-  [910, 980, 0], [985, 1045, -1.8], [1060, 995, -3.4], [1140, 1080, -5.1],
-  [1215, 1010, -2.2], [895, 1120, -4.6], [1095, 1150, -1.1], [1245, 1095, -6.3],
-];
 
 /* ==========================================================================
    DANH MỤC BÀI HỌC THEO KHOÁ (Python pe-da + 3 khoá SQL)
@@ -193,8 +159,6 @@ export interface StickyNoteItem {
   tip: string;
 }
 
-const ALL_META_ENTRIES = Object.entries(DATA.meta) as [string, [number, number, number, number]][];
-
 function renderInlineCode(text: string): React.ReactNode {
   if (!text.includes('`')) return text;
   const parts = text.split(/(`[^`]+`)/g);
@@ -249,8 +213,6 @@ export default function LofiWorkspace({
   const catalogLessons = useMemo(() => getCatalogLessons(activeCourseId), [activeCourseId]);
 
   const [activeScreen, setActiveScreen] = useState<LofiScreenType>(initialScreen);
-  const [roomLayout, setRoomLayout] = useState({ scale: 0.65, ox: 0, oy: 0 });
-  const [parallax, setParallax] = useState({ x: 0, y: 0 });
 
   // Tiến độ người học thật (đồng bộ giữa Backend API & state)
   const [doneLessons, setDoneLessons] = useState<number[]>([]);
@@ -364,13 +326,23 @@ export default function LofiWorkspace({
     forgetIdeReloadCode(sessionStorageOrNull());
   }, []);
 
-  // Khởi tạo PyodideRunner làm ấm ở nền để Bàn thí nghiệm luôn chạy được Python 3.12 thật
+  // Chỉ làm ấm Pyodide ở bài học Python (theo prewarm-gate.ts):
+  // - /practice đã có DailyPracticeView tự prewarm qua useCodeRunner
+  // - /ide (iframe máy tính macOS) tự nạp Pyodide bên trong iframe
+  // - 3 khoá SQL chỉ nạp lười khi học viên bấm Chạy thử SQL
+  const shouldWarmPython =
+    activeScreen === 'lesson' && !isSql && shouldPrewarm(lessonContent);
+
   useEffect(() => {
+    if (!shouldWarmPython || pyRunnerRef.current) return;
     const runner = new PyodideRunner();
     pyRunnerRef.current = runner;
     runner.prewarm();
+  }, [shouldWarmPython]);
+
+  useEffect(() => {
     return () => {
-      runner.dispose();
+      pyRunnerRef.current?.dispose();
       pyRunnerRef.current = null;
     };
   }, []);
@@ -574,37 +546,6 @@ export default function LofiWorkspace({
       alive = false;
     };
   }, [activeCourseId, lessonNo, lessonReloadKey]);
-
-  // Căn tỷ lệ khung cảnh 2752 × 1536 chuẩn theo engine.js của Góc học
-  useEffect(() => {
-    const updateLayout = () => {
-      const W = window.innerWidth;
-      const H = window.innerHeight;
-      const IW = 2752;
-      const IH = 1536;
-      const s = Math.max(W / IW, H / IH);
-      const ox = (W - IW * s) * 0.5;
-      const oy = Math.min(0, (H - IH * s) * 0.8);
-      setRoomLayout({ scale: s, ox, oy });
-    };
-    updateLayout();
-    window.addEventListener('resize', updateLayout);
-    return () => window.removeEventListener('resize', updateLayout);
-  }, []);
-
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    const vw = window.innerWidth || 1440;
-    const vh = window.innerHeight || 900;
-    const nx = (e.clientX / vw - 0.5) * 2;
-    const ny = (e.clientY / vh - 0.5) * 2;
-    setParallax({ x: -nx * 6, y: -ny * 4 });
-
-    if (shellRef.current) {
-      const rect = shellRef.current.getBoundingClientRect();
-      shellRef.current.style.setProperty('--mx', `${e.clientX - rect.left}px`);
-      shellRef.current.style.setProperty('--my', `${e.clientY - rect.top}px`);
-    }
-  };
 
   // Mở nhanh một đoạn mã từ Sách Bài học sang Laptop Bàn thí nghiệm
   const openCodeInIde = useCallback(
@@ -939,6 +880,8 @@ export default function LofiWorkspace({
               className={styles.bookFigureImg}
               src={block.src}
               alt={block.alt || 'Biểu đồ minh hoạ'}
+              loading="lazy"
+              decoding="async"
             />
             {block.alt && <span className={styles.bookFigureCaption}>{block.alt}</span>}
           </div>
@@ -1343,6 +1286,8 @@ export default function LofiWorkspace({
                 className={styles.bookFigureImg}
                 src={mainFigure.src}
                 alt={mainFigure.alt || mainFigure.caption}
+                loading="lazy"
+                decoding="async"
               />
               <span className={styles.bookFigureCaption}>{mainFigure.caption}</span>
             </div>
@@ -3148,139 +3093,18 @@ export default function LofiWorkspace({
     return <div className={styles.embeddedStage}>{stageContent}</div>;
   }
 
+  const mainHeadingText =
+    activeScreen === 'ide'
+      ? 'Bàn thí nghiệm lập trình Python'
+      : activeScreen === 'practice'
+        ? 'Ôn tập hằng ngày'
+        : `Bài ${lessonNo}: ${currentCatalog.title}`;
+
   return (
-    <div className={styles.appRoot} onPointerMove={handlePointerMove}>
-      {/* ====================================================================
-          1. BACKGROUND PHÒNG HỌC GIỐNG HỆT TRANG GÓC HỌC (shell.js & scene.css)
-          ==================================================================== */}
-      <div className={styles.cam}>
-        <div
-          className={styles.room}
-          style={{
-            transform: `translate(${roomLayout.ox}px, ${roomLayout.oy}px) scale(${roomLayout.scale})`,
-            translate: `${parallax.x}px ${parallax.y}px`,
-          }}
-        >
-          <img
-            className={styles.roomImg}
-            src="/goc-hoc/room.webp"
-            alt="Không gian Góc học"
-          />
-
-          <div className={styles.itemsLayer}>
-            {ALL_META_ENTRIES.filter(([k]) => k !== 'laptop').map(([k, [x, y, w, h]]) => (
-              <div
-                key={k}
-                className={styles.itemObj}
-                style={{ left: x, top: y, width: w, height: h }}
-              >
-                <img src={`/goc-hoc/items/${k}.webp`} alt="" />
-              </div>
-            ))}
-          </div>
-
-          <div className={styles.skyWrap} aria-hidden="true">
-            <div className={styles.skyGrad} />
-            <div className={styles.starsWrap}>
-              {STARS_POS.map(([sx, sy, dl], idx) => (
-                <i
-                  key={idx}
-                  className={styles.star}
-                  style={{ left: sx, top: sy, animationDelay: `${dl}s` }}
-                />
-              ))}
-            </div>
-            <div className={`${styles.cloudLayer} ${styles.cloudBody}`} />
-            <div className={`${styles.cloudLayer} ${styles.cloudLight}`} />
-          </div>
-
-          <div className={styles.winWrap} aria-hidden="true">
-            <div className={`${styles.sash} ${styles.sashL}`}>
-              <div className={styles.sashTex} />
-              <div className={styles.paneGlass} style={{ left: 11, top: 2, width: 368, height: 277 }} />
-              <div className={styles.paneGlass} style={{ left: 11, top: 297, width: 368, height: 316 }} />
-              <div className={styles.paneGlass} style={{ left: 11, top: 631, width: 368, height: 297 }} />
-            </div>
-            <div className={`${styles.sash} ${styles.sashR}`}>
-              <div className={styles.sashTex} />
-              <div className={styles.paneGlass} style={{ left: 23, top: 2, width: 372, height: 277 }} />
-              <div className={styles.paneGlass} style={{ left: 23, top: 297, width: 372, height: 316 }} />
-              <div className={styles.paneGlass} style={{ left: 23, top: 631, width: 372, height: 297 }} />
-            </div>
-          </div>
-
-          <img className={styles.swagImg} src="/goc-hoc/swag.png" alt="" />
-
-          <div className={styles.itemsTopLayer}>
-            <div
-              className={styles.itemObj}
-              style={{
-                left: DATA.meta.laptop[0],
-                top: DATA.meta.laptop[1],
-                width: DATA.meta.laptop[2],
-                height: DATA.meta.laptop[3],
-              }}
-            >
-              <img src="/goc-hoc/items/laptop.webp" alt="" />
-            </div>
-          </div>
-
-          <img className={styles.frontImg} src="/goc-hoc/front.webp" alt="" />
-
-          {CITY_LIGHTS.map(([cx, cy, cw, ch], idx) => (
-            <div
-              key={idx}
-              className={styles.cityLight}
-              style={{
-                left: cx - cw / 2,
-                top: cy - ch / 2,
-                width: cw,
-                height: ch,
-                animationDelay: `${-idx * 2.3}s`,
-              }}
-            />
-          ))}
-
-          <div className={styles.steamGroup}>
-            <div className={styles.wisp} style={{ left: -36, animationDelay: '0s' }} />
-            <div className={styles.wisp} style={{ left: -22, animationDelay: '1.4s' }} />
-            <div className={styles.wisp} style={{ left: -36, animationDelay: '2.8s' }} />
-            <div className={styles.wisp} style={{ left: -22, animationDelay: '4.2s' }} />
-          </div>
-
-          {DUST_MOTES.map(([mx, my, dl], idx) => (
-            <div
-              key={idx}
-              className={styles.mote}
-              style={{ left: mx, top: my, animationDelay: `${dl}s` }}
-            />
-          ))}
-
-          <div className={styles.lampPool} />
-          <div className={styles.lampHalo} />
-          {BULBS.map(([bx, by], idx) => (
-            <div key={idx} className={styles.bulb} style={{ left: bx, top: by }}>
-              <i style={{ animationDelay: `${-(idx % 7) * 0.45}s` }} />
-            </div>
-          ))}
-
-          <img className={styles.blurFull} src="/goc-hoc/room-blur.webp" alt="" />
-
-          <div className={styles.glowsLayer}>
-            {ALL_META_ENTRIES.map(([k, [x, y, w, h]]) => (
-              <div
-                key={k}
-                className={styles.glowObj}
-                style={{ left: x, top: y, width: w, height: h }}
-              >
-                <img src={`/goc-hoc/items/${k}-g.webp`} alt="" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className={styles.scrim} />
+    <div className={styles.appRoot}>
+      {/* Nền phòng Lofi mờ nhẹ (13 KB room-blur.webp) thay cho 80+ lớp ảnh bị che phía sau */}
+      <div className={styles.roomBackdrop} aria-hidden="true" />
+      <div className={styles.scrim} aria-hidden="true" />
 
       {/* ====================================================================
           2. THANH CÔNG CỤ TRÊN CÙNG GIỐNG Y HỆT GÓC HỌC (TOPBAR SCENE.CSS)
@@ -3353,7 +3177,10 @@ export default function LofiWorkspace({
       {/* ====================================================================
           3. NỘI DUNG 3 TRANG TRUNG TÂM (CHUẨN NGANG 1080PX)
           ==================================================================== */}
-      <main className={styles.stageContainer}>{stageContent}</main>
+      <main className={styles.stageContainer}>
+        <h1 className={styles.srOnly}>{mainHeadingText}</h1>
+        {stageContent}
+      </main>
     </div>
   );
 }

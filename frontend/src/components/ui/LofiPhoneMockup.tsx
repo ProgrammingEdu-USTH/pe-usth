@@ -41,6 +41,9 @@ export function LofiPhoneMockup({
         <img
           className={styles.phoneFrameImg}
           src="/goc-hoc/items/page/phone-frame.webp"
+          width={573}
+          height={1100}
+          decoding="async"
           alt=""
           aria-hidden="true"
         />

@@ -777,3 +777,15 @@
   color: #1c2540;
   text-decoration: underline;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .phoneGlow,
+  .decorParticle {
+    animation: none;
+  }
+  .btn,
+  .card,
+  .doorGuestLink {
+    transition: none;
+  }
+}

@@ -351,7 +351,7 @@ export function OnboardingSurveyView() {
 
   return (
     <div className={styles.onboardingPageWrap}>
-      <div className={styles.topBar}>
+      <header className={styles.topBar}>
         <Link href="/" className={styles.backHomeLink}>
           <LofiButton
             variant="glass"
@@ -373,17 +373,18 @@ export function OnboardingSurveyView() {
             <span aria-hidden="true">→</span>
           </button>
         )}
-      </div>
+      </header>
 
-      <div className={styles.surveyCard}>
+      <main className={styles.surveyCard}>
         {loadingQuiz ? (
           <div className={styles.gateBox}>
             <div className={styles.badgeTag}>Khảo sát định vị</div>
-            <h2 className={styles.gateTitle}>Đang tải bộ câu hỏi...</h2>
+            <h1 className={styles.gateTitle}>Đang tải bộ câu hỏi...</h1>
             <p className={styles.gateDesc}>Vui lòng đợi trong giây lát.</p>
           </div>
         ) : loadError ? (
           <div className={styles.gateBox}>
+            <h1 className={styles.srOnly}>Khảo sát định vị trình độ</h1>
             <div className={styles.errorAlert} role="alert">
               {loadError}
             </div>
@@ -401,7 +402,7 @@ export function OnboardingSurveyView() {
         ) : placement ? (
           <div className={styles.resultCard}>
             <div className={styles.badgeTag}>Kết quả định vị</div>
-            <h2 className={styles.resultTitle}>{placement.level_title}</h2>
+            <h1 className={styles.resultTitle}>{placement.level_title}</h1>
             <p className={styles.resultSubtitle}>
               {placement.skipped_all
                 ? 'Bạn đã bỏ qua toàn bộ câu hỏi nên lộ trình bắt đầu từ nền tảng M1.'
@@ -443,7 +444,7 @@ export function OnboardingSurveyView() {
 
             <div className={styles.resultRecBox}>
               <div className={styles.recLabel}>MODULE BẮT ĐẦU ĐỀ XUẤT</div>
-              <h3 className={styles.recCourseTitle}>{startModuleTitle}</h3>
+              <h2 className={styles.recCourseTitle}>{startModuleTitle}</h2>
               <p className={styles.recDesc}>
                 Bắt đầu từ <strong>Bài {placement.start_lesson_no}</strong>. Mọi bài học khác trong khoá vẫn mở tự do nếu bạn muốn xem lại hoặc học nhảy chặng.
               </p>
@@ -614,9 +615,9 @@ export function OnboardingSurveyView() {
             {currentSlide.kind === 'profile' ? (
               <>
                 <div className={styles.topicLabel}>HỒ SƠ HỌC TẬP (TUỲ CHỌN)</div>
-                <h2 className={styles.questionText}>
+                <h1 className={styles.questionText}>
                   Chia sẻ nhanh nền tảng hiện tại để hệ thống tạo lộ trình phù hợp
-                </h2>
+                </h1>
 
                 <div className={styles.surveyFields}>
                   <div className={styles.fieldGroup}>
@@ -691,7 +692,7 @@ export function OnboardingSurveyView() {
                 return (
                   <>
                     <div className={styles.topicLabel}>TỰ ĐÁNH GIÁ · {sa.module_code}</div>
-                    <h2 className={styles.questionText}>{sa.question}</h2>
+                    <h1 className={styles.questionText}>{sa.question}</h1>
                     <div className={styles.optionsList}>
                       {sa.options.map((opt, optIdx) => {
                         const isSelected = picked === optIdx;
@@ -729,7 +730,7 @@ export function OnboardingSurveyView() {
                       KIỂM TRA NHANH · {it.module_code}
                       {it.level ? ` · ${it.level}` : ''}
                     </div>
-                    <h2 className={styles.questionText}>{it.question}</h2>
+                    <h1 className={styles.questionText}>{it.question}</h1>
                     {it.code && (
                       <div className={styles.codeBox}>
                         <pre className={styles.codePre}>{it.code}</pre>
@@ -801,7 +802,7 @@ export function OnboardingSurveyView() {
             </div>
           </>
         ) : null}
-      </div>
+      </main>
     </div>
   );
 }

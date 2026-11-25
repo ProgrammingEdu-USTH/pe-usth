@@ -1,3 +1,51 @@
+.profilePageWrap {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 16px;
+  box-sizing: border-box;
+  background-image: linear-gradient(rgba(248, 240, 252, 0.35), rgba(225, 215, 240, 0.5)), url(/goc-hoc/room-blur.webp);
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+.backBtnWrap {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+}
+
+.backLink {
+  text-decoration: none;
+}
+
+.backBtnWrap .backBtn {
+  background: rgba(255, 255, 255, 0.85);
+  color: #1c2540;
+  border-color: rgba(214, 226, 244, 0.8);
+  box-shadow: 0 4px 14px rgba(30, 50, 90, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .profileWrapper {
   width: 100%;
   height: 100%;
@@ -496,4 +544,11 @@
 @keyframes popUp {
   from { transform: scale(0.92); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modalOverlay,
+  .modalCard {
+    animation: none;
+  }
 }

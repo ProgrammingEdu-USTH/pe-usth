@@ -65,35 +65,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             để trống. SHA là thông tin đã công khai trong repo, không phải bí
             mật. `scripts/check-da-deploy.mjs` đọc đúng thẻ này. */}
         <meta name="pe-build" content={BUILD_SHA} />
-        {/* ── RÚT NGẮN ĐƯỜNG TẢI FONT ──────────────────────────────────────
-            edu-theme.css dòng 14 nạp Montserrat bằng `@import url(fonts.
-            googleapis.com/...&display=swap)`. @import nằm BÊN TRONG một file
-            tải qua <link>, nên trình duyệt chỉ biết tới nó sau khi đã tải và
-            phân tích xong edu-theme.css: chuỗi phụ thuộc là HTML → edu-theme
-            .css → CSS của Google Fonts → file .woff2. Với `display=swap`, chữ
-            vẽ bằng font dự phòng trước rồi mới nhảy sang Montserrat — mỗi nhịp
-            chậm trong chuỗi đó là một nhịp dịch bố cục (CLS).
-
-            preconnect: dựng sẵn DNS + TLS cho hai origin của Google Fonts.
-            preload as=style: nổ phát yêu cầu file CSS của font NGAY khi phân
-            tích HTML, song song với edu-theme.css thay vì phải chờ nó — lúc
-            @import chạy tới thì đã có trong cache.
-
-            Cả hai chỉ là gợi ý tải trước, KHÔNG áp style nào, nên không đổi
-            giao diện. Sửa tận gốc (bỏ @import, đưa <link> font vào thẳng đây)
-            phải sửa edu-theme.css — ngoài phạm vi lần này. */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        {/* no-page-custom-font là luật của Pages Router ("phải đặt trong
-            pages/_document.js"). App Router thì layout gốc CHÍNH LÀ chỗ dùng
-            chung cho mọi trang — đúng điều luật đòi — nên ở đây nó báo oan
-            (7 chỗ khác trong repo cũng đang chịu cảnh báo này). */}
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          rel="preload"
-          as="style"
-          href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Montserrat:wght@400;500;600;700;800&display=swap"
-        />
         {/* Origin backend cho pe-bridge.js — phải có TRƯỚC mọi script legacy */}
         <script
           dangerouslySetInnerHTML={{

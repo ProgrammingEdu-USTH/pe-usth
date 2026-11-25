@@ -32,9 +32,7 @@ type BookMotionState = {
 function HoverPreviewCard({ course }: { course: BookshelfCourse }) {
   const doneCount = useBookshelfProgress(course).completedNos.length;
   const progressText =
-    doneCount > 0
-      ? `Đã học ${doneCount}/${course.lessonCount} bài`
-      : course.statusNote || 'Sẵn sàng bắt đầu';
+    doneCount > 0 ? `Đã học ${doneCount}/${course.lessonCount} bài` : 'Sẵn sàng bắt đầu';
 
   return (
     <div className={styles.hoverPreviewCard} data-course={course.slug} role="status">
@@ -45,9 +43,6 @@ function HoverPreviewCard({ course }: { course: BookshelfCourse }) {
         <div>
           <div className={styles.hoverPreviewTitleRow}>
             <strong className={styles.hoverPreviewTitle}>{course.title}</strong>
-            {course.statusNote && (
-              <span className={styles.statusChip}>{course.statusNote}</span>
-            )}
           </div>
           <div className={styles.colorNoteRow}>
             <span className={styles.dotPrimary} aria-hidden="true" />
@@ -124,10 +119,17 @@ export function BookshelfCabinet({ inStudyRoom = false }: BookshelfCabinetProps)
   const router = useRouter();
   const pyDone = useBookshelfProgress(findBookshelfCourse('python')).completedNos.length;
   const sqlDone = useBookshelfProgress(findBookshelfCourse('sql')).completedNos.length;
+  const advDone = useBookshelfProgress(findBookshelfCourse('database-advanced')).completedNos.length;
+  const mlDone = useBookshelfProgress(findBookshelfCourse('machine-learning')).completedNos.length;
   const doneRef = useRef<Partial<Record<BookshelfSlug, number>>>({});
   useEffect(() => {
-    doneRef.current = { python: pyDone, sql: sqlDone };
-  }, [pyDone, sqlDone]);
+    doneRef.current = {
+      python: pyDone,
+      sql: sqlDone,
+      'database-advanced': advDone,
+      'machine-learning': mlDone,
+    };
+  }, [pyDone, sqlDone, advDone, mlDone]);
   const cabinetRef = useRef<HTMLDivElement>(null);
   const [hoveredSlug, setHoveredSlug] = useState<BookshelfSlug | null>(null);
   const [bookMotion, setBookMotion] = useState<BookMotionState | null>(null);
@@ -314,7 +316,7 @@ export function BookshelfCabinet({ inStudyRoom = false }: BookshelfCabinetProps)
               {hoveredCourse?.shelfTier === 'new' ? (
                 <HoverPreviewCard course={hoveredCourse} />
               ) : (
-                <p className={styles.tierHint}>Chọn SQL hoặc Machine Learning để xem thử</p>
+                <p className={styles.tierHint}>Chọn một cuốn sách mới để xem thử</p>
               )}
             </div>
           </div>

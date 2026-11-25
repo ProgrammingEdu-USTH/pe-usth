@@ -369,6 +369,9 @@ jobs:
 
       - run: python scripts/pe-da/check.py --strict
 
+      # Ba khoá tĩnh: tệp đã commit dưới frontend/public/static/courses phải đúng là bản dựng từ nguồn.
+      - run: python scripts/pe-doc/build.py --check
+
       # VĂN PHONG — chế độ RATCHET, không phải bản tuyệt đối.
       #
       # LOOP.md bậc 4 đã đòi "không luật nào được TĂNG" từ lâu, nhưng mốc từng

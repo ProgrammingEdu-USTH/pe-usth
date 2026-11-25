@@ -43,7 +43,6 @@ export function BookSpreadStage({
               <h2 className={styles.spreadTitle}>{course.title}</h2>
               <div className={styles.spreadSubMeta}>
                 Khoá học · {course.stageCount} chặng
-                {course.statusNote ? ` · ${course.statusNote}` : ''}
               </div>
             </div>
           </div>
@@ -62,6 +61,18 @@ export function BookSpreadStage({
               </li>
             ))}
           </ul>
+
+          {course.extras && (
+            <ul className={styles.extraLinks} aria-label="Trang học thêm">
+              {course.extras.map((extra) => (
+                <li key={extra.href}>
+                  <a href={extra.href} className={styles.extraLink}>
+                    {extra.label} →
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
 
           <div className={styles.statTiles}>
             <div className={styles.statTile}>
@@ -137,7 +148,8 @@ export function BookSpreadStage({
                       <div>
                         <h3 className={styles.stageCardName}>{stage.title}</h3>
                         <p className={styles.stageCardMeta}>
-                          {stage.lessons.length} bài · {stage.estimatedHoursLabel}
+                          {stage.lessons.length} bài
+                          {stage.estimatedHoursLabel ? ` · ${stage.estimatedHoursLabel}` : ''}
                         </p>
                       </div>
                     </div>

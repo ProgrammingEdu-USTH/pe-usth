@@ -105,6 +105,7 @@ export default function SandboxScreen({
       metaLabel={metaLabel}
       title={four?.task?.title || 'Thử thách độc lập'}
       description={paragraphs(four?.task?.body)}
+      layout="split"
     >
       {four?.env && <div className={`${c.note} ${c.noteWarn}`}>{four.env}</div>}
       {boss ? (

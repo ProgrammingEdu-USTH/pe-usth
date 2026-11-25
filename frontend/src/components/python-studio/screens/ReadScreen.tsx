@@ -20,7 +20,8 @@ import CodeBlock from '@/components/lesson-chrome/exercises/CodeBlock';
 import CopyCodeButton from '@/components/lesson-chrome/exercises/CopyCodeButton';
 import TryItButton from '@/components/lesson-chrome/TryItButton';
 import { ghiSuKien } from '@/lib/learning-events';
-import { toCodeLines } from '@/lib/py-highlight';
+import { codeName, toCodeLines } from '@/lib/py-highlight';
+import { withRichText } from '@/lib/rich-text';
 import {
   doanDuocHinh,
   doanDuocOutput,
@@ -243,6 +244,10 @@ function Block({
 }) {
   switch (block.type) {
     case 'paragraph':
+      // Khoá Python: văn bản thường kèm `code`. Khoá tĩnh (`rich`): thêm đậm,
+      // liên kết và tiêu đề mục.
+      if (block.heading) return <h3>{withRichText(block.text)}</h3>;
+      if (block.rich) return <p>{withRichText(block.text)}</p>;
       return <p>{paragraphs(block.text)}</p>;
 
     case 'code':
@@ -250,10 +255,10 @@ function Block({
         <>
           <div className={c.readCode}>
             <CodeBlock
-              filename="python"
+              filename={codeName(block.lang)}
               langTag="ví dụ trong bài"
               action={<CopyCodeButton code={block.code} />}
-              lines={toCodeLines(block.code)}
+              lines={toCodeLines(block.code, undefined, block.lang)}
             />
           </div>
           {/* Khối ĐỦ ĐIỀU KIỆN thì output nằm SAU một cổng dự đoán; khối không
@@ -455,7 +460,7 @@ export default function ReadScreen({ lesson, scr, metaLabel, draft, update }: Pr
           : lesson.step_1?.heading || 'Bài đọc'
       }
     >
-      <div className={c.read}>
+      <div className={c.read} data-gh-flow="">
         {blocks.map((block, i) => (
           <Block
             key={i}

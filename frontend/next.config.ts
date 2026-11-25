@@ -88,6 +88,8 @@ const nextConfig: NextConfig = {
     return [
       { source: "/courses/python_advanced", destination: "/bookshelf/python", permanent: false },
       { source: "/courses/db_design", destination: "/bookshelf/sql", permanent: false },
+      { source: "/courses/db_design_tc", destination: "/bookshelf/sql", permanent: false },
+      { source: "/courses/db_design_nc", destination: "/bookshelf/sql", permanent: false },
     ];
   },
   async headers() {
@@ -112,6 +114,20 @@ const nextConfig: NextConfig = {
         // Worker Python của máy tính Góc học cũng chạy mã học viên.
         source: "/goc-hoc/may-tinh/py-worker.js",
         headers: [{ key: "Content-Security-Policy", value: workerCsp }],
+      },
+      {
+        // Hai bài tương tác của Machine Learning là trang HTML tự chứa, có
+        // script riêng và không cần gì của trang chủ. `sandbox` không kèm
+        // allow-same-origin: script của chúng chạy ở nguồn rỗng, không đọc được
+        // token hay gọi API bằng phiên của người học. Đứng SAU "/(.*)" để thắng.
+        source: "/static/courses/machine_learning/interactive/:file*.html",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value:
+              "sandbox allow-scripts allow-popups; default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'",
+          },
+        ],
       },
       {
         // Runtime Pyodide (~32 MB: wasm + stdlib + wheel numpy/pandas/matplotlib)

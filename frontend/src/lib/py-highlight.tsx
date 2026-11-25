@@ -44,14 +44,58 @@ export function highlightPython(line: string): React.ReactNode {
   return out;
 }
 
+const SQL_KEYWORDS = new Set(
+  (
+    'add all alter and any as asc begin between by case cast check column commit constraint create ' +
+    'cross declare default delete desc distinct drop else end except exists false for foreign from ' +
+    'full function grant group having if in index inner insert intersect into is join key left like ' +
+    'limit not null offset on or order outer over partition primary procedure references return ' +
+    'returns revoke right rollback row rows select set table then to transaction trigger true union ' +
+    'unique update using values view when where with'
+  ).split(' '),
+);
+
+const SQL_TOKEN = /(--[^\n]*|'(?:''|[^'])*'|"[^"]*"|\b\d+(?:\.\d+)?\b|\b[A-Za-z_]\w*\b)/g;
+
+function highlightSql(line: string): React.ReactNode {
+  if (!line) return '';
+  const out: React.ReactNode[] = [];
+  let last = 0;
+  let key = 0;
+  for (const match of line.matchAll(SQL_TOKEN)) {
+    const text = match[0];
+    const at = match.index ?? 0;
+    if (at > last) out.push(line.slice(last, at));
+    last = at + text.length;
+    if (text.startsWith('--')) out.push(<span key={key++} className="cm">{text}</span>);
+    else if (text[0] === "'") out.push(<span key={key++} className="str">{text}</span>);
+    else if (/^\d/.test(text)) out.push(<span key={key++} className="num">{text}</span>);
+    else if (SQL_KEYWORDS.has(text.toLowerCase()))
+      out.push(<span key={key++} className="kw">{text}</span>);
+    else out.push(text);
+  }
+  if (last < line.length) out.push(line.slice(last));
+  return out;
+}
+
+/** Tên hiện trên đầu khối mã. `lang` vắng là khoá Python. */
+export function codeName(lang?: string): string {
+  if (!lang) return 'python';
+  return lang === 'text' ? 'ghi chép' : lang;
+}
+
 /** Chuỗi mã -> danh sách dòng đánh số cho CodeBlock. */
 export function toCodeLines(
   source: string,
   highlightLine?: number,
+  lang = 'python',
 ): { num: number; content: React.ReactNode; highlighted?: boolean }[] {
+  // Ngôn ngữ chưa có bộ tô màu thì để trần: tô SQL bằng luật Python là tô sai.
+  const paint =
+    lang === 'python' ? highlightPython : lang === 'sql' ? highlightSql : (line: string) => line;
   return source.replace(/\s+$/, '').split('\n').map((line, i) => ({
     num: i + 1,
-    content: highlightPython(line),
+    content: paint(line),
     highlighted: highlightLine === i + 1,
   }));
 }

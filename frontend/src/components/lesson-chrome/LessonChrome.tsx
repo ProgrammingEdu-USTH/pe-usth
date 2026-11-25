@@ -16,7 +16,8 @@ export interface LessonChromeProps {
   /** Bước hiện tại, 1-based. */
   step: number;
   totalSteps: number;
-  streak: number;
+  /** Vắng ở khoá không có tài khoản: không có chuỗi ngày nào để hiện. */
+  streak?: number;
   /** Điểm trong bài (khoá có mini-game). Không truyền thì không hiện ô điểm. */
   points?: number;
   courseLabel?: string;
@@ -73,16 +74,6 @@ export interface LessonChromeProps {
    */
   wide?: boolean;
   children: React.ReactNode;
-}
-
-/** Cắt dãy 1..tổng thành các phần theo mốc mở đầu (xem `mocPhan`). */
-function chiaPhan(tong: number, moc: number[] = []): number[][] {
-  const phan: number[][] = [];
-  for (let n = 1; n <= tong; n += 1) {
-    if (n === 1 || moc.includes(n)) phan.push([]);
-    phan[phan.length - 1].push(n);
-  }
-  return phan;
 }
 
 export default function LessonChrome({
@@ -192,14 +183,16 @@ export default function LessonChrome({
             </div>
           )}
 
-          <div
-            className={styles.streakPill}
-            style={points !== undefined ? { marginLeft: 0 } : undefined}
-            title={`Chuỗi ${streak} ngày học liên tiếp`}
-          >
-            <span aria-hidden="true">🔥</span>
-            <span>{streak}</span>
-          </div>
+          {streak !== undefined && (
+            <div
+              className={styles.streakPill}
+              style={points !== undefined ? { marginLeft: 0 } : undefined}
+              title={`Chuỗi ${streak} ngày học liên tiếp`}
+            >
+              <span aria-hidden="true">🔥</span>
+              <span>{streak}</span>
+            </div>
+          )}
 
           {/* Chọn giao diện + sáng/tối. Nằm ngoài dòng chảy (xem `.themeSlot`):
               dưới 861px không còn pixel nào trống trên thanh này. */}
@@ -210,38 +203,6 @@ export default function LessonChrome({
       </header>
 
       <main className={styles.main} data-gh-spread={wide ? 'wide' : ''}>
-        {/* Trang trái của cuốn sách: mục lục các trang trong bài. Chỉ hiện ở màn
-            rộng của giao diện mặc định (goc-hoc-lesson.css); thanh tiến độ phía
-            trên vẫn là đường chính ở mọi khổ. */}
-        {!wide && (
-          <aside data-gh-outline="" aria-label="Mục lục bài học">
-            <p data-gh-eyebrow="">Mục lục bài</p>
-            <h2>{courseLabel}</h2>
-            <p>
-              Trang {step}/{totalSteps}
-            </p>
-            {chiaPhan(totalSteps, mocPhan).map((phan, i, ds) => (
-              <div key={phan[0]}>
-                {ds.length > 1 && <p data-gh-eyebrow="">Phần {i + 1}</p>}
-                <div data-gh-grid="">
-                  {phan.map((idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      aria-label={`Mở trang ${idx} trong mục lục`}
-                      aria-current={idx === step ? 'step' : undefined}
-                      data-done={doneSteps?.[idx - 1] ? '' : undefined}
-                      disabled={!onSeek || idx > (seekMax ?? step)}
-                      onClick={() => onSeek?.(idx)}
-                    >
-                      {idx}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </aside>
-        )}
         <div
           className={wide ? `${styles.contentContainer} ${styles.contentWide}` : styles.contentContainer}
           data-gh-page=""
@@ -250,6 +211,14 @@ export default function LessonChrome({
           <div key={step} className={styles.stepEnter}>
             {children}
           </div>
+          {/* Số trang của cuốn sách (goc-hoc-lesson.css): mỗi màn là một lần mở,
+              hai trang. Chỉ để nhìn — vị trí trong bài đã đọc được ở thanh trên. */}
+          <span data-gh-folio="trai" aria-hidden="true">
+            {step * 2 - 1}
+          </span>
+          <span data-gh-folio="phai" aria-hidden="true">
+            {step * 2}
+          </span>
         </div>
       </main>
 

@@ -1,0 +1,5879 @@
+{
+  "title": "Database Advanced · Sau85 bàiPE",
+  "date": "2026-11-05",
+  "scope": "Advancedcontinuation, paidcourse, alllearnerpracticeweb; fourhandoffartifacts, notproductiondeployment.",
+  "baseline": "MySQL8.4/InnoDB; otherengines explicitlyversionedwhenneeded",
+  "modules": [
+    {
+      "id": "AM01",
+      "title": "Lập luận truy vấn",
+      "lessonIds": [
+        "AD01",
+        "AD02",
+        "AD10",
+        "AD61",
+        "AD67"
+      ]
+    },
+    {
+      "id": "AM02",
+      "title": "Thiết kế và chứng minh",
+      "lessonIds": [
+        "AD03",
+        "AD04",
+        "AD05",
+        "AD06",
+        "AD07",
+        "AD08",
+        "AD09"
+      ]
+    },
+    {
+      "id": "AM03",
+      "title": "Ứng dụng và dữ liệu mở rộng",
+      "lessonIds": [
+        "AD11",
+        "AD12",
+        "AD13",
+        "AD14",
+        "AD15",
+        "AD16",
+        "AD17",
+        "AD68",
+        "AD69",
+        "AD85"
+      ]
+    },
+    {
+      "id": "AM04",
+      "title": "Phân tích và xử lý dữ liệu",
+      "lessonIds": [
+        "AD18",
+        "AD19",
+        "AD20",
+        "AD21",
+        "AD22",
+        "AD70",
+        "AD71",
+        "AD72",
+        "AD73"
+      ]
+    },
+    {
+      "id": "AM05",
+      "title": "Storage và indexes",
+      "lessonIds": [
+        "AD23",
+        "AD24",
+        "AD25",
+        "AD26",
+        "AD27",
+        "AD28",
+        "AD29",
+        "AD30",
+        "AD31",
+        "AD74",
+        "AD75"
+      ]
+    },
+    {
+      "id": "AM06",
+      "title": "Query execution và optimization",
+      "lessonIds": [
+        "AD32",
+        "AD33",
+        "AD34",
+        "AD35",
+        "AD36",
+        "AD37",
+        "AD76",
+        "AD77",
+        "AD78"
+      ]
+    },
+    {
+      "id": "AM07",
+      "title": "Transactions và recovery",
+      "lessonIds": [
+        "AD38",
+        "AD39",
+        "AD40",
+        "AD41",
+        "AD42",
+        "AD43",
+        "AD44",
+        "AD45",
+        "AD63"
+      ]
+    },
+    {
+      "id": "AM08",
+      "title": "Hệ phân tán",
+      "lessonIds": [
+        "AD46",
+        "AD47",
+        "AD48",
+        "AD49",
+        "AD50",
+        "AD51",
+        "AD52",
+        "AD62",
+        "AD64",
+        "AD65",
+        "AD66",
+        "AD79",
+        "AD80"
+      ]
+    },
+    {
+      "id": "AM09",
+      "title": "Vận hành và tích hợp",
+      "lessonIds": [
+        "AD53",
+        "AD54",
+        "AD81",
+        "AD82"
+      ]
+    },
+    {
+      "id": "AM10",
+      "title": "PostgreSQL chuyên sâu",
+      "lessonIds": [
+        "AD55",
+        "AD56",
+        "AD57",
+        "AD58",
+        "AD83",
+        "AD84"
+      ]
+    },
+    {
+      "id": "AM11",
+      "title": "Project và tổng hợp",
+      "lessonIds": [
+        "AD59",
+        "AD60"
+      ]
+    }
+  ],
+  "recommendedTopologicalOrder": [
+    "AD01",
+    "AD02",
+    "AD03",
+    "AD04",
+    "AD05",
+    "AD06",
+    "AD07",
+    "AD08",
+    "AD09",
+    "AD10",
+    "AD11",
+    "AD12",
+    "AD13",
+    "AD14",
+    "AD15",
+    "AD16",
+    "AD17",
+    "AD18",
+    "AD19",
+    "AD20",
+    "AD21",
+    "AD22",
+    "AD23",
+    "AD24",
+    "AD25",
+    "AD26",
+    "AD27",
+    "AD28",
+    "AD29",
+    "AD30",
+    "AD31",
+    "AD32",
+    "AD33",
+    "AD34",
+    "AD35",
+    "AD36",
+    "AD37",
+    "AD38",
+    "AD39",
+    "AD40",
+    "AD41",
+    "AD42",
+    "AD43",
+    "AD44",
+    "AD45",
+    "AD46",
+    "AD47",
+    "AD48",
+    "AD49",
+    "AD50",
+    "AD51",
+    "AD52",
+    "AD53",
+    "AD54",
+    "AD55",
+    "AD56",
+    "AD57",
+    "AD58",
+    "AD59",
+    "AD60",
+    "AD61",
+    "AD62",
+    "AD63",
+    "AD64",
+    "AD65",
+    "AD66",
+    "AD67",
+    "AD68",
+    "AD69",
+    "AD70",
+    "AD71",
+    "AD72",
+    "AD73",
+    "AD74",
+    "AD75",
+    "AD76",
+    "AD77",
+    "AD78",
+    "AD79",
+    "AD80",
+    "AD81",
+    "AD82",
+    "AD83",
+    "AD84",
+    "AD85"
+  ],
+  "lessons": [
+    {
+      "id": "AD01",
+      "title": "Hợp đồng kết quả và tính đúng ngữ nghĩa SQL",
+      "module": "Lập luận truy vấn",
+      "before": [
+        "C02",
+        "S05",
+        "S07",
+        "S09",
+        "S11"
+      ],
+      "bookPrefixes": [
+        "2",
+        "3",
+        "4"
+      ],
+      "activityFormats": [
+        "counterexample",
+        "debug",
+        "sql"
+      ],
+      "webEnvironment": "mysql",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "C02",
+        "S05",
+        "S07",
+        "S09",
+        "S11"
+      ],
+      "newPrereqs": [],
+      "focus": "Tạo phản ví dụ cho NULL/bag/ties và outer-join rewrite; Chứng minh điều kiện đủ của một rewrite; tách quy tắc logic và plan vật lý",
+      "algorithmProofTargets": [
+        "Tạo phản ví dụ cho NULL/bag/ties và outer-join rewrite",
+        "Chứng minh điều kiện đủ của một rewrite; tách quy tắc logic và plan vật lý"
+      ],
+      "exampleTargets": [
+        "Ba customer có0,1,2paid orders: ON/WHERE/filter/COUNT tạo những multiset nào.",
+        "NOT IN trả UNKNOWN khi subquery cóNULL; thêm UNIQUE/NOTNULL rồi chứng minh rewrite anti-join hợp lệ."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "2.1",
+        "2.2",
+        "2.3",
+        "2.4",
+        "2.5",
+        "2.6",
+        "2.6.1",
+        "2.6.2",
+        "2.6.3",
+        "2.6.4",
+        "2.6.5",
+        "2.6.6",
+        "2.6.7",
+        "2.6.8",
+        "2.6.9",
+        "3.1",
+        "3.2",
+        "3.2.1",
+        "3.2.2",
+        "3.3",
+        "3.3.1",
+        "3.3.2",
+        "3.4",
+        "3.4.1",
+        "3.4.2",
+        "3.4.3",
+        "3.4.4",
+        "3.4.5",
+        "3.5",
+        "3.5.1",
+        "3.5.2",
+        "3.5.3",
+        "3.6",
+        "3.9",
+        "3.9.1",
+        "3.9.2",
+        "3.9.3",
+        "4.1",
+        "4.1.1",
+        "4.1.2",
+        "4.1.3",
+        "4.1.4",
+        "4.2",
+        "4.2.1",
+        "4.2.2",
+        "4.2.3",
+        "4.2.4",
+        "4.3",
+        "4.6"
+      ],
+      "repoActivityIds": [
+        "REPO-E01",
+        "REPO-C01"
+      ],
+      "path": "lessons/AD01.md",
+      "baselinePaths": {
+        "C02": "baseline/lessons/C02.md",
+        "S05": "baseline/lessons/S05.md",
+        "S07": "baseline/lessons/S07.md",
+        "S09": "baseline/lessons/S09.md",
+        "S11": "baseline/lessons/S11.md"
+      }
+    },
+    {
+      "id": "AD02",
+      "title": "Tuple/domain calculus: diễn đạt, safety và tương đương",
+      "module": "Lập luận truy vấn",
+      "before": [
+        "C03",
+        "C04",
+        "M02"
+      ],
+      "bookPrefixes": [
+        "27.1",
+        "27.2",
+        "27.3"
+      ],
+      "activityFormats": [
+        "proof",
+        "translation",
+        "counterexample"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "C03",
+        "C04",
+        "M02"
+      ],
+      "newPrereqs": [],
+      "focus": "Dịch công thức có lượng từ và domain independence; Chỉ ra truy vấn không safe và sửa miền giá trị",
+      "algorithmProofTargets": [
+        "Dịch công thức có lượng từ và domain independence",
+        "Chỉ ra truy vấn không safe và sửa miền giá trị"
+      ],
+      "exampleTargets": [
+        "R(A,B)={(1,2),(2,3)},S(B)={(2)}: dịch exists và forall sang calculus/SQL.",
+        "{t | NOT R(t)} phụ thuộc miền; mở miền từ{1,2} sang{1,2,3} làm lộ truy vấn khôngsafe."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "27.1",
+        "27.1.1",
+        "27.1.2",
+        "27.1.3",
+        "27.2",
+        "27.2.1",
+        "27.2.2",
+        "27.2.3",
+        "27.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD02.md",
+      "baselinePaths": {
+        "C03": "baseline/lessons/C03.md",
+        "C04": "baseline/lessons/C04.md",
+        "M02": "baseline/lessons/M02.md"
+      }
+    },
+    {
+      "id": "AD03",
+      "title": "Armstrong, closure và chứng minh thuật toán",
+      "module": "Thiết kế và chứng minh",
+      "before": [
+        "D04",
+        "M04"
+      ],
+      "bookPrefixes": [
+        "7.4.1",
+        "7.4.2",
+        "7.4"
+      ],
+      "activityFormats": [
+        "trace",
+        "proof",
+        "debug"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": true,
+      "oldPrereqs": [
+        "D04",
+        "M04"
+      ],
+      "newPrereqs": [],
+      "focus": "Chứng minh soundness từng quy tắc; phân biệt completeness của hệ quy tắc; Pseudocode closure, bất biến, dừng và chứng minh sound/complete cho closure",
+      "algorithmProofTargets": [
+        "Chứng minh soundness từng quy tắc; phân biệt completeness của hệ quy tắc",
+        "Pseudocode closure, bất biến, dừng và chứng minh sound/complete cho closure"
+      ],
+      "exampleTargets": [
+        "R(A,B,C,D,E),F={AB→C,C→D,D→E}: traceAB+ bằng fixpoint và chứng minh invariant.",
+        "F={AC→D},startA: thuật toán sai dùng giao thay subset tạoD; dựng hai tuple bác bỏ."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "7.4",
+        "7.4.1",
+        "7.4.2"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD03.md",
+      "baselinePaths": {
+        "D04": "baseline/lessons/D04.md",
+        "M04": "baseline/lessons/M04.md"
+      }
+    },
+    {
+      "id": "AD04",
+      "title": "Canonical cover, khóa ứng viên và dependency preservation",
+      "module": "Thiết kế và chứng minh",
+      "before": [
+        "AD03"
+      ],
+      "bookPrefixes": [
+        "7.4.3",
+        "7.4.4"
+      ],
+      "activityFormats": [
+        "proof",
+        "algorithm",
+        "counterexample"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [],
+      "newPrereqs": [
+        "AD03"
+      ],
+      "focus": "Tìm thuộc tính thừa ở hai vế đúng phép thử; giữ equivalence; Tìm mọi minimal key và thuật toán kiểm bảo toàn phụ thuộc",
+      "algorithmProofTargets": [
+        "Tìm thuộc tính thừa ở hai vế đúng phép thử; giữ equivalence",
+        "Tìm mọi minimal key và thuật toán kiểm bảo toàn phụ thuộc"
+      ],
+      "exampleTargets": [
+        "F={A→BC,B→C,AB→D,D→E}: rút canonical cover và kiểm từng bước equivalence.",
+        "R(A,B,C,D),F={A→B,B→A,C→D}: tìm đủAC,BC và bác heuristic loại mọi thuộc tínhRHS."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "7.4.3",
+        "7.4.4"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD04.md",
+      "baselinePaths": {}
+    },
+    {
+      "id": "AD05",
+      "title": "BCNF decomposition: lossless và điều kiện dừng",
+      "module": "Thiết kế và chứng minh",
+      "before": [
+        "AD04",
+        "D06"
+      ],
+      "bookPrefixes": [
+        "7.1",
+        "7.2",
+        "7.3",
+        "7.5.1",
+        "7.5"
+      ],
+      "activityFormats": [
+        "trace",
+        "proof",
+        "design"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": true,
+      "oldPrereqs": [
+        "D06"
+      ],
+      "newPrereqs": [
+        "AD04"
+      ],
+      "focus": "Thuật toán BCNF có FD chiếu; termination và lossless invariant; Phân biệt lossless với preservation bằng instance/FD counterexample",
+      "algorithmProofTargets": [
+        "Thuật toán BCNF có FD chiếu; termination và lossless invariant",
+        "Phân biệt lossless với preservation bằng instance/FD counterexample"
+      ],
+      "exampleTargets": [
+        "R(A,B,C),F={A→B}: táchAB,AC, dùnggiaoA chứng minh lossless.",
+        "R(A,B,C),F={AB→C,C→B}: BCNFtáchBC,AC làm mất bảo toànAB→C; trace projection chính xác."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "7.1",
+        "7.1.1",
+        "7.1.2",
+        "7.1.3",
+        "7.2",
+        "7.2.1",
+        "7.2.2",
+        "7.2.3",
+        "7.3",
+        "7.3.1",
+        "7.3.1.1",
+        "7.3.1.2",
+        "7.3.2",
+        "7.3.3",
+        "7.3.4",
+        "7.5",
+        "7.5.1",
+        "7.5.1.1",
+        "7.5.1.2"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD05.md",
+      "baselinePaths": {
+        "D06": "baseline/lessons/D06.md"
+      }
+    },
+    {
+      "id": "AD06",
+      "title": "3NF synthesis và chứng minh tính đúng",
+      "module": "Thiết kế và chứng minh",
+      "before": [
+        "AD04",
+        "AD05"
+      ],
+      "bookPrefixes": [
+        "7.5.2",
+        "7.5.3"
+      ],
+      "activityFormats": [
+        "proof",
+        "algorithm",
+        "design"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": true,
+      "oldPrereqs": [],
+      "newPrereqs": [
+        "AD04",
+        "AD05"
+      ],
+      "focus": "Synthesis từ canonical cover và bước thêm candidate-key relation; Chứng minh 3NF, dependency preservation và lossless theo giả định nguồn",
+      "algorithmProofTargets": [
+        "Synthesis từ canonical cover và bước thêm candidate-key relation",
+        "Chứng minh 3NF, dependency preservation và lossless theo giả định nguồn"
+      ],
+      "exampleTargets": [
+        "R(A,B,C,D),F={A→B,B→C}: synthesisAB,BC rồi thêmAD vì cácrelation chưa chứa key.",
+        "Cover{A→B,B→A,C→D} choAB,CD: thêmAC hoặcBC, so những kết quả 3NF khác nhau nhưng cùng hợp đồng."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "7.5.2",
+        "7.5.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD06.md",
+      "baselinePaths": {}
+    },
+    {
+      "id": "AD07",
+      "title": "MVD, suy diễn và thuật toán 4NF",
+      "module": "Thiết kế và chứng minh",
+      "before": [
+        "AD05"
+      ],
+      "bookPrefixes": [
+        "7.6",
+        "28.1"
+      ],
+      "activityFormats": [
+        "counterexample",
+        "proof",
+        "trace"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [],
+      "newPrereqs": [
+        "AD05"
+      ],
+      "focus": "Định nghĩa bằng tuple-swapping và suy diễn soundness; 4NF decomposition, điều kiện lossless và preservation giới hạn",
+      "algorithmProofTargets": [
+        "Định nghĩa bằng tuple-swapping và suy diễn soundness",
+        "4NF decomposition, điều kiện lossless và preservation giới hạn"
+      ],
+      "exampleTargets": [
+        "R(Student,Hobby,Language),Student→→Hobby: bốn tuple là tích haihobby/hai language.",
+        "Ba tuple thiếu một tổ hợp: chiếu rồi join tạo tuple mới, chứng minh instance vi phạmMVD."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "7.6",
+        "7.6.1",
+        "7.6.2",
+        "7.6.3",
+        "28.1",
+        "28.1.1",
+        "28.1.2"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD07.md",
+      "baselinePaths": {}
+    },
+    {
+      "id": "AD08",
+      "title": "Join dependency, PJNF và DKNF",
+      "module": "Thiết kế và chứng minh",
+      "before": [
+        "AD07"
+      ],
+      "bookPrefixes": [
+        "7.7",
+        "28.2",
+        "28.3"
+      ],
+      "activityFormats": [
+        "proof",
+        "design",
+        "counterexample"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [],
+      "newPrereqs": [
+        "AD07"
+      ],
+      "focus": "JD nhiều bảng không rút về mọi MVD nhị phân; Lập witness cho spurious tuple; giới hạn thiết kế theo domain/key",
+      "algorithmProofTargets": [
+        "JD nhiều bảng không rút về mọi MVD nhị phân",
+        "Lập witness cho spurious tuple; giới hạn thiết kế theo domain/key"
+      ],
+      "exampleTargets": [
+        "R(A,B,C) với JD*(AB,BC,AC): cho relation cụ thể rồi ghép ba projection.",
+        "R(Order,Item,Qty) cóQty>0: key/domainconstraint với quy tắc liên-rowtổngkhôngvượtcredit, phân biệtDKNF."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "7.7",
+        "28.2",
+        "28.2.1",
+        "28.2.2",
+        "28.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD08.md",
+      "baselinePaths": {}
+    },
+    {
+      "id": "AD09",
+      "title": "ER, temporal data và kiểm chứng mapping",
+      "module": "Thiết kế và chứng minh",
+      "before": [
+        "D03",
+        "D08",
+        "D09"
+      ],
+      "bookPrefixes": [
+        "6",
+        "7.8",
+        "7.9",
+        "7.10"
+      ],
+      "activityFormats": [
+        "design",
+        "counterexample",
+        "sql"
+      ],
+      "webEnvironment": "mysql",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "D03",
+        "D08",
+        "D09"
+      ],
+      "newPrereqs": [],
+      "focus": "Ternary/specialization/aggregation không bảo toàn nghĩa khi ánh xạ tùy ý; Valid-time/transaction-time, intervals, constraint và quy trình xác minh yêu cầu",
+      "algorithmProofTargets": [
+        "Ternary/specialization/aggregation không bảo toàn nghĩa khi ánh xạ tùy ý",
+        "Valid-time/transaction-time, intervals, constraint và quy trình xác minh yêu cầu"
+      ],
+      "exampleTargets": [
+        "Quan hệ supplier-part-project không thay bằng ba binaryrelationship nếu mất ràng buộc bộba.",
+        "Hai salaryperiods[Jan1,Feb1),[Feb1,Mar1) khôngoverlap nhưng đổi end-inclusive tạo boundaryconflict."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "6.1",
+        "6.1.1",
+        "6.1.2",
+        "6.2",
+        "6.2.1",
+        "6.2.2",
+        "6.3",
+        "6.4",
+        "6.5",
+        "6.5.1",
+        "6.5.2",
+        "6.5.3",
+        "6.6",
+        "6.7",
+        "6.7.1",
+        "6.7.2",
+        "6.7.3",
+        "6.7.4",
+        "6.7.5",
+        "6.7.6",
+        "6.8",
+        "6.8.1",
+        "6.8.2",
+        "6.8.3",
+        "6.8.4",
+        "6.8.5",
+        "6.8.6",
+        "6.8.6.1",
+        "6.8.6.2",
+        "6.9",
+        "6.9.1",
+        "6.9.2",
+        "6.9.3",
+        "6.9.4",
+        "6.10",
+        "6.10.1",
+        "6.10.2",
+        "6.11",
+        "6.11.1",
+        "6.11.2",
+        "6.11.3",
+        "7.8",
+        "7.9",
+        "7.9.1",
+        "7.9.2",
+        "7.9.3",
+        "7.9.4",
+        "7.10"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD09.md",
+      "baselinePaths": {
+        "D03": "baseline/lessons/D03.md",
+        "D08": "baseline/lessons/D08.md",
+        "D09": "baseline/lessons/D09.md"
+      }
+    },
+    {
+      "id": "AD10",
+      "title": "SQL nhiều tầng: recursive CTE, window và aggregate",
+      "module": "Lập luận truy vấn",
+      "before": [
+        "S16",
+        "S17",
+        "AD01"
+      ],
+      "bookPrefixes": [
+        "3.7",
+        "3.8",
+        "5.4",
+        "5.5"
+      ],
+      "activityFormats": [
+        "trace",
+        "debug",
+        "sql"
+      ],
+      "webEnvironment": "mysql",
+      "status": "authored-pending-review",
+      "key": true,
+      "oldPrereqs": [
+        "S16",
+        "S17"
+      ],
+      "newPrereqs": [
+        "AD01"
+      ],
+      "focus": "Fixpoint/termination của recursion và chu trình; Frame/peer/ties và thứ tự logic; regression trên bag/null",
+      "algorithmProofTargets": [
+        "Fixpoint/termination của recursion và chu trình",
+        "Frame/peer/ties và thứ tự logic; regression trên bag/null"
+      ],
+      "exampleTargets": [
+        "Cây1→2→3 và3→1: trace recursiveCTE UNION/UNIONALL và terminationguard.",
+        "Điểm10,10,8: RANK/DENSERANK/ROWS/RANGE cho khác frame và peer semantics."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "3.7",
+        "3.7.1",
+        "3.7.2",
+        "3.7.3",
+        "3.7.4",
+        "3.8",
+        "3.8.1",
+        "3.8.2",
+        "3.8.3",
+        "3.8.4",
+        "3.8.5",
+        "3.8.6",
+        "3.8.7",
+        "3.8.8",
+        "5.4",
+        "5.4.1",
+        "5.4.2",
+        "5.5",
+        "5.5.1",
+        "5.5.2",
+        "5.5.3",
+        "5.5.4"
+      ],
+      "repoActivityIds": [
+        "REPO-C01",
+        "REPO-C02"
+      ],
+      "path": "lessons/AD10.md",
+      "baselinePaths": {
+        "S16": "baseline/lessons/S16.md",
+        "S17": "baseline/lessons/S17.md"
+      }
+    },
+    {
+      "id": "AD11",
+      "title": "SQL từ ứng dụng: transaction boundary và retry",
+      "module": "Ứng dụng và dữ liệu mở rộng",
+      "before": [
+        "S18",
+        "A04",
+        "AD01"
+      ],
+      "bookPrefixes": [
+        "5.1",
+        "9.1",
+        "9.2",
+        "9.3",
+        "9.4",
+        "9.5",
+        "9.6",
+        "9.7"
+      ],
+      "activityFormats": [
+        "debug",
+        "api-lab",
+        "design"
+      ],
+      "webEnvironment": "mysql",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "S18",
+        "A04"
+      ],
+      "newPrereqs": [
+        "AD01"
+      ],
+      "focus": "Prepared parameters không thay identifier; JDBC/embedded SQL so sánh; Connection pooling, error/retry/idempotence và data-access-layer contracts",
+      "algorithmProofTargets": [
+        "Prepared parameters không thay identifier; JDBC/embedded SQL so sánh",
+        "Connection pooling, error/retry/idempotence và data-access-layer contracts"
+      ],
+      "exampleTargets": [
+        "TransferaccountA→B bằng haiUPDATE: mất kết nối saucommit tạo retrydouble-effect nếu thiếu idempotencykey.",
+        "Preparedquery email=? nhậnchuỗi dấuquote nhưng dynamicORDERBY identifierphảiwhitelist."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "5.1",
+        "5.1.1",
+        "5.1.1.1",
+        "5.1.1.2",
+        "5.1.1.3",
+        "5.1.1.4",
+        "5.1.1.5",
+        "5.1.1.6",
+        "5.1.1.7",
+        "5.1.1.8",
+        "5.1.2",
+        "5.1.3",
+        "5.1.4",
+        "9.1",
+        "9.2",
+        "9.2.1",
+        "9.2.2",
+        "9.2.3",
+        "9.3",
+        "9.3.1",
+        "9.3.2",
+        "9.3.3",
+        "9.3.4",
+        "9.4",
+        "9.4.1",
+        "9.4.1.1",
+        "9.4.1.2",
+        "9.4.2",
+        "9.4.3",
+        "9.5",
+        "9.5.1",
+        "9.5.1.1",
+        "9.5.1.2",
+        "9.5.1.3",
+        "9.5.2",
+        "9.5.3",
+        "9.5.4",
+        "9.6",
+        "9.6.1",
+        "9.6.2",
+        "9.6.2.1",
+        "9.6.2.2",
+        "9.7",
+        "9.7.1",
+        "9.7.2"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD11.md",
+      "baselinePaths": {
+        "S18": "baseline/lessons/S18.md",
+        "A04": "baseline/lessons/A04.md"
+      }
+    },
+    {
+      "id": "AD12",
+      "title": "Routine, trigger, authorization và security",
+      "module": "Ứng dụng và dữ liệu mở rộng",
+      "before": [
+        "S13",
+        "S14",
+        "S15",
+        "A05"
+      ],
+      "bookPrefixes": [
+        "4.4",
+        "4.5",
+        "4.7",
+        "5.2",
+        "5.3",
+        "9.8",
+        "9.9"
+      ],
+      "activityFormats": [
+        "sql",
+        "debug",
+        "threat-model"
+      ],
+      "webEnvironment": "mysql",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "S13",
+        "S14",
+        "S15",
+        "A05"
+      ],
+      "newPrereqs": [],
+      "focus": "Trigger/routine transaction semantics và privilege boundaries; Chứng minh policy qua ca allow/deny, injection, authentication/encryption giả định",
+      "algorithmProofTargets": [
+        "Trigger/routine transaction semantics và privilege boundaries",
+        "Chứng minh policy qua ca allow/deny, injection, authentication/encryption giả định"
+      ],
+      "exampleTargets": [
+        "Hai roles reader/writer với cột nhạy cảm: ca allow/deny và viewboundary.",
+        "Invokervsdefiner function đọc bảngẩn; kiểm quyền và searchpath không lộ thôngtin."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "4.4",
+        "4.4.1",
+        "4.4.2",
+        "4.4.3",
+        "4.4.4",
+        "4.4.5",
+        "4.4.6",
+        "4.4.7",
+        "4.4.8",
+        "4.5",
+        "4.5.1",
+        "4.5.2",
+        "4.5.3",
+        "4.5.4",
+        "4.5.5",
+        "4.5.6",
+        "4.5.7",
+        "4.5.8",
+        "4.7",
+        "4.7.1",
+        "4.7.2",
+        "4.7.3",
+        "4.7.4",
+        "4.7.5",
+        "4.7.6",
+        "4.7.7",
+        "9.8",
+        "9.8.1",
+        "9.8.2",
+        "9.8.3",
+        "9.8.4",
+        "9.8.5",
+        "9.8.6",
+        "9.8.7",
+        "9.9",
+        "9.9.1",
+        "9.9.2",
+        "9.9.3",
+        "9.9.3.1",
+        "9.9.3.2"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD12.md",
+      "baselinePaths": {
+        "S13": "baseline/lessons/S13.md",
+        "S14": "baseline/lessons/S14.md",
+        "S15": "baseline/lessons/S15.md",
+        "A05": "baseline/lessons/A05.md"
+      }
+    },
+    {
+      "id": "AD13",
+      "title": "JSON, RDF và truy vấn bán cấu trúc",
+      "module": "Ứng dụng và dữ liệu mở rộng",
+      "before": [
+        "A01"
+      ],
+      "bookPrefixes": [
+        "8.1"
+      ],
+      "activityFormats": [
+        "translation",
+        "sql",
+        "graph-model"
+      ],
+      "webEnvironment": "mysql/optional-rdf",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "A01"
+      ],
+      "newPrereqs": [],
+      "focus": "Model/typing, path query và join của dữ liệu lồng; RDF graph, SPARQL và khác biệt bag/null với missing",
+      "algorithmProofTargets": [
+        "Model/typing, path query và join của dữ liệu lồng",
+        "RDF graph, SPARQL và khác biệt bag/null với missing"
+      ],
+      "exampleTargets": [
+        "JSON orders cómissingdiscount,null,0: trace path extraction và cast trướcaggregate.",
+        "RDF triplespeople/knows/worksAt: SPARQLpatternjoin và optionalmissing khácINNERmatch."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "8.1",
+        "8.1.1",
+        "8.1.1.1",
+        "8.1.1.2",
+        "8.1.1.3",
+        "8.1.1.4",
+        "8.1.2",
+        "8.1.3",
+        "8.1.4",
+        "8.1.4.1",
+        "8.1.4.2",
+        "8.1.4.3",
+        "8.1.4.4"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD13.md",
+      "baselinePaths": {
+        "A01": "baseline/lessons/A01.md"
+      }
+    },
+    {
+      "id": "AD14",
+      "title": "Object-relational và object persistence",
+      "module": "Ứng dụng và dữ liệu mở rộng",
+      "before": [
+        "A02",
+        "O04"
+      ],
+      "bookPrefixes": [
+        "8.2",
+        "8.3",
+        "29"
+      ],
+      "activityFormats": [
+        "design",
+        "translation",
+        "model"
+      ],
+      "webEnvironment": "model/optional-postgres",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "A02",
+        "O04"
+      ],
+      "newPrereqs": [],
+      "focus": "Identity/reference, nested collections, inheritance và mapping; Persistent object/transaction semantics; không gán syntax hệ khác cho MySQL",
+      "algorithmProofTargets": [
+        "Identity/reference, nested collections, inheritance và mapping",
+        "Persistent object/transaction semantics; không gán syntax hệ khác cho MySQL"
+      ],
+      "exampleTargets": [
+        "MộtPerson cóObjectID độc lậpname, hai references trỏ cùngobject sauupdate.",
+        "SubtypeStudent/Employee chungPersonID: ánhxạtablepertype so với nestedobject vàdanglingreference."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "8.2",
+        "8.2.1",
+        "8.2.1.1",
+        "8.2.1.2",
+        "8.2.1.3",
+        "8.2.1.4",
+        "8.2.2",
+        "29.1",
+        "29.2",
+        "29.3",
+        "29.3.1",
+        "29.3.2",
+        "29.4",
+        "29.4.1",
+        "29.4.2",
+        "29.4.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD14.md",
+      "baselinePaths": {
+        "A02": "baseline/lessons/A02.md",
+        "O04": "baseline/lessons/O04.md"
+      }
+    },
+    {
+      "id": "AD15",
+      "title": "Spatial data: phép toán và index đúng hình học",
+      "module": "Ứng dụng và dữ liệu mở rộng",
+      "before": [
+        "A03",
+        "I05"
+      ],
+      "bookPrefixes": [
+        "8.4",
+        "24.4"
+      ],
+      "activityFormats": [
+        "sql",
+        "trace",
+        "counterexample"
+      ],
+      "webEnvironment": "mysql",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "A03",
+        "I05"
+      ],
+      "newPrereqs": [],
+      "focus": "Coordinate/reference system và exact predicate sau bounding filter; R-tree/quad/kd-style search theo nguồn; false positive và boundary",
+      "algorithmProofTargets": [
+        "Coordinate/reference system và exact predicate sau bounding filter",
+        "R-tree/quad/kd-style search theo nguồn; false positive và boundary"
+      ],
+      "exampleTargets": [
+        "Bốn point vàrectangle: boundingbox giữcandidatefalsepositive trước exactcirclepredicate.",
+        "Điểm nằm đúngbiên polygon và haiSRID khác: cầnquyước boundary/coordinate trướcchấm."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "8.4",
+        "8.4.1",
+        "8.4.2",
+        "8.4.3",
+        "8.4.3.1",
+        "8.4.3.2",
+        "8.4.4",
+        "24.4",
+        "24.4.1",
+        "24.4.2"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD15.md",
+      "baselinePaths": {
+        "A03": "baseline/lessons/A03.md",
+        "I05": "baseline/lessons/I05.md"
+      }
+    },
+    {
+      "id": "AD16",
+      "title": "XML, XPath, XQuery và schema",
+      "module": "Ứng dụng và dữ liệu mở rộng",
+      "before": [
+        "O05"
+      ],
+      "bookPrefixes": [
+        "30"
+      ],
+      "activityFormats": [
+        "translation",
+        "tree-trace",
+        "query-lab"
+      ],
+      "webEnvironment": "model/optional-xml-engine",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "O05"
+      ],
+      "newPrereqs": [],
+      "focus": "Tree/path/FLWOR và quantifier semantics; Schema, joins/indices/relational representation; native environment rõ",
+      "algorithmProofTargets": [
+        "Tree/path/FLWOR và quantifier semantics",
+        "Schema, joins/indices/relational representation; native environment rõ"
+      ],
+      "exampleTargets": [
+        "XQuery fororder join customerlet/where/return tạoXMLaggregate cóschema đầy đủ.",
+        "XPath//item[1] khác(//item)[1]; trace trên haiorder mỗiorderhaitem."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "30.4",
+        "30.4.3",
+        "30.4.3.1",
+        "30.4.3.2",
+        "30.4.3.3",
+        "30.4.3.4",
+        "30.4.3.5",
+        "30.4.3.6",
+        "30.5",
+        "30.6",
+        "30.6.1",
+        "30.6.2",
+        "30.6.2.1",
+        "30.6.2.2",
+        "30.6.2.3",
+        "30.6.2.4",
+        "30.6.2.5",
+        "30.6.3",
+        "30.7",
+        "30.7.1",
+        "30.7.2",
+        "30.7.3",
+        "30.7.4"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD16.md",
+      "baselinePaths": {
+        "O05": "baseline/lessons/O05.md"
+      }
+    },
+    {
+      "id": "AD17",
+      "title": "Information retrieval: inverted index và ranking",
+      "module": "Ứng dụng và dữ liệu mở rộng",
+      "before": [
+        "O06",
+        "M06"
+      ],
+      "bookPrefixes": [
+        "31"
+      ],
+      "activityFormats": [
+        "algorithm",
+        "trace",
+        "experiment"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "O06",
+        "M06"
+      ],
+      "newPrereqs": [],
+      "focus": "TF/IDF/vector relevance, link ranking và interpretation; Inverted index/build/query/merge postings và top-k; đánh giá ranking",
+      "algorithmProofTargets": [
+        "TF/IDF/vector relevance, link ranking và interpretation",
+        "Inverted index/build/query/merge postings và top-k; đánh giá ranking"
+      ],
+      "exampleTargets": [
+        "Postinglists d1,d3,d7 vàd2,d3,d7: mergeintersection có duplicatepositions và skip.",
+        "Top-K thay câu hỏi: dừng sớm khi upperbound chứng minh phần còn lại khôngvượt kthscore."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "8.3",
+        "8.3.1",
+        "8.3.2",
+        "8.3.2.1",
+        "8.3.2.2",
+        "8.3.3",
+        "8.3.4",
+        "31.5",
+        "31.6",
+        "31.7",
+        "31.8",
+        "31.8.1",
+        "31.8.2",
+        "31.8.3",
+        "31.8.4",
+        "31.9"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD17.md",
+      "baselinePaths": {
+        "O06": "baseline/lessons/O06.md",
+        "M06": "baseline/lessons/M06.md"
+      }
+    },
+    {
+      "id": "AD18",
+      "title": "Warehouse, OLAP và bảo trì summary",
+      "module": "Phân tích và xử lý dữ liệu",
+      "before": [
+        "B03",
+        "AD01"
+      ],
+      "bookPrefixes": [
+        "11.1",
+        "11.2",
+        "11.3",
+        "16.5"
+      ],
+      "activityFormats": [
+        "sql",
+        "counterexample",
+        "design"
+      ],
+      "webEnvironment": "mysql",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "B03"
+      ],
+      "newPrereqs": [
+        "AD01"
+      ],
+      "focus": "Grain/dimensions/cubes và summarizability; Delta rules cho join/bag aggregates, freshness và transaction",
+      "algorithmProofTargets": [
+        "Grain/dimensions/cubes và summarizability",
+        "Delta rules cho join/bag aggregates, freshness và transaction"
+      ],
+      "exampleTargets": [
+        "Summary SUM=90,COUNT=2; insert30 rồi deletepricecựcđại: delta SUM/COUNT khácMIN/MAX.",
+        "Joinorders-lines vớikhách3dòng: mộtUPDATEparent tạo ba resultdeltas theo bagmultiplicity."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "16.5.1",
+        "16.5.2",
+        "16.5.2.1",
+        "16.5.2.2",
+        "16.5.2.3",
+        "16.5.2.4",
+        "16.5.2.5"
+      ],
+      "repoActivityIds": [
+        "REPO-C01"
+      ],
+      "path": "lessons/AD18.md",
+      "baselinePaths": {
+        "B03": "baseline/lessons/B03.md"
+      }
+    },
+    {
+      "id": "AD19",
+      "title": "Data mining: thuật toán và kiểm định mô hình",
+      "module": "Phân tích và xử lý dữ liệu",
+      "before": [
+        "B04",
+        "M06"
+      ],
+      "bookPrefixes": [
+        "11.4"
+      ],
+      "activityFormats": [
+        "algorithm",
+        "data-decision",
+        "experiment"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "B04",
+        "M06"
+      ],
+      "newPrereqs": [],
+      "focus": "Classification, regression, association và clustering theo nguồn; Tính ví dụ nhỏ, data leakage/metrics, lựa chọn feature và holdout",
+      "algorithmProofTargets": [
+        "Classification, regression, association và clustering theo nguồn",
+        "Tính ví dụ nhỏ, data leakage/metrics, lựa chọn feature và holdout"
+      ],
+      "exampleTargets": [
+        "Train/test cùngcustomerID tạo leakage dù row khác; sửa split theoentity.",
+        "Corpusvăn bản4documents: tách labels,features và giữtestđộc lập khi chọnthreshold."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "11.4",
+        "11.4.1",
+        "11.4.6"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD19.md",
+      "baselinePaths": {
+        "B04": "baseline/lessons/B04.md",
+        "M06": "baseline/lessons/M06.md"
+      }
+    },
+    {
+      "id": "AD20",
+      "title": "Big-data storage, MapReduce và dataflow",
+      "module": "Phân tích và xử lý dữ liệu",
+      "before": [
+        "B01",
+        "P01"
+      ],
+      "bookPrefixes": [
+        "10.1",
+        "10.2",
+        "10.3",
+        "10.4"
+      ],
+      "activityFormats": [
+        "trace",
+        "algorithm",
+        "counterexample"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "B01",
+        "P01"
+      ],
+      "newPrereqs": [],
+      "focus": "Map/shuffle/reduce và combiner có điều kiện; Fault/retry và partition invariants, physical plan cho DAG",
+      "algorithmProofTargets": [
+        "Map/shuffle/reduce và combiner có điều kiện",
+        "Fault/retry và partition invariants, physical plan cho DAG"
+      ],
+      "exampleTargets": [
+        "Wordcount3inputpartitions: trace map,shuffle,reduce;combinerSUMhợp lệ,AVGkhôngcócount thìsai.",
+        "Retrymộtmaptask: outputcommitprotocol khônggộpcảresultcũvàmới."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "10.3",
+        "10.3.1",
+        "10.3.2",
+        "10.3.3",
+        "10.3.4",
+        "10.3.5",
+        "10.3.6",
+        "10.4",
+        "10.4.1",
+        "10.4.2"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD20.md",
+      "baselinePaths": {
+        "B01": "baseline/lessons/B01.md",
+        "P01": "baseline/lessons/P01.md"
+      }
+    },
+    {
+      "id": "AD21",
+      "title": "Streaming: window, watermark và state",
+      "module": "Phân tích và xử lý dữ liệu",
+      "before": [
+        "B02",
+        "AD20"
+      ],
+      "bookPrefixes": [
+        "10.5",
+        "22.8"
+      ],
+      "activityFormats": [
+        "timeline",
+        "experiment",
+        "design"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "B02"
+      ],
+      "newPrereqs": [
+        "AD20"
+      ],
+      "focus": "Event/processing time, out-of-order/late data và window policy; State/checkpoint/replay và giới hạn exactly-once end-to-end",
+      "algorithmProofTargets": [
+        "Event/processing time, out-of-order/late data và window policy",
+        "State/checkpoint/replay và giới hạn exactly-once end-to-end"
+      ],
+      "exampleTargets": [
+        "Events10:00,10:02,09:59 tới theo thứtự ấy; watermark/window policy quyếtđịnh lateevent.",
+        "Crashsauoutputtrướccheckpoint: replaytạoduplicate khi sinkkhôngidempotent."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "10.5",
+        "10.5.1",
+        "10.5.2",
+        "10.5.2.1",
+        "10.5.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD21.md",
+      "baselinePaths": {
+        "B02": "baseline/lessons/B02.md"
+      }
+    },
+    {
+      "id": "AD22",
+      "title": "Graph databases và xử lý đồ thị",
+      "module": "Phân tích và xử lý dữ liệu",
+      "before": [
+        "B02",
+        "AD20",
+        "M05"
+      ],
+      "bookPrefixes": [
+        "10.6",
+        "22.8"
+      ],
+      "activityFormats": [
+        "graph-trace",
+        "algorithm",
+        "design"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "B02",
+        "M05"
+      ],
+      "newPrereqs": [
+        "AD20"
+      ],
+      "focus": "Traversal/fixpoint/frontier algorithm và partition message; Graph model so với relational/RDF, tính ví dụ và điều kiện dừng",
+      "algorithmProofTargets": [
+        "Traversal/fixpoint/frontier algorithm và partition message",
+        "Graph model so với relational/RDF, tính ví dụ và điều kiện dừng"
+      ],
+      "exampleTargets": [
+        "Graph1→2,1→3,2→4,3→4: frontierBFS vàvisited tránhnhânđườngđi.",
+        "Cycle4→1: fixpointreachabilitydừng nhưng recursivepathkhôngguard cóthểkhôngdừng."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "10.6"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD22.md",
+      "baselinePaths": {
+        "B02": "baseline/lessons/B02.md",
+        "M05": "baseline/lessons/M05.md"
+      }
+    },
+    {
+      "id": "AD23",
+      "title": "Storage, RAID và mô hình lỗi",
+      "module": "Storage và indexes",
+      "before": [
+        "I01",
+        "M06"
+      ],
+      "bookPrefixes": [
+        "12",
+        "17.3"
+      ],
+      "activityFormats": [
+        "cost",
+        "failure-model",
+        "experiment"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "I01",
+        "M06"
+      ],
+      "newPrereqs": [],
+      "focus": "Chi phí block/latency/throughput và failure assumptions; RAID/reliability, flash characteristics và persistence model",
+      "algorithmProofTargets": [
+        "Chi phí block/latency/throughput và failure assumptions",
+        "RAID/reliability, flash characteristics và persistence model"
+      ],
+      "exampleTargets": [
+        "Diskblock4KiB,seek5ms,throughput100MiB/s: so1000randomread với sequentialscan.",
+        "RAIDmirror cócùngfailure-domain khác haiindependentcopy; recovery cầnđọccònđủblock."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "12.1",
+        "12.2",
+        "12.3",
+        "12.3.1",
+        "12.3.2",
+        "12.4",
+        "12.5",
+        "12.5.1",
+        "12.5.2",
+        "12.5.3",
+        "12.5.4",
+        "12.5.5",
+        "12.5.6",
+        "12.6",
+        "17.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD23.md",
+      "baselinePaths": {
+        "I01": "baseline/lessons/I01.md",
+        "M06": "baseline/lessons/M06.md"
+      }
+    },
+    {
+      "id": "AD24",
+      "title": "Records, heap files và catalog",
+      "module": "Storage và indexes",
+      "before": [
+        "I02",
+        "AD23"
+      ],
+      "bookPrefixes": [
+        "13.1",
+        "13.2",
+        "13.3",
+        "13.4"
+      ],
+      "activityFormats": [
+        "page-trace",
+        "algorithm",
+        "design"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "I02"
+      ],
+      "newPrereqs": [
+        "AD23"
+      ],
+      "focus": "Fixed/variable records, slotted page, free space và stable IDs; Catalog statistics, allocation invariants và crash-sensitive metadata",
+      "algorithmProofTargets": [
+        "Fixed/variable records, slotted page, free space và stable IDs",
+        "Catalog statistics, allocation invariants và crash-sensitive metadata"
+      ],
+      "exampleTargets": [
+        "Page128byte,header16,slot4byte: chènrecord20,30 rồi xóa20 và compact giữslotID.",
+        "Heaprecord mởrộng vượtfree-space: forwarding/move làm unstablephysicaladdress."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "13.1",
+        "13.2",
+        "13.2.1",
+        "13.2.2",
+        "13.2.3",
+        "13.3",
+        "13.3.1",
+        "13.3.2",
+        "13.3.3",
+        "13.3.4",
+        "13.4"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD24.md",
+      "baselinePaths": {
+        "I02": "baseline/lessons/I02.md"
+      }
+    },
+    {
+      "id": "AD25",
+      "title": "Buffer pool: pin, latch và replacement",
+      "module": "Storage và indexes",
+      "before": [
+        "I02",
+        "AD24"
+      ],
+      "bookPrefixes": [
+        "13.5"
+      ],
+      "activityFormats": [
+        "trace",
+        "debug",
+        "algorithm"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": true,
+      "oldPrereqs": [
+        "I02"
+      ],
+      "newPrereqs": [
+        "AD24"
+      ],
+      "focus": "CLOCK/LRU state transitions, dirty eviction và pin invariant; Phân biệt page latch/transaction lock; test lỗi hết frame",
+      "algorithmProofTargets": [
+        "CLOCK/LRU state transitions, dirty eviction và pin invariant",
+        "Phân biệt page latch/transaction lock; test lỗi hết frame"
+      ],
+      "exampleTargets": [
+        "CLOCK3frames,refbits vàpin cho trước; sequenceA,B,C,A,D phải chọnvictim hợp lệ.",
+        "Tất cảframespinned: thuậttoán khôngđược evictdirtypage chỉ đểđạtcachehit mục tiêu."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "13.5",
+        "13.5.1",
+        "13.5.1.1",
+        "13.5.1.2",
+        "13.5.1.3",
+        "13.5.1.4",
+        "13.5.1.5",
+        "13.5.2",
+        "13.5.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD25.md",
+      "baselinePaths": {
+        "I02": "baseline/lessons/I02.md"
+      }
+    },
+    {
+      "id": "AD26",
+      "title": "Column store, compression và main-memory layout",
+      "module": "Storage và indexes",
+      "before": [
+        "I03",
+        "AD24"
+      ],
+      "bookPrefixes": [
+        "13.6",
+        "13.7",
+        "15.8"
+      ],
+      "activityFormats": [
+        "cost",
+        "algorithm",
+        "experiment"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "I03"
+      ],
+      "newPrereqs": [
+        "AD24"
+      ],
+      "focus": "Dictionary/run-length/bitmap representation và scan cost; Cache locality/vectorization, row reconstruction và update tradeoffs",
+      "algorithmProofTargets": [
+        "Dictionary/run-length/bitmap representation và scan cost",
+        "Cache locality/vectorization, row reconstruction và update tradeoffs"
+      ],
+      "exampleTargets": [
+        "Column[NY,NY,NY,LA,LA]: dictionary/RLE encodedsize so vớirowmaterialization.",
+        "Querychọn2/20columnsso vớiupdateallcolumns: localityvàwrite-amplificationđổi cost."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "13.6",
+        "13.7"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD26.md",
+      "baselinePaths": {
+        "I03": "baseline/lessons/I03.md"
+      }
+    },
+    {
+      "id": "AD27",
+      "title": "B+ tree: search, insert và split invariant",
+      "module": "Storage và indexes",
+      "before": [
+        "I04",
+        "AD24"
+      ],
+      "bookPrefixes": [
+        "14.1",
+        "14.2",
+        "14.3",
+        "14.4.1",
+        "14.4.2"
+      ],
+      "activityFormats": [
+        "tree-trace",
+        "algorithm",
+        "proof"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": true,
+      "oldPrereqs": [
+        "I04"
+      ],
+      "newPrereqs": [
+        "AD24"
+      ],
+      "focus": "Ordered/sparse/multilevel indices và occupancy definition; Search/insert/split propagation, root special case, height/cost",
+      "algorithmProofTargets": [
+        "Ordered/sparse/multilevel indices và occupancy definition",
+        "Search/insert/split propagation, root special case, height/cost"
+      ],
+      "exampleTargets": [
+        "B+leafmax3keys: insert10,20,30,40,50,60,70 và root/leafsplit.",
+        "Duplicateuserkey=20 vớiRIDkhác: địnhnghĩatotalkey đểsearch/rangescan đúng."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "14.4.1",
+        "14.4.2"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD27.md",
+      "baselinePaths": {
+        "I04": "baseline/lessons/I04.md"
+      }
+    },
+    {
+      "id": "AD28",
+      "title": "B+ tree: delete, merge và concurrent access",
+      "module": "Storage và indexes",
+      "before": [
+        "AD27"
+      ],
+      "bookPrefixes": [
+        "14.3",
+        "14.4",
+        "18.11"
+      ],
+      "activityFormats": [
+        "tree-trace",
+        "debug",
+        "proof"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [],
+      "newPrereqs": [
+        "AD27"
+      ],
+      "focus": "Borrow/merge/root contraction và separator updates; Structural latch coupling/concurrency, strings/bulk-load/index build cases",
+      "algorithmProofTargets": [
+        "Borrow/merge/root contraction và separator updates",
+        "Structural latch coupling/concurrency, strings/bulk-load/index build cases"
+      ],
+      "exampleTargets": [
+        "B+treeleafmin2,max4: delete keygâyborrowrồi mergerootcontraction.",
+        "Leafsibling splitgiữlatchpath kháctransactionkeylock; trace reader lúcseparatorupdate."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "14.3",
+        "14.3.1",
+        "14.3.2",
+        "14.3.3",
+        "14.3.3.1",
+        "14.3.3.2",
+        "14.3.4",
+        "14.3.5",
+        "14.4",
+        "14.4.3",
+        "14.4.4",
+        "14.4.5",
+        "14.4.6",
+        "14.4.7"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD28.md",
+      "baselinePaths": {}
+    },
+    {
+      "id": "AD29",
+      "title": "Static, extendible và linear hashing",
+      "module": "Storage và indexes",
+      "before": [
+        "I05",
+        "AD24"
+      ],
+      "bookPrefixes": [
+        "14.5",
+        "24.5"
+      ],
+      "activityFormats": [
+        "trace",
+        "algorithm",
+        "cost"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "I05"
+      ],
+      "newPrereqs": [
+        "AD24"
+      ],
+      "focus": "Bucket/directory split and merge, depth invariant; Linear split pointer and overflow chains; equality vs range cost",
+      "algorithmProofTargets": [
+        "Bucket/directory split and merge, depth invariant",
+        "Linear split pointer and overflow chains; equality vs range cost"
+      ],
+      "exampleTargets": [
+        "Extendiblehash globaldepth2 với bucketlocaldepth1: splitkhôngnhânmọibucket.",
+        "Linearhashpointerp=2,level1: insertcollision,overflowrồi splitbucketp khácbucketnhậninsert."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "14.5",
+        "24.5",
+        "24.5.1",
+        "24.5.1.1",
+        "24.5.1.2",
+        "24.5.2",
+        "24.5.2.1",
+        "24.5.2.2",
+        "24.5.2.3",
+        "24.5.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD29.md",
+      "baselinePaths": {
+        "I05": "baseline/lessons/I05.md"
+      }
+    },
+    {
+      "id": "AD30",
+      "title": "Composite, bitmap và special-purpose indexes",
+      "module": "Storage và indexes",
+      "before": [
+        "I05",
+        "AD27"
+      ],
+      "bookPrefixes": [
+        "14.6",
+        "14.7",
+        "14.9",
+        "14.10",
+        "24.3"
+      ],
+      "activityFormats": [
+        "sql",
+        "trace",
+        "cost"
+      ],
+      "webEnvironment": "mysql/model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "I05"
+      ],
+      "newPrereqs": [
+        "AD27"
+      ],
+      "focus": "Multikey ordering/prefixes/covering and limitations; Bitmap operations, write cost and spatial/temporal candidate filtering",
+      "algorithmProofTargets": [
+        "Multikey ordering/prefixes/covering and limitations",
+        "Bitmap operations, write cost and spatial/temporal candidate filtering"
+      ],
+      "exampleTargets": [
+        "Index(a,b) với predicatesa=2ANDb>5,b=5,a>2ANDb=5: range/covering khác nhau.",
+        "Bitmapsstatuspaid/pending trên8rows: AND/OR vàwritecost khi đổi mộtrow."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "14.6",
+        "14.6.1",
+        "14.6.2",
+        "14.6.3",
+        "14.7",
+        "14.9",
+        "14.10",
+        "14.10.1",
+        "14.10.2",
+        "24.3",
+        "24.3.1",
+        "24.3.2",
+        "24.3.3"
+      ],
+      "repoActivityIds": [
+        "REPO-E01",
+        "REPO-E02"
+      ],
+      "path": "lessons/AD30.md",
+      "baselinePaths": {
+        "I05": "baseline/lessons/I05.md"
+      }
+    },
+    {
+      "id": "AD31",
+      "title": "Bloom filter và LSM-tree",
+      "module": "Storage và indexes",
+      "before": [
+        "I06",
+        "AD29"
+      ],
+      "bookPrefixes": [
+        "14.8",
+        "24.2"
+      ],
+      "activityFormats": [
+        "trace",
+        "algorithm",
+        "cost"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "I06"
+      ],
+      "newPrereqs": [
+        "AD29"
+      ],
+      "focus": "Bloom build/test probability with stated hash assumptions; LSM memtable/flush/compaction/tombstone; amplification tradeoffs",
+      "algorithmProofTargets": [
+        "Bloom build/test probability with stated hash assumptions",
+        "LSM memtable/flush/compaction/tombstone; amplification tradeoffs"
+      ],
+      "exampleTargets": [
+        "Memtablex=1,x=2,tombstonex: merge SSTables theo sequencegiữ latest đúng.",
+        "Compactionlàm rơi tombstone quá sớm trong khi lowerlevel cònx=1 khiếngiátrịhồi sinh."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "14.8",
+        "14.8.1",
+        "14.8.2",
+        "24.2",
+        "24.2.1",
+        "24.2.2",
+        "24.2.3",
+        "24.2.4",
+        "24.2.4.1",
+        "24.2.4.2",
+        "24.2.5"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD31.md",
+      "baselinePaths": {
+        "I06": "baseline/lessons/I06.md"
+      }
+    },
+    {
+      "id": "AD32",
+      "title": "External sort và mô hình I/O",
+      "module": "Query execution và optimization",
+      "before": [
+        "Q01",
+        "M06"
+      ],
+      "bookPrefixes": [
+        "15.1",
+        "15.2",
+        "15.3",
+        "15.4"
+      ],
+      "activityFormats": [
+        "cost",
+        "trace",
+        "algorithm"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "Q01",
+        "M06"
+      ],
+      "newPrereqs": [],
+      "focus": "Selection costs and external merge passes with buffer budget; Boundary cases and difference between model counts and measured I/O",
+      "algorithmProofTargets": [
+        "Selection costs and external merge passes with buffer budget",
+        "Boundary cases and difference between model counts and measured I/O"
+      ],
+      "exampleTargets": [
+        "B=1000pages,M=11buffers: tạo run11 rồi merge10-way, tính sốpass.",
+        "B≤M mộtpassmemorysortkhácB=M+1 cầnspill; côngthứcceil cầnxétboundary."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "15.4",
+        "15.4.1",
+        "15.4.2"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD32.md",
+      "baselinePaths": {
+        "Q01": "baseline/lessons/Q01.md",
+        "M06": "baseline/lessons/M06.md"
+      }
+    },
+    {
+      "id": "AD33",
+      "title": "Join algorithms và quản lý bộ nhớ",
+      "module": "Query execution và optimization",
+      "before": [
+        "Q02",
+        "AD32"
+      ],
+      "bookPrefixes": [
+        "15.5"
+      ],
+      "activityFormats": [
+        "cost",
+        "algorithm",
+        "trace"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": true,
+      "oldPrereqs": [
+        "Q02"
+      ],
+      "newPrereqs": [
+        "AD32"
+      ],
+      "focus": "Tuple/block/index nested loop, merge join and hash join; Grace/recursive hybrid hash, skew/spill, equality assumptions",
+      "algorithmProofTargets": [
+        "Tuple/block/index nested loop, merge join and hash join",
+        "Grace/recursive hybrid hash, skew/spill, equality assumptions"
+      ],
+      "exampleTargets": [
+        "HashjoinR có6tupleskeyskew,S có4: partitionskhácsize và overflowstrategy.",
+        "MergejoinRkeys1,1,2,Skeys1,1,1: groupduplicates phải tạo6cặpkey1."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "15.5",
+        "15.5.4",
+        "15.5.4.1",
+        "15.5.4.2",
+        "15.5.4.3",
+        "15.5.5",
+        "15.5.5.1",
+        "15.5.5.2",
+        "15.5.5.3",
+        "15.5.5.4",
+        "15.5.5.5",
+        "15.5.6",
+        "15.5.7"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD33.md",
+      "baselinePaths": {
+        "Q02": "baseline/lessons/Q02.md"
+      }
+    },
+    {
+      "id": "AD34",
+      "title": "Iterator, pipelining và materialization",
+      "module": "Query execution và optimization",
+      "before": [
+        "Q02",
+        "AD33"
+      ],
+      "bookPrefixes": [
+        "15.6",
+        "15.7",
+        "15.8"
+      ],
+      "activityFormats": [
+        "trace",
+        "algorithm",
+        "debug"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "Q02"
+      ],
+      "newPrereqs": [
+        "AD33"
+      ],
+      "focus": "Open/next/close, blocking operators and pipeline boundary; Dedup/aggregate/set operations under memory budget",
+      "algorithmProofTargets": [
+        "Open/next/close, blocking operators and pipeline boundary",
+        "Dedup/aggregate/set operations under memory budget"
+      ],
+      "exampleTargets": [
+        "Scan→filter→sort→limit: iteratornext dừng ở đâu, sortblocking giữgì.",
+        "Setdifference với duplicate input: DISTINCTsemantics khácbag EXCEPTALL; lưu counts."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "15.6",
+        "15.6.1",
+        "15.6.2",
+        "15.6.3",
+        "15.6.4",
+        "15.6.5",
+        "15.7",
+        "15.7.1",
+        "15.7.2",
+        "15.7.2.1",
+        "15.7.2.2",
+        "15.7.3",
+        "15.8",
+        "15.8.1",
+        "15.8.2",
+        "15.8.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD34.md",
+      "baselinePaths": {
+        "Q02": "baseline/lessons/Q02.md"
+      }
+    },
+    {
+      "id": "AD35",
+      "title": "Cardinality estimation và histogram",
+      "module": "Query execution và optimization",
+      "before": [
+        "Q03",
+        "M06"
+      ],
+      "bookPrefixes": [
+        "16.1",
+        "16.2",
+        "16.3"
+      ],
+      "activityFormats": [
+        "cost",
+        "counterexample",
+        "experiment"
+      ],
+      "webEnvironment": "mysql/model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "Q03",
+        "M06"
+      ],
+      "newPrereqs": [],
+      "focus": "Equivalence preconditions and selectivity/cardinality estimates; Uniformity/independence assumptions, distinct counts, histograms and skew",
+      "algorithmProofTargets": [
+        "Equivalence preconditions and selectivity/cardinality estimates",
+        "Uniformity/independence assumptions, distinct counts, histograms and skew"
+      ],
+      "exampleTargets": [
+        "N=1000,V(city)=10 nhưngHanoichiếm900: independenceestimate100 lệchactual900.",
+        "JoinR(A) cóNDV10,S(A) cóNDV20: nêu containment/uniformity trước dùngN_R*N_S/maxNDV."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "16.1",
+        "16.2",
+        "16.2.1",
+        "16.2.2",
+        "16.2.3",
+        "16.2.4",
+        "16.3",
+        "16.3.1",
+        "16.3.2",
+        "16.3.3",
+        "16.3.4",
+        "16.3.5"
+      ],
+      "repoActivityIds": [
+        "REPO-E01",
+        "REPO-E02"
+      ],
+      "path": "lessons/AD35.md",
+      "baselinePaths": {
+        "Q03": "baseline/lessons/Q03.md",
+        "M06": "baseline/lessons/M06.md"
+      }
+    },
+    {
+      "id": "AD36",
+      "title": "Dynamic-programming optimizer và interesting orders",
+      "module": "Query execution và optimization",
+      "before": [
+        "AD33",
+        "AD34",
+        "AD35"
+      ],
+      "bookPrefixes": [
+        "16.4"
+      ],
+      "activityFormats": [
+        "algorithm",
+        "proof",
+        "cost"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": true,
+      "oldPrereqs": [],
+      "newPrereqs": [
+        "AD33",
+        "AD34",
+        "AD35"
+      ],
+      "focus": "Enumerate subset plans with physical property state; Optimal-substructure proof under model and counterexample to greedy",
+      "algorithmProofTargets": [
+        "Enumerate subset plans with physical property state",
+        "Optimal-substructure proof under model and counterexample to greedy"
+      ],
+      "exampleTargets": [
+        "A,B,C với ba selectivities/costs cho trước: DPsubsetsAB,AC,BC rồiABC.",
+        "PlanABcost8 unorderedvs10 sorted: merge vớiC làm phươngánintermediateđắt hơn thắngtotal."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "16.4",
+        "16.4.1",
+        "16.4.2",
+        "16.4.3"
+      ],
+      "repoActivityIds": [
+        "REPO-E02"
+      ],
+      "path": "lessons/AD36.md",
+      "baselinePaths": {}
+    },
+    {
+      "id": "AD37",
+      "title": "Decorrelation, materialized view và adaptive plan",
+      "module": "Query execution và optimization",
+      "before": [
+        "Q04",
+        "AD36",
+        "AD18"
+      ],
+      "bookPrefixes": [
+        "16.5",
+        "16.6"
+      ],
+      "activityFormats": [
+        "sql",
+        "counterexample",
+        "experiment"
+      ],
+      "webEnvironment": "mysql/model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "Q04"
+      ],
+      "newPrereqs": [
+        "AD36",
+        "AD18"
+      ],
+      "focus": "Correct semijoin/antijoin rewrites with null/duplicate constraints; View selection/delta maintenance, top-k/Halloween/multiquery/adaptive boundaries",
+      "algorithmProofTargets": [
+        "Correct semijoin/antijoin rewrites with null/duplicate constraints",
+        "View selection/delta maintenance, top-k/Halloween/multiquery/adaptive boundaries"
+      ],
+      "exampleTargets": [
+        "RefreshrevenueAVG bằngSUM/COUNT thay averageofaverages khi groupsizeskhác.",
+        "TopKORDERBYpriceDESCvớities: limitk khôngđủnếubusinessyêu cầuWITH TIES."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "16.5",
+        "16.5.1",
+        "16.5.2",
+        "16.5.2.1",
+        "16.5.2.2",
+        "16.5.2.3",
+        "16.5.2.4",
+        "16.5.2.5",
+        "16.5.3",
+        "16.5.4",
+        "16.6",
+        "16.6.1",
+        "16.6.2",
+        "16.6.3",
+        "16.6.4",
+        "16.6.5",
+        "16.6.6"
+      ],
+      "repoActivityIds": [
+        "REPO-E02"
+      ],
+      "path": "lessons/AD37.md",
+      "baselinePaths": {
+        "Q04": "baseline/lessons/Q04.md"
+      }
+    },
+    {
+      "id": "AD38",
+      "title": "Serializability: graph, theorem và recoverability",
+      "module": "Transactions và recovery",
+      "before": [
+        "T01",
+        "T02",
+        "M05"
+      ],
+      "bookPrefixes": [
+        "17"
+      ],
+      "activityFormats": [
+        "proof",
+        "graph-trace",
+        "counterexample"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": true,
+      "oldPrereqs": [
+        "T01",
+        "T02",
+        "M05"
+      ],
+      "newPrereqs": [],
+      "focus": "Conflict graph construction and acyclic iff conflict-serializable proof; View vs conflict equivalence; recoverable/cascadeless/strict schedule examples",
+      "algorithmProofTargets": [
+        "Conflict graph construction and acyclic iff conflict-serializable proof",
+        "View vs conflict equivalence; recoverable/cascadeless/strict schedule examples"
+      ],
+      "exampleTargets": [
+        "r1(A),r2(A),w1(A),w2(A): hai cạnh tạo cycle và khôngconflictserializable.",
+        "Acyclicschedulelập topologicalorder rồi swapadjacentnonconflictingops để dựng serialschedule."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "17.1",
+        "17.2",
+        "17.4",
+        "17.5",
+        "17.6",
+        "17.7",
+        "17.7.1",
+        "17.7.2",
+        "17.8",
+        "17.9",
+        "17.9.1",
+        "17.9.2",
+        "17.9.3",
+        "17.10"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD38.md",
+      "baselinePaths": {
+        "T01": "baseline/lessons/T01.md",
+        "T02": "baseline/lessons/T02.md",
+        "M05": "baseline/lessons/M05.md"
+      }
+    },
+    {
+      "id": "AD39",
+      "title": "2PL, tree protocol và multiple granularity",
+      "module": "Transactions và recovery",
+      "before": [
+        "T03",
+        "AD38"
+      ],
+      "bookPrefixes": [
+        "18.1",
+        "18.3"
+      ],
+      "activityFormats": [
+        "timeline",
+        "proof",
+        "debug"
+      ],
+      "webEnvironment": "mysql/model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "T03"
+      ],
+      "newPrereqs": [
+        "AD38"
+      ],
+      "focus": "Lock compatibility/conversion and 2PL serializability proof; Tree protocol and intention-lock constraints; phantom/predicate difference",
+      "algorithmProofTargets": [
+        "Lock compatibility/conversion and 2PL serializability proof",
+        "Tree protocol and intention-lock constraints; phantom/predicate difference"
+      ],
+      "exampleTargets": [
+        "T1readA,writeB/T2readB,writeA: 2PLthêmwait vàcóthểdeadlock dùserializable.",
+        "IntentionIXởrootvàXởleaf: compatibilitybảo vệancestor màkhôngkhóaXmọitable."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "18.1",
+        "18.1.1",
+        "18.1.2",
+        "18.1.3",
+        "18.1.4",
+        "18.1.5",
+        "18.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD39.md",
+      "baselinePaths": {
+        "T03": "baseline/lessons/T03.md"
+      }
+    },
+    {
+      "id": "AD40",
+      "title": "Deadlock: detect, prevent và retry",
+      "module": "Transactions và recovery",
+      "before": [
+        "T04",
+        "AD39"
+      ],
+      "bookPrefixes": [
+        "18.2",
+        "18.4"
+      ],
+      "activityFormats": [
+        "timeline",
+        "graph-trace",
+        "sql"
+      ],
+      "webEnvironment": "mysql",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "T04"
+      ],
+      "newPrereqs": [
+        "AD39"
+      ],
+      "focus": "Wait-for cycle and detection graph semantics; Wait-die/wound-wait, timeout limits and lock-order strategy",
+      "algorithmProofTargets": [
+        "Wait-for cycle and detection graph semantics",
+        "Wait-die/wound-wait, timeout limits and lock-order strategy"
+      ],
+      "exampleTargets": [
+        "T1holdsA,T2holdsB,rồiđòiB/A: wait-forcycle và chọnvictim/retry.",
+        "TimestampT1=5,T2=9: wait-die vàwound-wait chờ/abort khác nhau theo requestolder→younger."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "18.2",
+        "18.2.1",
+        "18.2.2",
+        "18.2.2.1",
+        "18.2.2.2",
+        "18.4",
+        "18.4.1",
+        "18.4.2",
+        "18.4.3"
+      ],
+      "repoActivityIds": [
+        "REPO-H03"
+      ],
+      "path": "lessons/AD40.md",
+      "baselinePaths": {
+        "T04": "baseline/lessons/T04.md"
+      }
+    },
+    {
+      "id": "AD41",
+      "title": "Timestamp ordering và optimistic validation",
+      "module": "Transactions và recovery",
+      "before": [
+        "T04",
+        "AD38"
+      ],
+      "bookPrefixes": [
+        "18.5",
+        "18.6",
+        "18.10"
+      ],
+      "activityFormats": [
+        "timeline",
+        "proof",
+        "trace"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "T04"
+      ],
+      "newPrereqs": [
+        "AD38"
+      ],
+      "focus": "Read/write timestamp rules, validation intervals and overlap cases; Thomas write rule/recoverability caveats; operation-level special cases",
+      "algorithmProofTargets": [
+        "Read/write timestamp rules, validation intervals and overlap cases",
+        "Thomas write rule/recoverability caveats; operation-level special cases"
+      ],
+      "exampleTargets": [
+        "RTS(X)=8,WTS(X)=3,Ttimestamp5 muốnwrite: TOabort đểkhôngđọcquákhứ sai.",
+        "OCCoverlappingread/write sets củaT1,T2: kiểm3casevalidation interval theo commitorder."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "18.5",
+        "18.5.1",
+        "18.5.2",
+        "18.5.3",
+        "18.6"
+      ],
+      "repoActivityIds": [
+        "REPO-H03"
+      ],
+      "path": "lessons/AD41.md",
+      "baselinePaths": {
+        "T04": "baseline/lessons/T04.md"
+      }
+    },
+    {
+      "id": "AD42",
+      "title": "MVCC, snapshot isolation và write skew",
+      "module": "Transactions và recovery",
+      "before": [
+        "T05",
+        "AD38"
+      ],
+      "bookPrefixes": [
+        "18.7",
+        "18.8",
+        "18.9"
+      ],
+      "activityFormats": [
+        "timeline",
+        "sql",
+        "counterexample"
+      ],
+      "webEnvironment": "mysql/optional-postgres",
+      "status": "authored-pending-review",
+      "key": true,
+      "oldPrereqs": [
+        "T05"
+      ],
+      "newPrereqs": [
+        "AD38"
+      ],
+      "focus": "Version visibility rules and commit conflict conditions; Construct write skew; distinguish SSI/serializable and real MySQL/Postgres behavior",
+      "algorithmProofTargets": [
+        "Version visibility rules and commit conflict conditions",
+        "Construct write skew; distinguish SSI/serializable and real MySQL/Postgres behavior"
+      ],
+      "exampleTargets": [
+        "Hai doctorsđềureadsnapshoton-call2rồi tắtbảnthân: disjointwrites vẫn phá invariant≥1.",
+        "ReadCommittedhairead khácvalue sauBcommit; RepeatableReadsnapshotkhôngđồngnghĩamọiDMLread giống."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "18.7",
+        "18.7.1",
+        "18.7.2",
+        "18.8",
+        "18.8.1",
+        "18.8.2",
+        "18.8.3",
+        "18.9",
+        "18.9.1",
+        "18.9.2",
+        "18.9.3"
+      ],
+      "repoActivityIds": [
+        "REPO-H01",
+        "REPO-H02",
+        "REPO-H03"
+      ],
+      "path": "lessons/AD42.md",
+      "baselinePaths": {
+        "T05": "baseline/lessons/T05.md"
+      }
+    },
+    {
+      "id": "AD43",
+      "title": "WAL, checkpoint và recovery algorithm",
+      "module": "Transactions và recovery",
+      "before": [
+        "T06",
+        "AD25"
+      ],
+      "bookPrefixes": [
+        "19.1",
+        "19.2",
+        "19.3",
+        "19.4",
+        "19.5",
+        "19.6"
+      ],
+      "activityFormats": [
+        "log-trace",
+        "algorithm",
+        "proof"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "T06"
+      ],
+      "newPrereqs": [
+        "AD25"
+      ],
+      "focus": "Buffer flush/log durability conditions and basic recovery pseudocode; Rollback/restart correctness and repeated-crash invariant",
+      "algorithmProofTargets": [
+        "Buffer flush/log durability conditions and basic recovery pseudocode",
+        "Rollback/restart correctness and repeated-crash invariant"
+      ],
+      "exampleTargets": [
+        "T1committedX10→15,T2uncommittedY20→99; storageX10,Y99: redo/undo vềX15,Y20.",
+        "Dirtypageflushtrướclogdurable làWALviolation; crashmấtbeforeimagekhôngthể tựsuyundo."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "19.1",
+        "19.2",
+        "19.2.1",
+        "19.2.2",
+        "19.3",
+        "19.3.1",
+        "19.3.2",
+        "19.3.3",
+        "19.3.4",
+        "19.3.5",
+        "19.3.6",
+        "19.4",
+        "19.4.1",
+        "19.4.2",
+        "19.4.3",
+        "19.5",
+        "19.5.1",
+        "19.5.2",
+        "19.5.3",
+        "19.5.4",
+        "19.6"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD43.md",
+      "baselinePaths": {
+        "T06": "baseline/lessons/T06.md"
+      }
+    },
+    {
+      "id": "AD44",
+      "title": "ARIES, logical undo và compensation records",
+      "module": "Transactions và recovery",
+      "before": [
+        "T07",
+        "AD43"
+      ],
+      "bookPrefixes": [
+        "19.8",
+        "19.9"
+      ],
+      "activityFormats": [
+        "log-trace",
+        "algorithm",
+        "debug"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": true,
+      "oldPrereqs": [
+        "T07"
+      ],
+      "newPrereqs": [
+        "AD43"
+      ],
+      "focus": "Analysis/DPT/TT/recLSN then redo predicates and loser max-LSN undo; CLR/undoNextLSN across repeated crash; logical-operation boundaries",
+      "algorithmProofTargets": [
+        "Analysis/DPT/TT/recLSN then redo predicates and loser max-LSN undo",
+        "CLR/undoNextLSN across repeated crash; logical-operation boundaries"
+      ],
+      "exampleTargets": [
+        "LogLSN10updateP,20commitT1,30updateQbyT2; PageLSNP10,Q0: skip10,redo30,undoT2.",
+        "CrashsauCLR40durabletrướcpageflush: redoCLRrồitheoundoNext, khôngundoCLR."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "19.8",
+        "19.8.1",
+        "19.8.2",
+        "19.8.3",
+        "19.8.4",
+        "19.9",
+        "19.9.1",
+        "19.9.2",
+        "19.9.2.1",
+        "19.9.2.2",
+        "19.9.2.3",
+        "19.9.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD44.md",
+      "baselinePaths": {
+        "T07": "baseline/lessons/T07.md"
+      }
+    },
+    {
+      "id": "AD45",
+      "title": "Backup, replication durability và RAM recovery",
+      "module": "Transactions và recovery",
+      "before": [
+        "T07",
+        "AD43"
+      ],
+      "bookPrefixes": [
+        "19.7",
+        "19.10"
+      ],
+      "activityFormats": [
+        "timeline",
+        "failure-model",
+        "design"
+      ],
+      "webEnvironment": "mysql/model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "T07"
+      ],
+      "newPrereqs": [
+        "AD43"
+      ],
+      "focus": "ACK/failover/fencing and durable remote log model; Snapshot plus replay/command logging; restore and RPO/RTO experiment contract",
+      "algorithmProofTargets": [
+        "ACK/failover/fencing and durable remote log model",
+        "Snapshot plus replay/command logging; restore and RPO/RTO experiment contract"
+      ],
+      "exampleTargets": [
+        "PrimaryACKtrướcbackupdurable rồiprimaryloss: traceRPOkhôngbằng0.",
+        "SnapshotX10vàcommands+5,+7: replaydeterministicvàexternalrandomresult đượclogkhácnhau."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "19.7",
+        "19.10"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD45.md",
+      "baselinePaths": {
+        "T07": "baseline/lessons/T07.md"
+      }
+    },
+    {
+      "id": "AD46",
+      "title": "Parallel, distributed và cloud architecture",
+      "module": "Hệ phân tán",
+      "before": [
+        "P01",
+        "AD23"
+      ],
+      "bookPrefixes": [
+        "20"
+      ],
+      "activityFormats": [
+        "cost",
+        "design",
+        "failure-model"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "P01"
+      ],
+      "newPrereqs": [
+        "AD23"
+      ],
+      "focus": "Shared memory/disk/nothing, interconnect and workload bottlenecks; Cloud service model, multi-tenant resource and storage/compute separation",
+      "algorithmProofTargets": [
+        "Shared memory/disk/nothing, interconnect and workload bottlenecks",
+        "Cloud service model, multi-tenant resource and storage/compute separation"
+      ],
+      "exampleTargets": [
+        "Sharednothing4nodes với data skew90/3/3/4: speedup bịnode90%giữ.",
+        "Shared-diskcùngstoragecontrollerchậm: thêmcompute khônggiảm bottleneckI/O."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "20.1",
+        "20.2",
+        "20.3",
+        "20.3.1",
+        "20.3.2",
+        "20.3.3",
+        "20.4",
+        "20.4.1",
+        "20.4.2",
+        "20.4.3",
+        "20.4.4",
+        "20.4.5",
+        "20.4.5.1",
+        "20.4.5.2",
+        "20.4.6",
+        "20.4.7",
+        "20.4.8"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD46.md",
+      "baselinePaths": {
+        "P01": "baseline/lessons/P01.md"
+      }
+    },
+    {
+      "id": "AD47",
+      "title": "Partitioning, skew và data placement",
+      "module": "Hệ phân tán",
+      "before": [
+        "P02",
+        "AD46"
+      ],
+      "bookPrefixes": [
+        "21"
+      ],
+      "activityFormats": [
+        "cost",
+        "algorithm",
+        "design"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "P02"
+      ],
+      "newPrereqs": [
+        "AD46"
+      ],
+      "focus": "Range/hash placement, rebalancing and skew-aware distribution; Distributed files/index/key-value stores and replica metadata",
+      "algorithmProofTargets": [
+        "Range/hash placement, rebalancing and skew-aware distribution",
+        "Distributed files/index/key-value stores and replica metadata"
+      ],
+      "exampleTargets": [
+        "Hashpartitionmod4 đổi5nodes làmđổirouting; consistent/rangeplacement cầnmigrationmetadata.",
+        "Hotcustomerchiếm70%orders: partitiontheokeygiữjoinlocal nhưng skew, saltingđổiqueryplan."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "21.1",
+        "21.2",
+        "21.2.1",
+        "21.2.2",
+        "21.3",
+        "21.3.1",
+        "21.3.2",
+        "21.3.3",
+        "21.4",
+        "21.4.1",
+        "21.4.2"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD47.md",
+      "baselinePaths": {
+        "P02": "baseline/lessons/P02.md"
+      }
+    },
+    {
+      "id": "AD48",
+      "title": "Parallel sort/join và plan scheduling",
+      "module": "Hệ phân tán",
+      "before": [
+        "P04",
+        "AD33",
+        "AD47"
+      ],
+      "bookPrefixes": [
+        "22.1",
+        "22.2",
+        "22.3",
+        "22.4",
+        "22.5",
+        "22.6",
+        "22.7"
+      ],
+      "activityFormats": [
+        "trace",
+        "cost",
+        "algorithm"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": true,
+      "oldPrereqs": [
+        "P04"
+      ],
+      "newPrereqs": [
+        "AD33",
+        "AD47"
+      ],
+      "focus": "Exchange/repartition/broadcast and parallel aggregate/sort/join; Intra/interquery scheduling, speedup/skew/bottleneck model",
+      "algorithmProofTargets": [
+        "Exchange/repartition/broadcast and parallel aggregate/sort/join",
+        "Intra/interquery scheduling, speedup/skew/bottleneck model"
+      ],
+      "exampleTargets": [
+        "BroadcastS=10MiB tới4workersvsrepartitionR=1GiB/S10MiB: tínhnetworktraffic với giảđịnh.",
+        "ParallelaggregateAVG: merge(sum,count) đúng, averageofpartitionaverages sai."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "22.1",
+        "22.2",
+        "22.2.1",
+        "22.2.2",
+        "22.3",
+        "22.3.1",
+        "22.3.2",
+        "22.3.3",
+        "22.4",
+        "22.4.1",
+        "22.4.2"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD48.md",
+      "baselinePaths": {
+        "P04": "baseline/lessons/P04.md"
+      }
+    },
+    {
+      "id": "AD49",
+      "title": "Distributed queries, streams và semijoin shipping",
+      "module": "Hệ phân tán",
+      "before": [
+        "P05",
+        "AD48",
+        "AD21"
+      ],
+      "bookPrefixes": [
+        "22.8",
+        "22.9"
+      ],
+      "activityFormats": [
+        "cost",
+        "proof",
+        "design"
+      ],
+      "webEnvironment": "model/optional-postgres",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "P05"
+      ],
+      "newPrereqs": [
+        "AD48",
+        "AD21"
+      ],
+      "focus": "Remote data movement cost and semijoin strategy proof; Heterogeneous-source capabilities, pushdown and streaming snapshots",
+      "algorithmProofTargets": [
+        "Remote data movement cost and semijoin strategy proof",
+        "Heterogeneous-source capabilities, pushdown and streaming snapshots"
+      ],
+      "exampleTargets": [
+        "SiteA:R1000rows,SiteB:S10rows: semijoinshipkeys+filteredrows so vớishipfullR.",
+        "FDWsourcekhôngsupportpredicate cast: localrecheck vànetworkcost; snapshotkhôngtựglobal."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "22.8",
+        "22.8.1",
+        "22.8.2",
+        "22.8.3",
+        "22.9",
+        "22.9.1",
+        "22.9.2",
+        "22.9.3",
+        "22.9.3.1",
+        "22.9.3.2",
+        "22.9.3.3",
+        "22.9.4"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD49.md",
+      "baselinePaths": {
+        "P05": "baseline/lessons/P05.md"
+      }
+    },
+    {
+      "id": "AD50",
+      "title": "2PC và distributed concurrency control",
+      "module": "Hệ phân tán",
+      "before": [
+        "P06",
+        "AD39"
+      ],
+      "bookPrefixes": [
+        "23.1",
+        "23.2",
+        "23.3"
+      ],
+      "activityFormats": [
+        "timeline",
+        "proof",
+        "failure-model"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": true,
+      "oldPrereqs": [
+        "P06"
+      ],
+      "newPrereqs": [
+        "AD39"
+      ],
+      "focus": "Coordinator/participant durable state transitions and recovery; Blocking histories, all-participant requirement and uncertainty",
+      "algorithmProofTargets": [
+        "Coordinator/participant durable state transitions and recovery",
+        "Blocking histories, all-participant requirement and uncertainty"
+      ],
+      "exampleTargets": [
+        "T1hai participantsvoteYES,coordinatorcrashsauprepare: participantphảibảo toànuncertainty.",
+        "Coordinatorcommitlogdurable,ACKmất: participantrestartxin decision khôngtựabort."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "23.1",
+        "23.1.1",
+        "23.1.2",
+        "23.2",
+        "23.2.1",
+        "23.2.1.1",
+        "23.2.1.2",
+        "23.2.1.3",
+        "23.2.2",
+        "23.2.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD50.md",
+      "baselinePaths": {
+        "P06": "baseline/lessons/P06.md"
+      }
+    },
+    {
+      "id": "AD51",
+      "title": "Replication, consistency và quorum",
+      "module": "Hệ phân tán",
+      "before": [
+        "P07",
+        "AD42"
+      ],
+      "bookPrefixes": [
+        "23.4",
+        "23.5",
+        "23.6"
+      ],
+      "activityFormats": [
+        "timeline",
+        "proof",
+        "counterexample"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": true,
+      "oldPrereqs": [
+        "P07"
+      ],
+      "newPrereqs": [
+        "AD42"
+      ],
+      "focus": "Replica read/write ordering, version/conflict resolution assumptions; Quorum intersection proof vs atomic/linearizable-register protocol",
+      "algorithmProofTargets": [
+        "Replica read/write ordering, version/conflict resolution assumptions",
+        "Quorum intersection proof vs atomic/linearizable-register protocol"
+      ],
+      "exampleTargets": [
+        "N=5,W=3,R=3: mọi read/write quorum giao ít nhất1, nhưng chọnvalue cầnversionprotocol.",
+        "Multi-keyA/B read từ haireplica snapshotskhác tạo total khôngtừng tồn tại dù từngkeymới."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "23.4",
+        "23.4.1",
+        "23.4.2",
+        "23.4.2.1",
+        "23.4.2.2",
+        "23.4.2.3",
+        "23.4.2.4",
+        "23.4.3",
+        "23.4.3.1",
+        "23.4.3.2",
+        "23.4.4"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD51.md",
+      "baselinePaths": {
+        "P07": "baseline/lessons/P07.md"
+      }
+    },
+    {
+      "id": "AD52",
+      "title": "Leader election, Paxos và Raft",
+      "module": "Hệ phân tán",
+      "before": [
+        "P07",
+        "AD51"
+      ],
+      "bookPrefixes": [
+        "23.7",
+        "23.8"
+      ],
+      "activityFormats": [
+        "trace",
+        "proof",
+        "failure-model"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": true,
+      "oldPrereqs": [
+        "P07"
+      ],
+      "newPrereqs": [
+        "AD51"
+      ],
+      "focus": "Failure detectors and fencing; Paxos accept-value preservation argument; Raft term/log/commit rules; safety vs liveness under explicit failure model",
+      "algorithmProofTargets": [
+        "Failure detectors and fencing; Paxos accept-value preservation argument",
+        "Raft term/log/commit rules; safety vs liveness under explicit failure model"
+      ],
+      "exampleTargets": [
+        "Paxosballot9 nhậnaccepted(5,X),(7,Y),none: chọnY vàgiảithích preservechosenvalue.",
+        "LeaderAterm4 bịpartition, Bterm5: fencingstorage phải từchốitoken4 dù A còn sống."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "23.7",
+        "23.7.1",
+        "23.7.2",
+        "23.7.2.1",
+        "23.8",
+        "23.8.1",
+        "23.8.2",
+        "23.8.4",
+        "23.8.5"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD52.md",
+      "baselinePaths": {
+        "P07": "baseline/lessons/P07.md"
+      }
+    },
+    {
+      "id": "AD53",
+      "title": "Tuning, benchmark và tiêu chuẩn database",
+      "module": "Vận hành và tích hợp",
+      "before": [
+        "P08",
+        "AD36",
+        "AD45"
+      ],
+      "bookPrefixes": [
+        "25"
+      ],
+      "activityFormats": [
+        "experiment",
+        "critique",
+        "design"
+      ],
+      "webEnvironment": "mysql",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "P08"
+      ],
+      "newPrereqs": [
+        "AD36",
+        "AD45"
+      ],
+      "focus": "Workload/metric/confounder plan, cache and write cost; Standards/directories/legacy interoperability and reproducible benchmark report",
+      "algorithmProofTargets": [
+        "Workload/metric/confounder plan, cache and write cost",
+        "Standards/directories/legacy interoperability and reproducible benchmark report"
+      ],
+      "exampleTargets": [
+        "Indexthêmgiảmreadscansnhưng tănginsertcost: workload90/10 khác10/90 có kếtluậnkhác.",
+        "Benchmarkcoldcachevswarmcache haiquerykhácresult làso sánhkhônghợp lệ; sửaprotocol."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "25.1",
+        "25.1.1",
+        "25.1.2",
+        "25.1.3",
+        "25.1.4",
+        "25.1.4.1",
+        "25.1.4.2",
+        "25.1.4.3",
+        "25.1.4.4",
+        "25.1.5",
+        "25.1.5.1",
+        "25.1.5.2",
+        "25.1.5.3",
+        "25.1.6",
+        "25.1.7",
+        "25.1.8",
+        "25.1.9",
+        "25.2",
+        "25.2.1",
+        "25.2.2",
+        "25.2.3",
+        "25.3",
+        "25.3.1",
+        "25.3.2",
+        "25.4",
+        "25.4.1",
+        "25.4.2",
+        "25.4.3",
+        "25.5",
+        "25.5.1",
+        "25.5.2",
+        "25.5.2.1",
+        "25.5.2.2",
+        "25.5.2.3"
+      ],
+      "repoActivityIds": [
+        "REPO-E01",
+        "REPO-E02",
+        "REPO-C02"
+      ],
+      "path": "lessons/AD53.md",
+      "baselinePaths": {
+        "P08": "baseline/lessons/P08.md"
+      }
+    },
+    {
+      "id": "AD54",
+      "title": "Blockchain database: validation và giới hạn",
+      "module": "Vận hành và tích hợp",
+      "before": [
+        "P09",
+        "AD51"
+      ],
+      "bookPrefixes": [
+        "26"
+      ],
+      "activityFormats": [
+        "trace",
+        "failure-model",
+        "critique"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "P09"
+      ],
+      "newPrereqs": [
+        "AD51"
+      ],
+      "focus": "Hash/signature/address and transaction validation model; PoW/PoS/Byzantine consensus/smart contract tradeoffs and ledger queries",
+      "algorithmProofTargets": [
+        "Hash/signature/address and transaction validation model",
+        "PoW/PoS/Byzantine consensus/smart contract tradeoffs and ledger queries"
+      ],
+      "exampleTargets": [
+        "PoWforkhai nhánhcùngheight: confirmationpolicy vàreorganizationrisk khôngtươngđương2PCcommit.",
+        "Byzantine nodegửihai messagekhácnhau: majoritycrashfault khôngtựchịuByzantine."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "26.4",
+        "26.4.1",
+        "26.4.2",
+        "26.4.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD54.md",
+      "baselinePaths": {
+        "P09": "baseline/lessons/P09.md"
+      }
+    },
+    {
+      "id": "AD55",
+      "title": "PostgreSQL: storage, planner và executor",
+      "module": "PostgreSQL chuyên sâu",
+      "before": [
+        "O07",
+        "AD36",
+        "AD25"
+      ],
+      "bookPrefixes": [
+        "32.1",
+        "32.2",
+        "32.3",
+        "32.4"
+      ],
+      "activityFormats": [
+        "sql",
+        "plan-critique",
+        "experiment"
+      ],
+      "webEnvironment": "postgres",
+      "status": "authored-pending-review",
+      "key": true,
+      "oldPrereqs": [
+        "O07"
+      ],
+      "newPrereqs": [
+        "AD36",
+        "AD25"
+      ],
+      "focus": "Heap/index-only/partition and actual plan interpretation; Rewrite/planner/executor/parallel/JIT boundaries; contrast MySQL accurately",
+      "algorithmProofTargets": [
+        "Heap/index-only/partition and actual plan interpretation",
+        "Rewrite/planner/executor/parallel/JIT boundaries; contrast MySQL accurately"
+      ],
+      "exampleTargets": [
+        "HeapCTIDđổi sauupdate nhưngbusinesskeygiữ; PKindexkhôngclusterheap nhưInnoDB.",
+        "Coveringindextruyxuất đủcolumn nhưngvisibilitymapunset vẫn cầnheapfetch; đọcplanthật khi runner có."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "32.1",
+        "32.1.1",
+        "32.1.2",
+        "32.1.3",
+        "32.2",
+        "32.3",
+        "32.3.1",
+        "32.3.2",
+        "32.3.2.1",
+        "32.3.2.2",
+        "32.3.2.3",
+        "32.3.2.4",
+        "32.3.3",
+        "32.4",
+        "32.4.1",
+        "32.4.2",
+        "32.4.3",
+        "32.4.4",
+        "32.4.5",
+        "32.4.6"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD55.md",
+      "baselinePaths": {
+        "O07": "baseline/lessons/O07.md"
+      }
+    },
+    {
+      "id": "AD56",
+      "title": "PostgreSQL: MVCC, locks và recovery",
+      "module": "PostgreSQL chuyên sâu",
+      "before": [
+        "AD55",
+        "AD42",
+        "AD44"
+      ],
+      "bookPrefixes": [
+        "32.5"
+      ],
+      "activityFormats": [
+        "timeline",
+        "sql",
+        "experiment"
+      ],
+      "webEnvironment": "postgres",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [],
+      "newPrereqs": [
+        "AD55",
+        "AD42",
+        "AD44"
+      ],
+      "focus": "Tuple visibility, VACUUM/horizon, lock conflicts and SSI; Recovery/replication configuration and observation limits",
+      "algorithmProofTargets": [
+        "Tuple visibility, VACUUM/horizon, lock conflicts and SSI",
+        "Recovery/replication configuration and observation limits"
+      ],
+      "exampleTargets": [
+        "ARepeatableReadreadsx10,Bupdate20commit,Ađọclạivẫn10; kếtthúcsnapshot.",
+        "Longsnapshotgiữoldtuplehorizon, VACUUM khôngthể thu hồi bảnphiênbản cònneeded; SQLlab2session."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "32.5",
+        "32.5.1",
+        "32.5.1.1",
+        "32.5.1.2",
+        "32.5.1.3",
+        "32.5.1.4",
+        "32.5.1.5",
+        "32.5.1.6",
+        "32.5.2",
+        "32.5.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD56.md",
+      "baselinePaths": {}
+    },
+    {
+      "id": "AD57",
+      "title": "PostgreSQL: types, functions và FDW",
+      "module": "PostgreSQL chuyên sâu",
+      "before": [
+        "AD55",
+        "AD14"
+      ],
+      "bookPrefixes": [
+        "32.6",
+        "32.7"
+      ],
+      "activityFormats": [
+        "sql",
+        "api-lab",
+        "design"
+      ],
+      "webEnvironment": "postgres",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [],
+      "newPrereqs": [
+        "AD55",
+        "AD14"
+      ],
+      "focus": "Type/extensibility/function/procedural language and custom index APIs; FDW pushdown/capability/security/time semantics",
+      "algorithmProofTargets": [
+        "Type/extensibility/function/procedural language and custom index APIs",
+        "FDW pushdown/capability/security/time semantics"
+      ],
+      "exampleTargets": [
+        "Numericcustomfunctionvàexpressionindexlower(name): operator/typecontract trướcplan.",
+        "postgres_fdwjoinremote/local: projection/filterpushdown và transactionguarantee cần capability riêng."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "32.6",
+        "32.6.1",
+        "32.6.1.1",
+        "32.6.1.2",
+        "32.6.2",
+        "32.6.2.1",
+        "32.6.2.2",
+        "32.6.2.3",
+        "32.6.2.4",
+        "32.7"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD57.md",
+      "baselinePaths": {}
+    },
+    {
+      "id": "AD58",
+      "title": "PostgreSQL internals: memory, nodes, Datum và tuples",
+      "module": "PostgreSQL chuyên sâu",
+      "before": [
+        "AD55",
+        "AD57"
+      ],
+      "bookPrefixes": [
+        "32.8"
+      ],
+      "activityFormats": [
+        "code-reading",
+        "debug",
+        "algorithm"
+      ],
+      "webEnvironment": "postgres-dev-container",
+      "status": "authored-pending-review",
+      "key": true,
+      "oldPrereqs": [],
+      "newPrereqs": [
+        "AD55",
+        "AD57"
+      ],
+      "focus": "Source/build/code organization; memory contexts and query stack; Node traversal, Datum/tuple conversion and error handling; isolated server-side build lab",
+      "algorithmProofTargets": [
+        "Source/build/code organization; memory contexts and query stack",
+        "Node traversal, Datum/tuple conversion and error handling; isolated server-side build lab"
+      ],
+      "exampleTargets": [
+        "Đọcqueryexecutionscan→projection: phânbiệtPlan node vàPlanState với callnext.",
+        "Buildextensionhàmadd_checked(a,b): ABI/version/toolchainpin vàtrườnghợpnull/overflow."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "32.8",
+        "32.8.1",
+        "32.8.1.1",
+        "32.8.1.2",
+        "32.8.1.3",
+        "32.8.2",
+        "32.8.3",
+        "32.8.8",
+        "32.8.9",
+        "32.8.10"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD58.md",
+      "baselinePaths": {}
+    },
+    {
+      "id": "AD59",
+      "title": "University: schema, constraints và adversarial workload",
+      "module": "Project và tổng hợp",
+      "before": [
+        "Z03",
+        "AD09",
+        "AD10",
+        "AD12"
+      ],
+      "bookPrefixes": [
+        "A"
+      ],
+      "activityFormats": [
+        "sql",
+        "design",
+        "project"
+      ],
+      "webEnvironment": "mysql",
+      "status": "authored-pending-review",
+      "key": true,
+      "oldPrereqs": [
+        "Z03"
+      ],
+      "newPrereqs": [
+        "AD09",
+        "AD10",
+        "AD12"
+      ],
+      "focus": "Full AppendixA entity/grain/key/constraint traceability; End-to-end fixture/version/query/property tests rather than image matching",
+      "algorithmProofTargets": [
+        "Full AppendixA entity/grain/key/constraint traceability",
+        "End-to-end fixture/version/query/property tests rather than image matching"
+      ],
+      "exampleTargets": [
+        "Universitysectionthamchiếucourse/timeslot/classroom; nhập ca FK/CHECK vi phạm đúng một invariant.",
+        "Enrollmenthai sections trùnggiờ: keykhôngbắtintervaloverlap, cần truyvấnnêuclash bằngfixtuređầy đủ."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "A.1",
+        "A.2",
+        "A.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD59.md",
+      "baselinePaths": {
+        "Z03": "baseline/lessons/Z03.md"
+      }
+    },
+    {
+      "id": "AD60",
+      "title": "Company/Northwind: chứng minh thiết kế và bảo vệ kết quả",
+      "module": "Project và tổng hợp",
+      "before": [
+        "Z01",
+        "Z02",
+        "AD06",
+        "AD37",
+        "AD40"
+      ],
+      "bookPrefixes": [],
+      "activityFormats": [
+        "sql",
+        "proof",
+        "project"
+      ],
+      "webEnvironment": "mysql",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [
+        "Z01",
+        "Z02"
+      ],
+      "newPrereqs": [
+        "AD06",
+        "AD37",
+        "AD40"
+      ],
+      "focus": "Inherited30 Northwind task contracts and allCompany schema constraints; New domain/ID/null/ties/transaction evidence with individual transfer task",
+      "algorithmProofTargets": [
+        "Inherited30 Northwind task contracts and allCompany schema constraints",
+        "New domain/ID/null/ties/transaction evidence with individual transfer task"
+      ],
+      "exampleTargets": [
+        "Northwindcustomer0ordersvs2ordersvàunpaid: reportkhônglàm mấtzerochild, graincustomerđúng.",
+        "Companysupervisorcyclevàemployeeworkhours>limit: phânbiệtFKvới invariantgraph/aggregate."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [],
+      "repoActivityIds": [
+        "REPO-C01"
+      ],
+      "path": "lessons/AD60.md",
+      "baselinePaths": {
+        "Z01": "baseline/lessons/Z01.md",
+        "Z02": "baseline/lessons/Z02.md"
+      }
+    },
+    {
+      "id": "AD61",
+      "title": "Datalog: fixpoint, recursion và phủ định",
+      "module": "Lập luận truy vấn",
+      "before": [
+        "AD02",
+        "AD10"
+      ],
+      "bookPrefixes": [
+        "27.4"
+      ],
+      "activityFormats": [
+        "algorithm",
+        "proof",
+        "trace"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "oldPrereqs": [],
+      "newPrereqs": [
+        "AD02",
+        "AD10"
+      ],
+      "focus": "Rule safety/least fixpoint and semi-naive evaluation; Negation/stratification and expressive power compared with calculus",
+      "algorithmProofTargets": [
+        "Rule safety/least fixpoint and semi-naive evaluation",
+        "Negation/stratification and expressive power compared with calculus"
+      ],
+      "exampleTargets": [
+        "edge={(a,b),(b,c)}: transitiveclosure iteration0,1,2 rồi nochange.",
+        "p(X):-node(X),notreach(a,X) cầnstratification; p(X):-notp(X) khôngcótínhđơnđiệu/naivefixpoint."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "27.4",
+        "27.4.1",
+        "27.4.2",
+        "27.4.3",
+        "27.4.3.1",
+        "27.4.3.2",
+        "27.4.4",
+        "27.4.5",
+        "27.4.6",
+        "27.4.7"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD61.md",
+      "baselinePaths": {}
+    },
+    {
+      "id": "AD62",
+      "title": "Raft: bầu leader, log matching và commit an toàn",
+      "module": "Hệ phân tán",
+      "before": [
+        "P07",
+        "AD51"
+      ],
+      "bookPrefixes": [
+        "23.8.3"
+      ],
+      "activityFormats": [
+        "trace",
+        "proof",
+        "failure-model"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": true,
+      "splitFrom": "AD52",
+      "oldPrereqs": [
+        "P07"
+      ],
+      "newPrereqs": [
+        "AD51"
+      ],
+      "focus": "Trace hai term/ba node, conflict suffix và old-term entry; lập luận election safety/log matching; phân biệt điều kiện tiến triển.",
+      "algorithmProofTargets": [
+        "Trace hai term/ba node, conflict suffix và old-term entry; lập luận election safety/log matching; phân biệt điều kiện tiến triển."
+      ],
+      "exampleTargets": [
+        "Trace hai term/ba node, conflict suffix và old-term entry; lập luận election safety/log matching; phân biệt điều kiện tiến triển.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "23.8.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD62.md",
+      "baselinePaths": {
+        "P07": "baseline/lessons/P07.md"
+      }
+    },
+    {
+      "id": "AD63",
+      "title": "Long-duration, operation-level và real-time transactions",
+      "module": "Transactions và recovery",
+      "before": [
+        "T04",
+        "AD38"
+      ],
+      "bookPrefixes": [
+        "18.10"
+      ],
+      "activityFormats": [
+        "timeline",
+        "proof",
+        "trace"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "splitFrom": "AD41",
+      "oldPrereqs": [
+        "T04"
+      ],
+      "newPrereqs": [
+        "AD38"
+      ],
+      "focus": "Chọn compensation/semantic conflict thay row conflict; chỉ ra trạng thái trung gian và deadline không tương đương serializability.",
+      "algorithmProofTargets": [
+        "Chọn compensation/semantic conflict thay row conflict; chỉ ra trạng thái trung gian và deadline không tương đương serializability."
+      ],
+      "exampleTargets": [
+        "Chọn compensation/semantic conflict thay row conflict; chỉ ra trạng thái trung gian và deadline không tương đương serializability.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "18.10",
+        "18.10.1",
+        "18.10.2",
+        "18.10.3",
+        "18.10.4",
+        "18.10.5",
+        "18.10.6"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD63.md",
+      "baselinePaths": {
+        "T04": "baseline/lessons/T04.md"
+      }
+    },
+    {
+      "id": "AD64",
+      "title": "Distributed files, indexes và key-value stores",
+      "module": "Hệ phân tán",
+      "before": [
+        "P02",
+        "AD46"
+      ],
+      "bookPrefixes": [
+        "21.5",
+        "21.6",
+        "21.7"
+      ],
+      "activityFormats": [
+        "cost",
+        "algorithm",
+        "design"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "splitFrom": "AD47",
+      "oldPrereqs": [
+        "P02"
+      ],
+      "newPrereqs": [
+        "AD46"
+      ],
+      "focus": "Theo dõi block/metadata/re-replication, partitioned index routing và online resharding; tách storage placement khỏi query semantics.",
+      "algorithmProofTargets": [
+        "Theo dõi block/metadata/re-replication, partitioned index routing và online resharding; tách storage placement khỏi query semantics."
+      ],
+      "exampleTargets": [
+        "Theo dõi block/metadata/re-replication, partitioned index routing và online resharding; tách storage placement khỏi query semantics.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "21.5",
+        "21.6",
+        "21.7",
+        "21.7.1",
+        "21.7.2",
+        "21.7.2.1",
+        "21.7.2.2",
+        "21.7.3",
+        "21.7.3.1",
+        "21.7.3.2",
+        "21.7.3.3",
+        "21.7.4",
+        "21.7.5"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD64.md",
+      "baselinePaths": {
+        "P02": "baseline/lessons/P02.md"
+      }
+    },
+    {
+      "id": "AD65",
+      "title": "Distributed timestamp, locking và global snapshots",
+      "module": "Hệ phân tán",
+      "before": [
+        "P07",
+        "AD42"
+      ],
+      "bookPrefixes": [
+        "23.3",
+        "23.5"
+      ],
+      "activityFormats": [
+        "timeline",
+        "proof",
+        "counterexample"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": true,
+      "splitFrom": "AD51",
+      "oldPrereqs": [
+        "P07"
+      ],
+      "newPrereqs": [
+        "AD42"
+      ],
+      "focus": "Xây toàn lịch xuyên site, timestamp generation/leases/deadlock; chứng minh snapshot từng site chưa đủ global consistency.",
+      "algorithmProofTargets": [
+        "Xây toàn lịch xuyên site, timestamp generation/leases/deadlock; chứng minh snapshot từng site chưa đủ global consistency."
+      ],
+      "exampleTargets": [
+        "Xây toàn lịch xuyên site, timestamp generation/leases/deadlock; chứng minh snapshot từng site chưa đủ global consistency.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "23.3",
+        "23.3.1",
+        "23.3.1.1",
+        "23.3.1.2",
+        "23.3.2",
+        "23.3.3",
+        "23.3.4",
+        "23.3.5",
+        "23.3.6",
+        "23.3.7",
+        "23.5",
+        "23.5.1",
+        "23.5.2",
+        "23.5.3"
+      ],
+      "repoActivityIds": [
+        "REPO-H02"
+      ],
+      "path": "lessons/AD65.md",
+      "baselinePaths": {
+        "P07": "baseline/lessons/P07.md"
+      }
+    },
+    {
+      "id": "AD66",
+      "title": "Asynchronous replication, conflict resolution và Merkle tree",
+      "module": "Hệ phân tán",
+      "before": [
+        "P07",
+        "AD42"
+      ],
+      "bookPrefixes": [
+        "23.6"
+      ],
+      "activityFormats": [
+        "timeline",
+        "proof",
+        "counterexample"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "splitFrom": "AD51",
+      "oldPrereqs": [
+        "P07"
+      ],
+      "newPrereqs": [
+        "AD42"
+      ],
+      "focus": "Trace stale/version conflict, vector-style detection theo nguồn, reconcile collections bằng Merkle tree và quy tắc resolve.",
+      "algorithmProofTargets": [
+        "Trace stale/version conflict, vector-style detection theo nguồn, reconcile collections bằng Merkle tree và quy tắc resolve."
+      ],
+      "exampleTargets": [
+        "Trace stale/version conflict, vector-style detection theo nguồn, reconcile collections bằng Merkle tree và quy tắc resolve.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "23.6",
+        "23.6.1",
+        "23.6.2",
+        "23.6.3",
+        "23.6.4",
+        "23.6.5",
+        "23.6.6"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD66.md",
+      "baselinePaths": {
+        "P07": "baseline/lessons/P07.md"
+      }
+    },
+    {
+      "id": "AD67",
+      "title": "Từ file đến cloud: hợp đồng DBMS và tiến hóa kiến trúc",
+      "module": "Lập luận truy vấn",
+      "before": [
+        "C02",
+        "S05",
+        "S07",
+        "S09",
+        "S11"
+      ],
+      "bookPrefixes": [
+        "1"
+      ],
+      "activityFormats": [
+        "counterexample",
+        "debug",
+        "sql"
+      ],
+      "webEnvironment": "mysql",
+      "status": "authored-pending-review",
+      "key": false,
+      "splitFrom": "AD01",
+      "oldPrereqs": [
+        "C02",
+        "S05",
+        "S07",
+        "S09",
+        "S11"
+      ],
+      "newPrereqs": [],
+      "focus": "Dùng lịch sử trong sách như bối cảnh; nối yêu cầu, abstraction, engine và architecture bằng case so sánh có giả định, bổ sung1.9 còn thiếu ở C01.",
+      "algorithmProofTargets": [
+        "Dùng lịch sử trong sách như bối cảnh; nối yêu cầu, abstraction, engine và architecture bằng case so sánh có giả định, bổ sung1.9 còn thiếu ở C01."
+      ],
+      "exampleTargets": [
+        "Dùng lịch sử trong sách như bối cảnh; nối yêu cầu, abstraction, engine và architecture bằng case so sánh có giả định, bổ sung1.9 còn thiếu ở C01.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "1.1",
+        "1.2",
+        "1.3",
+        "1.3.1",
+        "1.3.2",
+        "1.3.3",
+        "1.3.4",
+        "1.4",
+        "1.4.1",
+        "1.4.2",
+        "1.4.3",
+        "1.4.4",
+        "1.4.5",
+        "1.5",
+        "1.6",
+        "1.6.1",
+        "1.6.2",
+        "1.6.3",
+        "1.7",
+        "1.8",
+        "1.8.1",
+        "1.8.2",
+        "1.9"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD67.md",
+      "baselinePaths": {
+        "C02": "baseline/lessons/C02.md",
+        "S05": "baseline/lessons/S05.md",
+        "S07": "baseline/lessons/S07.md",
+        "S09": "baseline/lessons/S09.md",
+        "S11": "baseline/lessons/S11.md"
+      }
+    },
+    {
+      "id": "AD68",
+      "title": "XML model, schema và XPath",
+      "module": "Ứng dụng và dữ liệu mở rộng",
+      "before": [
+        "O05"
+      ],
+      "bookPrefixes": [
+        "30.1",
+        "30.2",
+        "30.3"
+      ],
+      "activityFormats": [
+        "translation",
+        "tree-trace",
+        "query-lab"
+      ],
+      "webEnvironment": "model/optional-xml-engine",
+      "status": "authored-pending-review",
+      "key": false,
+      "splitFrom": "AD16",
+      "oldPrereqs": [
+        "O05"
+      ],
+      "newPrereqs": [],
+      "focus": "Định nghĩa tree/order/identity/mixed content, DTD/XMLSchema; trace XPath axes/predicates và khác vị trí predicate.",
+      "algorithmProofTargets": [
+        "Định nghĩa tree/order/identity/mixed content, DTD/XMLSchema; trace XPath axes/predicates và khác vị trí predicate."
+      ],
+      "exampleTargets": [
+        "Định nghĩa tree/order/identity/mixed content, DTD/XMLSchema; trace XPath axes/predicates và khác vị trí predicate.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "30.1",
+        "30.2",
+        "30.3",
+        "30.3.1",
+        "30.3.2",
+        "30.4.1",
+        "30.4.2"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD68.md",
+      "baselinePaths": {
+        "O05": "baseline/lessons/O05.md"
+      }
+    },
+    {
+      "id": "AD69",
+      "title": "IR: relevance, vector ranking và link analysis",
+      "module": "Ứng dụng và dữ liệu mở rộng",
+      "before": [
+        "O06",
+        "M06"
+      ],
+      "bookPrefixes": [
+        "31.1",
+        "31.2",
+        "31.3",
+        "31.4"
+      ],
+      "activityFormats": [
+        "algorithm",
+        "trace",
+        "experiment"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "splitFrom": "AD17",
+      "oldPrereqs": [
+        "O06",
+        "M06"
+      ],
+      "newPrereqs": [],
+      "focus": "Tính score TF-IDF/cosine trên corpus nhỏ; precision/recall; PageRank một vòng và diễn giải giới hạn.",
+      "algorithmProofTargets": [
+        "Tính score TF-IDF/cosine trên corpus nhỏ; precision/recall; PageRank một vòng và diễn giải giới hạn."
+      ],
+      "exampleTargets": [
+        "Tính score TF-IDF/cosine trên corpus nhỏ; precision/recall; PageRank một vòng và diễn giải giới hạn.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "8.3",
+        "8.3.1",
+        "8.3.2",
+        "8.3.2.1",
+        "8.3.2.2",
+        "8.3.3",
+        "8.3.4",
+        "31.1",
+        "31.2",
+        "31.2.1",
+        "31.2.2",
+        "31.3",
+        "31.3.1",
+        "31.3.2",
+        "31.3.3",
+        "31.3.4",
+        "31.3.5",
+        "31.4"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD69.md",
+      "baselinePaths": {
+        "O06": "baseline/lessons/O06.md",
+        "M06": "baseline/lessons/M06.md"
+      }
+    },
+    {
+      "id": "AD70",
+      "title": "Classification và regression: tính mô hình nhỏ",
+      "module": "Phân tích và xử lý dữ liệu",
+      "before": [
+        "B04",
+        "M06"
+      ],
+      "bookPrefixes": [
+        "11.4.2",
+        "11.4.3"
+      ],
+      "activityFormats": [
+        "algorithm",
+        "data-decision",
+        "experiment"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "splitFrom": "AD19",
+      "oldPrereqs": [
+        "B04",
+        "M06"
+      ],
+      "newPrereqs": [],
+      "focus": "Trace decision tree, Bayes, margin/neural network theo mức nguồn; regression/prediction kháccausalclaim, validation độc lập.",
+      "algorithmProofTargets": [
+        "Trace decision tree, Bayes, margin/neural network theo mức nguồn; regression/prediction kháccausalclaim, validation độc lập."
+      ],
+      "exampleTargets": [
+        "Trace decision tree, Bayes, margin/neural network theo mức nguồn; regression/prediction kháccausalclaim, validation độc lập.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "11.4.2",
+        "11.4.2.1",
+        "11.4.2.2",
+        "11.4.2.3",
+        "11.4.2.4",
+        "11.4.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD70.md",
+      "baselinePaths": {
+        "B04": "baseline/lessons/B04.md",
+        "M06": "baseline/lessons/M06.md"
+      }
+    },
+    {
+      "id": "AD71",
+      "title": "Association rules và clustering",
+      "module": "Phân tích và xử lý dữ liệu",
+      "before": [
+        "B04",
+        "M06"
+      ],
+      "bookPrefixes": [
+        "11.4.4",
+        "11.4.5"
+      ],
+      "activityFormats": [
+        "algorithm",
+        "data-decision",
+        "experiment"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "splitFrom": "AD19",
+      "oldPrereqs": [
+        "B04",
+        "M06"
+      ],
+      "newPrereqs": [],
+      "focus": "Tính support/confidence/lift, tạo frequent itemsets; lặp clustering với metric/initialization rõ, ca confounding.",
+      "algorithmProofTargets": [
+        "Tính support/confidence/lift, tạo frequent itemsets; lặp clustering với metric/initialization rõ, ca confounding."
+      ],
+      "exampleTargets": [
+        "Tính support/confidence/lift, tạo frequent itemsets; lặp clustering với metric/initialization rõ, ca confounding.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "11.4.4",
+        "11.4.5"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD71.md",
+      "baselinePaths": {
+        "B04": "baseline/lessons/B04.md",
+        "M06": "baseline/lessons/M06.md"
+      }
+    },
+    {
+      "id": "AD72",
+      "title": "Warehouse, star schema và OLAP",
+      "module": "Phân tích và xử lý dữ liệu",
+      "before": [
+        "B03",
+        "AD01"
+      ],
+      "bookPrefixes": [
+        "11.1",
+        "11.2",
+        "11.3"
+      ],
+      "activityFormats": [
+        "sql",
+        "counterexample",
+        "design"
+      ],
+      "webEnvironment": "mysql",
+      "status": "authored-pending-review",
+      "key": false,
+      "splitFrom": "AD18",
+      "oldPrereqs": [
+        "B03"
+      ],
+      "newPrereqs": [
+        "AD01"
+      ],
+      "focus": "Xác định grain/hierarchy và summarizability; cube/rollup/pivot, ETL vs lake, báo cáo tránh double counting.",
+      "algorithmProofTargets": [
+        "Xác định grain/hierarchy và summarizability; cube/rollup/pivot, ETL vs lake, báo cáo tránh double counting."
+      ],
+      "exampleTargets": [
+        "Xác định grain/hierarchy và summarizability; cube/rollup/pivot, ETL vs lake, báo cáo tránh double counting.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "11.1",
+        "11.2",
+        "11.2.1",
+        "11.2.2",
+        "11.2.3",
+        "11.2.4",
+        "11.3",
+        "11.3.1",
+        "11.3.2",
+        "11.3.3",
+        "11.3.4"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD72.md",
+      "baselinePaths": {
+        "B03": "baseline/lessons/B03.md"
+      }
+    },
+    {
+      "id": "AD73",
+      "title": "Big-data storage và kiến trúc xử lý",
+      "module": "Phân tích và xử lý dữ liệu",
+      "before": [
+        "B01",
+        "P01"
+      ],
+      "bookPrefixes": [
+        "10.1",
+        "10.2",
+        "10.3"
+      ],
+      "activityFormats": [
+        "trace",
+        "algorithm",
+        "counterexample"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "splitFrom": "AD20",
+      "oldPrereqs": [
+        "B01",
+        "P01"
+      ],
+      "newPrereqs": [],
+      "focus": "Phân biệt physical partition/replication với logical model; storage format/metadata và failure assumptions trướcMapReduce.",
+      "algorithmProofTargets": [
+        "Phân biệt physical partition/replication với logical model; storage format/metadata và failure assumptions trướcMapReduce."
+      ],
+      "exampleTargets": [
+        "Phân biệt physical partition/replication với logical model; storage format/metadata và failure assumptions trướcMapReduce.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "10.1",
+        "10.1.1",
+        "10.1.2",
+        "10.2",
+        "10.2.1",
+        "10.2.2",
+        "10.2.3",
+        "10.2.4",
+        "10.2.5"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD73.md",
+      "baselinePaths": {
+        "B01": "baseline/lessons/B01.md",
+        "P01": "baseline/lessons/P01.md"
+      }
+    },
+    {
+      "id": "AD74",
+      "title": "Ordered, sparse và multilevel indices",
+      "module": "Storage và indexes",
+      "before": [
+        "I04",
+        "AD24"
+      ],
+      "bookPrefixes": [
+        "14.1",
+        "14.2"
+      ],
+      "activityFormats": [
+        "tree-trace",
+        "algorithm",
+        "proof"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "splitFrom": "AD27",
+      "oldPrereqs": [
+        "I04"
+      ],
+      "newPrereqs": [
+        "AD24"
+      ],
+      "focus": "Tìm block bằng index nhiều mức; tính I/O theo fanout/ordering và trace update dense/sparse khi first-key thay đổi.",
+      "algorithmProofTargets": [
+        "Tìm block bằng index nhiều mức; tính I/O theo fanout/ordering và trace update dense/sparse khi first-key thay đổi."
+      ],
+      "exampleTargets": [
+        "Tìm block bằng index nhiều mức; tính I/O theo fanout/ordering và trace update dense/sparse khi first-key thay đổi.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "14.1",
+        "14.2",
+        "14.2.1",
+        "14.2.2",
+        "14.2.3",
+        "14.2.3.1",
+        "14.2.3.2",
+        "14.2.4",
+        "14.2.5"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD74.md",
+      "baselinePaths": {
+        "I04": "baseline/lessons/I04.md"
+      }
+    },
+    {
+      "id": "AD75",
+      "title": "Bloom filter: bit, hash và xác suất false positive",
+      "module": "Storage và indexes",
+      "before": [
+        "I06",
+        "AD29"
+      ],
+      "bookPrefixes": [
+        "24.1"
+      ],
+      "activityFormats": [
+        "trace",
+        "algorithm",
+        "cost"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": true,
+      "splitFrom": "AD31",
+      "oldPrereqs": [
+        "I06"
+      ],
+      "newPrereqs": [
+        "AD29"
+      ],
+      "focus": "Build/test với hash cho trước, chứng minh no-false-negative theo mô hình insert-only và tính false positive giả định độc lập.",
+      "algorithmProofTargets": [
+        "Build/test với hash cho trước, chứng minh no-false-negative theo mô hình insert-only và tính false positive giả định độc lập."
+      ],
+      "exampleTargets": [
+        "Build/test với hash cho trước, chứng minh no-false-negative theo mô hình insert-only và tính false positive giả định độc lập.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "24.1"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD75.md",
+      "baselinePaths": {
+        "I06": "baseline/lessons/I06.md"
+      }
+    },
+    {
+      "id": "AD76",
+      "title": "Selection operators và mô hình chi phí",
+      "module": "Query execution và optimization",
+      "before": [
+        "Q01",
+        "M06"
+      ],
+      "bookPrefixes": [
+        "15.1",
+        "15.2",
+        "15.3"
+      ],
+      "activityFormats": [
+        "cost",
+        "trace",
+        "algorithm"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "splitFrom": "AD32",
+      "oldPrereqs": [
+        "Q01",
+        "M06"
+      ],
+      "newPrereqs": [],
+      "focus": "So scan/index/binary-search trên thông số block/seek; conjunctive/disjunctive predicates, cache và estimated-cost limitations.",
+      "algorithmProofTargets": [
+        "So scan/index/binary-search trên thông số block/seek; conjunctive/disjunctive predicates, cache và estimated-cost limitations."
+      ],
+      "exampleTargets": [
+        "So scan/index/binary-search trên thông số block/seek; conjunctive/disjunctive predicates, cache và estimated-cost limitations.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "15.1",
+        "15.2",
+        "15.3",
+        "15.3.1",
+        "15.3.2",
+        "15.3.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD76.md",
+      "baselinePaths": {
+        "Q01": "baseline/lessons/Q01.md",
+        "M06": "baseline/lessons/M06.md"
+      }
+    },
+    {
+      "id": "AD77",
+      "title": "Nested-loop join: tuple, block và index",
+      "module": "Query execution và optimization",
+      "before": [
+        "Q02",
+        "AD32"
+      ],
+      "bookPrefixes": [
+        "15.5.1",
+        "15.5.2",
+        "15.5.3"
+      ],
+      "activityFormats": [
+        "cost",
+        "algorithm",
+        "trace"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": true,
+      "splitFrom": "AD33",
+      "oldPrereqs": [
+        "Q02"
+      ],
+      "newPrereqs": [
+        "AD32"
+      ],
+      "focus": "Pseudocode và trace đủ duplicate/null theo join predicate; cost đảo outer với buffer budget và index fanout.",
+      "algorithmProofTargets": [
+        "Pseudocode và trace đủ duplicate/null theo join predicate; cost đảo outer với buffer budget và index fanout."
+      ],
+      "exampleTargets": [
+        "Pseudocode và trace đủ duplicate/null theo join predicate; cost đảo outer với buffer budget và index fanout.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "15.5.1",
+        "15.5.2",
+        "15.5.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD77.md",
+      "baselinePaths": {
+        "Q02": "baseline/lessons/Q02.md"
+      }
+    },
+    {
+      "id": "AD78",
+      "title": "Decorrelation và tối ưu subquery",
+      "module": "Query execution và optimization",
+      "before": [
+        "Q04",
+        "AD36",
+        "AD18"
+      ],
+      "bookPrefixes": [
+        "16.4.4"
+      ],
+      "activityFormats": [
+        "sql",
+        "counterexample",
+        "experiment"
+      ],
+      "webEnvironment": "mysql/model",
+      "status": "authored-pending-review",
+      "key": false,
+      "splitFrom": "AD37",
+      "oldPrereqs": [
+        "Q04"
+      ],
+      "newPrereqs": [
+        "AD36",
+        "AD18"
+      ],
+      "focus": "Chứng minh EXISTS→semijoin, bác rewriteNOT IN/NULL và aggregatecorrelation; trace querygraph trước/sau.",
+      "algorithmProofTargets": [
+        "Chứng minh EXISTS→semijoin, bác rewriteNOT IN/NULL và aggregatecorrelation; trace querygraph trước/sau."
+      ],
+      "exampleTargets": [
+        "Chứng minh EXISTS→semijoin, bác rewriteNOT IN/NULL và aggregatecorrelation; trace querygraph trước/sau.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "16.4.4"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD78.md",
+      "baselinePaths": {
+        "Q04": "baseline/lessons/Q04.md"
+      }
+    },
+    {
+      "id": "AD79",
+      "title": "Cloud database architecture và multi-tenancy",
+      "module": "Hệ phân tán",
+      "before": [
+        "P01",
+        "AD23"
+      ],
+      "bookPrefixes": [
+        "20.5",
+        "20.6",
+        "20.7"
+      ],
+      "activityFormats": [
+        "cost",
+        "design",
+        "failure-model"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "splitFrom": "AD46",
+      "oldPrereqs": [
+        "P01"
+      ],
+      "newPrereqs": [
+        "AD23"
+      ],
+      "focus": "Tách compute/storage, resource governance, availability/failure domain; không đồng nhất autoscaling với correctness.",
+      "algorithmProofTargets": [
+        "Tách compute/storage, resource governance, availability/failure domain; không đồng nhất autoscaling với correctness."
+      ],
+      "exampleTargets": [
+        "Tách compute/storage, resource governance, availability/failure domain; không đồng nhất autoscaling với correctness.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "20.5",
+        "20.6",
+        "20.7",
+        "20.7.1",
+        "20.7.2"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD79.md",
+      "baselinePaths": {
+        "P01": "baseline/lessons/P01.md"
+      }
+    },
+    {
+      "id": "AD80",
+      "title": "Parallel execution plan và scheduling",
+      "module": "Hệ phân tán",
+      "before": [
+        "P04",
+        "AD33",
+        "AD47"
+      ],
+      "bookPrefixes": [
+        "22.5",
+        "22.6",
+        "22.7"
+      ],
+      "activityFormats": [
+        "trace",
+        "cost",
+        "algorithm"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "splitFrom": "AD48",
+      "oldPrereqs": [
+        "P04"
+      ],
+      "newPrereqs": [
+        "AD33",
+        "AD47"
+      ],
+      "focus": "Pipeline/interoperator/independent parallelism, exchange/buffer, scheduling/resource model và contention.",
+      "algorithmProofTargets": [
+        "Pipeline/interoperator/independent parallelism, exchange/buffer, scheduling/resource model và contention."
+      ],
+      "exampleTargets": [
+        "Pipeline/interoperator/independent parallelism, exchange/buffer, scheduling/resource model và contention.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "22.5",
+        "22.5.1",
+        "22.5.1.1",
+        "22.5.1.2",
+        "22.5.2",
+        "22.5.3",
+        "22.5.4",
+        "22.6",
+        "22.7",
+        "22.7.1",
+        "22.7.2",
+        "22.7.3",
+        "22.7.4",
+        "22.7.5"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD80.md",
+      "baselinePaths": {
+        "P04": "baseline/lessons/P04.md"
+      }
+    },
+    {
+      "id": "AD81",
+      "title": "Blockchain: hash, chữ ký và validation",
+      "module": "Vận hành và tích hợp",
+      "before": [
+        "P09",
+        "AD51"
+      ],
+      "bookPrefixes": [
+        "26.1",
+        "26.2",
+        "26.3"
+      ],
+      "activityFormats": [
+        "trace",
+        "failure-model",
+        "critique"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "splitFrom": "AD54",
+      "oldPrereqs": [
+        "P09"
+      ],
+      "newPrereqs": [
+        "AD51"
+      ],
+      "focus": "Hash links/Merkle/signature chỉ đảm bảo dưới giả định cryptographic; validate transaction/ownership và double-spend.",
+      "algorithmProofTargets": [
+        "Hash links/Merkle/signature chỉ đảm bảo dưới giả định cryptographic; validate transaction/ownership và double-spend."
+      ],
+      "exampleTargets": [
+        "Hash links/Merkle/signature chỉ đảm bảo dưới giả định cryptographic; validate transaction/ownership và double-spend.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "26.1",
+        "26.2",
+        "26.3",
+        "26.3.1",
+        "26.3.2",
+        "26.3.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD81.md",
+      "baselinePaths": {
+        "P09": "baseline/lessons/P09.md"
+      }
+    },
+    {
+      "id": "AD82",
+      "title": "Smart contracts, ledger state và query",
+      "module": "Vận hành và tích hợp",
+      "before": [
+        "P09",
+        "AD51"
+      ],
+      "bookPrefixes": [
+        "26.5",
+        "26.6",
+        "26.7",
+        "26.8"
+      ],
+      "activityFormats": [
+        "trace",
+        "failure-model",
+        "critique"
+      ],
+      "webEnvironment": "model",
+      "status": "authored-pending-review",
+      "key": false,
+      "splitFrom": "AD54",
+      "oldPrereqs": [
+        "P09"
+      ],
+      "newPrereqs": [
+        "AD51"
+      ],
+      "focus": "Trace state transition hợp lệ, oracle/autonomous/cross-chain limitations; index/query throughput khácconsensus throughput.",
+      "algorithmProofTargets": [
+        "Trace state transition hợp lệ, oracle/autonomous/cross-chain limitations; index/query throughput khácconsensus throughput."
+      ],
+      "exampleTargets": [
+        "Trace state transition hợp lệ, oracle/autonomous/cross-chain limitations; index/query throughput khácconsensus throughput.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "26.5",
+        "26.5.1",
+        "26.5.2",
+        "26.6",
+        "26.6.1",
+        "26.6.2",
+        "26.6.3",
+        "26.6.4",
+        "26.7",
+        "26.7.1",
+        "26.7.2",
+        "26.7.3",
+        "26.8"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD82.md",
+      "baselinePaths": {
+        "P09": "baseline/lessons/P09.md"
+      }
+    },
+    {
+      "id": "AD83",
+      "title": "PostgreSQL memory contexts và execution lifetime",
+      "module": "PostgreSQL chuyên sâu",
+      "before": [
+        "AD55",
+        "AD57"
+      ],
+      "bookPrefixes": [
+        "32.8.4",
+        "32.8.8.1"
+      ],
+      "activityFormats": [
+        "code-reading",
+        "debug",
+        "algorithm"
+      ],
+      "webEnvironment": "postgres-dev-container",
+      "status": "authored-pending-review",
+      "key": true,
+      "splitFrom": "AD58",
+      "oldPrereqs": [],
+      "newPrereqs": [
+        "AD55",
+        "AD57"
+      ],
+      "focus": "Theo dõi allocation/reset theo tuple/query/transaction; chứng minh lifetime contract và lỗi giữ pointer qua reset.",
+      "algorithmProofTargets": [
+        "Theo dõi allocation/reset theo tuple/query/transaction; chứng minh lifetime contract và lỗi giữ pointer qua reset."
+      ],
+      "exampleTargets": [
+        "Theo dõi allocation/reset theo tuple/query/transaction; chứng minh lifetime contract và lỗi giữ pointer qua reset.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "32.8.4",
+        "32.8.8.1"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD83.md",
+      "baselinePaths": {}
+    },
+    {
+      "id": "AD84",
+      "title": "PostgreSQL Node, Datum và tuple",
+      "module": "PostgreSQL chuyên sâu",
+      "before": [
+        "AD55",
+        "AD57"
+      ],
+      "bookPrefixes": [
+        "32.8.5",
+        "32.8.6",
+        "32.8.7"
+      ],
+      "activityFormats": [
+        "code-reading",
+        "debug",
+        "algorithm"
+      ],
+      "webEnvironment": "postgres-dev-container",
+      "status": "authored-pending-review",
+      "key": true,
+      "splitFrom": "AD58",
+      "oldPrereqs": [],
+      "newPrereqs": [
+        "AD55",
+        "AD57"
+      ],
+      "focus": "Read code C có typedef/modeltrước; dispatch NodeTag đúng, Datum by-value/by-reference và tuple descriptor/null bitmap.",
+      "algorithmProofTargets": [
+        "Read code C có typedef/modeltrước; dispatch NodeTag đúng, Datum by-value/by-reference và tuple descriptor/null bitmap."
+      ],
+      "exampleTargets": [
+        "Read code C có typedef/modeltrước; dispatch NodeTag đúng, Datum by-value/by-reference và tuple descriptor/null bitmap.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "32.8.5",
+        "32.8.5.1",
+        "32.8.5.2",
+        "32.8.6",
+        "32.8.7"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD84.md",
+      "baselinePaths": {}
+    },
+    {
+      "id": "AD85",
+      "title": "Routine và trigger: chuyển trạng thái có transaction",
+      "module": "Ứng dụng và dữ liệu mở rộng",
+      "before": [
+        "S13",
+        "S14",
+        "S15",
+        "A05"
+      ],
+      "bookPrefixes": [
+        "5.2",
+        "5.3"
+      ],
+      "activityFormats": [
+        "sql",
+        "debug",
+        "threat-model"
+      ],
+      "webEnvironment": "mysql",
+      "status": "authored-pending-review",
+      "key": false,
+      "splitFrom": "AD12",
+      "oldPrereqs": [
+        "S13",
+        "S14",
+        "S15",
+        "A05"
+      ],
+      "newPrereqs": [],
+      "focus": "Procedure parameters/cursor/exception; row/statementtriggers, recursion/sideeffects và ca multiple-row đúnginvariant.",
+      "algorithmProofTargets": [
+        "Procedure parameters/cursor/exception; row/statementtriggers, recursion/sideeffects và ca multiple-row đúnginvariant."
+      ],
+      "exampleTargets": [
+        "Procedure parameters/cursor/exception; row/statementtriggers, recursion/sideeffects và ca multiple-row đúnginvariant.",
+        "Ca phản ví dụ dùng cùng mô hình, thay một giả định và nêu kết quả phải đổi."
+      ],
+      "transferTargets": [
+        "Tự giải một instance mới với ký hiệu/dữ liệu/ràng buộc đổi; phải nêu assumptions, intermediate states và kết luận.",
+        "Nếu hoạt động có code/query: chạy trên runner đúngengine; nếu proof/model: nộp lập luận/rubric. Output chuẩn bị không tính độc lập."
+      ],
+      "sectionIds": [
+        "5.2",
+        "5.2.1",
+        "5.2.2",
+        "5.2.3",
+        "5.3",
+        "5.3.1",
+        "5.3.2",
+        "5.3.3"
+      ],
+      "repoActivityIds": [],
+      "path": "lessons/AD85.md",
+      "baselinePaths": {
+        "S13": "baseline/lessons/S13.md",
+        "S14": "baseline/lessons/S14.md",
+        "S15": "baseline/lessons/S15.md",
+        "A05": "baseline/lessons/A05.md"
+      }
+    }
+  ],
+  "baselineLessons": [
+    {
+      "id": "F01",
+      "title": "Bắt đầu với dữ liệu và cách học khóa này",
+      "path": "baseline/lessons/F01.md"
+    },
+    {
+      "id": "F02",
+      "title": "Đọc lệnh, bảng kết quả và chuẩn bị MySQL",
+      "path": "baseline/lessons/F02.md"
+    },
+    {
+      "id": "M01",
+      "title": "Tập hợp, tuple và tích Descartes",
+      "path": "baseline/lessons/M01.md"
+    },
+    {
+      "id": "M02",
+      "title": "Logic, lượng từ và UNKNOWN",
+      "path": "baseline/lessons/M02.md"
+    },
+    {
+      "id": "M03",
+      "title": "Quan hệ, hàm và ràng buộc dữ liệu",
+      "path": "baseline/lessons/M03.md"
+    },
+    {
+      "id": "M04",
+      "title": "Chứng minh bằng phản ví dụ và suy diễn",
+      "path": "baseline/lessons/M04.md"
+    },
+    {
+      "id": "M05",
+      "title": "Đồ thị cho quan hệ và lịch giao dịch",
+      "path": "baseline/lessons/M05.md"
+    },
+    {
+      "id": "M06",
+      "title": "Đếm, logarit, xác suất và chi phí thuật toán",
+      "path": "baseline/lessons/M06.md"
+    },
+    {
+      "id": "C01",
+      "title": "Database, DBMS và các góc nhìn dữ liệu",
+      "path": "baseline/lessons/C01.md"
+    },
+    {
+      "id": "C02",
+      "title": "Schema, instance, domain và keys",
+      "path": "baseline/lessons/C02.md"
+    },
+    {
+      "id": "C03",
+      "title": "Đại số quan hệ: chọn, chiếu và phép tập hợp",
+      "path": "baseline/lessons/C03.md"
+    },
+    {
+      "id": "C04",
+      "title": "Join, division và cây biểu thức",
+      "path": "baseline/lessons/C04.md"
+    },
+    {
+      "id": "S01",
+      "title": "Chạy MySQL và tái tạo bộ dữ liệu PE",
+      "path": "baseline/lessons/S01.md"
+    },
+    {
+      "id": "S02",
+      "title": "Kiểu dữ liệu, CREATE và ALTER TABLE",
+      "path": "baseline/lessons/S02.md"
+    },
+    {
+      "id": "S03",
+      "title": "PRIMARY KEY, FOREIGN KEY và CHECK",
+      "path": "baseline/lessons/S03.md"
+    },
+    {
+      "id": "S04",
+      "title": "SELECT, WHERE và biểu thức",
+      "path": "baseline/lessons/S04.md"
+    },
+    {
+      "id": "S05",
+      "title": "NULL, LIKE, chuỗi và ngày",
+      "path": "baseline/lessons/S05.md"
+    },
+    {
+      "id": "S06",
+      "title": "DISTINCT, ORDER BY, LIMIT và phép tập hợp",
+      "path": "baseline/lessons/S06.md"
+    },
+    {
+      "id": "S07",
+      "title": "COUNT, SUM, GROUP BY và HAVING",
+      "path": "baseline/lessons/S07.md"
+    },
+    {
+      "id": "S08",
+      "title": "INNER JOIN và cardinality của kết quả",
+      "path": "baseline/lessons/S08.md"
+    },
+    {
+      "id": "S09",
+      "title": "OUTER JOIN, self join và điều kiện ON",
+      "path": "baseline/lessons/S09.md"
+    },
+    {
+      "id": "S10",
+      "title": "Subquery, IN và truy vấn tương quan",
+      "path": "baseline/lessons/S10.md"
+    },
+    {
+      "id": "S11",
+      "title": "EXISTS, NOT EXISTS và điều kiện mọi",
+      "path": "baseline/lessons/S11.md"
+    },
+    {
+      "id": "S12",
+      "title": "INSERT, UPDATE, DELETE và transaction đầu tiên",
+      "path": "baseline/lessons/S12.md"
+    },
+    {
+      "id": "S13",
+      "title": "Views, schema và authorization",
+      "path": "baseline/lessons/S13.md"
+    },
+    {
+      "id": "S14",
+      "title": "Functions và stored procedures",
+      "path": "baseline/lessons/S14.md"
+    },
+    {
+      "id": "S15",
+      "title": "Triggers và tính nhất quán",
+      "path": "baseline/lessons/S15.md"
+    },
+    {
+      "id": "S16",
+      "title": "CTE đệ quy và truy vấn cây",
+      "path": "baseline/lessons/S16.md"
+    },
+    {
+      "id": "S17",
+      "title": "Window functions, ranking và ROLLUP",
+      "path": "baseline/lessons/S17.md"
+    },
+    {
+      "id": "S18",
+      "title": "Gọi SQL từ chương trình và parameter binding",
+      "path": "baseline/lessons/S18.md"
+    },
+    {
+      "id": "D01",
+      "title": "Từ yêu cầu nghiệp vụ đến ERD",
+      "path": "baseline/lessons/D01.md"
+    },
+    {
+      "id": "D02",
+      "title": "Attributes, cardinality, keys và weak entity",
+      "path": "baseline/lessons/D02.md"
+    },
+    {
+      "id": "D03",
+      "title": "Ánh xạ ERD, ternary và specialization",
+      "path": "baseline/lessons/D03.md"
+    },
+    {
+      "id": "D04",
+      "title": "Functional dependencies, closure và candidate keys",
+      "path": "baseline/lessons/D04.md"
+    },
+    {
+      "id": "D05",
+      "title": "1NF, 2NF, 3NF và anomalies",
+      "path": "baseline/lessons/D05.md"
+    },
+    {
+      "id": "D06",
+      "title": "BCNF, lossless join và dependency preservation",
+      "path": "baseline/lessons/D06.md"
+    },
+    {
+      "id": "D07",
+      "title": "Multivalued dependency, 4NF và 5NF",
+      "path": "baseline/lessons/D07.md"
+    },
+    {
+      "id": "D08",
+      "title": "Quy trình thiết kế và dữ liệu thời gian",
+      "path": "baseline/lessons/D08.md"
+    },
+    {
+      "id": "D09",
+      "title": "SDLC, phỏng vấn, reports và kiểm thử thiết kế",
+      "path": "baseline/lessons/D09.md"
+    },
+    {
+      "id": "A01",
+      "title": "JSON, RDF và dữ liệu bán cấu trúc",
+      "path": "baseline/lessons/A01.md"
+    },
+    {
+      "id": "A02",
+      "title": "Object orientation và dữ liệu văn bản",
+      "path": "baseline/lessons/A02.md"
+    },
+    {
+      "id": "A03",
+      "title": "Spatial data và truy vấn không gian",
+      "path": "baseline/lessons/A03.md"
+    },
+    {
+      "id": "A04",
+      "title": "Web, dịch vụ và kiến trúc ứng dụng database",
+      "path": "baseline/lessons/A04.md"
+    },
+    {
+      "id": "A05",
+      "title": "SQL injection, quyền và mã hóa",
+      "path": "baseline/lessons/A05.md"
+    },
+    {
+      "id": "B01",
+      "title": "Big Data, storage và MapReduce",
+      "path": "baseline/lessons/B01.md"
+    },
+    {
+      "id": "B02",
+      "title": "Streaming data và graph databases",
+      "path": "baseline/lessons/B02.md"
+    },
+    {
+      "id": "B03",
+      "title": "Data warehouse, star schema và OLAP",
+      "path": "baseline/lessons/B03.md"
+    },
+    {
+      "id": "B04",
+      "title": "Data mining, đánh giá và diễn giải",
+      "path": "baseline/lessons/B04.md"
+    },
+    {
+      "id": "I01",
+      "title": "Thiết bị lưu trữ, RAID và truy cập block",
+      "path": "baseline/lessons/I01.md"
+    },
+    {
+      "id": "I02",
+      "title": "Files, records, catalog và buffer pool",
+      "path": "baseline/lessons/I02.md"
+    },
+    {
+      "id": "I03",
+      "title": "Column store và main-memory storage",
+      "path": "baseline/lessons/I03.md"
+    },
+    {
+      "id": "I04",
+      "title": "Index có thứ tự và B+ tree",
+      "path": "baseline/lessons/I04.md"
+    },
+    {
+      "id": "I05",
+      "title": "Hash, composite, bitmap và spatial indexes",
+      "path": "baseline/lessons/I05.md"
+    },
+    {
+      "id": "I06",
+      "title": "Bloom filter, LSM, extendible và linear hashing",
+      "path": "baseline/lessons/I06.md"
+    },
+    {
+      "id": "Q01",
+      "title": "Query processing, selection và mô hình chi phí",
+      "path": "baseline/lessons/Q01.md"
+    },
+    {
+      "id": "Q02",
+      "title": "Sort, join, pipeline và xử lý trong RAM",
+      "path": "baseline/lessons/Q02.md"
+    },
+    {
+      "id": "Q03",
+      "title": "Biến đổi biểu thức và ước lượng cardinality",
+      "path": "baseline/lessons/Q03.md"
+    },
+    {
+      "id": "Q04",
+      "title": "Chọn plan, materialized view và EXPLAIN",
+      "path": "baseline/lessons/Q04.md"
+    },
+    {
+      "id": "T01",
+      "title": "Transaction, ACID và mô hình lịch chạy",
+      "path": "baseline/lessons/T01.md"
+    },
+    {
+      "id": "T02",
+      "title": "Serializability và conflict graph",
+      "path": "baseline/lessons/T02.md"
+    },
+    {
+      "id": "T03",
+      "title": "Isolation levels và locking",
+      "path": "baseline/lessons/T03.md"
+    },
+    {
+      "id": "T04",
+      "title": "Deadlock, granularity, timestamp và validation",
+      "path": "baseline/lessons/T04.md"
+    },
+    {
+      "id": "T05",
+      "title": "MVCC, snapshot isolation và giới hạn nhất quán",
+      "path": "baseline/lessons/T05.md"
+    },
+    {
+      "id": "T06",
+      "title": "WAL, checkpoint và khôi phục sau lỗi",
+      "path": "baseline/lessons/T06.md"
+    },
+    {
+      "id": "T07",
+      "title": "Remote backup, ARIES và recovery trong RAM",
+      "path": "baseline/lessons/T07.md"
+    },
+    {
+      "id": "P01",
+      "title": "Centralized, parallel, distributed và cloud",
+      "path": "baseline/lessons/P01.md"
+    },
+    {
+      "id": "P02",
+      "title": "Partitioning, skew và replication",
+      "path": "baseline/lessons/P02.md"
+    },
+    {
+      "id": "P03",
+      "title": "Distributed files, indexes và key-value stores",
+      "path": "baseline/lessons/P03.md"
+    },
+    {
+      "id": "P04",
+      "title": "Parallel sort, join và thực thi plan",
+      "path": "baseline/lessons/P04.md"
+    },
+    {
+      "id": "P05",
+      "title": "Parallel streaming và distributed queries",
+      "path": "baseline/lessons/P05.md"
+    },
+    {
+      "id": "P06",
+      "title": "Distributed transactions và two-phase commit",
+      "path": "baseline/lessons/P06.md"
+    },
+    {
+      "id": "P07",
+      "title": "Replication, consistency, leader và consensus",
+      "path": "baseline/lessons/P07.md"
+    },
+    {
+      "id": "P08",
+      "title": "Tuning, benchmarks, standards và directories",
+      "path": "baseline/lessons/P08.md"
+    },
+    {
+      "id": "P09",
+      "title": "Blockchain databases và smart contracts",
+      "path": "baseline/lessons/P09.md"
+    },
+    {
+      "id": "O01",
+      "title": "Tuple relational calculus và safety",
+      "path": "baseline/lessons/O01.md"
+    },
+    {
+      "id": "O02",
+      "title": "Domain calculus và diễn đạt truy vấn logic",
+      "path": "baseline/lessons/O02.md"
+    },
+    {
+      "id": "O03",
+      "title": "Thiết kế nâng cao: join dependency và DKNF",
+      "path": "baseline/lessons/O03.md"
+    },
+    {
+      "id": "O04",
+      "title": "Object-based databases và persistence",
+      "path": "baseline/lessons/O04.md"
+    },
+    {
+      "id": "O05",
+      "title": "XML, XPath, XQuery và schema",
+      "path": "baseline/lessons/O05.md"
+    },
+    {
+      "id": "O06",
+      "title": "Information retrieval, ranking và inverted index",
+      "path": "baseline/lessons/O06.md"
+    },
+    {
+      "id": "O07",
+      "title": "PostgreSQL: đối chiếu một hệ quản trị khác",
+      "path": "baseline/lessons/O07.md"
+    },
+    {
+      "id": "Z01",
+      "title": "Project Company: dựng schema và bảo vệ ràng buộc",
+      "path": "baseline/lessons/Z01.md"
+    },
+    {
+      "id": "Z02",
+      "title": "Lab Northwind PE: từ truy vấn cơ bản đến reports",
+      "path": "baseline/lessons/Z02.md"
+    },
+    {
+      "id": "Z03",
+      "title": "Project PE: ứng dụng, phân tích và University schema",
+      "path": "baseline/lessons/Z03.md"
+    },
+    {
+      "id": "Z04",
+      "title": "Capstone hệ thống: hiệu năng, lỗi và phân tán",
+      "path": "baseline/lessons/Z04.md"
+    }
+  ],
+  "authoredCount": 85,
+  "plannedCount": 85,
+  "keyCount": 24,
+  "allContentComplete": true,
+  "supplementalLessons": [
+    {
+      "id": "USTH01",
+      "title": "Đọc kiến trúc DBMS và chọn đúng công cụ",
+      "path": "lessons/USTH01.md",
+      "focus": "Vai trò, đường đi query/update, lịch sử có đối chiếu và chọn deployment theo yêu cầu.",
+      "relatedLessons": [
+        "AD67"
+      ],
+      "practiceQuestions": 8
+    },
+    {
+      "id": "USTH02",
+      "title": "Từ câu hỏi đến biểu thức, cây và ràng buộc",
+      "path": "lessons/USTH02.md",
+      "focus": "Set/bag,semijoin,extended projection,cây biểu thức và relation vi phạm rỗng.",
+      "relatedLessons": [
+        "AD01",
+        "AD03"
+      ],
+      "practiceQuestions": 15
+    },
+    {
+      "id": "USTH03",
+      "title": "SQL, Company và các thao tác cần tự làm",
+      "path": "lessons/USTH03.md",
+      "focus": "Dialect,Company6relation/8FK,DDLcycle và INSERT SELECT/DELETE/UPDATE.",
+      "relatedLessons": [
+        "AD01",
+        "AD10",
+        "AD11",
+        "AD12"
+      ],
+      "practiceQuestions": 12
+    },
+    {
+      "id": "USTH04",
+      "title": "Join, phép tập hợp và báo cáo theo nhóm",
+      "path": "lessons/USTH04.md",
+      "focus": "Các kiểu join, bag/set, NULL, group/HAVING và aggregate qua hai tầng query.",
+      "relatedLessons": [
+        "AD01",
+        "AD10"
+      ],
+      "practiceQuestions": 8
+    },
+    {
+      "id": "USTH05",
+      "title": "Suy FD, tìm mọi key và giải thích chuẩn hóa",
+      "path": "lessons/USTH05.md",
+      "focus": "Armstrong/closure, mọi candidate key, lossless/preservation và 1NF–3NF theo đúng giả định.",
+      "relatedLessons": [
+        "AD03",
+        "AD04",
+        "AD05",
+        "AD06",
+        "AD07",
+        "AD08"
+      ],
+      "practiceQuestions": 10
+    },
+    {
+      "id": "USTH06",
+      "title": "Đọc ERD và chuyển thiết kế thành bảng",
+      "path": "lessons/USTH06.md",
+      "focus": "Entity, role, min/max, weak entity, subtype và mapping giữ đúng identity/cardinality.",
+      "relatedLessons": [
+        "AD09"
+      ],
+      "practiceQuestions": 10
+    },
+    {
+      "id": "USTH07",
+      "title": "Index, view, procedure và trigger trong đúng hệ quản trị",
+      "path": "lessons/USTH07.md",
+      "focus": "Tìm dữ liệu, view có điều kiện, IN/OUT và trigger nhiều row; phân biệt MySQL với SQL Server.",
+      "relatedLessons": [
+        "AD27",
+        "AD28",
+        "AD29",
+        "AD30",
+        "AD53",
+        "AD85"
+      ],
+      "practiceQuestions": 10
+    },
+    {
+      "id": "USTH08",
+      "title": "Từ bốn ERD đến schema giữ đúng sự kiện",
+      "path": "lessons/USTH08.md",
+      "focus": "Music, University, Flight và Northwind; full owner keys, retakes và mapping có constraint.",
+      "relatedLessons": [
+        "AD09"
+      ],
+      "practiceQuestions": 8
+    },
+    {
+      "id": "USTH09",
+      "title": "Từ yêu cầu của người dùng đến database được kiểm bằng use case",
+      "path": "lessons/USTH09.md",
+      "focus": "SDLC, năm thành phần, AMS, Northwind và truy vết requirement tới test.",
+      "relatedLessons": [
+        "AD09",
+        "AD11",
+        "AD12",
+        "AD58",
+        "AD60"
+      ],
+      "practiceQuestions": 10
+    },
+    {
+      "id": "USTH10",
+      "title": "Ba practice USTH trên web: dựng schema, query và giữ trạng thái sau lỗi",
+      "path": "lessons/USTH10.md",
+      "focus": "Đủ 6+15+15 nhiệm vụ; Company/Minit, SQL Northwind, routine và kiểm trạng thái sau lỗi.",
+      "relatedLessons": [
+        "AD60",
+        "AD85"
+      ],
+      "practiceQuestions": 36
+    },
+    {
+      "id": "USTH11",
+      "title": "Northwind: định nghĩa báo cáo rồi tự viết query",
+      "path": "lessons/USTH11.md",
+      "focus": "Đủ nhóm reports của Lecture 9; grain, ties, NULL, dates và dữ liệu cấp cho charts.",
+      "relatedLessons": [
+        "AD10",
+        "AD60"
+      ],
+      "practiceQuestions": 24
+    }
+  ],
+  "contentReview": {
+    "date": "2026-11-06",
+    "bookOwnBodyUnits": 947,
+    "slideAndPracticePages": 458,
+    "instructionalPages": 409,
+    "nonInstructionalPages": 49,
+    "evidence": "research/semantic-gate-summary.json and research/semantic-slides-gate-summary.json",
+    "scope": "Current source-to-MD comparison; does not certify a deployed learner runner or teaching effectiveness."
+  }
+}

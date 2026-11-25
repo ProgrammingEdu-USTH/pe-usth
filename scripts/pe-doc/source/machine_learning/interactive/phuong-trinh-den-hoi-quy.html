@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Kéo độ dốc, đọc sai số trên biểu đồ và hiểu cách hồi quy tuyến tính chọn một đường dự đoán.">
+  <title>Từ Linear Equation đến Linear Regression · USTH</title>
+  <style>
+    /* Hallmark · theme: custom · redesign: restyle · blueprint blue, ruled axes, yellow interaction */
+    /* critique: the graph carries the teaching. The surrounding grid is kept faint. */
+    :root {
+      color-scheme: dark;
+      --font-body:"Segoe UI",sans-serif;
+      --font-display:"Bahnschrift","Barlow Condensed","Segoe UI",sans-serif;
+      --font-math:"Cambria Math",Georgia,serif;
+      --bg:#071d40; --bar:#071c3b; --panel:#0b2d59;
+      --paper-dark:#0a3973; --paper-light:#0a56a6;
+      --border:#3e79b2; --grid:#3a79ad; --fine:rgb(96 188 245 / 7%);
+      --ink:#f5faff; --muted:#c2dbf3;
+      --cyan:#a5eaff; --guide:#81cfea; --gold:#ffeb63; --gold-hot:#fff69f;
+      --gold-ink:#182544; --error:#ffd0ac; --good:#b4f8da;
+      --active:#174f8b; --disabled:#254976; --option:#0c386b;
+    }
+
+    html, body { overflow-x:clip; }
+    * { box-sizing:border-box; }
+    [hidden] { display:none !important; }
+    body {
+      margin:0; min-height:100vh; color:var(--ink);
+      font:16px/1.56 var(--font-body);
+      background-color:var(--bg);
+      background-image:
+        linear-gradient(to right,var(--fine) 1px,transparent 1px),
+        linear-gradient(to bottom,var(--fine) 1px,transparent 1px);
+      background-size:24px 24px;
+    }
+    h2,p,figure { margin:0; }
+    h2 { line-height:1.15; text-wrap:balance; overflow-wrap:break-word; min-width:0; }
+    button,input { font:inherit; color:inherit; }
+    button { cursor:pointer; }
+    button:disabled { cursor:default; }
+    :focus-visible { outline:3px solid var(--gold); outline-offset:4px; }
+    .wrap { width:min(1160px,calc(100% - 64px)); margin-inline:auto; }
+    .bar { background:var(--bar); border-bottom:1px solid var(--border); }
+    .bar .wrap { min-height:64px; display:flex; align-items:center; justify-content:space-between; gap:.8rem 2rem; }
+    .brand { font-size:.92rem; font-weight:700; }
+    .progress { display:flex; align-items:center; gap:.68rem; color:var(--muted); font-size:.86rem; }
+    progress { width:112px; height:5px; border:0; border-radius:8px; overflow:hidden; accent-color:var(--gold); background:var(--disabled); }
+    progress::-webkit-progress-bar { background:var(--disabled); }
+    progress::-webkit-progress-value { background:var(--gold); }
+    main { padding-top:1.85rem; }
+    .intro { margin-bottom:1.2rem; }
+    .intro p { color:var(--muted); max-width:52rem; }
+    .layout { display:grid; grid-template-columns:minmax(0,1.85fr) minmax(0,1fr); gap:1rem; align-items:stretch; }
+    .figure {
+      min-width:0;
+      border:1px solid var(--border);
+      border-radius:15px;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      color:var(--ink);
+      background:linear-gradient(155deg,var(--paper-dark),var(--paper-light));
+    }
+    .figure-head { padding:1rem 1.18rem .25rem; display:flex; flex-wrap:wrap; gap:.35rem 1rem; align-items:center; justify-content:space-between; }
+    .figure-head h2 { font-size:.97rem; font-weight:650; font-variant-numeric:tabular-nums; }
+    .figure-formula { font:italic 1.16rem var(--font-math); color:var(--cyan); }
+    #plot { display:block; width:100%; height:clamp(252px,42vh,380px); }
+    .legend {
+      display:flex; flex-wrap:wrap; gap:.34rem 1rem; margin-top:auto;
+      padding:.65rem 1.16rem .8rem; border-top:1px solid var(--border); color:var(--ink); font-size:.83rem;
+    }
+    .legend span { display:inline-flex; align-items:center; gap:.38rem; }
+    .legend i { width:12px; height:3px; border-radius:3px; background:var(--ink); }
+    .legend .data i { width:8px; height:8px; border-radius:50%; background:var(--gold); }
+    .legend .target i { width:9px; height:9px; border-radius:50%; background:transparent; border:1.5px solid var(--cyan); }
+    .legend .gap i { background:none; border-top:2px dashed var(--cyan); }
+    .legend .gap[data-style=solid] i { border-top-style:solid; }
+    .control-card {
+      display:flex; flex-direction:column; gap:.8rem; min-width:0; min-height:100%;
+      border:1px solid var(--border); border-radius:12px; background:var(--panel); color:var(--ink); padding:1.08rem;
+    }
+    .control-card h2 { font-family:var(--font-display); font-size:clamp(1.26rem,2.4vw,1.58rem); letter-spacing:-.02em; }
+    .control-card p { color:var(--muted); }
+    .panel { display:grid; gap:.66rem; }
+    .callout {
+      padding:.42rem 0 .5rem .62rem; border-left:2px solid var(--cyan);
+      color:var(--cyan);
+    }
+    .callout strong { display:block; font:600 1.3rem var(--font-math); }
+    .callout span { font-size:.82rem; }
+    .readings { padding-top:.42rem; border-top:1px solid var(--border); font-size:.91rem; font-variant-numeric:tabular-nums; }
+    .readings strong { color:var(--ink); }
+    .answers { display:grid; gap:.4rem; }
+    .option { display:flex; align-items:center; gap:.5rem; min-height:44px; background:var(--option); border:1px solid var(--border); padding:.48rem .66rem; border-radius:7px; text-align:left; }
+    .option span { color:var(--muted); font-size:.78rem; min-width:1.42rem; }
+    .option:hover:not(:disabled),.option[aria-pressed=true] { background:var(--active); border-color:var(--gold); }
+    .option[data-state=correct] { border-color:var(--good); }
+    .option[data-state=wrong] { border-color:var(--error); }
+    .option:disabled:not([aria-pressed=true]) { background:var(--panel); color:var(--muted); cursor:default; }
+    .feedback { border-left:2px solid var(--good); padding-left:.65rem; font-size:.88rem; }
+    .feedback[data-kind=wrong] { border-color:var(--error); }
+    .motion-steps { margin:0; padding-left:1.35rem; color:var(--muted); font-size:.91rem; }
+    .motion-steps li { padding:.23rem 0; }
+    .motion-steps [aria-current=step] { color:var(--gold); }
+    .motion-caption { font-size:.89rem; }
+    .action { display:flex; justify-content:space-between; align-items:center; gap:.65rem; padding-top:.68rem; margin-top:auto; border-top:1px solid var(--border); }
+    .primary { border:0; border-radius:7px; min-height:44px; margin-left:auto; padding:.46rem .82rem; background:var(--gold); color:var(--gold-ink); font-weight:700; }
+    .primary:hover:not(:disabled) { background:var(--gold-hot); }
+    .primary:disabled { color:var(--muted); background:var(--disabled); cursor:default; }
+    .subtle { background:none; border:0; min-height:44px; padding:.45rem .1rem; color:var(--muted); }
+    button:active:not(:disabled) { transform:translateY(1px); }
+    footer { padding-block:.95rem 1.4rem; color:var(--muted); font-size:.86rem; }
+    footer a { color:var(--cyan); text-underline-offset:.22em; }
+    @media(max-width:820px) {
+      .wrap { width:min(620px,calc(100% - 28px)); }
+      .layout { grid-template-columns:minmax(0,1fr); }
+      main { padding-top:1.1rem; }
+      .intro { margin-bottom:.92rem; }
+      #plot { height:clamp(220px,50vw,335px); }
+    }
+    @media(max-width:400px) {
+      .bar .wrap { gap:.5rem; }
+      progress { width:58px; }
+      .figure-head,.legend { padding-inline:.8rem; }
+      .control-card { padding:.9rem; }
+    }
+    @media(prefers-reduced-motion:reduce) {
+      * { scroll-behavior:auto !important; }
+      button:active:not(:disabled) { transform:none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="bar"><div class="wrap">
+    <div class="brand">ProgrammingEdu USTH</div>
+    <div class="progress"><progress id="progress" max="6" value="1" aria-label="Tiến độ bài học"></progress><span id="step-count">1/6</span></div>
+  </div></header>
+
+  <main class="wrap">
+    <div class="intro" id="lesson-intro">
+      <p>Bạn cần chọn một đường dự đoán cho tám điểm đo. Bắt đầu từ mốc (4; 4), rồi thử đường đó trên dữ liệu.</p>
+    </div>
+    <section class="layout" aria-label="Bài tập hồi quy tuyến tính">
+      <figure class="figure">
+        <div class="figure-head"><h2>Đường dự đoán</h2><span class="figure-formula">ŷ = wx + b</span></div>
+        <canvas id="plot" role="img" aria-label="Biểu đồ đường dự đoán và tám điểm dữ liệu.">Biểu đồ biểu diễn đường dự đoán và tám điểm dữ liệu.</canvas>
+        <figcaption class="legend">
+          <span class="data"><i aria-hidden="true"></i> Giá trị đo y</span>
+          <span><i aria-hidden="true"></i> Dự đoán ŷ</span>
+          <span class="target" id="target-key"><i aria-hidden="true"></i> Mốc cần đi qua</span>
+          <span class="gap" id="gap-key" hidden><i aria-hidden="true"></i> Khoảng cách theo trục y</span>
+        </figcaption>
+      </figure>
+      <div class="control-card">
+        <section class="panel" id="explore" aria-label="Bước 1: Dựng đường" tabindex="-1">
+          <p>Giữ <strong>b = 1</strong>. Chọn <strong>w</strong> để đường đi qua mốc (4; 4). Mỗi lựa chọn sẽ đổi đường trên hình.</p>
+          <div class="callout"><span>Phương trình tại mốc</span><strong>4w + 1 = 4</strong></div>
+          <div class="answers" role="group" aria-label="Các đáp án cho w">
+            <button type="button" class="option" data-value="0.45" aria-pressed="false"><span>A</span> w = 0,45</button>
+            <button type="button" class="option" data-value="0.75" aria-pressed="false"><span>B</span> w = 0,75</button>
+            <button type="button" class="option" data-value="1" aria-pressed="false"><span>C</span> w = 1</button>
+          </div>
+          <p class="feedback" id="explore-feedback" role="status" hidden></p>
+        </section>
+        <section class="panel" id="check" aria-label="Bước 2: Tính residual" tabindex="-1" hidden>
+          <p>Thử đường vừa dựng với điểm vàng ở x = 4. Máy đo ghi <strong>3,75</strong>, còn đường dự đoán <strong>4</strong>. Residual <strong>y − ŷ</strong> bằng bao nhiêu?</p>
+          <div class="answers" role="group" aria-label="Các đáp án residual">
+            <button type="button" class="option" data-value="0.25" aria-pressed="false"><span>A</span> 0,25</button>
+            <button type="button" class="option" data-value="-0.25" aria-pressed="false"><span>B</span> −0,25</button>
+            <button type="button" class="option" data-value="4" aria-pressed="false"><span>C</span> 4</button>
+          </div>
+          <p class="feedback" id="check-feedback" role="status" hidden></p>
+        </section>
+        <section class="panel" id="summary" aria-label="Bước 3: So sánh MSE" tabindex="-1" hidden>
+          <p>Bạn có thể chỉnh đường để hết sai số ở x = 4. Thử cả hai đường dưới đây. Đường nào có <strong>MSE</strong>, tức trung bình bình phương sai số của tám điểm, nhỏ hơn?</p>
+          <div class="answers" role="group" aria-label="Chọn đường dự đoán cuối cùng">
+            <button type="button" class="option" data-value="0.6875" aria-pressed="false"><span>A</span> w = 0,6875 · Đi qua điểm vàng ở x = 4</button>
+            <button type="button" class="option" data-value="0.75" aria-pressed="false"><span>B</span> w = 0,75 · Giữ đường ban đầu</button>
+          </div>
+          <p class="readings" role="status">MSE của đường đang xem <strong id="mse-value">0,156</strong></p>
+          <p class="feedback" id="summary-feedback" role="status" hidden></p>
+        </section>
+        <section class="panel" id="application" aria-label="Bước 4: Ứng dụng với điện năng" tabindex="-1" hidden>
+          <p>Giả sử tám điểm là số đo điện năng của một phòng máy. Đường vừa chọn, <strong>ŷ = 0,75x + 1</strong>, giúp ta ước tính lượng điện từ số giờ vận hành.</p>
+          <ol class="motion-steps" id="motion-steps">
+            <li>Đi từ <strong>6 giờ</strong> lên đường dự đoán.</li>
+            <li>Dóng sang trục y để đọc <strong>5,50 kWh</strong>.</li>
+            <li>Công tơ ghi <strong>5,75 kWh</strong>, tức cao hơn dự đoán <strong>0,25 kWh</strong>.</li>
+          </ol>
+          <p class="motion-caption">Thêm một giờ thì dự đoán tăng 0,75 kWh. Residual cho biết dự đoán lệch bao nhiêu ở một lần đo. MSE giúp chọn đường từ cả tám lần đo.</p>
+          <div><button type="button" class="subtle" id="replay">Phát lại hoạt cảnh</button></div>
+        </section>
+        <section class="panel" id="practicePrediction" aria-label="Bước 5: Luyện dự đoán" tabindex="-1" hidden>
+          <p>Phòng máy vận hành <strong>7 giờ</strong>. Dùng đường <strong>ŷ = 0,75x + 1</strong> để dự đoán lượng điện tiêu thụ.</p>
+          <div class="answers" role="group" aria-label="Các đáp án dự đoán điện năng">
+            <button type="button" class="option" data-value="5.25" aria-pressed="false"><span>A</span> 5,25 kWh</button>
+            <button type="button" class="option" data-value="5.75" aria-pressed="false"><span>B</span> 5,75 kWh</button>
+            <button type="button" class="option" data-value="6.25" aria-pressed="false"><span>C</span> 6,25 kWh</button>
+          </div>
+          <p class="feedback" id="practicePrediction-feedback" role="status" hidden></p>
+        </section>
+        <section class="panel" id="practiceResidual" aria-label="Bước 6: Luyện đọc residual" tabindex="-1" hidden>
+          <p>Công tơ ghi <strong>5,75 kWh</strong>. So với dự đoán <strong>6,25 kWh</strong> ở bước vừa rồi, residual <strong>y − ŷ</strong> là bao nhiêu?</p>
+          <div class="answers" role="group" aria-label="Các đáp án residual điện năng">
+            <button type="button" class="option" data-value="-0.5" aria-pressed="false"><span>A</span> −0,50 kWh</button>
+            <button type="button" class="option" data-value="0.5" aria-pressed="false"><span>B</span> +0,50 kWh</button>
+            <button type="button" class="option" data-value="0" aria-pressed="false"><span>C</span> 0 kWh</button>
+          </div>
+          <p class="feedback" id="practiceResidual-feedback" role="status" hidden></p>
+        </section>
+        <div class="action">
+          <button type="button" class="subtle" id="back" hidden>Quay lại</button>
+          <button type="button" class="primary" id="next" disabled>Kiểm tra</button>
+        </div>
+      </div>
+    </section>
+    <noscript>Giải 4w + 1 = 4 được w = 0,75. Residual tại x = 4 là −0,25. Đường w = 0,75 cho MSE nhỏ hơn đường đi đúng qua điểm đo. Bật JavaScript để thử trên biểu đồ.</noscript>
+  </main>
+  <footer class="wrap"><a href="loi-giai.md">Lời giải và nguồn nội dung</a></footer>
+
+  <script>
+    const get = id => document.getElementById(id);
+    const points = [[1,2.25],[2,2],[3,3.5],[4,3.75],[5,4.5],[6,5.75],[7,5.75],[8,7.5]];
+    const model = {intercept: 1, targetX: 4, targetY: 4};
+    const targetSlope = (model.targetY - model.intercept) / model.targetX;
+    const targetObservation = points.find(([x]) => x === model.targetX)[1];
+    const residual = targetObservation - model.targetY;
+    const singlePointSlope = (targetObservation - model.intercept) / model.targetX;
+    const energyExample = points.find(([x])=>x===6);
+    const energyPractice = points.find(([x])=>x===7);
+    const predictAt = x=>targetSlope*x+model.intercept;
+    const initialSlope = .45;
+    const canvas = get("plot");
+    const ctx = canvas.getContext("2d");
+    const style=getComputedStyle(document.documentElement);
+    const token=name=>style.getPropertyValue("--"+name).trim();
+    const palette=Object.fromEntries(["muted","grid","ink","gold","cyan","guide","paper-dark"].map(name=>[name,token(name)]));
+    const plotFont=token("font-body");
+    const media = matchMedia("(prefers-reduced-motion: reduce)");
+    const next = get("next");
+    const panels = ["explore", "check", "summary", "application", "practicePrediction", "practiceResidual"];
+    const applicationScreen=panels.indexOf("application");
+    const lastScreen=panels.length-1;
+    const motionSteps=[...get("motion-steps").children];
+    const fmt = new Intl.NumberFormat("vi-VN", {maximumFractionDigits:4});
+    const lossFormat = new Intl.NumberFormat("vi-VN", {minimumFractionDigits:3, maximumFractionDigits:3});
+    const keys=[targetSlope,residual,targetSlope,null,predictAt(energyPractice[0]),energyPractice[1]-predictAt(energyPractice[0])];
+    const quizzes = panels.map((id, index) => keys[index]===null ? null : ({
+      id, key:keys[index],
+      options: [...get(id).querySelectorAll(".option")],
+      selected: null, checked: false
+    }));
+    let screen = 0;
+    let displayed = initialSlope;
+    let request = 0;
+    let motionProgress=1;
+
+    function slopeForScreen() {
+      if (screen===1 || screen>=applicationScreen) return targetSlope;
+      return quizzes[screen].selected ?? (screen===0 ? initialSlope : targetSlope);
+    }
+
+    function mse(slope) {
+      return points.reduce((sum,[x,y])=>sum+(y-(slope*x+model.intercept))**2,0)/points.length;
+    }
+
+    function coordinates(x, y, bounds) {
+      return [bounds.left + x / 8.6 * bounds.width, bounds.top + (1 - y / 12) * bounds.height];
+    }
+    function segment(a, b, color, width=1, dash=[]) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.setLineDash(dash);
+      ctx.beginPath();
+      ctx.moveTo(...a);
+      ctx.lineTo(...b);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    function dot(at, radius, fill, border) {
+      ctx.beginPath();
+      ctx.arc(...at, radius, 0, Math.PI * 2);
+      ctx.fillStyle=fill;
+      ctx.fill();
+      if (border) {
+        ctx.strokeStyle=border;
+        ctx.lineWidth=2;
+        ctx.stroke();
+      }
+    }
+    function drawEnergy(pt) {
+      const illustrative=screen===applicationScreen;
+      const [x,y]=illustrative?energyExample:energyPractice;
+      const prediction=predictAt(x), base=pt(x,0), forecast=pt(x,prediction);
+      ctx.textAlign="center";
+      ctx.fillStyle=palette.cyan;
+      ctx.fillText(fmt.format(x),base[0],base[1]+17);
+
+      if (illustrative) {
+        const rise=Math.min(1,motionProgress/.42);
+        const across=Math.max(0,Math.min(1,(motionProgress-.42)/.34));
+        const head=pt(x,prediction*rise);
+        segment(base,head,palette.cyan,2,[5,4]);
+        dot(head,4,palette.ink);
+        if (across>0) segment(forecast,pt(x*(1-across),prediction),palette.cyan,2,[5,4]);
+        if (across===1) {
+          dot(pt(0,prediction),4,palette.cyan);
+          ctx.textAlign="left";
+          ctx.fillText("5,50 kWh",pt(0,prediction)[0]+8,forecast[1]-9);
+        }
+        if (motionProgress>.76) {
+          const reveal=Math.min(1,(motionProgress-.76)/.16);
+          const end=pt(x,prediction+(y-prediction)*reveal);
+          segment([forecast[0]+10,forecast[1]],[end[0]+10,end[1]],palette.gold,2.5);
+          dot(pt(x,y),8,"transparent",palette.gold);
+        }
+        return;
+      }
+      const answer=quizzes[screen].selected;
+      if (screen===lastScreen) {
+        segment(base,forecast,palette.guide,1,[4,4]);
+        const observed=pt(x,y);
+        segment([forecast[0]+10,forecast[1]],[observed[0]+10,observed[1]],palette.cyan,2);
+        dot(forecast,4,palette.ink);
+        dot(observed,7,"transparent",palette.gold);
+      }
+      if (answer!==null) {
+        const candidate=pt(x,screen===lastScreen ? prediction+answer : answer);
+        segment(pt(0,screen===lastScreen ? prediction+answer : answer),candidate,palette.cyan,1,[4,4]);
+        dot(candidate,8,"transparent",palette.cyan);
+        ctx.textAlign="right";
+        ctx.fillText("Theo đáp án",candidate[0]-11,candidate[1]-9);
+      }
+    }
+    function draw() {
+      const width=canvas.clientWidth, height=canvas.clientHeight, scale=devicePixelRatio || 1;
+      if (canvas.width!==Math.round(width*scale) || canvas.height!==Math.round(height*scale)) {
+        canvas.width=Math.round(width*scale);
+        canvas.height=Math.round(height*scale);
+      }
+      ctx.setTransform(scale,0,0,scale,0,0);
+      ctx.clearRect(0,0,width,height);
+      ctx.lineCap="round";
+      const bounds = {left:42, top:19, width:width-63, height:height-57};
+      const pt=(x,y)=>coordinates(x,y,bounds);
+      ctx.font="12px "+plotFont;
+      ctx.fillStyle=palette.muted;
+      ctx.textAlign="center";
+      const highlightedInput=screen===applicationScreen ? energyExample[0] : screen>applicationScreen ? energyPractice[0] : null;
+      for (let x=0;x<=8;x++) {
+        segment(pt(x,0), pt(x,12), palette.grid);
+        if (x%2===0 && x!==highlightedInput) ctx.fillText(x,pt(x,0)[0],height-19);
+      }
+      ctx.textAlign="right";
+      for (let y=0;y<=12;y+=2) {
+        segment(pt(0,y),pt(8.6,y),palette.grid);
+        if(y)ctx.fillText(y,bounds.left-10,pt(0,y)[1]+4);
+      }
+      segment(pt(0,0),pt(8.6,0),palette.ink,1.7);
+      segment(pt(0,0),pt(0,12),palette.ink,1.7);
+      ctx.fillText(screen>=applicationScreen?"x (giờ)":"x",width-7,screen>=applicationScreen?height-5:height-19);
+      if (screen>=applicationScreen) {
+        ctx.textAlign="left";
+        ctx.fillText("y (kWh)",bounds.left,12);
+      } else ctx.fillText("y",bounds.left-27,12);
+      const predict=x=>displayed*x+model.intercept;
+      segment(pt(0,model.intercept),pt(8.55,predict(8.55)),palette.ink,4.5);
+
+      if (screen===2) {
+        for (const [x,y] of points) {
+          const prediction=predict(x);
+          segment(pt(x,prediction),pt(x,y),palette.cyan,2,[4,4]);
+        }
+      }
+      for (const [x,y] of points) {
+        const focused=x===model.targetX && screen===1;
+        dot(pt(x,y),focused ? 6 : 5.5,palette.gold,focused ? palette["paper-dark"] : null);
+      }
+
+      const target=pt(model.targetX,model.targetY);
+      const current=pt(model.targetX,predict(model.targetX));
+      if (screen===0) {
+        segment(pt(model.targetX,0),current,palette.guide,1,[4,4]);
+        dot(target,8,"transparent",palette.cyan);
+        dot(current,4,palette.ink);
+        ctx.textAlign="left";
+        ctx.fillStyle=palette.cyan;
+        ctx.fillText("Mốc (4; 4)",target[0]+12,target[1]-13);
+      } else if (screen===1) {
+        segment(pt(model.targetX,0),target,palette.guide,1,[4,4]);
+        segment([target[0]+9,target[1]],[target[0]+9,pt(model.targetX,targetObservation)[1]],palette.cyan,2);
+        dot(target,3,palette.ink,palette["paper-dark"]);
+        ctx.textAlign="left";
+        ctx.fillStyle=palette.ink;
+        ctx.fillText("ŷ = 4",target[0]+13,target[1]-11);
+        ctx.fillStyle=palette.gold;
+        ctx.fillText("y = 3,75",target[0]+13,target[1]+21);
+        const choice=quizzes[1].selected;
+        if (choice!==null) {
+          const inferredY=model.targetY+choice, assumed=pt(model.targetX,inferredY);
+          segment([target[0]-9,target[1]],[target[0]-9,assumed[1]],palette.cyan,2,[3,3]);
+          dot(assumed,8,"transparent",palette.cyan);
+          ctx.textAlign="right";
+          ctx.fillStyle=palette.cyan;
+          ctx.fillText("y theo đáp án: "+fmt.format(inferredY),assumed[0]-13,assumed[1]-7);
+        }
+      } else if (screen>=applicationScreen) drawEnergy(pt);
+    }
+    function animateSlope() {
+      cancelAnimationFrame(request);
+      const w=slopeForScreen();
+      if (media.matches) { displayed=w; draw(); return; }
+      const began=performance.now(), before=displayed;
+      function frame(now) {
+        const t=Math.min(1,(now-began)/180);
+        displayed=before+(w-before)*(1-(1-t)**3);
+        draw();
+        if(t<1)request=requestAnimationFrame(frame);
+      }
+      request=requestAnimationFrame(frame);
+    }
+    function readouts() {
+      const w=slopeForScreen();
+      const prediction=w*model.targetX+model.intercept;
+      const choice=quizzes[1].selected;
+      get("mse-value").textContent=lossFormat.format(mse(w));
+      if (screen>=applicationScreen) {
+        const label=screen===applicationScreen
+          ? "Sau 6 giờ, đường dự đoán 5,50 kWh. Công tơ đo 5,75 kWh. Residual dương 0,25 kWh."
+          : screen===lastScreen ? "Sau 7 giờ, dự đoán 6,25 kWh và giá trị đo là 5,75 kWh."
+            : "Dự đoán điện năng sau 7 giờ bằng đường đã chọn.";
+        canvas.setAttribute("aria-label",label);
+        return;
+      }
+      canvas.setAttribute("aria-label", "Tám điểm vàng và đường dự đoán với độ dốc " + fmt.format(w) + ". "
+        + (screen===0 ? "Tại x bằng 4, dự đoán " + fmt.format(prediction) + ". Mốc cần đi qua là 4."
+          : screen===1 ? "Tại x bằng 4, giá trị đo là 3,75 và dự đoán là 4."
+              + (choice===null ? "" : " Residual đã chọn tương ứng với giá trị đo " + fmt.format(model.targetY+choice) + ".")
+            : "Các đoạn nét đứt biểu diễn residual theo trục y. MSE " + lossFormat.format(mse(w)) + "."));
+    }
+    function isComplete(quiz) {
+      return quiz.checked && quiz.selected===quiz.key;
+    }
+    function explanation(quiz) {
+      switch(quiz.id) {
+        case "explore":
+          return isComplete(quiz)
+            ? "Đúng. Trừ 1 ở hai vế được 4w = 3, nên w = 0,75. Dùng đường này để đọc sai số ở bước sau."
+            : "Đường đang xem cho ŷ = " + fmt.format(4*quiz.selected+1) + " tại x = 4. Hãy giải 4w + 1 = 4 rồi chọn lại.";
+        case "check":
+          if (isComplete(quiz)) return "Đúng. 3,75 − 4 = −0,25. Điểm đo nằm dưới đường. Bây giờ thử chỉnh đường để nó chạm điểm này.";
+          return quiz.selected===.25
+            ? "Bạn đã lấy 4 − 3,75. Hãy lấy giá trị đo trừ dự đoán và giữ dấu."
+            : "4 là giá trị dự đoán. Lấy 3,75 trừ 4 để tìm residual.";
+        case "summary":
+          return isComplete(quiz)
+            ? "Bạn đã chọn đường cho cả tập. w = 0,75 cho MSE 0,156, thấp hơn 0,256 của đường đi đúng qua một điểm."
+            : "Đường này có residual bằng 0 tại x = 4, nhưng MSE của cả tập là " + lossFormat.format(mse(singlePointSlope)) + ". Hãy thử đường còn lại.";
+        case "practicePrediction":
+          if (isComplete(quiz)) return "Đúng. 0,75 × 7 + 1 = 6,25 kWh. Dùng giá trị này để kiểm tra số đo ở câu sau.";
+          return quiz.selected===5.25
+            ? "5,25 kWh là phần tăng theo 7 giờ. Còn số 1 trong phương trình đóng góp bao nhiêu?"
+            : "Hãy thay x = 7 vào đường dự đoán và tính 0,75 × 7 + 1.";
+        default:
+          if (isComplete(quiz)) return "Đúng. 5,75 − 6,25 = −0,50 kWh. Dấu âm cho biết phòng máy dùng ít hơn dự đoán 0,50 kWh.";
+          return quiz.selected===.5
+            ? "0,50 kWh là độ lớn của chênh lệch. Số đo thấp hơn dự đoán, nên residual mang dấu gì?"
+            : "Residual bằng 0 khi giá trị đo bằng dự đoán. Hãy tính 5,75 − 6,25.";
+      }
+    }
+    function renderAnswer() {
+      const quiz=quizzes[screen];
+      if (!quiz) {
+        next.textContent="Luyện tập";
+        next.disabled=false;
+        return;
+      }
+      const complete=isComplete(quiz);
+      const feedback=get(quiz.id+"-feedback");
+      for (const option of quiz.options) {
+        const selected=Number(option.dataset.value)===quiz.selected;
+        option.setAttribute("aria-pressed",String(selected));
+        option.disabled=complete;
+        if (quiz.checked && selected) option.dataset.state=complete?"correct":"wrong";
+        else delete option.dataset.state;
+      }
+      feedback.hidden=!quiz.checked;
+      if (quiz.checked) {
+        feedback.dataset.kind=complete?"correct":"wrong";
+        feedback.textContent=explanation(quiz);
+      }
+      next.textContent=complete ? (screen===2 ? "Xem ứng dụng" : screen===lastScreen ? "Làm lại" : "Tiếp tục") : "Kiểm tra";
+      next.disabled=quiz.selected===null || (quiz.checked && !complete);
+    }
+    function playApplication() {
+      cancelAnimationFrame(request);
+      let active=-1;
+      function frame(progress) {
+        motionProgress=progress;
+        const phase=progress<.42 ? 0 : progress<.76 ? 1 : progress<1 ? 2 : -1;
+        if (phase!==active || progress===1) {
+          motionSteps.forEach((step,index)=>{
+            if (index===phase) step.setAttribute("aria-current","step");
+            else step.removeAttribute("aria-current");
+          });
+          active=phase;
+        }
+        draw();
+      }
+      if (media.matches) {
+        frame(1);
+        return;
+      }
+      frame(0);
+      const start=performance.now();
+      function tick(now) {
+        const progress=Math.min(1,(now-start)/3800);
+        frame(progress);
+        if (progress<1) request=requestAnimationFrame(tick);
+      }
+      request=requestAnimationFrame(tick);
+    }
+    function showGraphOnMobile() {
+      if (matchMedia("(max-width:820px)").matches) canvas.closest("figure").scrollIntoView({block:"start"});
+    }
+    function renderScreen(focus) {
+      cancelAnimationFrame(request);
+      displayed=slopeForScreen();
+      get("lesson-intro").hidden=screen>=applicationScreen;
+      for (const [i,id] of panels.entries()) get(id).hidden=i!==screen;
+      get("progress").value=screen+1;
+      get("step-count").textContent=(screen+1)+"/"+panels.length;
+      get("target-key").hidden=screen!==0;
+      get("gap-key").hidden=screen!==1 && screen!==2 && screen!==lastScreen;
+      get("gap-key").dataset.style=screen===2 ? "dashed" : "solid";
+      get("back").hidden=screen===0;
+      renderAnswer();
+      readouts();
+      if (screen===applicationScreen) playApplication();
+      else draw();
+      if (focus) {
+        get(panels[screen]).focus({preventScroll:true});
+        if (screen>=applicationScreen) showGraphOnMobile();
+        else if (matchMedia("(max-width:820px)").matches) get(panels[screen]).scrollIntoView({block:"nearest"});
+      }
+    }
+    for (const quiz of quizzes) {
+      if (!quiz) continue;
+      for (const option of quiz.options) option.onclick=()=>{
+        quiz.selected=Number(option.dataset.value);
+        quiz.checked=false;
+        renderAnswer();
+        readouts();
+        if (quiz.id==="check" || screen>applicationScreen) draw();
+        else animateSlope();
+      };
+    }
+    next.onclick=()=>{
+      const quiz=quizzes[screen];
+      if (quiz && !isComplete(quiz)) {
+        quiz.checked=true;
+        renderAnswer();
+        return;
+      }
+      if (screen===lastScreen) {
+        for (const question of quizzes) {
+          if (!question) continue;
+          question.selected=null;
+          question.checked=false;
+        }
+        screen=0;
+      } else {
+        screen++;
+      }
+      renderScreen(true);
+    };
+    get("back").onclick=()=>{screen--;renderScreen(true)};
+    get("replay").onclick=()=>{
+      showGraphOnMobile();
+      playApplication();
+    };
+    new ResizeObserver(draw).observe(canvas);
+    renderScreen(false);
+  </script>
+</body>
+</html>

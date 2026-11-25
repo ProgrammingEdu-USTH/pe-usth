@@ -1,0 +1,36 @@
+-- PE reconstruction of the Company learning domain; not the original USTH dump.
+CREATE DATABASE IF NOT EXISTS company_pe CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE company_pe;
+DROP TABLE IF EXISTS dependent;
+DROP TABLE IF EXISTS works_on;
+DROP TABLE IF EXISTS project;
+DROP TABLE IF EXISTS dept_locations;
+-- Existing mutually-referencing tables must release just their own named FKs.
+SET @has_fk=(SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_schema=DATABASE() AND table_name='department' AND constraint_name='fk_dept_manager');
+SET @ddl=IF(@has_fk>0,'ALTER TABLE department DROP FOREIGN KEY fk_dept_manager','SELECT 1');
+PREPARE cleanup_stmt FROM @ddl;
+EXECUTE cleanup_stmt;
+DEALLOCATE PREPARE cleanup_stmt;
+DROP TABLE IF EXISTS employee;
+DROP TABLE IF EXISTS department;
+CREATE TABLE department(dnumber INT PRIMARY KEY,dname VARCHAR(60) NOT NULL UNIQUE,mgr_ssn CHAR(9) NULL,mgr_start_date DATE) ENGINE=InnoDB;
+CREATE TABLE employee(ssn CHAR(9) PRIMARY KEY,fname VARCHAR(50) NOT NULL,lname VARCHAR(50) NOT NULL,bdate DATE,address VARCHAR(150),sex CHAR(1),salary DECIMAL(12,2) NOT NULL CHECK(salary>=0),super_ssn CHAR(9) NULL,dno INT NOT NULL,FOREIGN KEY(super_ssn) REFERENCES employee(ssn),FOREIGN KEY(dno) REFERENCES department(dnumber)) ENGINE=InnoDB;
+ALTER TABLE department ADD CONSTRAINT fk_dept_manager FOREIGN KEY(mgr_ssn) REFERENCES employee(ssn);
+CREATE TABLE dept_locations(dnumber INT,dlocation VARCHAR(60),PRIMARY KEY(dnumber,dlocation),FOREIGN KEY(dnumber) REFERENCES department(dnumber)) ENGINE=InnoDB;
+CREATE TABLE project(pnumber INT PRIMARY KEY,pname VARCHAR(80) NOT NULL UNIQUE,plocation VARCHAR(60),dnum INT NOT NULL,FOREIGN KEY(dnum) REFERENCES department(dnumber)) ENGINE=InnoDB;
+CREATE TABLE works_on(essn CHAR(9),pno INT,hours DECIMAL(5,1) CHECK(hours>=0),PRIMARY KEY(essn,pno),FOREIGN KEY(essn) REFERENCES employee(ssn),FOREIGN KEY(pno) REFERENCES project(pnumber)) ENGINE=InnoDB;
+CREATE TABLE dependent(essn CHAR(9),dependent_name VARCHAR(60),sex CHAR(1),bdate DATE,relationship VARCHAR(30),PRIMARY KEY(essn,dependent_name),FOREIGN KEY(essn) REFERENCES employee(ssn)) ENGINE=InnoDB;
+ALTER TABLE employee ADD partner_ssn CHAR(9) NULL,ADD CONSTRAINT fk_employee_partner FOREIGN KEY(partner_ssn) REFERENCES employee(ssn);
+START TRANSACTION;
+INSERT INTO department VALUES (1,'Research',NULL,NULL),(2,'Operations',NULL,NULL);
+INSERT INTO employee(ssn,fname,lname,bdate,address,sex,salary,super_ssn,dno) VALUES ('000000001','An','Nguyen','1990-01-01','Hanoi','F',25000,NULL,1);
+INSERT INTO employee(ssn,fname,lname,bdate,address,sex,salary,super_ssn,dno) VALUES ('000000002','Binh','Le','1992-02-02','Hue','M',18000,'000000001',1),('000000003','Chi','Tran','1993-03-03','Hanoi','F',20000,'000000001',2);
+UPDATE department SET mgr_ssn='000000001',mgr_start_date='2025-01-01' WHERE dnumber=1;
+UPDATE department SET mgr_ssn='000000003',mgr_start_date='2025-01-01' WHERE dnumber=2;
+UPDATE employee SET partner_ssn='000000003' WHERE ssn='000000002';
+UPDATE employee SET partner_ssn='000000002' WHERE ssn='000000003';
+INSERT INTO dept_locations VALUES(1,'Hanoi'),(1,'Hue'),(2,'Hanoi');
+INSERT INTO project VALUES(10,'Course Portal','Hanoi',1),(20,'Lab Booking','Hanoi',2);
+INSERT INTO works_on VALUES('000000001',10,8),('000000002',10,20),('000000002',20,10),('000000003',20,18);
+INSERT INTO dependent VALUES('000000001','Mai','F','2015-01-01','child');
+COMMIT;

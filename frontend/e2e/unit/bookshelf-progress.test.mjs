@@ -33,11 +33,10 @@ test('tủ sách: đọc đúng khoá, lọc số rác, gợi ý bài trống đ
   assert.deepEqual(progressFromEnrolled([], 'python_advanced', 179).completedNos, []);
 });
 
-test('tủ sách: link mở đúng bài theo cách đếm của từng trang bài học', () => {
+test('tủ sách: link mở đúng bài theo cách đếm của trang bài học', () => {
   const first = { index: 0, no: 1 };
   assert.equal(buildLessonHref('/lesson/python_advanced', first), '/lesson/python_advanced?lesson=0');
-  assert.equal(buildLessonHref('/lesson/db_design', first), '/lesson/db_design?lesson_idx=0');
-  assert.equal(buildLessonHref(null, first), null);
+  assert.equal(buildLessonHref('/lesson/database', first), '/lesson/database?lesson=0');
 });
 
 test('tủ sách: chỉ gọi API khi máy đã có phiên', () => {

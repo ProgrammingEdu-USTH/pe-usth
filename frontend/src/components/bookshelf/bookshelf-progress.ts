@@ -58,12 +58,7 @@ export function progressFromEnrolled(
   return buildProgressSnapshot(raw.map(Number), totalLessons);
 }
 
-/** Trang bài học Python nhận `?lesson=` đếm từ 0; engine CSDL đếm `?lesson=` từ 1. */
-export function buildLessonHref(
-  baseHref: string | null,
-  lesson: { index: number; no: number },
-): string | null {
-  if (!baseHref) return null;
-  const param = baseHref === '/lesson/db_design' ? 'lesson_idx' : 'lesson';
-  return `${baseHref}?${param}=${lesson.index}`;
+/** Mọi trang bài học trên kệ nhận `?lesson=` đếm từ 0. */
+export function buildLessonHref(baseHref: string, lesson: { index: number }): string {
+  return `${baseHref}?lesson=${lesson.index}`;
 }

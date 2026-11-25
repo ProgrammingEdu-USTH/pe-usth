@@ -75,7 +75,6 @@ export function BookCoverStage({
             {statusLabel}
           </span>
 
-          {course.statusNote && <span className={styles.coverMockChip}>{course.statusNote}</span>}
         </button>
 
         <div className={styles.coverCtaWrap}>

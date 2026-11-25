@@ -651,16 +651,6 @@
   color: var(--bs-ink-soft);
 }
 
-.statusChip {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--bs-primary-soft);
-  color: var(--bs-accent);
-  border: 1px solid var(--bs-surface-border);
-}
-
 .colorNoteRow {
   display: flex;
   align-items: center;
@@ -1069,17 +1059,6 @@
   z-index: 1;
 }
 
-.coverMockChip {
-  margin-top: 10px;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  color: var(--bs-ink);
-  z-index: 1;
-}
-
 /* ──────────────────────────────────────────────────────────────────────
    3. SÁCH MỞ 2 TRANG (SYLLABUS & LESSONS)
    ────────────────────────────────────────────────────────────────────── */
@@ -1203,6 +1182,26 @@
   font-size: 14.5px;
   line-height: 1.55;
   color: var(--bs-paper-ink);
+}
+
+/* Trang học thêm ngoài mạch bài, dưới danh sách "Bạn sẽ học được". */
+.extraLinks {
+  list-style: none;
+  margin: -10px 0 18px;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.extraLink {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bs-primary-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .outcomesHeading {

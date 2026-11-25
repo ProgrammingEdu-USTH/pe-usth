@@ -40,7 +40,7 @@ export default function LessonBrief({
   reflect,
 }: LessonBriefProps) {
   return (
-    <article className={styles.brief}>
+    <article className={styles.brief} data-gh-flow-card="">
       <p className={styles.eyebrow}>
         {eyebrow.map((part, i) => (
           <span key={i}>

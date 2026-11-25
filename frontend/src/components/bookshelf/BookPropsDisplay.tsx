@@ -21,7 +21,7 @@ export function CourseEmblemIcon({
     );
   }
 
-  if (slug === 'sql') {
+  if (slug === 'sql' || slug === 'database-advanced') {
     return (
       <svg width={size} height={size} viewBox="0 0 36 36" fill="none" aria-hidden="true">
         <ellipse cx="18" cy="10" rx="10" ry="3.8" fill="var(--bs-accent)" />
@@ -172,7 +172,7 @@ export function BookPropsDisplay({
     );
   }
 
-  if (slug === 'sql') {
+  if (slug === 'sql' || slug === 'database-advanced') {
     if (side === 'left') {
       return (
         <div className={styles.propsColumn}>
@@ -243,9 +243,13 @@ export function BookPropsDisplay({
       <div className={styles.propsColumn}>
         <div className={styles.sqlStickyNote}>
           <pre className={styles.sqlStickyPre}>
-            {'SELECT name\nFROM users\nWHERE city = \'Hà Nội\'\nORDER BY id;'}
+            {slug === 'sql'
+              ? 'SELECT name\nFROM users\nWHERE city = \'Hà Nội\'\nORDER BY id;'
+              : 'EXPLAIN ANALYZE\nSELECT city, COUNT(*)\nFROM users\nGROUP BY city;'}
           </pre>
-          <div className={styles.sqlStickyCap}>Truy vấn mẫu · Bài 3</div>
+          <div className={styles.sqlStickyCap}>
+            {slug === 'sql' ? 'Truy vấn mẫu' : 'Đọc kế hoạch truy vấn'}
+          </div>
         </div>
 
         <ShelfPedestal caption="Chìa khoá chính (PK)">

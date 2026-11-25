@@ -5,7 +5,7 @@
  * token --ds-* / --edu-* mà màn bài học đã dùng.
  */
 html:not([data-theme="thien-van"]) [data-gh-page],
-html:not([data-theme="thien-van"]) [data-gh-outline] {
+html:not([data-theme="thien-van"]) body.dark [data-gh-page] {
   --ds-page: #f3ead7;
   --ds-card: #fbf6ea;
   --ds-paper: #f3ead7;
@@ -44,46 +44,29 @@ html:not([data-theme="thien-van"]) [data-gh-outline] {
   --edu-code-inline-bg: var(--ds-tint);
   color: var(--ds-ink);
 }
-html:not([data-theme="thien-van"]) body.dark [data-gh-page],
-html:not([data-theme="thien-van"]) body.dark [data-gh-outline] {
-  --ds-page: #2a221b;
-  --ds-card: #332a21;
-  --ds-paper: #2a221b;
-  --ds-tint: #3d3228;
-  --ds-desk: #4a3d30;
-  --ds-line: #574738;
-  --ds-sketch: #b8a583;
-  --ds-ink: #f3ead7;
-  --ds-soft: #d3c3a3;
-  --ds-violet: #a9c6ff;
-  --ds-violet-deep: #cdddff;
-  --ds-violet-tint: #33364a;
-  --ds-action: #e8b45a;
-  --ds-on-action: #241608;
-  --ds-sanguine: #ff9aa6;
-  --ds-sanguine-tint: #46272a;
-  --ds-ochre: #6fd6a8;
-  --ds-ochre-tint: #223a2d;
-  --edu-t1: var(--ds-ink);
-  --edu-t2: var(--ds-ink);
-  --edu-t3: var(--ds-soft);
-  --edu-t4: var(--ds-soft);
-  --edu-t5: var(--ds-soft);
-  --edu-t6: var(--ds-soft);
-  --edu-panel-bg: var(--ds-card);
-  --edu-panel-bg-solid: var(--ds-card);
-  --edu-card-bg: var(--ds-card);
-  --edu-card-line: var(--ds-line);
-  --edu-card-border: var(--ds-line);
-  --edu-panel-border: var(--ds-line);
-  --edu-sidebar-border: var(--ds-line);
-  --edu-accent: var(--ds-action);
-  --edu-accent-text: var(--ds-violet);
-  --edu-accent-soft: var(--ds-violet-tint);
-  --edu-track-bg: var(--ds-desk);
-  --edu-code-inline-bg: var(--ds-tint);
-  color: var(--ds-ink);
+/* Ban đêm trang giấy chỉ dịu đi chứ không đảo màu: sách vẫn là sách, mực vẫn
+ * là mực, bớt chói trên nền phòng tối. */
+html:not([data-theme="thien-van"]) body.dark [data-gh-page] {
+  --ds-page: #ddcfae;
+  --ds-card: #e8dcbf;
+  --ds-paper: #ddcfae;
+  --ds-tint: #d2c19b;
+  --ds-desk: #c3b08a;
+  --ds-line: #b7a27a;
+  --ds-sketch: #5e4f37;
+  --ds-ink: #221a12;
+  --ds-soft: #453726;
+  --ds-violet: #1c3a6e;
+  --ds-violet-deep: #132a52;
+  --ds-violet-tint: #cdd1dc;
+  --ds-action: #27497c;
+  --ds-on-action: #ffffff;
+  --ds-sanguine: #8c1426;
+  --ds-sanguine-tint: #ecccc2;
+  --ds-ochre: #044a30;
+  --ds-ochre-tint: #c8d9c3;
 }
+
 html:not([data-theme="thien-van"]) [data-gh-bar] {
   --ds-page: #171019;
   --ds-card: #2a2030;
@@ -146,12 +129,13 @@ html:not([data-theme="thien-van"]) [data-gh-spread] {
   box-sizing: border-box;
 }
 
-/* Cuốn sách: giấy trong bìa da, một dải đánh dấu trang. */
+/* Cuốn sách: giấy trong bìa da, một dải đánh dấu trang. Ở màn hẹp nó là MỘT
+ * trang; từ 1000px nó mở ra hai trang (khối @media bên dưới). */
 html:not([data-theme="thien-van"]) [data-gh-spread] > [data-gh-page] {
   position: relative;
   box-sizing: border-box;
   max-width: calc(var(--st-col) + 96px);
-  padding: 20px 28px;
+  padding: 20px 28px 44px;
   background: var(--ds-page);
   border: 8px solid #5a3b26;
   border-radius: 20px;
@@ -174,95 +158,194 @@ html:not([data-theme="thien-van"]) [data-gh-spread="wide"] > [data-gh-page] {
   max-width: var(--st-col-wide);
 }
 
+/* Chữ bắt đầu từ đầu trang như sách in, không treo giữa trang. */
+html:not([data-theme="thien-van"]) [data-gh-page] > div {
+  align-content: start;
+}
+
 /* Thẻ trong trang không vẽ thêm một hộp nữa: nó chính là trang giấy. */
 html:not([data-theme="thien-van"]) [data-gh-page] [data-gh-card] {
   background: transparent;
   border-color: transparent;
   box-shadow: none;
   backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   padding-left: 8px;
   padding-right: 8px;
 }
 
-[data-gh-outline] {
+/* Số trang ở chân sách. Trang đơn chỉ có một số. */
+[data-gh-folio] {
   display: none;
 }
 
-@media (min-width: 1180px) {
-  html:not([data-theme="thien-van"]) [data-gh-spread=""] > [data-gh-outline] {
-    display: block;
-    flex: 0 0 300px;
-    box-sizing: border-box;
-    padding: 32px 24px;
-    background: linear-gradient(90deg, var(--ds-page) 82%, var(--ds-desk));
-    border: 8px solid #5a3b26;
-    border-right-width: 0;
-    border-radius: 20px 0 0 20px;
-    box-shadow: 0 24px 60px rgb(0 0 0 / 0.45);
-  }
-
-  html:not([data-theme="thien-van"]) [data-gh-spread=""] > [data-gh-page] {
-    margin: 0;
-    border-radius: 0 20px 20px 0;
-    max-width: calc(var(--st-col) + 120px);
-    background: linear-gradient(90deg, var(--ds-desk), var(--ds-page) 6%);
-  }
-}
-
-[data-gh-outline] h2 {
-  margin: 6px 0 4px;
-  font: 700 20px/1.35 var(--edu-font-display);
-}
-
-[data-gh-outline] p {
-  margin: 0 0 12px;
-  font-size: 15px;
+html:not([data-theme="thien-van"]) [data-gh-folio] {
+  position: absolute;
+  bottom: 12px;
+  display: block;
+  font: 600 13px var(--edu-font);
   color: var(--ds-soft);
 }
 
-[data-gh-outline] [data-gh-eyebrow] {
-  margin: 16px 0 8px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+html:not([data-theme="thien-van"]) [data-gh-folio="trai"] {
+  left: 50%;
+  translate: -50% 0;
 }
 
-[data-gh-grid] {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
+html:not([data-theme="thien-van"]) [data-gh-folio="phai"] {
+  display: none;
 }
 
-[data-gh-outline] button {
-  width: 100%;
-  min-height: 44px;
-  border: 1.5px solid var(--ds-sketch);
-  border-radius: 10px;
-  background: transparent;
-  color: var(--ds-ink);
-  font: 600 15px var(--edu-font);
-  cursor: pointer;
+@media (min-width: 1000px) {
+  html:not([data-theme="thien-van"]) [data-gh-spread] {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  /* Gáy sách ở giữa: bóng đổ vào hai phía và một đường khâu. */
+  html:not([data-theme="thien-van"]) [data-gh-spread] > [data-gh-page] {
+    max-width: 1320px;
+    padding: 24px 40px 52px;
+    border-width: 12px;
+    background:
+      linear-gradient(
+        90deg,
+        transparent calc(50% - 44px),
+        rgb(90 59 38 / 0.08) calc(50% - 18px),
+        rgb(90 59 38 / 0.26) calc(50% - 1px),
+        rgb(90 59 38 / 0.42) 50%,
+        rgb(255 251 242 / 0.55) calc(50% + 3px),
+        rgb(90 59 38 / 0.08) calc(50% + 18px),
+        transparent calc(50% + 44px)
+      ),
+      var(--ds-page);
+  }
+
+  /* Dải đánh dấu nằm trong lề phải, không đè lên chữ. */
+  html:not([data-theme="thien-van"]) [data-gh-spread] > [data-gh-page]::after {
+    right: 10px;
+  }
+
+  html:not([data-theme="thien-van"]) [data-gh-folio="trai"] {
+    left: 48px;
+    translate: none;
+  }
+
+  html:not([data-theme="thien-van"]) [data-gh-folio="phai"] {
+    right: 48px;
+    display: block;
+  }
+
+  /* Dải báo phía trên thẻ nằm gọn trong trang trái, không vắt qua gáy. */
+  html:not([data-theme="thien-van"]) [data-gh-page] > div > [role="status"] {
+    max-width: calc(50% - 48px);
+  }
+
+  /* "split": trang trái là đề, trang phải là chỗ làm. */
+  html:not([data-theme="thien-van"]) [data-gh-page] [data-gh-card][data-gh-layout="split"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: repeat(4, auto) 1fr;
+    column-gap: 96px;
+    align-content: start;
+  }
+
+  html:not([data-theme="thien-van"]) [data-gh-card][data-gh-layout="split"] > * {
+    grid-column: 1;
+    justify-self: stretch;
+  }
+
+  html:not([data-theme="thien-van"]) [data-gh-card][data-gh-layout="split"] > [data-gh-body] {
+    grid-column: 2;
+    grid-row: 1 / span 6;
+    align-self: start;
+    min-width: 0;
+    margin-top: 0;
+  }
+
+  html:not([data-theme="thien-van"]) [data-gh-card][data-gh-layout="split"] > button {
+    justify-self: start;
+    align-self: start;
+  }
+
+  /* "flow": chữ chảy từ trang trái sang trang phải. */
+  html:not([data-theme="thien-van"]) [data-gh-page] [data-gh-card][data-gh-layout="flow"],
+  html:not([data-theme="thien-van"]) [data-gh-page] [data-gh-flow-card] {
+    column-count: 2;
+    column-gap: 96px;
+    max-width: none;
+  }
+
+  html:not([data-theme="thien-van"]) [data-gh-page] [data-gh-flow] {
+    display: block;
+  }
+
+  html:not([data-theme="thien-van"]) [data-gh-page] [data-gh-flow] > *,
+  html:not([data-theme="thien-van"]) [data-gh-page] [data-gh-flow-card] > * {
+    margin-top: 0;
+    margin-bottom: 14px;
+    break-inside: avoid;
+  }
+
+  /* Đoạn văn được ngắt sang trang bên, miễn là không để lại dòng mồ côi. */
+  html:not([data-theme="thien-van"]) [data-gh-page] [data-gh-flow] > p {
+    break-inside: auto;
+    orphans: 3;
+    widows: 3;
+  }
+
+  html:not([data-theme="thien-van"]) [data-gh-page] [data-gh-flow] > h3,
+  html:not([data-theme="thien-van"]) [data-gh-page] [data-gh-flow-card] > h1 {
+    break-after: avoid;
+  }
+
+  /* Cặp trang cố định (tổng kết, ngộ nhận): phần đánh dấu `data-gh-right` sang
+     trang phải, phần còn lại xếp ở trang trái. */
+  html:not([data-theme="thien-van"]) [data-gh-page] [data-gh-pair] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: repeat(4, auto) 1fr;
+    column-gap: 96px;
+    align-content: start;
+    max-width: none;
+  }
+
+  html:not([data-theme="thien-van"]) [data-gh-pair] > * {
+    grid-column: 1;
+    align-self: start;
+    min-width: 0;
+  }
+
+  html:not([data-theme="thien-van"]) [data-gh-pair] > span {
+    justify-self: center;
+  }
+
+  html:not([data-theme="thien-van"]) [data-gh-pair] > span:first-child:not(:last-child) {
+    margin-bottom: 4px;
+  }
+
+  html:not([data-theme="thien-van"]) [data-gh-pair] > [data-gh-right] {
+    grid-column: 2;
+    grid-row: 1 / span 6;
+  }
 }
 
-[data-gh-outline] button[data-done] {
-  background: var(--ds-ochre-tint);
-  border-color: var(--ds-ochre);
+/* Lật trang: tờ mới trượt vào từ mép phải. */
+@media (min-width: 1000px) and (prefers-reduced-motion: no-preference) {
+  html:not([data-theme="thien-van"]) [data-gh-page] > div {
+    animation: gh-lat-trang 0.42s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
 }
 
-[data-gh-outline] button[aria-current] {
-  background: var(--ds-action);
-  border-color: var(--ds-action);
-  color: var(--ds-on-action);
-}
-
-[data-gh-outline] button:disabled {
-  border-style: dashed;
-  cursor: default;
-}
-
-[data-gh-outline] button:focus-visible {
-  outline: 3px solid var(--ds-violet);
-  outline-offset: 2px;
+@keyframes gh-lat-trang {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 @media (max-width: 560px) {
@@ -271,7 +354,7 @@ html:not([data-theme="thien-van"]) [data-gh-page] [data-gh-card] {
   }
 
   html:not([data-theme="thien-van"]) [data-gh-spread] > [data-gh-page] {
-    padding: 8px 4px;
+    padding: 8px 4px 36px;
     border-width: 4px;
     border-radius: 14px;
   }
@@ -283,7 +366,8 @@ html:not([data-theme="thien-van"]) [data-gh-page] [data-gh-card] {
 
 /* Bí danh --st-* thế var() tại nơi khai (xem studio-tokens.css), nên bề mặt đổi
    bảng --ds-* phải khai lại chúng. */
-html:not([data-theme="thien-van"]) :is([data-gh-bar], [data-gh-page], [data-gh-outline]) {
+html:not([data-theme="thien-van"]) :is([data-gh-bar], [data-gh-page]),
+html:not([data-theme="thien-van"]) body.dark [data-gh-page] {
   --st-ok-bg: var(--ds-ochre-tint);
   --st-ok-text: var(--ds-ochre);
   --st-ok-line: var(--ds-ochre);

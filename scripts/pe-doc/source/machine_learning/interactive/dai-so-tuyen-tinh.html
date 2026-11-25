@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Linear Algebra · Bài tập 2.1 và 2.2</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f5f7f3;
+      --white: #fff;
+      --ink: #172b22;
+      --muted: #4c6458;
+      --line: #d6e2d9;
+      --light: #e8f3ec;
+      --green: #126047;
+      --blue: #255d99;
+      --warning: #82482e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 16px/1.6 "DM Sans", "Segoe UI", Arial, sans-serif;
+    }
+    :focus-visible { outline: 3px solid #3986cf; outline-offset: 3px; }
+    [hidden] { display: none !important; }
+    a { color: var(--green); text-underline-offset: .2em; }
+    button, input { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    h1, h2, h3, p, figure { margin: 0; }
+    h1, h2, h3 { line-height: 1.22; }
+    .wrap { width: min(1032px, calc(100% - 44px)); margin-inline: auto; }
+    header { background: #123229; color: #fff; }
+    header .wrap {
+      display: flex;
+      flex-wrap: wrap;
+      column-gap: 2rem;
+      row-gap: .85rem;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-block: 1.05rem 1.15rem;
+    }
+    header p { color: #bbecd1; font-size: .86rem; margin-bottom: .3rem; }
+    h1 { font-size: clamp(1.52rem, 3.4vw, 2.24rem); letter-spacing: -.033em; }
+    header nav { display: flex; gap: 1rem; }
+    header a { color: #fff; font-size: .92rem; }
+    main { padding-block: 1.3rem 2rem; }
+    .lesson { scroll-margin: 1.1rem; }
+    .lesson + .lesson { border-top: 1px solid var(--line); margin-top: 1.65rem; padding-top: 1.55rem; }
+    .lesson-title {
+      display: flex;
+      align-items: baseline;
+      gap: .6rem;
+      margin-bottom: .3rem;
+      font-size: clamp(1.42rem, 3.8vw, 2rem);
+      letter-spacing: -.022em;
+    }
+    .exercise-code { color: var(--green); flex-shrink: 0; }
+    .lead { color: var(--muted); margin-bottom: .8rem; }
+    .activity {
+      padding: 1rem 1.15rem;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--white);
+    }
+    .control {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      flex-wrap: wrap;
+    }
+    .control label, .control > span { font-weight: 650; }
+    .control output { color: var(--green); min-width: 2.2em; font-weight: 700; }
+    .control input { width: min(100%, 19rem); margin: 0; height: 36px; accent-color: var(--green); }
+    .formula { font-variant-numeric: tabular-nums; }
+    .axis-chart { padding: 0 1.55rem; margin-top: .25rem; }
+    .axis {
+      position: relative;
+      height: 6.2rem;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+    .track { position: absolute; inset: 2.88rem 0 auto; border-top: 2px solid #90a69a; }
+    .tick {
+      position: absolute;
+      top: -.28rem;
+      transform: translateX(-50%);
+      text-align: center;
+    }
+    .tick::before { content: ""; display: block; height: .48rem; width: 1px; background: #90a69a; margin: 0 auto .15rem; }
+    .marker {
+      position: absolute;
+      top: 2.91rem;
+      left: var(--position);
+      width: 10px;
+      height: 10px;
+      transform: translate(-50%,-50%);
+      border-radius: 50%;
+      background: currentColor;
+      transition: left 200ms ease-out;
+    }
+    .marker::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      height: 1rem;
+      border-left: 1px solid currentColor;
+    }
+    .marker-before { color: var(--green); }
+    .marker-after { color: var(--blue); }
+    .marker-before::after { bottom: 8px; }
+    .marker-after::after { top: 8px; }
+    .marker span {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 5px;
+      padding: .04rem .34rem;
+      color: white;
+      white-space: nowrap;
+      font-weight: 700;
+    }
+    .marker-before span { bottom: 1.38rem; background: var(--green); }
+    .marker-after span { top: 1.38rem; background: var(--blue); }
+    .equations {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .65rem;
+    }
+    .equation {
+      padding: .53rem .75rem;
+      border-radius: 8px;
+      background: var(--light);
+      color: var(--green);
+    }
+    .equation + .equation { background: #eaf1fa; color: var(--blue); }
+    .equation span { display: block; font-size: .82rem; font-weight: 650; }
+    .equation strong { display: block; font-size: 1.1rem; overflow-wrap: anywhere; }
+    .point { color: var(--muted); margin-top: .55rem; }
+    .invalid { color: var(--warning); margin: .65rem 0; }
+    .ring-layout {
+      display: grid;
+      grid-template-columns: minmax(200px, .8fr) minmax(230px, 1fr);
+      gap: .65rem 1.5rem;
+      align-items: center;
+    }
+    .options { display: flex; gap: .42rem; flex-wrap: wrap; }
+    .options button {
+      border: 1px solid #a5b9ab;
+      border-radius: 7px;
+      background: var(--white);
+      min-height: 40px;
+      padding: .23rem .7rem;
+    }
+    .options button:hover { background: #f2f7f3; }
+    .options button[aria-pressed=true] { border-color: var(--green); background: var(--light); color: var(--green); font-weight: 700; }
+    .ring {
+      --radius: 4.42rem;
+      position: relative;
+      width: 12.6rem;
+      height: 12.6rem;
+      margin-inline: auto;
+    }
+    .ring::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: calc(var(--radius) * 2);
+      height: calc(var(--radius) * 2);
+      transform: translate(-50%, -50%);
+      border: 2px solid #a7bcb0;
+      border-radius: 50%;
+    }
+    .ring-center {
+      position: absolute;
+      inset: 50% auto auto 50%;
+      transform: translate(-50%,-50%);
+      text-align: center;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .ring-center span { display: block; font-size: .85rem; color: var(--muted); font-weight: 400; }
+    .station {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      width: 1.7rem;
+      height: 1.7rem;
+      border-radius: 50%;
+      transform: translate(-50%,-50%);
+      background: var(--light);
+      font-size: .85rem;
+      font-weight: 650;
+    }
+    .station.destination { background: var(--green); color: #fff; }
+    .traveler {
+      pointer-events: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin: -.29rem;
+      width: .58rem;
+      height: .58rem;
+      border-radius: 50%;
+      background: var(--blue);
+      outline: 2px solid white;
+    }
+    .ring-result strong { display: block; font-size: 1.35rem; line-height: 1.25; }
+    .ring-result p { color: var(--muted); margin-top: .35rem; }
+    .quiz { margin-top: .75rem; }
+    .quiz h3 { font-size: 1rem; margin-bottom: .4rem; }
+    .feedback { margin-top: .45rem; color: var(--green); }
+    .feedback:empty { display: none; }
+    .feedback[data-correct=false] { color: var(--warning); }
+    footer { color: var(--muted); border-top: 1px solid var(--line); padding-block: .8rem 1.2rem; font-size: .92rem; }
+    footer a { margin-right: 1rem; }
+    @media (max-width: 640px) {
+      .wrap { width: calc(100% - 28px); }
+      .activity { padding: .75rem; }
+      .ring-layout { grid-template-columns: 1fr; }
+      .ring-result { text-align: center; }
+      .control { gap: .35rem .6rem; }
+      .control input { flex: 1 1 100%; }
+      .equation { padding: .5rem; }
+      .equation strong { font-size: .96rem; }
+    }
+    @media (prefers-reduced-motion: reduce) { .marker { transition: none; } }
+  </style>
+</head>
+<body>
+  <header><div class="wrap">
+    <div>
+      <p>Mathematics for Machine Learning · Linear Algebra</p>
+      <h1>Bài tập 2.1 và 2.2</h1>
+    </div>
+    <nav aria-label="Đi tới bài tập"><a href="#bai-2-1">Bài 2.1</a><a href="#bai-2-2">Bài 2.2</a></nav>
+  </div></header>
+
+  <main class="wrap">
+    <noscript>Bật JavaScript để dùng hình tương tác hoặc mở bản Markdown ở cuối trang.</noscript>
+    <section class="lesson" id="bai-2-1" aria-labelledby="title-2-1">
+      <h2 class="lesson-title" id="title-2-1"><span class="exercise-code">2.1</span> Đổi phép ⋆ thành phép nhân</h2>
+      <p class="lead">Giữ b = 2. Kéo a rồi so sánh hai kết quả trên cùng một trục số.</p>
+      <div class="activity">
+        <div class="control">
+          <label for="a-value">Giá trị a</label>
+          <output id="a-readout" for="a-value">1</output>
+          <input id="a-value" type="range" min="-3" max="3" step="1" value="1">
+        </div>
+        <div class="axis-chart" id="star-visual">
+          <div class="axis" role="img" id="star-axis" aria-label="Hai kết quả là 5 và 6 trên trục số">
+            <div class="track" id="star-track" aria-hidden="true"></div>
+            <div class="marker marker-before" id="before-marker" aria-hidden="true"><span>5</span></div>
+            <div class="marker marker-after" id="after-marker" aria-hidden="true"><span>6</span></div>
+          </div>
+          <div class="equations formula">
+            <div class="equation"><span>Phép ⋆ · a × 2 + a + 2</span><strong id="before-result">1 ⋆ 2 = 5</strong></div>
+            <div class="equation"><span>Nhân sau khi cộng 1 vào mỗi số</span><strong id="after-result">(1 + 1) × (2 + 1) = 6</strong></div>
+          </div>
+          <p class="point">Cộng 1 vào mỗi đầu vào rồi nhân cho kết quả lớn hơn phép ⋆ đúng 1 đơn vị.</p>
+        </div>
+        <p class="invalid" id="star-invalid" role="status" hidden>Thử a = −1 cho a + 1 = 0. Bài loại −1 vì 0 không có nghịch đảo nhân.</p>
+        <div class="quiz" id="star-quiz">
+          <h3 id="star-question">Số nào thỏa a ⋆ số đó = a với mọi a hợp lệ?</h3>
+          <div class="options" role="group" aria-labelledby="star-question">
+            <button type="button" aria-pressed="false" data-choice="-1">−1</button>
+            <button type="button" aria-pressed="false" data-choice="0">0</button>
+            <button type="button" aria-pressed="false" data-choice="1">1</button>
+          </div>
+          <p class="feedback" id="star-feedback" role="status"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="lesson" id="bai-2-2" aria-labelledby="title-2-2">
+      <h2 class="lesson-title" id="title-2-2"><span class="exercise-code">2.2</span> Một tích, hai phần dư</h2>
+      <p class="lead">Giữ tích 2 × 4 = 8. Đổi số ô trên vòng rồi xem 8 bước dừng ở đâu.</p>
+      <div class="activity">
+        <div class="control">
+          <span id="mod-label">Số ô trên vòng</span>
+          <div class="options" id="mod-switch" role="group" aria-labelledby="mod-label">
+            <button type="button" aria-pressed="true" data-mod="5">mod 5</button>
+            <button type="button" aria-pressed="false" data-mod="8">mod 8</button>
+          </div>
+        </div>
+        <div class="ring-layout">
+          <figure class="ring" id="mod-ring" role="img" aria-label="Vòng 5 ô, sau 8 bước dừng ở ô 3">
+            <div class="ring-center" aria-hidden="true">2 × 4 = 8<span id="mod-caption">mod 5</span></div>
+            <div id="mod-stations" aria-hidden="true"></div>
+            <div class="traveler" id="mod-traveler" hidden aria-hidden="true"></div>
+          </figure>
+          <div class="ring-result" role="status">
+            <strong class="formula" id="mod-result">8 = 5 + 3 → ô 3</strong>
+            <p id="mod-note">Đi hết một vòng rồi thêm 3 bước. Phần dư là 3.</p>
+          </div>
+        </div>
+        <div class="quiz" id="mod-quiz">
+          <h3 id="mod-question">Thử cặp khác. 3 × 4 trong mod 6 rơi vào ô nào?</h3>
+          <div class="options" role="group" aria-labelledby="mod-question">
+            <button type="button" aria-pressed="false" data-choice="0">Ô 0</button>
+            <button type="button" aria-pressed="false" data-choice="2">Ô 2</button>
+            <button type="button" aria-pressed="false" data-choice="4">Ô 4</button>
+          </div>
+          <p class="feedback" id="mod-feedback" role="status"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="wrap">
+    <a href="loi-giai.md">Gợi ý và lời giải đầy đủ</a><a href="README.md">README</a>
+    <span>Trang in 64 · PDF 70 · Bản thảo 15/01/2024</span>
+  </div></footer>
+
+  <script>
+    const byId = id => document.getElementById(id);
+    const format = number => String(number).replace("-", "−");
+    const minResult = -8;
+    const maxResult = 13;
+    const position = number => (number - minResult) / (maxResult - minResult) * 100 + "%";
+    const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
+    for (const number of [-8, -4, 0, 4, 8, 13]) {
+      const tick = document.createElement("span");
+      tick.className = "tick";
+      tick.style.left = position(number);
+      tick.textContent = format(number);
+      byId("star-track").append(tick);
+    }
+
+    function placeMarker(id, value) {
+      const marker = byId(id);
+      marker.style.setProperty("--position", position(value));
+      marker.firstElementChild.textContent = format(value);
+    }
+    function updateStar() {
+      const a = byId("a-value").valueAsNumber;
+      const label = format(a);
+      const valid = a !== -1;
+      byId("a-readout").value = label;
+      byId("a-value").setAttribute("aria-valuetext", valid ? label : "Âm một, ngoài tập");
+      byId("star-invalid").hidden = valid;
+      byId("star-visual").hidden = !valid;
+      if (!valid) return;
+
+      const star = a * 2 + a + 2;
+      const product = (a + 1) * (2 + 1);
+      const input = a < 0 ? "(" + label + ")" : label;
+      placeMarker("before-marker", star);
+      placeMarker("after-marker", product);
+      byId("before-result").textContent = input + " ⋆ 2 = " + format(star);
+      byId("after-result").textContent = "(" + label + " + 1) × (2 + 1) = " + format(product);
+      byId("star-axis").setAttribute("aria-label", "Trên trục số, phép ⋆ ở " + format(star) + " và phép nhân ở " + format(product) + ".");
+    }
+    byId("a-value").addEventListener("input", updateStar);
+    updateStar();
+
+    const modulusButtons = [...byId("mod-switch").querySelectorAll("button")];
+    const traveler = byId("mod-traveler");
+    let modulus = 0;
+    let orbit = null;
+
+    function updateModulo(next, play) {
+      if (next === modulus) return;
+      modulus = next;
+      const remainder = 8 % modulus;
+      orbit?.cancel();
+      traveler.hidden = true;
+      for (const button of modulusButtons) {
+        button.setAttribute("aria-pressed", String(Number(button.dataset.mod) === modulus));
+      }
+      const stations = Array.from({length: modulus}, (_, value) => {
+        const station = document.createElement("span");
+        const angle = value / modulus * Math.PI * 2;
+        station.className = "station";
+        station.style.left = (50 + Math.sin(angle) * 35.08) + "%";
+        station.style.top = (50 - Math.cos(angle) * 35.08) + "%";
+        station.textContent = value;
+        return station;
+      });
+      byId("mod-stations").replaceChildren(...stations);
+      byId("mod-caption").textContent = "mod " + modulus;
+      byId("mod-ring").setAttribute("aria-label", "Vòng " + modulus + " ô. Sau 8 bước dừng ở ô " + remainder + ".");
+      byId("mod-result").textContent = remainder ? "8 = 5 + 3 → ô 3" : "8 = 8 + 0 → ô 0";
+      byId("mod-note").textContent = remainder
+        ? "Đi hết một vòng rồi thêm 3 bước. Phần dư là 3."
+        : "Đi đúng một vòng và về 0. Tích của hai phần tử khác 0 đã rơi ra ngoài tập đang xét, nên phép nhân mất tính đóng (closure).";
+
+      function finish() {
+        traveler.hidden = true;
+        stations[remainder].classList.add("destination");
+      }
+      if (!play || reducedMotion.matches || !traveler.animate) {
+        finish();
+        return;
+      }
+
+      traveler.hidden = false;
+      orbit = traveler.animate([
+        {transform: "rotate(0turn) translateY(calc(-1 * var(--radius)))"},
+        {transform: "rotate(" + (8 / modulus) + "turn) translateY(calc(-1 * var(--radius)))"}
+      ], {duration: 920, easing: "ease-out"});
+      orbit.onfinish = finish;
+    }
+    for (const button of modulusButtons) {
+      button.addEventListener("click", () => updateModulo(Number(button.dataset.mod), true));
+    }
+    updateModulo(5, false);
+
+    function wireQuiz(id, answer, messages) {
+      const buttons = [...byId(id + "-quiz").querySelectorAll("button")];
+      const feedback = byId(id + "-feedback");
+      for (const button of buttons) {
+        button.addEventListener("click", () => {
+          const value = button.dataset.choice;
+          for (const option of buttons) option.setAttribute("aria-pressed", String(option === button));
+          feedback.dataset.correct = String(value === answer);
+          feedback.textContent = messages[value];
+        });
+      }
+    }
+    wireQuiz("star", "0", {
+      "-1": "−1 nằm ngoài tập của phép ⋆. Hãy thử thế 0 vào a ⋆ b.",
+      "0": "Đúng. a ⋆ 0 = a × 0 + a + 0 = a. Vì thế 0 là phần tử đơn vị (identity element).",
+      "1": "Thế 1 vào ta được 2a + 1. Hãy tìm số làm hai phần a × b và b cùng bằng 0."
+    });
+    wireQuiz("mod", "0", {
+      "0": "Đúng. 3 × 4 = 12 và 12 = 2 × 6. Sau hai vòng, kết quả về 0.",
+      "2": "2 là số vòng đi trọn. Khi đi 12 bước trên vòng 6 ô, bạn còn dư bao nhiêu bước?",
+      "4": "4 là một thừa số của tích. Hãy tính 3 × 4 trước, rồi tìm phần dư khi chia cho 6."
+    });
+  </script>
+</body>
+</html>

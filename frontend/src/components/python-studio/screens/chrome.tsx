@@ -169,6 +169,8 @@ export function ScreenShell({
       title={title ?? ''}
       description={description}
       centered={centered}
+      // Bài đọc và lý thuyết là văn bản dài: chảy qua hai trang. Còn lại là đề + chỗ làm.
+      layout={scr.kind === 'read' || scr.kind === 'theory' ? 'flow' : 'split'}
     >
       {children}
       {verdict && (

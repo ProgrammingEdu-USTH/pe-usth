@@ -132,6 +132,25 @@
   --bs-spine-band: #dba258;
 }
 
+/* Database Advanced — Xanh mực & đồng */
+[data-course="database-advanced"] {
+  --bs-primary: #55699f;
+  --bs-primary-text: #2c3c6b;
+  --bs-primary-soft: rgba(85, 105, 159, 0.16);
+  --bs-accent: #dd9f78;
+  --bs-cover: #38456e;
+  --bs-cover-deep: #272f4e;
+  --bs-cover-border: #cf9a7c;
+  --bs-cta-bg: #e6ab85;
+  --bs-cta-ink: #22130a;
+  --bs-cta-alt-bg: #41517f;
+  --bs-cta-alt-ink: #ffffff;
+  --bs-ribbon: #d98f66;
+  --bs-spine-bg: #3d4b78;
+  --bs-spine-ink: #f7f6f9;
+  --bs-spine-band: #cd9876;
+}
+
 /* Khoá 3: Machine Learning — Tím oải hương & hồng phấn */
 [data-course="machine-learning"] {
   --bs-primary: #7d61b8;

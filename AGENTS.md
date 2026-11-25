@@ -21,6 +21,8 @@ cd frontend && npm run dev # cổng 3000
 py scripts/pe-da/build.py              # course.json -> scripts/pe-da/out/ + chép 80 ảnh
 py scripts/pe-da/check.py --strict     # kiểm cấu trúc (CI chạy bản này)
 py scripts/pe-da/sync_curricula.py     # chép giáo trình sang frontend/src/lib/curricula.json
+python3 scripts/pe-doc/build.py        # 3 khoá tĩnh (Database, Database Advanced, ML) -> public/static/courses
+python3 scripts/pe-doc/build.py --check   # bản dựng đã commit có khớp nguồn không (CI chạy bản này)
 node scripts/giao-trinh.mjs            # NỘI DUNG chép ở đây có đúng Giao_Trinh_PE @ SHA ghim không (cần mạng)
 node scripts/giao-trinh.mjs lay --sha <SHA|main>   # lấy nội dung mới từ Giao_Trinh_PE và ghim SHA
 py scripts/pe-da/gen_traces.py         # SINH LẠI traces.json (bảng từng bước) — ~20 phút,
@@ -92,6 +94,23 @@ Chủ dự án quyết: mọi việc tổng hợp và thay đổi nội dung gi�
   L3400), nên bước CI mới chưa chạy tự động ở `main` cho tới khi trigger được lật; chạy tay bằng lệnh trên. Thêm tệp vào giáo
   trình thì thêm vào `anh-xa.json` BÊN ĐÓ trước, rồi `lay`.
 
+## Ba khoá tĩnh: Database, Database Advanced, Machine Learning (từ 25/11/2026)
+
+Chủ dự án quyết đưa trọn giáo trình lên site, chưa thu phí. Ba khoá dùng CHUNG màn bài học với khoá Python
+(`/lesson/<mã>?lesson=<chỉ số từ 0>`) nhưng **không đụng backend**: nội dung là tệp dưới
+`frontend/public/static/courses/`, không ghi danh, không tạo tài khoản khách, không ghi nhật ký, không XP; tiến độ
+và bản nháp nằm ở `localStorage`. Chỗ rẽ nhánh duy nhất là `useLessonData` theo `lib/static-courses.ts`.
+
+- **Nội dung soạn ở Giao_Trinh_PE.** `scripts/pe-doc/source/` là bản chép tại các commit ghi ở `source/SOURCE.json`
+  (`chinook_advanced.sql` cố ý không chép: không bài nào trỏ tới). Đừng sửa tay; chép lại rồi chạy
+  `python3 scripts/pe-doc/build.py`. Chưa có cổng nào đối chiếu bản chép với repo nguồn như `giao-trinh.mjs` làm cho pe-da.
+- Bản dựng bỏ hai mục viết cho người dựng runner ("Học trên web", "Biến thể và cách kiểm"). Bài SQL là bài đọc kèm
+  câu tự luyện: **không chấm SQL trong trình duyệt**; fixture `.sql` được phát để chạy trên máy.
+- Machine Learning có ca chấm: cả 28 lời giải mẫu đạt 6/6 trong Pyodide trên trình duyệt thật (25/11/2026, đo tay,
+  chưa có cổng tự động).
+- Bài SQL cũ (`/lesson/db_design*`) vẫn mở được bằng đường dẫn trực tiếp vì bộ e2e kéo-thả và chạy SQL đang đo trên
+  nó; kệ sách không còn trỏ tới.
+
 ## Mốc nền
 
 **Đo lại ngày 04/11/2026 — MỌI hàng, bằng cách tự chạy từng lệnh.** Đừng để tụt xuống
@@ -114,7 +133,7 @@ học nó.
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
-| Frontend unit test | `cd frontend && npm run test:unit` → **757 ca** / 73 tệp, tất cả đạt |
+| Frontend unit test | `cd frontend && npm run test:unit` → **765 ca** / 74 tệp, tất cả đạt |
 | Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **69 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
@@ -134,7 +153,7 @@ học nó.
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **47 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 757 · backend 36 bộ/532 · tracer 69 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/364 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 765 · backend 36 bộ/532 · tracer 69 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/364 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -167,8 +186,8 @@ lien-ket-noi-bo 3 · loi-python 6 · mcq-code 12 · mcq-next-after-wrong 23 · o
 o-nhap-nhieu-dong 2 · phan-bai 8 · practice-contract 15 · practice-run 9 · prewarm-gate 5 · quan-may 5 ·
 read-diagram 12 · read-guess 19 · read-trace 17 · read-try-it 23 · recap-recall 7 ·
 review-quiz 34 · run-stale 15 · sandbox-cuon-ket-qua 6 · session-marker 5 · spaced-review 18 ·
-studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 · trang-404 6 · trang-loi 12 ·
-trap-leak 3 · worker-csp 7 = 757.
+static-courses 8 · studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 · trang-404 6 · trang-loi 12 ·
+trap-leak 3 · worker-csp 7 = 765.
 Lịch sử các lần số ca đổi ("Mốc trước là 736; …") nằm ở [BAY-DA-GAP.md](BAY-DA-GAP.md), phần 2 — mỗi dòng ghi VÌ SAO con số đổi. Khối phân rã ở trên là số HIỆN TẠI; thêm/bớt một tệp test thì sửa CẢ hàng mốc nền LẪN khối này (`node scripts/dem-ca-test.mjs` in đúng khuôn).
 
 **Đếm phân rã bằng `sed`, đừng bằng `grep -E "^. pass"`** — dòng tổng kết của

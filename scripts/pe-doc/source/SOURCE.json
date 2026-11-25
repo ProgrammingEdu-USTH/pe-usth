@@ -1,0 +1,26 @@
+{
+  "repository": "https://github.com/ProgrammingEdu-USTH/Giao_Trinh_PE",
+  "note": "Copied unchanged; author the content there, then copy it again. chinook_advanced.sql is left out: no lesson links to it.",
+  "courses": {
+    "database": {
+      "ref": "Advanced_DB",
+      "commit": "03d8950a348fd374db8ac99ea670de1ac9ac0553",
+      "path": "PE_Database_Advanced/baseline"
+    },
+    "database_advanced": {
+      "ref": "Advanced_DB",
+      "commit": "03d8950a348fd374db8ac99ea670de1ac9ac0553",
+      "path": "PE_Database_Advanced"
+    },
+    "machine_learning": {
+      "ref": "feat/pe-machine-learning",
+      "commit": "dd6cfd7652f0f5ba39179cdc9293a7016dc2bf99",
+      "path": "PE_Machine_Learning"
+    },
+    "machine_learning_interactive": {
+      "ref": "test-ML-nam",
+      "commit": "ac99fba5e0466c8a3fcbaa7f054615e28b5a9259",
+      "path": "PE_Machine_Learning/docs"
+    }
+  }
+}

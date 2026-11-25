@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { LofiButton, LofiFeedbackBanner } from '@/components/ui';
+import { LofiButton } from '@/components/ui';
 import {
   buildLessonHref,
   type BookshelfCourse,
@@ -34,7 +34,6 @@ export function BookLessonsSpread({
   onChangeStage,
   onBackToSyllabus,
 }: BookLessonsSpreadProps) {
-  const [selectedMockLesson, setSelectedMockLesson] = useState<BookshelfLessonItem | null>(null);
   const doneSet = new Set(completedNos);
 
   const mid = Math.ceil(stage.lessons.length / 2);
@@ -68,7 +67,8 @@ export function BookLessonsSpread({
               Bài {lesson.no} · {lesson.title}
             </span>
             <span className={styles.lessonMeta} style={{ display: 'block' }}>
-              {lesson.code} · {lesson.minutes} phút
+              {lesson.code}
+              {lesson.minutes > 0 ? ` · ${lesson.minutes} phút` : ''}
             </span>
           </span>
         </span>
@@ -78,23 +78,10 @@ export function BookLessonsSpread({
       </>
     );
 
-    if (href) {
-      return (
-        <Link key={lesson.index} href={href} className={rowClass}>
-          {content}
-        </Link>
-      );
-    }
-
     return (
-      <button
-        key={lesson.index}
-        type="button"
-        className={rowClass}
-        onClick={() => setSelectedMockLesson(lesson)}
-      >
+      <Link key={lesson.index} href={href} className={rowClass}>
         {content}
-      </button>
+      </Link>
     );
   };
 
@@ -138,26 +125,6 @@ export function BookLessonsSpread({
         </div>
       </div>
 
-      {selectedMockLesson && course.isMock && (
-        <div style={{ width: '100%' }}>
-          <LofiFeedbackBanner
-            variant="info"
-            title={`Bài ${selectedMockLesson.no}: ${selectedMockLesson.title}`}
-            message="Nội dung bài học Machine Learning đang được cập nhật — bạn có thể xem trước khung chương trình tại đây."
-            action={
-              <LofiButton
-                type="button"
-                variant="glass"
-                size="sm"
-                onClick={() => setSelectedMockLesson(null)}
-              >
-                Đóng
-              </LofiButton>
-            }
-          />
-        </div>
-      )}
-
       <div className={styles.bookSpread}>
         <section className={styles.pageHalf} aria-label="Mục lục phần 1">
           <div className={styles.pageEyebrow}>
@@ -188,30 +155,18 @@ export function BookLessonsSpread({
         </section>
       </div>
 
-      {featuredLesson && (
+      {featuredLesson && featuredHref && (
         <div className={styles.bottomActionBar}>
-          {featuredHref ? (
-            <Link href={featuredHref} className={styles.bottomActionLink}>
-              <LofiButton
-                type="button"
-                size="md"
-                className={styles.ctaThemedBtn}
-                rightIcon={<span aria-hidden="true">→</span>}
-              >
-                Học Bài {featuredLesson.no} · {featuredLesson.title}
-              </LofiButton>
-            </Link>
-          ) : (
+          <Link href={featuredHref} className={styles.bottomActionLink}>
             <LofiButton
               type="button"
               size="md"
               className={styles.ctaThemedBtn}
               rightIcon={<span aria-hidden="true">→</span>}
-              onClick={() => setSelectedMockLesson(featuredLesson)}
             >
-              Xem thử Bài {featuredLesson.no} · {featuredLesson.title}
+              Học Bài {featuredLesson.no} · {featuredLesson.title}
             </LofiButton>
-          )}
+          </Link>
         </div>
       )}
     </div>

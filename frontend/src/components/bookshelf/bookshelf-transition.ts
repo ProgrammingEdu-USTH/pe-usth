@@ -8,11 +8,12 @@
 export const RETURN_BOOK_KEY = 'pe_bookshelf_return_book';
 export const RETURN_BOOK_TTL_MS = 4000;
 
-export type ReturningBookSlug = 'python' | 'sql' | 'machine-learning';
+export type ReturningBookSlug = 'python' | 'sql' | 'database-advanced' | 'machine-learning';
 
 const VALID_SLUGS: ReadonlySet<string> = new Set([
   'python',
   'sql',
+  'database-advanced',
   'machine-learning',
 ]);
 

@@ -550,12 +550,15 @@ export default function IdeClient() {
   // Rời trang giữa chừng thì huỷ request đang treo (container vẫn tự hết giờ ở máy chủ).
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  // Đường client: nạp sẵn runtime lúc người học còn đang gõ. Runtime ~13 MB,
-  // để rơi vào lần bấm Chạy đầu thì họ tưởng chương trình của mình chậm.
+  // Nạp sẵn runtime lúc người học còn đang gõ, nhưng SAU trình soạn thảo. Runtime ~6,3 MB trên dây; nạp
+  // cùng lúc thì trên mạng 1,6 Mbps nó giành hết băng thông, Monaco quá trần chờ và trang báo "không tải được
+  // trình soạn thảo" dù chẳng có gì bị chặn (đo 26/11/2026: hỏng 3/3 lượt; hoãn lại thì editor lên sau
+  // ~10,3 s, 3/3). Bấm Chạy trước lúc đó vẫn được: lượt chạy tự dựng runtime.
+  const editorSettled = editorPhase !== 'loading';
   useEffect(() => {
-    warmIdeRunner();
-    return disposeIdeRunner;
-  }, []);
+    if (editorSettled) warmIdeRunner();
+  }, [editorSettled]);
+  useEffect(() => disposeIdeRunner, []);
 
   return (
     <>

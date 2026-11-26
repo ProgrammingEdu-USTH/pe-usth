@@ -98,3 +98,26 @@ test('engine: boQuaMoDau vào thẳng trạng thái cuối, không runIntro', ()
   assert.match(e, /else if \(state\.boQuaMoDau\)\{ finishIntro\(\); countUp\(\); drawCal\(\); \}\s*\n\s*else runIntro\(\);/,
     'engine không còn nhánh bỏ màn mở đầu ⇒ số về muộn làm đèn bật lại lần hai.');
 });
+
+test('màn mở đầu một lần mỗi phiên; máy đã có phiên không bị nói "chưa có phiên học" khi số về chậm', () => {
+  const s = readFileSync(join(SRC, 'components', 'goc-hoc', 'StudyRoom.tsx'), 'utf8');
+  assert.match(s, /const daXem = daXemMoDau\(\);/);
+  assert.match(s, /boQuaMoDau: muon \|\| daXem,/);
+  assert.match(s, /ghiDaXemMoDau\(\);/);
+  assert.match(s, /hasStoredSession\(phienTrongMay\(\)\) \? \{ \.\.\.EMPTY_USER, signedIn: true \} : EMPTY_USER/);
+  assert.match(s, /\{ user: duPhong, done: \[\] \},/);
+});
+
+test('ảnh quầng sáng giữ lại tới sau màn mở đầu', () => {
+  const doc = (f) => readFileSync(join(SRC, 'components', 'goc-hoc', f), 'utf8');
+  const engine = doc('engine.js'), shell = doc('shell.js');
+  assert.doesNotMatch(engine + shell, /<img[^>]*\ssrc="[^"]*-g\.webp/, 'ảnh quầng sáng lại tải ngay từ đầu');
+  assert.match(engine, /function finishIntro\(\)\{\s*napQuang\(\);/);
+});
+
+test('engine: mọi câu "chưa có phiên học" đều chừa đường cho máy ĐÃ có phiên', () => {
+  const dong = readFileSync(join(SRC, 'components', 'goc-hoc', 'engine.js'), 'utf8').split('\n')
+    .filter((d) => /chưa có phiên/i.test(d) && !/^\s*(\*|\/\/|\/\*)|BIẾT|Luật:/.test(d));
+  assert.ok(dong.length >= 7, `chỉ thấy ${dong.length} dòng`);
+  for (const d of dong) assert.match(d, /CO_PHIEN|USER\.signedIn|^\s*\? \(CO_PHIEN/, d.trim().slice(0, 90));
+});

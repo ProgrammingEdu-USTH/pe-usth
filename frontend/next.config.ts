@@ -101,7 +101,9 @@ const nextConfig: NextConfig = {
   },
   // Quán Mây là một trang tĩnh tự chứa ở public/quan-may.
   async rewrites() {
-    return [{ source: "/quan-may", destination: "/quan-may/index.html" }];
+    return [
+      // Trình duyệt vẫn tự xin /favicon.ico dù trang đã khai icon.svg: trả cùng hình thay vì 404.
+      { source: "/favicon.ico", destination: "/icon.svg" },{ source: "/quan-may", destination: "/quan-may/index.html" }];
   },
   async headers() {
     return [
@@ -191,6 +193,13 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
         ],
       },
+      // Ảnh cảnh Góc học: trang chủ tải ~100 tệp, mặc định `public/` bắt hỏi lại từng tệp mỗi lần vào
+      // (đo 26/11/2026: 95 lượt 304, ảnh hiện sau phòng ~1,8 s). Một ngày dùng lại, tuần sau vừa dùng
+      // vừa hỏi lại. Tên tệp không ghim phiên bản nên KHÔNG immutable. Thư mục may-tinh đứng ngoài: có worker.
+      ...["/goc-hoc/items/:path*", "/goc-hoc/:name.webp"].map((source) => ({
+        source,
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+      })),
       {
         // Ảnh của giáo trình (80 PNG, 2,3 MB) và bộ dữ liệu quán (1,44 MB, riêng
         // don_hang.csv là 1 289 915 byte). Trước bản này cả hai rơi về mặc định

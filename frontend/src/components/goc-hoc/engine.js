@@ -124,7 +124,8 @@ Object.entries(DATA.meta).forEach(([k,[x,y,w,h]])=>{
   itemsEl.appendChild(d); EL[k] = d;
   const g = document.createElement('div'); g.className = `glowi k-${kind}`; g.dataset.k = k;
   Object.assign(g.style,{left:x+'px',top:y+'px',width:w+'px',height:h+'px',transformOrigin:ORIGIN[k]||'50% 100%'});
-  g.innerHTML = `<img src="/goc-hoc/items/${k}-g.webp" alt="">`; glowsEl.appendChild(g); GEL[k] = g;
+  /* Ảnh quầng sáng chỉ lộ khi rê/chạm, sau màn mở đầu: `data-src` giữ ~415 KB lại tới lúc đó. */
+  g.innerHTML = `<img data-src="/goc-hoc/items/${k}-g.webp" alt="">`; glowsEl.appendChild(g); GEL[k] = g;
 });
 // laptop screen life lives inside the laptop layer so it lifts with it
 /* the laptop stands in front of the window glass, so it lives above the sash layer and carries its own light tint */
@@ -132,7 +133,7 @@ $('#itemsTop').appendChild(EL.laptop);
 { const [fx,fy,fw,fh] = [910, 810, 1166, 637]; Object.assign($('#front').style,{left:fx+'px',top:fy+'px',width:fw+'px',height:fh+'px'}); }
 EL.laptop.insertAdjacentHTML('beforeend','<i class="tl m"></i><i class="tl d"></i><i class="tl s"></i>');
 EL.laptop.querySelectorAll('.tl').forEach(t=>{ t.style.webkitMaskImage=t.style.maskImage='url(/goc-hoc/items/laptop.webp)'; });
-EL.laptop.insertAdjacentHTML('beforeend','<div id="screenWrap" aria-hidden="true"><div id="screenGlow"></div><div id="screen"><div class="sbar"><i></i><i></i><i></i><b>bai_4.cpp</b><span>C++ · Bài 4/9</span></div><div class="sed"><div class="sgut" id="sgut"></div><pre id="scode"></pre></div></div></div>');
+EL.laptop.insertAdjacentHTML('beforeend','<div id="screenWrap" aria-hidden="true"><div id="screenGlow"></div><div id="screen"><div class="sbar"><i></i><i></i><i></i><b>bai_hoc.py</b><span>Python</span></div><div class="sed"><div class="sgut" id="sgut"></div><pre id="scode"></pre></div></div></div>');
 /* ---------- lịch tường ----------
  * Các ngày của tháng này, HÔM NAY được khoanh bằng một vòng vẽ tay.
  *
@@ -154,10 +155,13 @@ function calSVG(cells, labels, cw, fs, withIds){
     s += `<text class="cd${c.st?' on':''}" x="${(x-cw*0.36).toFixed(1)}" y="${(y-cw*0.12).toFixed(1)}" font-size="${fs}">${c.d}</text>`;
     if (c.st) s += `<path class="ring ${c.st}" pathLength="100" ${withIds?'id="calPath"':''} d="${ringPath(x,y+cw*0.04,cw*0.42,cw*0.36)}"/>`; });
   return s; }
+/* Thiếu số có hai lý do khác nhau: máy chưa có phiên, hoặc có phiên mà chưa đọc được (máy chủ đang thức
+   dậy, mạng đứt). Mọi câu "thiếu số" chọn theo cờ này. */
+const CO_PHIEN = USER.signedIn;
 /* Chữ trong ô ghi chú dán trên lịch. `lessonsDone === null` nghĩa là CHƯA
    BIẾT (khách chưa có phiên, hay lượt gọi hỏng) — in "—", không in 0. */
 const CAL_NOTE = USER.lessonsDone == null
-  ? { to: '—', nho: 'chưa có phiên học' }
+  ? { to: '—', nho: CO_PHIEN ? 'chưa đọc được' : 'chưa có phiên học' }
   : { to: `${USER.lessonsDone}/${TOTAL}`, nho: 'bài đã xong' };
 { const [ox,oy,ow,oh] = DATA.meta.calendar; const rc = CAL.room.cells; const cw = Math.hypot(rc[1][0]-rc[0][0], rc[1][1]-rc[0][1]);
   const [p0,p1] = CAL.room.pic; const nx=(p0[0]+p1[0])/2-ox, ny=(p0[1]+p1[1])/2-oy, nw=(p1[0]-p0[0])*0.86;
@@ -575,7 +579,9 @@ function countUp(){ host.querySelectorAll('[data-count]').forEach(el=>{ const en
 /* ---------- intro: the lamp clicks on ---------- */
 const uiEls = () => [$('#profile'), $('#side'), $('#hint')];
 let introAnims = [], introTimer = [], notesStarted = false;
+function napQuang(){ host.querySelectorAll('img[data-src]').forEach(i=>{ i.src = i.dataset.src; i.removeAttribute('data-src'); }); }
 function finishIntro(){
+  napQuang();
   introAnims.forEach(a=>{ try{ a.cancel(); }catch(e){} }); introAnims=[]; introTimer.forEach(clearTimeout); introTimer=[];
   const dk=$('#dark'); dk.style.opacity=0; dk.style.setProperty('--r','0px');
   app.classList.remove('intro'); placeUI();
@@ -741,7 +747,7 @@ function body(r){
       <p class="hw" style="margin-top:12px">Đề ôn nằm ở màn tổng kết — màn cuối — của bài đã xong, ngay trên nút “Hoàn thành”.</p></div>
       <div class="leafp r"><h3>Bài đã xong</h3>
       ${xong.length ? `<ul class="plist">${xong.slice(-6).reverse().map(l=>`<li><span class="s d"></span><span>${esc(l.title)}<small>Bài ${l.no}${l.code?` · ${esc(l.code)}`:''}</small></span><span class="x">+${l.xp||0}</span></li>`).join('')}</ul>`
-        : `<p class="hw">${done == null ? 'Chưa có phiên học trên máy này.' : 'Chưa có bài nào. Xong bài đầu tiên là nó hiện ở đây.'}</p>`}
+        : `<p class="hw">${done == null ? (CO_PHIEN ? 'Chưa đọc được tiến độ của bạn.' : 'Chưa có phiên học trên máy này.') : 'Chưa có bài nào. Xong bài đầu tiên là nó hiện ở đây.'}</p>`}
       </div><div class="flip" id="flip"></div></div></div>`;
   }
 
@@ -1213,7 +1219,7 @@ function apDungSo(){
   const hien = ten || USER.name || 'Khách';
   T('uInitial', (hien.trim()[0] || '?').toUpperCase());
   T('uName', hien);
-  T('uXpText', USER.xp == null ? 'chưa có phiên học' : `${SO(USER.xp)} XP · đã xong ${USER.lessonsDone ?? 0}/${TOTAL} bài`);
+  T('uXpText', USER.xp == null ? (CO_PHIEN ? 'chưa đọc được' : 'chưa có phiên học') : `${SO(USER.xp)} XP · đã xong ${USER.lessonsDone ?? 0}/${TOTAL} bài`);
   const bar = $('#uXpBar'); if (bar) bar.style.width = (USER.xp == null ? 0 : PCT) + '%';
   const ring = $('#avaRing'); if (ring) ring.setAttribute('stroke-dasharray', `${(PCT/100*150.8).toFixed(1)} 150.8`);
   T('pillDone', USER.lessonsDone == null ? '—' : `${USER.lessonsDone}/${TOTAL}`);
@@ -1239,7 +1245,7 @@ function apDungSo(){
   T('courseDone', USER.lessonsDone == null ? '—' : `${USER.lessonsDone}/${TOTAL} bài`);
   const cp = $('#courseProg'); if (cp) cp.style.width = (USER.lessonsDone == null ? 0 : PCT) + '%';
   T('courseNote', USER.lessonsDone == null
-    ? 'Chưa có phiên học trên máy này, nên chưa có tiến độ. Mở một bài là có.'
+    ? (CO_PHIEN ? 'Chưa đọc được tiến độ: máy chủ có thể đang thức dậy. Tải lại sau ít giây.' : 'Chưa có phiên học trên máy này, nên chưa có tiến độ. Mở một bài là có.')
     : `Đang ở học phần ${CUR ? CUR.m.short : '—'}.`);
   T('courseName', CONTENT.course.name);
   T('courseSub', CUR ? `Bài tiếp theo: ${CUR.l.title}` : '');
@@ -1253,9 +1259,9 @@ function apDungSo(){
   /* Lịch chỉ khoanh hôm nay: API trả đúng một con số `streak`, không trả tập
      ngày đã học, nên không vẽ được ngày nào khác mà không bịa. */
   T('calPopB', USER.lessonsDone == null
-    ? 'Chưa có phiên học, nên lịch chỉ khoanh hôm nay.'
+    ? (CO_PHIEN ? 'Chưa đọc được tiến độ, nên lịch chỉ khoanh hôm nay.' : 'Chưa có phiên học, nên lịch chỉ khoanh hôm nay.')
     : `Đã xong ${USER.lessonsDone}/${TOTAL} bài. Lịch chỉ khoanh hôm nay — hệ thống chưa lưu ngày học của từng bài.`);
-  if (rankTag) rankTag.textContent = USER.rank ? `Hạng ${USER.rank.rank} theo XP` : 'Xếp hạng · chưa có phiên';
+  if (rankTag) rankTag.textContent = USER.rank ? `Hạng ${USER.rank.rank} theo XP` : CO_PHIEN ? 'Xếp hạng · chưa đọc được' : 'Xếp hạng · chưa có phiên';
 }
 
 /* ---------- giấy nhớ: dựng từ số THẬT ----------
@@ -1270,7 +1276,7 @@ const GHI_CHU = (() => {
     act: 'Xem bài', go: ['learn', { ...CUR_OPTS }], c: '--note-y' });
   ra.push(USER.lessonsDone == null
     ? { ic: '—', sh: 'Tiến độ', l3: 'chưa rõ', k: 'Tiến độ', t: 'Chưa đọc được tiến độ',
-        b: 'Máy này chưa có phiên học, nên không con số nào về bạn được hiện ra. Mở một bài học là có.',
+        b: CO_PHIEN ? 'Máy chủ chưa trả số của bạn, có thể nó đang thức dậy. Tải lại trang sau ít giây.' : 'Máy này chưa có phiên học, nên không con số nào về bạn được hiện ra. Mở một bài học là có.',
         act: 'Xem khoá học', go: ['courses', {}], c: '--note-b' }
     : { ic: `${USER.lessonsDone}/${TOTAL}`, sh: 'Tiến độ', l3: PCT + '%', k: 'Khoá đang học',
         t: `Đã xong ${USER.lessonsDone}/${TOTAL} bài`,

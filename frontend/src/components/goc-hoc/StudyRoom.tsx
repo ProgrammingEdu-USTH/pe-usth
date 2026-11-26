@@ -59,6 +59,23 @@ import './scene-thien-van.css';
 /** Trần chờ các lượt gọi số. Quá hạn thì dựng cảnh với số đang có. */
 const TRAN_CHO_MS = 3000;
 
+/** Màn mở đầu (đèn bật, 3,1 s) chạy một lần mỗi phiên trình duyệt; quay lại trang chủ thì vào thẳng phòng. */
+const KHOA_DA_MO_DAU = 'pe-goc-hoc-da-mo-dau';
+const daXemMoDau = () => {
+  try {
+    return sessionStorage.getItem(KHOA_DA_MO_DAU) === '1';
+  } catch {
+    return false;
+  }
+};
+const ghiDaXemMoDau = () => {
+  try {
+    sessionStorage.setItem(KHOA_DA_MO_DAU, '1');
+  } catch {
+    /* lưu trữ bị chặn: màn mở đầu chạy lại, không hỏng gì */
+  }
+};
+
 /** Tên hiển thị người test tự đặt — xem màn Xếp hạng. Chỉ nằm trong máy họ. */
 const LS_TEN = 'pe_goc_hoc_ten';
 
@@ -101,6 +118,14 @@ const soHay = (v: unknown): number | null => (typeof v === 'number' && Number.is
 /** Kết quả một lượt đi lấy số: các con số để HIỆN, và tập bài đã xong để DỰNG. */
 type KetQua = { user: RoomUser; done: number[] };
 
+function phienTrongMay() {
+  return {
+    access: lsGet(LS_ACCESS),
+    legacyRefresh: lsGet(LS_LEGACY_REFRESH),
+    cookie: typeof document === 'undefined' ? null : document.cookie,
+  };
+}
+
 /**
  * Đi lấy số của người học. Chưa có phiên ⇒ trả về `EMPTY_USER` và KHÔNG gọi gì.
  *
@@ -116,11 +141,7 @@ type KetQua = { user: RoomUser; done: number[] };
  *  · `/api/leaderboard`   → bảng xếp hạng theo XP.
  */
 async function laySo(courseId: string, total: number): Promise<KetQua> {
-  const session = {
-    access: lsGet(LS_ACCESS),
-    legacyRefresh: lsGet(LS_LEGACY_REFRESH),
-    cookie: typeof document === 'undefined' ? null : document.cookie,
-  };
+  const session = phienTrongMay();
   if (!hasStoredSession(session)) return { user: EMPTY_USER, done: [] };
 
   const [done, xp, name, badges, board] = await Promise.all([
@@ -189,10 +210,13 @@ export default function StudyRoom(props: StudyRoomProps) {
     // LẠI một lần (`muon`) — bản cũ dùng Promise.race nên số về muộn bị vứt:
     // đo trên production, /api/enrolled 3 087 ms > 3 000 ⇒ cả phiên trang chủ
     // nói "chưa có phiên học" với người đã xong 2 bài. Xem lib/goc-hoc-cho-so.ts.
+    const daXem = daXemMoDau();
+    // Máy đã có phiên mà số chưa về thì nói "chưa đọc được", đừng nói "chưa có phiên học".
+    const duPhong = hasStoredSession(phienTrongMay()) ? { ...EMPTY_USER, signedIn: true } : EMPTY_USER;
     const huyCho = choSoCoTran<KetQua>(
       laySo(props.courseId, total),
       TRAN_CHO_MS,
-      { user: EMPTY_USER, done: [] },
+      { user: duPhong, done: [] },
       ({ user, done }, muon) => {
         // Cleanup đã chạy (StrictMode, hoặc người dùng đi sang trang khác trong
         // lúc chờ): không được dựng cảnh lên một DOM đã bỏ.
@@ -217,7 +241,7 @@ export default function StudyRoom(props: StudyRoomProps) {
           feedback: props.feedbackUrl ?? null,
           // Lần dựng lại KHÔNG chạy lại màn mở đầu (đèn bật, 3,1 s): người học
           // đã xem nó, và nó có thể còn đang chạy dở lúc số về.
-          boQuaMoDau: muon,
+          boQuaMoDau: muon || daXem,
           ten: {
             doc: () => lsGet(LS_TEN),
             ghi: (v: string) => {
@@ -231,6 +255,7 @@ export default function StudyRoom(props: StudyRoomProps) {
           },
         });
         setCanhSan(true);
+        ghiDaXemMoDau();
       },
     );
 

@@ -6,8 +6,7 @@
    MỘT khung nhìn. --ds-* nạp ở mọi trang qua PageStyles (xem chú thích TOKENS_CSS
    ở đó), nên không trang nào vẽ thanh này bằng biến không tồn tại.
 
-   Trang khoá (/courses/[courseId]) CHƯA chuyển: ở đó thanh kem đứng trên phần
-   thân vẫn xanh. Đó là nợ đã biết, ghi lại để không ai tưởng là lỗi mới. */
+   Thanh này nay đứng ở /ide. */
 .bar {
   display: flex;
   align-items: center;
@@ -52,6 +51,9 @@
   gap: 6px;
   font-size: var(--ds-fs-lead);
   font-weight: 700;
+  /* Chiều cao dòng khai bằng số: để `normal` thì phông web tải xong làm thanh đổi cao và đẩy cả trang
+     (đo ở /ide 26/11/2026: CLS 0,285 trên điện thoại). */
+  line-height: 1.25;
   letter-spacing: -0.01em;
   text-decoration: none;
 }
@@ -119,6 +121,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
+  line-height: 1.25; /* cùng lý do ở .brand */
   /* Hẹp thì cuộn ngang thay vì đẩy nút sáng/tối ra khỏi màn. */
   min-width: 0;
   overflow-x: auto;

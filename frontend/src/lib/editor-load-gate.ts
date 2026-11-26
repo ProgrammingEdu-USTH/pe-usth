@@ -19,25 +19,22 @@
  */
 
 /**
- * Trần chờ trước khi coi là hỏng: 12 giây.
+ * Trần chờ trước khi coi là hỏng: 25 giây.
  *
- * Vì sao 12 s chứ không phải 3 s hay 60 s — ba con số đo được ngày 14/10/2026:
- *  1. Monaco nay TỰ HOST (public/monaco/v0.57.0/vs), tức cùng origin với trang.
- *     Lượt tải đầu cho editor python là ~3,0 MB. Trên đường truyền đã đo bằng
- *     Pyodide (13,2 MB trong 2,7 s ≈ 5 MB/s) thì 3 MB mất dưới 1 giây.
- *  2. Hỏng kiểu BIẾT NGAY (404 vì chép thiếu file, domain bị chặn) không chờ
- *     tới đây: `loader.js` bắn `onerror` trong vài trăm ms và cờ `rejected`
- *     bên dưới cắt ngay.
- *  3. Nên trần này chỉ còn để đỡ kiểu hỏng IM LẶNG: proxy/captive portal của
- *     phòng máy nhận kết nối rồi không trả gì. Chrome tự bỏ cuộc sau hàng chục
- *     giây — quá lâu cho người đang đứng trình bày.
- * 12 s ≈ 4 lần thời gian tải xấu nhất còn hợp lý (3 s), đủ rộng để mạng chậm
- * thật không bị kết luận oan, mà vẫn đủ ngắn để người dùng còn kịp gõ bài.
+ * Vì sao 25 s:
+ *  1. Monaco TỰ HOST (public/monaco/v0.57.0/vs), lượt tải đầu cho editor python ~1 MB trên dây. Mạng tốt
+ *     thì dưới 2 giây.
+ *  2. Mạng điện thoại chậm (1,6 Mbps, 150 ms, CPU chậm 4 lần) thì editor lên sau 10,2–10,4 s (đo
+ *     26/11/2026, 3 lượt, đã hoãn nạp Python). Trần cũ 12 s chỉ cách đó 1,6 s: mạng chậm thêm một chút là
+ *     người dùng bị kết luận oan và mất luôn editor cho tới khi tải lại trang.
+ *  3. Hỏng kiểu BIẾT NGAY (404 vì chép thiếu file, domain bị chặn) không chờ tới đây: `loader.js` bắn
+ *     `onerror` trong vài trăm ms và cờ `rejected` bên dưới cắt ngay.
+ *  4. Nên trần này chỉ còn đỡ kiểu hỏng IM LẶNG: proxy/captive portal nhận kết nối rồi không trả gì.
+ *     25 s vẫn ngắn hơn lúc trình duyệt tự bỏ cuộc.
  *
- * Đổi số này thì sửa cả chú thích: nó là một đánh đổi có số đo, không phải
- * hằng số bịa.
+ * Đổi số này thì sửa cả chú thích: nó là một đánh đổi có số đo, không phải hằng số bịa.
  */
-export const EDITOR_LOAD_TIMEOUT_MS = 12_000;
+export const EDITOR_LOAD_TIMEOUT_MS = 25_000;
 
 /** Những gì trang biết được về lần nạp trình soạn thảo đang diễn ra. */
 export type EditorLoadSignals = {

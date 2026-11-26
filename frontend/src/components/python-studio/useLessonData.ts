@@ -33,6 +33,7 @@ import {
   readDone,
   STATIC_COURSES,
 } from '@/lib/static-courses';
+import { chuLoi } from '@/lib/loi-mang';
 
 /**
  * Mã của bài chạy ở ĐÂU. Đi vào payload của mọi sự kiện vì mọi phép gộp thời
@@ -305,7 +306,7 @@ export function useLessonData({
       });
       onDraftReady?.(content, Number(profile.id), list.length);
     } catch (error) {
-      setLoadError(error instanceof Error ? error.message : 'Không kết nối được backend.');
+      setLoadError(chuLoi(error));
     } finally {
       setLoading(false);
     }
@@ -344,7 +345,7 @@ export function useLessonData({
       });
       await load();
     } catch (error) {
-      setMessage((error as Error).message);
+      setMessage(chuLoi(error));
     } finally {
       setBusy(false);
     }
@@ -400,7 +401,7 @@ export function useLessonData({
             : 'Đã lưu hoàn thành bài học.',
         );
       } catch (error) {
-        setMessage(`Chưa lưu được tiến độ: ${(error as Error).message}`);
+        setMessage(`Chưa lưu được tiến độ: ${chuLoi(error)}`);
       } finally {
         setBusy(false);
       }

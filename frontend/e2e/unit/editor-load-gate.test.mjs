@@ -15,6 +15,7 @@
  *
  * Chạy: cd frontend && npm run test:unit
  */
+import { readFileSync } from 'node:fs';
 import { strict as assert } from 'node:assert';
 import test from 'node:test';
 
@@ -99,10 +100,18 @@ test('trần rác (0, âm, NaN, Infinity) rơi về trần mặc định thay v�
   }
 });
 
-test('trần là 12 giây — đổi số thì phải đổi cả chú thích giải thích vì sao', () => {
+test('trần là 25 giây — đổi số thì phải đổi cả chú thích giải thích vì sao', () => {
   // Ghim con số vì nó là đánh đổi có số đo (xem chú thích trong gate), không
   // phải chi tiết cài đặt tự do đổi.
-  assert.equal(EDITOR_LOAD_TIMEOUT_MS, 12_000);
+  assert.equal(EDITOR_LOAD_TIMEOUT_MS, 25_000);
+});
+
+test('/ide chỉ nạp sẵn Python SAU khi trình soạn thảo ngã ngũ', () => {
+  // Nạp cùng lúc thì trên mạng chậm Python giành băng thông và editor quá trần chờ (đo 26/11/2026: 3/3).
+  const ide = readFileSync(new URL('../../src/app/ide/IdeClient.tsx', import.meta.url), 'utf8');
+  assert.equal((ide.match(/warmIdeRunner\(\)/g) ?? []).length, 1, 'chỉ một chỗ được nạp sẵn');
+  assert.match(ide, /const editorSettled = editorPhase !== 'loading';/);
+  assert.match(ide, /if \(editorSettled\) warmIdeRunner\(\);/);
 });
 
 /*

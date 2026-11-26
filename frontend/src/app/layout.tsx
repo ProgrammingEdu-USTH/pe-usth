@@ -82,6 +82,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             Cả hai chỉ là gợi ý tải trước, KHÔNG áp style nào, nên không đổi
             giao diện. Sửa tận gốc (bỏ @import, đưa <link> font vào thẳng đây)
             phải sửa edu-theme.css — ngoài phạm vi lần này. */}
+        {/* Mở sẵn kết nối tới API: lượt gọi đầu (có cookie) đỡ một vòng DNS + TLS. */}
+        <link rel="preconnect" href={API_ORIGIN} crossOrigin="use-credentials" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         {/* no-page-custom-font là luật của Pages Router ("phải đặt trong

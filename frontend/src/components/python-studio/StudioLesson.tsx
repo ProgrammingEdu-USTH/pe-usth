@@ -283,6 +283,7 @@ export default function StudioLesson({
    */
   const lessonRun = useLessonRun({
     lesson,
+    waitForContent: local,
     screens,
     draft: d,
     busy,

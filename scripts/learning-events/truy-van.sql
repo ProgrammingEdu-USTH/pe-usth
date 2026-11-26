@@ -434,6 +434,47 @@ GROUP BY e.course_id, e.lesson_no, l.lesson_code, e.screen_key, e.payload->>'blo
 ORDER BY nguoi_bam DESC, luot_bam DESC, e.lesson_no, e.screen_key;
 
 
+-- (i) BÀI 1: NGƯỜI HỌC Ở LẠI BAO LÂU, VÀ CÓ LÀM GÌ KHÔNG (thêm 26/11/2026)
+--
+-- Vì sao có câu này: 74% tài khoản khách hoàn thành 0 bài (đo 19/11) và bài 1 là
+-- cửa vào. Cần biết người ta rời ở đâu: đứng nhìn rồi đi, hay làm vài thứ rồi
+-- mới đi. Không cần loại sự kiện mới (loại mới là đổi chữ đồng ý, hỏi lại mọi
+-- người): dùng cái đã có.
+--
+-- GIỚI HẠN — đọc trước khi tin:
+--   · "Ở lại" = từ sự kiện ĐẦU tới sự kiện CUỐI của người đó ở bài 1, tính theo
+--     giờ máy chủ. Nhịp là 30 giây nên nó thấp hơn thật tới ~30 giây, và người
+--     chỉ mở một lần rồi đóng cho ra 0 giây.
+--   · "Hành động" là chấm trắc nghiệm, chạy thử có chấm, nộp, đoán, xem đáp án,
+--     mở IDE. Chạy code TỰ DO ở ô đọc chưa có sự kiện riêng, nên "không hành
+--     động" gồm cả người chạy tự do mà không làm gì khác. Đừng đọc nó là "không
+--     chạm gì".
+--   · Chỉ người ĐÃ ĐỒNG Ý mới có hàng; người bỏ đi trước khi trả lời hộp đồng ý
+--     không hiện ở đây. Đọc thứ bậc, không đọc tỉ lệ (xem đầu tệp).
+WITH bai1 AS (
+  SELECT
+    e.user_id,
+    max(e.created_at) - min(e.created_at) AS o_lai,
+    count(*) FILTER (WHERE e.kind IN
+      ('Quiz.Answer', 'Run.Test', 'Submit', 'X-Predict.Submit',
+       'X-Answer.Reveal', 'X-IDE.Open')) AS hanh_dong
+  FROM learning_events e
+  WHERE e.course_id = 'python_advanced' AND e.lesson_no = 1
+  GROUP BY e.user_id
+)
+SELECT
+  CASE
+    WHEN o_lai < interval '1 minute'  THEN '1: dưới 1 phút'
+    WHEN o_lai < interval '5 minutes' THEN '2: 1–5 phút'
+    ELSE                                   '3: từ 5 phút'
+  END AS o_lai_bao_lau,
+  CASE WHEN hanh_dong = 0 THEN 'chưa hành động' ELSE 'có hành động' END AS hanh_dong,
+  count(*) AS nguoi
+FROM bai1
+GROUP BY 1, 2
+ORDER BY nguoi DESC, 1, 2;
+
+
 -- ############################################################################
 -- ĐÓNG ĐỢT THỬ NGHIỆM — XOÁ DỮ LIỆU QUÁ HẠN
 -- ############################################################################

@@ -140,3 +140,45 @@ test('mọi hàm vẽ của QuanMayIso mà trang gọi vẫn được iso.js xu�
   assert.deepEqual(k.filter((x) => !kit.includes(x)), [], 'kit không có');
   assert.deepEqual(p.filter((x) => !parts.includes(x)), [], 'parts không có');
 });
+
+// ---------------------------------------------------------------------------
+// Ba núm vặn của bước "Thử": câu SQL SINH RA phải đúng với điều màn hình hứa. Chạy sql.js thật cho cả tám tổ hợp.
+// Nếu bộ sinh sai, người học vặn núm và thấy kết quả không khớp lời Linh nói, mà không có lỗi nào báo.
+// ---------------------------------------------------------------------------
+const chayQuan = (sql) => {
+  const db = new SQL.Database();
+  try { db.exec(AD01.QUAN); const r = db.exec(sql); return r.length ? r[r.length - 1].values : []; } finally { db.close(); }
+};
+const tohop = (preL, preP, left) => ({ preL, preP, left });
+
+test('núm vặn: số hàng của đơn 101 sau khi nối đúng 4 → 2 → 2 → 1 (lời hứa của nét nối trên quầy)', () => {
+  const n = (k) => chayQuan(AD01.xayCau(k).soi).find((r) => r[0] === 101)[1];
+  assert.equal(n(tohop(false, false, true)), 4);
+  assert.equal(n(tohop(true, false, true)), 2);
+  assert.equal(n(tohop(false, true, true)), 2);
+  assert.equal(n(tohop(true, true, true)), 1);
+});
+
+test('núm vặn: chỉ gom MỘT bên thì bên kia vẫn bị nhân; gom cả hai thì khớp bảng cần ra', () => {
+  const kq = (k) => Object.fromEntries(chayQuan(AD01.xayCau(k).sql).map((r) => [r[0], [r[1], r[2]]]));
+  assert.deepEqual(kq(tohop(false, false, true))[101], [200, 200]);
+  assert.deepEqual(kq(tohop(true, false, true))[101], [200, 100]);
+  assert.deepEqual(kq(tohop(false, true, true))[101], [100, 200]);
+  assert.deepEqual(kq(tohop(true, true, true)), AD01.CAN_RA);
+});
+
+test('núm vặn: tắt LEFT JOIN làm mất đơn 104, nên nhiệm vụ "cả bảng khớp" không đạt bằng đường tắt', () => {
+  const ids = chayQuan(AD01.xayCau(tohop(true, true, false)).sql).map((r) => r[0]);
+  assert.deepEqual(ids, [101, 102]);
+});
+
+test('núm vặn: câu sinh ra ở trạng thái đúng cũng PASS bộ chấm (cả dữ liệu ẩn), còn trạng thái ban đầu thì trượt', () => {
+  assert.equal(cham(AD01.xayCau(tohop(true, true, true)).sql).dat, true);
+  assert.equal(cham(AD01.xayCau(tohop(false, false, true)).sql).dat, false);
+});
+
+test('bước Đoán gõ số, KHÔNG có phương án chọn (phản hồi: chọn câu dài nhất là ra đáp án)', () => {
+  assert.equal(AD01.doan.luaChon, undefined);
+  assert.equal(AD01.doan.soHang, 4);
+  assert.equal(AD01.doan.tong, 200);
+});

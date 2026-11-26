@@ -4,6 +4,19 @@ Trang tĩnh tự chứa, cùng kiểu với `public/quan-may/`: không đi qua N
 `/lab-sql/ad01.html` (noindex). Chạy SQL bằng **sql.js** (SQLite) trong một Web Worker; chấm bài bằng cách
 chạy câu của người học trên dữ liệu của quán và trên dữ liệu thử thêm rồi so tập hợp hàng với đáp án mẫu.
 
+## Ba bước, mỗi bước là một việc tay làm
+Phản hồi người thử 26/11/2026: bản đầu "chỉ bấm bấm rồi trôi qua", chữ bị đọc lướt, đáp án trắc nghiệm đoán được bằng
+cách chọn câu dài nhất. Nên:
+1. **Đoán**: gõ HAI con số (số hàng sau khi nối, tổng tiền hàng), không có phương án nào để chọn. Chốt xong bảng nối hiện từng
+   hàng; bấm một hàng thì nét nối tương ứng trên quầy đổi màu.
+2. **Thử**: ba núm vặn (gom dòng hàng · gom thanh toán · giữ đơn thiếu). Mỗi lần vặn, số nét nối trên quầy đổi 4 → 2 → 1,
+   câu SQL sinh ra đổi theo (`xayCau` trong `ad01-data.js`, có test 8 tổ hợp) và bảng kết quả chạy lại ngay.
+3. **Viết**: tự gõ lại câu sửa, chấm trên dữ liệu của quán và dữ liệu thử thêm (ẩn).
+
+Quy tắc rút ra cho bài sau: mỗi bước phải có một thao tác người học TỰ làm và thấy hậu quả ngay; câu hỏi có phương án thì
+phương án phải cùng độ dài và cùng giọng; nhiệm vụ không được đạt sẵn từ lúc mở (đã gặp: nhiệm vụ "giữ đơn 104" đạt ngay vì
+dữ liệu mẫu luôn có đơn đó, nên được viết lại thành "cả bảng khớp").
+
 ## Nguồn và giấy phép
 - Engine: `vendor/sql-wasm.js` + `vendor/sql-wasm.wasm` = sql.js 1.17.0 (MIT, xem `vendor/LICENSE-sqljs.txt`);
   SQLite thuộc phạm vi công cộng. Chép từ gói npm `sql.js@1.17.0`, không sửa.

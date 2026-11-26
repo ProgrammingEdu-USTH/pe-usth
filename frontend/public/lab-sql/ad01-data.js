@@ -53,7 +53,26 @@ LEFT JOIN pay_sum m ON m.order_id = p.id
 WHERE p.status = 'paid'
 ORDER BY p.id;`;
 
+  // Dựng câu SQL theo núm. Luôn có SUM ở ngoài cùng: khi một bên đã gom về một hàng thì SUM chỉ cộng một số.
+  function xayCau(k) {
+    const ctes = [];
+    if (k.preL) ctes.push('line_sum AS (\n  SELECT order_id, SUM(amount) AS total FROM purchase_lines GROUP BY order_id\n)');
+    if (k.preP) ctes.push('pay_sum AS (\n  SELECT order_id, SUM(amount) AS total FROM payments GROUP BY order_id\n)');
+    const L = k.preL ? ['line_sum', 'total'] : ['purchase_lines', 'amount'];
+    const P = k.preP ? ['pay_sum', 'total'] : ['payments', 'amount'];
+    const J = k.left ? 'LEFT JOIN' : 'JOIN';
+    const w = ctes.length ? 'WITH ' + ctes.join(',\n') + '\n' : '';
+    const from = `FROM purchases p\n${J} ${L[0]} l ON l.order_id = p.id\n${J} ${P[0]} m ON m.order_id = p.id\nWHERE p.status = 'paid'`;
+    return {
+      sql: `${w}SELECT p.id, SUM(l.${L[1]}) AS line_total, SUM(m.${P[1]}) AS paid_total\n${from}\nGROUP BY p.id\nORDER BY p.id;`,
+      soi: `${w}SELECT p.id, COUNT(*) AS n\n${from}\nGROUP BY p.id\nORDER BY p.id;`,
+    };
+  }
+  const CAN_RA = { 101: [100, 100], 102: [50, 50], 104: [null, null] };
+
   return {
+    xayCau,
+    CAN_RA,
     ma: 'AD01-L1',
     tieuDe: 'Hai lần thanh toán, tổng gấp đôi',
     QUAN,
@@ -66,11 +85,11 @@ ORDER BY p.id;`;
         { ten: 'Dữ liệu thử thêm', an: true, sql: THU_THEM },
       ],
     },
+    // Hai con số người học gõ (không có phương án để chọn: phản hồi 26/11 là chọn câu dài nhất là ra đáp án).
     doan: {
-      cauHoi: 'Đơn 101 có hai dòng hàng (60 và 40) và hai lần thanh toán (60 và 40). Sau khi nối cả hai bảng vào đơn rồi cộng, tổng tiền hàng (line_total) của đơn 101 sẽ là bao nhiêu?',
-      luaChon: ['100', '150', '200', 'SQL báo lỗi'],
-      dung: 2,
-      giaiThich: 'Mỗi dòng hàng ghép với MỖI lần thanh toán của cùng đơn: 2 × 2 = 4 cặp (60,60), (60,40), (40,60), (40,40). Cộng cột tiền hàng qua 4 cặp ra 60 + 60 + 40 + 40 = 200. Không có lỗi cú pháp, chỉ có số sai.',
+      soHang: 4,
+      tong: 200,
+      giaiThich: 'Mỗi dòng hàng ghép với MỖI lần thanh toán của cùng đơn: 2 × 2 = 4 hàng (60,60), (60,40), (40,60), (40,40). Cộng cột tiền hàng qua 4 hàng ra 60 + 60 + 40 + 40 = 200. Không có lỗi cú pháp, chỉ có số sai.',
     },
     goiY: [
       'Tầng 1: đếm số hàng của đơn 101 sau hai lần JOIN. Nếu nhiều hơn số dòng hàng thì dòng hàng đã bị nhân bản.',

@@ -33,7 +33,32 @@ INSERT INTO purchase_lines VALUES (4,201,'Latte',40),(5,201,'Mocha',40),(6,202,'
 INSERT INTO payments VALUES (4,201,40),(5,201,40);
 `;
 
-  const SAI = `SELECT p.id, SUM(l.amount) AS line_total, SUM(m.amount) AS paid_total
+  // Ba bảng như người học THẤY ở màn "Vụ việc" và ở ô "Sổ của quán" khi viết. Phải khớp QUAN (test đối chiếu bằng sql.js thật).
+  const HIEN_THI = {
+    purchases: { ten: 'Đơn', cot: ['id', 'status', 'amount'], hang: [[101, 'paid', 100], [102, 'paid', 50], [103, 'pending', 70], [104, 'paid', 30]] },
+    purchase_lines: { ten: 'Dòng hàng', cot: ['id', 'order_id', 'item', 'amount'], hang: [[1, 101, 'Trà đào', 60], [2, 101, 'Bánh', 40], [3, 102, 'Cà phê', 50]] },
+    payments: { ten: 'Thanh toán', cot: ['id', 'order_id', 'amount'], hang: [[1, 101, 60], [2, 101, 40], [3, 102, 50]] },
+  };
+
+  // Thông báo lỗi của SQLite bằng tiếng Anh, cụt, không nói phải làm gì. Dịch các lỗi người mới gặp nhiều nhất.
+  function viLoi(m) {
+    m = String(m);
+    let r;
+    if ((r = /no such table: (\S+)/i.exec(m))) return `Không có bảng «${r[1]}». Bảng của quán: purchases, purchase_lines, payments.`;
+    if ((r = /no such column: (\S+)/i.exec(m))) return `Không có cột «${r[1]}». Xem tên cột ở "Sổ của quán".`;
+    if ((r = /ambiguous column name: (\S+)/i.exec(m))) return `Cột «${r[1]}» có ở nhiều bảng: thêm tên bảng phía trước, ví dụ p.${r[1]}.`;
+    if (/incomplete input/i.test(m)) return 'Câu SQL chưa đầy đủ (thiếu ngoặc hoặc dấu chấm phẩy?).';
+    if (/syntax error/i.test(m)) return m + ' (kiểm tra dấu phẩy, ngoặc và chính tả từ khoá.)';
+    return m;
+  }
+  function viPhanHoi(t) {
+    const m = /^SQL báo lỗi: ([\s\S]*)\. Sửa lỗi cú pháp rồi chấm lại\.$/.exec(String(t));
+    return m ? 'SQL báo lỗi: ' + viLoi(m[1]) : t;
+  }
+
+  const SAI = `SELECT p.id,
+       SUM(l.amount) AS line_total,
+       SUM(m.amount) AS paid_total
 FROM purchases p
 LEFT JOIN purchase_lines l ON l.order_id = p.id
 LEFT JOIN payments m ON m.order_id = p.id
@@ -83,6 +108,9 @@ ORDER BY p.id;`;
     xayCau,
     CAN_RA,
     KET_THAT,
+    HIEN_THI,
+    viLoi,
+    viPhanHoi,
     ma: 'AD01-L1',
     tieuDe: 'Hai lần thanh toán, tổng gấp đôi',
     QUAN,

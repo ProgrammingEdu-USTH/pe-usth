@@ -4,9 +4,14 @@ Trang tĩnh tự chứa, cùng kiểu với `public/quan-may/`: không đi qua N
 `/lab-sql/ad01.html` (noindex). Chạy SQL bằng **sql.js** (SQLite) trong một Web Worker; chấm bài bằng cách
 chạy câu của người học trên dữ liệu của quán và trên dữ liệu thử thêm rồi so tập hợp hàng với đáp án mẫu.
 
-## Ba bước, mỗi bước là một việc tay làm
+## Bốn bước, mỗi bước là một việc tay làm
 Phản hồi người thử 26/11/2026: bản đầu "chỉ bấm bấm rồi trôi qua", chữ bị đọc lướt, đáp án trắc nghiệm đoán được bằng
-cách chọn câu dài nhất. Nên:
+cách chọn câu dài nhất; đợt sau: "vẫn quá nhiều lỗi và đọc vẫn chưa hiểu toàn bộ ngữ cảnh". Kiểm toán bản đang chạy ra gốc
+rễ: người học KHÔNG BAO GIỜ THẤY dữ liệu (ba bảng), không thấy luật của báo cáo (một hàng một đơn, NULL khác 0, `amount` đầu
+đơn không thay được tổng chi tiết), và gặp JOIN/NULL/grain khi chưa ai giải thích. Trang trí (cảnh quầy) chiếm chỗ của đúng
+thứ cần đọc; trên điện thoại ô gõ nằm dưới ba màn hình cuộn; lỗi SQL hiện nguyên tiếng Anh. Nên:
+0. **Vụ việc**: ba bảng thật, luật báo cáo, bảng "Từ cần biết", và một việc tay làm: bấm tìm mọi dòng của đơn 101 (5 dòng).
+   Dữ liệu và luật đến TRƯỚC câu hỏi đầu tiên.
 1. **Đoán**: gõ HAI con số (số hàng sau khi nối, tổng tiền hàng), không có phương án nào để chọn. Chốt xong bảng nối hiện từng
    hàng; bấm một hàng thì nét nối tương ứng trên quầy đổi màu.
 2. **Thử**: ba núm vặn (gom dòng hàng · gom thanh toán · giữ đơn thiếu). Mỗi lần vặn, số nét nối trên quầy đổi 4 → 2 → 1,

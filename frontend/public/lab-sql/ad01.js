@@ -4,8 +4,9 @@
  * (window.QuanMayIso từ /quan-may/iso.js). KHÔNG nạp quan-may.js: tệp đó tự dựng bản đồ và điều hướng ngay khi
  * nạp. Hàm avatar/h/rich bên dưới là bản rút gọn của hàm cùng tên ở đó (chỉ nhánh Linh).
  *
- * BA BƯỚC, MỖI BƯỚC LÀ MỘT VIỆC TAY LÀM (phản hồi người thử 26/11: bản trước "chỉ bấm bấm rồi trôi qua", chữ bị đọc lướt,
+ * BỐN BƯỚC (Vụ việc · Đoán · Thử · Viết), MỖI BƯỚC LÀ MỘT VIỆC TAY LÀM (phản hồi người thử 26/11: bản trước "chỉ bấm bấm rồi trôi qua", chữ bị đọc lướt,
  * và đáp án trắc nghiệm đoán được bằng cách chọn câu dài nhất):
+ *  0. Vụ việc: nhìn ba bảng THẬT, đọc luật báo cáo, tự bấm tìm mọi dòng của đơn 101. Dữ liệu và luật đến TRƯỚC câu hỏi.
  *  1. Đoán  : gõ HAI con số (số hàng sau khi nối, tổng tiền hàng) — không có phương án nào để chọn. Chốt rồi mới thấy bảng nối
  *             hiện từng hàng, bấm một hàng thì nét nối tương ứng trên quầy sáng lên.
  *  2. Thử   : ba núm vặn (gom dòng hàng trước · gom thanh toán trước · giữ đơn thiếu). Mỗi lần vặn, cảnh đổi số nét nối
@@ -141,9 +142,11 @@
   const hienCap = (el) => requestAnimationFrame(() => requestAnimationFrame(() => el.querySelectorAll('.iso-pair').forEach((x) => x.classList.add('on'))));
 
   /* ---------- trạng thái và các màn ---------- */
-  const PH = ['Đoán', 'Thử', 'Viết'];
+  // Bốn bước. "Vụ việc" ra đời sau phản hồi 26/11: người học không hề thấy dữ liệu, không biết báo cáo phải ra sao, và gặp
+  // JOIN/NULL/grain khi chưa ai giải thích. Dữ liệu và luật báo cáo phải đến TRƯỚC câu hỏi đầu tiên.
+  const PH = ['Vụ việc', 'Đoán', 'Thử', 'Viết'];
   const moi = () => ({
-    ph: 0, max: 0,
+    ph: 0, max: 0, tim: new Set(), thong: '',
     soHang: '', tong: '', chot: false,
     knob: { preL: false, preP: false, left: true }, nv: { a: false, b: false }, daThu: false, truoc: null,
     goiY: 0, xemMau: false, cauHV: null,
@@ -168,51 +171,123 @@
     return h('div', { class: 'ep-head' },
       h('div', null, h('span', { class: 'eyebrow' }, 'Tập thử · AD01 · Cơ sở dữ liệu'), h('h1', null, tieuDe)),
       h('div', { class: 'ep-meta' },
-        h('span', { class: 'chip' }, 'Đoán · thử · viết SQL'),
+        h('span', { class: 'chip' }, 'Vụ việc · đoán · thử · viết SQL'),
         h('ol', { class: 'phases' }, PH.map((p, i) => h('li', { class: i === giaiDoan ? 'on' : i < giaiDoan ? 'past' : '' }, h('button', { type: 'button', 'aria-current': i === giaiDoan ? 'step' : null, disabled: i > st.max, onclick: () => { st.ph = i; ve(); } }, p))))));
   }
 
   const khung = (stage, side) => h('div', { class: 'ep-grid' }, h('div', { class: 'main-col' }, stage), h('aside', { class: 'side' }, ...side));
   const tiep = (n) => () => { st.ph = n; st.max = Math.max(st.max, n); ve(); };
   const ghi = (t) => h('p', { class: 'ghi', html: rich(t) });
+  const nhoBam = (tr, f) => { tr.addEventListener('click', f); tr.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); f(); } }); };
+
+  /* ---------- sổ của quán: ba bảng THẬT, để người học luôn thấy mình đang nói về dữ liệu nào ---------- */
+  // o.hl: mã đơn cần tô sáng. o.chon: cho bấm vào từng dòng (bài "tìm đơn 101").
+  const thuocDon = (ten, r) => (ten === 'purchases' ? r[0] : r[1]);
+  function soQuan(o) {
+    o = o || {};
+    const wrap = h('div', { class: 'so-quan' });
+    Object.entries(D.HIEN_THI).forEach(([ten, b]) => {
+      wrap.append(h('div', { class: 'so' },
+        h('div', { class: 'so-ten' }, h('b', null, b.ten), h('small', null, ten)),
+        h('div', { class: 'cuon' }, h('table', { class: 'kq nho' },
+          h('thead', null, h('tr', null, b.cot.map((c) => h('th', null, c)))),
+          h('tbody', null, b.hang.filter((r) => !o.chi || thuocDon(ten, r) === o.chi).map((r) => h('tr', { class: (o.hl === thuocDon(ten, r) ? 'hl' : '') + (o.chon ? ' bam' : ''), tabindex: o.chon ? '0' : null, 'data-don': String(thuocDon(ten, r)), 'data-ten': ten, role: o.chon ? 'button' : null },
+            r.map((v) => h('td', { class: v === null ? 'null' : '' }, String(v))))))))));
+    });
+    return wrap;
+  }
+  const hopDong = (mo) => h('details', { class: 'goi', open: mo },
+    h('summary', null, 'Luật của chủ quán cho báo cáo'),
+    h('ol', { class: 'luat' }, [
+      'Mỗi đơn **đã thanh toán** đúng **một hàng**: `id`, `line_total` (cộng tiền hàng), `paid_total` (cộng tiền khách đã trả).',
+      'Đơn đã thanh toán mà chưa có dòng hàng hay chưa có thanh toán vẫn **phải có mặt**; ô thiếu để **NULL** (trống), không đổi thành 0.',
+      'Cột `amount` ở bảng đơn chỉ là số ghi đầu đơn: **không dùng thay** cho tổng cộng từ chi tiết.',
+    ].map((t) => h('li', { html: rich(t) }))));
+  const tuNgu = (mo) => h('details', { class: 'goi', open: mo },
+    h('summary', null, 'Từ cần biết (NULL, JOIN, grain…)'),
+    h('dl', { class: 'tu' }, [
+      ['NULL', 'chưa có số liệu. Khác 0: số 0 là đã biết đúng 0 đồng.'],
+      ['Nối (JOIN)', 'ghép các bảng theo mã đơn để mỗi hàng mới mang thông tin của cả hai bên.'],
+      ['LEFT JOIN', 'giữ mọi đơn bên trái, kể cả đơn không có dòng nào khớp bên phải (ô thiếu thành NULL).'],
+      ['Gom (GROUP BY)', 'gộp nhiều hàng thành MỘT hàng cho mỗi đơn, rồi SUM cộng cột tiền.'],
+      ['Grain', 'một hàng của bảng đại diện cho cái gì. Báo cáo này cần: một hàng = một đơn.'],
+    ].map(([t, g]) => h('div', null, h('dt', null, t), h('dd', null, g)))));
+
+  /* ---------- 0. Vụ việc: nhìn dữ liệu, biết luật, tự tìm đơn 101 ---------- */
+  function manVuViec() {
+    const CAN = Object.entries(D.HIEN_THI).reduce((a, [ten, b]) => a + b.hang.filter((r) => thuocDon(ten, r) === 101).length, 0);
+    const tin = h('p', { class: 'vv-tin', 'aria-live': 'polite' });
+    const veTin = () => {
+      const xong = st.tim.size >= CAN;
+      tin.className = 'vv-tin' + (xong ? ' xong' : '');
+      tin.innerHTML = xong
+        ? rich('Đủ rồi: **một đơn** nhưng có **2 dòng hàng** và **2 lần thanh toán** (khách trả hai lần). Nhớ điều này.')
+        : rich(`Bấm vào mọi dòng của **đơn 101** ở cả ba sổ: **${st.tim.size}/${CAN}**.` + (st.thong ? ' ' + st.thong : ''));
+    };
+    const so = soQuan({ chon: true });
+    so.querySelectorAll('tr[data-don]').forEach((tr) => {
+      const key = tr.dataset.ten + ':' + tr.rowIndex;
+      if (st.tim.has(key)) tr.classList.add('chon');
+      nhoBam(tr, () => {
+        if (tr.dataset.don !== '101') {
+          st.thong = `Dòng đó thuộc đơn ${tr.dataset.don}.`;
+          tr.classList.add('lac'); setTimeout(() => tr.classList.remove('lac'), 450);
+        } else {
+          st.thong = '';
+          if (st.tim.has(key)) st.tim.delete(key); else st.tim.add(key);
+          tr.classList.toggle('chon', st.tim.has(key));
+        }
+        veTin();
+      });
+    });
+    veTin();
+    // Việc cần làm lên ĐẦU, bảng ngay sau; cảnh quầy chỉ là phần trang trí nên xuống cuối và ẩn trên điện thoại.
+    const stage = h('section', { class: 'stage' }, tin, so, h('div', { class: 'chi-rong scene-mini wide' }, canh({})));
+    return khung(stage, [
+      h('div', { class: 'talk' }, bubble('Chào bạn! Quán em ghi sổ thế này: **đơn**, **dòng hàng**, **thanh toán**. Cuối ngày em phải làm **một báo cáo** để chủ quán **chốt tiền và quyết định nhập hàng**. Bạn xem sổ giúp em nhé.', 'happy')),
+      h('div', { class: 'ctl' }, hopDong(true), tuNgu(false)),
+      h('div', { class: 'acts' }, btn('Sang bước đoán →', tiep(1), 'primary')),
+    ]);
+  }
 
   /* ---------- 1. Đoán: gõ hai con số ---------- */
   function manDoan() {
-    const stage = h('section', { class: 'stage' }, canh({ cap: st.chot, tong: st.chot ? 'bad' : null }));
-    const nguon = h('div', { class: 'ctl' });
+    const stage = h('section', { class: 'stage' });
     const nhapHang = h('input', { type: 'number', inputmode: 'numeric', min: '0', max: '99', id: 'so-hang', value: st.soHang, disabled: st.chot });
     const nhapTong = h('input', { type: 'number', inputmode: 'numeric', min: '0', max: '9999', id: 'so-tong', value: st.tong, disabled: st.chot });
     const dungH = Number(st.soHang) === D.doan.soHang, dungT = Number(st.tong) === D.doan.tong;
     const o = (id, nhan, input, kq) => h('label', { class: 'hoi' + (st.chot ? (kq ? ' dung' : ' sai') : ''), for: id }, h('span', null, nhan), input, st.chot ? h('small', null, kq ? '✓ Đúng' : '✗ Chưa đúng') : null);
-    nguon.append(
-      o('so-hang', 'Sau khi nối cả hai bảng vào đơn 101, đơn này có bao nhiêu hàng?', nhapHang, dungH),
-      o('so-tong', 'Cộng cột tiền hàng (line_total) của các hàng đó ra bao nhiêu?', nhapTong, dungT));
     const chotNut = btn('Chốt hai con số', () => { st.chot = true; if (dungH && dungT) st.sao.doan = true; ve(); }, 'primary', { disabled: st.soHang === '' || st.tong === '' });
     const capNhat = () => { st.soHang = nhapHang.value; st.tong = nhapTong.value; chotNut.disabled = st.soHang === '' || st.tong === ''; };
     nhapHang.addEventListener('input', capNhat); nhapTong.addEventListener('input', capNhat);
+    stage.append(
+      h('p', { class: 'ghi', html: rich('Chỉ hiện các dòng của **đơn 101** (ba sổ, mỗi sổ một vài dòng).') }),
+      soQuan({ hl: 101, chi: 101 }),
+      h('div', { class: 'hoi-nhom' },
+        o('so-hang', 'Báo cáo của em nối cả ba sổ lại. Sau khi nối, đơn 101 có bao nhiêu hàng?', nhapHang, dungH),
+        o('so-tong', 'Cộng cột tiền hàng (line_total) của các hàng đó ra bao nhiêu?', nhapTong, dungT)));
 
-    let bangNoi = [];
     if (st.chot) {
       // Bảng nối hiện từng hàng; bấm hàng nào thì nét nối tương ứng trên quầy đổi màu.
       const rows = [];
       HANG.forEach(([tenH, gH], hi) => TRA.forEach(([tenT, gT], ti) => rows.push([hi * TRA.length + ti, tenH, gH, tenT, gT])));
       const tbl = h('table', { class: 'kq led' },
-        h('thead', null, h('tr', null, ['#', 'dòng hàng', 'thanh toán', 'tiền hàng', 'tiền TT'].map((c) => h('th', null, c)))),
+        h('thead', null, h('tr', null, ['dòng hàng', 'thanh toán', 'tiền hàng', 'tiền TT'].map((c) => h('th', null, c)))),
         h('tbody', null,
           rows.map(([i, tenH, gH, tenT, gT]) => h('tr', { class: 'in', tabindex: '0', 'data-i': String(i), style: `animation-delay:${(i * 0.18).toFixed(2)}s`, 'aria-label': `Cặp ${i + 1}: ${tenH} ${gH} với thanh toán ${tenT} ${gT}` },
-            h('td', null, String(i + 1)), h('td', null, tenH), h('td', null, tenT), h('td', null, String(gH)), h('td', null, String(gT)))),
-          h('tr', { class: 'in tong', style: `animation-delay:${(rows.length * 0.18).toFixed(2)}s` }, h('td', { colspan: '3' }, 'Cộng'), h('td', null, String(HANG.reduce((a, x) => a + x[1] * TRA.length, 0))), h('td', null, String(TRA.reduce((a, x) => a + x[1] * HANG.length, 0))))));
+            h('td', null, tenH), h('td', null, tenT), h('td', null, String(gH)), h('td', null, String(gT)))),
+          h('tr', { class: 'in tong', style: `animation-delay:${(rows.length * 0.18).toFixed(2)}s` }, h('td', { colspan: '2' }, 'Cộng'), h('td', null, String(HANG.reduce((a, x) => a + x[1] * TRA.length, 0))), h('td', null, String(TRA.reduce((a, x) => a + x[1] * HANG.length, 0))))));
       const bat = (tr) => { const on = tr.classList.toggle('hot'); stage.querySelectorAll(`.iso-pair[data-i="${tr.dataset.i}"]`).forEach((l) => l.classList.toggle('hot', on)); };
-      tbl.querySelectorAll('tr[data-i]').forEach((tr) => { tr.addEventListener('click', () => bat(tr)); tr.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); bat(tr); } }); });
-      bangNoi = [h('div', { class: 'cuon' }, tbl), ghi('Bấm một hàng để thấy cặp nào trên quầy tạo ra nó.')];
+      tbl.querySelectorAll('tr[data-i]').forEach((tr) => nhoBam(tr, () => bat(tr)));
+      stage.append(h('div', { class: 'cuon' }, tbl), ghi('Bấm một hàng để thấy cặp nào trên quầy tạo ra nó.'), canh({ cap: true, tong: 'bad' }));
       hienCap(stage);
     }
 
     const noi = st.chot
       ? (dungH && dungT ? 'Đúng cả hai! ' : 'Chưa khớp. ') + D.doan.giaiThich
-      : 'Cuối ngày chủ quán đọc báo cáo của em để **chốt tiền và quyết định nhập hàng**. Đơn 101 có 2 dòng hàng (**60**, **40**) và 2 lần thanh toán (**60**, **40**); em nối cả hai bảng vào đơn rồi cộng. Bạn đoán trước nhé: **gõ số**, không có phương án nào để chọn.';
-    const acts = h('div', { class: 'acts' }, st.chot ? btn('Thử tự tay →', tiep(1), 'primary') : chotNut);
-    return khung(stage, [h('div', { class: 'talk' }, bubble(noi, st.chot ? (dungH && dungT ? 'happy' : 'wow') : 'think')), nguon, acts, ...bangNoi]);
+      : 'Nhìn các dòng của đơn 101 rồi **đoán trước**: gõ số, không có phương án nào để chọn. Đoán sai cũng không sao, chỗ sai mới là chỗ học được.';
+    const acts = h('div', { class: 'acts' }, st.chot ? btn('Thử tự tay →', tiep(2), 'primary') : chotNut);
+    return khung(stage, [h('div', { class: 'talk' }, bubble(noi, st.chot ? (dungH && dungT ? 'happy' : 'wow') : 'think')), acts]);
   }
 
   /* ---------- 2. Thử: ba núm vặn, kết quả chạy lại ngay ---------- */
@@ -224,7 +299,6 @@
     const khungToa = h('div', { class: 'scene-mini wide' });
     let vuaVan = null; // núm vừa vặn: để câu "điều vừa đổi" nói đúng núm nào
     const code = h('pre', { class: 'code' });
-    const khungCanh = h('div', { class: 'scene-mini wide' });
     const goals = h('ul', { class: 'goals' });
     const acts = h('div', { class: 'acts' });
     const veGoals = () => {
@@ -232,16 +306,14 @@
         h('li', { class: 'g-h' }, `Nhiệm vụ ${[st.nv.a, st.nv.b].filter(Boolean).length}/2`),
         h('li', { class: st.nv.a ? 'ok' : '' }, h('i', { 'aria-hidden': 'true' }, st.nv.a ? '✓' : ''), h('span', null, 'Đơn 101 ra đúng 100 và 100')),
         h('li', { class: st.nv.b ? 'ok' : '' }, h('i', { 'aria-hidden': 'true' }, st.nv.b ? '✓' : ''), h('span', null, 'Cả bảng khớp: đủ 3 đơn, đơn 104 để NULL')));
-      acts.replaceChildren(...(st.nv.a && st.nv.b ? [btn('Tự viết lại câu này →', tiep(2), 'primary')] : []));
+      acts.replaceChildren(...(st.nv.a && st.nv.b ? [btn('Tự viết lại câu này →', tiep(3), 'primary')] : []));
     };
     veGoals();
-    const veCanh = (tong) => { khungCanh.replaceChildren(canh({ cap: true, preL: k.preL, preP: k.preP, tong })); hienCap(khungCanh); };
     let lan = 0;
     async function chay() {
       const my = ++lan;
       const q = D.xayCau(k);
       code.textContent = q.sql;
-      veCanh(null);
       ra.replaceChildren(ghi('Đang chạy…'));
       try {
         const [r, ...dem] = await Promise.all([goi('chay', q.sql), ...q.tang.map((t) => goi('chay', t))]);
@@ -276,8 +348,7 @@
         st.truoc = cur;
         ra.replaceChildren(bang(r.bang, (hh, i) => i > 0 && D.CAN_RA[hh[0]] && D.CAN_RA[hh[0]][i - 1] !== hh[i]),
           ghi('Cần ra: `(101, 100, 100)` · `(102, 50, 50)` · `(104, NULL, NULL)`. Ô đỏ là ô sai.'));
-        veCanh(a ? 'ok' : 'bad');
-      } catch (e) { if (my === lan) ra.replaceChildren(ghi(e.message)); }
+      } catch (e) { if (my === lan) ra.replaceChildren(ghi(D.viLoi(e.message))); }
     }
     const gat = (key, ten, phu) => {
       const b = h('button', { type: 'button', role: 'switch', class: 'gat', 'aria-checked': String(k[key]), onclick: () => { k[key] = !k[key]; vuaVan = { ten, bat: k[key] }; b.setAttribute('aria-checked', String(k[key])); b.querySelector('.tg').textContent = k[key] ? 'Bật' : 'Tắt'; chay(); } },
@@ -292,9 +363,9 @@
       gat('preP', 'Gom thanh toán trước khi nối', 'mỗi đơn còn MỘT hàng tiền trả'),
       gat('left', 'Giữ đơn thiếu dòng hoặc thanh toán', 'LEFT JOIN thay cho JOIN'));
     st.truoc = null; // vào bước Thử là bắt đầu so sánh lại từ đầu
-    const stage = h('section', { class: 'stage' }, nut, goals, h('div', { class: 'duo' }, khungCanh, khungToa), bao, vua, h('div', { class: 'pane' }, code, ra));
+    const stage = h('section', { class: 'stage' }, nut, goals, bao, vua, khungToa, h('div', { class: 'pane' }, code, ra), hopDong(false), tuNgu(false));
     return khung(stage, [
-      h('div', { class: 'talk' }, bubble('Chủ quán sẽ **đọc báo cáo này để chốt tiền** và quyết định nhập hàng, nên nó phải khớp két. Em có ba núm vặn: vặn thử rồi nhìn tòa nhà truy vấn, sổ báo cáo và bảng kết quả.', 'think')),
+      h('div', { class: 'talk' }, bubble('Chủ quán sẽ đọc báo cáo này, nên nó phải **khớp két**. Em có ba núm vặn: **vặn thử** rồi nhìn sổ báo cáo, tòa nhà truy vấn và bảng kết quả.', 'think')),
       acts]);
   }
 
@@ -310,7 +381,7 @@
       h('li', { class: st.khung.chinh ? 'ok' : '' }, h('i', { 'aria-hidden': 'true' }, st.khung.chinh ? '✓' : ''), h('span', null, 'Đúng với dữ liệu của quán')),
       h('li', { class: st.khung.an ? 'ok' : '' }, h('i', { 'aria-hidden': 'true' }, st.khung.an ? '✓' : ''), h('span', null, 'Đúng cả với dữ liệu thử thêm')));
     veGoals();
-    const noi = h('div', { class: 'talk' }, bubble('Giờ bạn **tự gõ** câu đúng, từ câu sai của em. Mỗi đơn đã thanh toán một hàng: `id, line_total, paid_total`; đơn thiếu thì để **NULL**.', 'think'));
+    const noi = h('div', { class: 'talk' }, bubble('Giờ bạn **tự gõ** câu đúng, bắt đầu từ câu sai của em. Tên bảng và tên cột có ở **Sổ của quán**; luật báo cáo ở ngay dưới nó.', 'think'));
     const goiY = h('div');
     const veGoiY = () => goiY.replaceChildren(...D.goiY.slice(0, st.goiY).map((g, i) => h('p', { class: 'hint' }, h('b', null, `Gợi ý ${i + 1}`), g.replace(/^Tầng \d: /, ''))));
     veGoiY();
@@ -325,11 +396,15 @@
         if (op === 'chay') { ra.replaceChildren(bang(r.bang)); return; }
         st.soCham++; st.khung = { chinh: r.datChinh, an: r.datAn }; veGoals(); veBar();
         if (r.dat) { st.sao.dat = true; st.sao.sach = st.goiY === 0 && !st.xemMau; veBar(); }
-        ra.replaceChildren(h('p', { class: 'ghi', html: rich((r.dat ? '**Đúng.** ' : '') + r.phanHoi) }), r.bang ? bang(r.bang) : null,
-          r.dat ? btn('Xong tập này →', tiep(3), 'primary') : null);
-      } catch (e) { ra.replaceChildren(h('p', { class: 'ghi' }, e.message)); }
+        ra.replaceChildren(h('p', { class: 'ghi', html: rich((r.dat ? '**Đúng.** ' : '') + D.viPhanHoi(r.phanHoi)) }), r.bang ? bang(r.bang) : null,
+          r.dat ? btn('Xong tập này →', tiep(4), 'primary') : null);
+      } catch (e) { ra.replaceChildren(h('p', { class: 'ghi' }, D.viLoi(e.message))); }
     };
-    const stage = h('section', { class: 'stage' }, h('div', { class: 'scene-mini' }, canh({})), h('div', { class: 'pane' }, o, ra, mau));
+    const stage = h('section', { class: 'stage' },
+      // Tên bảng và cột lúc nào cũng thấy (đang gõ SQL thì cần đúng cái này); dữ liệu thì gập, để ô gõ không bị đẩy khỏi màn hình.
+      h('p', { class: 'luoc-do', html: Object.entries(D.HIEN_THI).map(([ten, b]) => `<code>${ten}</code>(${b.cot.join(', ')})`).join(' · ') }),
+      h('details', { class: 'goi' }, h('summary', null, 'Sổ của quán (dữ liệu)'), soQuan()),
+      hopDong(false), o, h('div', { class: 'pane' }, ra, mau));
     return khung(stage, [noi, goals, h('div', { class: 'ctl' }, goiY),
       h('div', { class: 'acts' }, btn('Chạy thử', () => tmp('chay')), btn('Chấm bài', () => tmp('cham'), 'primary'), nutY, nutMau)]);
   }
@@ -353,16 +428,19 @@
         h('li', null, h('i', null, '✓'), h('span', { html: rich('Biết nguyên nhân: nối hai bảng con vào cùng một bảng cha **nhân các hàng** với nhau (grain bị đổi).') })),
         h('li', null, h('i', null, '✓'), h('span', null, 'Sửa bằng cách gom mỗi nhánh về đúng grain (một hàng một đơn) TRƯỚC khi ghép.')))));
     const n = soSao();
+    // Chỉ nói điều ĐÃ xảy ra: bản trước luôn khen "đoán đúng ngay" kể cả khi người học đoán sai.
+    const duoc = [st.sao.doan && 'đoán đúng ngay', st.sao.dat && 'chấm đạt', st.sao.sach && 'không cần gợi ý hay lời giải mẫu'].filter(Boolean);
+    const thieu = [!st.sao.doan && 'đoán đúng trước khi chạy', !st.sao.sach && 'làm không cần gợi ý hay lời giải mẫu'].filter(Boolean);
     return khung(stage, [
-      h('div', { class: 'talk' }, bubble(`Chủ quán đọc xong và nói **số khớp két**, bỏ luôn đơn nhập thêm hàng. Cảm ơn bạn! Bạn được **${n}/3 sao**: đoán đúng ngay, chấm đạt, và không cần gợi ý hay lời giải mẫu.`, 'happy')),
+      h('div', { class: 'talk' }, bubble(`Chủ quán đọc xong và nói **số khớp két**, bỏ luôn đơn nhập thêm hàng. Cảm ơn bạn! Bạn được **${n}/3 sao**${duoc.length ? ': ' + duoc.join(', ') : ''}.${thieu.length ? ' Muốn đủ sao, lần sau thử ' + thieu.join(' và ') + '.' : ''}`, 'happy')),
       mai,
       h('p', { class: 'ghi' }, 'Đây là tập thử nghiệm. Chưa có nhật ký học tập nào được ghi. Chấm bài bằng cách chạy câu của bạn trên dữ liệu của quán và dữ liệu thử thêm, nên cách viết nào đúng cũng đạt.'),
       h('div', { class: 'acts' }, btn('Làm lại từ đầu', () => { st = moi(); ve(); })),
     ]);
   }
 
-  const MAN = [manDoan, manThu, manViet, manXong];
-  const TIEU = ['Hai lần thanh toán, tổng gấp đôi', 'Hai lần thanh toán, tổng gấp đôi', 'Hai lần thanh toán, tổng gấp đôi', 'Báo cáo đã đúng'];
+  const MAN = [manVuViec, manDoan, manThu, manViet, manXong];
+  const TIEU = ['Báo cáo cuối ngày của quán', 'Báo cáo cuối ngày của quán', 'Báo cáo cuối ngày của quán', 'Báo cáo cuối ngày của quán', 'Báo cáo đã khớp két'];
 
   function ve() {
     veBar();

@@ -61,8 +61,6 @@ tr.in { animation: led-in .35s ease-out both; }
 .gats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
 
 /* Bước Thử: hai cảnh cạnh nhau (quầy · tòa nhà truy vấn), sổ báo cáo của chủ quán, và dòng "điều vừa đổi". */
-.duo { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 8px; align-items: center; }
-.duo .scene-mini { max-width: none; width: 100%; }
 .bao { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px 12px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface-2); }
 .bao.ok { border-color: var(--ok); background: var(--ok-soft); }
 .bao.sai { border-color: var(--bad); background: var(--bad-soft); }
@@ -74,3 +72,33 @@ tr.in { animation: led-in .35s ease-out both; }
 .mai { display: grid; gap: 8px; }
 .mai:empty { display: none; }
 .toa { max-width: 420px; margin-inline: auto; }
+
+/* ---- Bước "Vụ việc" và ô "Sổ của quán": ba bảng thật, dòng của đơn 101 tô màu, bấm để tìm ---- */
+.so-quan { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; align-items: start; }
+.so-ten { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px; font-size: 14px; }
+.so-ten small { font: 600 11.5px var(--mono); color: var(--ink-2); }
+table.kq.nho { font-size: 12.5px; }
+table.kq.nho th, table.kq.nho td { padding: 6px 9px; }
+table.kq tr.hl td { background: var(--accent-soft); }
+table.kq tr.bam { cursor: pointer; }
+table.kq tr.bam:hover td { background: var(--surface-2); }
+table.kq tr.bam:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+table.kq tr.chon td { background: var(--ok-soft); font-weight: 700; }
+table.kq tr.lac td { background: var(--bad-soft); }
+.vv-tin { margin: 0; padding: 9px 12px; border-radius: 12px; border: 1.5px dashed var(--ink-3); font-size: 14.5px; }
+.vv-tin.xong { border-style: solid; border-color: var(--ok); background: var(--ok-soft); }
+.hoi-nhom { display: grid; gap: 12px; }
+
+/* Khung gập: luật báo cáo, từ cần biết, sổ của quán. */
+details.goi { border: 1.5px solid var(--line); border-radius: 13px; background: var(--surface); padding: 0 12px; }
+details.goi > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 700; font-size: 14px; }
+details.goi[open] > summary { border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+details.goi > :last-child { margin-bottom: 12px; }
+ol.luat { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 14px; }
+dl.tu { margin: 0; display: grid; gap: 8px; font-size: 14px; }
+dl.tu dt { font-weight: 800; }
+dl.tu dd { margin: 0; color: var(--ink-2); }
+.chi-rong { display: block; }
+@media (max-width: 900px) { .chi-rong { display: none; } }
+.so { min-width: 0; }
+.luoc-do { margin: 0; font-size: 13px; line-height: 1.9; color: var(--ink-2); }

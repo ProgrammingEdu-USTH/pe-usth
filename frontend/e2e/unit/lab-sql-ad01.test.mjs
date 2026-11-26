@@ -212,3 +212,34 @@ test('ngày mai: bộ dữ liệu ẩn có đủ hai ca mà người học sẽ 
     assert.deepEqual(r.find((x) => x[0] === 202), [202, 25, null]);
   } finally { db.close(); }
 });
+
+// ---------------------------------------------------------------------------
+// Ngữ cảnh người học NHÌN THẤY (ba bảng ở màn "Vụ việc") và thông báo lỗi tiếng Việt.
+// ---------------------------------------------------------------------------
+test('ba bảng hiện cho người học (HIEN_THI) khớp từng ô với dữ liệu mà SQL thật chạy trên đó', () => {
+  const db = new SQL.Database();
+  try {
+    db.exec(AD01.QUAN);
+    for (const [ten, b] of Object.entries(AD01.HIEN_THI)) {
+      const r = db.exec(`SELECT ${b.cot.join(', ')} FROM ${ten} ORDER BY id`)[0];
+      assert.deepEqual(r.columns, b.cot, ten);
+      assert.deepEqual(r.values, b.hang, `${ten}: bảng hiện ra khác bảng thật`);
+    }
+  } finally { db.close(); }
+});
+
+test('màn "Vụ việc": đơn 101 có đúng 5 dòng (1 đơn + 2 dòng hàng + 2 thanh toán) để người học bấm tìm', () => {
+  const dem = Object.entries(AD01.HIEN_THI).reduce((a, [ten, b]) => a + b.hang.filter((r) => (ten === 'purchases' ? r[0] : r[1]) === 101).length, 0);
+  assert.equal(dem, 5);
+});
+
+test('lỗi SQL được dịch ra tiếng Việt có chỉ dẫn, với lỗi thật do sql.js ném ra (không phải chuỗi tự bịa)', () => {
+  const loi = (sql) => { const db = new SQL.Database(); try { db.exec(AD01.QUAN); db.exec(sql); } catch (e) { return e.message; } finally { db.close(); } };
+  assert.match(AD01.viLoi(loi('SELECT * FROM nope')), /Không có bảng «nope»/);
+  assert.match(AD01.viLoi(loi('SELECT zzz FROM purchases')), /Không có cột «zzz»/);
+  assert.match(AD01.viLoi(loi('SELECT id FROM purchases p JOIN payments m ON p.id = m.order_id')), /nhiều bảng/);
+  assert.match(AD01.viLoi(loi('SELEC 1')), /kiểm tra dấu phẩy/);
+  // phản hồi của bộ chấm bọc lỗi trong câu có khuôn cố định: dịch phần lỗi, giữ phần còn lại.
+  assert.match(AD01.viPhanHoi(cham('SELECT * FROM nope').phanHoi), /^SQL báo lỗi: Không có bảng «nope»/);
+  assert.equal(AD01.viPhanHoi('Số hàng sai.'), 'Số hàng sai.');
+});

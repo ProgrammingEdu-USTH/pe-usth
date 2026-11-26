@@ -329,7 +329,7 @@ export default function PythonStudio() {
         <div className={s.headerInner}>
           <a
             className={s.iconButton}
-            href="/courses/python"
+            href="/bookshelf/python"
             aria-label="Đóng bài học"
           >
             <Icon step={d.step} n={headerIcons[0]} />
@@ -1582,7 +1582,7 @@ export default function PythonStudio() {
               onClick={() =>
                 d.step > 1
                   ? changeStep(d.step - 1)
-                  : window.location.assign('/courses/python')
+                  : window.location.assign('/bookshelf/python')
               }
             >
               <Icon step={d.step} n={footerIcons[0]} /> Quay lại
@@ -1611,7 +1611,7 @@ export default function PythonStudio() {
                 <Icon step={d.step} n={footerIcons[4]} />
               </button>
             ) : (
-              <a className={s.primary} href="/courses/python">
+              <a className={s.primary} href="/bookshelf/python">
                 {completed ? 'Về khóa học' : 'Xem tiến độ khóa học'}{' '}
                 <Icon step={4} n={22} />
               </a>

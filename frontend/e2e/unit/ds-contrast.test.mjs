@@ -19,7 +19,7 @@
  * một chút. Ghim đúng số đo thật thì đổi một màu là đỏ oan; không ghim gì thì
  * tụt dần tới 4,51:1 mà không ai thấy. Sàn ở giữa: chỉ được NÂNG.
  */
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
@@ -418,18 +418,8 @@ test('không còn quầng sáng bám chuột vẽ trên <html>', () => {
     'html.edu-fx::before/::after đã quay lại — hai quầng brand bám con trỏ '
       + 'là nửa còn lại của mesh xanh–đỏ, xem chú thích trong edu-theme.css.',
   );
-  // Nửa JS của cùng hiệu ứng: gỡ phần VẼ mà để vòng rAF ghi --ax/--ay/--bx/--by
-  // lên <html> thì mỗi khung chuột di chuyển là tính lại style CẢ TRANG cho một
-  // thứ không ai đọc — đo trên /courses: 161 ms/s style, 23% luồng chính. Biến
-  // của thẻ/nút (--cx, --mx…) ghi lên CHÍNH phần tử đó thì không bị cấm.
-  const FX = readFileSync(join(__dirname, '..', '..', 'public', 'static', 'js', 'edu-fx.js'), 'utf8')
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .split('\n').filter((d) => !d.trimStart().startsWith('//')).join('\n');
-  assert.ok(
-    !/(root|documentElement)\.style\.setProperty\(/.test(FX),
-    'edu-fx.js lại ghi biến CSS lên <html> — biến khai trên gốc thì MỌI phần tử '
-      + 'thừa kế, nên mỗi lần ghi là tính lại style cả trang.',
-  );
+  // Nửa JS của hiệu ứng (edu-fx.js) đã xoá ngày 26/11: không còn phần tử nào khớp bộ chọn của nó.
+  assert.ok(!existsSync(join(__dirname, '..', '..', 'public', 'static', 'js', 'edu-fx.js')));
 });
 
 /* TRANG CHỦ KHÔNG ĐƯỢC DÙNG BẢNG BRAND XANH–ĐỎ NỮA.
@@ -459,8 +449,6 @@ const DA_SANG_LOFI = [
   // thì đã gỡ: hai chip nó canh chỉ sống trong file đã xoá — xem AGENTS.md.)
   ['src/components/goc-hoc/scene.css',
     readFileSync(join(__dirname, '..', '..', 'src', 'components', 'goc-hoc', 'scene.css'), 'utf8')],
-  ['src/components/CourseShell.module.css',
-    readFileSync(join(__dirname, '..', '..', 'src', 'components', 'CourseShell.module.css'), 'utf8')],
   // 04/11 — /ide (6ac5a0c, 19 khai báo brand → 0) và màn BÀI HỌC (7 file, tới
   // 18 phần tử brand mỗi màn → chỉ còn --ds-action ở nút chính). Thiếu các dòng
   // này thì hai bề mặt lớn nhất của sản phẩm không có gì chặn lùi về bảng cũ.

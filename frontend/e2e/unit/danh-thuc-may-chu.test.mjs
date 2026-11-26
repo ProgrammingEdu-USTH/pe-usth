@@ -86,14 +86,15 @@ test('đánh thức: không có fetch thì không làm gì', () => {
   }
 });
 
-test('đánh thức: có MOUNT ở trang chủ và trang khoá học; KHÔNG ở trang bài học', () => {
+test('đánh thức: có MOUNT ở trang chủ và Tủ sách; KHÔNG ở trang bài học', () => {
   // Một hàm dựng xong mà không trang nào mount thì không đánh thức ai (lỗi thống trị của repo).
   const trangChu = boChuThich(doc('src', 'app', 'page.tsx'));
-  const trangKhoa = boChuThich(doc('src', 'app', '(standalone)', 'courses', '[courseId]', 'CourseDetail.tsx'));
+  const tuSach = boChuThich(doc('src', 'components', 'bookshelf', 'BookshelfExtras.tsx'));
   assert.match(trangChu, /import DanhThucMayChu from '@\/components\/DanhThucMayChu'/);
   assert.match(trangChu, /<DanhThucMayChu\s*\/>/, 'trang chủ phải dựng <DanhThucMayChu />');
-  assert.match(trangKhoa, /import DanhThucMayChu from '@\/components\/DanhThucMayChu'/);
-  assert.match(trangKhoa, /<DanhThucMayChu\s*\/>/, 'trang khoá học phải dựng <DanhThucMayChu />');
+  assert.match(tuSach, /import DanhThucMayChu from '@\/components\/DanhThucMayChu'/);
+  assert.match(tuSach, /<DanhThucMayChu\s*\/>/, 'Tủ sách phải dựng <DanhThucMayChu />');
+  assert.match(boChuThich(doc('src', 'app', 'bookshelf', 'page.tsx')), /<BookshelfExtras\s*\/>/, 'trang Tủ sách phải dựng <BookshelfExtras />');
   // Trang bài học tự gọi API qua apiFetch (máy chủ thức bằng chính lượt đó): đánh thức ở đó là thừa.
   const trangBai = boChuThich(doc('src', 'app', '(standalone)', 'lesson', 'python_advanced', 'page.tsx'));
   assert.doesNotMatch(trangBai, /DanhThucMayChu/);

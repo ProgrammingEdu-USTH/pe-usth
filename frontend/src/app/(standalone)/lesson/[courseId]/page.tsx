@@ -2,7 +2,7 @@
 
 // Route động /lesson/[courseId] — phần còn lại của lesson_view() trong main.py:
 //   cpp  → /interface
-//   khác → /courses/<id>
+//   khác → /bookshelf
 // Các khoá có trang bài học riêng (python, python_advanced, java, htmlcss, ba khoá
 // tĩnh) dùng route tĩnh, Next ưu tiên chúng trước route này. Ba đường dẫn bài SQL
 // cũ (/lesson/db_design*) được chuyển hướng ở next.config.ts.
@@ -14,7 +14,7 @@ export default function LessonDispatchPage({ params }: { params: Promise<{ cours
   const { courseId } = use(params);
 
   useEffect(() => {
-    window.location.replace(LESSON_URLS[courseId] || `/courses/${courseId}`);
+    window.location.replace(LESSON_URLS[courseId] || '/bookshelf');
   }, [courseId]);
 
   return null;

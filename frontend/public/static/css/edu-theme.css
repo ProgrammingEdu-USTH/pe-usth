@@ -848,25 +848,7 @@ html { scrollbar-color: var(--edu-scrollbar-thumb) transparent; }
    sửa mỗi nền thì hai đốm brand vẫn chạy theo con trỏ, tức bản sửa trông
    như xong mà vẫn không phải lofi. Tô lại bằng màu trung tính KHÔNG cứu
    được: trên giấy sáng #EAEFF6 một quầng trung tính là một vệt mờ bẩn.
-   `edu-fx.js` vẫn nạp và vẫn chạy — nó còn làm đốm sáng cho THẺ (data-fx),
-   và nó chỉ ghi --ax/--ay/--bx/--by nên không có lời gọi nào hỏng. */
-
-/* Ô/card có data-fx hoặc nằm trong danh sách của edu-fx.js: đốm sáng bám con trỏ */
-.edu-fx-card { position: relative; }
-.edu-fx-card::after {
-  content: '';
-  position: absolute; inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background: radial-gradient(240px circle at var(--cx, 50%) var(--cy, 50%), rgba(79,141,255,.16), transparent 70%);
-  opacity: 0;
-  transition: opacity .25s ease;
-}
-.edu-fx-card:hover::after { opacity: 1; }
-.edu-fx-tilt {
-  transition: transform .18s ease-out, box-shadow .18s ease;
-  transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--ty, 0px));
-}
+   Cả `edu-fx.js` cũng đã xoá (26/11/2026). */
 
 /* Thanh tiến độ: gradient xanh + quầng sáng, chạy từ 0 khi vào trang */
 .edu-cd-progress-fill, .progress-fill, .dash-progress-fill {
@@ -884,11 +866,6 @@ html { scrollbar-color: var(--edu-scrollbar-thumb) transparent; }
 .cd-block:nth-of-type(4) { animation-delay: .18s; }
 @keyframes fxRise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
-/* Nút chính: hút nhẹ về phía chuột (edu-fx.js đặt --mx --my), bấm thì co */
-.edu-fx-btn { transition: transform .15s ease, box-shadow .2s ease, filter .2s ease; transform: translate(var(--mx, 0px), var(--my, 0px)); }
-.edu-fx-btn:active { transform: translate(var(--mx, 0px), var(--my, 0px)) scale(.97); }
-
 @media (prefers-reduced-motion: reduce) {
-  .edu-fx-tilt, .edu-fx-btn { transform: none !important; transition: none; }
   .edu-cd-progress-fill, .progress-fill, .dash-progress-fill, .cd-block, .cd-card { animation: none; }
 }

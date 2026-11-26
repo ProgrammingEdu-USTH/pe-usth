@@ -354,14 +354,14 @@ test('trang công khai KHÔNG tự gọi API, và không mount đề ôn', () =>
   //
   // Và nó từng ĐỎ OAN vì không bỏ chú thích: page.tsx GIẢI THÍCH vì sao không
   // gọi `apiFetch`, và chính câu giải thích ấy khớp regex.
-  for (const f of ['src/app/page.tsx', 'src/app/(standalone)/courses/[courseId]/page.tsx']) {
+  for (const f of ['src/app/page.tsx', 'src/app/bookshelf/page.tsx', 'src/app/bookshelf/[courseSlug]/page.tsx']) {
     const s = boChuThich(doc(`../../${f}`));
     assert.doesNotMatch(s, /apiFetch|ReviewQuiz|quiz\/generate|quiz\/status/, f);
   }
 });
 
 test('trang công khai CHỈ gọi API khi máy đã có phiên — bot không chạm API', () => {
-  // Cơ chế THẬT đang chặn "mỗi con bot một tài khoản khách" trên hai trang công
+  // Cơ chế THẬT đang chặn "mỗi con bot một tài khoản khách" trên các trang công
   // khai: `apiFetch` chỉ được gọi SAU phép `hasStoredSession`. Bot không có
   // phiên đã lưu nên dừng ở đó, 0 lời gọi mạng. Gỡ phép chặn là mở lại lỗ ấy
   // mà không gì khác đỏ — trang vẫn chạy, chỉ bảng `users` phình ra.
@@ -383,18 +383,7 @@ test('trang công khai CHỈ gọi API khi máy đã có phiên — bot không c
   assert.ok(goiDoc.length > 0 && goiDoc.every((i) => i > chan),
     'Có lời gọi doc(...) đứng TRƯỚC phép chặn phiên trong StudyRoom.');
 
-  // Trang khoá: lời gọi duy nhất nằm trong `fetchCompleted`, mà
-  // `loadCompletedLessons` chặn phiên ngay dòng đầu.
-  const detail = boChuThich(doc('../../src/app/(standalone)/courses/[courseId]/CourseDetail.tsx'));
-  const goiCD = [...detail.matchAll(/apiFetch\(/g)].map((m) => m.index);
-  const fc = detail.indexOf('fetchCompleted:');
-  assert.equal(goiCD.length, 1, 'CourseDetail phải có ĐÚNG MỘT lời gọi apiFetch( (trong fetchCompleted).');
-  assert.ok(fc >= 0 && goiCD[0] > fc && goiCD[0] - fc < 200,
-    'Lời gọi apiFetch( của CourseDetail không nằm trong fetchCompleted.');
-  const prog = boChuThich(doc('../../src/lib/course-progress.ts'));
-  assert.match(prog,
-    /export async function loadCompletedLessons\([\s\S]*?\): Promise<number\[\] \| null> \{\s*if \(!hasStoredSession\(input\.session\)\) return null;/,
-    '`loadCompletedLessons` phải chặn phiên ở DÒNG ĐẦU, trước mọi lời gọi.');
+  // Tủ sách có cổng riêng, canh ở bookshelf-progress.test.mjs.
 });
 
 // ------------------------------------------- ĐỀ ĐANG LÀM sống qua tải lại

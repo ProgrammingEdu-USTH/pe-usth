@@ -53,7 +53,7 @@ function tep(goc, loc) {
   return out;
 }
 
-/** Route có thật: '/', '/ide', '/courses/[courseId]'… */
+/** Route có thật: '/', '/ide', '/card/[cardId]'… */
 const ROUTES = tep(APP, (n) => /^(page|route)\.(tsx|ts|js)$/.test(n)).map((p) => {
   const doan = relative(APP, dirname(p)).split(sep).filter((s) => s && !/^\(.*\)$/.test(s));
   return '/' + doan.join('/');
@@ -108,9 +108,9 @@ test('phép quét có răng: đọc ra route và liên kết thật', () => {
 
 test('phép khớp route không dễ dãi', () => {
   assert.equal(khopRoute('/'), true);
-  assert.equal(khopRoute('/courses/python_advanced'), true, '`[courseId]` phải khớp một đoạn');
+  assert.equal(khopRoute('/card/abc'), true, '`[cardId]` phải khớp một đoạn');
   assert.equal(khopRoute('/practice'), false, 'route đã gỡ lại được coi là có');
-  assert.equal(khopRoute('/courses'), false, '`/courses/[courseId]` không được khớp `/courses` trần');
+  assert.equal(khopRoute('/card'), false, '`/card/[cardId]` không được khớp `/card` trần');
   assert.equal(khopRoute('/ide/thua'), false, 'thừa một đoạn mà vẫn khớp');
 });
 

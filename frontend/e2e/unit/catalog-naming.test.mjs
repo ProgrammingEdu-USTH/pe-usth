@@ -37,9 +37,6 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const read = (...p) => readFileSync(join(ROOT, ...p), 'utf8');
 
 const CATALOG = read('frontend', 'src', 'lib', 'catalog.ts');
-const COURSE_DETAIL = read(
-  'frontend', 'src', 'app', '(standalone)', 'courses', '[courseId]', 'CourseDetail.tsx',
-);
 const SEED = read('scripts', 'seed-python-da.ts');
 const SEEDS = [['seed-python-da.ts', SEED]];
 const EXPECTED_TITLE = 'Python cho Data Analyst';
@@ -79,15 +76,8 @@ test('catalog.ts: khoá python_advanced tên "Python cho Data Analyst", không c
   );
 });
 
-test('catalog.ts: python_advanced không khai `tag` (trang chi tiết bỏ hẳn dòng nhãn)', () => {
+test('catalog.ts: python_advanced không khai `tag` (không có nhãn thừa)', () => {
   assert.doesNotMatch(advancedEntry(), /^\s*tag:/m, 'khoá này phải KHÔNG có trường tag');
-  // Thiếu nửa sau thì "MINI-GAME" biến mất nhưng " · NÂNG CAO" vẫn trơ ra.
-  assert.match(CATALOG, /tag\?: string/, 'CatalogCourse.tag phải là trường không bắt buộc');
-  assert.match(
-    COURSE_DETAIL,
-    /\{course\.tag &&/,
-    'CourseDetail phải bỏ CẢ dòng nhãn khi khoá không khai tag',
-  );
 });
 
 test('seed dùng cùng một tên khoá với catalog.ts', () => {
@@ -112,7 +102,6 @@ test('seed dùng cùng một tên khoá với catalog.ts', () => {
  *  · trả `label`/`title` về 'Python Mini-game' / 'Python Advanced — học qua
  *    mini-game' → ca 1 trượt;
  *  · trả `tag: 'MINI-GAME'` vào catalog.ts → ca 1 và ca 2 trượt;
- *  · bỏ điều kiện `{course.tag && …}` ở CourseDetail → ca 2 trượt;
  *  · để `TITLE` của seed lệch khỏi catalog.ts, hoặc trả `tag: 'Mini-game'`/phụ
  *    đề cũ vào `META` của seed → ca 3 trượt.
  *

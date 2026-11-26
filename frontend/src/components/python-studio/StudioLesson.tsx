@@ -467,7 +467,7 @@ export default function StudioLesson({
     window.location.assign(
       book
         ? `/bookshelf/${book}?lesson=${lessonNo - 1}`
-        : `/courses/${courseId}?lesson=${lessonNo - 1}`,
+        : '/bookshelf',
     );
   }
 

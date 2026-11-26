@@ -66,11 +66,6 @@ export type CatalogCourse = {
   lessonUrl: string;
 };
 
-export const LEVEL_LABEL: Record<Level, string> = {
-  beginner: 'Cơ bản',
-  intermediate: 'Trung cấp',
-  advanced: 'Nâng cao',
-};
 
 /** Số bài = tổng bài của mọi module trong giáo trình; khóa không có giáo trình dùng `fallback`. */
 function lessonCount(id: string, fallback: number): number {

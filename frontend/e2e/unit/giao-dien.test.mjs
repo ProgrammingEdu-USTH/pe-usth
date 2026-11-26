@@ -218,10 +218,9 @@ test('đường tới: nút chọn mount ở khung bài học, bề mặt khai d
   assert.ok(hang('theme-thien-van.css') < hang('edu-responsive.css'), 'lớp co giãn phải vẫn cuối cùng');
   assert.match(ps, /co\(THEME_CSS,/, 'PageStyles không tự thêm tệp theme vào mọi trang');
 
-  // đường tới thứ hai: trang khoá học (nhận theme + có nút) và panel cài đặt của trang chủ
-  const khoa = boChuThich(doc('src/app/(standalone)/courses/[courseId]/CourseDetail.tsx'));
-  assert.match(khoa, /<ThemePicker\s+cheDo=\{false\}\s*\/>/, 'CourseDetail không dựng <ThemePicker cheDo={false} />');
-  assert.match(khoa, /data-tv-surface/, 'trang khoá học thiếu data-tv-surface: chọn theme mà không đổi gì');
+  // đường tới thứ hai: Tủ sách (có nút) và panel cài đặt của trang chủ
+  const tuSach = boChuThich(doc('src/components/bookshelf/BookshelfExtras.tsx'));
+  assert.match(tuSach, /<ThemePicker\s*\/>/, 'Tủ sách không dựng <ThemePicker />');
   const shell = doc('src/components/goc-hoc/shell.js');
   const engine = doc('src/components/goc-hoc/engine.js');
   assert.match(shell, /id="tTv"/, 'panel cài đặt của trang chủ thiếu công tắc giao diện (#tTv)');

@@ -29,14 +29,16 @@ self.onmessage = async (e) => {
       }
     } else if (op === 'cham') {
       const kq = LabSql.chamBai(SQL, LabSqlAd01.de, sql);
-      // Chỉ gửi phần hiển thị được: bảng của bộ dữ liệu ĐẦU (của quán), không gửi bộ ẩn.
+      // Chỉ gửi phần hiển thị được: bảng của bộ dữ liệu ĐẦU (của quán) và có/không đạt bộ ẩn. Không gửi bảng bộ ẩn.
       const chinh = kq.theoBo.find((x) => !x.an);
+      const an = kq.theoBo.find((x) => x.an);
       self.postMessage({
         id,
         ok: true,
         dat: kq.dat,
         phanHoi: kq.phanHoi,
         datChinh: chinh ? chinh.dat : false,
+        datAn: an ? an.dat : false,
         bang: chinh && chinh.nhan ? { cot: chinh.nhan.columns, hang: chinh.nhan.values } : null,
       });
     }

@@ -3,19 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Phòng thí nghiệm SQL – AD01 (thử nghiệm) – Programming EDU</title>
-<meta name="description" content="Bài thử nghiệm: vì sao một tổng đúng có thể đến từ truy vấn sai. Chạy SQL ngay trong trình duyệt.">
+<title>Quán Mây · Tập thử SQL (AD01) – Programming EDU</title>
+<meta name="description" content="Tập thử nghiệm: vì sao một tổng đúng có thể đến từ truy vấn sai. Chạy SQL ngay trong trình duyệt, trong quán của Linh.">
 <!-- Bản thử nghiệm: chưa muốn lên kết quả tìm kiếm. -->
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<!-- DÙNG LẠI CHÍNH CSS VÀ BỘ VẼ ISOMETRIC của Quán Mây (cùng origin, đã nằm trong bộ nhớ đệm nếu người học từng vào
+     Quán Mây). Không sao chép một bản thứ hai: hai nơi lệch nhau là hai giao diện khác nhau. -->
+<link rel="stylesheet" href="/quan-may/quan-may.css">
 <link rel="stylesheet" href="/lab-sql/lab-sql.css">
 </head>
 <body>
-<noscript><p>Bài này cần JavaScript để chạy SQL. <a href="/">Về Góc học</a></p></noscript>
-<div id="app">
-  <header class="bar"><a class="ve" href="/">← Góc học</a><span class="tieu">Phòng thí nghiệm SQL</span><span id="buoc" class="buoc" aria-live="polite"></span></header>
-  <main id="view"></main>
-</div>
+<noscript><p>Tập này cần JavaScript để chạy SQL. <a href="/">Về Góc học</a></p></noscript>
+<div id="app"><header id="bar"></header><main id="view"></main></div>
+<script src="/quan-may/iso.js"></script>
 <script src="/lab-sql/ad01-data.js"></script>
 <script src="/lab-sql/ad01.js"></script>
 </body>

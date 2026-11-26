@@ -1,50 +1,30 @@
-/* Phòng thí nghiệm SQL — bài thử AD01. Tự chứa: không font ngoài, không thư viện.
-   Nền ấm cùng họ với Quán Mây; theme tối theo hệ thống. Đích bấm >= 44px (luật của repo). */
-:root {
-  --nen: #fbf5e8; --the: #fffdf7; --vien: #e2d3b4; --chu: #3a2f24; --phu: #6e5f4d;
-  --nhan: #1f7a68; --chinh: #1f7a68; --chinh-chu: #fff; --dung: #1f7a68; --sai: #b3402c;
-  --o-hang: #ffecb5; --o-tra: #d6e7f9; --cap: #d86c33;
-  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-}
-@media (prefers-color-scheme: dark) {
-  :root { --nen: #1d1a16; --the: #26221c; --vien: #4a4034; --chu: #f1e8d8; --phu: #b8aa94; --nhan: #7fd0bb; --chinh: #3aa58f; --dung: #7fd0bb; --sai: #f09a88; --o-hang: #5b4a1f; --o-tra: #26405c; --cap: #f4915c; }
-}
-* { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--nen); color: var(--chu); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-.bar { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--vien); position: sticky; top: 0; background: var(--nen); z-index: 2; }
-.bar .ve { color: var(--chu); text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
-.bar .tieu { font-weight: 700; flex: 1; }
-.bar .buoc { color: var(--phu); font-variant-numeric: tabular-nums; }
-main { max-width: 720px; margin: 0 auto; padding: 16px; outline: none; }
-.the { background: var(--the); border: 1px solid var(--vien); border-radius: 16px; padding: 20px; }
-h1 { font-size: 26px; line-height: 1.2; margin: 4px 0 12px; }
-h2 { font-size: 20px; line-height: 1.3; margin: 4px 0 12px; }
-.nhan { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--nhan); }
-.phu { color: var(--phu); font-size: 14px; }
-.dung { color: var(--dung); font-weight: 600; }
-.sai { color: var(--sai); font-weight: 600; }
-.nut { min-height: 44px; padding: 8px 16px; border-radius: 10px; border: 1px solid var(--vien); background: var(--the); color: var(--chu); font: inherit; font-weight: 600; cursor: pointer; margin: 8px 8px 0 0; }
-.nut.chinh { background: var(--chinh); border-color: var(--chinh); color: var(--chinh-chu); }
-.nut:disabled { opacity: .55; cursor: default; }
-.nut:focus-visible, .soan:focus-visible, .cuon:focus-visible, input:focus-visible + span { outline: 3px solid var(--nhan); outline-offset: 2px; }
-.nuts { display: flex; flex-wrap: wrap; }
-.lcs { display: grid; gap: 8px; margin: 12px 0; }
-.lc { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 6px 12px; border: 1px solid var(--vien); border-radius: 10px; cursor: pointer; }
-.lc input { width: 20px; height: 20px; accent-color: var(--chinh); }
-.ma, .soan { font: 15px/1.5 var(--mono); background: var(--nen); border: 1px solid var(--vien); border-radius: 10px; padding: 12px; margin: 12px 0; overflow-x: auto; white-space: pre; color: var(--chu); }
-.soan { width: 100%; font-size: 16px; /* >=16px: iOS không phóng to trang khi chạm vào ô soạn */ resize: vertical; white-space: pre; }
-.cuon { overflow-x: auto; margin: 12px 0; border: 1px solid var(--vien); border-radius: 10px; }
-.kq { border-collapse: collapse; width: 100%; font: 14px var(--mono); }
-.kq th, .kq td { padding: 6px 10px; border-bottom: 1px solid var(--vien); text-align: left; white-space: nowrap; }
-.kq th { color: var(--phu); font-weight: 600; }
-.goi-y { background: var(--nen); border-left: 4px solid var(--nhan); padding: 8px 12px; border-radius: 6px; margin: 8px 0; }
-code { font-family: var(--mono); font-size: .92em; }
-.hinh { width: 100%; max-width: 420px; height: auto; display: block; margin: 12px auto 0; }
-.hinh .o-hang { fill: var(--o-hang); stroke: var(--vien); }
-.hinh .o-tra { fill: var(--o-tra); stroke: var(--vien); }
-.hinh .chu { fill: var(--chu); font: 600 13px system-ui, sans-serif; }
-.hinh .so { font-variant-numeric: tabular-nums; }
-.hinh .cap { fill: none; stroke: var(--cap); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .5s ease-out; }
-.hinh .cap.hien { stroke-dashoffset: 0; }
-@media (prefers-reduced-motion: reduce) { .hinh .cap { transition: none; } }
+/* Phần RIÊNG của tập thử SQL, nạp SAU /quan-may/quan-may.css. Mọi thứ còn lại (màu, chữ, thẻ, nút, bong bóng
+   thoại, HUD, khung cảnh isometric) lấy thẳng từ Quán Mây. Ở đây chỉ có những gì Quán Mây chưa có. */
+
+/* Bốn nét ghép dòng hàng với phiếu thanh toán. `stroke-dasharray` lớn hơn chiều dài nét nên không cần pathLength. */
+.iso-pair { fill: none; stroke: var(--accent); stroke-width: 3.2; stroke-linecap: round; stroke-dasharray: 400; stroke-dashoffset: 400; transition: stroke-dashoffset .7s ease-out; }
+.iso-pair.on { stroke-dashoffset: 0; }
+@media (prefers-reduced-motion: reduce) { .iso-pair { transition: none; } }
+
+/* Bảng kết quả của câu SQL. */
+.cuon { overflow-x: auto; border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface); }
+table.kq { width: 100%; border-collapse: collapse; font: 600 13.5px var(--mono); font-variant-numeric: tabular-nums; }
+table.kq th, table.kq td { padding: 7px 12px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.kq th { color: var(--ink-2); font-weight: 700; background: var(--surface-2); }
+table.kq tr:last-child td { border-bottom: 0; }
+table.kq td.bad { color: var(--bad); background: var(--bad-soft); }
+table.kq td.null { color: var(--ink-3); font-style: italic; }
+
+/* Ô soạn SQL: cùng diện mạo khối code của Quán Mây (.code), nhưng là textarea. 16px chống iOS phóng to trang. */
+textarea.code { display: block; width: 100%; min-height: 230px; resize: vertical; font-size: 16px; line-height: 1.5; border: 0; tab-size: 2; white-space: pre; }
+textarea.code:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.pane { display: flex; flex-direction: column; gap: 10px; }
+.ghi { font-size: 13.5px; color: var(--ink-2); }
+.ghi b { color: var(--ink); }
+.hint { background: var(--accent-soft); border: 1.5px solid color-mix(in srgb, var(--edge) 45%, var(--line)); border-radius: 12px; padding: 8px 12px; font-size: 14px; }
+.hint b { font-family: var(--mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-ink); margin-right: 6px; }
+.sao { display: inline-flex; gap: 2px; letter-spacing: 3px; font: 800 20px/1 var(--display); color: var(--line); }
+.sao .on { color: var(--accent); }
+.tong-ket { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.tong-ket li { display: flex; gap: 10px; align-items: flex-start; }
+.tong-ket i { flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--ok); color: var(--surface); display: grid; place-items: center; font: 700 12px/1 var(--mono); font-style: normal; }

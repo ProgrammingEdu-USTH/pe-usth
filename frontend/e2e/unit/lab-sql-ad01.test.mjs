@@ -100,3 +100,43 @@ test('thứ tự hàng không bị chấm (đề không đòi ORDER BY)', () => 
 function DAP_AN_COALESCE() {
   return AD01.DAP_AN.replace('l.total AS line_total', 'COALESCE(l.total,0) AS line_total').replace('m.total AS paid_total', 'COALESCE(m.total,0) AS paid_total');
 }
+
+// ---------------------------------------------------------------------------
+// Trang dùng lại CSS và bộ vẽ của Quán Mây (không sao chép). Phụ thuộc đó phải bị canh:
+// đổi tên một lớp hay bỏ một hàm ở Quán Mây sẽ làm trang này hỏng ÂM THẦM (mất kiểu, hoặc ném lỗi khi vẽ cảnh).
+// ---------------------------------------------------------------------------
+import { readFileSync } from 'node:fs';
+const doc = (...p) => readFileSync(join(DIR, '..', ...p), 'utf8');
+
+test('mọi lớp CSS của Quán Mây mà trang dùng vẫn còn trong quan-may.css', () => {
+  const css = doc('quan-may', 'quan-may.css');
+  const js = doc('lab-sql', 'ad01.js');
+  const dung = new Set();
+  for (const m of js.matchAll(/class:\s*'([^']+)'/g)) m[1].split(/\s+/).forEach((c) => dung.add(c));
+  for (const m of js.matchAll(/btn\([^)]*?,\s*'([^']*)'/g)) m[1].split(/\s+/).filter(Boolean).forEach((c) => dung.add(c));
+  // Lớp do chính lab-sql.css định nghĩa thì không cần có ở Quán Mây.
+  const rieng = doc('lab-sql', 'lab-sql.css');
+  // 'who-linh' và 'ketqua' là móc chọn phần tử (test/CSS có thể bám vào), không có kiểu riêng.
+  const MOC = new Set(['btn', 'who-linh', 'ketqua']);
+  const coKieu = (c, nguon) => nguon.includes('.' + c) && new RegExp('\\.' + c.replace(/-/g, '\\-') + '(?![\\w-])').test(nguon);
+  const thieu = [...dung].filter((c) => !MOC.has(c) && !coKieu(c, css) && !coKieu(c, rieng));
+  assert.deepEqual(thieu, [], 'lớp không còn ở quan-may.css hay lab-sql.css: ' + thieu.join(', '));
+  assert.ok(dung.size >= 20, 'phép quét lớp phải thấy nhiều lớp (đang thấy ' + dung.size + '), nếu không nó đang mù');
+});
+
+test('mọi hàm vẽ của QuanMayIso mà trang gọi vẫn được iso.js xuất ra', () => {
+  const iso = doc('quan-may', 'iso.js');
+  const js = doc('lab-sql', 'ad01.js');
+  const xuat = /window\.QuanMayIso = \{([^}]*)\}/.exec(iso)[1].split(',').map((x) => x.trim());
+  const kit = /\n  return \{ u, P, ([^}]*)\};/.exec(iso)[1].split(',').map((x) => x.trim());
+  const parts = [...(/const parts = \{([\s\S]*?)\n  \};\n  return \{ u, P/.exec(iso)[1].matchAll(/^    (\w+)[:(]/gm))].map((m) => m[1]);
+  const goi = (re, nguon = js) => [...new Set([...nguon.matchAll(re)].map((m) => m[1]))];
+  const iso1 = goi(/ISO\.(\w+)/g);
+  const k = goi(/\bk\.(\w+)\(/g).filter((x) => x !== 'parts' && !(x in String.prototype)); // `k` ở chỗ khác là một chuỗi (k.startsWith)
+  // `p` còn là tên của một mục trong hàng đợi worker (p.ok/p.no) — chỉ quét phần SAU dòng `const p = k.parts`.
+  const p = goi(/\bp\.(\w+)\(/g, js.slice(js.indexOf('const p = k.parts')));
+  assert.ok(iso1.length >= 3 && k.length >= 5 && p.length >= 2, `phép quét phải thấy lời gọi: ISO ${iso1}, k ${k}, p ${p}`);
+  assert.deepEqual(iso1.filter((x) => !xuat.includes(x)), [], 'QuanMayIso không xuất');
+  assert.deepEqual(k.filter((x) => !kit.includes(x)), [], 'kit không có');
+  assert.deepEqual(p.filter((x) => !parts.includes(x)), [], 'parts không có');
+});

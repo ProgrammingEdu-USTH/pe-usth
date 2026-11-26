@@ -5,7 +5,7 @@
 /* The site's day/night choice, when the visitor has made one; otherwise the system's. */
 try { const theme = localStorage.getItem('theme'); if (theme === 'dark' || theme === 'light') document.documentElement.dataset.theme = theme; } catch { /* private window */ }
 /* Quán Mây — story-mode prototype. Core: helpers, i18n, state, shared pieces. */
-const QM = { eps: {}, order: [], runs: {} };
+const QM = { eps: {}, order: [], runs: {}, cases: {}, caseOrder: [] };
 const O = (vi, en) => ({ vi, en });
 const T = (o) => (o == null ? '' : typeof o === 'string' ? o : o[S.lang] ?? o.vi);
 
@@ -16,11 +16,20 @@ try { Object.assign(S, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch {
 if (S.lang !== 'en') S.lang = 'vi';
 if (!S.done || typeof S.done !== 'object') S.done = {};
 if (!S.fx || typeof S.fx !== 'object') S.fx = {};
+/* What the shop remembers: wrong turns, stars, lasting consequences, cases, the last story finished. */
+['slips', 'stars', 'flags', 'cases'].forEach((k) => { if (!S[k] || typeof S[k] !== 'object') S[k] = {}; });
+if (typeof S.last !== 'string') S.last = null;
+const SLIP = { money: -60000, rating: -0.05 };
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { /* ignore */ } };
 const BASE_HUD = { money: 5000000, rating: 4.0, guests: 0 };
 function hudNow() {
   const v = { ...BASE_HUD };
-  Object.values(S.fx).forEach((f) => { v.money += f.money || 0; v.rating += f.rating || 0; v.guests += f.guests || 0; });
+  const add = (f) => { v.money += Number(f.money) || 0; v.rating += Number(f.rating) || 0; v.guests += Number(f.guests) || 0; };
+  Object.values(S.fx).forEach(add);
+  Object.values(S.cases).forEach((c) => c && c.reward && add(c.reward));
+  /* every wrong turn cost the shop something */
+  const slips = Object.values(S.slips).reduce((a, n) => a + (Number(n) || 0), 0);
+  add({ money: slips * SLIP.money, rating: slips * SLIP.rating });
   v.rating = Math.max(1, Math.min(5, v.rating));
   v.guests = Math.max(0, v.guests);
   return v;
@@ -92,7 +101,7 @@ const UI = {
   episodes: O('Các tập', 'Episodes'),
   ep: O('Tập', 'Episode'),
   phStory: O('Chuyện', 'Story'), phPlay: O('Làm', 'Do'), phChoice: O('Quyết định', 'Decide'), phDebrief: O('Đúc kết', 'Debrief'),
-  next: O('Tiếp', 'Next'), start: O('Vào việc', 'Get to work'), skip: O('Bỏ qua chuyện', 'Skip story'),
+  next: O('Tiếp', 'Next'), start: O('Vào việc', 'Get to work'), skip: O('Tới câu đoán', 'Go to the guess'),
   you: O('Bạn', 'You'), linh: O('Linh', 'Linh'), hr: O('Người phỏng vấn', 'Interviewer'),
   mission: O('Nhiệm vụ', 'Mission'),
   askMore: O('Linh hỏi thêm', 'Linh has a question'),
@@ -151,54 +160,27 @@ function restoreRuns() {
   try {
     const saved = JSON.parse(localStorage.getItem(RUNS_KEY) || '{}');
     QM.order.forEach((id) => { const r = saved && saved[id]; if (r && typeof r === 'object' && PHASES.includes(r.phase)) QM.runs[id] = r; });
+    QM.caseOrder.forEach((id) => { const r = saved && saved[id]; if (r && typeof r === 'object') QM.runs[id] = r; });
   } catch { /* damaged or unavailable: start from the story */ }
 }
 
 /* One line that always answers "where am I in the story, and what am I doing". */
 function contextOf(ep, phase, goals) {
-  const i = QM.order.indexOf(ep.id), prev = QM.eps[QM.order[i - 1]], next = QM.eps[QM.order[i + 1]];
+  const prev = S.last && S.last !== ep.id ? QM.eps[S.last] : null;
   if (phase === 'intro') return [UI.before, prev ? prev.debrief.thanks : O('Linh mở một quán nước nhỏ gần trường. Bạn là bạn học ICT mà Linh nhờ mỗi khi quán gặp chuyện.', 'Linh is opening a small drink shop near campus. You are the ICT friend Linh calls when something breaks.')];
   if (phase === 'play') {
     const open = (goals || []).find((g) => !g.ok);
     return [UI.now, open ? open.label : goals && goals.length ? O('Xong nhiệm vụ. Bấm nút bên dưới lời thoại để đi tiếp.', 'Mission complete. Use the button under the dialogue to go on.') : ep.title];
   }
   if (phase === 'choice') return [UI.decide, O('Chọn một cách. Bạn thấy ngay chuyện gì xảy ra, và hậu quả đi theo quán sang tập sau.', 'Pick an answer. You see what happens at once, and the shop carries it into the next episode.')];
-  return [UI.after, next ? O(`Tiếp theo: **${next.title.vi}**.`, `Next: **${next.title.en}**.`) : O('Hết các tập chơi được. Bản đồ môn cho thấy câu chuyện còn đi đâu.', 'That was the last playable episode. The subject map shows where the story goes next.')];
+  if (!S.done[ep.id]) return [UI.after, O('Ghép đúng ba khái niệm thì tập này mới tính là xong.', 'Match the three ideas to finish the episode.')];
+  return [UI.after, O('Đã ghi vào sổ quán. Quay về sơ đồ quán để chọn việc tiếp theo.', 'Written into the shop ledger. Go back to the shop map to pick the next job.')];
 }
 
 /* The world picture (it changes as the story moves on) and the episode shell. */
 
-function person(x, y, tone, delay = 0, scale = 1) {
-  return `<g transform="translate(${x} ${y}) scale(${scale})"><g class="bob" style="animation-delay:${delay}s"><circle cx="0" cy="-34" r="10" fill="#F1C7A1"/><path d="M-11-35c0-9 6-13 11-13s11 4 11 13c-5-5-16-5-22 0Z" fill="#2B1D18"/><path d="M-13 0c0-16 5-23 13-23s13 7 13 23Z" class="${tone}"/></g></g>`;
-}
-
-/* o: {tidy, queue, baristas, banner, money, sign} */
-function scene(o = {}) {
-  if (o.office) return officeScene(o);
-  const q = o.queue || 0;
-  let s = '<svg class="scene" viewBox="0 0 640 360" role="img" aria-label="' + esc(T(O('Quán Mây', 'Cloud Café'))) + '">';
-  s += '<rect width="640" height="360" class="sc-sky"/><rect y="300" width="640" height="60" class="sc-ground"/>';
-  s += '<g class="sc-cloud drift"><ellipse cx="80" cy="52" rx="34" ry="16"/><ellipse cx="104" cy="42" rx="24" ry="18"/></g><g class="sc-cloud drift slow"><ellipse cx="566" cy="38" rx="30" ry="13"/><ellipse cx="548" cy="30" rx="18" ry="14"/></g>';
-  s += '<rect x="150" y="70" width="360" height="232" rx="10" class="sc-wall"/>';
-  s += '<rect x="196" y="38" width="268" height="54" rx="14" class="sc-sign"/><text x="330" y="74" text-anchor="middle" class="sc-signt">QUÁN MÂY</text>';
-  s += '<rect x="176" y="150" width="212" height="110" rx="8" class="sc-window"/>';
-  const b = o.baristas || 1;
-  for (let i = 0; i < b; i++) s += person(b === 1 ? 282 : 240 + i * 84, 242, 'sc-apron', i * 0.4, 1.35);
-  s += '<rect x="168" y="238" width="228" height="16" rx="5" class="sc-counter"/><rect x="196" y="218" width="24" height="20" rx="4" class="sc-counter"/><rect x="350" y="214" width="20" height="24" rx="4" class="sc-counter"/>';
-  for (let i = 0; i < 9; i++) s += `<path d="M${160 + i * 38} 116h38v22a19 15 0 0 1-38 0Z" class="${i % 2 ? 'sc-aw2' : 'sc-aw1'}"/>`;
-  s += '<rect x="420" y="166" width="64" height="136" rx="8" class="sc-door"/><circle cx="472" cy="238" r="4" class="sc-sign"/>';
-  if (o.tidy) {
-    [556, 604].forEach((x, i) => { s += `<g><path d="M${x} 300v-30" class="sc-leg"/><ellipse cx="${x}" cy="268" rx="22" ry="7" class="sc-table"/><path d="M${x - 24} 300v-16h10M${x + 24} 300v-16h-10" class="sc-leg"/></g>`; if (i === 0) s += `<circle cx="${x}" cy="258" r="6" class="sc-cup"/>`; });
-    s += '<g><path d="M118 300h26l-4-24h-18Z" class="sc-counter"/><path d="M131 276c-16-4-18-22-14-28 12 2 16 14 14 28ZM131 276c14-6 20-20 17-28-12 2-19 14-17 28Z" class="sc-leaf"/></g>';
-  } else {
-    s += '<g class="sc-boxes"><rect x="532" y="262" width="52" height="38" rx="4"/><rect x="590" y="272" width="36" height="28" rx="4" transform="rotate(8 608 286)"/><rect x="546" y="232" width="34" height="30" rx="4" transform="rotate(-9 563 247)"/><rect x="96" y="274" width="44" height="26" rx="4"/></g>';
-  }
-  for (let i = 0; i < Math.min(q, 6); i++) s += person(146 - i * 25, 318 + (i % 2) * 10, i % 2 ? 'sc-c2' : 'sc-c1', i * 0.23);
-  if (q >= 4) s += '<g class="pulse"><circle cx="60" cy="242" r="17" class="sc-alert"/><text x="60" y="249" text-anchor="middle" class="sc-alertt">!</text></g>';
-  if (o.money) s += '<g class="pulse"><rect x="232" y="266" width="100" height="40" rx="8" class="sc-alert"/><text x="282" y="292" text-anchor="middle" class="sc-alertt">−120k</text></g>';
-  if (o.banner) s += '<g class="swing"><rect x="526" y="120" width="84" height="62" rx="8" class="sc-aw1"/><text x="568" y="160" text-anchor="middle" class="sc-alertt">−20%</text></g><path d="M510 100h60v20" class="sc-leg"/>';
-  return s + sceneExtras(o) + '</svg>';
-}
+/* o: {tidy, queue, baristas, banner, money, phone, wifi, badge, shield, night, office, offer}; drawn in iso.js */
+function scene(o = {}) { return window.QuanMayIso.shop(o, T(o.office ? O('Phòng phỏng vấn', 'Interview room') : O('Quán Mây', 'Cloud Café'))); }
 
 /* ---------- episode shell ---------- */
 const PHASES = ['intro', 'play', 'choice', 'debrief'];
@@ -266,13 +248,15 @@ function renderEpisode(ep) {
 
 function playIntro(ep, ui) {
   ui.stage.innerHTML = `<div class="scene-wrap">${scene(ep.scene())}</div>`;
+  const last = ep.intro.length;
   const show = () => {
-    const b = ep.intro[ui.run.beat], last = ui.run.beat >= ep.intro.length - 1;
+    if (ui.run.beat >= last) { QM.world.predict(ep, ui); return; }
+    const b = ep.intro[ui.run.beat];
     ui.say(b.who, b.text, b.mood);
-    ui.ctl.replaceChildren(h('div', { class: 'beatdots', 'aria-hidden': 'true' }, ep.intro.map((_, i) => h('i', { class: i <= ui.run.beat ? 'on' : '' }))));
+    ui.ctl.replaceChildren(h('div', { class: 'beatdots', 'aria-hidden': 'true' }, [...ep.intro, null].map((_, i) => h('i', { class: i <= ui.run.beat ? 'on' : '' }))));
     ui.actions(
-      btn((last ? T(UI.start) : T(UI.next)) + ' →', () => { if (last) ui.go('play'); else { ui.run.beat++; show(); } }, 'primary'),
-      last ? null : btn(T(UI.skip), () => ui.go('play'), 'ghost'));
+      btn(T(UI.next) + ' →', () => { ui.run.beat++; show(); }, 'primary'),
+      ui.run.beat < last - 1 ? btn(T(UI.skip), () => { ui.run.beat = last; show(); }, 'ghost') : null);
   };
   show();
 }
@@ -281,19 +265,27 @@ function playChoice(ep, ui) {
   const c = ep.choice(ui);
   ui.say('linh', c.q, 'think');
   const list = h('div', { class: 'options' });
-  c.options.forEach((o, i) => {
-    const b = h('button', { type: 'button', class: 'option', 'aria-pressed': 'false' },
-      h('span', { class: 'letter', 'aria-hidden': 'true' }, 'ABC'[i]),
+  /* shuffled once per visit, so neither the place nor the length of an answer tells which is right */
+  const order = QM.world.order(ui.run, 'choiceOrder', c.options.length);
+  order.forEach((index, n) => {
+    const o = c.options[index];
+    const b = h('button', { type: 'button', class: 'option', 'aria-pressed': 'false', 'data-i': String(index) },
+      h('span', { class: 'letter', 'aria-hidden': 'true' }, 'ABC'[n]),
       h('span', {}, o.label ? h('span', { html: rich(T(o.label)) }) : null, o.code ? h('code', { class: 'block' }, o.code) : null));
     b.addEventListener('click', () => {
-      [...list.children].forEach((x) => { x.classList.remove('good', 'bad', 'meh'); x.setAttribute('aria-pressed', 'false'); });
+      [...list.children].forEach((x) => { x.classList.remove('good', 'bad', 'meh'); x.setAttribute('aria-pressed', 'false'); x.disabled = true; });
+      b.disabled = false;
       b.setAttribute('aria-pressed', 'true');
       const good = o.good !== false;
       b.classList.add(o.tone || (good ? 'good' : 'bad'));
       o.run();
       ui.say(o.who || 'linh', o.reply, o.mood || (good ? 'happy' : 'worry'));
-      if (good) { S.fx[ep.id] = o.fx || {}; S.done[ep.id] = true; save(); updateHud(true); ui.actions(btn(T(UI.wrap) + ' →', () => ui.go('debrief'), 'primary')); }
-      else ui.actions(btn(T(UI.retry), () => { b.classList.remove('bad'); b.setAttribute('aria-pressed', 'false'); c.reset(); ui.say('linh', c.q, 'think'); ui.actions(); }, 'ghost'));
+      if (o.flag) S.flags[o.flag] = true;
+      /* a wrong or risky call costs the shop, and the cost stays even after trying again */
+      if (!good || o.tone === 'bad') QM.world.slip(ep.id);
+      const again = btn(T(UI.retry), () => { b.classList.remove('good', 'bad', 'meh'); b.setAttribute('aria-pressed', 'false'); [...list.children].forEach((x) => { x.disabled = false; }); c.reset(); ui.say('linh', c.q, 'think'); ui.actions(); }, 'ghost');
+      if (good) { S.fx[ep.id] = o.fx || {}; save(); updateHud(true); ui.actions(btn(T(UI.wrap) + ' →', () => ui.go('debrief'), 'primary'), o.tone ? again : null); }
+      else { save(); updateHud(true); ui.actions(again); }
     });
     list.append(b);
   });
@@ -302,8 +294,9 @@ function playChoice(ep, ui) {
 }
 
 function playDebrief(ep, ui) {
+  /* reading the answer is not enough: the episode ends when the ideas are matched back */
+  if (!S.done[ep.id]) { QM.world.recall(ep, ui, () => { S.done[ep.id] = true; S.last = ep.id; QM.world.rate(ep.id, ui.run); save(); renderChrome(ep.id); playDebrief(ep, ui); }); return; }
   const d = ep.debrief, fx = S.fx[ep.id];
-  const idx = QM.order.indexOf(ep.id), nextId = QM.order[idx + 1];
   const delta = [];
   if (fx) {
     if (fx.guests) delta.push([T(UI.guests), (fx.guests > 0 ? '+' : '−') + Math.abs(fx.guests), fx.guests > 0]);
@@ -313,16 +306,20 @@ function playDebrief(ep, ui) {
   const card = h('div', { class: 'debrief' },
     h('span', { class: 'eyebrow' }, T(O('Bạn vừa dùng', 'What you just used'))),
     h('h2', {}, T(d.term)),
+    QM.world.verdict(ep, ui.run),
     h('ul', {}, d.points.map((p, i) => enter(h('li', { html: rich(T(p)) }), 120 + i * 140))),
     d.code ? h('pre', { class: 'code' }, T(d.code)) : null,
     delta.length ? h('div', { class: 'deltas' }, delta.map((x, i) => enter(h('span', { class: x[2] ? 'up' : 'down' }, h('small', {}, x[0]), h('b', {}, x[1])), 500 + i * 120, 'scale(.7)'))) : null);
   ui.stage.replaceChildren(card);
   ui.say('linh', d.thanks, 'happy');
   ui.ctl.replaceChildren(
+    QM.world.starsEl(ep.id),
     h('div', { class: 'scene-mini', html: scene(ep.after()) }),
     COURSES[ep.subject] ? h('a', { class: 'lesson', href: COURSES[ep.subject][0] }, `${T(UI.lesson)} ${COURSES[ep.subject][1]} →`) : '');
+  const next = QM.world.suggest(ep.id);
   ui.actions(
-    nextId ? btn(T(UI.nextEp) + ' →', () => { QM.runs[nextId] = { phase: 'intro', beat: 0 }; location.hash = nextId; }, 'primary') : btn(T(UI.toMap) + ' →', () => { location.hash = 'map'; }, 'primary'),
+    btn(T(O('Về sơ đồ quán', 'Back to the shop map')) + ' →', () => { location.hash = 'home'; }, 'primary'),
+    next ? btn(next.label, () => { location.hash = next.hash; }, 'ghost') : null,
     btn(T(O('Chơi lại tập này', 'Replay this episode')), () => { delete QM.runs[ep.id]; renderEpisode(ep); }, 'ghost'));
 }
 
@@ -332,30 +329,6 @@ QM.seasons = [
   { title: O('Mùa 2 · Quán lên mạng', 'Season 2 · The shop goes online'), ids: ['ep5', 'ep6', 'ep7', 'ep8', 'ep9'] },
   { title: O('Hồi kết · Đi thực tập', 'Finale · The internship'), ids: ['ep10'] },
 ];
-
-function sceneExtras(o) {
-  let s = '';
-  if (o.night) s += '<rect width="640" height="360" class="sc-night"/><circle cx="570" cy="58" r="20" class="sc-moon"/>';
-  if (o.phone) s += `<g class="swing"><rect x="40" y="96" width="64" height="114" rx="13" class="sc-phone"/><rect x="48" y="110" width="48" height="82" rx="4" class="sc-screen"/><path d="M58 130h28M58 144h20M58 158h28" class="sc-leg"/><circle cx="100" cy="100" r="15" class="sc-alert"/><text x="100" y="107" text-anchor="middle" class="sc-alertt">${o.phone}</text></g>`;
-  if (o.wifi) {
-    s += `<g class="sc-wifi ${o.wifi === 'off' ? 'off' : ''}"><path d="M532 112q30-28 60 0M544 126q18-17 36 0M556 140q6-6 12 0"/></g>`;
-    if (o.wifi === 'off') s += '<g class="pulse"><circle cx="562" cy="170" r="16" class="sc-alert"/><text x="562" y="178" text-anchor="middle" class="sc-alertt">✕</text></g>';
-  }
-  if (o.badge) s += `<g class="pulse"><rect x="22" y="222" width="116" height="40" rx="10" class="sc-alert"/><text x="80" y="249" text-anchor="middle" class="sc-alertt">${o.badge}</text></g>`;
-  if (o.shield) s += '<g><path d="M566 150l34 12v24c0 23-16 35-34 41-18-6-34-18-34-41v-24Z" class="sc-shield"/><path d="M551 186l11 11 20-23" class="sc-check"/></g>';
-  return s;
-}
-
-function officeScene(o) {
-  let s = '<svg class="scene" viewBox="0 0 640 360" role="img" aria-label="' + esc(T(O('Phòng phỏng vấn', 'Interview room'))) + '">';
-  s += '<rect width="640" height="360" class="sc-office"/><rect y="268" width="640" height="92" class="sc-floor"/>';
-  s += '<rect x="226" y="44" width="188" height="118" rx="10" class="sc-sky"/><path d="M240 162v-52h34v52M286 162v-80h42v80M340 162v-38h30v38M378 162v-66h24v66" class="sc-city"/><path d="M320 44v118M226 103h188" class="sc-frame"/>';
-  s += person(212, 262, 'sc-hr', 0, 2) + person(432, 262, 'sc-apron', 0.6, 1.9);
-  s += '<rect x="150" y="236" width="340" height="22" rx="8" class="sc-counter"/><path d="M176 258v58M464 258v58" class="sc-leg"/><rect x="282" y="214" width="54" height="22" rx="3" class="sc-phone"/><circle cx="376" cy="226" r="10" class="sc-cup"/>';
-  s += '<path d="M76 268h40l-6-34H82Z" class="sc-counter"/><path d="M96 234c-26-6-30-34-22-44 20 4 26 24 22 44ZM96 234c22-9 32-32 26-45-19 4-30 24-26 45Z" class="sc-leaf"/>';
-  if (o.offer) s += '<g class="swing"><rect x="470" y="60" width="140" height="62" rx="12" class="sc-shield"/><text x="540" y="100" text-anchor="middle" class="sc-alertt">OFFER ✓</text></g>';
-  return s + '</svg>';
-}
 
 /* Episode 1 · Web: furnish the shop with real CSS flexbox until it matches the sketch. */
 (function () {
@@ -503,7 +476,7 @@ function officeScene(o) {
         options: [
           { code: 'justify-content: space-between;', good: false, run: set({ 'justify-content': 'space-between' }), reply: O('Vẫn tràn. Chia khoảng trống không giúp được khi chẳng còn khoảng trống nào.', 'Still overflowing. Sharing out free space does nothing when there is none.') },
           { code: 'flex-direction: column;', good: true, fx: { guests: 40, rating: 0.2 }, run: set({ 'flex-direction': 'column' }), reply: O('Ba bàn xếp dọc, vừa khít! Khai trương thôi.', 'The tables stack and fit. Open the doors!'), mood: 'wow' },
-          { code: 'gap: 48px;', good: false, run: set({ gap: '48px' }), reply: O('Tệ hơn rồi, thêm khoảng cách là đẩy bàn ra xa hơn.', 'Worse. A bigger gap pushes the tables even further out.') },
+          { code: 'flex-wrap: nowrap;\ngap: 48px;', good: false, run: set({ 'flex-wrap': 'nowrap', gap: '48px' }), reply: O('Tệ hơn rồi, thêm khoảng cách là đẩy bàn ra xa hơn.', 'Worse. A bigger gap pushes the tables even further out.') },
         ],
       };
     },
@@ -760,9 +733,9 @@ function officeScene(o) {
         q: O('Chiều nay văn phòng bên cạnh đặt 20 ly, pha mất 25 phút, khách lẻ vẫn ghé đều. Mình pha kiểu gì?', 'The office next door ordered 20 cups (25 minutes of work) and walk-ins keep coming. How should I brew?'),
         reset: () => {},
         options: [
-          { label: O('Làm một mạch cho xong đơn 20 ly', 'Finish the 20-cup order in one go'), good: false, run: () => draw('A', 'A', A), reply: O(`Khách lẻ đợi trung bình **${min(A.avg)}** cho một ly 2 phút. Họ bỏ đi mất.`, `Walk-ins wait **${min(A.avg)}** on average for a 2-minute drink. They leave.`) },
-          { label: O('Chia lượt: 3 phút cho đơn lớn rồi quay sang khách lẻ', 'Take turns: 3 minutes on the big one, then a walk-in'), good: true, fx: { rating: 0.3, guests: 15, money: 600000 }, run: () => draw('B', 'B', B), reply: O(`Khách lẻ chỉ đợi **${min(B.avg)}**, đơn lớn xong phút **${num(B.big)}**. Cả hai đều chịu được.`, `Walk-ins wait **${min(B.avg)}**, the big order is done at minute **${num(B.big)}**. Both can live with that.`), mood: 'wow' },
-          { label: O('Chia thật nhỏ, 30 giây đổi một lần cho công bằng', 'Switch every 30 seconds to be extra fair'), good: false, run: () => draw('C', 'C', C), reply: O(`Đổi ly ngốn **${lost}%** thời gian. Đơn lớn tới phút **${num(C.big)}** mới xong.`, `Switching eats **${lost}%** of the shift. The big order is only done at minute **${num(C.big)}**.`) },
+          { label: O('Làm một mạch cho xong đơn 20 ly rồi mới tới khách khác', 'Finish the 20-cup order in one go before anyone else is served'), good: false, run: () => draw('A', 'A', A), reply: O(`Khách lẻ đợi trung bình **${min(A.avg)}** cho một ly 2 phút. Họ bỏ đi mất.`, `Walk-ins wait **${min(A.avg)}** on average for a 2-minute drink. They leave.`) },
+          { label: O('Chia lượt: 3 phút đơn lớn, rồi một khách lẻ', 'Take turns: 3 minutes big, then a walk-in'), good: true, fx: { rating: 0.3, guests: 15, money: 600000 }, run: () => draw('B', 'B', B), reply: O(`Khách lẻ chỉ đợi **${min(B.avg)}**, đơn lớn xong phút **${num(B.big)}**. Cả hai đều chịu được.`, `Walk-ins wait **${min(B.avg)}**, the big order is done at minute **${num(B.big)}**. Both can live with that.`), mood: 'wow' },
+          { label: O('Chia thật nhỏ, cứ 30 giây đổi đơn một lần cho thật công bằng', 'Switch orders every 30 seconds so that it is as fair as can be'), good: false, run: () => draw('C', 'C', C), reply: O(`Đổi ly ngốn **${lost}%** thời gian. Đơn lớn tới phút **${num(C.big)}** mới xong.`, `Switching eats **${lost}%** of the shift. The big order is only done at minute **${num(C.big)}**.`) },
         ],
       };
     },
@@ -916,9 +889,9 @@ function officeScene(o) {
         q: O('Bắt được rồi! Giờ chặn nó bằng lệnh nào? Cẩn thận, chạy là đổi dữ liệu thật.', 'Caught it! Which statement stops it? Careful, this changes real data.'),
         reset: () => draw([], false),
         options: [
-          { code: 'UPDATE khuyen_mai\nSET dang_bat = 0;', good: false, run: () => draw(CODES, false), reply: O('Tắt **mọi** mã! Sinh viên mất ưu đãi, quán bị réo tên. Thiếu `WHERE` là sửa cả bảng.', 'That switched off **every** code! Students lose their discount. Without `WHERE` the whole table changes.') },
+          { code: "UPDATE khuyen_mai\nSET dang_bat = 0\nWHERE phan_tram > 0 OR ma <> '';", good: false, flag: 'studentsUpset', run: () => draw(CODES, false), reply: O('Điều kiện này **khớp mọi mã**: sinh viên mất ưu đãi, quán bị réo tên. Có `WHERE` chưa chắc đã lọc.', 'That condition **matches every code**: students lose their discount. Having a `WHERE` does not mean it filters.') },
           { code: "UPDATE khuyen_mai\nSET dang_bat = 0\nWHERE ma = 'TEST100';", good: true, fx: { money: 840000, rating: 0.1 }, run: () => draw(['TEST100'], false), reply: O('Chỉ đúng **TEST100** bị tắt, mã sinh viên vẫn chạy, bằng chứng còn nguyên.', 'Only **TEST100** goes off, the student code still works and the evidence is intact.'), mood: 'wow' },
-          { code: 'DELETE FROM don_hang\nWHERE da_tra = 0;', good: false, run: () => draw([], true), reply: O('Mất sạch bằng chứng (cả đơn sinh nhật hợp lệ), mà mã **vẫn đang bật**.', 'The evidence is gone (including the real birthday order), and the code is **still on**.') },
+          { code: "DELETE FROM don_hang\nWHERE da_tra = 0\n  AND ma_giam = 'TEST100';", good: false, flag: 'evidenceLost', run: () => draw([], true), reply: O('Mất bằng chứng của cả năm đơn gian, mà mã **vẫn đang bật**. Sổ quán sẽ nhớ chuyện này.', 'The evidence for all five bad orders is gone, and the code is **still on**. The ledger will remember this.') },
         ],
       };
     },
@@ -1094,9 +1067,9 @@ function officeScene(o) {
         q: O('Tối nay dự kiến 11 khách mỗi giờ, trong 5 tiếng. Bạn khuyên mình thế nào?', 'We expect 11 guests an hour for 5 hours tonight. What is your advice?'),
         reset: () => { box.innerHTML = scene({ tidy: true, banner: true, queue: 1 }); sim.set(11, 1); },
         options: [
-          { label: O('Thuê thêm một bạn pha chế tối nay (150.000₫)', 'Hire a second barista tonight (150,000₫)'), good: true, who: 'linh', mood: 'wow', fx: { money: 750000, rating: 0.3, guests: 50, two: true }, run: show(2, 2, 11), reply: O(`Chờ khoảng **${min(wait2(11))}**. Tốn 150.000₫ mà giữ được khách, quá đáng!`, `About **${min(wait2(11))}** of waiting. 150,000₫ to keep everyone happy is a bargain!`) },
-          { label: O('Một người vẫn đủ vì 11 nhỏ hơn 12', 'One is enough because 11 is less than 12'), good: true, tone: 'bad', mood: 'worry', fx: { money: 150000, rating: -0.7, guests: -15 }, run: show(1, 6, 11), reply: O(`Về lâu dài chờ trung bình **${min(wait1(11))}**. Khách bỏ về, đánh giá tụt. Bạn có thể chọn lại để so.`, `In the long run the average wait is **${min(wait1(11))}**. People leave and the rating drops. Pick again to compare.`) },
-          { label: O('Huỷ khuyến mãi cho chắc ăn', 'Cancel the promotion to be safe'), good: true, tone: 'meh', mood: 'think', fx: {}, run: show(1, 1, 6), reply: O('Quán vẫn êm, chờ 5 phút, nhưng cũng chẳng lớn thêm.', 'Calm shop, 5 minutes of waiting, and no growth either.') },
+          { label: O('Thuê thêm người pha tối nay (150.000₫)', 'Hire a second barista (150,000₫)'), good: true, flag: 'twoBaristas', who: 'linh', mood: 'wow', fx: { money: 750000, rating: 0.3, guests: 50, two: true }, run: show(2, 2, 11), reply: O(`Chờ khoảng **${min(wait2(11))}**. Tốn 150.000₫ mà giữ được khách, quá đáng!`, `About **${min(wait2(11))}** of waiting. 150,000₫ to keep everyone happy is a bargain!`) },
+          { label: O('Một người vẫn đủ, vì 11 khách mỗi giờ còn ít hơn 12 ly', 'One is enough, since 11 guests an hour is still under 12 cups'), good: true, flag: 'overloaded', tone: 'bad', mood: 'worry', fx: { money: 150000, rating: -0.7, guests: -15 }, run: show(1, 6, 11), reply: O(`Về lâu dài chờ trung bình **${min(wait1(11))}**. Khách bỏ về, đánh giá tụt. Bạn có thể chọn lại để so.`, `In the long run the average wait is **${min(wait1(11))}**. People leave and the rating drops. Pick again to compare.`) },
+          { label: O('Huỷ khuyến mãi tối nay để khỏi lo khách phải đứng đợi', 'Cancel tonight’s promotion so that nobody ever has to wait'), good: true, tone: 'meh', mood: 'think', fx: {}, run: show(1, 1, 6), reply: O('Quán vẫn êm, chờ 5 phút, nhưng cũng chẳng lớn thêm.', 'Calm shop, 5 minutes of waiting, and no growth either.') },
         ],
       };
     },
@@ -1242,9 +1215,9 @@ function officeScene(o) {
         q: O('Giữa đợt mình nghĩ ra: **thêm tích điểm** trước thứ Hai được không?', 'Mid-sprint idea: can we **add loyalty points** before Monday?'),
         reset: () => draw(base, O('kế hoạch đã chốt', 'the agreed plan'), false),
         options: [
-          { label: O('“Ừ, mình thức đêm làm thêm cho kịp”', '“Sure, I will work nights to fit it in”'), good: false, run: () => draw([...base, 'points'], O('vượt sức: làm vội, dễ sinh lỗi', 'over capacity: rushed work breeds bugs'), true), reply: O('Tới thứ Hai app lỗi tùm lum vì làm vội. Sức chứa không tự to ra được.', 'On Monday the app is full of bugs from rushing. Capacity does not stretch.') },
-          { label: O('“Được, nếu đổi ra việc cùng cỡ. Bạn chọn bỏ gì?”', '“Yes, if something the same size comes out. What goes?”'), good: true, fx: { guests: 30, money: 900000 }, run: () => draw(base, O('Linh cân lại: tích điểm để đợt sau', 'Linh weighs it: points move to the next sprint'), false), reply: O('Đổi thì phải bỏ QR với chặn đơn ảo… Thôi, **tích điểm để đợt sau** nhé.', 'That would cost QR pay and the fake-order check… Fine, **points go in the next sprint**.'), mood: 'happy' },
-          { label: O('“Không. Chốt rồi thì miễn đổi”', '“No. The plan is frozen, full stop”'), good: false, run: () => draw(base, O('giữ nguyên, Linh mất hứng góp ý', 'unchanged, and Linh stops sharing ideas'), false), reply: O('Ừ thì giữ… nhưng lần sau mình chẳng buồn nói nữa. Kế hoạch vẫn nên **đổi được**, có đánh đổi rõ ràng.', 'Fine… but next time I will not bother telling you. A plan should still **be able to change**, with a clear trade.') },
+          { label: O('“Ừ, mình thức thêm mấy đêm là kịp, cứ thêm vào đi”', '“Sure, a few late nights will do it, go ahead and add it”'), good: false, flag: 'rushedApp', run: () => draw([...base, 'points'], O('vượt sức: làm vội, dễ sinh lỗi', 'over capacity: rushed work breeds bugs'), true), reply: O('Tới thứ Hai app lỗi tùm lum vì làm vội. Sức chứa không tự to ra được.', 'On Monday the app is full of bugs from rushing. Capacity does not stretch.') },
+          { label: O('“Được, nếu đổi ra việc cùng cỡ. Bỏ gì?”', '“Yes, if one that size goes. Which?”'), good: true, fx: { guests: 30, money: 900000 }, run: () => draw(base, O('Linh cân lại: tích điểm để đợt sau', 'Linh weighs it: points move to the next sprint'), false), reply: O('Đổi thì phải bỏ QR với chặn đơn ảo… Thôi, **tích điểm để đợt sau** nhé.', 'That would cost QR pay and the fake-order check… Fine, **points go in the next sprint**.'), mood: 'happy' },
+          { label: O('“Không được, kế hoạch chốt rồi thì miễn đổi nữa”', '“No, once a plan is agreed nothing in it ever changes”'), good: false, run: () => draw(base, O('giữ nguyên, Linh mất hứng góp ý', 'unchanged, and Linh stops sharing ideas'), false), reply: O('Ừ thì giữ… nhưng lần sau mình chẳng buồn nói nữa. Kế hoạch vẫn nên **đổi được**, có đánh đổi rõ ràng.', 'Fine… but next time I will not bother telling you. A plan should still **be able to change**, with a clear trade.') },
         ],
       };
     },
@@ -1460,7 +1433,7 @@ function officeScene(o) {
         q: O('Khách xin **mật khẩu wifi** hoài. Mình cho kiểu nào?', 'Guests keep asking for the **wifi password**. What do we give them?'),
         reset: () => draw(''),
         options: [
-          { label: O('Đưa luôn mật khẩu wifi của quầy', 'Share the counter’s own wifi password'), good: false, run: () => draw('same'), reply: O('Người lạ chung mạng với máy tính tiền, nguy quá.', 'Strangers on the same network as the till. Far too risky.') },
+          { label: O('Đưa luôn mật khẩu wifi của quầy', 'Share the counter’s own wifi password'), good: false, flag: 'sharedWifi', run: () => draw('same'), reply: O('Người lạ chung mạng với máy tính tiền, nguy quá.', 'Strangers on the same network as the till. Far too risky.') },
           { label: O('Mở một mạng khách tách riêng', 'Open a separate guest network'), good: true, fx: { rating: 0.2, guests: 10 }, run: () => draw('guest'), reply: O('Khách vui, máy quầy vẫn kín. Chuẩn!', 'Happy guests, protected till. Perfect!'), mood: 'wow' },
           { label: O('Không cho khách dùng wifi', 'No wifi for guests'), good: false, run: () => draw('none'), reply: O('An toàn thật, mà khách ngồi lướt web ở quán bên cạnh mất.', 'Safe indeed, and guests move to the café next door.') },
         ],
@@ -1611,9 +1584,9 @@ function officeScene(o) {
         q: O('Đơn mới vào liên tục, **không theo thứ tự mã**. Giữ cho việc tìm vẫn nhanh bằng cách nào?', 'New orders keep arriving **out of code order**. How do we keep searching fast?'),
         reset: () => { show(MIX); say('', ''); },
         options: [
-          { label: O('Cứ chia đôi trên danh sách lộn xộn', 'Binary-search the jumbled list anyway'), good: false, run: () => { show(MIX); [50, 23, 7, 41].forEach((v, i) => later(500 + i * 520, () => cell(v).classList.add('probe'))); later(2700, () => { cell(12).classList.add('lost'); say('bad', O('Tìm 12: máy báo không có, dù nó nằm ngay đó', 'Searching 12: “not found”, yet there it is')); }); say('bad', O('Đang tìm đơn 12…', 'Searching for order 12…')); }, reply: O('Chia đôi chỉ đúng khi danh sách **đã sắp xếp**.', 'Halving only works when the list is **sorted**.') },
-          { label: O('Giữ danh sách luôn sắp xếp: đơn mới chèn đúng chỗ', 'Keep it sorted: slot each new order into place'), good: true, fx: { rating: 0.2, money: 300000 }, run: () => { const base = [...MIX].sort((a, b) => a - b); show([...base, 44]); later(700, () => { show([...base, 44].sort((a, b) => a - b)); cell(44).classList.add('probe'); }); say('good', O('Đơn 44 trượt vào đúng chỗ, tìm vẫn chỉ vài bước', 'Order 44 slides into place and search stays quick')); }, reply: O('Đúng rồi. **Chỉ mục** trong cơ sở dữ liệu làm hộ việc này.', 'Yes. A database **index** does exactly this for us.'), mood: 'wow' },
-          { label: O('Mỗi lần tìm thì sắp lại toàn bộ', 'Re-sort everything before every search'), good: false, run: () => { show(MIX); later(500, () => show([...MIX].sort((a, b) => a - b))); say('bad', O('100.000 đơn: khoảng 1,7 triệu phép so sánh cho mỗi lần tìm', '100,000 orders: about 1.7 million comparisons per search')); }, reply: O('Sắp lại tốn gấp trăm nghìn lần chính việc tìm.', 'Re-sorting costs about a hundred thousand times the search itself.') },
+          { label: O('Cứ chia đôi như cũ, kể cả khi danh sách đang lộn xộn', 'Keep halving as before, even though the list is jumbled'), good: false, run: () => { show(MIX); [50, 23, 7, 41].forEach((v, i) => later(500 + i * 520, () => cell(v).classList.add('probe'))); later(2700, () => { cell(12).classList.add('lost'); say('bad', O('Tìm 12: máy báo không có, dù nó nằm ngay đó', 'Searching 12: “not found”, yet there it is')); }); say('bad', O('Đang tìm đơn 12…', 'Searching for order 12…')); }, reply: O('Chia đôi chỉ đúng khi danh sách **đã sắp xếp**.', 'Halving only works when the list is **sorted**.') },
+          { label: O('Giữ danh sách có thứ tự, chèn đúng chỗ', 'Keep it sorted, insert in place'), good: true, fx: { rating: 0.2, money: 300000 }, run: () => { const base = [...MIX].sort((a, b) => a - b); show([...base, 44]); later(700, () => { show([...base, 44].sort((a, b) => a - b)); cell(44).classList.add('probe'); }); say('good', O('Đơn 44 trượt vào đúng chỗ, tìm vẫn chỉ vài bước', 'Order 44 slides into place and search stays quick')); }, reply: O('Đúng rồi. **Chỉ mục** trong cơ sở dữ liệu làm hộ việc này.', 'Yes. A database **index** does exactly this for us.'), mood: 'wow' },
+          { label: O('Mỗi lần tìm thì sắp xếp lại toàn bộ danh sách trước đã', 'Re-sort the whole list from scratch before every search'), good: false, run: () => { show(MIX); later(500, () => show([...MIX].sort((a, b) => a - b))); say('bad', O('100.000 đơn: khoảng 1,7 triệu phép so sánh cho mỗi lần tìm', '100,000 orders: about 1.7 million comparisons per search')); }, reply: O('Sắp lại tốn gấp trăm nghìn lần chính việc tìm.', 'Re-sorting costs about a hundred thousand times the search itself.') },
         ],
       };
     },
@@ -1641,10 +1614,10 @@ function officeScene(o) {
     return m ? { ok: true, note: m[1], price: Number(m[2]) } : { ok: false, error: true };
   }
   const FIXES = [
-    { id: 'block', why: O('Chặn nhầm **khách thật**: người có dấu nháy trong tên không đặt được. Cấm ký tự không phải lời giải.', 'A **real guest** is blocked: anyone with a quote in their name cannot order. Banning characters is not the answer.'), name: O('Từ chối ghi chú có dấu nháy `\'`', 'Reject notes containing a quote `\'`'), run: (n) => (n.includes("'") ? { ok: false, rejected: true } : pasted(n)) },
-    { id: 'hide', why: O('Giấu lỗi chỉ làm đơn **mất không dấu vết**, còn kẻ gian **vẫn đổi được giá**.', 'Hiding errors only makes orders **vanish silently**, and the cheater **still changes the price**.'), name: O('Ẩn thông báo lỗi của máy chủ', 'Hide the server’s error messages'), run: (n) => pasted(n) },
-    { id: 'strip', why: O('Xoá `--` vẫn **sót mẹo** `/*`, mà khách có dấu nháy vẫn gặp lỗi. Lọc từng mẹo thì luôn còn mẹo khác.', 'Stripping `--` **misses the** `/*` **trick**, and guests with quotes still hit errors. Filtering one trick leaves the next.'), name: O('Xoá hai dấu gạch `--` trước khi ghép', 'Strip `--` before pasting'), run: (n) => pasted(n.replace(/--/g, '')) },
-    { id: 'param', name: O('Dùng truy vấn tham số: gửi dữ liệu tách khỏi câu lệnh', 'Parameterised query: send data apart from the statement'), run: (n) => ({ ok: true, note: n, price: PRICE }) },
+    { id: 'block', why: O('Chặn nhầm **khách thật**: người có dấu nháy trong tên không đặt được. Cấm ký tự không phải lời giải.', 'A **real guest** is blocked: anyone with a quote in their name cannot order. Banning characters is not the answer.'), name: O('Từ chối ngay mọi ghi chú có chứa dấu nháy đơn `\'`', 'Reject straight away any note that contains a quote `\'`'), run: (n) => (n.includes("'") ? { ok: false, rejected: true } : pasted(n)) },
+    { id: 'hide', why: O('Giấu lỗi chỉ làm đơn **mất không dấu vết**, còn kẻ gian **vẫn đổi được giá**.', 'Hiding errors only makes orders **vanish silently**, and the cheater **still changes the price**.'), name: O('Ẩn hết thông báo lỗi của máy chủ để kẻ gian khó dò', 'Hide every server error message so cheaters learn nothing'), run: (n) => pasted(n) },
+    { id: 'strip', why: O('Xoá `--` vẫn **sót mẹo** `/*`, mà khách có dấu nháy vẫn gặp lỗi. Lọc từng mẹo thì luôn còn mẹo khác.', 'Stripping `--` **misses the** `/*` **trick**, and guests with quotes still hit errors. Filtering one trick leaves the next.'), name: O('Xoá hai dấu gạch `--` khỏi ghi chú trước khi ghép lệnh', 'Strip the two dashes `--` from the note before pasting it'), run: (n) => pasted(n.replace(/--/g, '')) },
+    { id: 'param', name: O('Dùng truy vấn tham số `(?, ?, ?)`', 'Use a parameterised query `(?, ?, ?)`'), run: (n) => ({ ok: true, note: n, price: PRICE }) },
   ];
   const CASES = [
     { input: 'ít đá', legit: true, what: O('đơn bình thường', 'a normal order') },
@@ -1716,7 +1689,7 @@ function officeScene(o) {
     ui.stage.replaceChildren(
       h('div', { class: 'stage-top' }, h('b', {}, T(O('Chọn bản vá rồi chạy lại 4 ca kiểm thử', 'Pick a patch, then rerun the 4 test cases'))), h('span', { class: 'count' }, '2/2')), code,
       h('div', { class: 'table' }, h('table', { class: 'tries2 tests' }, h('thead', {}, h('tr', {}, h('th', {}, T(O('Ghi chú gửi lên', 'Note sent'))), h('th', {}, T(O('Loại', 'Kind'))), h('th', {}, T(O('Kết quả', 'Result'))))), rows)));
-    const seg = h('div', { class: 'seg', role: 'radiogroup', 'aria-label': T(O('Bản vá', 'Patch')) }, FIXES.map((f) => h('button', { type: 'button', role: 'radio', 'data-k': f.id, 'aria-checked': 'false', html: rich(T(f.name)), onclick: () => { run.fix = f.id; sync(); } })));
+    const seg = h('div', { class: 'seg', role: 'radiogroup', 'aria-label': T(O('Bản vá', 'Patch')) }, QM.world.order(run, 'fixOrder', FIXES.length).map((n) => FIXES[n]).map((f) => h('button', { type: 'button', role: 'radio', 'data-k': f.id, 'aria-checked': 'false', html: rich(T(f.name)), onclick: () => { run.fix = f.id; sync(); } })));
     ui.ctl.replaceChildren(seg);
     const go = btn('▶ ' + T(O('Chạy kiểm thử', 'Run the tests')), () => test(), 'primary');
     function draw(results) {
@@ -1776,9 +1749,9 @@ function officeScene(o) {
         q: O('Lỗi đã vá. Còn **12 ly** bị lấy trước đó thì mình làm gì?', 'The flaw is patched. What about the **12 drinks** already taken?'),
         reset: () => log.replaceChildren(),
         options: [
-          { label: O('Soát nhật ký, ghi lại sự cố, báo cho chủ quán', 'Check the logs, write up the incident, tell the owner'), good: true, fx: { money: 360000, rating: 0.2 }, run: show([['good', O('Biết chính xác thiệt hại', 'The damage is known exactly')], ['good', O('Có hồ sơ để xử lý đúng cách', 'There is a record to act on properly')], ['good', O('Cả quán biết để cảnh giác', 'Everyone knows what to watch for')]]), reply: O('Vậy mới rõ ràng. Lần sau gặp là biết làm ngay.', 'That is clear. Next time we will know what to do.'), mood: 'happy' },
-          { label: O('Lặng lẽ sửa xong rồi thôi', 'Fix it quietly and move on'), good: false, run: show([['bad', O('Không ai biết mất bao nhiêu', 'Nobody knows what was lost')], ['bad', O('Lỗi tương tự ở trang khác không được kiểm tra', 'The same flaw elsewhere goes unchecked')]]), reply: O('Giấu đi thì mình không biết còn chỗ nào hở.', 'Hiding it means we never learn what else is open.') },
-          { label: O('Đăng số điện thoại người đó lên mạng', 'Post the person’s phone number online'), good: false, run: show([['bad', O('Công khai dữ liệu cá nhân của khách', 'A guest’s personal data goes public')], ['bad', O('Quán có thể bị xử lý theo pháp luật', 'The shop can get into legal trouble')]]), reply: O('Không được! Dữ liệu cá nhân không phải thứ để bêu riếu.', 'No! Personal data is not something to shame people with.') },
+          { label: O('Soát nhật ký, ghi sự cố, báo chủ quán', 'Check logs, write it up, tell the owner'), good: true, fx: { money: 360000, rating: 0.2 }, run: show([['good', O('Biết chính xác thiệt hại', 'The damage is known exactly')], ['good', O('Có hồ sơ để xử lý đúng cách', 'There is a record to act on properly')], ['good', O('Cả quán biết để cảnh giác', 'Everyone knows what to watch for')]]), reply: O('Vậy mới rõ ràng. Lần sau gặp là biết làm ngay.', 'That is clear. Next time we will know what to do.'), mood: 'happy' },
+          { label: O('Lặng lẽ sửa xong, không kể ai để quán khỏi mang tiếng', 'Fix it quietly and tell no one, so the shop keeps its name'), good: false, flag: 'unreported', run: show([['bad', O('Không ai biết mất bao nhiêu', 'Nobody knows what was lost')], ['bad', O('Lỗi tương tự ở trang khác không được kiểm tra', 'The same flaw elsewhere goes unchecked')]]), reply: O('Giấu đi thì mình không biết còn chỗ nào hở.', 'Hiding it means we never learn what else is open.') },
+          { label: O('Đăng số điện thoại người đó lên mạng cho cả khu biết mặt', 'Post that person’s phone number online so everyone knows them'), good: false, run: show([['bad', O('Công khai dữ liệu cá nhân của khách', 'A guest’s personal data goes public')], ['bad', O('Quán có thể bị xử lý theo pháp luật', 'The shop can get into legal trouble')]]), reply: O('Không được! Dữ liệu cá nhân không phải thứ để bêu riếu.', 'No! Personal data is not something to shame people with.') },
         ],
       };
     },
@@ -1909,9 +1882,9 @@ function officeScene(o) {
         q: O('Chuông vừa reo thật. Bạn muốn hệ thống **tự làm gì** ngay lúc đó?', 'The alarm just rang. What should the system **do on its own**?'),
         reset: () => line.replaceChildren(),
         options: [
-          { label: O('Khoá tạm địa chỉ đó 15 phút và nhắn cho bạn', 'Block that address for 15 minutes and message you'), good: true, fx: { rating: 0.1, money: 200000 }, run: show([['good', O('03:14 địa chỉ bị khoá tạm', '03:14 the address is blocked for a while')], ['good', O('03:15 tin nhắn đến máy bạn', '03:15 a message reaches your phone')], ['good', O('07:00 xem lại, mở khoá nếu là nhầm', '07:00 review, unblock if it was a mistake')]]), reply: O('Vừa đủ mạnh, nhầm thì vẫn gỡ lại được.', 'Strong enough, and reversible if it was wrong.'), mood: 'wow' },
-          { label: O('Tắt luôn trang quản lý tới sáng', 'Switch the admin page off until morning'), good: false, run: show([['bad', O('03:14 trang quản lý ngừng chạy', '03:14 the admin page goes down')], ['bad', O('06:30 ca sáng không mở được két', '06:30 the morning shift cannot open the till')]]), reply: O('Kẻ gian chưa làm gì mà quán đã tự khoá mình.', 'The attacker did nothing yet and we locked ourselves out.') },
-          { label: O('Tự động tấn công ngược lại máy đó', 'Automatically attack that machine back'), good: false, run: show([['bad', O('Địa chỉ đó có thể là máy của người vô can', 'That address may belong to a bystander')], ['bad', O('Tấn công máy người khác là phạm pháp', 'Attacking other people’s machines is illegal')]]), reply: O('Không bao giờ. Mình phòng thủ, không đi đột nhập ai.', 'Never. We defend, we do not break into anyone.') },
+          { label: O('Khoá tạm địa chỉ 15 phút và nhắn bạn', 'Block it for 15 minutes and tell you'), good: true, fx: { rating: 0.1, money: 200000 }, run: show([['good', O('03:14 địa chỉ bị khoá tạm', '03:14 the address is blocked for a while')], ['good', O('03:15 tin nhắn đến máy bạn', '03:15 a message reaches your phone')], ['good', O('07:00 xem lại, mở khoá nếu là nhầm', '07:00 review, unblock if it was a mistake')]]), reply: O('Vừa đủ mạnh, nhầm thì vẫn gỡ lại được.', 'Strong enough, and reversible if it was wrong.'), mood: 'wow' },
+          { label: O('Tắt hẳn trang quản lý của quán cho tới tận sáng ngày mai', 'Switch the whole admin page of the shop off until tomorrow'), good: false, run: show([['bad', O('03:14 trang quản lý ngừng chạy', '03:14 the admin page goes down')], ['bad', O('06:30 ca sáng không mở được két', '06:30 the morning shift cannot open the till')]]), reply: O('Kẻ gian chưa làm gì mà quán đã tự khoá mình.', 'The attacker did nothing yet and we locked ourselves out.') },
+          { label: O('Tự động tấn công ngược lại máy đó để nó phải chịu dừng tay', 'Automatically attack that machine back until it gives up'), good: false, flag: 'attackedBack', run: show([['bad', O('Địa chỉ đó có thể là máy của người vô can', 'That address may belong to a bystander')], ['bad', O('Tấn công máy người khác là phạm pháp', 'Attacking other people’s machines is illegal')]]), reply: O('Không bao giờ. Mình phòng thủ, không đi đột nhập ai.', 'Never. We defend, we do not break into anyone.') },
         ],
       };
     },
@@ -1932,7 +1905,7 @@ function officeScene(o) {
 (function () {
   const METERS = [['clear', O('Rõ ràng', 'Clarity')], ['proof', O('Bằng chứng', 'Evidence')], ['honest', O('Trung thực', 'Honesty')]];
   const STAR = [['S', O('Tình huống', 'Situation')], ['T', O('Việc cần làm', 'Task')], ['A', O('Hành động', 'Action')], ['R', O('Kết quả', 'Result')]];
-  const PASS = 9;
+  const PASS = 11;
   /* the learner's own best waiting time from episode 2, when this visit has one */
   const bestWait = () => { const t = (QM.runs.ep2 && QM.runs.ep2.tries1) || []; const ok = t.map((x) => x.avg).filter((x) => x <= 4.5); return ok.length ? Math.min(...ok) : 4.2; };
   /* each answer: text, meter changes, STAR parts it covers, interviewer reaction, mood */
@@ -1942,24 +1915,24 @@ function officeScene(o) {
     const vi = w.toLocaleString('vi-VN', { maximumFractionDigits: 1 }), en = w.toLocaleString('en-US', { maximumFractionDigits: 1 });
     return [
       { q: O('Kể mình nghe về một việc bạn làm mà bạn tự hào.', 'Tell me about something you built that you are proud of.'), answers: [
-        A('Em làm nhiều thứ lắm: web, mạng, bảo mật, cơ sở dữ liệu ạ.', 'Lots of things: web, networks, security, databases.', [0, 0, 1], '', 'Nghe rộng, nhưng mình chưa hình dung được bạn đã làm gì cụ thể.', 'Broad, but I cannot picture anything you actually did.', 'think'),
-        A(`Quán của bạn em nghẽn giờ trưa. Em cần giảm thời gian chờ, nên đổi thứ tự pha, ly ngắn trước. Chờ trung bình giảm từ 9,8 còn ${vi} phút.`, `A friend’s shop jammed at lunch. I had to cut waiting, so I reordered the queue, short drinks first. Average wait fell from 9.8 to ${en} minutes.`, [1, 1, 1], 'STAR', 'Rõ ràng: chuyện gì, bạn làm gì, kết quả ra sao. Kể tiếp đi.', 'Clear: what happened, what you did, what came out. Go on.', 'wow'),
-        A('Em tự dựng toàn bộ hệ thống một mình, việc gì em cũng làm được ạ.', 'I built the whole system alone. I can do anything.', [0, 0, 0], 'A', 'Việc gì cũng được à? Mình sẽ phải hỏi kỹ đấy.', 'Anything at all? I will have to dig into that.', 'worry'),
+        A('Em làm rất nhiều thứ cho quán bạn em: web, mạng, bảo mật, cơ sở dữ liệu, cả thuật toán, phần nào em cũng đụng tay.', 'I did a great many things for a friend’s shop: web, networks, security, databases and algorithms, I touched every part.', [0, 0, 1], '', 'Nghe rộng, nhưng mình chưa hình dung được bạn đã làm gì cụ thể.', 'Broad, but I cannot picture anything you actually did.', 'think'),
+        A(`Quán bạn em nghẽn giờ trưa. Em đổi thứ tự pha, chờ trung bình từ 9,8 còn ${vi} phút.`, `A friend’s shop jammed at lunch. I reordered the queue: average wait 9.8 to ${en} min.`, [1, 1, 1], 'STAR', 'Rõ ràng: chuyện gì, bạn làm gì, kết quả ra sao. Kể tiếp đi.', 'Clear: what happened, what you did, what came out. Go on.', 'wow'),
+        A('Em tự dựng toàn bộ hệ thống một mình, chạy nhanh gấp mười lần, ai dùng cũng khen, nên em rất tự tin về năng lực.', 'I built the entire system alone, it runs ten times faster and everyone praised it, so I am very sure of my abilities.', [0, 0, 0], 'A', 'Gấp mười lần so với gì, đo thế nào? Mình sẽ phải hỏi kỹ đấy.', 'Ten times faster than what, measured how? I will have to dig into that.', 'worry'),
       ] },
       { q: O('Kể về một lỗi nghiêm trọng bạn từng gặp.', 'Describe a serious bug you ran into.'), answers: [
-        A('Em chưa gặp lỗi nào đáng kể ạ.', 'I have not really had any.', [0, 0, 0], '', 'Làm hệ thống thật thì ai cũng gặp lỗi.', 'Anyone who ships a real system meets bugs.', 'think'),
-        A('Ô ghi chú bị ghép thẳng vào câu SQL nên đặt được ly 0₫. Em chuyển sang truy vấn tham số rồi chạy lại 4 ca kiểm thử.', 'The notes box was pasted into SQL, so a drink could cost 0₫. I switched to a parameterised query and reran 4 test cases.', [1, 1, 1], 'STAR', 'Tốt: có nguyên nhân, cách sửa và cách bạn kiểm chứng.', 'Good: cause, fix and how you verified it.', 'happy'),
-        A('Lỗi đó do người viết trước cẩu thả thôi ạ.', 'That was just the previous developer being careless.', [0, 0, 0], 'S', 'Mình muốn nghe bạn làm gì, hơn là lỗi của ai.', 'I care more about what you did than whose fault it was.', 'worry'),
+        A('Em chưa gặp lỗi nào thật sự đáng kể, vì phần em viết thường chạy ngay từ lần đầu và buổi chạy thử cũng không sao.', 'I have not met a truly serious one, since what I write usually works the first time and the demo went fine as well.', [0, 0, 0], '', 'Làm hệ thống thật thì ai cũng gặp lỗi.', 'Anyone who ships a real system meets bugs.', 'think'),
+        A('Ghi chú ghép thẳng vào SQL, đặt được ly 0₫. Em dùng truy vấn tham số, chạy lại 4 ca.', 'Notes were pasted into SQL: a 0₫ drink. I parameterised it and reran 4 tests.', [1, 1, 1], 'STAR', 'Tốt: có nguyên nhân, cách sửa và cách bạn kiểm chứng.', 'Good: cause, fix and how you verified it.', 'happy'),
+        A('Có lỗi rất nặng ở ô ghi chú, do người viết trước quá cẩu thả, em phải ngồi dọn đống mã của họ suốt cả một đêm liền.', 'There was a terrible bug in the notes box because the previous developer was careless, and I cleaned up their code all night.', [0, 0, 0], 'S', 'Mình muốn nghe bạn làm gì, hơn là lỗi của ai.', 'I care more about what you did than whose fault it was.', 'worry'),
       ] },
       { q: O('Chuông báo động của bạn bắt được mọi cuộc tấn công chứ?', 'So your alarm catches every attack?'), answers: [
-        A('Chắc chắn 100% ạ.', 'Absolutely, 100%.', [0, 0, 0], '', 'Không hệ thống phát hiện nào dám nói vậy.', 'No detection system can promise that.', 'worry'),
-        A('Trên nhật ký tuần đó thì bắt đủ 10/10, báo nhầm tối đa 1 lần. Kiểu tấn công mới thì em chưa kiểm chứng.', 'On that week’s log it caught 10 of 10 with at most 1 false alarm. I have not tested it against new kinds of attack.', [1, 1, 2], 'R', 'Đúng kiểu mình cần: nói được giới hạn của chính mình.', 'Exactly what I need: you know where your evidence ends.', 'wow'),
-        A('Em không nhớ rõ lắm ạ.', 'I do not really remember.', [0, 0, 1], '', 'Thật thà đấy, nhưng việc mình làm thì nên nhớ số.', 'Honest, but you should know your own numbers.', 'think'),
+        A('Chắc chắn rồi ạ, em đã thử đi thử lại rất nhiều lần trên máy của em và chưa thấy trường hợp nào lọt qua được cả.', 'Certainly, I have tried it over and over again on my own machine and have never seen a single case slip through it.', [0, 0, 0], '', 'Không hệ thống phát hiện nào dám nói vậy.', 'No detection system can promise that.', 'worry'),
+        A('Trên nhật ký tuần đó: bắt 10/10, nhầm 1. Kiểu tấn công mới em chưa thử.', 'On that week’s log: 10 of 10, 1 false alarm. New attack types are untested.', [1, 1, 2], 'R', 'Đúng kiểu mình cần: nói được giới hạn của chính mình.', 'Exactly what I need: you know where your evidence ends.', 'wow'),
+        A('Em nghĩ là bắt được gần hết, vì ngưỡng em đặt khá thấp, còn con số cụ thể thì lúc đó em bận quá nên không ghi lại ạ.', 'I think it catches nearly all of them since I set the threshold quite low, but I was too busy to write the figures down.', [0, 0, 1], '', 'Thật thà đấy, nhưng việc mình làm thì nên nhớ số.', 'Honest, but you should know your own numbers.', 'think'),
       ] },
       { q: O('Đi thực tập, bạn muốn học điều gì?', 'What do you want to learn here?'), answers: [
-        A('Gì cũng được ạ.', 'Anything is fine.', [0, 0, 1], '', 'Mình khó giao việc khi bạn chưa biết muốn gì.', 'It is hard to give you work if you do not know what you want.', 'think'),
-        A('Em muốn học triển khai và giám sát hệ thống thật, vì ở quán em mới làm bản nhỏ, chưa gặp tải lớn.', 'Deploying and monitoring real systems: the shop was small and never saw heavy load.', [1, 1, 1], 'T', 'Bạn biết mình đang thiếu gì. Đội mình có đúng việc đó.', 'You know your gap. We have exactly that kind of work.', 'happy'),
-        A('Em muốn lương cao và được về sớm ạ.', 'A good salary and early evenings.', [0, 0, 1], '', 'Thẳng thắn quá… nhưng mình đang hỏi chuyện học.', 'Very frank… but I asked about learning.', 'worry'),
+        A('Công ty giao việc gì em cũng học được ạ, em không ngại việc, miễn là được làm cùng các anh chị trong đội là em vui.', 'I can learn whatever the company hands me, I do not mind the work, I am happy as long as I get to sit with the team.', [0, 0, 1], '', 'Mình khó giao việc khi bạn chưa biết muốn gì.', 'It is hard to give you work if you do not know what you want.', 'think'),
+        A('Triển khai và giám sát, vì bản em làm còn nhỏ, chưa gặp tải lớn.', 'Deploying and monitoring: my version was small, never under load.', [1, 1, 1], 'T', 'Bạn biết mình đang thiếu gì. Đội mình có đúng việc đó.', 'You know your gap. We have exactly that kind of work.', 'happy'),
+        A('Em muốn học thật nhanh mọi công nghệ mới nhất để sau này có mức lương tốt và được làm việc ở nơi giờ giấc linh hoạt.', 'I want to learn all the newest technology very fast, so that later I get a good salary and a job with flexible hours.', [0, 0, 1], '', 'Mục tiêu tốt, nhưng mình đang hỏi bạn muốn học gì ở đây.', 'Fair goals, but I asked what you want to learn here.', 'worry'),
       ] },
     ];
   };
@@ -1994,18 +1967,19 @@ function officeScene(o) {
       board(run.picks.map((p, k) => Q[k].answers[p].star).join('').split('')); /* every STAR part the whole interview covered */
       ui.say('hr', ok ? O('Cảm ơn bạn. Bạn kể bằng việc thật và số thật. **Hẹn gặp bạn đầu tháng sáu.**', 'Thank you. You spoke with real work and real numbers. **See you in early June.**') : O('Cảm ơn bạn. Lần sau hãy kể **một việc cụ thể**: bạn làm gì, kết quả ra sao, và điều gì bạn chưa biết.', 'Thank you. Next time tell me **one concrete story**: what you did, what came out, and what you do not know yet.'), ok ? 'happy' : 'think');
       goals();
-      ui.actions(ok ? btn(T(O('Câu cuối cùng', 'One last question')) + ' →', () => ui.go('choice'), 'primary') : null, btn(T(O('Phỏng vấn lại', 'Interview again')) + ' ↻', () => { run.picks = []; play(ui); }, ok ? 'ghost' : 'primary'));
+      if (!ok && !run.counted) { run.counted = true; QM.world.slip('ep10'); }
+      ui.actions(ok ? btn(T(O('Câu cuối cùng', 'One last question')) + ' →', () => ui.go('choice'), 'primary') : null, btn(T(O('Phỏng vấn lại', 'Interview again')) + ' ↻', () => { run.picks = []; run.counted = false; Object.keys(run).filter((k) => k.startsWith('answerOrder')).forEach((k) => delete run[k]); play(ui); }, ok ? 'ghost' : 'primary'));
       return;
     }
     const q = Q[i];
     board(null); goals(); ui.actions();
     ui.say('hr', q.q, 'happy');
     const list = h('div', { class: 'options' });
-    /* a fixed shuffle so the strong answer is not always in the same place */
-    const order = [[0, 1, 2], [2, 0, 1], [1, 2, 0], [0, 2, 1]][i];
+    /* shuffled per interview, so the place of the strong answer cannot be learned */
+    const order = QM.world.order(run, 'answerOrder' + i, 3);
     order.forEach((k, n) => {
       const a = q.answers[k];
-      const b = h('button', { type: 'button', class: 'option', onclick: () => {
+      const b = h('button', { type: 'button', class: 'option', 'data-i': String(k), onclick: () => {
         if (run.picks.length > i) return;
         run.picks.push(k);
         [...list.children].forEach((x) => { x.disabled = x !== b; });
@@ -2022,6 +1996,7 @@ function officeScene(o) {
 
   QM.order.push('ep10');
   QM.eps.ep10 = {
+    rules: { questions, PASS },
     id: 'ep10', subject: 'internship', mech: 'talk',
     title: O('Kể lại chuyện quán khi đi phỏng vấn', 'Tell the shop’s story at your interview'),
     subjectName: O('Thực tập', 'Internship'),
@@ -2040,9 +2015,9 @@ function officeScene(o) {
         q: O('Trước khi về: **bạn có muốn hỏi gì về công ty không?** (Linh nhắc nhỏ trong tin nhắn: hỏi cho hay vào.)', 'Before you go: **any questions for us?** (Linh texts: “ask a good one!”)'),
         reset: () => show(true)(),
         options: [
-          { label: O('“Dạ không ạ.”', '“No, thank you.”'), good: false, run: show(true), reply: O('Không sao, nhưng đây là lúc bạn được tìm hiểu chúng tôi.', 'That is fine, though this was your chance to learn about us.'), who: 'hr' },
-          { label: O('“Thực tập sinh ở đội thường làm gì trong tháng đầu, và ai hướng dẫn ạ?”', '“What do interns usually work on in the first month, and who mentors them?”'), good: true, who: 'hr', run: show(true), reply: O('Câu hỏi hay. Bạn sẽ ghép cặp với một người trong đội giám sát hệ thống.', 'Great question. You will be paired with someone on the monitoring team.'), mood: 'wow' },
-          { label: O('“Ngày nào cũng được về sớm không ạ?”', '“Can I leave early every day?”'), good: false, run: show(true), reply: O('Ừm… mình ghi lại câu này.', 'Hmm… I will note that one down.'), who: 'hr' },
+          { label: O('“Dạ em không hỏi gì thêm ạ, công ty mình tốt lắm rồi, em chỉ mong được nhận thôi.”', '“No questions from me, the company already sounds great, I only hope you will take me.”'), good: false, run: show(true), reply: O('Không sao, nhưng đây là lúc bạn được tìm hiểu chúng tôi.', 'That is fine, though this was your chance to learn about us.'), who: 'hr' },
+          { label: O('“Tháng đầu thực tập sinh làm gì, ai kèm ạ?”', '“First month: what work, which mentor?”'), good: true, who: 'hr', run: show(true), reply: O('Câu hỏi hay. Bạn sẽ ghép cặp với một người trong đội giám sát hệ thống.', 'Great question. You will be paired with someone on the monitoring team.'), mood: 'wow' },
+          { label: O('“Ngày nào em cũng được về sớm không ạ, vì em còn phụ quán của bạn em nữa?”', '“Could I leave early every day, since I also help out at my friend’s shop?”'), good: false, run: show(true), reply: O('Ừm… mình ghi lại câu này.', 'Hmm… I will note that one down.'), who: 'hr' },
         ],
       };
     },
@@ -2151,7 +2126,7 @@ function renderMap() {
     }).filter(Boolean));
   }
   $('#view').replaceChildren(
-    h('div', { class: 'page-h' }, h('h1', {}, T(O('56 môn, một câu chuyện', '56 subjects, one story'))), h('p', {}, T(O('Mỗi môn được gán một tình huống nối tiếp trong quán và một kiểu chơi hợp với cách nghĩ của môn đó. Mười tập đã chơi được, còn lại là đề xuất để cả nhóm góp ý.', 'Each subject gets a situation that continues the shop’s story and a mechanic that fits how that subject thinks. Ten episodes are playable; the rest are proposals for the team to review.')))),
+    h('div', { class: 'page-h' }, h('h1', {}, T(O('56 môn, một câu chuyện', '56 subjects, one story'))), h('p', {}, T(O('Mỗi môn được gán một tình huống nối tiếp trong quán và một kiểu chơi hợp với cách nghĩ của môn đó. Mười tập và ba vụ việc tổng hợp đã chơi được, còn lại là đề xuất để cả nhóm góp ý.', 'Each subject gets a situation that continues the shop’s story and a mechanic that fits how that subject thinks. Ten episodes and three combined cases are playable; the rest are proposals for the team to review.')))),
     chips, body);
   draw();
 }
@@ -2187,7 +2162,9 @@ function renderChrome(key) {
   $('#bar').replaceChildren(
     h('a', { class: 'exit', href: '/' }, T(UI.exit)),
     h('a', { class: 'brand', href: '#home', html: '<svg viewBox="0 0 40 32" aria-hidden="true"><path d="M9 16a7 7 0 0 1 3-13 9 9 0 0 1 16 0 7 7 0 0 1 3 13Z" class="c1"/><path d="M12 18h16l-2 10a4 4 0 0 1-4 3h-4a4 4 0 0 1-4-3Z" class="c2"/></svg><span>' + esc(T(UI.brand)) + '</span>' }),
-    h('nav', { class: 'eps', 'aria-label': T(UI.episodes) }, QM.seasons.map((s, k) => [k ? h('span', { class: 'gap', 'aria-hidden': 'true' }) : null, s.ids.map((id) => h('a', { href: '#' + id, class: (S.done[id] ? 'done ' : '') + (key === id ? 'on' : ''), title: T(QM.eps[id].title), 'aria-current': key === id ? 'page' : null }, S.done[id] ? '✓' : String(QM.order.indexOf(id) + 1)))])),
+    h('nav', { class: 'eps', 'aria-label': T(UI.episodes) }, QM.seasons.map((s, k) => [k ? h('span', { class: 'gap', 'aria-hidden': 'true' }) : null, s.ids.map((id) => h('a', { href: '#' + id, class: (S.done[id] ? 'done ' : '') + (key === id ? 'on' : ''), title: T(QM.eps[id].title), 'aria-current': key === id ? 'page' : null }, S.done[id] ? '✓' : String(QM.order.indexOf(id) + 1)))]),
+      QM.caseOrder.length ? h('span', { class: 'gap', 'aria-hidden': 'true' }) : null,
+      QM.caseOrder.map((id) => { const c = QM.cases[id], won = S.cases[id] && S.cases[id].done; return h('a', { href: '#' + id, class: 'case ' + (won ? 'done ' : '') + (key === id ? 'on' : ''), title: T(c.title), 'aria-current': key === id ? 'page' : null }, won ? '✓' : c.letter); })),
     h('div', { class: 'hud' }, Object.keys(ICON).map((k) => h('span', { class: 'hud-i', title: T(UI[k]) }, h('span', { html: `<svg viewBox="0 0 24 24" aria-hidden="true">${ICON[k]}</svg>` }), h('span', { class: 'sr' }, T(UI[k]) + ': '), h('b', { id: 'hud-' + k })))),
     h('div', { class: 'bar-r' }, h('a', { class: 'maplink' + (key === 'map' ? ' on' : ''), href: '#map' }, T(UI.map)),
       h('button', { type: 'button', class: 'lang', 'aria-label': S.lang === 'vi' ? 'Switch to English' : 'Chuyển sang tiếng Việt', onclick: () => { S.lang = S.lang === 'vi' ? 'en' : 'vi'; save(); route(); } }, h('b', { class: S.lang === 'vi' ? 'on' : '' }, 'VI'), h('b', { class: S.lang === 'en' ? 'on' : '' }, 'EN'))));
@@ -2201,41 +2178,28 @@ const RULES = [
   [O('Cốt truyện cần được kiểm chứng', 'The story still has to be tested'), O('Bằng chứng còn trái chiều: nhiều nghiên cứu thấy cốt truyện tăng hứng thú hơn là tăng điểm, một nghiên cứu dạy lập trình lại thấy bớt lỗi.', 'Evidence is mixed: many studies find stories raise engagement more than scores, one programming study found fewer errors.'), 'Jemmali et al. 2018', 'https://par.nsf.gov/biblio/10104445-educational-game-design-empirical-study-effects-narrative'],
 ];
 
-function renderHome() {
-  runCleanups();
-  const done = QM.order.filter((id) => S.done[id]).length;
-  const nextId = QM.order.find((id) => !S.done[id]);
-  const last = [...QM.order].reverse().find((id) => S.done[id]);
-  const state = last ? QM.eps[last].after() : { tidy: false };
-  $('#view').replaceChildren(
-    h('div', { class: 'hero' },
-      h('div', { class: 'hero-t' }, h('span', { class: 'eyebrow' }, T(O('10 tập · 10 kiểu chơi · 1 câu chuyện', '10 episodes · 10 mechanics · 1 story'))),
-        h('h1', {}, T(O('Bạn là “đứa học ICT” mà cả quán trông cậy', 'You are the ICT friend the whole shop relies on'))),
-        h('p', {}, T(O('Linh mở một quán nước nhỏ gần USTH. Mỗi lần quán gặp chuyện là một môn học: bạn tự tay giải quyết, và hậu quả đi theo bạn sang tập sau.', 'Linh opens a small drink shop near USTH. Every problem the shop hits is a subject: you solve it with your own hands, and the consequences follow you into the next episode.'))),
-        h('div', { class: 'row' },
-          btn((done ? (nextId ? T(O('Chơi tiếp', 'Continue')) : T(UI.toMap)) : T(O('Bắt đầu tập 1', 'Start episode 1'))) + ' →', () => { location.hash = nextId || 'map'; }, 'primary big'),
-          done ? btn(T(O('Chơi lại từ đầu', 'Start over')), () => { S.done = {}; S.fx = {}; QM.runs = {}; Object.keys(hudShown).forEach((k) => delete hudShown[k]); save(); persist(); route(); }, 'ghost') : null)),
-      h('div', { class: 'hero-s', html: scene(state) })),
-    ...QM.seasons.map((season) => h('section', { class: 'season-row' }, h('h2', {}, T(season.title)),
-      h('ol', { class: 'cards' }, season.ids.map((id) => { const e = QM.eps[id], i = QM.order.indexOf(id); return enter(h('li', {}, h('a', { href: '#' + id, class: S.done[id] ? 'done' : '' },
-        h('span', { class: 'card-n' }, S.done[id] ? '✓' : String(i + 1)), h('b', {}, T(e.title)), h('span', { class: 'sub' }, T(e.subjectName)),
-        h('span', { class: 'mechline', html: mechIcon(e.mech) + esc(T(MECH[e.mech].name)) }))), i * 40); })))),
-    h('section', { class: 'why' }, h('h2', {}, T(O('Vì sao thiết kế như vậy', 'Why it is designed this way'))),
-      h('div', { class: 'rules' }, RULES.map((r) => h('article', {}, h('h3', {}, T(r[0])), h('p', {}, T(r[1])), h('a', { href: r[3], target: '_blank', rel: 'noopener' }, r[2] + ' ↗'))))),
-    h('p', { class: 'feedback-line' }, h('a', { href: FEEDBACK, target: '_blank', rel: 'noopener' }, T(O('Góp ý cho bản thử nghiệm này ↗', 'Send feedback on this trial ↗')))));
-}
-
 function route() {
   const key = location.hash.slice(1);
   if (QM.eps[key]) { renderChrome(key); renderEpisode(QM.eps[key]); }
+  else if (QM.cases && QM.cases[key]) { runCleanups(); renderChrome(key); QM.world.caseView(QM.cases[key]); }
   else if (key === 'map') { renderChrome(key); renderMap(); }
-  else { renderChrome('home'); renderHome(); }
+  else { renderChrome('home'); runCleanups(); QM.world.hub(); }
 }
-window.addEventListener('hashchange', () => { route(); window.scrollTo(0, 0); });
 window.addEventListener('pagehide', persist);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') persist(); });
-restoreRuns();
-route();
+function startOver() {
+  S.done = {}; S.fx = {}; S.slips = {}; S.stars = {}; S.flags = {}; S.cases = {}; S.last = null; QM.runs = {};
+  Object.keys(hudShown).forEach((k) => delete hudShown[k]);
+  save(); persist(); route();
+}
+/* what world.js and cases.js build on */
+QM.lib = { S, save, persist, $, h, btn, O, T, rich, esc, enter, flip, later, loop, onLeave, runCleanups, calm, money, num, avatar, bubble, scene, updateHud, hudNow, MECH, mechIcon, UI, RULES, FEEDBACK, startOver, route };
 window.QuanMay = QM;
+/* the other scripts register themselves before the first screen is drawn */
+document.addEventListener('DOMContentLoaded', () => {
+  window.addEventListener('hashchange', () => { route(); window.scrollTo(0, 0); });
+  restoreRuns();
+  route();
+});
 
 })();

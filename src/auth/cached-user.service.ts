@@ -49,8 +49,4 @@ export class CachedUserService {
   invalidate(id: number): void {
     this.cache.delete(id);
   }
-
-  invalidateAll(): void {
-    this.cache.clear();
-  }
 }

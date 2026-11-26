@@ -39,7 +39,7 @@
     };
     worker.onerror = () => { for (const [, p] of cho) { clearTimeout(p.timer); p.no(new Error('Không nạp được bộ chạy SQL.')); } cho.clear(); };
   }
-  function goi(op, sql) {
+  function goi(op, sql, mai) {
     if (!worker) taoWorker();
     const id = ++seq;
     return new Promise((ok, no) => {
@@ -50,7 +50,7 @@
         no(new Error('Câu SQL chạy quá 5 giây nên bị dừng (có vòng lặp không dừng?).'));
       }, 5000);
       cho.set(id, { ok, no, timer });
-      worker.postMessage({ id, op, sql });
+      worker.postMessage({ id, op, sql, mai: !!mai });
     });
   }
 
@@ -124,6 +124,20 @@
     if (o.tong) s += `<g class="${o.tong === 'bad' ? 'pulse' : ''}">${k.pill(2.6, 3.2, 1.4, o.tong === 'bad' ? 'Tiền hàng: sai ✗' : 'Tiền hàng: 100 ✓', o.tong === 'bad' ? 'bad' : 'good')}</g>`;
     return h('div', { class: 'scene-wrap', html: ISO.wrap('-235 -200 560 520', s, 'Quầy của Linh: đơn 101 có hai dòng hàng và hai phiếu thanh toán') });
   }
+  // "Tòa nhà truy vấn": mỗi phép nối thêm MỘT tầng, và tấm sàn phình theo số hàng. Cùng ý với bản mô phỏng Call Stack 2.5D
+  // (mỗi lời gọi hàm là một tầng), nhưng tầng ở đây là các phép nối. Thấy tầng 3 phình gấp đôi tầng 1 là thấy grain bị nhân.
+  function toaNha(tang, o) {
+    const k = ISO.kit(50);
+    const nhan = ['Đơn đã thanh toán', o.preL ? '+ tổng dòng hàng' : '+ dòng hàng', o.preP ? '+ tổng thanh toán' : '+ thanh toán'];
+    const mat = ['cream', 'yellow', 'blue'];
+    let s = '';
+    tang.forEach((n, i) => {
+      const w = 0.7 + 0.32 * n, x = 2 - w / 2, z = i * 1.3;
+      s += k.box(x, 0.7, z, w, 1.6, 0.5, mat[i]);
+    });
+    tang.forEach((n, i) => { s += k.pill(2, 2.45, i * 1.3 + 0.35, `${nhan[i]} · ${n} hàng`, n > tang[0] ? 'bad' : 'plain'); });
+    return h('div', { class: 'scene-wrap toa', html: ISO.wrap('-215 -170 440 400', s, `Tòa nhà truy vấn: ${tang.map((n, i) => nhan[i] + ' ' + n + ' hàng').join(', ')}`) });
+  }
   const hienCap = (el) => requestAnimationFrame(() => requestAnimationFrame(() => el.querySelectorAll('.iso-pair').forEach((x) => x.classList.add('on'))));
 
   /* ---------- trạng thái và các màn ---------- */
@@ -131,7 +145,7 @@
   const moi = () => ({
     ph: 0, max: 0,
     soHang: '', tong: '', chot: false,
-    knob: { preL: false, preP: false, left: true }, nv: { a: false, b: false }, daThu: false,
+    knob: { preL: false, preP: false, left: true }, nv: { a: false, b: false }, daThu: false, truoc: null,
     goiY: 0, xemMau: false, cauHV: null,
     sao: { doan: false, dat: false, sach: false }, soCham: 0, khung: { chinh: false, an: false },
   });
@@ -196,7 +210,7 @@
 
     const noi = st.chot
       ? (dungH && dungT ? 'Đúng cả hai! ' : 'Chưa khớp. ') + D.doan.giaiThich
-      : 'Đơn 101 có 2 dòng hàng (**60**, **40**) và 2 lần thanh toán (**60**, **40**). Em nối cả hai bảng vào đơn rồi cộng. Bạn đoán trước nhé: **gõ số**, không có phương án nào để chọn.';
+      : 'Cuối ngày chủ quán đọc báo cáo của em để **chốt tiền và quyết định nhập hàng**. Đơn 101 có 2 dòng hàng (**60**, **40**) và 2 lần thanh toán (**60**, **40**); em nối cả hai bảng vào đơn rồi cộng. Bạn đoán trước nhé: **gõ số**, không có phương án nào để chọn.';
     const acts = h('div', { class: 'acts' }, st.chot ? btn('Thử tự tay →', tiep(1), 'primary') : chotNut);
     return khung(stage, [h('div', { class: 'talk' }, bubble(noi, st.chot ? (dungH && dungT ? 'happy' : 'wow') : 'think')), nguon, acts, ...bangNoi]);
   }
@@ -205,7 +219,10 @@
   function manThu() {
     const k = st.knob;
     const ra = h('div', { class: 'ketqua', 'aria-live': 'polite' });
-    const soi = h('p', { class: 'soi' });
+    const vua = h('p', { class: 'vua', 'aria-live': 'polite' });
+    const bao = h('div', { class: 'bao' });
+    const khungToa = h('div', { class: 'scene-mini wide' });
+    let vuaVan = null; // núm vừa vặn: để câu "điều vừa đổi" nói đúng núm nào
     const code = h('pre', { class: 'code' });
     const khungCanh = h('div', { class: 'scene-mini wide' });
     const goals = h('ul', { class: 'goals' });
@@ -227,24 +244,43 @@
       veCanh(null);
       ra.replaceChildren(ghi('Đang chạy…'));
       try {
-        const [r, s] = await Promise.all([goi('chay', q.sql), goi('chay', q.soi)]);
+        const [r, ...dem] = await Promise.all([goi('chay', q.sql), ...q.tang.map((t) => goi('chay', t))]);
         if (my !== lan) return; // đã vặn tiếp: bỏ kết quả cũ
+        const tang = dem.map((d) => (d.bang && d.bang.hang[0] ? d.bang.hang[0][0] : 0));
+        khungToa.replaceChildren(toaNha(tang, k));
         const hang = r.bang ? r.bang.hang : [];
         const d101 = hang.find((x) => x[0] === 101);
         const a = !!d101 && d101[1] === 100 && d101[2] === 100;
         const b = hang.length === Object.keys(D.CAN_RA).length && hang.every((x) => D.CAN_RA[x[0]] && D.CAN_RA[x[0]][0] === x[1] && D.CAN_RA[x[0]][1] === x[2]);
         st.daThu = true;
         if ((a && !st.nv.a) || (b && !st.nv.b)) { st.nv.a = st.nv.a || a; st.nv.b = st.nv.b || b; veGoals(); }
-        const n = (s.bang ? s.bang.hang.find((x) => x[0] === 101) : null);
-        soi.className = 'soi' + (n && n[1] > 2 ? ' canh' : '');
-        soi.innerHTML = rich(n ? `Đơn 101 sau khi nối: **${n[1]} hàng** (thật ra chỉ có 2 dòng hàng và 2 lần thanh toán)` : 'Đơn 101 không còn hàng nào sau khi nối.');
+        // Sổ báo cáo của chủ quán: cùng một bảng kết quả, nhưng đọc bằng con mắt của người SẼ DÙNG nó để quyết định.
+        const cong = (i) => hang.reduce((acc, x) => acc + (x[i] == null ? 0 : x[i]), 0);
+        const X = cong(1), Y = cong(2), T = D.KET_THAT;
+        const khop = X === T && Y === T;
+        bao.className = 'bao ' + (khop ? 'ok' : 'sai');
+        bao.replaceChildren(
+          h('div', { class: 'bao-o' }, h('small', null, 'Két thật'), h('b', null, T + 'k')),
+          h('div', { class: 'bao-o' }, h('small', null, 'Báo cáo: tiền hàng'), h('b', null, X + 'k')),
+          h('div', { class: 'bao-o' }, h('small', null, 'Báo cáo: khách trả'), h('b', null, Y + 'k')),
+          h('p', { class: 'bao-kl', html: rich(khop ? 'Báo cáo **khớp két**. Chủ quán yên tâm chốt sổ.'
+            : X > T ? `Báo cáo ghi **${X}k** nhưng két chỉ có **${T}k**: chủ quán tưởng quán lời hơn thật ${X - T}k và định đặt thêm hàng.`
+              : `Báo cáo ghi **${X}k** tiền hàng và **${Y}k** khách trả, lệch với két **${T}k**: chủ quán sẽ nghi có người ăn bớt.`) }));
+        // "Điều vừa đổi": nối lời Linh với số thật, như khung "What changed" của bản mô phỏng Call Stack.
+        const cur = { tang, d: d101 ? [d101[1], d101[2]] : null };
+        const chuoi = (t) => t.join(' · ');
+        vua.className = 'vua' + (vuaVan ? ' co' : '');
+        vua.innerHTML = vuaVan && st.truoc
+          ? rich(`Vừa **${vuaVan.bat ? 'bật' : 'tắt'}** «${vuaVan.ten}». Số hàng qua ba tầng: từ ${chuoi(st.truoc.tang)} thành **${chuoi(tang)}**. Đơn 101: ${st.truoc.d ? `(${st.truoc.d[0]}, ${st.truoc.d[1]})` : 'biến mất'} → **${cur.d ? `(${cur.d[0]}, ${cur.d[1]})` : 'biến mất'}**.`)
+          : rich(`Chưa vặn gì: đây là câu của em. Số hàng qua ba tầng: **${chuoi(tang)}**. Mỗi tầng chỉ nên giữ MỘT hàng cho mỗi đơn.`);
+        st.truoc = cur;
         ra.replaceChildren(bang(r.bang, (hh, i) => i > 0 && D.CAN_RA[hh[0]] && D.CAN_RA[hh[0]][i - 1] !== hh[i]),
           ghi('Cần ra: `(101, 100, 100)` · `(102, 50, 50)` · `(104, NULL, NULL)`. Ô đỏ là ô sai.'));
         veCanh(a ? 'ok' : 'bad');
       } catch (e) { if (my === lan) ra.replaceChildren(ghi(e.message)); }
     }
     const gat = (key, ten, phu) => {
-      const b = h('button', { type: 'button', role: 'switch', class: 'gat', 'aria-checked': String(k[key]), onclick: () => { k[key] = !k[key]; b.setAttribute('aria-checked', String(k[key])); b.querySelector('.tg').textContent = k[key] ? 'Bật' : 'Tắt'; chay(); } },
+      const b = h('button', { type: 'button', role: 'switch', class: 'gat', 'aria-checked': String(k[key]), onclick: () => { k[key] = !k[key]; vuaVan = { ten, bat: k[key] }; b.setAttribute('aria-checked', String(k[key])); b.querySelector('.tg').textContent = k[key] ? 'Bật' : 'Tắt'; chay(); } },
         h('span', null, h('b', null, ten), h('small', null, phu)), h('span', { class: 'tg' }, k[key] ? 'Bật' : 'Tắt'));
       return b;
     };
@@ -255,9 +291,10 @@
       gat('preL', 'Gom dòng hàng trước khi nối', 'mỗi đơn còn MỘT hàng tiền hàng'),
       gat('preP', 'Gom thanh toán trước khi nối', 'mỗi đơn còn MỘT hàng tiền trả'),
       gat('left', 'Giữ đơn thiếu dòng hoặc thanh toán', 'LEFT JOIN thay cho JOIN'));
-    const stage = h('section', { class: 'stage' }, nut, goals, khungCanh, h('div', { class: 'pane' }, soi, code, ra));
+    st.truoc = null; // vào bước Thử là bắt đầu so sánh lại từ đầu
+    const stage = h('section', { class: 'stage' }, nut, goals, h('div', { class: 'duo' }, khungCanh, khungToa), bao, vua, h('div', { class: 'pane' }, code, ra));
     return khung(stage, [
-      h('div', { class: 'talk' }, bubble('Em có ba núm vặn. **Vặn thử** rồi nhìn: số nét nối trên quầy, câu SQL và bảng kết quả đổi thế nào. Cần ra đúng như dòng cuối bảng.', 'think')),
+      h('div', { class: 'talk' }, bubble('Chủ quán sẽ **đọc báo cáo này để chốt tiền** và quyết định nhập hàng, nên nó phải khớp két. Em có ba núm vặn: vặn thử rồi nhìn tòa nhà truy vấn, sổ báo cáo và bảng kết quả.', 'think')),
       acts]);
   }
 
@@ -298,6 +335,18 @@
   }
 
   function manXong() {
+    // "Ngày mai": chạy chính câu của người học trên bộ dữ liệu ẩn rồi MỞ nó ra. Đó là lý do câu phải đúng chứ không chỉ "ra số đẹp hôm nay".
+    const mai = h('div', { class: 'mai' });
+    if (st.cauHV) {
+      mai.append(h('p', { class: 'ghi' }, 'Đang chạy câu của bạn trên số liệu ngày mai…'));
+      Promise.all([goi('chay', st.cauHV, true), goi('chay', D.DAP_AN, true)]).then(([a, b]) => {
+        const kh = JSON.stringify(a.bang && a.bang.hang) === JSON.stringify(b.bang && b.bang.hang);
+        mai.replaceChildren(
+          h('p', { class: 'ghi', html: rich('**Ngày mai quán có thêm đơn mới**: đơn 201 có hai món **cùng giá 40**, đơn 202 đã thanh toán nhưng chưa có thanh toán nào ghi. Câu của bạn ra:') }),
+          bang(a.bang),
+          h('p', { class: 'ghi', html: rich(kh ? 'Khớp từng hàng với báo cáo đúng. Câu cộng tiền bằng `SUM(DISTINCT)` sẽ gộp hai món 40 thành một và sai đúng chỗ này, nên bài chấm luôn thử ngày mai.' : 'Có hàng khác với báo cáo đúng.') }));
+      }).catch(() => mai.replaceChildren());
+    }
     const stage = h('section', { class: 'stage' }, canh({ tong: 'ok' }), h('div', { class: 'pane' },
       h('ul', { class: 'tong-ket' },
         h('li', null, h('i', null, '✓'), h('span', null, 'Thấy rằng một câu SQL không báo lỗi vẫn có thể cho số sai.')),
@@ -305,7 +354,8 @@
         h('li', null, h('i', null, '✓'), h('span', null, 'Sửa bằng cách gom mỗi nhánh về đúng grain (một hàng một đơn) TRƯỚC khi ghép.')))));
     const n = soSao();
     return khung(stage, [
-      h('div', { class: 'talk' }, bubble(`Báo cáo của em giờ đúng rồi, cảm ơn bạn! Bạn được **${n}/3 sao**: đoán đúng ngay, chấm đạt, và không cần gợi ý hay lời giải mẫu.`, 'happy')),
+      h('div', { class: 'talk' }, bubble(`Chủ quán đọc xong và nói **số khớp két**, bỏ luôn đơn nhập thêm hàng. Cảm ơn bạn! Bạn được **${n}/3 sao**: đoán đúng ngay, chấm đạt, và không cần gợi ý hay lời giải mẫu.`, 'happy')),
+      mai,
       h('p', { class: 'ghi' }, 'Đây là tập thử nghiệm. Chưa có nhật ký học tập nào được ghi. Chấm bài bằng cách chạy câu của bạn trên dữ liệu của quán và dữ liệu thử thêm, nên cách viết nào đúng cũng đạt.'),
       h('div', { class: 'acts' }, btn('Làm lại từ đầu', () => { st = moi(); ve(); })),
     ]);

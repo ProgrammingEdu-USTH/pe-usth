@@ -66,13 +66,23 @@ ORDER BY p.id;`;
     return {
       sql: `${w}SELECT p.id, SUM(l.${L[1]}) AS line_total, SUM(m.${P[1]}) AS paid_total\n${from}\nGROUP BY p.id\nORDER BY p.id;`,
       soi: `${w}SELECT p.id, COUNT(*) AS n\n${from}\nGROUP BY p.id\nORDER BY p.id;`,
+      // Số hàng sau từng tầng của "tòa nhà": chỉ đơn · đơn + dòng hàng · đơn + dòng hàng + thanh toán.
+      // Tầng 3 phình ra là chỗ người học THẤY grain bị nhân, nên nó phải đến từ chính câu SQL đang chạy chứ không tính tay.
+      tang: [
+        "SELECT COUNT(*) FROM purchases p WHERE p.status = 'paid'",
+        `${w}SELECT COUNT(*) FROM purchases p\n${J} ${L[0]} l ON l.order_id = p.id\nWHERE p.status = 'paid'`,
+        `${w}SELECT COUNT(*) ${from}`,
+      ],
     };
   }
   const CAN_RA = { 101: [100, 100], 102: [50, 50], 104: [null, null] };
+  // Tiền khách THẬT SỰ trả của các đơn đã thanh toán (60 + 40 + 50; đơn 104 chưa trả đồng nào). Đơn vị: nghìn đồng.
+  const KET_THAT = 150;
 
   return {
     xayCau,
     CAN_RA,
+    KET_THAT,
     ma: 'AD01-L1',
     tieuDe: 'Hai lần thanh toán, tổng gấp đôi',
     QUAN,

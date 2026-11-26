@@ -14,14 +14,15 @@ const sanSang = initSqlJs({ locateFile: (f) => 'vendor/' + f }).then((s) => {
 });
 
 self.onmessage = async (e) => {
-  const { id, op, sql } = e.data;
+  const { id, op, sql, mai } = e.data;
   await sanSang;
   try {
     if (op === 'chay') {
-      // Chạy thử: một CSDL mới từ dữ liệu của quán, trả bảng của câu cuối.
+      // Chạy thử: một CSDL mới từ dữ liệu của quán, trả bảng của câu cuối. `mai` = chạy trên dữ liệu của NGÀY MAI
+      // (bộ dữ liệu thử thêm), để người học thấy câu của mình sống sót qua một ngày khác. Bảng đó chỉ đến khi họ đã đạt.
       const db = new SQL.Database();
       try {
-        db.exec(LabSqlAd01.QUAN);
+        db.exec(mai ? LabSqlAd01.de.duLieu[1].sql : LabSqlAd01.QUAN);
         const kq = LabSql.chay(db, sql);
         self.postMessage({ id, ok: true, bang: { cot: kq.columns, hang: kq.values } });
       } finally {

@@ -182,3 +182,33 @@ test('bước Đoán gõ số, KHÔNG có phương án chọn (phản hồi: ch�
   assert.equal(AD01.doan.soHang, 4);
   assert.equal(AD01.doan.tong, 200);
 });
+
+// ---------------------------------------------------------------------------
+// "Tòa nhà truy vấn" và sổ báo cáo của chủ quán: hai thứ này nói bằng SỐ, nên số phải đến từ SQL chứ không phải tính tay.
+// ---------------------------------------------------------------------------
+test('tòa nhà: số hàng qua ba tầng là 3·4·6 khi chưa gom, 3·3·4 khi gom dòng hàng, 3·3·3 khi gom cả hai', () => {
+  const tang = (k) => AD01.xayCau(k).tang.map((q) => chayQuan(q)[0][0]);
+  assert.deepEqual(tang(tohop(false, false, true)), [3, 4, 6]);
+  assert.deepEqual(tang(tohop(true, false, true)), [3, 3, 4]);
+  assert.deepEqual(tang(tohop(true, true, true)), [3, 3, 3]);
+  // JOIN thường làm tầng sau CO LẠI: đơn 104 rơi khỏi tòa nhà (đúng điều lời Linh nói về LEFT JOIN).
+  assert.deepEqual(tang(tohop(true, true, false)), [3, 2, 2]);
+});
+
+test('sổ báo cáo: "két thật" 150 đúng bằng tổng tiền khách trả của các đơn đã thanh toán trong dữ liệu của quán', () => {
+  const t = chayQuan("SELECT SUM(m.amount) FROM payments m JOIN purchases p ON p.id = m.order_id WHERE p.status = 'paid'")[0][0];
+  assert.equal(AD01.KET_THAT, t);
+  // và câu SAI khiến báo cáo nói 250 thay vì 150: đó là điều chủ quán bị lừa.
+  const hang = chayQuan(AD01.SAI);
+  assert.equal(hang.reduce((a, r) => a + (r[1] || 0), 0), 250);
+});
+
+test('ngày mai: bộ dữ liệu ẩn có đủ hai ca mà người học sẽ thấy (đơn 201 hai món cùng giá, đơn 202 chưa có thanh toán)', () => {
+  const db = new SQL.Database();
+  try {
+    db.exec(AD01.de.duLieu[1].sql);
+    const r = db.exec(AD01.DAP_AN)[0].values;
+    assert.deepEqual(r.find((x) => x[0] === 201), [201, 80, 80]);
+    assert.deepEqual(r.find((x) => x[0] === 202), [202, 25, null]);
+  } finally { db.close(); }
+});

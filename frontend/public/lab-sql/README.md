@@ -13,6 +13,12 @@ cách chọn câu dài nhất. Nên:
    câu SQL sinh ra đổi theo (`xayCau` trong `ad01-data.js`, có test 8 tổ hợp) và bảng kết quả chạy lại ngay.
 3. **Viết**: tự gõ lại câu sửa, chấm trên dữ liệu của quán và dữ liệu thử thêm (ẩn).
 
+Bối cảnh để người học muốn làm thêm (26/11, sau khi xem bản mô phỏng Call Stack 2.5D của nhóm làm script): chủ quán ĐỌC báo cáo
+để chốt tiền và quyết định nhập hàng, nên có "sổ báo cáo" nói bằng hậu quả (báo cáo ghi 250k, két chỉ 150k → chủ quán định đặt thêm
+hàng); "tòa nhà truy vấn" mỗi phép nối là một tầng, sàn phình theo số hàng (đếm bằng chính SQL, không tính tay); dòng "điều vừa
+đổi" nối lời Linh với số thật sau mỗi lần vặn; và ở cuối, câu của người học chạy trên số liệu NGÀY MAI để thấy vì sao bài chấm
+có dữ liệu ẩn.
+
 Quy tắc rút ra cho bài sau: mỗi bước phải có một thao tác người học TỰ làm và thấy hậu quả ngay; câu hỏi có phương án thì
 phương án phải cùng độ dài và cùng giọng; nhiệm vụ không được đạt sẵn từ lúc mở (đã gặp: nhiệm vụ "giữ đơn 104" đạt ngay vì
 dữ liệu mẫu luôn có đơn đó, nên được viết lại thành "cả bảng khớp").

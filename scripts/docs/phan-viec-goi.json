@@ -112,7 +112,7 @@
           ],
           "goi_y": [
             "Xem concept hiện tại: chạy npm run dev rồi mở /; code cảnh ở frontend/src/components/goc-hoc/ (StudyRoom.tsx, engine.js, scene-data.js, scene.css, shell.js); token ở frontend/public/static/css/studio-tokens.css và design-system-v2.md; mẫu artboard cũ ở design/project/*.dc.html (Tokens, Main, Review, Theory, TheoryBook, Lab).",
-            "Danh sách route cần có frame: /, /courses/[id], /lesson/[id] (từng loại màn trong frontend/src/components/python-studio/screens/), /practice, /practice/challenge, /ide, /forum, /questionnaire, /login.",
+            "Danh sách route cần có frame: /, /courses/[id], /lesson/[id] (từng loại màn trong frontend/src/components/python-studio/screens/), /practice, /practice/challenge, /ide, /questionnaire, /login (diễn đàn giữ trong Góc học ở /).",
             "Luật phải giữ (design-system-v2.md): không chuỗi ngày, không ổ khoá, màu qua token --ds-*, chữ tối thiểu 15 px (câu người học đọc ≥ 17 px), vùng bấm ≥ 44 px; kiểm tương phản 4,5:1 bằng node frontend/e2e/unit/ds-contrast.mjs trên màu đã chọn.",
             "Đặt tên frame theo route để FE tìm; ghi chú hành vi (chuyển cảnh, hover, bàn phím) ngay trên frame."
           ],
@@ -882,7 +882,7 @@
       "id": "P10",
       "ten": "Diễn đàn",
       "muc_tieu": "Diễn đàn BE đã có 11 điểm cuối nhưng chưa có giao diện và gần như chưa có test. Làm cho dùng được và an toàn.",
-      "ket_qua": "Người học xem, đăng bài, bình luận, thả cảm xúc ở /forum bằng giao diện lofi; BE có test và hạn mức riêng.",
+      "ket_qua": "Người học xem, đăng bài, bình luận, thả cảm xúc ngay trong Góc học (/) bằng giao diện lofi (không mở route /forum riêng); BE có test và hạn mức riêng.",
       "items": [
         {
           "ten": "BE: hợp đồng API diễn đàn (F3)",
@@ -923,9 +923,9 @@
           "bd": "2026-11-22",
           "cong": 5,
           "lam": [
-            "Route /forum: danh sách có lọc 4 chuyên mục và phân trang; trang chi tiết bài",
-            "Bình luận lồng, 6 loại cảm xúc, đăng bài và bình luận",
-            "Thêm vào site-nav.ts; render văn bản thuần (forum-xss.test.mjs xanh)"
+            "Giữ diễn đàn trong Góc học (frontend/src/components/forum/forum-lofi.js, bỏ route /forum riêng): danh sách có lọc 4 chuyên mục và phân trang; xem chi tiết bài",
+            "Bình luận lồng, 6 loại cảm xúc, đăng bài và bình luận qua API BE7 thay cho localStorage",
+            "Render văn bản thuần chống XSS với escForumHtml (frontend/e2e/unit/forum-lofi.test.mjs xanh)"
           ],
           "tu": [
             "F4"

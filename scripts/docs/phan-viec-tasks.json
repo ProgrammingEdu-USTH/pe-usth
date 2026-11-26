@@ -933,9 +933,9 @@
   "week": "Tuần 4–5",
   "dates": "22–25/11",
   "fields": {
-   "Mô tả": "Dựng trang diễn đàn theo thiết kế G7 và hợp đồng API F3.",
-   "Cách làm (theo source hiện tại)": "1. Route mới frontend/src/app/(standalone)/forum/page.tsx (và trang chi tiết bài); thêm vào frontend/src/lib/site-nav.ts (test e2e/unit/site-nav.test.mjs, route-metadata.test.mjs).\n2. Gọi theo hợp đồng F3: danh sách công khai dùng apiFetchSessionOnly, đăng bài/bình luận dùng apiFetch; lọc category discuss/question/share/help; phân trang theo page; bình luận lồng theo parentCommentId; 6 loại cảm xúc.\n3. XSS: render văn bản thuần, không dùng dangerouslySetInnerHTML; giữ e2e/unit/forum-xss.test.mjs xanh.\n4. Dùng token và component của giao diện thống nhất (T12).",
-   "Kết quả cần đạt": "Danh sách, chi tiết, bình luận, cảm xúc dùng được; trang công khai dùng apiFetchSessionOnly.",
+   "Mô tả": "Giữ diễn đàn trong Góc học theo thiết kế G7 và nối hợp đồng API F3 (không mở route /forum riêng).",
+   "Cách làm (theo source hiện tại)": "1. Giữ diễn đàn trong Góc học (frontend/src/components/forum/forum-lofi.js, bỏ route /forum và không dùng site-nav.ts).\n2. Gọi theo hợp đồng F3: danh sách công khai dùng apiFetchSessionOnly, đăng bài/bình luận dùng apiFetch; lọc category discuss/question/share/help; phân trang theo page; bình luận lồng theo parentCommentId; 6 loại cảm xúc; thay thế hoàn toàn localStorage.\n3. XSS: thoát HTML bằng escForumHtml, giữ e2e/unit/forum-lofi.test.mjs xanh.\n4. Dùng token và giao diện lofi của Góc học.",
+   "Kết quả cần đạt": "Danh sách, chi tiết, bình luận, cảm xúc đồng bộ qua API thật giữa các trình duyệt; không còn localStorage; danh sách công khai dùng apiFetchSessionOnly.",
    "Gợi ý nếu khó": "Làm khung với dữ liệu giả trước.",
    "Phụ thuộc": "Cần G7 (13/11), F3 (8/11), F1 (11/11); T12 xong để dùng chung token."
   },

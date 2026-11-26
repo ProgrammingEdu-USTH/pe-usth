@@ -259,14 +259,14 @@
       "ngay": "20–27/11",
       "bd": "2026-11-20",
       "lam": [
-        "Route /forum: danh sách có lọc 4 chuyên mục và phân trang; trang chi tiết bài; bình luận lồng, 6 loại cảm xúc, đăng bài và bình luận",
-        "Thêm vào site-nav.ts; render văn bản thuần"
+        "Giữ diễn đàn trong Góc học (frontend/src/components/forum/forum-lofi.js, bỏ route /forum riêng): danh sách có lọc 4 chuyên mục và phân trang; xem chi tiết bài; bình luận lồng, 6 loại cảm xúc, đăng bài và bình luận qua API BE7 thay localStorage",
+        "Render văn bản thuần với escForumHtml (không dùng site-nav.ts)"
       ],
       "goi_y": [
-        "Danh sách công khai dùng apiFetchSessionOnly, đăng bài/bình luận dùng apiFetch; XSS: không dùng dangerouslySetInnerHTML, giữ e2e/unit/forum-xss.test.mjs xanh.",
-        "Dùng token và component của khung chung."
+        "Danh sách công khai dùng apiFetchSessionOnly, đăng bài/bình luận dùng apiFetch; XSS: thoát HTML qua escForumHtml, giữ frontend/e2e/unit/forum-lofi.test.mjs xanh.",
+        "Dùng token và giao diện lofi của Góc học."
       ],
-      "xong": "Người học xem, đăng bài, bình luận, thả cảm xúc ở /forum bằng giao diện lofi."
+      "xong": "Người học xem, đăng bài, bình luận, thả cảm xúc ngay trong Góc học (/) bằng giao diện lofi; bài đăng đồng bộ qua API/DB thật."
     },
     {
       "nhom": "FE",

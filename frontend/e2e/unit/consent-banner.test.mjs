@@ -292,3 +292,27 @@ test('`granted` so bằng `=== true`, không qua phép ép kiểu lỏng', () =>
   assert.ok(/granted: o\.granted === true/.test(LIB));
   assert.ok(!/Boolean\(o\.granted\)|!!o\.granted/.test(LIB));
 });
+
+// ---------------------------------------------------------------------------
+// 5. HỘP KHÔNG ĐẨY BÀI XUỐNG DƯỚI MÀN HÌNH Ở CỬA VÀO (26/11/2026)
+// ---------------------------------------------------------------------------
+
+test('danh sách "ghi lại" nằm trong `details` ĐÓNG SẴN (không có `open`)', () => {
+  // Bản mở sẵn gồm bảy gạch đầu dòng, chiếm gần hết màn 390px ở bài 1 và đẩy
+  // nội dung bài xuống dưới. Quét trên MÃ (đã bỏ chú thích), không trên chú thích.
+  const ma = boChuThich(BANNER);
+  const m = /<details\b([^>]*)>([\s\S]*?)<\/details>/.exec(ma);
+  assert.ok(m, 'danh sách "ghi lại" phải nằm trong <details>');
+  assert.ok(!/\bopen\b/.test(m[1]), '<details> không được mở sẵn');
+  assert.ok(/MO_TA_PHAM_VI\.thu\.map/.test(m[2]), 'danh sách bên trong phải là `thu`');
+});
+
+test('cột "KHÔNG ghi" KHÔNG bị gập — gập nó là chôn nửa người đọc cần thấy nhất', () => {
+  // Lý do 3 ở đầu ConsentBanner.tsx. `details` đã có đúng MỘT cái và nó chỉ
+  // chứa `thu`; `khongThu` phải nằm NGOÀI nó.
+  const ma = boChuThich(BANNER);
+  assert.equal((ma.match(/<details\b/g) ?? []).length, 1, 'chỉ gập đúng một danh sách');
+  const trongDetails = /<details\b[^>]*>[\s\S]*?<\/details>/.exec(ma)[0];
+  assert.ok(!/khongThu/.test(trongDetails), '`khongThu` không được nằm trong <details>');
+  assert.ok(/MO_TA_PHAM_VI\.khongThu\.map/.test(ma), 'cột KHÔNG ghi vẫn phải được dựng');
+});

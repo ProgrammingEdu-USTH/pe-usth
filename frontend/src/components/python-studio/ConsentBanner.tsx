@@ -78,14 +78,24 @@ export default function ConsentBanner({
       <p className={c.dungDeLam}>{MO_TA_PHAM_VI.dungDeLam}</p>
 
       <div className={c.haiCot}>
-        <div>
-          <p className={c.nhan}>Chúng tôi ghi lại</p>
+        {/* Danh sách "ghi lại" GẬP (26/11/2026, chủ dự án duyệt): bản mở sẵn
+            gồm bảy gạch đầu dòng đẩy nội dung bài xuống dưới màn hình ở 390px,
+            ngay ở cửa vào của bài 1 — nơi 74% khách rời đi. Chữ KHÔNG đổi (nên
+            không nâng PHIEN_BAN_DONG_Y) và vẫn một chạm là đọc đủ.
+            Cột "KHÔNG ghi" thì GIỮ NGUYÊN mở: nó là nửa người đọc cần thấy nhất
+            (lý do 3 ở đầu file), nên gập nó mới là chôn nó. `details` là phần
+            tử gốc của trình duyệt, không phải `button`, nên ca "đúng hai nút"
+            vẫn đúng: hai lựa chọn vẫn là hai nút cùng cỡ, và không có nút đóng. */}
+        <details className={c.chiTiet}>
+          <summary className={c.tomTat}>
+            Chúng tôi ghi lại ({MO_TA_PHAM_VI.thu.length} mục) — bấm để xem
+          </summary>
           <ul className={c.danh}>
             {MO_TA_PHAM_VI.thu.map((d) => (
               <li key={d}>{d}</li>
             ))}
           </ul>
-        </div>
+        </details>
         <div>
           <p className={c.nhan}>Chúng tôi KHÔNG ghi</p>
           <ul className={`${c.danh} ${c.khong}`}>

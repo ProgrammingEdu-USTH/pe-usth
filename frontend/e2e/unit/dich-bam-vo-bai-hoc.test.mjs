@@ -75,6 +75,8 @@ const TEP = [
   // `.opt` cao 44, bề rộng 100%. Nút này mount ở thanh trên của MỌI màn bài học
   // (từ 861px) nên không được đứng ngoài cổng đích bấm.
   'src/components/ThemePicker.module.css',
+  // Thêm 28/11/2026 cùng trang đăng nhập/đăng ký: `.nutChinh` và `.nutHien` đều min-height 44.
+  'src/components/auth/auth.module.css',
 ];
 
 /**

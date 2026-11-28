@@ -84,6 +84,28 @@ export function danhDauPhien(giay?: unknown): void {
   }
 }
 
+/**
+ * Lưu phiên mới do `/auth/login`, `/auth/register`, `/auth/upgrade` trả về: cùng hai việc `ensureGuest()` làm cho
+ * khách (access ở localStorage + cookie mốc), để khoá `pe_access` chỉ được nhắc ở file này. Trả `false` khi response
+ * không có `access` — người gọi KHÔNG được báo "thành công" khi không có phiên nào được lưu.
+ */
+export function luuPhienMoi(d: unknown): boolean {
+  const access = (d as { access?: unknown } | null)?.access;
+  if (typeof access !== 'string' || !access) return false;
+  try {
+    localStorage.setItem(LS_ACCESS, access);
+  } catch {
+    /* private mode: phiên này vẫn dùng được, tải lại thì mất */
+  }
+  danhDauPhien((d as { refreshExpiresIn?: unknown }).refreshExpiresIn);
+  return true;
+}
+
+/** Access token đang lưu, hoặc null. CHỈ để đọc payload (vd. khách hay tài khoản thật) — không quyết quyền ở client. */
+export function accessDangLuu(): string | null {
+  return ls(LS_ACCESS);
+}
+
 
 function refreshAccess(): Promise<string | null> {
   if (typeof window !== 'undefined') {

@@ -6,7 +6,7 @@
  * "khách học ngay": khách bấm Đăng ký thì phải đi `/api/auth/upgrade` (giữ tiến độ), không phải `/auth/register` (tạo user mới,
  * tiến độ ở lại tài khoản khách). Các ca dưới đọc CHÍNH mã nguồn, không chép luật.
  *
- * ABLATION (28/11/2026, 16 ca) — gỡ từng mảnh rồi đọc dòng `fail` THẬT:
+ * ABLATION (28/11/2026, 18 ca) — gỡ từng mảnh rồi đọc dòng `fail` THẬT:
  *   laKhach luôn false (khách đi register, mất tiến độ)              → 2 đỏ
  *   upgrade bằng fetch trần (không đính Bearer của khách)            → 1 đỏ
  *   bỏ luuPhienMoi (báo thành công mà không lưu phiên)               → 3 đỏ
@@ -16,6 +16,8 @@
  *   dangXuat không còn xoá phiên ở máy / xoaPhien quên xoá access     → 2 đỏ / 2 đỏ
  *   loaiTaiKhoan coi mọi token là tài khoản thật                      → 3 đỏ
  *   upgrade gọi `/auth/upgrade` Ở GỐC (gateway chỉ phục vụ /api/...)   → 2 đỏ
+ *   apiFetch tạo khách cả khi refresh lỗi tạm (gỡ `coPhienLuu`)       → 1 đỏ
+ *   apiFetch đảo điều kiện (chỉ tạo khách khi CÒN phiên)             → 2 đỏ
  *
  * Chạy: cd frontend && npm run test:unit
  */
@@ -42,6 +44,7 @@ const {
   PHONE_REGEX, MAT_KHAU_TOI_THIEU, laKhach, loaiTaiKhoan, emailTuToken, nhanTaiKhoan, loiTuPhanHoi, kiemTraDangKy, soanDangKy,
   dangNhap, dangKy, dangXuat,
 } = await import('../../src/lib/auth-session.ts');
+const { apiFetch } = await import('../../src/lib/api.ts');
 
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const token = (email) => `${b64({ alg: 'HS256' })}.${b64({ sub: 7, email })}.chu-ky`;
@@ -165,6 +168,41 @@ test('đường dẫn: mọi /auth/* frontend gọi Ở GỐC phải nằm trong
   const apiFetchTran = [...nguon.matchAll(/apiFetch\('\/(auth\/[a-z/]+)'/g)].map((m) => m[1]);
   assert.deepEqual(apiFetchTran.filter((p) => !ngoaiLe.has(p)), [], 'apiFetch gọi /auth/* ở gốc mà gateway không phục vụ');
   assert.match(nguon, /apiFetch\('\/api\/auth\/upgrade'/, 'dangKy của khách không gọi /api/auth/upgrade');
+});
+
+/** Access hết hạn: lời gọi nghiệp vụ trả 401 cho tới khi có access mới; `refresh` = mã của /auth/refresh (0 = mất mạng). */
+function hetHan(refresh) {
+  kho.clear();
+  kho.set('pe_access', THAT);
+  document.cookie = 'pe_has_session=1';
+  return gia((url) => {
+    if (url.endsWith('/auth/refresh')) {
+      if (refresh === 0) throw new TypeError('mat mang');
+      return json(refresh, {});
+    }
+    if (url.endsWith('/auth/guest')) return json(200, { access: 'tok-khach-moi', refreshExpiresIn: 100 });
+    return kho.get('pe_access') === 'tok-khach-moi' ? json(200, { ok: true }) : json(401, {});
+  });
+}
+
+test('apiFetch: refresh lỗi TẠM (503, 429, mất mạng) KHÔNG tạo khách mới, phiên đang học còn nguyên', async () => {
+  for (const ma of [503, 429, 0]) {
+    const goi = hetHan(ma);
+    const res = await apiFetch('/api/stats');
+    assert.equal(res.status, 401, `refresh ${ma}`);
+    assert.ok(!goi.some((g) => g.url.endsWith('/auth/guest')), `refresh ${ma} mà đã tạo khách: ghi đè phiên đang học`);
+    assert.equal(kho.get('pe_access'), THAT, `refresh ${ma}: access đang lưu bị thay`);
+  }
+});
+
+test('apiFetch: refresh bị TỪ CHỐI (401) thì phiên đã chết, mới tạo khách mới và gọi lại', async () => {
+  const goi = hetHan(401);
+  const res = await apiFetch('/api/stats');
+  assert.equal(res.status, 200);
+  assert.ok(goi.some((g) => g.url.endsWith('/auth/guest')));
+  assert.equal(kho.get('pe_access'), 'tok-khach-moi');
+  kho.clear();
+  document.cookie = '';
 });
 
 test('dangKy: người CHƯA có phiên (hoặc đã là tài khoản thật) đi /auth/register, không đính Bearer', async () => {

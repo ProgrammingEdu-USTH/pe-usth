@@ -778,8 +778,8 @@ function body(r){
       <div class="pv" id="pvMe" ${t!=='me'?'hidden':''}><div class="prof">
         <div class="who"><span class="a">${esc(hien.trim()[0] || '?').toUpperCase()}</span><div><b>${esc(hien)}</b><small>${USER.signedIn ? 'đang có phiên học' : 'chưa có phiên học trên máy này'}</small></div></div>
         <div class="act"><h5>Tài khoản</h5>${USER.taiKhoan==='that'
-          ? `<a class="btn" href="/login">Đăng xuất</a>`
-          : `<div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn" href="/register">Tạo tài khoản</a><a class="btn" href="/login">Đăng nhập</a></div><div class="sample" style="padding:8px 0 0">Tạo tài khoản ở đây thì tiến độ đang học được giữ lại.</div>`}</div>
+          ? `<a class="btn" href="/login" style="display:inline-flex;align-items:center;min-height:44px">Đăng xuất</a>`
+          : `<div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn" href="/register" style="display:inline-flex;align-items:center;min-height:44px">Tạo tài khoản</a><a class="btn" href="/login" style="display:inline-flex;align-items:center;min-height:44px">Đăng nhập</a></div><div class="sample" style="padding:8px 0 0">Tạo tài khoản ở đây thì tiến độ đang học được giữ lại.</div>`}</div>
         <div><div class="xpb"><i style="width:${PCT}%"></i></div><div class="xpl"><span>${USER.lessonsDone == null ? '— bài' : `${USER.lessonsDone}/${TOTAL} bài`}</span><span>${esc(CONTENT.course.name)}</span></div></div>
         <div class="stats"><div><b>${SO(USER.xp)}</b><small>tổng XP</small></div><div><b>${USER.lessonsDone == null ? '—' : USER.lessonsDone}</b><small>bài đã xong</small></div><div><b>${USER.badges ? USER.badges.done : '—'}</b><small>huy hiệu</small></div><div><b>${USER.rank ? USER.rank.rank : '—'}</b><small>hạng theo XP</small></div></div>
         <div class="act"><h5>Khoá đang học</h5><div class="rb" style="display:block"><b style="font-size:15px">${esc(CUR ? CUR.m.name : CONTENT.course.name)}</b><div style="margin-top:6px;color:#5b6890">${CUR ? esc(CUR.l.title) : ''}</div></div></div>

@@ -13,6 +13,8 @@
  * cũ, đọc một lần để chuyển phiên sang cookie rồi xoá.
  */
 
+import { hasStoredSession } from './course-progress.ts';
+
 const LS_ACCESS = 'pe_access';
 const LS_LEGACY_REFRESH = 'pe_refresh';
 
@@ -30,6 +32,15 @@ function ls(key: string): string | null {
   } catch {
     return null;
   }
+}
+
+/** Còn dấu vết phiên ở máy? `xoaPhien` xoá cả ba khi máy chủ TỪ CHỐI refresh (401/403). */
+function coPhienLuu(): boolean {
+  return hasStoredSession({
+    access: ls(LS_ACCESS),
+    legacyRefresh: ls(LS_LEGACY_REFRESH),
+    cookie: typeof document === 'undefined' ? null : document.cookie,
+  });
 }
 
 /**
@@ -132,9 +143,7 @@ function refreshAccess(): Promise<string | null> {
   }
   if (refreshing) return refreshing;
   // Khách chưa đăng nhập thì không có cookie refresh — khỏi gọi mạng.
-  const maybeLoggedIn =
-    ls(LS_ACCESS) || ls(LS_LEGACY_REFRESH) || document.cookie.includes('pe_has_session=1');
-  if (!maybeLoggedIn) return Promise.resolve(null);
+  if (!coPhienLuu()) return Promise.resolve(null);
   refreshing = callRefresh()
     // Tab khác vừa rotate cùng cookie -> 401; thử lại 1 lần với cookie mới.
     .then((r) => (r.status === 401 ? new Promise((ok) => setTimeout(ok, 400)).then(callRefresh) : r))
@@ -209,8 +218,10 @@ export async function apiFetch(path: string, opts: RequestInit = {}): Promise<Re
   let res = await send(ls(LS_ACCESS));
   if (res.status === 401) {
     // Thứ tự: refresh phiên cũ trước (giữ tiến độ của khách đã học hôm qua),
-    // chỉ khi không còn phiên nào mới tạo khách mới.
-    const access = (await refreshAccess()) ?? (await ensureGuest());
+    // chỉ khi không còn phiên nào mới tạo khách mới. Refresh lỗi TẠM (5xx, 429, mất mạng) thì dấu phiên còn
+    // nguyên: tạo khách lúc đó là ghi đè phiên đang học (khách mất tiến độ, người có tài khoản bị đẩy ra) —
+    // trả 401 cho người gọi, lượt sau thử refresh lại.
+    const access = (await refreshAccess()) ?? (coPhienLuu() ? null : await ensureGuest());
     if (access) res = await send(access);
   }
   return res;

@@ -1,12 +1,16 @@
 import {
-  BadRequestException,
+  ConflictException,
   ForbiddenException,
+  HttpException,
+  HttpStatus,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
-import { User } from 'src/generated/prisma';
+import { Prisma, User } from 'src/generated/prisma';
+import { extractFields } from 'src/common/filters/prisma-exception/prisma-exception.filter';
+import { LoginAttemptLimiter } from './login-attempt-limiter';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { checkPassword } from 'src/common/security/check-password';
 import { WerkzeugScryptHasher } from 'src/common/security/werkzeug-scrypt-hasher';
@@ -28,6 +32,24 @@ function normalizeEmail(email?: string | null): string | undefined {
   const v = email?.trim().toLowerCase();
   return v ? v : undefined;
 }
+
+/** Khách: mật khẩu rỗng + email @guest.local + không OAuth (xem AuthService.guest). */
+export function isGuestUser(
+  u: Pick<User, 'password' | 'email' | 'oauthProvider'>,
+): boolean {
+  return (
+    u.password === '' && u.email.endsWith('@guest.local') && !u.oauthProvider
+  );
+}
+
+const emailTaken = () =>
+  new ConflictException(
+    'Email đã được sử dụng. Hãy đăng nhập bằng tài khoản đó.',
+  );
+const phoneTaken = () =>
+  new ConflictException(
+    'Số điện thoại đã được sử dụng. Hãy đăng nhập bằng tài khoản đó.',
+  );
 
 export interface OAuthProfile {
   provider: string;
@@ -62,29 +84,52 @@ export class AuthService {
     private readonly cachedUsers: CachedUserService,
   ) {}
 
+  private readonly loginLimiter = new LoginAttemptLimiter();
+
   // ---------- Task 43-45: login ----------
 
   async login(dto: LoginDto) {
-    // Bước 1: tìm user theo email HOẶC phone.
-    // Form đăng nhập chỉ có MỘT ô "Email hoặc số điện thoại" và FE gửi giá trị
-    // đó vào field email. Nếu giá trị khớp định dạng SĐT thì phải tra cột phone
-    // — không thì người đăng ký bằng SĐT không bao giờ đăng nhập được (email
-    // của họ trong DB là placeholder '<sđt>@phone.local').
-    const identifier = dto.email?.trim();
-    const identifierIsPhone = !!identifier && PHONE_REGEX.test(identifier);
+    // Bước 1: chọn ĐÚNG MỘT định danh (email ưu tiên hơn phone) rồi tra bằng khoá unique.
+    // Trước đây findFirst({ OR }) không orderBy: body có cả hai thì có thể vào nhầm tài khoản.
+    // Form chỉ có MỘT ô "Email hoặc số điện thoại" và FE gửi vào field email; giá trị khớp
+    // định dạng SĐT thì phải tra cột phone — người đăng ký bằng SĐT có email là
+    // '<sđt>@phone.local' nên không đăng nhập bằng email được.
+    const typed = dto.email?.trim();
+    const byPhone = typed ? PHONE_REGEX.test(typed) : true;
+    const identifier = byPhone
+      ? (typed ?? dto.phone?.trim())
+      : normalizeEmail(typed);
 
-    const user = await this.findByEmailOrPhone(
-      identifierIsPhone ? undefined : normalizeEmail(identifier),
-      dto.phone?.trim() || (identifierIsPhone ? identifier : undefined),
-    );
+    // Hạn mức theo tài khoản: kiểm TRƯỚC khi so mật khẩu để kẻ đoán không được thử tiếp.
+    const limitKey = identifier ?? '';
+    const lockedFor = this.loginLimiter.lockedForSeconds(limitKey);
+    if (lockedFor > 0) {
+      throw new HttpException(
+        `Đăng nhập sai quá nhiều lần, vui lòng thử lại sau ${Math.ceil(lockedFor / 60)} phút`,
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    // shortcut: cột phone CHƯA unique ở DB (migration users_phone_unique còn ở nhánh riêng) nên tra
+    // bằng findFirst + orderBy id cho xác định; áp migration xong thì đổi sang findUnique như email.
+    const user = !identifier
+      ? null
+      : byPhone
+        ? await this.prisma.user.findFirst({
+            where: { phone: identifier },
+            orderBy: { id: 'asc' },
+          })
+        : await this.prisma.user.findUnique({ where: { email: identifier } });
 
     // Bước 2: verify password. Cùng một message cho "không tìm thấy user" và
     // "sai mật khẩu" — tránh để lộ email/sđt nào đã tồn tại trong hệ thống.
     if (!user || !(await checkPassword(user.password, dto.password))) {
+      this.loginLimiter.recordFailure(limitKey);
       throw new UnauthorizedException(
         'Email/số điện thoại hoặc mật khẩu không đúng',
       );
     }
+    this.loginLimiter.clear(limitKey);
 
     // Bước 3: build response.
     const tokens = await this.issueTokens(user);
@@ -99,40 +144,25 @@ export class AuthService {
   // ---------- Task 46-47: register ----------
 
   async register(dto: RegisterDto) {
-    // Bước 1: validate trùng TRƯỚC khi insert, message riêng từng field.
-    // Nếu để DB tự ném unique-constraint thì client nhận 500 khó hiểu.
+    // Kiểm trùng trước để có message rõ; hai request đồng thời vẫn lọt qua đây nên unique
+    // index (uq_users_phone, email) mới là chốt thật, và P2002 cũng thành 409 thay vì 500/400.
     const email = normalizeEmail(dto.email);
-    if (email) {
-      const existed = await this.prisma.user.findFirst({
-        where: { email },
-        select: { id: true },
-      });
-      if (existed) throw new BadRequestException('Email đã được sử dụng');
-    }
+    await this.assertFree(email, dto.phone);
 
-    if (dto.phone) {
-      const existed = await this.prisma.user.findFirst({
-        where: { phone: dto.phone },
-        select: { id: true },
-      });
-      if (existed) {
-        throw new BadRequestException('Số điện thoại đã được sử dụng');
-      }
-    }
-
-    // Bước 2: hash password + insert + sinh cặp JWT.
-    const user = await this.prisma.user.create({
-      data: {
-        name: dto.name,
-        // Cột email NOT NULL + UNIQUE: user đăng ký bằng sđt vẫn phải có giá trị
-        // duy nhất, dùng placeholder theo phone thay vì để trống.
-        email: email ?? `${dto.phone}@phone.local`,
-        phone: dto.phone ?? null,
-        password: await WerkzeugScryptHasher.encode(dto.password),
-        // Django User.role default='Học viên' — KHÔNG phải 'user'.
-        role: DEFAULT_ROLE,
-      },
-    });
+    const user = await this.createOr409(async () =>
+      this.prisma.user.create({
+        data: {
+          name: dto.name,
+          // Cột email NOT NULL + UNIQUE: user đăng ký bằng sđt vẫn phải có giá trị
+          // duy nhất, dùng placeholder theo phone thay vì để trống.
+          email: email ?? `${dto.phone}@phone.local`,
+          phone: dto.phone ?? null,
+          password: await WerkzeugScryptHasher.encode(dto.password),
+          // Django User.role default='Học viên' — KHÔNG phải 'user'.
+          role: DEFAULT_ROLE,
+        },
+      }),
+    );
 
     const tokens = await this.issueTokens(user);
     return {
@@ -151,8 +181,10 @@ export class AuthService {
   // An toàn:
   //  · password = '' — checkPassword() trả false cho chuỗi rỗng, nên không ai
   //    đăng nhập vào tài khoản khách bằng mật khẩu, kể cả qua bản Django.
-  //  · email @guest.local là duy nhất (randomUUID) và nhận diện được để lọc
-  //    hoặc dọn sau buổi test: DELETE ... WHERE email LIKE '%@guest.local'.
+  //  · email @guest.local là duy nhất (randomUUID) và nhận diện được để lọc.
+  //    Dọn khách bằng scripts/cleanup-guest-accounts.ts, KHÔNG DELETE thẳng
+  //    users: khoá ngoại RESTRICT làm câu đó vỡ, và LIKE '%@guest.local' trúng
+  //    cả người thật (luật chọn ở ./guest-cleanup.ts).
   //  · Tắt bằng GUEST_LOGIN=off khi không còn cần (route trả 403).
   async guest() {
     if ((process.env.GUEST_LOGIN ?? 'on').toLowerCase() === 'off') {
@@ -171,6 +203,50 @@ export class AuthService {
     });
     const tokens = await this.issueTokens(user);
     return { ok: true, guest: true, needs_questionnaire: false, ...tokens };
+  }
+
+  /**
+   * Nâng khách thành tài khoản thật bằng UPDATE chính hàng users của khách: user_id giữ nguyên
+   * nên lesson_progress, enrollments, xp đi theo mà không cần di chuyển gì. KHÔNG gộp với tài
+   * khoản có sẵn — trùng email/sđt thì 409 để người dùng tự đăng nhập tài khoản kia.
+   * UPDATE có điều kiện (mật khẩu rỗng + đúng email khách) là compare-and-set: hai lần upgrade
+   * đồng thời chỉ một lần thắng.
+   */
+  async upgrade(userId: number, dto: RegisterDto, oldRefresh?: string) {
+    const guest = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!guest || !isGuestUser(guest)) {
+      throw new ForbiddenException('Chỉ tài khoản khách mới nâng cấp được');
+    }
+    const email = normalizeEmail(dto.email);
+    await this.assertFree(email, dto.phone);
+
+    const res = await this.createOr409(async () =>
+      this.prisma.user.updateMany({
+        where: { id: userId, password: '', email: guest.email },
+        data: {
+          name: dto.name,
+          email: email ?? `${dto.phone}@phone.local`,
+          phone: dto.phone ?? null,
+          password: await WerkzeugScryptHasher.encode(dto.password),
+        },
+      }),
+    );
+    if (res.count === 0) {
+      throw new ForbiddenException('Chỉ tài khoản khách mới nâng cấp được');
+    }
+    this.cachedUsers.invalidate(userId);
+
+    // Access token cũ mang email @guest.local: cấp lại cặp mới, thu hồi chuỗi phiên cũ.
+    if (oldRefresh) await this.refreshTokenService.revoke(oldRefresh);
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+    });
+    return {
+      ok: true,
+      upgraded: true,
+      needs_questionnaire: !user.questionnaireCompleted,
+      ...(await this.issueTokens(user)),
+    };
   }
 
   // ---------- Task 48: logout ----------
@@ -291,12 +367,34 @@ export class AuthService {
     });
   }
 
-  private async findByEmailOrPhone(email?: string, phone?: string) {
-    const or: Array<Record<string, string>> = [];
+  /** 409 cho email/sđt đã có, message theo từng trường. */
+  private async assertFree(email?: string, phone?: string): Promise<void> {
+    const or: Prisma.UserWhereInput[] = [];
     if (email) or.push({ email });
     if (phone) or.push({ phone });
-    if (or.length === 0) return null;
+    if (!or.length) return;
+    const rows = await this.prisma.user.findMany({
+      where: { OR: or },
+      select: { email: true, phone: true },
+    });
+    if (email && rows.some((r) => r.email === email)) throw emailTaken();
+    if (phone && rows.some((r) => r.phone === phone)) throw phoneTaken();
+  }
 
-    return this.prisma.user.findFirst({ where: { OR: or } });
+  /** Chạy thao tác ghi; vi phạm unique (race lọt qua assertFree) → 409. */
+  private async createOr409<T>(op: () => Promise<T>): Promise<T> {
+    try {
+      return await op();
+    } catch (e) {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2002'
+      ) {
+        const fields = extractFields(e);
+        if (fields.includes('phone')) throw phoneTaken();
+        if (fields.includes('email')) throw emailTaken();
+      }
+      throw e;
+    }
   }
 }

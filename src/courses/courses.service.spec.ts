@@ -1,5 +1,6 @@
 import { ForbiddenException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { Prisma } from 'src/generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CoursesService } from './courses.service';
 
@@ -64,6 +65,8 @@ type PrismaMock = {
   };
   lesson: { findMany: HamMock; findFirst: HamMock };
   lessonProgress: { findMany: HamMock; count: HamMock };
+  // BE5: `getEnrolled`/`getCoursesEnrolled` đọc bằng `$queryRaw` (Prisma.Sql).
+  $queryRaw: jest.Mock<Promise<unknown>, [Prisma.Sql]>;
   $transaction: jest.Mock<
     Promise<unknown>,
     [(p: PrismaMock) => Promise<unknown>]
@@ -96,6 +99,9 @@ describe('CoursesService — cổng is_published', () => {
         findMany: mock().mockResolvedValue([]),
         count: mock().mockResolvedValue(0),
       },
+      $queryRaw: jest
+        .fn<Promise<unknown>, [Prisma.Sql]>()
+        .mockResolvedValue([]),
       $transaction: jest.fn((cb: (p: PrismaMock) => Promise<unknown>) =>
         cb(prisma),
       ),
@@ -106,6 +112,40 @@ describe('CoursesService — cổng is_published', () => {
     }).compile();
     service = mod.get(CoursesService);
   });
+
+  /** Một hàng của `docGhiDanh()` — đúng tên cột mà câu SQL đặt. */
+  type HangGhiDanh = {
+    courseId: string;
+    progress: number;
+    completedLessons: number;
+    status: string | null;
+    timeSpent: string | null;
+    enrolledAt: Date;
+    title: string | null;
+    lessonCount: number;
+    accentColor: string | null;
+    contentMeta: unknown;
+    baiVuaXong: string | null;
+    baiKe: string | null;
+  };
+
+  /** Định tuyến `$queryRaw` theo bảng mà câu SQL đọc. */
+  const mockSql = (
+    ghiDanh: HangGhiDanh[],
+    studio: Array<{ courseId: string; sortOrder: number }> = [],
+  ) =>
+    prisma.$queryRaw.mockImplementation((sql) =>
+      Promise.resolve(sql.sql.includes('FROM enrollments') ? ghiDanh : studio),
+    );
+
+  /** Câu SQL đọc bảng `bang`, đã khẳng định là có gửi. */
+  const sqlDoc = (bang: string): Prisma.Sql => {
+    const call = prisma.$queryRaw.mock.calls.find(([q]) =>
+      q.sql.includes(`FROM ${bang}`),
+    );
+    expect(call).toBeDefined();
+    return (call ?? [Prisma.empty])[0];
+  };
 
   const lamAdmin = () =>
     prisma.user.findUnique.mockResolvedValue({ role: 'admin' });
@@ -203,30 +243,36 @@ describe('CoursesService — cổng is_published', () => {
 
   // ---------- 3. Người đang học không bị mất khoá ----------
   describe('học viên đang học khoá bị ẩn', () => {
-    const DONG_GHI_DANH = {
+    const DONG_GHI_DANH: HangGhiDanh = {
       courseId: 'python_advanced',
       progress: 30,
       completedLessons: 3,
       status: 'in_progress',
       timeSpent: '2h',
       enrolledAt: new Date(),
-      course: NHAP,
+      title: NHAP.title,
+      lessonCount: NHAP.lessonCount,
+      accentColor: NHAP.accentColor,
+      contentMeta: {},
+      baiVuaXong: null,
+      baiKe: null,
     };
 
     it('getEnrolled: không lọc is_published, khoá bị ẩn vẫn nằm trong danh sách', async () => {
-      prisma.enrollment.findMany.mockResolvedValue([DONG_GHI_DANH]);
+      mockSql([DONG_GHI_DANH]);
 
       const res = await service.getEnrolled(1);
 
       expect(res.enrolled.map((e) => e.id)).toEqual(['python_advanced']);
       // Truy vấn chỉ ràng buộc theo userId — không có mệnh đề publish nào.
-      const where = prisma.enrollment.findMany.mock.calls[0]?.[0]?.where;
-      expect(where).toEqual({ userId: 1 });
+      const sql = sqlDoc('enrollments');
+      expect(sql.sql).not.toContain('is_published');
+      expect(sql.values).toEqual([1]);
     });
 
     it('getCoursesEnrolled: catalog giữ lại đúng khoá user đã ghi danh', async () => {
       prisma.course.findMany.mockResolvedValue([DA_PHAT_HANH, NHAP]);
-      prisma.enrollment.findMany.mockResolvedValue([DONG_GHI_DANH]);
+      mockSql([DONG_GHI_DANH]);
 
       const res = await service.getCoursesEnrolled(1);
 
@@ -246,6 +292,136 @@ describe('CoursesService — cổng is_published', () => {
       lamAdmin();
       await service.getCoursesEnrolled(9);
       expect(whereDaGui()).toBeUndefined();
+    });
+  });
+
+  // ---------- BE5 ----------
+  describe('BE5: /enrolled đọc ghi danh trong MỘT vòng', () => {
+    const hang = (over: Partial<HangGhiDanh>): HangGhiDanh => ({
+      courseId: 'python_advanced',
+      progress: 0,
+      completedLessons: 0,
+      status: 'in_progress',
+      timeSpent: null,
+      enrolledAt: new Date('2026-11-01T00:00:00Z'),
+      title: 'Python cho Data Analyst',
+      lessonCount: 172,
+      accentColor: null,
+      contentMeta: {},
+      baiVuaXong: null,
+      baiKe: null,
+      ...over,
+    });
+
+    it('hai câu SQL chạy CÙNG LÚC, không câu nào chờ câu kia', async () => {
+      // Câu nào tới trước thì treo lại cho tới khi câu thứ hai cũng đã được
+      // gửi; nếu service chạy nối đuôi thì câu thứ hai không bao giờ tới.
+      let tha: () => void = () => undefined;
+      const cho = new Promise<void>((r) => (tha = r));
+      prisma.$queryRaw.mockImplementation(async () => {
+        if (prisma.$queryRaw.mock.calls.length === 2) tha();
+        await cho;
+        return [];
+      });
+      // Lưới an toàn để ca này trượt chứ không treo nếu service nối đuôi.
+      let hetGio = false;
+      const hen = setTimeout(() => {
+        hetGio = true;
+        tha();
+      }, 1000);
+
+      await service.getEnrolled(1);
+      clearTimeout(hen);
+
+      expect(hetGio).toBe(false);
+      const daGui = prisma.$queryRaw.mock.calls.map(([q]) => q.sql);
+      expect(daGui).toHaveLength(2);
+      expect(daGui.some((q) => q.includes('FROM enrollments'))).toBe(true);
+      expect(daGui.some((q) => q.includes('FROM lesson_progress'))).toBe(true);
+      // Không còn đường Prisma cũ nào bị gọi.
+      expect(prisma.enrollment.findMany).not.toHaveBeenCalled();
+      expect(prisma.lesson.findMany).not.toHaveBeenCalled();
+      expect(prisma.lessonProgress.findMany).not.toHaveBeenCalled();
+    });
+
+    it('tên bài vừa xong / bài kế lấy từ JOIN, rơi về "Bài n" khi trống', async () => {
+      mockSql([
+        hang({
+          courseId: 'python_advanced',
+          completedLessons: 3,
+          baiVuaXong: 'Biến',
+          baiKe: 'Vòng lặp',
+        }),
+        hang({
+          courseId: 'db_design',
+          completedLessons: 2,
+          baiVuaXong: '',
+          baiKe: null,
+        }),
+        hang({ courseId: 'sql', completedLessons: 0, baiKe: 'Mở đầu' }),
+        hang({ courseId: 'cpp', completedLessons: 172, baiVuaXong: 'Cuối' }),
+      ]);
+
+      const res = await service.getEnrolled(1);
+      const theo = (id: string) => res.enrolled.find((e) => e.id === id);
+
+      expect(theo('python_advanced')?.lastLesson).toBe('Biến');
+      expect(theo('python_advanced')?.nextLesson).toBe('Vòng lặp');
+      expect(theo('db_design')?.lastLesson).toBe('Bài 2');
+      expect(theo('db_design')?.nextLesson).toBe('Bài 3');
+      expect(theo('sql')?.lastLesson).toBe('Chưa bắt đầu');
+      expect(theo('sql')?.nextLesson).toBe('Mở đầu');
+      expect(theo('cpp')?.lastLesson).toBe('Cuối');
+      expect(theo('cpp')?.nextLesson).toBe('Đã hoàn thành khoá học');
+      expect(theo('cpp')?.totalLessons).toBe(172);
+    });
+
+    it('completedLessonNumbers chỉ gắn cho khoá studio ĐÃ ghi danh', async () => {
+      mockSql(
+        [hang({ courseId: 'python_advanced' }), hang({ courseId: 'sql' })],
+        [
+          { courseId: 'python_advanced', sortOrder: 1 },
+          { courseId: 'python_advanced', sortOrder: 2 },
+        ],
+      );
+
+      const res = await service.getEnrolled(1);
+      const studio = res.enrolled.find((e) => e.id === 'python_advanced');
+      const khac = res.enrolled.find((e) => e.id === 'sql');
+
+      expect(studio).toHaveProperty('completedLessonNumbers', [1, 2]);
+      expect(khac).not.toHaveProperty('completedLessonNumbers');
+      // Câu tiến độ lọc theo hằng STUDIO_COURSES, không theo danh sách ghi danh.
+      expect(sqlDoc('lesson_progress').values).toEqual([
+        1,
+        ['python_advanced'],
+      ]);
+    });
+
+    it('/courses-enrolled chỉ lấy đúng cột mapCourse() đọc', async () => {
+      await service.getCoursesEnrolled(1);
+      const select = prisma.course.findMany.mock.calls[0][0]?.select;
+      expect(select).toBeDefined();
+      expect(Object.keys(select ?? {}).sort()).toEqual(
+        [
+          'accentColor',
+          'contentMeta',
+          'id',
+          'isPublished',
+          'language',
+          'lessonCount',
+          'level',
+          'rating',
+          'title',
+          'xp_reward',
+        ].sort(),
+      );
+    });
+
+    it('chưa ghi danh khoá nào: trả danh sách rỗng, không vỡ', async () => {
+      mockSql([], [{ courseId: 'python_advanced', sortOrder: 1 }]);
+      const res = await service.getEnrolled(1);
+      expect(res).toEqual({ ok: true, enrolled: [] });
     });
   });
 

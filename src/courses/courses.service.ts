@@ -43,6 +43,24 @@ const COURSE_ICONS: Record<string, string> = {
 export const STUDIO_COURSES = ['python_advanced'];
 
 /** DB lưu enum tiếng Anh; card trên dashboard cần nhãn tiếng Việt. */
+/**
+ * Đúng các cột `mapCourse()` đọc. Bảng courses không có cột nào lớn ngoài
+ * `content_meta` (mà card vẫn cần), nên đây là để KHÔNG kéo thêm cột mới nào
+ * vào đường nóng mỗi khi bảng được thêm cột, chứ không phải để bớt byte hôm nay.
+ */
+const COURSE_CARD_SELECT = {
+  id: true,
+  title: true,
+  level: true,
+  rating: true,
+  lessonCount: true,
+  xp_reward: true,
+  isPublished: true,
+  language: true,
+  accentColor: true,
+  contentMeta: true,
+} satisfies Prisma.CourseSelect;
+
 const LEVEL_LABELS: Record<string, string> = {
   beginner: 'Cơ bản',
   intermediate: 'Trung cấp',
@@ -140,23 +158,23 @@ export class CoursesService {
   }
 
   // ---------- Task 89 ----------
+  /**
+   * Nuôi "Khoá học của tôi" và mọi chỗ frontend cần tiến độ (mở bài, dashboard,
+   * luyện tập…), nên đây là route gọi nhiều nhất.
+   *
+   * Bản cũ đi 5 vòng DB nối đuôi (đo trong BE1): enrollments → courses (của
+   * `include`) → tên bài → lesson_progress → lessons.sort_order (của quan hệ
+   * lồng). Nay là HAI câu chạy song song, tức một vòng: `docGhiDanh()` gộp ba
+   * vòng đầu bằng JOIN, `docBaiStudioDaXong()` gộp hai vòng cuối. Câu thứ hai
+   * không cần chờ câu đầu vì nó lọc theo hằng `STUDIO_COURSES`, không theo
+   * danh sách ghi danh.
+   */
   async getEnrolled(userId: number) {
-    const rows = await this.prisma.enrollment.findMany({
-      where: { userId },
-      include: { course: true },
-      orderBy: { enrolledAt: 'desc' },
-    });
+    const [rows, studioDone] = await Promise.all([
+      this.docGhiDanh(userId),
+      this.docBaiStudioDaXong(userId),
+    ]);
 
-    const titles = await this.fetchLessonTitles(rows);
-    const studioIds = rows
-      .map((r) => r.courseId)
-      .filter((id) => STUDIO_COURSES.includes(id));
-    const studioCompleted = studioIds.length
-      ? await this.prisma.lessonProgress.findMany({
-          where: { userId, courseId: { in: studioIds }, status: 'completed' },
-          select: { courseId: true, lesson: { select: { sortOrder: true } } },
-        })
-      : [];
     // Trước đây chỗ này còn truy vấn `lessons` của khoá 'python' bài 11 để trả
     // thêm field `pythonStudio` cho card trên dashboard cũ. Khoá 'python' đã
     // được gỡ (chỉ còn python_advanced) và không client nào đọc field đó nữa —
@@ -165,12 +183,14 @@ export class CoursesService {
     return {
       ok: true,
       enrolled: rows.map((r) => ({
-        ...this.mapEnrollment(r, titles),
+        ...this.mapEnrollment(r),
+        // Chỉ khoá studio ĐÃ ghi danh mới có field này: `studioDone` lấy theo
+        // hằng `STUDIO_COURSES` nên có thể chứa tiến độ của khoá đã huỷ ghi danh.
         ...(STUDIO_COURSES.includes(r.courseId)
           ? {
-              completedLessonNumbers: studioCompleted
+              completedLessonNumbers: studioDone
                 .filter((p) => p.courseId === r.courseId)
-                .map((p) => p.lesson.sortOrder),
+                .map((p) => p.sortOrder),
             }
           : {}),
       })),
@@ -191,20 +211,19 @@ export class CoursesService {
       : { OR: [{ isPublished: true }, { enrollments: { some: { userId } } }] };
 
     const [courses, rows] = await Promise.all([
-      this.prisma.course.findMany({ where: visible, orderBy: { id: 'asc' } }),
-      this.prisma.enrollment.findMany({
-        where: { userId },
-        include: { course: true },
-        orderBy: { enrolledAt: 'desc' },
+      this.prisma.course.findMany({
+        where: visible,
+        orderBy: { id: 'asc' },
+        select: COURSE_CARD_SELECT,
       }),
+      this.docGhiDanh(userId),
     ]);
 
     const enrolledIds = new Set(rows.map((r) => r.courseId));
-    const titles = await this.fetchLessonTitles(rows);
     return {
       ok: true,
       courses: courses.map((c) => this.mapCourse(c, enrolledIds.has(c.id))),
-      enrolled: rows.map((r) => this.mapEnrollment(r, titles)),
+      enrolled: rows.map((r) => this.mapEnrollment(r)),
     };
   }
 
@@ -523,23 +542,22 @@ export class CoursesService {
    * vào học được: nút "Tiếp tục học" tra COURSE_URLS[undefined] nên không gắn
    * được sự kiện bấm, còn nút "Huỷ đăng ký" thì gọi với id 'undefined'.
    */
-  private mapEnrollment(
-    r: {
-      courseId: string;
-      progress: number;
-      completedLessons: number;
-      status: string | null;
-      timeSpent: string | null;
-      enrolledAt: Date;
-      course: {
-        title: string | null;
-        lessonCount: number;
-        accentColor: string | null;
-        contentMeta?: Prisma.JsonValue;
-      };
-    },
-    lessonTitles?: Map<string, string>,
-  ) {
+  private mapEnrollment(r: {
+    courseId: string;
+    progress: number;
+    completedLessons: number;
+    status: string | null;
+    timeSpent: string | null;
+    enrolledAt: Date;
+    course: {
+      title: string | null;
+      lessonCount: number;
+      accentColor: string | null;
+      contentMeta?: Prisma.JsonValue;
+    };
+    baiVuaXong: string | null;
+    baiKe: string | null;
+  }) {
     const meta = (r.course.contentMeta ?? {}) as Record<string, string>;
     const done = r.completedLessons;
 
@@ -565,42 +583,91 @@ export class CoursesService {
       timeSpent: r.timeSpent ?? '0h',
       status: r.status,
       icon: COURSE_ICONS[r.courseId.toLowerCase()] ?? '📘',
-      lastLesson:
-        done > 0
-          ? (lessonTitles?.get(`${r.courseId}:${done}`) ?? `Bài ${done}`)
-          : 'Chưa bắt đầu',
+      // `||` chứ không `??`: tên bài là chuỗi RỖNG cũng phải rơi về "Bài n",
+      // đúng như bản cũ lọc `l.title` trước khi đưa vào bảng tra.
+      lastLesson: done > 0 ? r.baiVuaXong || `Bài ${done}` : 'Chưa bắt đầu',
       nextLesson:
         done < r.course.lessonCount
-          ? (lessonTitles?.get(`${r.courseId}:${done + 1}`) ??
-            `Bài ${done + 1}`)
+          ? r.baiKe || `Bài ${done + 1}`
           : 'Đã hoàn thành khoá học',
       enrolledAt: r.enrolledAt,
     };
   }
 
   /**
-   * Lấy tên bài vừa học xong và bài kế tiếp cho tất cả khoá đã đăng ký bằng
-   * MỘT truy vấn duy nhất (thay vì 2 truy vấn cho mỗi khoá).
+   * Mọi khoá user đã ghi danh, kèm cột khoá mà `mapEnrollment()` đọc và tên bài
+   * vừa xong / bài kế — trong MỘT câu SQL, MỘT vòng tới Neon.
+   *
+   * Thay cho `enrollment.findMany({ include: { course: true } })` (hai vòng, vì
+   * Prisma đọc quan hệ bằng một câu riêng) cộng `fetchLessonTitles()` (vòng
+   * thứ ba, phải chờ kết quả hai vòng trước). Tên bài tra theo
+   * `(course_id, sort_order)`, có unique `uq_lessons_course_sort` nên mỗi LEFT
+   * JOIN ra tối đa một hàng.
+   *
+   * KHÔNG lọc `is_published`: học viên đã ghi danh vẫn phải thấy khoá dù khoá
+   * sau đó bị ẩn (xem getCoursesEnrolled()).
    */
-  private async fetchLessonTitles(
-    rows: Array<{ courseId: string; completedLessons: number }>,
-  ): Promise<Map<string, string>> {
-    if (!rows.length) return new Map();
+  private async docGhiDanh(userId: number) {
+    const rows = await this.prisma.$queryRaw<
+      Array<{
+        courseId: string;
+        progress: number;
+        completedLessons: number;
+        status: string | null;
+        timeSpent: string | null;
+        enrolledAt: Date;
+        title: string | null;
+        lessonCount: number;
+        accentColor: string | null;
+        contentMeta: Prisma.JsonValue;
+        baiVuaXong: string | null;
+        baiKe: string | null;
+      }>
+    >(Prisma.sql`
+      SELECT e.course_id AS "courseId", e.progress,
+             e.completed_lessons AS "completedLessons", e.status,
+             e.time_spent AS "timeSpent", e.enrolled_at AS "enrolledAt",
+             c.title, c.lessons AS "lessonCount",
+             c.accent_color AS "accentColor", c.content_meta AS "contentMeta",
+             lv.title AS "baiVuaXong", lk.title AS "baiKe"
+      FROM enrollments e
+      JOIN courses c ON c.id = e.course_id
+      LEFT JOIN lessons lv
+        ON lv.course_id = e.course_id AND lv.sort_order = e.completed_lessons
+      LEFT JOIN lessons lk
+        ON lk.course_id = e.course_id AND lk.sort_order = e.completed_lessons + 1
+      WHERE e.user_id = ${userId}
+      ORDER BY e.enrolled_at DESC
+    `);
 
-    const or = rows.flatMap((r) => [
-      { courseId: r.courseId, sortOrder: r.completedLessons },
-      { courseId: r.courseId, sortOrder: r.completedLessons + 1 },
-    ]);
+    return rows.map(
+      ({ title, lessonCount, accentColor, contentMeta, ...r }) => ({
+        ...r,
+        course: { title, lessonCount, accentColor, contentMeta },
+      }),
+    );
+  }
 
-    const lessons = await this.prisma.lesson.findMany({
-      where: { OR: or },
-      select: { courseId: true, sortOrder: true, title: true },
-    });
-
-    return new Map(
-      lessons
-        .filter((l) => l.title)
-        .map((l) => [`${l.courseId}:${l.sortOrder}`, l.title as string]),
+  /**
+   * `sort_order` của các bài ĐÃ XONG ở khoá studio — frontend mở khoá bài theo
+   * đúng danh sách này, không theo tổng số bài.
+   *
+   * Thay cho `lessonProgress.findMany` kèm quan hệ lồng `lesson.sortOrder`
+   * (hai vòng, và vòng thứ hai vẫn chạy với `IN (NULL)` khi chưa xong bài nào).
+   */
+  private docBaiStudioDaXong(userId: number) {
+    return this.prisma.$queryRaw<
+      Array<{ courseId: string; sortOrder: number }>
+    >(
+      Prisma.sql`
+        SELECT lp.course_id AS "courseId", l.sort_order AS "sortOrder"
+        FROM lesson_progress lp
+        JOIN lessons l ON l.id = lp.lesson_id
+        WHERE lp.user_id = ${userId}
+          AND lp.course_id = ANY(${STUDIO_COURSES}::text[])
+          AND lp.status = 'completed'
+        ORDER BY l.sort_order
+      `,
     );
   }
 }

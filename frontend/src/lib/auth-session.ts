@@ -1,10 +1,10 @@
 /**
  * Đăng nhập / đăng ký / nâng khách thành tài khoản — phần KHÔNG React, để node test được.
  *
- * VÌ SAO ĐĂNG KÝ CÓ HAI ĐƯỜNG (`/auth/register` và `/auth/upgrade`): frontend này cho mọi trình duyệt tự nhận một
+ * VÌ SAO ĐĂNG KÝ CÓ HAI ĐƯỜNG (`/auth/register` và `/api/auth/upgrade`): frontend này cho mọi trình duyệt tự nhận một
  * tài khoản KHÁCH (`apiFetch` → POST /auth/guest) và học ngay, tiến độ lưu theo `user_id` của khách. Nếu trang đăng
  * ký luôn gọi `/auth/register` thì nó tạo MỘT user MỚI: tiến độ và XP ở lại tài khoản khách, người học "đăng ký xong
- * thấy mình về 0". `/auth/upgrade` (BE12) UPDATE chính hàng của khách nên `user_id` giữ nguyên và tiến độ đi theo.
+ * thấy mình về 0". `POST /api/auth/upgrade` (BE12; nằm DƯỚI `/api` vì gateway chỉ để ở gốc các path auth kế thừa từ Django, xem PREFIX_EXCLUDED) UPDATE chính hàng của khách nên `user_id` giữ nguyên và tiến độ đi theo.
  * Khách được nhận ra bằng email `@guest.local` trong payload của access token (mọi khách đều có, xem AuthService.guest).
  *
  * Đăng NHẬP một tài khoản có sẵn thì KHÔNG gộp tiến độ khách vào — backend cố ý không gộp (trùng dữ liệu thì không
@@ -127,7 +127,7 @@ export async function dangKy(f: FormDangKy, access: string | null = accessDangLu
   try {
     const opts = { ...JSON_POST, body: JSON.stringify(soanDangKy(f)) };
     // `apiFetch` (không phải fetch trần) cho upgrade: nó đính Bearer của khách và tự refresh nếu access đã hết hạn.
-    const res = nangCap ? await apiFetch('/auth/upgrade', opts) : await fetch(`${apiOrigin()}/auth/register`, opts);
+    const res = nangCap ? await apiFetch('/api/auth/upgrade', opts) : await fetch(`${apiOrigin()}/auth/register`, opts);
     return await xuLy(res, nangCap);
   } catch {
     return { ok: false, loi: MANG };

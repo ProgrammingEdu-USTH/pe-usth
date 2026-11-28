@@ -6939,6 +6939,23 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   không phải Postgres — không canh kiểu cột (`timestamptz`, `jsonb`), không chạy được `= ANY($1::text[])` của
   `docBaiStudioDaXong()`; hai thứ đó chỉ kiểm được trên một nhánh Neon.
 
+- **`/auth/upgrade` NẰM DƯỚI `/api`, VÀ CẢ BỘ KIỂM LẪN NHÁNH `test` ĐỀU KHÔNG NHÌN THẤY — frontend gọi ở gốc là 404 trên production (28/11/2026).**
+  **Triệu chứng:** đẩy backend BE12 lên production rồi thăm dò `POST /auth/upgrade` (không token): 80 lượt (~28 phút) đều 404. Tôi
+  hiểu là "backend chưa dựng lại" — đúng với 40 lượt đầu (chủ dự án mới bấm deploy 19:33), SAI với 40 lượt sau: backend đã lên,
+  `POST /api/auth/upgrade` trả 401. **Nguyên nhân:** `setupApiGateway` đặt prefix `/api` cho mọi route TRỪ danh sách
+  `PREFIX_EXCLUDED` (path kế thừa từ Django: login, register, logout, refresh, guest, google, facebook). Route MỚI không có trong
+  đó nên chỉ sống dưới `/api`. Nhánh `test` cũng không thêm `auth/upgrade` vào danh sách và frontend của nhóm đó chưa hề gọi nó;
+  chính tôi viết lời gọi `apiFetch('/auth/upgrade')` ở gốc. **Vì sao không bộ nào thấy:** unit giả `fetch`, e2e giả API bằng
+  `page.route` với điều kiện `startsWith('/auth/')` — không bộ nào đi qua gateway thật, nên hai bên giả lẫn nhau cùng xanh.
+  **Cách sửa:** frontend gọi `/api/auth/upgrade` (chạy ngay với backend đã deploy; lối kia là thêm vào `PREFIX_EXCLUDED`, tốn thêm
+  một lần deploy Render). Ca mới ở `dang-nhap.test.mjs` ĐỌC `PREFIX_EXCLUDED` từ mã nguồn và đòi mọi `/auth/*` frontend gọi ở gốc
+  phải nằm trong đó; mock e2e nay trả 404 cho `/auth/upgrade` như gateway thật. **Ablate:** đổi lại `/auth/upgrade` → **2 đỏ / 16 ca**
+  (ca URL và ca canh gateway). **Hai bài học:** (1) một phép thăm dò trả 404 phải được kiểm bằng một route CHẮC CHẮN CÓ cùng tiền tố
+  (`/auth/login` → 400, `/api/auth/upgrade` → 401) TRƯỚC khi kết luận "chưa deploy" — tôi bỏ bước đó và báo sai một lần; (2) route
+  backend mới + lời gọi frontend mới cần MỘT phép đo đi qua gateway thật, không chỉ hai bộ giả.
+  **GIỚI HẠN PHẢI NÓI RA:** luồng upgrade CÓ token (khách thật → tài khoản thật, tiến độ đi theo) chưa được đo end-to-end trên
+  production vì đó là phép GHI (tạo tài khoản); mới đo được "route sống và đòi đăng nhập" (401).
+
 ## Phần 2 · Lịch sử số ca test frontend (dòng "Mốc trước là…" của bảng mốc nền)
 
 Mỗi dòng ghi một lần số ca đổi và VÌ SAO. Dời từ mục "Mốc nền" của AGENTS.md; con số HIỆN TẠI và khối phân rã theo tệp vẫn ở AGENTS.md.

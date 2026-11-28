@@ -77,6 +77,17 @@ test('mở /login và /register KHÔNG gọi API; ô nhập đủ nhãn và đ�
     }
   }
   expect(goi, 'trang công khai mở ra mà đã gọi API').toEqual([]);
+
+  // Lối vào ở hồ sơ Góc học cũng là đích bấm (đo 34px trên production 28/11/2026). `offsetHeight`, không phải
+  // getBoundingClientRect: cảnh đang có hoạt ảnh vào màn. Mở bằng `#phone` chứ không bấm: cú bấm rơi vào màn
+  // mở đầu thì engine bỏ qua và ca đỏ oan.
+  await page.goto('/#phone', { waitUntil: 'networkidle' });
+  for (const path of ['/register', '/login']) {
+    const lk = page.locator(`.act a[href="${path}"]`);
+    await expect(lk).toBeVisible();
+    const cao = await lk.evaluate((el: HTMLElement) => el.offsetHeight);
+    expect(cao, `liên kết ${path} trong hồ sơ Góc học thấp hơn 44px`).toBeGreaterThanOrEqual(44);
+  }
 });
 
 test('đăng nhập SAI: hiện câu của backend và KHÔNG lưu phiên', async ({ page }) => {

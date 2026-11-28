@@ -135,6 +135,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <style
           dangerouslySetInnerHTML={{
             __html: [
+              /* Điện thoại: chớp xanh mặc định khi chạm lạc bảng màu lofi; đổi sang nâu ấm mờ (vẫn có phản hồi). */
+              'html{-webkit-tap-highlight-color:rgba(150,110,80,.18)}',
               /* SPA: chỉ khối .page.active được hiện (style.css:449-450).
                  PHẢI giới hạn vào các tab của SPA Bảng điều khiển — nhận diện
                  bằng id="page-*" (page-dashboard, page-courses, page-roadmap…).

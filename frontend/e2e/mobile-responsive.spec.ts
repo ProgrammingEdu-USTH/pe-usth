@@ -133,6 +133,24 @@ test('/ide điện thoại: trình soạn thảo còn tải thì đã thấy mã
   await expect(xemTruoc).toHaveCount(0);
 });
 
+// 28/11/2026: thêm mục "Đăng nhập" làm thanh trên tràn ở màn hẹp, mục cuối bị chém sau một thanh cuộn không dấu hiệu;
+// logo cao 25px, mục 37px. Mọi mục phải nằm trong màn và là đích bấm ≥ 44px.
+test('điện thoại: thanh trên không cuộn ngang, mục nào cũng trong màn và cao ≥ 44px', async ({ page }) => {
+  await page.goto('/ide', { waitUntil: 'domcontentloaded' });
+  const nav = page.locator('header nav');
+  await expect(nav.getByRole('link', { name: 'Đăng nhập' })).toBeVisible();
+  expect(await nav.evaluate((n) => n.scrollWidth - n.clientWidth), 'thanh điều hướng phải cuộn ngang').toBeLessThanOrEqual(0);
+  for (const a of await page.locator('header a').all()) {
+    const { phai, cao, chu } = await a.evaluate((el: HTMLElement) => ({
+      phai: el.getBoundingClientRect().right,
+      cao: el.offsetHeight,
+      chu: (el.textContent || '').trim(),
+    }));
+    expect(phai, `"${chu}" thò ra ngoài màn`).toBeLessThanOrEqual(375);
+    expect(cao, `"${chu}" thấp hơn 44px`).toBeGreaterThanOrEqual(44);
+  }
+});
+
 // 23/11/2026: cảnh Góc học là DOM do engine.js dựng ở CLIENT, nên HTML thô máy chủ trả cho `/` từng có 0 liên kết,
 // 0 tiêu đề, 0 chữ (đo trên bản build) — trình thu thập và trình đọc màn hình chỉ thấy <title>. Ca này đọc HTML THÔ
 // (không chạy JS, không hydrate) và đòi khối <nav> có đủ: tên khoá, tên MỌI học phần (lấy từ curricula.json chứ không

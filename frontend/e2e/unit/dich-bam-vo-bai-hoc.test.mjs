@@ -78,6 +78,8 @@ const TEP = [
   // Tủ sách và nút Lofi dùng chung (đưa từ nhánh test sang).
   'src/components/bookshelf/bookshelf.module.css',
   'src/components/ui/lofi-ui.module.css',
+  // Thêm 28/11/2026 cùng trang đăng nhập/đăng ký: `.nutChinh` và `.nutHien` đều min-height 44.
+  'src/components/auth/auth.module.css',
 ];
 
 /**

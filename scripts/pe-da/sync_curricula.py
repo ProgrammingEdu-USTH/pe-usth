@@ -51,6 +51,17 @@ def main() -> int:
         'practice': sum(len((b['content_json'].get('step_2') or {}).get('practice') or []) for b in bai),
         'graded': sum(1 for b in bai if (b['content_json'].get('step_4') or {}).get('tests')),
     }
+    # LESSON_META: thời lượng và XP từng bài cho dòng "N phút · +N XP" của Góc học.
+    # Frontend ĐÃ đọc khoá này từ lâu (`app/page.tsx` → `curricula.LESSON_META?.[COURSE_ID]`,
+    # `lib/goc-hoc.ts` ghép theo `code`, thiếu thì rơi về 0) nhưng script chưa bao giờ ghi nó,
+    # nên mọi dòng đó luôn là 0 — một tính năng dựng xong mà không có dữ liệu để chạy.
+    # Chỉ ba trường frontend đọc (code · minutes · xp), không chép `screens` như bản trên
+    # `tester/test` (làm curricula.json phình 32 KB → 208 KB). Số lấy từ CHÍNH bản dựng nên
+    # tổng phút trùng hàng "tổng thời lượng" của `check-moc-nen.mjs`.
+    data.setdefault('LESSON_META', {})['python_advanced'] = [
+        {'code': b['lesson_code'], 'minutes': b['estimated_minutes'], 'xp': b['xp_reward']}
+        for b in sorted(bai, key=lambda x: x['sort_order'])
+    ]
     TARGET.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
     tong = sum(len(m['lessons']) for m in data['CURRICULA']['python_advanced']['modules'])

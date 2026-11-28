@@ -1,0 +1,200 @@
+/* Trang đăng nhập / đăng ký — chỉ dùng token của `edu-theme.css`, cùng khuôn với `not-found.module.css`.
+ *
+ * KHÔNG dùng token brand (`--edu-accent*`, `--edu-brand*`, `--edu-red*`): nhóm đã chốt theme lofi chill, và
+ * `ds-contrast.test.mjs` giữ danh sách bề mặt đã sáng. Nút chính ĐẢO đúng cặp của `body` (`--edu-t1` nền, `--edu-bg-solid`
+ * chữ) nên tự đúng ở cả hai chế độ. Màu lỗi KHÔNG có token ấm nào: một đỏ đậm cho ban ngày và một đỏ nhạt cho `body.dark`,
+ * cả hai đo trên thẻ (9,4:1 và 9,1:1), không dùng `--edu-red` (#e5334b chỉ ~4:1 trên thẻ trắng).
+ *
+ * Sàn của repo: ô nhập 16px (dưới 16px iOS Safari tự phóng trang khi focus), đích bấm ≥ 44px, `:hover` chỉ khi
+ * thiết bị có chuột, 16px lề hai bên ở khổ điện thoại.
+ */
+
+.wrap {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px 16px;
+  box-sizing: border-box;
+}
+
+.ve {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--edu-t2);
+  text-decoration: none;
+}
+
+.the {
+  width: 100%;
+  max-width: 420px;
+  box-sizing: border-box;
+  padding: 28px 24px 22px;
+  border-radius: 16px;
+  background: var(--edu-panel-bg-solid);
+  /* `--edu-card-line` đã được ds-contrast canh cả hai chiều; `--edu-card-border` là "trắng trên trắng". */
+  border: 1px solid var(--edu-card-line);
+}
+
+.tieuDe {
+  margin: 0 0 6px;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--edu-t1);
+}
+
+.moTa {
+  margin: 0 0 16px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--edu-t2);
+}
+
+.ghiChu {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--edu-card-line);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--edu-t1);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.truong {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.truong label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--edu-t1);
+}
+
+.oNhap {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--edu-t3);
+  background: var(--edu-panel-bg-solid);
+  color: var(--edu-t1);
+  font-family: inherit;
+  /* 16px là SÀN, không phải thẩm mỹ (xem đầu tệp). */
+  font-size: 16px;
+}
+
+.goiY {
+  font-size: 13px;
+  color: var(--edu-t3);
+}
+
+.hangMk {
+  display: flex;
+  gap: 8px;
+}
+
+.hangMk input {
+  flex: 1;
+  min-width: 0;
+}
+
+.nutHien {
+  min-width: 56px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--edu-card-line);
+  background: var(--edu-panel-bg-solid);
+  color: var(--edu-t1);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nutChinh {
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 12px;
+  border: 1px solid var(--edu-t1);
+  background: var(--edu-t1);
+  color: var(--edu-bg-solid);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nutChinh:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.loi {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid currentColor;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #9b1c1c;
+}
+
+:global(body.dark) .loi {
+  color: #ffb4a8;
+}
+
+.chuyen {
+  margin: 14px 0 0;
+  font-size: 15px;
+  text-align: center;
+  color: var(--edu-t2);
+}
+
+.chuyen a,
+.ve:visited {
+  color: var(--edu-t1);
+  font-weight: 600;
+}
+
+/* Liên kết dưới nút chính là đích bấm trên điện thoại: đo 18px khi để trần, sàn của repo là 44px. */
+.chuyen a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.oNhap:focus-visible,
+.nutHien:focus-visible,
+.nutChinh:focus-visible,
+.ve:focus-visible,
+.chuyen a:focus-visible {
+  outline: 2px solid var(--edu-t1);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nutChinh:not(:disabled):hover {
+    opacity: 0.88;
+  }
+
+  .nutHien:hover,
+  .ve:hover {
+    background: var(--edu-chip-bg);
+  }
+}

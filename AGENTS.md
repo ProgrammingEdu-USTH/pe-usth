@@ -4,6 +4,7 @@ Nền tảng học lập trình: NestJS 11 + Prisma 7 + PostgreSQL (Neon), Next.
 giáo trình Python chạy trong trình duyệt bằng Pyodide. Chi tiết kiến trúc: [README.md](README.md).
 **Vì sao chọn từng công nghệ, và nó đổi lấy gì** — kèm giá đã tra và so với các cách khác:
 [docs/cong-nghe-va-ha-tang.md](docs/cong-nghe-va-ha-tang.md).
+**Nhánh `test` của các thành viên — cái gì đã lấy về `main`, cái gì cố ý chưa, và vì sao:** [NHANH-TEST.md](NHANH-TEST.md). Đọc nó TRƯỚC khi cherry-pick bất cứ thứ gì từ `tester/test`.
 
 ## Lệnh hay dùng
 
@@ -152,12 +153,12 @@ học nó.
 | Hạng mục | Mốc |
 |---|---|
 | Backend typecheck | sạch — nay phủ **cả `scripts/**/*.ts`** (10 script, 0 lỗi) |
-| Backend test | **36 bộ, 532 ca**, tất cả đạt (chạy RIÊNG — xem bẫy tranh CPU) |
+| Backend test | **45 bộ, 644 ca**, tất cả đạt (chạy RIÊNG — xem bẫy tranh CPU). Đo lại 23/11/2026 sau khi port từ `tester/test`: +4 ca `lessons.service.spec.ts` (BE3, d0ede61), +1 bộ / +26 ca `forum.service.spec.ts` (BE7, 047ad35) +5 ca `courses.service.spec.ts` (BE5, 846eea1 + 2e5d04d) +1 bộ / +2 ca `pending-migrations.spec.ts` (71d3337) +1 bộ / +3 ca `redact-url.spec.ts` (che URL ở log 5xx, port tay từ 736a82a) +1 bộ / +25 ca `guest-cleanup.spec.ts` (83e1cf1) và +1 bộ / +20 ca (`forum.controller.spec.ts` + 4 khoá `THROTTLE_FORUM_*` ở `env.validation.spec.ts`, 8a7af2e) và +1 bộ / +5 ca (`course-lesson-count.spec.ts` + 2 ca biên `completeLesson`, 41b5096) và +1 bộ / +6 ca (`db-overload.spec.ts`: phân loại lỗi DB + đọc lại GET, 736a82a) và +1 bộ / +5 ca (`semaphore.spec.ts` 4 ca + 1 ca `completeGate` ở `lessons.service.spec.ts`, 736a82a) và +1 bộ / +11 ca (`auth.be12.spec.ts`: nâng khách giữ `user_id`, 409 theo trường, khoá đoán mật khẩu, 736a82a) |
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
 | Frontend lint | 0 lỗi, **90 cảnh báo** (hạ từ 146 ngày 25/11/2026 khi xoá engine bài SQL cũ). CI chạy `npm run lint -- --max-warnings 90` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 80 `no-unused-vars` (75 ở JS di sản) · 4 `no-unused-expressions` · 4 `no-page-custom-font` · 1 `no-img-element` · 1 chỉ thị `eslint-disable` thừa |
-| Frontend unit test | `cd frontend && npm run test:unit` → **797 ca** / 76 tệp, tất cả đạt. 26/11/2026: +23 ca `lab-sql-ad01.test.mjs` (3 ca cuối: ba bảng người học nhìn thấy khớp từng ô với dữ liệu SQL thật chạy trên đó, đơn 101 có đúng 5 dòng để bấm tìm, lỗi sql.js thật được dịch ra tiếng Việt; ablate sửa một ô bảng hiện → 1 đỏ, đổi câu dịch lỗi → 1 đỏ) (3 ca cuối: tòa nhà truy vấn đếm hàng bằng chính SQL 3·4·6 → 3·3·3, "két thật" 150 khớp dữ liệu, dữ liệu ngày mai có đủ hai ca; ablate sửa 150→140 → 1 đỏ, bỏ phép nối ở tầng 3 → 1 đỏ) (5 ca cuối: câu SQL do ba núm vặn sinh ra đúng ở cả 8 tổ hợp, chạy sql.js thật; bước Đoán gõ số chứ không chọn phương án; ablate bỏ gom dòng hàng → 3 đỏ, ép LEFT JOIN → 1 đỏ, đưa lại phương án → 1 đỏ) (gồm 2 ca canh phụ thuộc vào CSS và bộ vẽ của Quán Mây: đổi tên lớp hay bỏ một hàm ở Quán Mây thì đỏ; ablate bỏ export windowAt → 1 đỏ, đổi tên lớp .bubble → 1 đỏ) (chấm SQL ở trình duyệt bằng sql.js THẬT trong node: đáp án mẫu đạt, cách viết khác đạt, SUM(DISTINCT) đúng ở dữ liệu của quán nhưng sai ở dữ liệu thử thêm, INNER JOIN/COALESCE/sai số cột/lỗi cú pháp bị bắt; ablate: bỏ bộ dữ liệu thử thêm → 2 đỏ / 10, tắt so giá trị → 3 đỏ / 10). 26/11/2026: +2 ca ở `consent-banner.test.mjs` (danh sách "ghi lại" gập trong `details` đóng sẵn; cột "KHÔNG ghi" không bị gập; ablate 2 phép gieo → 1 đỏ / 17 ca mỗi phép) |
-| Frontend e2e | `cd frontend && npm run test:e2e` → **11 ca** / 2 tệp spec, tất cả đạt (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
+| Frontend unit test | `cd frontend && npm run test:unit` → **814 ca** / 77 tệp, tất cả đạt. 28/11/2026 (gộp `tester/main` vào nhánh đăng nhập): +15 ca `dang-nhap.test.mjs` (lõi đăng nhập/đăng ký: khách đi `/auth/upgrade`, PHONE_REGEX và độ dài mật khẩu bằng backend; 3 ca cuối: lối vào từ Góc học và trang chủ, nút Đăng xuất xoá phiên ở máy; ablate: đăng xuất không gọi server → 1 đỏ, `dangXuat` không xoá phiên ở máy → 2 đỏ, `loaiTaiKhoan` coi mọi token là thật → 3 đỏ; số đủ ở đầu tệp test) và +2 ca `goc-hoc-lo-trinh.test.mjs` (LESSON_META phủ 179 bài). 26/11/2026: +23 ca `lab-sql-ad01.test.mjs` (3 ca cuối: ba bảng người học nhìn thấy khớp từng ô với dữ liệu SQL thật chạy trên đó, đơn 101 có đúng 5 dòng để bấm tìm, lỗi sql.js thật được dịch ra tiếng Việt; ablate sửa một ô bảng hiện → 1 đỏ, đổi câu dịch lỗi → 1 đỏ) (3 ca cuối: tòa nhà truy vấn đếm hàng bằng chính SQL 3·4·6 → 3·3·3, "két thật" 150 khớp dữ liệu, dữ liệu ngày mai có đủ hai ca; ablate sửa 150→140 → 1 đỏ, bỏ phép nối ở tầng 3 → 1 đỏ) (5 ca cuối: câu SQL do ba núm vặn sinh ra đúng ở cả 8 tổ hợp, chạy sql.js thật; bước Đoán gõ số chứ không chọn phương án; ablate bỏ gom dòng hàng → 3 đỏ, ép LEFT JOIN → 1 đỏ, đưa lại phương án → 1 đỏ) (gồm 2 ca canh phụ thuộc vào CSS và bộ vẽ của Quán Mây: đổi tên lớp hay bỏ một hàm ở Quán Mây thì đỏ; ablate bỏ export windowAt → 1 đỏ, đổi tên lớp .bubble → 1 đỏ) (chấm SQL ở trình duyệt bằng sql.js THẬT trong node: đáp án mẫu đạt, cách viết khác đạt, SUM(DISTINCT) đúng ở dữ liệu của quán nhưng sai ở dữ liệu thử thêm, INNER JOIN/COALESCE/sai số cột/lỗi cú pháp bị bắt; ablate: bỏ bộ dữ liệu thử thêm → 2 đỏ / 10, tắt so giá trị → 3 đỏ / 10). 26/11/2026: +2 ca ở `consent-banner.test.mjs` (danh sách "ghi lại" gập trong `details` đóng sẵn; cột "KHÔNG ghi" không bị gập; ablate 2 phép gieo → 1 đỏ / 17 ca mỗi phép) |
+| Frontend e2e | `cd frontend && npm run test:e2e` → **18 ca** / 3 tệp spec, tất cả đạt (+1 ca 23/11/2026: HTML thô của `/` có nav SSR; +6 ca `dang-nhap.spec.ts` 28/11/2026: trang công khai mở ra KHÔNG gọi API, khách đăng ký đi `/auth/upgrade` kèm Bearer, đăng nhập sai không lưu phiên, 409 không thay phiên khách, người đã đăng nhập thấy Đăng xuất; đo lại sau khi gộp `tester/main`) (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **69 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
 | Giáo trình pe-da (đang chạy) | **179 bài, 11 module**, 567 màn đọc, **537 câu trắc nghiệm**, 669 câu luyện tập, **143 bài tập được chấm / 480 ca**, 2 435 phút; 139 bài chạy trong trình duyệt / 15 hỗn hợp / 25 trên máy |
@@ -169,14 +170,14 @@ học nó.
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
 | Xuất hình cho người học | `node scripts/check-figures.mjs` → 16 ca, **0 hỏng** |
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **19 mục, 15 có đường tới, 4 còn tối (đã khai lý do)**, 0 lỗi |
-| Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **3 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **21 CSS module trong `src/`** |
+| Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **3 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **22 CSS module trong `src/`** |
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
 | Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **179/179 khớp, 0 bài chờ nạp**. Lần nạp gần nhất: **2026-11-23T15:36 UTC** (22:36 giờ Việt Nam) — HAI bài PY02 · PY03 (#310 A2-nhẹ: nói thẳng phần terminal/notebook chỉ cần khi học trên máy riêng, bỏ câu mở bài PY03 giả định đã tạo môi trường ảo), nạp bằng `--codes=PY02,PY03 --apply --backup=bak-py02-03-2026-11-23.json` sau khi chạy thử `--all` xác nhận ĐÚNG 2/179 bài lệch và 177 bài còn lại khớp DB từng byte; chạy thử lại sau khi nạp cho 0/179 lệch. Biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Lần nạp trước: 2026-11-19T07:08 UTC (PY01, #310 A1, `--codes=PY01`); trước nữa 2026-11-19T06:55 UTC (15 bài PD02 · PD03 · PD05 · PD07 · PD14 · PD15 · PD18 · PD23 · PD25 · PD26 · VZ02 · VZ03 · VZ12 · VZ14 · VZ22, `--codes=<15 mã>`); và 2026-11-16T17:41 UTC `--all`. CÓ biên nhận rồi thì một bài lệch là ĐỎ CỨNG (`check-da-nap` thoát 1, CI chạy nó) — số chờ nạp ĐÃ về 0, nên điều kiện để lật trigger `ci.yml` sang `main` về phía nội dung đã đủ. GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó (lần chạy thử `--all` ở trên là phép đo trực tiếp DB, và nó đo ngay trước và ngay sau lúc nạp). |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **47 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 797 · backend 36 bộ/532 · tracer 69 · e2e 11 · pyodide 154/420 · practice 143/480/773 · vanphong 68/364 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 814 · backend 45 bộ/644 · tracer 69 · e2e 18 · pyodide 154/420 · practice 143/480/773 · vanphong 68/364 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -195,22 +196,23 @@ chín vòng. Đây là lần THỨ HAI cùng con số này trôi — lần trư�
 và mười tệp test mới (`ablate-trung-thuc`, `dich-bam-vo-bai-hoc`, `khoa-roi-giao-trinh`,
 `lesson-chrome-sticky`, `o-go-16px`, `trang-404`, `trang-loi`…) chưa bao giờ có mặt ở đây.
 Phân rã hiện tại, ĐO chứ không cộng tay:
-ablate-trung-thuc 19 · bookshelf-progress 5 · catalog-duration 2 · catalog-naming 4 · consent-banner 17 ·
-course-resume 2 · danh-thuc-may-chu 6 · data-files 18 · dich-bam-vo-bai-hoc 8 · ds-contrast 18 ·
-editor-load-gate 15 · feedback-link 9 · feedback-rank 3 · forum-xss 1 · giam-chuyen-dong 3 ·
-giao-dien 7 · giao-dien-chuyen-dong 5 · giao-dien-monaco 4 · giao-dien-trang-chu 4 ·
-goc-hoc-cho-so 10 · goc-hoc-escape 5 · goc-hoc-hang-nut 4 · goc-hoc-khung-cho 6 ·
-goc-hoc-lo-trinh 9 · goc-hoc-man-con 3 · goc-hoc-nhan-mot 6 · goc-hoc-thanh-cuon 5 ·
-hover-cam-ung 4 · ide-brief-code 12 · ide-gia-tri-nhieu-dong 3 · ide-handoff 6 ·
-ide-output-scroll 6 · ide-partial-output 10 · ide-stop-autosave 27 · ide-thanh-cong-cu 4 ·
-ide-trace 38 · ide-trace-nap-goi 5 · inline-code 7 · insert-gate-sync 2 · khoa-roi-giao-trinh 5 ·
-lab-sql-ad01 23 · label-version 3 · learning-events 50 · lesson-back 19 · lesson-chrome-sticky 4 · lesson-load 7 ·
-lien-ket-noi-bo 3 · loi-mang 3 · loi-python 6 · mcq-code 12 · mcq-next-after-wrong 23 · o-go-16px 10 ·
-o-nhap-nhieu-dong 2 · phan-bai 8 · practice-contract 15 · practice-run 9 · prewarm-gate 7 · quan-may 18 ·
-read-diagram 12 · read-guess 19 · read-trace 17 · read-try-it 23 · recap-recall 7 ·
-review-quiz 34 · run-stale 15 · sandbox-cuon-ket-qua 6 · session-marker 5 · spaced-review 18 ·
-static-courses 8 · studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 · trang-404 6 · trang-loi 12 ·
-trap-leak 3 · worker-csp 7 = 797.
+ablate-trung-thuc 19 · bookshelf-progress 5 · catalog-duration 2 · catalog-naming 4 ·
+consent-banner 17 · course-resume 2 · dang-nhap 15 · danh-thuc-may-chu 6 · data-files 18 ·
+dich-bam-vo-bai-hoc 8 · ds-contrast 18 · editor-load-gate 15 · feedback-link 9 · feedback-rank 3 ·
+forum-xss 1 · giam-chuyen-dong 3 · giao-dien 7 · giao-dien-chuyen-dong 5 · giao-dien-monaco 4 ·
+giao-dien-trang-chu 4 · goc-hoc-cho-so 10 · goc-hoc-escape 5 · goc-hoc-hang-nut 4 ·
+goc-hoc-khung-cho 6 · goc-hoc-lo-trinh 11 · goc-hoc-man-con 3 · goc-hoc-nhan-mot 6 ·
+goc-hoc-thanh-cuon 5 · hover-cam-ung 4 · ide-brief-code 12 · ide-gia-tri-nhieu-dong 3 ·
+ide-handoff 6 · ide-output-scroll 6 · ide-partial-output 10 · ide-stop-autosave 27 ·
+ide-thanh-cong-cu 4 · ide-trace 38 · ide-trace-nap-goi 5 · inline-code 7 · insert-gate-sync 2 ·
+khoa-roi-giao-trinh 5 · lab-sql-ad01 23 · label-version 3 · learning-events 50 · lesson-back 19 ·
+lesson-chrome-sticky 4 · lesson-load 7 · lien-ket-noi-bo 3 · loi-mang 3 · loi-python 6 ·
+mcq-code 12 · mcq-next-after-wrong 23 · o-go-16px 10 · o-nhap-nhieu-dong 2 · phan-bai 8 ·
+practice-contract 15 · practice-run 9 · prewarm-gate 7 · quan-may 18 · read-diagram 12 ·
+read-guess 19 · read-trace 17 · read-try-it 23 · recap-recall 7 · review-quiz 34 · run-stale 15 ·
+sandbox-cuon-ket-qua 6 · session-marker 5 · spaced-review 18 · static-courses 8 ·
+studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 · trang-404 6 · trang-loi 12 ·
+trap-leak 3 · worker-csp 7 = 814.
 Lịch sử các lần số ca đổi ("Mốc trước là 736; …") nằm ở [BAY-DA-GAP.md](BAY-DA-GAP.md), phần 2 — mỗi dòng ghi VÌ SAO con số đổi. Khối phân rã ở trên là số HIỆN TẠI; thêm/bớt một tệp test thì sửa CẢ hàng mốc nền LẪN khối này (`node scripts/dem-ca-test.mjs` in đúng khuôn).
 
 **Đếm phân rã bằng `sed`, đừng bằng `grep -E "^. pass"`** — dòng tổng kết của
@@ -274,7 +276,7 @@ tiêu là chạy tới xanh rồi mới bàn giao, không hỏi giữa chừng.
 
 ## Những cái bẫy đã gặp
 
-Chi tiết 184 bẫy (triệu chứng → nguyên nhân → số đã đo → ablate → giới hạn) nằm ở [BAY-DA-GAP.md](BAY-DA-GAP.md),
+Chi tiết 185 bẫy (triệu chứng → nguyên nhân → số đã đo → ablate → giới hạn) nằm ở [BAY-DA-GAP.md](BAY-DA-GAP.md),
 nguyên văn như trước 17/11/2026 (#227). Chúng không còn nạp vào mỗi phiên: chiếm 662 KB trong 714 KB của tệp này.
 **Trước khi sửa một vùng, tìm tên vùng trong mục lục dưới đây rồi `Read` tệp lưu trữ từ số dòng ghi sau mũi tên** (L123 = dòng 123).
 Bẫy mới: thêm vào cuối phần 1 của BAY-DA-GAP.md và thêm MỘT dòng vào mục lục này.
@@ -296,7 +298,7 @@ Bẫy mới: thêm vào cuối phần 1 của BAY-DA-GAP.md và thêm MỘT dòn
 13. **Đầu ra của `git push` và CÂU của một cổng là PHÉP ĐO, không phải tiếng ồn.** Dòng `remote:` báo repo đã dời; `check-da-nap` in sẵn câu trả lời "mọi bài đã nạp" trong khi người ta lặp "153 bài chưa nạp". Chạy cổng canh việc rồi đọc CÂU, không đọc màu. Khi `check-da-deploy` cảnh báo thì production có thể đang chạy bản cũ dù CI xanh.
 14. **Nghi phép đo trước khi nghi sản phẩm — nhất là khi một phép đo cho hai giá trị KHÔNG THỂ cùng đúng.** `color` và `border-color` cùng một `var()` mà khác nhau (transition đang chạy), 43,3px so với computed 44px (hoạt ảnh), fetch + so HTML trang render ở client (luôn bằng nhau theo cấu tạo), `ℹ` multibyte, tab renderer khác chạy rAF. Kiểm `response.status` trước khi kết luận về sản phẩm; một lượt mở trang bài học trên production bằng trình duyệt là một phép đo CÓ GHI (tạo tài khoản khách).
 
-### Mục lục (184 bẫy, theo thứ tự trong tệp lưu trữ)
+### Mục lục (185 bẫy, theo thứ tự trong tệp lưu trữ)
 
 - 508 khối code màn đọc chia vào nhóm nào — nay KHAI RA, và bộ bắt-tất từng làm cổng RỖNG. → L12
 - PHỄU TIẾN ĐỘ: `lesson_progress` KHÔNG phải mẫu số, và `scripts/` chưa bao giờ được typecheck. → L45
@@ -482,6 +484,7 @@ Bẫy mới: thêm vào cuối phần 1 của BAY-DA-GAP.md và thêm MỘT dòn
 - GIAO DIỆN THỨ HAI "ĐÀI THIÊN VĂN" — vòng B1: một TRỤC chọn riêng, token ở TỆP RIÊNG, và bản design KHÔNG phải thứ tôi tưởng. → L6751
 - THEME CHIÊM TINH PHỦ TRANG CHỦ — và vì sao nó là lớp KHOÁC, không phải cảnh mới (vòng H1, 12/11/2026). → L6894
 - THEME CHIÊM TINH Ở /ide, 404, TRANG LỖI — và MONACO KHÔNG ĐỌC CSS (vòng H2, 12/11/2026). → L6911
+- WORKTREE MỚI TRÊN WINDOWS ĐỎ 2 BỘ JEST Ở `main` NGUYÊN VẸN (`autocrlf` hệ thống) — và hai cách nữa để "đã ablate" mà không đo được gì: gỡ hẳn bản sửa làm chết tiến trình, và mock che mất logic JOIN. → L6923
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 
@@ -509,6 +512,12 @@ Hai đường, chọn sai là xoá tiến độ của người đang học:
 
   Luật chọn/so sánh nằm ở `src/course-admin/lesson-content-update.ts` (có test Jest).
 
+  **Đường quay lui: `scripts/restore-lesson-content.ts --from=<file --backup>`** (port từ `tester/test`, 23/11/2026).
+  Cùng khuôn an toàn: mặc định CHẠY THỬ, `--apply` ghi trong một transaction, mỗi câu phải trúng đúng 1 hàng, chỉ
+  `UPDATE lessons SET content_json`. **KHÔNG cập nhật `scripts/pe-da/da-nap.json`**, nên sau khi khôi phục
+  `check-da-nap` vẫn nói "khớp" trong khi DB đã về bản cũ — biên nhận chỉ nói lần nạp ĐÃ xảy ra. Chưa có test Jest
+  (cần DB); đã thử đường kiểm tra tệp hỏng và thiếu `--from`, chưa chạy `--apply` trên DB nào.
+
   **Hạn transaction phải NÓI RA — mặc định 5 giây không nạp nổi cả khoá.** Lần đầu nạp 124
   bài (27/10/2026): 124 câu UPDATE trong một transaction tương tác chạy 5 140 ms trên Neon,
   Prisma huỷ ở mốc 5 000 ms. Transaction rollback nên DB không hỏng — nhưng file sao lưu ĐÃ
@@ -521,6 +530,63 @@ Hai đường, chọn sai là xoá tiến độ của người đang học:
 
 Sau MỌI lần nạp, vẫn phải chạy `py scripts/pe-v4/sync_curricula.py` — xem bẫy "Hai nguồn
 danh sách bài" ở trên.
+
+### Dọn tài khoản khách (port từ `tester/test` 83e1cf1, 23/11/2026 — CHƯA từng chạy trên DB nào)
+
+**Đừng `DELETE FROM users WHERE email LIKE '%@guest.local'`**: nó vỡ ở bảng con đầu tiên (các khoá ngoại tới
+`users` là `ON DELETE RESTRICT`, trừ vài bảng CASCADE) và còn trúng cả người thật đăng ký bằng email đuôi ấy.
+Dùng `scripts/cleanup-guest-accounts.ts`. Nó chỉ chọn khách mà không ai vào lại được nữa: email đúng định dạng
+`guest_<uuid>@guest.local`, mật khẩu rỗng, không OAuth, không còn phiên refresh sống, mốc hoạt động cuối cũ
+hơn N ngày (mặc định 30), và CHƯA học (không `lesson_progress`, xp = 0; `--include-with-progress` mới xoá
+khách đã học). Khách có bài viết/bình luận hoặc là giảng viên luôn bị bỏ qua và in ra để xử lý tay.
+Mặc định CHẠY THỬ; `--apply` bắt buộc kèm `--backup=<file.json>` (ghi `users` + mọi hàng con, kể cả bảng CASCADE),
+`--limit` chặn số khách mỗi lần, xoá trong MỘT transaction.
+
+```bash
+npx ts-node scripts/cleanup-guest-accounts.ts                       # xem trước
+npx ts-node scripts/cleanup-guest-accounts.ts --apply --backup=guests-bak.json --limit=200
+```
+
+Luật chọn và thứ tự xoá nằm ở `src/auth/guest-cleanup.ts`. **Thêm bảng trỏ vào `users` thì phải khai ở đó**:
+`guest-cleanup.spec.ts` đọc migration và đỏ nếu thiếu. Hai bảng `learning_events` và
+`learning_event_consents` (CASCADE) đã khai khi port; bản gốc chưa biết chúng, và regex của spec gốc chỉ đọc
+`ALTER TABLE` trên MỘT dòng nên mù với migration `consents` viết nhiều dòng — nay đã sửa. Hai bảng này là bằng
+chứng đồng ý ghi nhật ký (Luật 91/2025): xoá khách thì chúng đi theo, đó là chủ ý của CASCADE, nhưng hãy đọc lại
+trước khi chạy `--apply` đầu tiên.
+
+### Kiểm bất biến DB (CHỈ ĐỌC) và đồng bộ số bài (port từ `tester/test` 41b5096, 23/11/2026)
+
+`npx ts-node scripts/check-db-invariants.ts` (cần `DATABASE_URL`; không câu nào ghi, thoát 1 nếu có mục trượt) chạy 8 câu
+SQL: `courses.lessons` bằng số bài thật, `sort_order` liên tiếp từ 1, không trùng `(course_id, sort_order)`,
+`lesson_progress.course_id` khớp `lessons.course_id`, `enrollments.progress/completed_lessons` khớp công thức
+`recomputeProgress`, `progress` trong 0..100, mọi khoá ngoại có chỉ mục dẫn đầu, không chỉ mục hỏng. Vì sao: `courses.lessons` là
+số do tay khai — bản trên `tester/test` từng ghi 172 trong khi có 179 bài, và `POST /lessons/:n/complete` trả 400 cho bài 173–179.
+**Mục 7 sẽ TRƯỢT trên schema hiện tại** (đo trên Postgres thật: 22 khoá ngoại chưa có chỉ mục dẫn đầu) cho tới khi áp migration
+`fk_indexes`; đó là tín hiệu thật, không phải lỗi script. `scripts/fix-course-lessons.ts` là phần sửa của mục 1: mặc định CHẠY THỬ,
+`--apply` bắt buộc `--backup=<file>`, một transaction, dừng nếu dãy bài bị hở. Luật đếm "bài hoạt động" là `1 <= sort_order < 1000`
+(`src/course-admin/course-lesson-count.ts`) — dùng chung cho admin, script và kiểm bất biến; bài 0/âm không còn được tính.
+Đã kiểm 8 câu SQL trên Postgres thật (PGlite): dữ liệu sạch → đạt; gieo từng loại vi phạm → đúng mục trượt. CHƯA chạy lần nào trên DB thật.
+
+### Lỗi DB tạm thời: 503 theo NGUYÊN NHÂN, và GET đọc lại một lần (port từ `tester/test` 736a82a, 23/11/2026)
+
+`src/common/db-errors.ts` phân lỗi hạ tầng DB thành ba loại — `pool-timeout` (hàng đợi pool quá hạn, `Retry-After: 3`), `connection-dropped`
+(Neon cắt socket idle, `Retry-After: 3`), `unreachable` (`Retry-After: 10`) — mỗi loại một câu nói riêng; trước đây cả ba đều báo "Hệ thống đang quá
+tải" và `Retry-After: 10`, kể cả khi nguyên nhân chỉ là một socket bị cắt. `RetryReadInterceptor` (đăng ký ở `ApiGatewayModule`, nơi duy nhất được khai
+interceptor toàn cục) chạy lại handler **GET** đúng MỘT lần, sau 200 ms, và CHỈ khi lỗi là `connection-dropped`; POST/PUT không bao giờ được chạy lại
+(có thể đã commit một phần), `pool-timeout` cũng không (chỉ xếp hàng thêm). **Hợp đồng mới cho mọi route GET: phải IDEMPOTENT** — bị chạy hai lần là
+vô hại. Đã quét 23/11/2026: GET duy nhất có ghi DB là `notifications/getSettings`, và nó là `upsert` lấy-hoặc-tạo. Thêm một GET có ghi không idempotent
+(đếm lượt xem, cộng XP…) thì phải tắt đọc lại cho route đó hoặc đổi sang POST. Không port `neon-pool`/`PoolWaitMonitor`/`events-prisma` cùng commit gốc.
+
+### Vách ngăn hoàn thành bài: `COMPLETE_LESSON_MAX_CONCURRENT`, mặc định 25 (port từ `tester/test` 736a82a, 23/11/2026)
+
+`LessonsService.completeLesson` bọc transaction trong `completeGate = new Semaphore(25)` (`src/common/concurrency/semaphore.ts`). Vì sao: transaction đó
+giữ MỘT connection của pool ~1–2,6 s (11–16 vòng tới Neon); cả lớp bấm cùng lúc thì chúng chiếm hết pool và mọi route ĐỌC (mở bài, danh sách) xếp hàng
+sau chúng. Vách ngăn dời hàng chờ từ pool (giữ socket) sang bộ nhớ (rẻ); chờ quá 10 s thì trả 503; `0` = tắt. **Số đo là của TÁC GIẢ, chưa tái hiện ở đây**
+(nhánh test, 100 người dồn + một đầu dò đọc `/api/enrolled` mỗi 100 ms, mỗi mức chạy 2 lần trên một máy cá nhân, `scripts/loadtest-scenarios.js` — không
+mang sang): đầu dò đọc p95 735–1 015 ms (tắt) → 215–255 ms (25); cái giá: hoàn thành bài p95 ≈ 1,6 → 2,4 s. Với quy mô người thử hiện nay (dưới 25 người
+hoàn thành bài CÙNG LÚC) nó không kích hoạt. Nằm TRONG từng tiến trình: chạy N bản backend thì tổng đồng thời là N × 25 và pool mỗi bản vẫn riêng. Lớp lớn
+hơn 100 người sẽ vượt 3 s — khi đó tăng `DB_POOL_MAX` trước, đừng nâng vách ngăn. Biến này đọc thẳng `process.env` ở constructor (không qua
+`env.validation.ts`), nên đặt giá trị không hợp lệ (chữ) ra `NaN` và `NaN <= 0` là false ⇒ vách ngăn chạy với `max = NaN` (không giới hạn thật sự): đặt số.
 
 ## Quy ước khi sửa
 

@@ -20,6 +20,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { ROAD, ROAD_DOC, nhanLoTrinh } from '../../src/components/goc-hoc/scene-data.js';
+import { buildContent } from '../../src/lib/goc-hoc.ts';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FE = join(HERE, '..', '..');
@@ -137,4 +138,33 @@ test('engine CHỌN bảng dọc khi L.mobile, và CSS có cỡ chữ riêng cho
   assert.ok(ENGINE.includes(`nhanLoTrinh(m.name, ${DOC_KY_TU}, ${DOC_DONG})`), 'nhãn bảng dọc không còn 22 ký tự × 2 dòng — sửa ca này cho khớp.');
   const css = readFileSync(join(FE, 'src', 'components', 'goc-hoc', 'scene.css'), 'utf8');
   assert.match(css, /\.paper\.doc \.node text\{font-size:28px\}/, 'thiếu cỡ chữ 28 cho nhãn bảng dọc.');
+});
+
+// ── LESSON_META: dòng "N phút · +N XP" của Góc học ──────────────────────────────────────────────
+// Frontend (`app/page.tsx` → `buildContent`) đọc `curricula.LESSON_META.python_advanced` từ lâu, nhưng
+// `scripts/pe-da/sync_curricula.py` chưa bao giờ ghi khoá đó, nên mọi bài ra 0 phút · 0 XP — một tính năng
+// dựng xong mà không có dữ liệu. Hai ca dưới đọc CHÍNH `curricula.json` và CHÍNH `buildContent`, không
+// một danh sách gõ tay. Gỡ khoá khỏi script (rồi đồng bộ lại) → cả hai đỏ.
+const LESSON_META = JSON.parse(readFileSync(join(FE, 'src', 'lib', 'curricula.json'), 'utf8')).LESSON_META?.python_advanced ?? [];
+
+test('LESSON_META phủ MỌI bài của MỌI học phần, với phút và XP đều > 0', () => {
+  const meta = new Map(LESSON_META.map((r) => [r.code, r]));
+  assert.equal(meta.size, LESSON_META.length, 'LESSON_META có mã trùng.');
+  const thieu = [];
+  for (const mod of MODULES) {
+    for (const raw of mod.lessons) {
+      const code = raw.slice(0, raw.indexOf(' · ')).trim();
+      const r = meta.get(code);
+      if (!r || !(r.minutes > 0) || !(r.xp > 0)) thieu.push(code || raw);
+    }
+  }
+  assert.deepEqual(thieu, [], `${thieu.length} bài thiếu phút/XP trong LESSON_META: ${thieu.slice(0, 6).join(', ')} — chạy lại py scripts/pe-da/sync_curricula.py.`);
+});
+
+test('buildContent dựng phòng với phút và XP THẬT (tổng phút = tổng trong LESSON_META)', () => {
+  const room = buildContent({ courseId: 'python_advanced', courseName: 'x', lessonUrl: '/x', modules: MODULES, meta: LESSON_META });
+  const bai = room.modules.flatMap((m) => m.lessons);
+  assert.equal(bai.length, MODULES.reduce((s, m) => s + m.lessons.length, 0), 'phòng thiếu bài so với học phần.');
+  assert.ok(bai.every((l) => l.minutes > 0 && l.xp > 0), `${bai.filter((l) => !(l.minutes > 0 && l.xp > 0)).length} bài ra 0 phút hoặc 0 XP trong phòng.`);
+  assert.equal(bai.reduce((s, l) => s + l.minutes, 0), LESSON_META.reduce((s, r) => s + r.minutes, 0), 'tổng phút trong phòng lệch LESSON_META.');
 });

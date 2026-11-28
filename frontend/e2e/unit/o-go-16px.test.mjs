@@ -68,6 +68,13 @@ const O_GO = [
     // hai và các cổng có chỗ bám — và để ca "thẻ KHÔNG ghi fontSize nội tuyến" canh được nó.
     vi: 'ô hồi tưởng ở màn tổng kết của MỌI bài — đã 16px, nay là lớp CSS thay vì nội tuyến',
   },
+  {
+    lop: 'oNhap',
+    sel: '.oNhap',
+    css: 'src/components/auth/auth.module.css',
+    tsx: 'src/components/auth/AuthView.tsx',
+    vi: 'bốn ô của trang đăng nhập / đăng ký (23/11/2026) — 16px ngay từ đầu: bản trên nhánh test là 13px',
+  },
 ];
 
 /** Hai ô còn lại dưới 16px, CỐ Ý không sửa — xem lý do ở ghi chú của ca cuối. */
@@ -272,6 +279,7 @@ const boCtDong = (s) => s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$
 /** Tệp -> số ô gõ, và sàn 16px được canh ở đâu. */
 const DA_PHU = {
   'src/app/ide/IdeClient.tsx': 2, // `.select` + `.fallbackInput`, cả hai ở ide.module.css
+  'src/components/auth/AuthView.tsx': 4, // `.oNhap` ở auth.module.css (O_GO): tên, định danh, mật khẩu, nhập lại
   'src/components/lesson-chrome/exercises/Recap.tsx': 1, // `.recapInput` ở exercises.module.css (O_GO)
   'src/components/lesson-chrome/exercises/SandboxEditor.tsx': 1,
   'src/components/python-studio/screens/PracticeScreen.tsx': 1,

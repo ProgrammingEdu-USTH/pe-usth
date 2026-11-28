@@ -6,6 +6,9 @@
 // tiết từng khóa. Bản trước đo thêm login/register/dashboard/questionaire — các
 // trang đó đã gỡ khỏi frontend nên spec đi theo, và nhờ không còn gọi
 // `helpers.login()` nên chạy được trong CI mà không cần backend.
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { test, expect, Page } from '@playwright/test';
 
 test.use({ viewport: { width: 375, height: 812 } });
@@ -87,4 +90,27 @@ test('trang chủ dẫn vào Tủ sách, đường khoá học cũ chuyển về
   // `/ide` phải còn một lối vào THẤY ĐƯỢC cho người chưa mở bài nào.
   await page.goto('/bookshelf', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('a[href="/ide"]').first()).toBeVisible();
+});
+
+// 23/11/2026: cảnh Góc học là DOM do engine.js dựng ở CLIENT, nên HTML thô máy chủ trả cho `/` từng có 0 liên kết,
+// 0 tiêu đề, 0 chữ (đo trên bản build) — trình thu thập và trình đọc màn hình chỉ thấy <title>. Ca này đọc HTML THÔ
+// (không chạy JS, không hydrate) và đòi khối <nav> có đủ: tên khoá, tên MỌI học phần (lấy từ curricula.json chứ không
+// gõ tay), và đúng MỘT liên kết tới một trang mở được — cùng "một cửa" mà ca trên canh cho phần người dùng thấy.
+test('trang chủ: HTML thô của máy chủ có điều hướng và chữ, không cần chạy JS', async ({ request }) => {
+  const res = await request.get('/');
+  expect(res.status()).toBe(200);
+  const html = await res.text();
+  const nav = html.match(/<nav aria-label="Điều hướng chính"[\s\S]*?<\/nav>/)?.[0];
+  expect(nav, 'HTML thô của / không còn khối <nav aria-label="Điều hướng chính">').toBeTruthy();
+
+  const hrefs = [...nav!.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
+  expect(hrefs).toEqual(['/bookshelf/python']); // một cửa: không /ide, không /lesson/…
+  expect((await request.get(hrefs[0])).status(), 'liên kết trong nav dẫn tới trang không mở được').toBe(200);
+
+  const curricula = JSON.parse(
+    readFileSync(join(__dirname, '..', 'src', 'lib', 'curricula.json'), 'utf8'),
+  ) as { CURRICULA: { python_advanced: { modules: { title: string }[] } } };
+  const modules = curricula.CURRICULA.python_advanced.modules;
+  expect(modules.length).toBeGreaterThan(0);
+  for (const m of modules) expect(nav, `thiếu học phần "${m.title}" trong nav SSR`).toContain(m.title);
 });

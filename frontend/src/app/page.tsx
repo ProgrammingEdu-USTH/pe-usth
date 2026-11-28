@@ -29,6 +29,8 @@
 //     thêm edu-fonts.css vào mọi trang) — thêm edu-theme.css vào thì nó đặt
 //     lại nền, phông và `.page` của cả trang và cảnh sẽ lệch.
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import type { CSSProperties } from 'react';
 
 import DanhThucMayChu from '@/components/DanhThucMayChu';
 import StudyRoom from '@/components/goc-hoc/StudyRoom';
@@ -39,6 +41,19 @@ import { feedbackFormHref } from '@/lib/feedback-link';
 import type { LessonMetaRow, ModuleRow } from '@/lib/goc-hoc';
 
 const COURSE_ID = 'python_advanced';
+
+/** Ẩn khỏi mắt nhưng GIỮ trong cây truy cập: clip chứ không display:none (xem chú thích ở khối <nav>). */
+const SR_ONLY: CSSProperties = {
+  position: 'absolute',
+  width: 1,
+  height: 1,
+  padding: 0,
+  margin: -1,
+  overflow: 'hidden',
+  clip: 'rect(0, 0, 0, 0)',
+  whiteSpace: 'nowrap',
+  border: 0,
+};
 
 export const metadata: Metadata = {
   title: 'Programming EDU — Góc học',
@@ -56,6 +71,35 @@ export default function HomePage() {
   return (
     <>
       <PageStyles hrefs={[]} />
+      {/*
+        Điều hướng THẬT cho thứ không chạy JS. Cảnh Góc học là DOM do engine.js dựng ở client, nên HTML thô của
+        trang chủ từng KHÔNG có một liên kết, một tiêu đề, một chữ nào (đo 23/11/2026 trên bản build: 0 / 0 / 0) —
+        trình thu thập và trình đọc màn hình chỉ thấy <title>. Khối này ẩn theo kiểu "chỉ cho máy đọc" (không dùng
+        display:none, kẻo giấu luôn khỏi trình đọc màn hình).
+        CHỈ MỘT liên kết, tới `/bookshelf/python` (28/11/2026: `/courses/python_advanced` nay là redirect 307 sang đó) — cùng đích với ô khoá học trong cảnh. Trang chủ cố ý "một cửa":
+        e2e `mobile-responsive` đòi không có `/ide` ở đây (08/11/2026, lối vào IDE nằm ở header trang khoá học), nên nav
+        này KHÔNG trỏ `/ide` hay `/lesson/…` dù bản gốc có. Phần crawler thực sự thiếu là CHỮ (tiêu đề, mô tả, tên học phần).
+        Viết lại từ nhánh `test` cf16be7: bản gốc trỏ `#map`, `#courses`, `#leaderboard` (neo của trang chủ cũ, không
+        tồn tại ở đây) và liệt kê cả tên từng bài vào vùng điều hướng — 179 mục ẩn là nhiễu cho người dùng đọc màn hình.
+        `tabIndex={-1}`: liên kết ẩn mà nhận focus bàn phím là "focus vô hình"; bàn phím đã có các vật trong cảnh.
+      */}
+      <nav aria-label="Điều hướng chính" style={SR_ONLY}>
+        <h2>{course?.title ?? 'Python cho Data Analyst'}</h2>
+        <p>{course?.description ?? ''}</p>
+        <ul>
+          <li>
+            <Link tabIndex={-1} href="/bookshelf/python">
+              Khoá học
+            </Link>
+          </li>
+        </ul>
+        <h3>Các học phần</h3>
+        <ol>
+          {modules.map((m) => (
+            <li key={m.title}>{m.title}</li>
+          ))}
+        </ol>
+      </nav>
       <DanhThucMayChu />
       <StudyRoom
         courseId={COURSE_ID}

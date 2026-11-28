@@ -6920,6 +6920,25 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   theo token, không cần theme Monaco. **Chưa làm:** trang `/card` (db_design di sản), `/courses/db_design*`, java/htmlcss/
   `/interface` — mỗi trang phải xem bằng mắt rồi mới khai `data-tv-surface`, nếu không là đổi nửa vời.
 
+- **WORKTREE MỚI TRÊN WINDOWS ĐỎ 2 BỘ JEST Ở `main` NGUYÊN VẸN — và hai cách nữa để "đã ablate" mà không đo được gì (#363, 23/11/2026).**
+  **(1) Triệu chứng:** `git worktree add` + `npm ci` + `npx jest --ci` trên đúng `main` 2ed45e3 → 2 bộ đỏ
+  (`da-nap-hash-sync.spec.ts` "không cắt được khai báo dauVan"; `lesson-import.service.spec.ts` 4 ca), 529 ca thay vì 532.
+  **Nguyên nhân:** `core.autocrlf=true` nằm ở cấp HỆ THỐNG (`C:/Program Files/Git/etc/gitconfig`) nên checkout đổi LF → CRLF;
+  blob toàn LF (0/144 tệp `src/**/*.ts` có CR) và cây chính `D:/pe_usth` giữ LF nên xanh; test cắt/đếm theo `\n`.
+  Đo: worktree mới 1 096 tệp CRLF, cây chính 0 ở `src/`. **Ba cách sửa SAI đã thử:** `git reset --hard` (git thấy "sạch", không
+  ghi), `checkout-index -a -f` (vẫn không ghi), ghi đè hàng loạt rồi `update-index --refresh` (để lại 1 097 tệp "needs update").
+  **Cách đúng:** `git -c core.autocrlf=false worktree add …`, và MỌI lệnh git GHI vào cây (cherry-pick, restore, checkout, merge,
+  commit) cũng kèm `-c core.autocrlf=false`; kiểm `git ls-files --eol | grep -c 'w/crlf'` = 0 TRƯỚC khi đo mốc nền.
+  **(2) Gỡ HẲN bản sửa không phải phép ablate khi nó làm chết tiến trình:** đưa `forum.service.ts` về bản trước BE7 thì
+  jest thoát với `TypeError: rows is not iterable`, KHÔNG có dòng `Tests:` — grep dòng tổng ra RỖNG. Đó là lần thứ N của
+  luật 1 ("0 đỏ" nói dối) ở một dạng mới: cổng "đỏ" mà không đếm được. Gieo lỗi NHỎ vào mã mới (bỏ dòng gán `my_reaction`,
+  đếm lệch +1) và đọc dòng `Tests:` → mỗi cái đỏ 3/26. **(3) Mock trả sẵn hàng thì jest KHÔNG chạy logic JOIN:** BE5 gieo
+  `completed_lessons + 1` → `+ 2` ở `docGhiDanh()` mà `courses.service.spec.ts` vẫn 17/17. Bù bằng cách TRÍCH ĐÚNG câu SQL từ
+  mã nguồn và chạy trên SQLite (`node:sqlite` có sẵn từ Node 22, 8 phép kiểm: chưa học / học dở / xong hết / tên bài rỗng /
+  khoá ẩn vẫn hiện / user khác không lẫn / thứ tự / đủ 12 khoá); gieo cùng lỗi → 2 phép trượt. **GIỚI HẠN PHẢI NÓI RA:** SQLite
+  không phải Postgres — không canh kiểu cột (`timestamptz`, `jsonb`), không chạy được `= ANY($1::text[])` của
+  `docBaiStudioDaXong()`; hai thứ đó chỉ kiểm được trên một nhánh Neon.
+
 ## Phần 2 · Lịch sử số ca test frontend (dòng "Mốc trước là…" của bảng mốc nền)
 
 Mỗi dòng ghi một lần số ca đổi và VÌ SAO. Dời từ mục "Mốc nền" của AGENTS.md; con số HIỆN TẠI và khối phân rã theo tệp vẫn ở AGENTS.md.

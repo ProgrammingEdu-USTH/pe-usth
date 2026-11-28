@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 import { useId, useState, useSyncExternalStore, type FormEvent } from 'react';
 
 import { accessDangLuu } from '@/lib/api';
-import { dangKy, dangNhap, laKhach, MAT_KHAU_TOI_THIEU } from '@/lib/auth-session';
+import { dangKy, dangNhap, dangXuat, emailTuToken, MAT_KHAU_TOI_THIEU, nhanTaiKhoan } from '@/lib/auth-session';
 
 import styles from './auth.module.css';
 
@@ -22,14 +22,16 @@ type Mode = 'login' | 'register';
 
 // Đọc localStorage mà không qua effect: server luôn thấy `false`, client đọc lại sau hydrate (không lệch HTML).
 const khongTheoDoi = () => () => {};
-const docKhach = () => laKhach(accessDangLuu());
-const mayChu = () => false;
+const docEmail = () => emailTuToken(accessDangLuu()) ?? '';
+const mayChu = () => '';
 
 export default function AuthView({ mode }: { mode: Mode }) {
   const router = useRouter();
   const id = useId();
   const dk = mode === 'register';
-  const khach = useSyncExternalStore(khongTheoDoi, docKhach, mayChu);
+  const email = useSyncExternalStore(khongTheoDoi, docEmail, mayChu);
+  const khach = email.endsWith('@guest.local');
+  const that = email !== '' && !khach;
   const [loi, setLoi] = useState('');
   const [dangGui, setDangGui] = useState(false);
   const [hien, setHien] = useState(false);
@@ -50,6 +52,34 @@ export default function AuthView({ mode }: { mode: Mode }) {
     }
     setLoi(kq.loi);
     setDangGui(false);
+  }
+
+  async function thoat() {
+    setDangGui(true);
+    await dangXuat();
+    router.replace('/');
+  }
+
+  // Đã có tài khoản thật thì không hiện form: người này cần ĐĂNG XUẤT (đổi tài khoản), không cần đăng nhập thêm.
+  if (that) {
+    return (
+      <main className={styles.wrap} data-tv-surface="">
+        <Link className={styles.ve} href="/">
+          ← Về Góc học
+        </Link>
+        <section className={styles.the} aria-labelledby={`${id}-tieude`}>
+          <h1 className={styles.tieuDe} id={`${id}-tieude`}>
+            Bạn đang đăng nhập
+          </h1>
+          <p className={styles.moTa}>
+            Tài khoản: <strong>{nhanTaiKhoan(email)}</strong>
+          </p>
+          <button className={styles.nutChinh} type="button" onClick={thoat} disabled={dangGui}>
+            {dangGui ? 'Đang thoát…' : 'Đăng xuất'}
+          </button>
+        </section>
+      </main>
+    );
   }
 
   const kieuMk = hien ? 'text' : 'password';

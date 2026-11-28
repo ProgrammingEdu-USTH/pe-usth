@@ -104,7 +104,7 @@ test('màn mở đầu một lần mỗi phiên; máy đã có phiên không b�
   assert.match(s, /const daXem = daXemMoDau\(\);/);
   assert.match(s, /boQuaMoDau: muon \|\| daXem,/);
   assert.match(s, /ghiDaXemMoDau\(\);/);
-  assert.match(s, /hasStoredSession\(phienTrongMay\(\)\) \? \{ \.\.\.EMPTY_USER, signedIn: true \} : EMPTY_USER/);
+  assert.match(s, /hasStoredSession\(phienLuc\) \? \{ \.\.\.EMPTY_USER, signedIn: true, taiKhoan: taiKhoanCua\(phienLuc\) \} : EMPTY_USER/);
   assert.match(s, /\{ user: duPhong, done: \[\] \},/);
 });
 

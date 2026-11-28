@@ -6,12 +6,15 @@
  * "khách học ngay": khách bấm Đăng ký thì phải đi `/auth/upgrade` (giữ tiến độ), không phải `/auth/register` (tạo user mới,
  * tiến độ ở lại tài khoản khách). Các ca dưới đọc CHÍNH mã nguồn, không chép luật.
  *
- * ABLATION (28/11/2026, 12 ca) — gỡ từng mảnh rồi đọc dòng `fail` THẬT:
+ * ABLATION (28/11/2026, 15 ca) — gỡ từng mảnh rồi đọc dòng `fail` THẬT:
  *   laKhach luôn false (khách đi register, mất tiến độ)              → 2 đỏ
  *   upgrade bằng fetch trần (không đính Bearer của khách)            → 1 đỏ
  *   bỏ luuPhienMoi (báo thành công mà không lưu phiên)               → 3 đỏ
  *   bỏ credentials: 'include' (cookie refresh bị bỏ)                 → 2 đỏ
  *   PHONE_REGEX frontend lệch backend                                → 2 đỏ
+ *   đăng xuất không gọi server                                        → 1 đỏ
+ *   dangXuat không còn xoá phiên ở máy / xoaPhien quên xoá access     → 2 đỏ / 2 đỏ
+ *   loaiTaiKhoan coi mọi token là tài khoản thật                      → 3 đỏ
  *
  * Chạy: cd frontend && npm run test:unit
  */
@@ -35,7 +38,8 @@ globalThis.localStorage = {
 globalThis.document = { cookie: '' };
 
 const {
-  PHONE_REGEX, MAT_KHAU_TOI_THIEU, laKhach, loiTuPhanHoi, kiemTraDangKy, soanDangKy, dangNhap, dangKy,
+  PHONE_REGEX, MAT_KHAU_TOI_THIEU, laKhach, loaiTaiKhoan, emailTuToken, nhanTaiKhoan, loiTuPhanHoi, kiemTraDangKy, soanDangKy,
+  dangNhap, dangKy, dangXuat,
 } = await import('../../src/lib/auth-session.ts');
 
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
@@ -169,4 +173,36 @@ test('lỗi mạng: trả câu hướng dẫn chờ máy chủ thức dậy, kh�
     assert.equal(kq.ok, false);
     assert.match(kq.loi, /30 giây/);
   }
+});
+
+test('loaiTaiKhoan / emailTuToken / nhanTaiKhoan: ba loại, rác không ném, số điện thoại không lộ email giả', () => {
+  assert.equal(loaiTaiKhoan(null), 'khong');
+  assert.equal(loaiTaiKhoan('rac'), 'khong');
+  assert.equal(loaiTaiKhoan(KHACH), 'khach');
+  assert.equal(loaiTaiKhoan(THAT), 'that');
+  assert.equal(emailTuToken(THAT), 'nguoi@dung.vn');
+  assert.equal(emailTuToken('a.%%%.c'), null);
+  assert.equal(nhanTaiKhoan('0912345678@phone.local'), '0912345678');
+  assert.equal(nhanTaiKhoan('nguoi@dung.vn'), 'nguoi@dung.vn');
+});
+
+test('dangXuat: POST /auth/logout kèm cookie, rồi xoá phiên ở máy (access + cookie mốc)', async () => {
+  const goi = gia(() => json(200, { ok: true }));
+  kho.set('pe_access', THAT);
+  kho.set('pe_refresh', 'cu');
+  globalThis.document.cookie = 'pe_has_session=1; path=/';
+  await dangXuat();
+  assert.equal(goi.length, 1);
+  assert.equal(goi[0].url, 'http://api.test/auth/logout');
+  assert.equal(goi[0].opts.credentials, 'include');
+  assert.equal(kho.has('pe_access'), false, 'đăng xuất mà access vẫn còn');
+  assert.equal(kho.has('pe_refresh'), false);
+  assert.match(globalThis.document.cookie, /pe_has_session=;.*max-age=0/);
+});
+
+test('dangXuat: MẤT MẠNG vẫn xoá phiên ở máy (người bấm Đăng xuất không được còn bị coi là đã đăng nhập)', async () => {
+  globalThis.fetch = async () => { throw new TypeError('Failed to fetch'); };
+  kho.set('pe_access', THAT);
+  await dangXuat();
+  assert.equal(kho.has('pe_access'), false);
 });

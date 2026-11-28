@@ -10,7 +10,7 @@
  * Đăng NHẬP một tài khoản có sẵn thì KHÔNG gộp tiến độ khách vào — backend cố ý không gộp (trùng dữ liệu thì không
  * biết giữ bên nào). Trang phải nói điều đó ra (AuthView), không im lặng.
  */
-import { accessDangLuu, apiFetch, apiOrigin, luuPhienMoi } from './api.ts';
+import { accessDangLuu, apiFetch, apiOrigin, luuPhienMoi, xoaPhien } from './api.ts';
 
 /** Chép NGUYÊN từ `src/auth/dto/register.dto.ts` (backend). Test đọc cả hai tệp và đòi bằng nhau. */
 export const PHONE_REGEX = /^(0\d{9}|\+\d{1,3}\d{9})$/;
@@ -25,17 +25,35 @@ const MANG =
   'Không kết nối được máy chủ. Nếu máy chủ vừa được đánh thức thì đợi khoảng 30 giây rồi thử lại.';
 const KHONG_PHIEN = 'Máy chủ không trả phiên đăng nhập. Thử lại sau ít phút.';
 
-/** Access token này là của tài khoản KHÁCH? Chỉ ĐỌC payload (không kiểm chữ ký — quyền do server quyết). */
-export function laKhach(access: string | null | undefined): boolean {
-  if (!access) return false;
+/** Email trong payload của access token — chỉ ĐỌC, không kiểm chữ ký (quyền do server quyết) — hoặc null nếu không đọc được. */
+export function emailTuToken(access: string | null | undefined): string | null {
+  if (!access) return null;
   try {
     const payload = access.split('.')[1];
-    if (!payload) return false;
+    if (!payload) return null;
     const email = (JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/'))) as { email?: unknown }).email;
-    return typeof email === 'string' && email.endsWith('@guest.local');
+    return typeof email === 'string' ? email : null;
   } catch {
-    return false;
+    return null;
   }
+}
+
+export type LoaiTaiKhoan = 'khong' | 'khach' | 'that';
+
+/** Không có phiên / tài khoản khách (email `@guest.local`) / tài khoản thật. */
+export function loaiTaiKhoan(access: string | null | undefined): LoaiTaiKhoan {
+  const email = emailTuToken(access);
+  return email === null ? 'khong' : email.endsWith('@guest.local') ? 'khach' : 'that';
+}
+
+/** Access token này là của tài khoản KHÁCH? */
+export function laKhach(access: string | null | undefined): boolean {
+  return loaiTaiKhoan(access) === 'khach';
+}
+
+/** Nhãn hiện cho người học: người đăng ký bằng số điện thoại có email giả `<sđt>@phone.local` — chỉ hiện số. */
+export function nhanTaiKhoan(email: string): string {
+  return email.replace(/@phone\.local$/, '');
 }
 
 /** Câu báo lỗi cho người học: ưu tiên câu của backend (`error.message`, chuỗi hoặc mảng), rồi mới tới câu theo mã. */
@@ -114,4 +132,18 @@ export async function dangKy(f: FormDangKy, access: string | null = accessDangLu
   } catch {
     return { ok: false, loi: MANG };
   }
+}
+
+/**
+ * Đăng xuất: thu hồi chuỗi phiên ở server (cookie refresh httpOnly đi kèm nhờ `credentials: 'include'`), rồi xoá phiên ở máy.
+ * Mất mạng thì VẪN xoá phiên ở máy — người học bấm "Đăng xuất" thì không được còn bị coi là đã đăng nhập. Sau đó lời gọi API
+ * kế tiếp tự nhận một tài khoản khách MỚI (apiFetch), tức tiến độ của tài khoản vừa thoát không dính sang phiên này.
+ */
+export async function dangXuat(): Promise<void> {
+  try {
+    await fetch(`${apiOrigin()}/auth/logout`, { ...JSON_POST, body: '{}' });
+  } catch {
+    /* ngoại tuyến: vẫn xoá phiên ở máy */
+  }
+  xoaPhien();
 }

@@ -51,6 +51,8 @@ export function navItems(ideEnabled: boolean): NavItem[] {
   if (ideEnabled) {
     items.push({ href: '/ide', label: 'Bàn thí nghiệm', match: '/ide' });
   }
+  // 28/11/2026: trang đăng nhập/đăng ký dựng lại; người đã đăng nhập vào đây thấy nút Đăng xuất (xem AuthView).
+  items.push({ href: '/login', label: 'Đăng nhập', match: '/login' });
   return items;
 }
 

@@ -160,6 +160,11 @@ export function buildContent(input: {
 export type RoomUser = {
   /** Máy này đã có phiên học chưa (quyết định ở course-progress.hasStoredSession). */
   signedIn: boolean;
+  /**
+   * Loại tài khoản đang dùng, để màn Hồ sơ mời khách tạo tài khoản (giữ tiến độ) hoặc cho người đã đăng nhập đi đăng xuất.
+   * 'khong' = chưa có phiên; 'khach' = khách (cũng là khi có phiên mà không đọc được access); 'that' = tài khoản thật.
+   */
+  taiKhoan: 'khong' | 'khach' | 'that';
   name: string | null;
   xp: number | null;
   /** Đã xong bao nhiêu bài của khoá đang chạy. */
@@ -174,6 +179,7 @@ export type RoomUser = {
 
 export const EMPTY_USER: RoomUser = {
   signedIn: false,
+  taiKhoan: 'khong',
   name: null,
   xp: null,
   lessonsDone: null,

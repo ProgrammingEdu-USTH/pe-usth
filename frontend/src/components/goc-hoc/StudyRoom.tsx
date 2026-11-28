@@ -49,6 +49,7 @@ import {
   type RoomUser,
 } from '@/lib/goc-hoc';
 
+import { loaiTaiKhoan } from '@/lib/auth-session';
 import { choSoCoTran } from '@/lib/goc-hoc-cho-so';
 
 import { initStudyRoom } from './engine';
@@ -118,6 +119,11 @@ const soHay = (v: unknown): number | null => (typeof v === 'number' && Number.is
 /** Kết quả một lượt đi lấy số: các con số để HIỆN, và tập bài đã xong để DỰNG. */
 type KetQua = { user: RoomUser; done: number[] };
 
+/** Có phiên mà không có access trong localStorage (chỉ còn cookie mốc) thì coi là khách: an toàn hơn là hiện "Đăng xuất" nhầm. */
+function taiKhoanCua(session: ReturnType<typeof phienTrongMay>): 'that' | 'khach' {
+  return session.access && loaiTaiKhoan(session.access) === 'that' ? 'that' : 'khach';
+}
+
 function phienTrongMay() {
   return {
     access: lsGet(LS_ACCESS),
@@ -177,6 +183,7 @@ async function laySo(courseId: string, total: number): Promise<KetQua> {
   return {
     user: {
       signedIn: true,
+      taiKhoan: taiKhoanCua(session),
       name,
       xp,
       lessonsDone: done ? done.length : null,
@@ -212,7 +219,8 @@ export default function StudyRoom(props: StudyRoomProps) {
     // nói "chưa có phiên học" với người đã xong 2 bài. Xem lib/goc-hoc-cho-so.ts.
     const daXem = daXemMoDau();
     // Máy đã có phiên mà số chưa về thì nói "chưa đọc được", đừng nói "chưa có phiên học".
-    const duPhong = hasStoredSession(phienTrongMay()) ? { ...EMPTY_USER, signedIn: true } : EMPTY_USER;
+    const phienLuc = phienTrongMay();
+    const duPhong = hasStoredSession(phienLuc) ? { ...EMPTY_USER, signedIn: true, taiKhoan: taiKhoanCua(phienLuc) } : EMPTY_USER;
     const huyCho = choSoCoTran<KetQua>(
       laySo(props.courseId, total),
       TRAN_CHO_MS,

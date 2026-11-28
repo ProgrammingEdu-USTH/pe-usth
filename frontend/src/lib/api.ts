@@ -101,6 +101,24 @@ export function luuPhienMoi(d: unknown): boolean {
   return true;
 }
 
+/**
+ * Xoá phiên ở máy: access + khoá refresh cũ trong localStorage và cookie mốc (đồng bộ với pe-bridge). Dùng khi refresh bị từ chối
+ * và khi đăng xuất; phía server tự thu hồi qua `POST /auth/logout`.
+ */
+export function xoaPhien(): void {
+  try {
+    localStorage.removeItem(LS_ACCESS);
+    localStorage.removeItem(LS_LEGACY_REFRESH);
+  } catch {
+    /* private mode */
+  }
+  try {
+    document.cookie = 'pe_has_session=; path=/; max-age=0; SameSite=Lax';
+  } catch {
+    /* non-browser */
+  }
+}
+
 /** Access token đang lưu, hoặc null. CHỈ để đọc payload (vd. khách hay tài khoản thật) — không quyết quyền ở client. */
 export function accessDangLuu(): string | null {
   return ls(LS_ACCESS);
@@ -122,18 +140,7 @@ function refreshAccess(): Promise<string | null> {
     .then((r) => (r.status === 401 ? new Promise((ok) => setTimeout(ok, 400)).then(callRefresh) : r))
     .then(async (rr) => {
       if (rr.status === 401 || rr.status === 403) {
-        try {
-          localStorage.removeItem(LS_ACCESS);
-          localStorage.removeItem(LS_LEGACY_REFRESH);
-        } catch {
-          /* private mode */
-        }
-        // Xoá cookie cờ phiên để proxy.ts chặn từ server (đồng bộ với pe-bridge)
-        try {
-          document.cookie = 'pe_has_session=; path=/; max-age=0; SameSite=Lax';
-        } catch {
-          /* non-browser */
-        }
+        xoaPhien();
         return null;
       }
       if (!rr.ok) return null; // lỗi mạng/5xx: giữ token, thử lại sau

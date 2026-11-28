@@ -625,6 +625,8 @@ a.mi{color:inherit;text-decoration:none;box-sizing:border-box}
 
 /* reduced motion & pause */
 .away .wisp,.away .mote,.away .bulb i,.away .city,.away .drops,.away .snote,.rm .wisp,.rm .mote,.rm .bulb i,.rm .city,.rm .drops,.rm .star,.rm .snote,.rm .glowi{animation-play-state:paused}
+/* ngoài màn (IntersectionObserver ở engine.js) */
+.bulb i.khuat,.glowi.khuat,.star.khuat{animation-play-state:paused}
 .rm .mote{display:none}
 .rm .sash{transition-duration:.01s}
 .rm .item,.rm .glowi{transition-duration:.01s}

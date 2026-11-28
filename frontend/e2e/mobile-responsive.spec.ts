@@ -92,6 +92,30 @@ test('trang chủ dẫn vào Tủ sách, đường khoá học cũ chuyển về
   await expect(page.locator('a[href="/ide"]').first()).toBeVisible();
 });
 
+// 28/11/2026: đo ở 390px — 93/127 hoạt ảnh đang chạy nằm ngoài màn mà vẫn bị tính style mỗi khung. Engine tạm dừng
+// cái ngoài màn (IntersectionObserver); ca này đòi ĐÚNG hai chiều: ngoài màn không cái nào chạy, trong màn vẫn chạy.
+test('điện thoại: hoạt ảnh Góc học ngoài màn tạm dừng, trong màn vẫn chạy', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await expect
+    .poll(
+      () =>
+        page.evaluate(() => {
+          let trongChay = 0;
+          let ngoaiChay = 0;
+          for (const el of document.querySelectorAll('.bulb i, .glowi, .star')) {
+            const r = el.getBoundingClientRect();
+            const trong = r.right > 0 && r.left < innerWidth && r.bottom > 0 && r.top < innerHeight && r.width * r.height > 0;
+            if (!el.getAnimations().some((a) => a.playState === 'running')) continue;
+            if (trong) trongChay++;
+            else ngoaiChay++;
+          }
+          return { coTrong: trongChay > 0, ngoaiChay };
+        }),
+      { timeout: 30_000 },
+    )
+    .toEqual({ coTrong: true, ngoaiChay: 0 });
+});
+
 // 23/11/2026: cảnh Góc học là DOM do engine.js dựng ở CLIENT, nên HTML thô máy chủ trả cho `/` từng có 0 liên kết,
 // 0 tiêu đề, 0 chữ (đo trên bản build) — trình thu thập và trình đọc màn hình chỉ thấy <title>. Ca này đọc HTML THÔ
 // (không chạy JS, không hydrate) và đòi khối <nav> có đủ: tên khoá, tên MỌI học phần (lấy từ curricula.json chứ không

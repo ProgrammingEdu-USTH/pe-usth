@@ -14,6 +14,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle, seconds } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
+import { CurrentUserId } from 'src/common/decorators/current-user.decorator';
 import { Public } from 'src/common/decorators/public.decorators';
 import {
   FacebookCallbackGuard,
@@ -123,6 +124,29 @@ export class AuthController {
   })
   async guest(@Res({ passthrough: true }) res: Response) {
     return this.moveRefreshToCookie(res, await this.authService.guest());
+  }
+
+  // Nâng khách → tài khoản thật, GIỮ tiến độ (xem AuthService.upgrade). Cần JWT của khách nên
+  // @Public(false) đè @Public() của class. Chung hạn mức với register.
+  @Post('upgrade')
+  @Public(false)
+  @HttpCode(HttpStatus.OK)
+  @Throttle({
+    ip_hour: {
+      limit: Number(process.env.THROTTLE_REGISTER_LIMIT ?? 10),
+      ttl: seconds(Number(process.env.THROTTLE_REGISTER_TTL_SECONDS ?? 60)),
+    },
+  })
+  async upgrade(
+    @CurrentUserId() userId: number,
+    @Body() dto: RegisterDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.moveRefreshToCookie(
+      res,
+      await this.authService.upgrade(userId, dto, readRefreshCookie(req)),
+    );
   }
 
   // Spec yêu cầu hỗ trợ CẢ GET và POST /auth/logout.

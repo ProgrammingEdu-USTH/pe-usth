@@ -1,4 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
 
 export const IS_PUBLIC_KEY = 'isPublic';
-export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
+/** `@Public(false)` trên method đè `@Public()` của class (JwtAuthGuard dùng getAllAndOverride). */
+export const Public = (isPublic = true) => SetMetadata(IS_PUBLIC_KEY, isPublic);

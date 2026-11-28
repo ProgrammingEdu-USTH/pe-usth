@@ -82,7 +82,7 @@ function chuoiTimKiem(v: unknown): string {
   return chiChuoi(v).join(',');
 }
 
-function extractFields(
+export function extractFields(
   exception: Prisma.PrismaClientKnownRequestError,
 ): string[] {
   const meta = exception.meta as MetaPrisma | undefined;

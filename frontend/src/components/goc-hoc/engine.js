@@ -1298,6 +1298,14 @@ apDungSo();
 GHI_CHU.slice(0, 2).forEach(n => addNote(n, false)); poolI = Math.min(2, GHI_CHU.length);
 on(window,'resize', layout);
 layout();
+/* Điện thoại cắt hai bên cảnh: đo 28/11/2026 ở 390px, 93/127 hoạt ảnh đang chạy nằm NGOÀI màn (đèn dây, quầng sáng,
+   sao) mà luồng chính vẫn tính lại style cho chúng mỗi khung. Tạm dừng cái ngoài màn; camera lia tới thì observer tự
+   cho chạy lại. */
+if (window.IntersectionObserver){
+  const ngoaiMan = new IntersectionObserver(ds => ds.forEach(d => d.target.classList.toggle('khuat', !d.isIntersecting)));
+  host.querySelectorAll('.bulb i, .glowi, .star').forEach(el => ngoaiMan.observe(el));
+  offs.push(() => ngoaiMan.disconnect());
+}
 
 /* ---------- đường dẫn: #learn, #courses… ----------
  * Bản gốc ĐỌC `location.hash` lúc mở trang nhưng không bao giờ GHI, nên mở một

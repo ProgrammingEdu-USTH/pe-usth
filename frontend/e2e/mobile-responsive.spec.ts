@@ -92,6 +92,65 @@ test('trang chủ dẫn vào Tủ sách, đường khoá học cũ chuyển về
   await expect(page.locator('a[href="/ide"]').first()).toBeVisible();
 });
 
+// 28/11/2026: đo ở 390px — 93/127 hoạt ảnh đang chạy nằm ngoài màn mà vẫn bị tính style mỗi khung. Engine tạm dừng
+// cái ngoài màn (IntersectionObserver); ca này đòi ĐÚNG hai chiều: ngoài màn không cái nào chạy, trong màn vẫn chạy.
+test('điện thoại: hoạt ảnh Góc học ngoài màn tạm dừng, trong màn vẫn chạy', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await expect
+    .poll(
+      () =>
+        page.evaluate(() => {
+          let trongChay = 0;
+          let ngoaiChay = 0;
+          for (const el of document.querySelectorAll('.bulb i, .glowi, .star')) {
+            const r = el.getBoundingClientRect();
+            const trong = r.right > 0 && r.left < innerWidth && r.bottom > 0 && r.top < innerHeight && r.width * r.height > 0;
+            if (!el.getAnimations().some((a) => a.playState === 'running')) continue;
+            if (trong) trongChay++;
+            else ngoaiChay++;
+          }
+          return { coTrong: trongChay > 0, ngoaiChay };
+        }),
+      { timeout: 30_000 },
+    )
+    .toEqual({ coTrong: true, ngoaiChay: 0 });
+});
+
+// 28/11/2026: Monaco ~1,2 MB, mạng điện thoại chậm dựng xong sau ~14,6 s. Trong lúc đó phải thấy mã và bấm Chạy được.
+test('/ide điện thoại: trình soạn thảo còn tải thì đã thấy mã và nút Chạy bấm được', async ({ page }) => {
+  let tha!: () => void;
+  const cong = new Promise<void>((r) => (tha = r));
+  await page.route('**/monaco/**', async (route) => {
+    await cong;
+    await route.continue();
+  });
+  await page.goto('/ide', { waitUntil: 'domcontentloaded' });
+  const xemTruoc = page.locator('pre[aria-label="Mã đang mở (chỉ đọc)"]');
+  await expect(xemTruoc).toContainText('Programming EDU');
+  await expect(page.getByRole('button', { name: /Chạy/ }).first()).toBeEnabled();
+  tha();
+  await expect(page.locator('.monaco-editor .view-lines')).toBeVisible({ timeout: 60_000 });
+  await expect(xemTruoc).toHaveCount(0);
+});
+
+// 28/11/2026: thêm mục "Đăng nhập" làm thanh trên tràn ở màn hẹp, mục cuối bị chém sau một thanh cuộn không dấu hiệu;
+// logo cao 25px, mục 37px. Mọi mục phải nằm trong màn và là đích bấm ≥ 44px.
+test('điện thoại: thanh trên không cuộn ngang, mục nào cũng trong màn và cao ≥ 44px', async ({ page }) => {
+  await page.goto('/ide', { waitUntil: 'domcontentloaded' });
+  const nav = page.locator('header nav');
+  await expect(nav.getByRole('link', { name: 'Đăng nhập' })).toBeVisible();
+  expect(await nav.evaluate((n) => n.scrollWidth - n.clientWidth), 'thanh điều hướng phải cuộn ngang').toBeLessThanOrEqual(0);
+  for (const a of await page.locator('header a').all()) {
+    const { phai, cao, chu } = await a.evaluate((el: HTMLElement) => ({
+      phai: el.getBoundingClientRect().right,
+      cao: el.offsetHeight,
+      chu: (el.textContent || '').trim(),
+    }));
+    expect(phai, `"${chu}" thò ra ngoài màn`).toBeLessThanOrEqual(375);
+    expect(cao, `"${chu}" thấp hơn 44px`).toBeGreaterThanOrEqual(44);
+  }
+});
+
 // 23/11/2026: cảnh Góc học là DOM do engine.js dựng ở CLIENT, nên HTML thô máy chủ trả cho `/` từng có 0 liên kết,
 // 0 tiêu đề, 0 chữ (đo trên bản build) — trình thu thập và trình đọc màn hình chỉ thấy <title>. Ca này đọc HTML THÔ
 // (không chạy JS, không hydrate) và đòi khối <nav> có đủ: tên khoá, tên MỌI học phần (lấy từ curricula.json chứ không

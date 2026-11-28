@@ -6956,6 +6956,18 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   **GIỚI HẠN PHẢI NÓI RA:** luồng upgrade CÓ token (khách thật → tài khoản thật, tiến độ đi theo) chưa được đo end-to-end trên
   production vì đó là phép GHI (tạo tài khoản); mới đo được "route sống và đòi đăng nhập" (401).
 
+- **REFRESH LỖI TẠM LÀ TẠO KHÁCH MỚI VÀ GHI ĐÈ PHIÊN ĐANG HỌC — chú thích nói "giữ token, thử lại sau", dòng gọi thì làm ngược (28/11/2026).**
+  **Triệu chứng (tái hiện bằng script, chưa ai báo từ production):** access token hết hạn (30 phút), `/auth/refresh` trả 503 hoặc 429
+  → `apiFetch` gọi `POST /auth/guest` và thay `pe_access` + cookie refresh. Khách mất tiến độ vĩnh viễn (không đăng nhập lại được);
+  người có tài khoản bị đẩy ra thành khách. **Nguyên nhân:** `refreshAccess` đúng là giữ token khi lỗi 5xx và trả `null`, nhưng
+  `apiFetch` viết `(await refreshAccess()) ?? (await ensureGuest())` — `null` vì "phiên chết" và `null` vì "thử lại sau" gộp làm một.
+  Lỗi CÓ TỪ TRƯỚC (production 0d041a3 y hệt); đáng ngại hơn từ khi có đăng nhập và khi backend trả 503 theo nguyên nhân (Neon cắt
+  socket idle — đúng lúc sau 30 phút không dùng). **Cách sửa:** chỉ tạo khách khi `coPhienLuu()` sai — `xoaPhien` đã xoá cả ba dấu
+  phiên khi máy chủ TỪ CHỐI (401/403), nên dấu còn = phiên chưa bị từ chối. **Ablate:** gỡ điều kiện → **1 đỏ / 18**; đảo điều kiện →
+  **2 đỏ / 18**. **Bài học:** một giá trị `null` mang hai nghĩa thì người gọi sẽ đoán sai một trong hai; đọc chú thích "giữ token" xong
+  phải đọc tiếp NGƯỜI GỌI làm gì với kết quả. **GIỚI HẠN:** chưa có số đo tần suất `/auth/refresh` lỗi trên production; refresh lỗi
+  liên tục bằng mã khác 401 (ví dụ 400) thì người học nhận 401 cho tới khi cookie mốc hết hạn — backend hiện chỉ ném 401 cho phiên chết.
+
 ## Phần 2 · Lịch sử số ca test frontend (dòng "Mốc trước là…" của bảng mốc nền)
 
 Mỗi dòng ghi một lần số ca đổi và VÌ SAO. Dời từ mục "Mốc nền" của AGENTS.md; con số HIỆN TẠI và khối phân rã theo tệp vẫn ở AGENTS.md.

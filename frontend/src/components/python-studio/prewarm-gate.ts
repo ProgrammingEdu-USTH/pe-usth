@@ -8,6 +8,10 @@ type PrewarmLesson = { step_4?: unknown };
 /**
  * Có nên nạp sẵn runtime cho màn bài học này chưa?
  *
+ * `waitForContent`: khoá TĨNH đọc nội dung từ một tệp JSON cùng nguồn (không phải chuỗi gọi API), và phần lớn
+ * bài của chúng không có phần chạy code: cả 181 bài Database và Database nâng cao. Nạp sớm ở đó là tải
+ * ~6,3 MB cho không (đo 26/11/2026: 93% dung lượng một lượt mở bài). Nên chúng đợi có nội dung rồi mới quyết.
+ *
  * Vì sao là hàm riêng chứ không viết thẳng vào chỗ gọi: chỗ gọi cũ ghi
  * `enabled: Boolean(lesson?.step_4)` — mà `lesson` chỉ có SAU khi cả chuỗi gọi
  * API xong (user → enrolled → [enroll] → content). Nên 13 MB Pyodide chỉ bắt
@@ -23,6 +27,7 @@ type PrewarmLesson = { step_4?: unknown };
  * `packageKey`, nên khi nội dung về mang theo numpy/pandas thì prewarm được gọi
  * lần hai để tải thêm thư viện vào worker đang rỗi.
  */
-export function shouldPrewarm(lesson: PrewarmLesson | null): boolean {
-  return lesson === null || Boolean(lesson.step_4);
+export function shouldPrewarm(lesson: PrewarmLesson | null, waitForContent = false): boolean {
+  if (lesson === null) return !waitForContent;
+  return Boolean(lesson.step_4);
 }

@@ -1,0 +1,49 @@
+.bar {
+  /* Trang tủ sách không nạp edu-theme.css: khai các biến mà bộ chọn giao diện
+     cần, nếu không bảng của nó mở ra trong suốt. */
+  --edu-panel-bg-solid: var(--bs-extras-bg);
+  --edu-card-line: var(--bs-extras-line);
+  --edu-panel-shadow: 0 20px 50px rgb(0 0 0 / 0.55);
+  --edu-t1: var(--bs-extras-fg);
+  --edu-t3: var(--bs-extras-soft);
+  --edu-t4: var(--bs-extras-soft);
+  --ds-violet: var(--bs-extras-accent);
+  --ds-violet-tint: var(--bs-extras-accent-tint);
+  font-family: var(--f-body, 'Be Vietnam Pro', system-ui, sans-serif);
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 20px;
+  padding: 12px 16px 20px;
+  background: var(--bs-extras-bg);
+  color: var(--bs-extras-fg);
+  font-size: 14px;
+}
+
+.note {
+  opacity: 0.8;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: inherit;
+}
+
+/* Chân trang: bảng mở LÊN và căn giữa CHÂN TRANG (không theo nút, vì nút có thể
+   lệch sát mép), để không rơi ra ngoài màn hình. */
+.bar > div {
+  position: static;
+}
+
+.bar [role='dialog'] {
+  top: auto;
+  bottom: calc(100% + 8px);
+  right: auto;
+  left: 50%;
+  translate: -50% 0;
+}

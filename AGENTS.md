@@ -22,6 +22,8 @@ cd frontend && npm run dev # cổng 3000
 py scripts/pe-da/build.py              # course.json -> scripts/pe-da/out/ + chép 80 ảnh
 py scripts/pe-da/check.py --strict     # kiểm cấu trúc (CI chạy bản này)
 py scripts/pe-da/sync_curricula.py     # chép giáo trình sang frontend/src/lib/curricula.json
+python3 scripts/pe-doc/build.py        # 3 khoá tĩnh (Database, Database Advanced, ML) -> public/static/courses
+python3 scripts/pe-doc/build.py --check   # bản dựng đã commit có khớp nguồn không (CI chạy bản này)
 node scripts/giao-trinh.mjs            # NỘI DUNG chép ở đây có đúng Giao_Trinh_PE @ SHA ghim không (cần mạng)
 node scripts/giao-trinh.mjs lay --sha <SHA|main>   # lấy nội dung mới từ Giao_Trinh_PE và ghim SHA
 py scripts/pe-da/gen_traces.py         # SINH LẠI traces.json (bảng từng bước) — ~20 phút,
@@ -93,6 +95,46 @@ Chủ dự án quyết: mọi việc tổng hợp và thay đổi nội dung gi�
   L3400), nên bước CI mới chưa chạy tự động ở `main` cho tới khi trigger được lật; chạy tay bằng lệnh trên. Thêm tệp vào giáo
   trình thì thêm vào `anh-xa.json` BÊN ĐÓ trước, rồi `lay`.
 
+## Ba khoá tĩnh: Database, Database Advanced, Machine Learning (từ 25/11/2026)
+
+Chủ dự án quyết đưa trọn giáo trình lên site, chưa thu phí. Ba khoá dùng CHUNG màn bài học với khoá Python
+(`/lesson/<mã>?lesson=<chỉ số từ 0>`) nhưng **không đụng backend**: nội dung là tệp dưới
+`frontend/public/static/courses/`, không ghi danh, không tạo tài khoản khách, không ghi nhật ký, không XP; tiến độ
+và bản nháp nằm ở `localStorage`. Chỗ rẽ nhánh duy nhất là `useLessonData` theo `lib/static-courses.ts`.
+
+- **Nội dung soạn ở Giao_Trinh_PE.** `scripts/pe-doc/source/` là bản chép tại các commit ghi ở `source/SOURCE.json`
+  (`chinook_advanced.sql` cố ý không chép: không bài nào trỏ tới). Đừng sửa tay; chép lại rồi chạy
+  `python3 scripts/pe-doc/build.py`. Chưa có cổng nào đối chiếu bản chép với repo nguồn như `giao-trinh.mjs` làm cho pe-da.
+- Bản dựng bỏ hai mục viết cho người dựng runner ("Học trên web", "Biến thể và cách kiểm"). Bài SQL là bài đọc kèm
+  câu tự luyện: **không chấm SQL trong trình duyệt**; fixture `.sql` được phát để chạy trên máy.
+- Machine Learning có ca chấm: cả 28 lời giải mẫu đạt 6/6 trong Pyodide trên trình duyệt thật (25/11/2026, đo tay,
+  chưa có cổng tự động).
+- Trang bài SQL cũ và ba trang khoá `db_design*` đã **xoá** (25/11/2026, chủ dự án quyết): engine kéo-thả/chạy SQL,
+  CSS của chúng và hai e2e `pe-run-sql`, `drag-regression`. `/lesson/db_design*` và `/courses/db_design*` chuyển về
+  `/bookshelf/sql`. **Còn giữ** `public/static/js/lesson_content{,_tc,_nc}.js` vì `scripts/seed-lesson-questions.js`
+  và trang `/card/[cardId]` đọc chúng; dữ liệu khoá `db_design*` trong DB không đụng tới.
+
+## Quán Mây (`/quan-may`, từ 25/11/2026; bản 2 ngày 26/11/2026)
+
+Một trang tĩnh tự chứa ở `frontend/public/quan-may/`, gốc là bản thử của nhóm (artifact `f3d755bb`, bản
+`1795568344-61d5`): 10 tập, hai ngôn ngữ, bản đồ 56 môn. `/quan-may/xep-don` và `/quan-may/ket-hut-tien` chuyển sang
+`#ep2`, `#ep3`. **Sửa ở repo này**; sửa artifact không tự sang web.
+
+Tệp, theo thứ tự nạp: `iso.js` (hình khối đẳng trục dựng bằng SVG) · `quan-may.js` (khung và 10 tập) · `world.js` (sơ đồ
+quán, câu đoán, bài ghép, sao, sổ quán) · `cases.js` + `case-a.js` · `case-b.js` · `case-c.js` (ba vụ việc nhiều chặng).
+
+Luật chơi, sinh ra từ phản hồi người thử ngày 26/11 ("đáp án cứ câu nào dài nhất thì chọn", "chỉ bấm bấm rồi trôi qua"):
+
+- Đáp án đúng **không được** dài hơn mọi đáp án còn lại, ở cả hai ngôn ngữ; thứ tự phương án trộn theo từng lượt chơi.
+- Mỗi tập: đoán trước → làm → quyết định → ghép ba khái niệm. Chưa ghép xong thì tập chưa tính.
+- Chọn sai trừ tiền quán và điểm; vài lựa chọn để lại dấu (`S.flags`) làm đổi đề của vụ việc sau. Dấu mới phải có
+  dòng trong `LEDGER`.
+- Không đi một đường: `NEEDS` chỉ gợi ý thứ tự tập; vụ việc mới khoá, tới khi xong các tập nó cần.
+- Màn đoán và bài ghép dùng chung `run` với tập: đừng đặt trùng tên trường (tập 4 từng hỏng vì `run.guess`).
+- Không gọi mạng, không tài khoản; tiến độ ở `localStorage` (`quanmay.v1`, `quanmay.runs.v1`). Phông tải từ Google Fonts.
+- `e2e/unit/quan-may.test.mjs` chạy mọi script với DOM giả: nhiệm vụ và chặng nào cũng thắng được, cách làm theo phản
+  xạ thì thua. Đổi luật chơi thì ca đó đổi theo. Chưa có e2e trình duyệt trong repo.
+
 ## Mốc nền
 
 **Đo lại ngày 04/11/2026 — MỌI hàng, bằng cách tự chạy từng lệnh.** Đừng để tụt xuống
@@ -114,9 +156,9 @@ học nó.
 | Backend test | **45 bộ, 644 ca**, tất cả đạt (chạy RIÊNG — xem bẫy tranh CPU). Đo lại 23/11/2026 sau khi port từ `tester/test`: +4 ca `lessons.service.spec.ts` (BE3, d0ede61), +1 bộ / +26 ca `forum.service.spec.ts` (BE7, 047ad35) +5 ca `courses.service.spec.ts` (BE5, 846eea1 + 2e5d04d) +1 bộ / +2 ca `pending-migrations.spec.ts` (71d3337) +1 bộ / +3 ca `redact-url.spec.ts` (che URL ở log 5xx, port tay từ 736a82a) +1 bộ / +25 ca `guest-cleanup.spec.ts` (83e1cf1) và +1 bộ / +20 ca (`forum.controller.spec.ts` + 4 khoá `THROTTLE_FORUM_*` ở `env.validation.spec.ts`, 8a7af2e) và +1 bộ / +5 ca (`course-lesson-count.spec.ts` + 2 ca biên `completeLesson`, 41b5096) và +1 bộ / +6 ca (`db-overload.spec.ts`: phân loại lỗi DB + đọc lại GET, 736a82a) và +1 bộ / +5 ca (`semaphore.spec.ts` 4 ca + 1 ca `completeGate` ở `lessons.service.spec.ts`, 736a82a) và +1 bộ / +11 ca (`auth.be12.spec.ts`: nâng khách giữ `user_id`, 409 theo trường, khoá đoán mật khẩu, 736a82a) |
 | Backend lint | 92 lỗi, 2 cảnh báo — **mốc trần trong CI là 100, chỉ được hạ** |
 | Frontend typecheck | sạch |
-| Frontend lint | 0 lỗi, **146 cảnh báo** (+7 = `goc-hoc/engine.js`, vào cùng 4d5f86d). CI nay chạy `npm run lint -- --max-warnings 146` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 132 `no-unused-vars` (127 ở JS di sản) · 6 `no-unused-expressions` · 5 `no-page-custom-font` · 2 `no-img-element` |
-| Frontend unit test | `cd frontend && npm run test:unit` → **763 ca** / 72 tệp, tất cả đạt. 28/11/2026: +12 ca ở `dang-nhap.test.mjs` (lõi đăng nhập/đăng ký: khách đi `/auth/upgrade`, PHONE_REGEX và độ dài mật khẩu bằng backend). 26/11/2026: +2 ca ở `consent-banner.test.mjs` (danh sách "ghi lại" gập trong `details` đóng sẵn; cột "KHÔNG ghi" không bị gập; ablate 2 phép gieo → 1 đỏ / 17 ca mỗi phép). Đo lại 23/11/2026: +2 ca ở `goc-hoc-lo-trinh.test.mjs` (LESSON_META phủ 179 bài, phút/XP > 0) |
-| Frontend e2e | `cd frontend && npm run test:e2e` → **12 ca** / 2 tệp spec, tất cả đạt (+1 ca 23/11/2026: HTML thô của `/` có nav SSR) (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
+| Frontend lint | 0 lỗi, **90 cảnh báo** (hạ từ 146 ngày 25/11/2026 khi xoá engine bài SQL cũ). CI chạy `npm run lint -- --max-warnings 90` — **trần, CHỈ ĐƯỢC HẠ**, và sổ ngưỡng canh chiều (`ci-lint-frontend`). Trước 08/11/2026 con số này không cổng nào canh: `eslint` thoát 0 khi chỉ có cảnh báo. Phân rã: 80 `no-unused-vars` (75 ở JS di sản) · 4 `no-unused-expressions` · 4 `no-page-custom-font` · 1 `no-img-element` · 1 chỉ thị `eslint-disable` thừa |
+| Frontend unit test | `cd frontend && npm run test:unit` → **811 ca** / 77 tệp, tất cả đạt. 28/11/2026 (gộp `tester/main` vào nhánh đăng nhập): +12 ca `dang-nhap.test.mjs` (lõi đăng nhập/đăng ký: khách đi `/auth/upgrade`, PHONE_REGEX và độ dài mật khẩu bằng backend) và +2 ca `goc-hoc-lo-trinh.test.mjs` (LESSON_META phủ 179 bài). 26/11/2026: +23 ca `lab-sql-ad01.test.mjs` (3 ca cuối: ba bảng người học nhìn thấy khớp từng ô với dữ liệu SQL thật chạy trên đó, đơn 101 có đúng 5 dòng để bấm tìm, lỗi sql.js thật được dịch ra tiếng Việt; ablate sửa một ô bảng hiện → 1 đỏ, đổi câu dịch lỗi → 1 đỏ) (3 ca cuối: tòa nhà truy vấn đếm hàng bằng chính SQL 3·4·6 → 3·3·3, "két thật" 150 khớp dữ liệu, dữ liệu ngày mai có đủ hai ca; ablate sửa 150→140 → 1 đỏ, bỏ phép nối ở tầng 3 → 1 đỏ) (5 ca cuối: câu SQL do ba núm vặn sinh ra đúng ở cả 8 tổ hợp, chạy sql.js thật; bước Đoán gõ số chứ không chọn phương án; ablate bỏ gom dòng hàng → 3 đỏ, ép LEFT JOIN → 1 đỏ, đưa lại phương án → 1 đỏ) (gồm 2 ca canh phụ thuộc vào CSS và bộ vẽ của Quán Mây: đổi tên lớp hay bỏ một hàm ở Quán Mây thì đỏ; ablate bỏ export windowAt → 1 đỏ, đổi tên lớp .bubble → 1 đỏ) (chấm SQL ở trình duyệt bằng sql.js THẬT trong node: đáp án mẫu đạt, cách viết khác đạt, SUM(DISTINCT) đúng ở dữ liệu của quán nhưng sai ở dữ liệu thử thêm, INNER JOIN/COALESCE/sai số cột/lỗi cú pháp bị bắt; ablate: bỏ bộ dữ liệu thử thêm → 2 đỏ / 10, tắt so giá trị → 3 đỏ / 10). 26/11/2026: +2 ca ở `consent-banner.test.mjs` (danh sách "ghi lại" gập trong `details` đóng sẵn; cột "KHÔNG ghi" không bị gập; ablate 2 phép gieo → 1 đỏ / 17 ca mỗi phép) |
+| Frontend e2e | `cd frontend && npm run test:e2e` → **12 ca** / 2 tệp spec, tất cả đạt (+1 ca 23/11/2026: HTML thô của `/` có nav SSR; đo lại 28/11/2026 sau khi gộp `tester/main`) (Playwright 1.63 + Chromium; `webServer` tự build, ~2,5 phút). Hàng này MỚI có 08/11/2026 — xem bẫy "bộ e2e chưa bao giờ nằm trong bậc thang" |
 | Bộ ghi vết | `py -I scripts/tracer/pe_tracer_test.py` → **69 phép kiểm**, trượt 0 |
 | Giáo trình pe-v4 (ẩn) | 48 bài, 427 ca chấm, 176 biến thể sai + 48 khung trống đều trượt |
 | Giáo trình pe-da (đang chạy) | **179 bài, 11 module**, 567 màn đọc, **537 câu trắc nghiệm**, 669 câu luyện tập, **143 bài tập được chấm / 480 ca**, 2 435 phút; 139 bài chạy trong trình duyệt / 15 hỗn hợp / 25 trên máy |
@@ -128,14 +170,14 @@ học nó.
 | Bộ đo độ hiệu quả | `node scripts/check-perf.mjs` → 9 ca, **0 hỏng** |
 | Xuất hình cho người học | `node scripts/check-figures.mjs` → 16 ca, **0 hỏng** |
 | Bản đồ tính năng | `node scripts/check-duong-toi.mjs` → **19 mục, 15 có đường tới, 4 còn tối (đã khai lý do)**, 0 lỗi |
-| Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **2 mục chết, 2 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **18 CSS module trong `src/`** |
+| Tài nguyên chết | `node scripts/check-tai-nguyen-chet.mjs` → **3 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét JS/CSS tĩnh + component + **22 CSS module trong `src/`** |
 | Export chết | `node scripts/check-export-chet.mjs` → **4 mục chết, 3 khai giữ, 0 chưa khai**, 0 lỗi; quét 105 tệp khai, 3 338 tệp tìm người dùng. **17 "export thừa"** khai NGOÀI TẦM có chủ đích — xem bẫy |
 | Đã nạp DB chưa | `node scripts/check-da-nap.mjs` → **179/179 khớp, 0 bài chờ nạp**. Lần nạp gần nhất: **2026-11-23T15:36 UTC** (22:36 giờ Việt Nam) — HAI bài PY02 · PY03 (#310 A2-nhẹ: nói thẳng phần terminal/notebook chỉ cần khi học trên máy riêng, bỏ câu mở bài PY03 giả định đã tạo môi trường ảo), nạp bằng `--codes=PY02,PY03 --apply --backup=bak-py02-03-2026-11-23.json` sau khi chạy thử `--all` xác nhận ĐÚNG 2/179 bài lệch và 177 bài còn lại khớp DB từng byte; chạy thử lại sau khi nạp cho 0/179 lệch. Biên nhận `scripts/pe-da/da-nap.json` do chính `--apply` ghi SAU khi transaction commit. Lần nạp trước: 2026-11-19T07:08 UTC (PY01, #310 A1, `--codes=PY01`); trước nữa 2026-11-19T06:55 UTC (15 bài PD02 · PD03 · PD05 · PD07 · PD14 · PD15 · PD18 · PD23 · PD25 · PD26 · VZ02 · VZ03 · VZ12 · VZ14 · VZ22, `--codes=<15 mã>`); và 2026-11-16T17:41 UTC `--all`. CÓ biên nhận rồi thì một bài lệch là ĐỎ CỨNG (`check-da-nap` thoát 1, CI chạy nó) — số chờ nạp ĐÃ về 0, nên điều kiện để lật trigger `ci.yml` sang `main` về phía nội dung đã đủ. GIỚI HẠN KHÔNG ĐỔI: biên nhận nói lần nạp ĐÃ xảy ra, không nói DB hiện giờ còn giữ đúng bản đó (lần chạy thử `--all` ở trên là phép đo trực tiếp DB, và nó đo ngay trước và ngay sau lúc nạp). |
 | Lời đòi ở màn đọc | `node scripts/check-doi-hoi.mjs` → **392/508 khối (77,2%) có một lời đòi**, 116 im lặng đều đã khai lý do, 0 lỗi |
 | Ngưỡng một chiều | `node scripts/check-nguong.mjs` → **47 ngưỡng**, 0 nới ngược chiều, 0 lỗi |
 | Đã deploy chưa | `node scripts/check-da-deploy.mjs` → cảnh báo nếu production lệch `tester/main`; đỏ khi gọi kèm `--doi-hoi-moi-nhat` |
 | Wheel vendored | `node scripts/check-wheel.mjs` → **16 wheel · 5 gói bài khai · 16 sau đóng bao phụ thuộc**, 0 lỗi |
-| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 763 · backend 45 bộ/644 · tracer 69 · e2e 12 · pyodide 154/420 · practice 143/480/773 · vanphong 68/364 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
+| Mốc phải CHẠY mới biết | `node scripts/check-moc-chay.mjs` → **8 mục** (frontend 811 · backend 45 bộ/644 · tracer 69 · e2e 12 · pyodide 154/420 · practice 143/480/773 · vanphong 68/364 · duongToi 19/15/4), 0 trượt, 0 lỗi; nó CHẠY chính tám lệnh đó nên THAY cả tám bước trong CI; mục `frontend` nay gọi `dem-ca-test.mjs` nên nó đối chiếu CẢ dòng phân rã, không chỉ con số tổng — MỘT THAM SỐ mỗi job, vì chúng ở bốn job chạy song song. Hai con số LINT cố ý ngoài tầm: chúng phải đi XUỐNG |
 | Bảng mốc nền | `node scripts/check-moc-nen.mjs` → **20 mục đối chiếu được** (thêm `caDat` — BẢN SAO của số ca chấm ở hàng "pe-da chấm BÀI TẬP" — và `mucDoiChieu`, tức chính con số này), 0 lỗi; 3 nhóm khai NGOÀI TẦM |
 | Runtime | Pyodide **314.0.7** (Python 3.14.2 · numpy 2.4.6 · pandas 3.0.2 · matplotlib 3.10.8), 30 MB |
 
@@ -154,22 +196,23 @@ chín vòng. Đây là lần THỨ HAI cùng con số này trôi — lần trư�
 và mười tệp test mới (`ablate-trung-thuc`, `dich-bam-vo-bai-hoc`, `khoa-roi-giao-trinh`,
 `lesson-chrome-sticky`, `o-go-16px`, `trang-404`, `trang-loi`…) chưa bao giờ có mặt ở đây.
 Phân rã hiện tại, ĐO chứ không cộng tay:
-ablate-trung-thuc 19 · catalog-duration 2 · catalog-naming 4 · consent-banner 17 ·
-course-resume 17 · dang-nhap 12 · danh-thuc-may-chu 6 · data-files 18 · dich-bam-vo-bai-hoc 8 · ds-contrast 18 ·
-editor-load-gate 14 · feedback-link 9 · feedback-rank 3 · forum-xss 1 · giam-chuyen-dong 3 ·
-giao-dien 7 · giao-dien-chuyen-dong 5 · giao-dien-monaco 4 · giao-dien-trang-chu 4 ·
-goc-hoc-cho-so 7 · goc-hoc-escape 5 · goc-hoc-hang-nut 4 · goc-hoc-khung-cho 6 ·
-goc-hoc-lo-trinh 11 · goc-hoc-man-con 3 · goc-hoc-nhan-mot 6 · goc-hoc-thanh-cuon 5 ·
-hover-cam-ung 4 · ide-brief-code 12 · ide-gia-tri-nhieu-dong 3 · ide-handoff 6 ·
-ide-output-scroll 6 · ide-partial-output 10 · ide-stop-autosave 27 · ide-thanh-cong-cu 4 ·
-ide-trace 38 · ide-trace-nap-goi 5 · inline-code 7 · insert-gate-sync 2 · khoa-roi-giao-trinh 5 ·
-label-version 3 · learning-events 50 · lesson-back 19 · lesson-chrome-sticky 4 · lesson-load 7 ·
-lien-ket-noi-bo 3 · loi-python 6 · mcq-code 12 · mcq-next-after-wrong 23 · o-go-16px 10 ·
-o-nhap-nhieu-dong 2 · phan-bai 8 · practice-contract 15 · practice-run 9 · prewarm-gate 5 ·
-read-diagram 12 · read-guess 19 · read-trace 17 · read-try-it 23 · recap-recall 7 ·
-review-quiz 34 · run-stale 15 · sandbox-cuon-ket-qua 6 · session-marker 5 · spaced-review 18 ·
+ablate-trung-thuc 19 · bookshelf-progress 5 · catalog-duration 2 · catalog-naming 4 ·
+consent-banner 17 · course-resume 2 · dang-nhap 12 · danh-thuc-may-chu 6 · data-files 18 ·
+dich-bam-vo-bai-hoc 8 · ds-contrast 18 · editor-load-gate 15 · feedback-link 9 · feedback-rank 3 ·
+forum-xss 1 · giam-chuyen-dong 3 · giao-dien 7 · giao-dien-chuyen-dong 5 · giao-dien-monaco 4 ·
+giao-dien-trang-chu 4 · goc-hoc-cho-so 10 · goc-hoc-escape 5 · goc-hoc-hang-nut 4 ·
+goc-hoc-khung-cho 6 · goc-hoc-lo-trinh 11 · goc-hoc-man-con 3 · goc-hoc-nhan-mot 6 ·
+goc-hoc-thanh-cuon 5 · hover-cam-ung 4 · ide-brief-code 12 · ide-gia-tri-nhieu-dong 3 ·
+ide-handoff 6 · ide-output-scroll 6 · ide-partial-output 10 · ide-stop-autosave 27 ·
+ide-thanh-cong-cu 4 · ide-trace 38 · ide-trace-nap-goi 5 · inline-code 7 · insert-gate-sync 2 ·
+khoa-roi-giao-trinh 5 · lab-sql-ad01 23 · label-version 3 · learning-events 50 · lesson-back 19 ·
+lesson-chrome-sticky 4 · lesson-load 7 · lien-ket-noi-bo 3 · loi-mang 3 · loi-python 6 ·
+mcq-code 12 · mcq-next-after-wrong 23 · o-go-16px 10 · o-nhap-nhieu-dong 2 · phan-bai 8 ·
+practice-contract 15 · practice-run 9 · prewarm-gate 7 · quan-may 18 · read-diagram 12 ·
+read-guess 19 · read-trace 17 · read-try-it 23 · recap-recall 7 · review-quiz 34 · run-stale 15 ·
+sandbox-cuon-ket-qua 6 · session-marker 5 · spaced-review 18 · static-courses 8 ·
 studio-lesson 44 · tracer-limits 7 · tracer-web-sync 5 · trang-404 6 · trang-loi 12 ·
-trap-leak 3 · worker-csp 7 = 763.
+trap-leak 3 · worker-csp 7 = 811.
 Lịch sử các lần số ca đổi ("Mốc trước là 736; …") nằm ở [BAY-DA-GAP.md](BAY-DA-GAP.md), phần 2 — mỗi dòng ghi VÌ SAO con số đổi. Khối phân rã ở trên là số HIỆN TẠI; thêm/bớt một tệp test thì sửa CẢ hàng mốc nền LẪN khối này (`node scripts/dem-ca-test.mjs` in đúng khuôn).
 
 **Đếm phân rã bằng `sed`, đừng bằng `grep -E "^. pass"`** — dòng tổng kết của
@@ -441,7 +484,7 @@ Bẫy mới: thêm vào cuối phần 1 của BAY-DA-GAP.md và thêm MỘT dòn
 - GIAO DIỆN THỨ HAI "ĐÀI THIÊN VĂN" — vòng B1: một TRỤC chọn riêng, token ở TỆP RIÊNG, và bản design KHÔNG phải thứ tôi tưởng. → L6751
 - THEME CHIÊM TINH PHỦ TRANG CHỦ — và vì sao nó là lớp KHOÁC, không phải cảnh mới (vòng H1, 12/11/2026). → L6894
 - THEME CHIÊM TINH Ở /ide, 404, TRANG LỖI — và MONACO KHÔNG ĐỌC CSS (vòng H2, 12/11/2026). → L6911
-- WORKTREE MỚI TRÊN WINDOWS ĐỎ 2 BỘ JEST Ở `main` NGUYÊN VẸN (`autocrlf` hệ thống) — và hai cách nữa để "đã ablate" mà không đo được gì: gỡ hẳn bản sửa làm chết tiến trình, và mock che mất logic JOIN. → L6921
+- WORKTREE MỚI TRÊN WINDOWS ĐỎ 2 BỘ JEST Ở `main` NGUYÊN VẸN (`autocrlf` hệ thống) — và hai cách nữa để "đã ablate" mà không đo được gì: gỡ hẳn bản sửa làm chết tiến trình, và mock che mất logic JOIN. → L6923
 
 ## Nạp dữ liệu vào DB — đừng mặc định dùng seed
 

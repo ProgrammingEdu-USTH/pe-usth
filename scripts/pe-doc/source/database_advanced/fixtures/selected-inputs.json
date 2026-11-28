@@ -1,0 +1,14 @@
+{
+  "inputs": [
+    {
+      "path": "fixtures/chinook_advanced.sql",
+      "sha256": "69b2dc90624250f3820c99cef4c8ae3ae7e3a35fd0b59413304328ea9a2def2b",
+      "source": "ChinookDatabase/DataSources/Chinook_MySql.sql",
+      "upstreamSha256": "02a1835417c3ea19bff64e1d1f22be738ce51b3f88b0473c24eebff9a3ccde4b",
+      "commit": "7f67772503d71ba90f19283c38e93923addb43fa",
+      "license": "MIT",
+      "change": "Upstream database DROP/CREATE/USE removed. Backend must allocate a new empty validated sandbox and select it before loading; abort on any SQL error and refuse existing schema. Table/data payload retained."
+    }
+  ],
+  "otherLabs": "Hermitage schedules and ecommerce PE fixtures/oracles are in repo-labs.md and research/verify_repositories.py; learner never clones upstream."
+}

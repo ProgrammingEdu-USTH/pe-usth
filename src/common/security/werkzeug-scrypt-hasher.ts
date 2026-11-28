@@ -1,4 +1,4 @@
-import { randomBytes, scrypt, scryptSync, timingSafeEqual } from 'crypto';
+import { randomBytes, scrypt, timingSafeEqual } from 'crypto';
 import { promisify } from 'util';
 
 const scryptAsync = promisify(scrypt) as (
@@ -31,18 +31,6 @@ export class WerkzeugScryptHasher {
       maxmem: MAX_MEM,
     });
 
-    return `scrypt:${N}:${R}:${P}$${usedSalt}$${derivedKey.toString('hex')}`;
-  }
-
-  /** Bản sync chỉ dành cho unit test/script — KHÔNG dùng trong request handler. */
-  static encodeSync(password: string, salt?: string): string {
-    const usedSalt = salt ?? randomBytes(16).toString('hex');
-    const derivedKey = scryptSync(password, usedSalt, KEY_LENGTH, {
-      N,
-      r: R,
-      p: P,
-      maxmem: MAX_MEM,
-    });
     return `scrypt:${N}:${R}:${P}$${usedSalt}$${derivedKey.toString('hex')}`;
   }
 

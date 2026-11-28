@@ -83,6 +83,28 @@ const nextConfig: NextConfig = {
     // Manifest". Ghim cứng ở đây thì id luôn là "[project]/src/app/...".
     root: __dirname,
   },
+  // Trang khoá học cũ đã gộp vào Tủ sách. Tham số `?lesson=` đi theo sang đích.
+  async redirects() {
+    return [
+      { source: "/courses/python_advanced", destination: "/bookshelf/python", permanent: false },
+      // Hai tập Quán Mây của bản thử đầu nay là tập 2 và 3 của bản đủ mười tập.
+      { source: "/quan-may/xep-don", destination: "/quan-may#ep2", permanent: false },
+      { source: "/quan-may/ket-hut-tien", destination: "/quan-may#ep3", permanent: false },
+      { source: "/courses/db_design", destination: "/bookshelf/sql", permanent: false },
+      { source: "/courses/db_design_tc", destination: "/bookshelf/sql", permanent: false },
+      { source: "/courses/db_design_nc", destination: "/bookshelf/sql", permanent: false },
+      // Trang bài học SQL cũ đã xoá; khoá Database trên Tủ sách thay nó.
+      { source: "/lesson/db_design", destination: "/bookshelf/sql", permanent: false },
+      { source: "/lesson/db_design_tc", destination: "/bookshelf/sql", permanent: false },
+      { source: "/lesson/db_design_nc", destination: "/bookshelf/sql", permanent: false },
+    ];
+  },
+  // Quán Mây là một trang tĩnh tự chứa ở public/quan-may.
+  async rewrites() {
+    return [
+      // Trình duyệt vẫn tự xin /favicon.ico dù trang đã khai icon.svg: trả cùng hình thay vì 404.
+      { source: "/favicon.ico", destination: "/icon.svg" },{ source: "/quan-may", destination: "/quan-may/index.html" }];
+  },
   async headers() {
     return [
       {
@@ -101,6 +123,25 @@ const nextConfig: NextConfig = {
         source: `/static/js/${file}`,
         headers: [{ key: "Content-Security-Policy", value: workerCsp }],
       })),
+      {
+        // Worker Python của máy tính Góc học cũng chạy mã học viên.
+        source: "/goc-hoc/may-tinh/py-worker.js",
+        headers: [{ key: "Content-Security-Policy", value: workerCsp }],
+      },
+      {
+        // Hai bài tương tác của Machine Learning là trang HTML tự chứa, có
+        // script riêng và không cần gì của trang chủ. `sandbox` không kèm
+        // allow-same-origin: script của chúng chạy ở nguồn rỗng, không đọc được
+        // token hay gọi API bằng phiên của người học. Đứng SAU "/(.*)" để thắng.
+        source: "/static/courses/machine_learning/interactive/:file*.html",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value:
+              "sandbox allow-scripts allow-popups; default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'",
+          },
+        ],
+      },
       {
         // Runtime Pyodide (~32 MB: wasm + stdlib + wheel numpy/pandas/matplotlib)
         // nằm trong thư mục ĐÃ GHIM PHIÊN BẢN, nên nội dung không bao giờ đổi:
@@ -152,6 +193,13 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
         ],
       },
+      // Ảnh cảnh Góc học: trang chủ tải ~100 tệp, mặc định `public/` bắt hỏi lại từng tệp mỗi lần vào
+      // (đo 26/11/2026: 95 lượt 304, ảnh hiện sau phòng ~1,8 s). Một ngày dùng lại, tuần sau vừa dùng
+      // vừa hỏi lại. Tên tệp không ghim phiên bản nên KHÔNG immutable. Thư mục may-tinh đứng ngoài: có worker.
+      ...["/goc-hoc/items/:path*", "/goc-hoc/:name.webp"].map((source) => ({
+        source,
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+      })),
       {
         // Ảnh của giáo trình (80 PNG, 2,3 MB) và bộ dữ liệu quán (1,44 MB, riêng
         // don_hang.csv là 1 289 915 byte). Trước bản này cả hai rơi về mặc định

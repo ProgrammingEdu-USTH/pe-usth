@@ -830,6 +830,61 @@
   margin-bottom: 0;
 }
 
+/* Tiêu đề mục và liên kết trong bài đọc của khoá tĩnh (khối có `heading`/`rich`). */
+.read h3 {
+  margin: 8px 0 0;
+  font-size: 20px;
+  line-height: 1.35;
+  font-weight: 700;
+  color: var(--edu-t1);
+}
+
+.read h3:first-child {
+  margin-top: 0;
+}
+
+.read a,
+.practice a,
+.practiceRich a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+
+.practiceRich {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* Công thức viết liền không dấu cách phải xuống dòng trong trang của nó. */
+.read p,
+.read h3 {
+  overflow-wrap: break-word;
+}
+
+.practiceHint {
+  border: 1px dashed var(--edu-sidebar-border);
+  border-radius: 12px;
+  padding: 0 16px;
+}
+
+.practiceHint summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--edu-t1);
+}
+
+.practiceHint p {
+  margin: 0 0 12px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--edu-t2);
+}
+
 /* KẾT QUẢ của khối code — console, KHÔNG phải code. Phải nhìn là biết ngay đâu
    là lệnh đâu là cái nó in ra: nhãn riêng, viền trái màu nhấn, không số dòng.
    Trước đây nếu nhồi `expected` vào chính CodeBlock thì học viên đọc output

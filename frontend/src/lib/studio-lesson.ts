@@ -209,7 +209,11 @@ export type ReadTrace = {
 };
 
 export type ReadBlock =
-  | { type: 'paragraph'; text: string }
+  /**
+   * `heading` = tiêu đề một mục trong trang. `rich` = đoạn văn mang Markdown nội
+   * tuyến (xem rich-tokens.ts). Chỉ các khoá tĩnh của scripts/pe-doc phát hai cờ.
+   */
+  | { type: 'paragraph'; text: string; heading?: true; rich?: true }
   /**
    * `tryIt` = khâu build đã xác nhận đoạn này CHẠY ĐƯỢC trong Pyodide, nên màn
    * đọc dựng nút "Thử ngay trong IDE" dưới nó (kiểu "Try it Yourself" của
@@ -222,7 +226,8 @@ export type ReadBlock =
    * sqlalchemy, ipywidgets), là gói ẩn sau chuỗi (`engine="openpyxl"`), và là
    * thuộc tính phơi ra máy thật (`sys.executable`). Chỉ build.py biết cả ba.
    */
-  | { type: 'code'; code: string; expected?: string; tryIt?: true; trace?: ReadTrace }
+  /** `lang` vắng nghĩa là Python — khoá Python không khai nó. */
+  | { type: 'code'; code: string; lang?: string; expected?: string; tryIt?: true; trace?: ReadTrace }
   /**
    * Lệnh gõ trong TERMINAL (`python -m venv .venv`, `git status`) — KHÔNG phải
    * Python. Phải hiện khác khối `code`, nếu không người học copy nó vào ô soạn
@@ -494,7 +499,45 @@ export type PracticeItem = {
   answer: string;
   answerCode?: string;
   answerExpected?: string;
+  /** Các trường dưới đây chỉ có ở khoá tĩnh (scripts/pe-doc). */
+  rich?: true;
+  promptCode?: string;
+  promptLang?: string;
+  answerLang?: string;
+  hint?: string;
 };
+
+/** Tên mục kết bài của khoá Database; đoạn dưới nó là phần cô đọng của bài. */
+const TAKEAWAY = 'Điều cần giữ lại';
+/** Mục phụ, không phải ý của bài. */
+const NOT_AN_IDEA = new Set(['Nguồn và đối chiếu', 'Minh họa theo trạng thái', 'Biến thể và lỗi thường gặp']);
+
+/**
+ * Ý chính cho màn tổng kết của một bài đọc.
+ *
+ * Khoá Python: đoạn văn đầu của từng màn. Khoá tĩnh có tiêu đề mục: đoạn văn
+ * của mục kết bài nếu có, không thì chính các tiêu đề mục.
+ */
+export function keyIdeas(read: ReadBlock[][] | undefined): string[] {
+  const blocks = (read ?? []).flat();
+  if (!blocks.some((b) => b.type === 'paragraph' && b.heading))
+    return (read ?? []).flatMap((slice) => {
+      const first = slice.find((b) => b.type === 'paragraph');
+      return first?.type === 'paragraph' ? [first.text] : [];
+    });
+  const takeaway: string[] = [];
+  const headings: string[] = [];
+  let inside = false;
+  for (const block of blocks) {
+    if (block.type !== 'paragraph') continue;
+    if (block.heading) {
+      const name = block.text.replace(/ \(tiếp\)$/, '');
+      inside = name === TAKEAWAY;
+      if (name !== TAKEAWAY && !NOT_AN_IDEA.has(name) && !headings.includes(name)) headings.push(name);
+    } else if (inside) takeaway.push(block.text);
+  }
+  return takeaway.length ? takeaway : headings;
+}
 
 export type Step2 = {
   heading?: string;

@@ -22,6 +22,7 @@ export const metadata: Metadata = {
 const STUDIO_CSS = [
   '/static/css/edu-theme.css',
   '/static/css/studio-tokens.css',
+  '/static/css/goc-hoc-lesson.css',
 ];
 
 // Khoá "Python cho Data Analyst" (mã nội bộ python_advanced): giáo trình ĐỌC pe-da, nội dung

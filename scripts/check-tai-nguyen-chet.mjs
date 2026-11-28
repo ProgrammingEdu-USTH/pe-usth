@@ -36,6 +36,10 @@ const FE = join(GOC, 'frontend');
  * sách tên trần thì sáu tháng sau không ai dám xoá mục nào.
  */
 const GIU_DU_CHET = {
+  'js/lesson_content.js':
+    'Trang bài SQL cũ đã xoá ngày 25/11/2026 nên không trang nào nạp tệp này, nhưng ' +
+    'scripts/seed-lesson-questions.js ĐỌC nó (cùng lesson_content_tc/nc.js) để dựng câu hỏi ' +
+    'khi nạp DB. Xoá là script nạp hỏng; xoá nội dung khoá cũ khỏi DB là quyết định riêng.',
   'component/PythonStudio.tsx':
     'Bài "List & Mutability" dựng tay — lối duy nhất tới nó là ' +
     '/lesson/python?demo=list, và vòng 08/11/2026 đã cho đường đó trả 404. ' +

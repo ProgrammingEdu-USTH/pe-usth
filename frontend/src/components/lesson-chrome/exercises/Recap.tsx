@@ -108,7 +108,7 @@ export default function Recap({
   hoiTruoc,
 }: RecapProps) {
   return (
-    <div className={styles.recapRoot}>
+    <div className={styles.recapRoot} data-gh-pair="">
       <span
         className={styles.recapXp}
       >
@@ -125,6 +125,8 @@ export default function Recap({
           </div>
         ))}
       </div>
+      {/* Trang phải của sách: điều cần nhớ, đề ôn và nút kết thúc. */}
+      <div data-gh-right="">
       {hoiTruoc && !hoiTruoc.daViet ? (
         <OHoiTuong onNop={hoiTruoc.onNop} />
       ) : (
@@ -166,6 +168,7 @@ export default function Recap({
       >
         Hoàn thành <span aria-hidden="true">✓</span>
       </button>
+      </div>
     </div>
   );
 }

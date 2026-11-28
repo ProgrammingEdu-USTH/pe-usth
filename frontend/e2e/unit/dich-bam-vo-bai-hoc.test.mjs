@@ -64,7 +64,7 @@ const TEP = [
   'src/components/python-studio/review-quiz.module.css',
   'src/components/lesson-chrome/ShellB.module.css',
   'src/components/python-studio/consent-banner.module.css',
-  'src/components/CourseShell.module.css',
+  // (vị trí 8 từng là CourseShell.module.css, xoá cùng trang khoá cũ ngày 26/11; chỗ trống giữ chỉ số.)
   'src/app/error.module.css',
   // Thêm vì PHÉP TỰ KIỂM ngay dưới bắt được: phép đếm mở vòng CÓ kể nó
   // (SiteHeader 1 rule) mà danh sách này thì tôi gõ thiếu. `.theme` đã 48×48
@@ -75,6 +75,9 @@ const TEP = [
   // `.opt` cao 44, bề rộng 100%. Nút này mount ở thanh trên của MỌI màn bài học
   // (từ 861px) nên không được đứng ngoài cổng đích bấm.
   'src/components/ThemePicker.module.css',
+  // Tủ sách và nút Lofi dùng chung (đưa từ nhánh test sang).
+  'src/components/bookshelf/bookshelf.module.css',
+  'src/components/ui/lofi-ui.module.css',
   // Thêm 28/11/2026 cùng trang đăng nhập/đăng ký: `.nutChinh` và `.nutHien` đều min-height 44.
   'src/components/auth/auth.module.css',
 ];
@@ -477,10 +480,6 @@ test('đích bấm: năm nút đã đo không quay về dưới sàn', () => {
     // #157 sửa cái dưới và bỏ sót cái này vì SY05 không có câu luyện tập nào
     // chạy được, nên cổng `{chayDuoc && …}` không dựng nút để mà đo.
     '.practiceRun': [38, 1],
-    // Đo 16/11/2026 trên production, trang khoá 390×844: 11 hàng cao 50–109px — ĐÃ ≥ 44,
-    // nên số 50 là mức thấp nhất đo được chứ không phải "dưới sàn". Sàn khai ở CSS để nó
-    // thành bảo đảm; mục này canh "đừng gỡ min-height: 44px". CourseShell = TEP[8].
-    '.moduleHead': [50, 8],
     // Đo 09/11/2026 sau khi trả lời câu ôn giãn cách trên NP06. Tôi DỰ ĐOÁN 38
     // (cùng công thức CSS với `.practiceRun`) và đo ra 36 — một công thức giống
     // nhau cho một con số GẦN nhau, không cho CÙNG con số.

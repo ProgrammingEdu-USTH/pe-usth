@@ -356,6 +356,10 @@
   .main { padding: 0 16px 40px; }
   .title { font-size: 24px; }
   .kbd { display: none; }
+  /* Ô chọn ví dụ luôn chiếm trọn một hàng: nếu không, phông web tải xong làm các nút xuống dòng khác đi
+     và đẩy cả khung soạn thảo (phần còn lại của CLS ở trên). */
+  .actions > :first-child { flex: 1 0 100%; }
+  .actions > :first-child .select { width: 100%; }
 }
 
 /* Chỗ nút "Xem từng bước" được portal vào (xem IdeClient + CodeVisualizer).

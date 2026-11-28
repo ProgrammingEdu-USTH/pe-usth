@@ -16,7 +16,8 @@ export interface LessonChromeProps {
   /** Bước hiện tại, 1-based. */
   step: number;
   totalSteps: number;
-  streak: number;
+  /** Vắng ở khoá không có tài khoản: không có chuỗi ngày nào để hiện. */
+  streak?: number;
   /** Điểm trong bài (khoá có mini-game). Không truyền thì không hiện ô điểm. */
   points?: number;
   courseLabel?: string;
@@ -110,8 +111,8 @@ export default function LessonChrome({
     // mang thuộc tính này (`html[data-theme]:has([data-tv-surface])`), nên trang
     // chưa thiết kế không đổi màu nửa vời. Gắn ở gốc khung (không ở `.main`)
     // vì overlay/toast dựng ở `document.body` cần token từ phần tử <html>.
-    <div className={styles.chrome} data-tv-surface="">
-      <header className={styles.topBar}>
+    <div className={styles.chrome} data-tv-surface="" data-gh-room="">
+      <header className={styles.topBar} data-gh-bar="">
         <div className={styles.topBarInner}>
           <button
             type="button"
@@ -182,14 +183,16 @@ export default function LessonChrome({
             </div>
           )}
 
-          <div
-            className={styles.streakPill}
-            style={points !== undefined ? { marginLeft: 0 } : undefined}
-            title={`Chuỗi ${streak} ngày học liên tiếp`}
-          >
-            <span aria-hidden="true">🔥</span>
-            <span>{streak}</span>
-          </div>
+          {streak !== undefined && (
+            <div
+              className={styles.streakPill}
+              style={points !== undefined ? { marginLeft: 0 } : undefined}
+              title={`Chuỗi ${streak} ngày học liên tiếp`}
+            >
+              <span aria-hidden="true">🔥</span>
+              <span>{streak}</span>
+            </div>
+          )}
 
           {/* Chọn giao diện + sáng/tối. Nằm ngoài dòng chảy (xem `.themeSlot`):
               dưới 861px không còn pixel nào trống trên thanh này. */}
@@ -199,18 +202,29 @@ export default function LessonChrome({
         </div>
       </header>
 
-      <main className={styles.main}>
-        <div className={wide ? `${styles.contentContainer} ${styles.contentWide}` : styles.contentContainer}>
+      <main className={styles.main} data-gh-spread={wide ? 'wide' : ''}>
+        <div
+          className={wide ? `${styles.contentContainer} ${styles.contentWide}` : styles.contentContainer}
+          data-gh-page=""
+        >
           {/* key={step} để mỗi lần đổi bước là một lần chạy lại animation vào */}
           <div key={step} className={styles.stepEnter}>
             {children}
           </div>
+          {/* Số trang của cuốn sách (goc-hoc-lesson.css): mỗi màn là một lần mở,
+              hai trang. Chỉ để nhìn — vị trí trong bài đã đọc được ở thanh trên. */}
+          <span data-gh-folio="trai" aria-hidden="true">
+            {step * 2 - 1}
+          </span>
+          <span data-gh-folio="phai" aria-hidden="true">
+            {step * 2}
+          </span>
         </div>
       </main>
 
       {/* `data-thanh-duoi`: mép TRÊN của thanh này là đáy phần màn người học thấy được — màn bài
           tập chấm đo nó để biết ô kết quả vừa về có nằm sau thanh không (SandboxEditor). */}
-      <footer className={styles.bottomBar} data-thanh-duoi="">
+      <footer className={styles.bottomBar} data-thanh-duoi="" data-gh-bar="">
         {/* data-co-nut-phu: có nút phụ (Gợi ý / Chọn lại) thì ở khổ điện thoại nhãn
             "Tiến độ tự lưu" nhường chỗ — xem `.bottomBarInner[data-co-nut-phu]`. */}
         <div className={styles.bottomBarInner} data-co-nut-phu={secondaryLabel ? '1' : undefined}>

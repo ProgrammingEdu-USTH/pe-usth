@@ -97,16 +97,6 @@ export function khoHauKiemCua(courseId: string): Map<string, unknown[]> {
   return courseId === KHO.course_id ? THEO_MA : new Map<string, unknown[]>();
 }
 
-/** Thông tin kho để log/kiểm, không dùng trong luồng nghiệp vụ. */
-export const thongTinKho = {
-  schema: KHO.schema,
-  courseId: KHO.course_id,
-  practiceSha256: KHO.practice_sha256,
-  heldBackFrom: KHO.held_back_from,
-  soBai: KHO.lessons.length,
-  soCau: KHO.lessons.reduce((n, m) => n + m.questions.length, 0),
-};
-
 /**
  * Số ngày trễ, từ giá trị thô mà ConfigService trả về.
  *

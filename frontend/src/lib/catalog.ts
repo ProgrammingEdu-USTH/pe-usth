@@ -30,7 +30,6 @@
  * Sửa seed thì phải sửa cả file này (xem bẫy "hai nguồn danh sách bài" trong
  * AGENTS.md — đây là nguồn thứ ba của cùng một loại lệch).
  */
-import type { GlyphKind } from '@/components/CourseGlyph';
 import CURRICULA_JSON from '@/lib/curricula.json';
 
 type Curriculum = { modules?: { title: string; lessons: string[] }[] };
@@ -63,17 +62,10 @@ export type CatalogCourse = {
   accent: string;
   /** 1–3 ký tự in trên biểu tượng. */
   mark: string;
-  /** Hình biểu tượng riêng (xem CourseGlyph); bỏ trống thì dùng hình mặc định. */
-  icon?: GlyphKind;
   /** Trang bài học của khóa. */
   lessonUrl: string;
 };
 
-export const LEVEL_LABEL: Record<Level, string> = {
-  beginner: 'Cơ bản',
-  intermediate: 'Trung cấp',
-  advanced: 'Nâng cao',
-};
 
 /** Số bài = tổng bài của mọi module trong giáo trình; khóa không có giáo trình dùng `fallback`. */
 function lessonCount(id: string, fallback: number): number {
@@ -130,7 +122,6 @@ export const COURSES: CatalogCourse[] = [
     color: '#2563eb',
     accent: '#e5334b',
     mark: 'Py+',
-    icon: 'python',
     lessonUrl: '/lesson/python_advanced',
   },
 ];

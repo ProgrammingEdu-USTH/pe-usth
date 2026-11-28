@@ -41,6 +41,7 @@ import LessonScreenView from './screens';
 import { ICON } from './screens/chrome';
 import { datBoiCanhBai, dayNgay, ghiSuKien } from '@/lib/learning-events';
 import { ketQuaLaCu } from '@/lib/run-freshness';
+import { isStaticCourse, STATIC_COURSES } from '@/lib/static-courses';
 import { datLaiCauOn, layCauOn, themCauSai, xoaCauOn, type CauOn } from '@/lib/spaced-review';
 
 import ConsentBanner from './ConsentBanner';
@@ -72,6 +73,8 @@ export default function StudioLesson({
   /** Tên khoá hiện trên thanh trên cùng và nút đăng ký. */
   courseName?: string;
 }) {
+  // Khoá tĩnh: không tài khoản, không XP, đường về là cuốn sách của nó trên kệ.
+  const local = isStaticCourse(courseId);
   // Bản nháp trước, vì hook dữ liệu cần `restore` để nạp lại nháp đúng lúc có
   // nội dung bài (giữ nguyên thứ tự cũ: một lần render, không nhảy màn).
   const draftState = useLessonDraft({ courseId, lessonNo });
@@ -280,6 +283,7 @@ export default function StudioLesson({
    */
   const lessonRun = useLessonRun({
     lesson,
+    waitForContent: local,
     screens,
     draft: d,
     busy,
@@ -456,7 +460,16 @@ export default function StudioLesson({
     // đếm từ 1, còn link ở trang khoá học là chỉ số phẳng đếm từ 0. Quên trừ
     // thì nó mở đúng module trong hầu hết trường hợp nên trông như chạy được,
     // chỉ sai ở bài ĐẦU của mỗi module — đúng kiểu lỗi không ai thấy.
-    window.location.assign(`/courses/${courseId}?lesson=${lessonNo - 1}`);
+    const book = isStaticCourse(courseId)
+      ? STATIC_COURSES[courseId].slug
+      : courseId === 'python_advanced'
+        ? 'python'
+        : null;
+    window.location.assign(
+      book
+        ? `/bookshelf/${book}?lesson=${lessonNo - 1}`
+        : '/bookshelf',
+    );
   }
 
   // ---------- Vỏ ----------
@@ -485,7 +498,7 @@ export default function StudioLesson({
       <LessonChrome
         step={Math.min(d.step, Math.max(1, screens.length || 1))}
         totalSteps={Math.max(1, screens.length || 1)}
-        streak={streak}
+        streak={local ? undefined : streak}
         points={play ? score.points : undefined}
         courseLabel={
           (boss ? '⚔️ BOSS · ' : '') +
@@ -602,11 +615,13 @@ export default function StudioLesson({
   );
 
   if (loading)
-    return frame(info('Đang tải bài học…', choLau
+    return frame(info('Đang tải bài học…', choLau && !local
       ? 'Máy chủ đang khởi động lại sau một lúc không có ai học — lần đầu trong '
         + 'ngày có thể mất khoảng nửa phút. Tiến độ của bạn vẫn còn, không cần '
         + 'tải lại trang.'
-      : 'Chờ một chút, nội dung đang được lấy từ máy chủ.'), {
+      : local
+        ? 'Chờ một chút, nội dung đang được tải về.'
+        : 'Chờ một chút, nội dung đang được lấy từ máy chủ.'), {
       primaryLabel: 'Đang tải…',
       primaryDisabled: true,
       primaryBusy: true,
@@ -643,8 +658,10 @@ export default function StudioLesson({
     return frame(
       info(
         meta?.title || `Bài ${lessonNo}`,
-        'Bài học này chưa có nội dung Studio. Quản trị viên có thể nhập nội dung từ file PDF hoặc Markdown trong trang quản trị.',
-        'Đang biên soạn',
+        local
+          ? `Khoá ${courseName} không có bài số ${lessonNo}.`
+          : 'Bài học này chưa có nội dung Studio. Quản trị viên có thể nhập nội dung từ file PDF hoặc Markdown trong trang quản trị.',
+        local ? 'Không tìm thấy bài' : 'Đang biên soạn',
       ),
       { primaryLabel: 'Về khóa học →', onPrimaryClick: leave, onSeek: undefined, onBack: undefined },
     );
@@ -659,7 +676,8 @@ export default function StudioLesson({
       )}
       {completed && scr?.kind !== 'recap' && (
         <div className={`${c.note} ${c.noteOk}`} role="status">
-          ✓ Bài này đã hoàn thành và được lưu trên hệ thống. Bạn có thể luyện tập lại.
+          ✓ Bài này đã hoàn thành và được lưu {local ? 'trên máy này' : 'trên hệ thống'}. Bạn có thể
+          luyện tập lại.
         </div>
       )}
       {lesson && scr && (

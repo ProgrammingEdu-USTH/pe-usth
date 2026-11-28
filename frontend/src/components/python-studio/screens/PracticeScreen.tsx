@@ -27,7 +27,8 @@ import { useState } from 'react';
 
 import CodeBlock from '@/components/lesson-chrome/exercises/CodeBlock';
 import { ghiSuKien } from '@/lib/learning-events';
-import { toCodeLines } from '@/lib/py-highlight';
+import { codeName, toCodeLines } from '@/lib/py-highlight';
+import { withRichText } from '@/lib/rich-text';
 import { khopDapAn } from '@/lib/studio-lesson';
 
 import type { RunResult } from '../runner/types';
@@ -71,6 +72,9 @@ export default function PracticeScreen({
   const item = items[at];
   if (!item) return null;
 
+  // Câu của khoá tĩnh mang Markdown nội tuyến và xuống dòng có nghĩa.
+  const rich = (text: string) => <span className={c.practiceRich}>{withRichText(text)}</span>;
+
   const typed = draft.practice?.[at] ?? '';
   const shown = Boolean(draft.practiceSeen?.[at]);
 
@@ -98,9 +102,24 @@ export default function PracticeScreen({
           ? `Câu ${at + 1}/${items.length}`
           : 'Câu luyện tập'
       }
-      description={paragraphs(item.prompt)}
+      description={item.rich ? rich(item.prompt) : paragraphs(item.prompt)}
     >
       <div className={c.practice}>
+        {item.promptCode && (
+          <div className={c.readCode}>
+            <CodeBlock
+              filename={codeName(item.promptLang)}
+              langTag="đề bài"
+              lines={toCodeLines(item.promptCode, undefined, item.promptLang)}
+            />
+          </div>
+        )}
+        {item.hint && (
+          <details key={at} className={c.practiceHint}>
+            <summary>Gợi ý</summary>
+            <p>{rich(item.hint)}</p>
+          </details>
+        )}
         <label className={c.practiceNote} htmlFor={`practice-${at}`}>
           {chayDuoc
             ? 'Tự viết code của bạn rồi bấm Chạy thử. Nền tảng so đầu ra với đáp án mẫu — không chấm điểm, không tính vào XP.'
@@ -170,13 +189,13 @@ export default function PracticeScreen({
         {shown ? (
           <div className={c.practiceAnswer}>
             <h4>Đáp án mẫu</h4>
-            <p>{paragraphs(item.answer)}</p>
+            {item.rich ? <p>{rich(item.answer)}</p> : <p>{paragraphs(item.answer)}</p>}
             {item.answerCode && (
               <div className={c.readCode}>
                 <CodeBlock
-                  filename="python"
+                  filename={codeName(item.answerLang)}
                   langTag="đáp án mẫu"
-                  lines={toCodeLines(item.answerCode)}
+                  lines={toCodeLines(item.answerCode, undefined, item.answerLang)}
                 />
               </div>
             )}

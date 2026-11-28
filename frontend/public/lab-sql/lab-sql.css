@@ -1,0 +1,104 @@
+/* Phần RIÊNG của tập thử SQL, nạp SAU /quan-may/quan-may.css. Mọi thứ còn lại (màu, chữ, thẻ, nút, bong bóng
+   thoại, HUD, khung cảnh isometric) lấy thẳng từ Quán Mây. Ở đây chỉ có những gì Quán Mây chưa có. */
+
+/* Bốn nét ghép dòng hàng với phiếu thanh toán. `stroke-dasharray` lớn hơn chiều dài nét nên không cần pathLength. */
+.iso-pair { fill: none; stroke: var(--accent); stroke-width: 3.2; stroke-linecap: round; stroke-dasharray: 400; stroke-dashoffset: 400; transition: stroke-dashoffset .7s ease-out; }
+.iso-pair.on { stroke-dashoffset: 0; }
+@media (prefers-reduced-motion: reduce) { .iso-pair { transition: none; } }
+
+/* Bảng kết quả của câu SQL. */
+.cuon { overflow-x: auto; border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface); }
+table.kq { width: 100%; border-collapse: collapse; font: 600 13.5px var(--mono); font-variant-numeric: tabular-nums; }
+table.kq th, table.kq td { padding: 7px 12px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.kq th { color: var(--ink-2); font-weight: 700; background: var(--surface-2); }
+table.kq tr:last-child td { border-bottom: 0; }
+table.kq td.bad { color: var(--bad); background: var(--bad-soft); }
+table.kq td.null { color: var(--ink-3); font-style: italic; }
+
+/* Ô soạn SQL: cùng diện mạo khối code của Quán Mây (.code), nhưng là textarea. 16px chống iOS phóng to trang. */
+textarea.code { display: block; width: 100%; min-height: 230px; resize: vertical; font-size: 16px; line-height: 1.5; border: 0; tab-size: 2; white-space: pre; }
+textarea.code:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.pane { display: flex; flex-direction: column; gap: 10px; }
+.ghi { font-size: 13.5px; color: var(--ink-2); }
+.ghi b { color: var(--ink); }
+.hint { background: var(--accent-soft); border: 1.5px solid color-mix(in srgb, var(--edge) 45%, var(--line)); border-radius: 12px; padding: 8px 12px; font-size: 14px; }
+.hint b { font-family: var(--mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-ink); margin-right: 6px; }
+.sao { display: inline-flex; gap: 2px; letter-spacing: 3px; font: 800 20px/1 var(--display); color: var(--line); }
+.sao .on { color: var(--accent); }
+.tong-ket { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.tong-ket li { display: flex; gap: 10px; align-items: flex-start; }
+.tong-ket i { flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--ok); color: var(--surface); display: grid; place-items: center; font: 700 12px/1 var(--mono); font-style: normal; }
+
+/* Ô gõ số của bước Đoán. 16px chống iOS phóng to trang; cao 44px là sàn chạm của repo. */
+.hoi { display: grid; gap: 6px; font-size: 14px; }
+.hoi > span { font-weight: 600; line-height: 1.4; }
+.hoi input { width: 100%; min-height: 44px; font: 700 18px var(--mono); border: 1.5px solid var(--line); border-radius: 12px; padding: 6px 12px; background: var(--surface); }
+.hoi input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.hoi.dung input { border-color: var(--ok); background: var(--ok-soft); }
+.hoi.sai input { border-color: var(--bad); background: var(--bad-soft); }
+.hoi small { font: 700 12.5px var(--mono); }
+.hoi.dung small { color: var(--ok); }
+.hoi.sai small { color: var(--bad); }
+
+/* Bảng nối của bước Đoán: hàng hiện lần lượt, bấm một hàng thì nét nối tương ứng trên quầy đổi màu. */
+table.led tr[data-i] { cursor: pointer; }
+table.led tr.hot td { background: var(--bad-soft); }
+table.led tr[data-i]:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+table.led tr.tong td { font-weight: 800; border-top: 2px solid var(--ink-2); }
+tr.in { animation: led-in .35s ease-out both; }
+@keyframes led-in { from { opacity: 0; transform: translateY(-6px); } }
+.iso-pair.hot { stroke: var(--bad); stroke-width: 6; }
+@media (prefers-reduced-motion: reduce) { tr.in { animation: none; } }
+
+/* Núm vặn của bước Thử. Trạng thái tắt KHÔNG đỏ: tắt không có nghĩa là sai, chỉ là chưa vặn. */
+.gat { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 44px; text-align: left; border: 1.5px solid var(--line); background: var(--surface); border-radius: 13px; padding: 8px 12px; }
+.gat small { display: block; margin-top: 2px; font-size: 12.5px; color: var(--ink-2); }
+.gat .tg { flex: none; min-width: 52px; text-align: center; border-radius: 99px; padding: 4px 10px; font: 700 12px var(--mono); background: var(--surface-2); border: 1.5px solid var(--line); }
+.gat[aria-checked="true"] { border-color: var(--edge); background: var(--accent-soft); }
+.gat[aria-checked="true"] .tg { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.gat:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.gats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+
+/* Bước Thử: hai cảnh cạnh nhau (quầy · tòa nhà truy vấn), sổ báo cáo của chủ quán, và dòng "điều vừa đổi". */
+.bao { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px 12px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface-2); }
+.bao.ok { border-color: var(--ok); background: var(--ok-soft); }
+.bao.sai { border-color: var(--bad); background: var(--bad-soft); }
+.bao-o small { display: block; font: 700 11px/1.3 var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-2); }
+.bao-o b { font: 800 22px/1.2 var(--display); font-variant-numeric: tabular-nums; }
+.bao-kl { grid-column: 1 / -1; margin: 0; font-size: 14px; }
+.vua { margin: 0; padding: 8px 12px; border-radius: 12px; border: 1.5px dashed var(--ink-3); font-size: 14px; }
+.vua.co { border-style: solid; border-color: var(--edge); background: var(--accent-soft); }
+.mai { display: grid; gap: 8px; }
+.mai:empty { display: none; }
+.toa { max-width: 420px; margin-inline: auto; }
+
+/* ---- Bước "Vụ việc" và ô "Sổ của quán": ba bảng thật, dòng của đơn 101 tô màu, bấm để tìm ---- */
+.so-quan { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; align-items: start; }
+.so-ten { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px; font-size: 14px; }
+.so-ten small { font: 600 11.5px var(--mono); color: var(--ink-2); }
+table.kq.nho { font-size: 12.5px; }
+table.kq.nho th, table.kq.nho td { padding: 6px 9px; }
+table.kq tr.hl td { background: var(--accent-soft); }
+table.kq tr.bam { cursor: pointer; }
+table.kq tr.bam:hover td { background: var(--surface-2); }
+table.kq tr.bam:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+table.kq tr.chon td { background: var(--ok-soft); font-weight: 700; }
+table.kq tr.lac td { background: var(--bad-soft); }
+.vv-tin { margin: 0; padding: 9px 12px; border-radius: 12px; border: 1.5px dashed var(--ink-3); font-size: 14.5px; }
+.vv-tin.xong { border-style: solid; border-color: var(--ok); background: var(--ok-soft); }
+.hoi-nhom { display: grid; gap: 12px; }
+
+/* Khung gập: luật báo cáo, từ cần biết, sổ của quán. */
+details.goi { border: 1.5px solid var(--line); border-radius: 13px; background: var(--surface); padding: 0 12px; }
+details.goi > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 700; font-size: 14px; }
+details.goi[open] > summary { border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+details.goi > :last-child { margin-bottom: 12px; }
+ol.luat { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 14px; }
+dl.tu { margin: 0; display: grid; gap: 8px; font-size: 14px; }
+dl.tu dt { font-weight: 800; }
+dl.tu dd { margin: 0; color: var(--ink-2); }
+.chi-rong { display: block; }
+@media (max-width: 900px) { .chi-rong { display: none; } }
+.so { min-width: 0; }
+.luoc-do { margin: 0; font-size: 13px; line-height: 1.9; color: var(--ink-2); }

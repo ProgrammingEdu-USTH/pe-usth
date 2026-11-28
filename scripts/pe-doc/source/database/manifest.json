@@ -1,0 +1,1072 @@
+{
+  "title": "Database PE · USTH và Database System Concepts 7e",
+  "date": "2026-11-05",
+  "baseline": "MySQL 8.4 LTS / InnoDB / utf8mb4 / ONLY_FULL_GROUP_BY",
+  "lessons": [
+    {
+      "id": "F01",
+      "stage": "foundation",
+      "title": "Bắt đầu với dữ liệu và cách học khóa này",
+      "book_sections": [],
+      "usth_lectures": [
+        "1"
+      ],
+      "key": false,
+      "path": "lessons/F01.md"
+    },
+    {
+      "id": "F02",
+      "stage": "foundation",
+      "title": "Đọc lệnh, bảng kết quả và chuẩn bị MySQL",
+      "book_sections": [],
+      "usth_lectures": [
+        "1",
+        "3"
+      ],
+      "key": false,
+      "path": "lessons/F02.md"
+    },
+    {
+      "id": "M01",
+      "stage": "foundation",
+      "title": "Tập hợp, tuple và tích Descartes",
+      "book_sections": [
+        "2.1",
+        "2.6"
+      ],
+      "usth_lectures": [
+        "2"
+      ],
+      "key": true,
+      "path": "lessons/M01.md"
+    },
+    {
+      "id": "M02",
+      "stage": "foundation",
+      "title": "Logic, lượng từ và UNKNOWN",
+      "book_sections": [
+        "3.6",
+        "27"
+      ],
+      "usth_lectures": [
+        "2",
+        "3"
+      ],
+      "key": true,
+      "path": "lessons/M02.md"
+    },
+    {
+      "id": "M03",
+      "stage": "foundation",
+      "title": "Quan hệ, hàm và ràng buộc dữ liệu",
+      "book_sections": [
+        "2.3",
+        "7.4"
+      ],
+      "usth_lectures": [
+        "2",
+        "5"
+      ],
+      "key": false,
+      "path": "lessons/M03.md"
+    },
+    {
+      "id": "M04",
+      "stage": "foundation",
+      "title": "Chứng minh bằng phản ví dụ và suy diễn",
+      "book_sections": [
+        "7.4",
+        "27"
+      ],
+      "usth_lectures": [
+        "2",
+        "5"
+      ],
+      "key": false,
+      "path": "lessons/M04.md"
+    },
+    {
+      "id": "M05",
+      "stage": "foundation",
+      "title": "Đồ thị cho quan hệ và lịch giao dịch",
+      "book_sections": [
+        "17.6",
+        "18.2"
+      ],
+      "usth_lectures": [
+        "6"
+      ],
+      "key": false,
+      "path": "lessons/M05.md"
+    },
+    {
+      "id": "M06",
+      "stage": "foundation",
+      "title": "Đếm, logarit, xác suất và chi phí thuật toán",
+      "book_sections": [
+        "14.3",
+        "15.2",
+        "16.3",
+        "24.1"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/M06.md"
+    },
+    {
+      "id": "C01",
+      "stage": "core",
+      "title": "Database, DBMS và các góc nhìn dữ liệu",
+      "book_sections": [
+        "1.1-1.9"
+      ],
+      "usth_lectures": [
+        "1"
+      ],
+      "key": false,
+      "path": "lessons/C01.md"
+    },
+    {
+      "id": "C02",
+      "stage": "core",
+      "title": "Schema, instance, domain và keys",
+      "book_sections": [
+        "2.1-2.5"
+      ],
+      "usth_lectures": [
+        "2"
+      ],
+      "key": true,
+      "path": "lessons/C02.md"
+    },
+    {
+      "id": "C03",
+      "stage": "core",
+      "title": "Đại số quan hệ: chọn, chiếu và phép tập hợp",
+      "book_sections": [
+        "2.6"
+      ],
+      "usth_lectures": [
+        "2"
+      ],
+      "key": true,
+      "path": "lessons/C03.md"
+    },
+    {
+      "id": "C04",
+      "stage": "core",
+      "title": "Join, division và cây biểu thức",
+      "book_sections": [
+        "2.6",
+        "27"
+      ],
+      "usth_lectures": [
+        "2"
+      ],
+      "key": false,
+      "path": "lessons/C04.md"
+    },
+    {
+      "id": "S01",
+      "stage": "core",
+      "title": "Chạy MySQL và tái tạo bộ dữ liệu PE",
+      "book_sections": [
+        "3.1-3.2"
+      ],
+      "usth_lectures": [
+        "3"
+      ],
+      "key": false,
+      "path": "lessons/S01.md"
+    },
+    {
+      "id": "S02",
+      "stage": "core",
+      "title": "Kiểu dữ liệu, CREATE và ALTER TABLE",
+      "book_sections": [
+        "3.2",
+        "4.5"
+      ],
+      "usth_lectures": [
+        "3"
+      ],
+      "key": false,
+      "path": "lessons/S02.md"
+    },
+    {
+      "id": "S03",
+      "stage": "core",
+      "title": "PRIMARY KEY, FOREIGN KEY và CHECK",
+      "book_sections": [
+        "4.4"
+      ],
+      "usth_lectures": [
+        "3"
+      ],
+      "key": true,
+      "path": "lessons/S03.md"
+    },
+    {
+      "id": "S04",
+      "stage": "core",
+      "title": "SELECT, WHERE và biểu thức",
+      "book_sections": [
+        "3.3-3.4"
+      ],
+      "usth_lectures": [
+        "3"
+      ],
+      "key": false,
+      "path": "lessons/S04.md"
+    },
+    {
+      "id": "S05",
+      "stage": "core",
+      "title": "NULL, LIKE, chuỗi và ngày",
+      "book_sections": [
+        "3.4",
+        "3.6"
+      ],
+      "usth_lectures": [
+        "3"
+      ],
+      "key": true,
+      "path": "lessons/S05.md"
+    },
+    {
+      "id": "S06",
+      "stage": "core",
+      "title": "DISTINCT, ORDER BY, LIMIT và phép tập hợp",
+      "book_sections": [
+        "3.4-3.5"
+      ],
+      "usth_lectures": [
+        "3",
+        "4"
+      ],
+      "key": false,
+      "path": "lessons/S06.md"
+    },
+    {
+      "id": "S07",
+      "stage": "core",
+      "title": "COUNT, SUM, GROUP BY và HAVING",
+      "book_sections": [
+        "3.7"
+      ],
+      "usth_lectures": [
+        "4"
+      ],
+      "key": true,
+      "path": "lessons/S07.md"
+    },
+    {
+      "id": "S08",
+      "stage": "core",
+      "title": "INNER JOIN và cardinality của kết quả",
+      "book_sections": [
+        "4.1"
+      ],
+      "usth_lectures": [
+        "4"
+      ],
+      "key": true,
+      "path": "lessons/S08.md"
+    },
+    {
+      "id": "S09",
+      "stage": "core",
+      "title": "OUTER JOIN, self join và điều kiện ON",
+      "book_sections": [
+        "4.1"
+      ],
+      "usth_lectures": [
+        "4"
+      ],
+      "key": true,
+      "path": "lessons/S09.md"
+    },
+    {
+      "id": "S10",
+      "stage": "core",
+      "title": "Subquery, IN và truy vấn tương quan",
+      "book_sections": [
+        "3.8"
+      ],
+      "usth_lectures": [
+        "4"
+      ],
+      "key": false,
+      "path": "lessons/S10.md"
+    },
+    {
+      "id": "S11",
+      "stage": "core",
+      "title": "EXISTS, NOT EXISTS và điều kiện mọi",
+      "book_sections": [
+        "3.8"
+      ],
+      "usth_lectures": [
+        "4"
+      ],
+      "key": true,
+      "path": "lessons/S11.md"
+    },
+    {
+      "id": "S12",
+      "stage": "core",
+      "title": "INSERT, UPDATE, DELETE và transaction đầu tiên",
+      "book_sections": [
+        "3.9",
+        "4.3"
+      ],
+      "usth_lectures": [
+        "3"
+      ],
+      "key": true,
+      "path": "lessons/S12.md"
+    },
+    {
+      "id": "S13",
+      "stage": "core",
+      "title": "Views, schema và authorization",
+      "book_sections": [
+        "4.2",
+        "4.5",
+        "4.7"
+      ],
+      "usth_lectures": [
+        "7"
+      ],
+      "key": false,
+      "path": "lessons/S13.md"
+    },
+    {
+      "id": "S14",
+      "stage": "core",
+      "title": "Functions và stored procedures",
+      "book_sections": [
+        "5.2"
+      ],
+      "usth_lectures": [
+        "7"
+      ],
+      "key": false,
+      "path": "lessons/S14.md"
+    },
+    {
+      "id": "S15",
+      "stage": "core",
+      "title": "Triggers và tính nhất quán",
+      "book_sections": [
+        "5.3"
+      ],
+      "usth_lectures": [
+        "7"
+      ],
+      "key": false,
+      "path": "lessons/S15.md"
+    },
+    {
+      "id": "S16",
+      "stage": "core",
+      "title": "CTE đệ quy và truy vấn cây",
+      "book_sections": [
+        "5.4"
+      ],
+      "usth_lectures": [
+        "7"
+      ],
+      "key": false,
+      "path": "lessons/S16.md"
+    },
+    {
+      "id": "S17",
+      "stage": "core",
+      "title": "Window functions, ranking và ROLLUP",
+      "book_sections": [
+        "5.5"
+      ],
+      "usth_lectures": [
+        "4",
+        "7"
+      ],
+      "key": false,
+      "path": "lessons/S17.md"
+    },
+    {
+      "id": "S18",
+      "stage": "core",
+      "title": "Gọi SQL từ chương trình và parameter binding",
+      "book_sections": [
+        "5.1"
+      ],
+      "usth_lectures": [
+        "9"
+      ],
+      "key": true,
+      "path": "lessons/S18.md"
+    },
+    {
+      "id": "D01",
+      "stage": "core",
+      "title": "Từ yêu cầu nghiệp vụ đến ERD",
+      "book_sections": [
+        "6.1-6.2",
+        "6.6",
+        "6.9"
+      ],
+      "usth_lectures": [
+        "6",
+        "9"
+      ],
+      "key": true,
+      "path": "lessons/D01.md"
+    },
+    {
+      "id": "D02",
+      "stage": "core",
+      "title": "Attributes, cardinality, keys và weak entity",
+      "book_sections": [
+        "6.3-6.5"
+      ],
+      "usth_lectures": [
+        "6"
+      ],
+      "key": false,
+      "path": "lessons/D02.md"
+    },
+    {
+      "id": "D03",
+      "stage": "core",
+      "title": "Ánh xạ ERD, ternary và specialization",
+      "book_sections": [
+        "6.7-6.8",
+        "6.10-6.11"
+      ],
+      "usth_lectures": [
+        "6",
+        "8"
+      ],
+      "key": true,
+      "path": "lessons/D03.md"
+    },
+    {
+      "id": "D04",
+      "stage": "core",
+      "title": "Functional dependencies, closure và candidate keys",
+      "book_sections": [
+        "7.1",
+        "7.4"
+      ],
+      "usth_lectures": [
+        "5"
+      ],
+      "key": true,
+      "path": "lessons/D04.md"
+    },
+    {
+      "id": "D05",
+      "stage": "core",
+      "title": "1NF, 2NF, 3NF và anomalies",
+      "book_sections": [
+        "7.3",
+        "7.8"
+      ],
+      "usth_lectures": [
+        "5"
+      ],
+      "key": true,
+      "path": "lessons/D05.md"
+    },
+    {
+      "id": "D06",
+      "stage": "core",
+      "title": "BCNF, lossless join và dependency preservation",
+      "book_sections": [
+        "7.2",
+        "7.5"
+      ],
+      "usth_lectures": [
+        "5"
+      ],
+      "key": true,
+      "path": "lessons/D06.md"
+    },
+    {
+      "id": "D07",
+      "stage": "advanced",
+      "title": "Multivalued dependency, 4NF và 5NF",
+      "book_sections": [
+        "7.6-7.7",
+        "28"
+      ],
+      "usth_lectures": [
+        "5"
+      ],
+      "key": false,
+      "path": "lessons/D07.md"
+    },
+    {
+      "id": "D08",
+      "stage": "advanced",
+      "title": "Quy trình thiết kế và dữ liệu thời gian",
+      "book_sections": [
+        "7.9-7.10"
+      ],
+      "usth_lectures": [
+        "9"
+      ],
+      "key": false,
+      "path": "lessons/D08.md"
+    },
+    {
+      "id": "D09",
+      "stage": "core",
+      "title": "SDLC, phỏng vấn, reports và kiểm thử thiết kế",
+      "book_sections": [
+        "6.1",
+        "7.9"
+      ],
+      "usth_lectures": [
+        "8",
+        "9"
+      ],
+      "key": false,
+      "path": "lessons/D09.md"
+    },
+    {
+      "id": "A01",
+      "stage": "advanced",
+      "title": "JSON, RDF và dữ liệu bán cấu trúc",
+      "book_sections": [
+        "8.1"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/A01.md"
+    },
+    {
+      "id": "A02",
+      "stage": "advanced",
+      "title": "Object orientation và dữ liệu văn bản",
+      "book_sections": [
+        "8.2-8.3"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/A02.md"
+    },
+    {
+      "id": "A03",
+      "stage": "advanced",
+      "title": "Spatial data và truy vấn không gian",
+      "book_sections": [
+        "8.4"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/A03.md"
+    },
+    {
+      "id": "A04",
+      "stage": "advanced",
+      "title": "Web, dịch vụ và kiến trúc ứng dụng database",
+      "book_sections": [
+        "9.1-9.7"
+      ],
+      "usth_lectures": [
+        "9"
+      ],
+      "key": false,
+      "path": "lessons/A04.md"
+    },
+    {
+      "id": "A05",
+      "stage": "advanced",
+      "title": "SQL injection, quyền và mã hóa",
+      "book_sections": [
+        "9.8-9.9"
+      ],
+      "usth_lectures": [
+        "9"
+      ],
+      "key": true,
+      "path": "lessons/A05.md"
+    },
+    {
+      "id": "B01",
+      "stage": "advanced",
+      "title": "Big Data, storage và MapReduce",
+      "book_sections": [
+        "10.1-10.4"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/B01.md"
+    },
+    {
+      "id": "B02",
+      "stage": "advanced",
+      "title": "Streaming data và graph databases",
+      "book_sections": [
+        "10.5-10.6"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/B02.md"
+    },
+    {
+      "id": "B03",
+      "stage": "advanced",
+      "title": "Data warehouse, star schema và OLAP",
+      "book_sections": [
+        "11.1-11.3"
+      ],
+      "usth_lectures": [],
+      "key": true,
+      "path": "lessons/B03.md"
+    },
+    {
+      "id": "B04",
+      "stage": "advanced",
+      "title": "Data mining, đánh giá và diễn giải",
+      "book_sections": [
+        "11.4"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/B04.md"
+    },
+    {
+      "id": "I01",
+      "stage": "advanced",
+      "title": "Thiết bị lưu trữ, RAID và truy cập block",
+      "book_sections": [
+        "12.1-12.6"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/I01.md"
+    },
+    {
+      "id": "I02",
+      "stage": "advanced",
+      "title": "Files, records, catalog và buffer pool",
+      "book_sections": [
+        "13.1-13.5"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/I02.md"
+    },
+    {
+      "id": "I03",
+      "stage": "advanced",
+      "title": "Column store và main-memory storage",
+      "book_sections": [
+        "13.6-13.7"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/I03.md"
+    },
+    {
+      "id": "I04",
+      "stage": "core",
+      "title": "Index có thứ tự và B+ tree",
+      "book_sections": [
+        "4.6",
+        "14.1-14.4"
+      ],
+      "usth_lectures": [
+        "7"
+      ],
+      "key": true,
+      "path": "lessons/I04.md"
+    },
+    {
+      "id": "I05",
+      "stage": "advanced",
+      "title": "Hash, composite, bitmap và spatial indexes",
+      "book_sections": [
+        "14.5-14.10"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/I05.md"
+    },
+    {
+      "id": "I06",
+      "stage": "advanced",
+      "title": "Bloom filter, LSM, extendible và linear hashing",
+      "book_sections": [
+        "24.1-24.5"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/I06.md"
+    },
+    {
+      "id": "Q01",
+      "stage": "advanced",
+      "title": "Query processing, selection và mô hình chi phí",
+      "book_sections": [
+        "15.1-15.3"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/Q01.md"
+    },
+    {
+      "id": "Q02",
+      "stage": "advanced",
+      "title": "Sort, join, pipeline và xử lý trong RAM",
+      "book_sections": [
+        "15.4-15.8"
+      ],
+      "usth_lectures": [],
+      "key": true,
+      "path": "lessons/Q02.md"
+    },
+    {
+      "id": "Q03",
+      "stage": "advanced",
+      "title": "Biến đổi biểu thức và ước lượng cardinality",
+      "book_sections": [
+        "16.1-16.3"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/Q03.md"
+    },
+    {
+      "id": "Q04",
+      "stage": "advanced",
+      "title": "Chọn plan, materialized view và EXPLAIN",
+      "book_sections": [
+        "16.4-16.6"
+      ],
+      "usth_lectures": [],
+      "key": true,
+      "path": "lessons/Q04.md"
+    },
+    {
+      "id": "T01",
+      "stage": "core",
+      "title": "Transaction, ACID và mô hình lịch chạy",
+      "book_sections": [
+        "17.1-17.5"
+      ],
+      "usth_lectures": [
+        "7"
+      ],
+      "key": false,
+      "path": "lessons/T01.md"
+    },
+    {
+      "id": "T02",
+      "stage": "advanced",
+      "title": "Serializability và conflict graph",
+      "book_sections": [
+        "17.6-17.7"
+      ],
+      "usth_lectures": [],
+      "key": true,
+      "path": "lessons/T02.md"
+    },
+    {
+      "id": "T03",
+      "stage": "advanced",
+      "title": "Isolation levels và locking",
+      "book_sections": [
+        "17.8-17.10",
+        "18.1"
+      ],
+      "usth_lectures": [],
+      "key": true,
+      "path": "lessons/T03.md"
+    },
+    {
+      "id": "T04",
+      "stage": "advanced",
+      "title": "Deadlock, granularity, timestamp và validation",
+      "book_sections": [
+        "18.2-18.6"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/T04.md"
+    },
+    {
+      "id": "T05",
+      "stage": "advanced",
+      "title": "MVCC, snapshot isolation và giới hạn nhất quán",
+      "book_sections": [
+        "18.7-18.10"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/T05.md"
+    },
+    {
+      "id": "T06",
+      "stage": "advanced",
+      "title": "WAL, checkpoint và khôi phục sau lỗi",
+      "book_sections": [
+        "19.1-19.6"
+      ],
+      "usth_lectures": [],
+      "key": true,
+      "path": "lessons/T06.md"
+    },
+    {
+      "id": "T07",
+      "stage": "advanced",
+      "title": "Remote backup, ARIES và recovery trong RAM",
+      "book_sections": [
+        "19.7-19.10"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/T07.md"
+    },
+    {
+      "id": "P01",
+      "stage": "advanced",
+      "title": "Centralized, parallel, distributed và cloud",
+      "book_sections": [
+        "20.1-20.7"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/P01.md"
+    },
+    {
+      "id": "P02",
+      "stage": "advanced",
+      "title": "Partitioning, skew và replication",
+      "book_sections": [
+        "21.1-21.4"
+      ],
+      "usth_lectures": [],
+      "key": true,
+      "path": "lessons/P02.md"
+    },
+    {
+      "id": "P03",
+      "stage": "advanced",
+      "title": "Distributed files, indexes và key-value stores",
+      "book_sections": [
+        "21.5-21.7"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/P03.md"
+    },
+    {
+      "id": "P04",
+      "stage": "advanced",
+      "title": "Parallel sort, join và thực thi plan",
+      "book_sections": [
+        "22.1-22.7"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/P04.md"
+    },
+    {
+      "id": "P05",
+      "stage": "advanced",
+      "title": "Parallel streaming và distributed queries",
+      "book_sections": [
+        "22.8-22.9"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/P05.md"
+    },
+    {
+      "id": "P06",
+      "stage": "advanced",
+      "title": "Distributed transactions và two-phase commit",
+      "book_sections": [
+        "23.1-23.3"
+      ],
+      "usth_lectures": [],
+      "key": true,
+      "path": "lessons/P06.md"
+    },
+    {
+      "id": "P07",
+      "stage": "advanced",
+      "title": "Replication, consistency, leader và consensus",
+      "book_sections": [
+        "23.4-23.8"
+      ],
+      "usth_lectures": [],
+      "key": true,
+      "path": "lessons/P07.md"
+    },
+    {
+      "id": "P08",
+      "stage": "advanced",
+      "title": "Tuning, benchmarks, standards và directories",
+      "book_sections": [
+        "25.1-25.5"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/P08.md"
+    },
+    {
+      "id": "P09",
+      "stage": "advanced",
+      "title": "Blockchain databases và smart contracts",
+      "book_sections": [
+        "26.1-26.8"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/P09.md"
+    },
+    {
+      "id": "O01",
+      "stage": "advanced",
+      "title": "Tuple relational calculus và safety",
+      "book_sections": [
+        "27"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/O01.md"
+    },
+    {
+      "id": "O02",
+      "stage": "advanced",
+      "title": "Domain calculus và diễn đạt truy vấn logic",
+      "book_sections": [
+        "27"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/O02.md"
+    },
+    {
+      "id": "O03",
+      "stage": "advanced",
+      "title": "Thiết kế nâng cao: join dependency và DKNF",
+      "book_sections": [
+        "28"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/O03.md"
+    },
+    {
+      "id": "O04",
+      "stage": "advanced",
+      "title": "Object-based databases và persistence",
+      "book_sections": [
+        "29"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/O04.md"
+    },
+    {
+      "id": "O05",
+      "stage": "advanced",
+      "title": "XML, XPath, XQuery và schema",
+      "book_sections": [
+        "30"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/O05.md"
+    },
+    {
+      "id": "O06",
+      "stage": "advanced",
+      "title": "Information retrieval, ranking và inverted index",
+      "book_sections": [
+        "31"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/O06.md"
+    },
+    {
+      "id": "O07",
+      "stage": "advanced",
+      "title": "PostgreSQL: đối chiếu một hệ quản trị khác",
+      "book_sections": [
+        "32"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/O07.md"
+    },
+    {
+      "id": "Z01",
+      "stage": "project",
+      "title": "Project Company: dựng schema và bảo vệ ràng buộc",
+      "book_sections": [
+        "2-7"
+      ],
+      "usth_lectures": [
+        "1",
+        "2",
+        "3",
+        "5",
+        "6"
+      ],
+      "key": false,
+      "path": "lessons/Z01.md"
+    },
+    {
+      "id": "Z02",
+      "stage": "project",
+      "title": "Lab Northwind PE: từ truy vấn cơ bản đến reports",
+      "book_sections": [
+        "3-5"
+      ],
+      "usth_lectures": [
+        "3",
+        "4",
+        "7"
+      ],
+      "key": true,
+      "path": "lessons/Z02.md"
+    },
+    {
+      "id": "Z03",
+      "stage": "project",
+      "title": "Project PE: ứng dụng, phân tích và University schema",
+      "book_sections": [
+        "5",
+        "6",
+        "9",
+        "11",
+        "A"
+      ],
+      "usth_lectures": [
+        "8",
+        "9"
+      ],
+      "key": false,
+      "path": "lessons/Z03.md"
+    },
+    {
+      "id": "Z04",
+      "stage": "project",
+      "title": "Capstone hệ thống: hiệu năng, lỗi và phân tán",
+      "book_sections": [
+        "12-26"
+      ],
+      "usth_lectures": [],
+      "key": false,
+      "path": "lessons/Z04.md"
+    }
+  ]
+}

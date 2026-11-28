@@ -53,7 +53,7 @@ export default function TheoryScreen({ lesson, scr, metaLabel }: ShellProps) {
 
   return (
     <ScreenShell scr={scr} metaLabel={metaLabel} title="Lý thuyết của bài">
-      <div className={c.theory}>
+      <div className={c.theory} data-gh-flow="">
         {blocks.map((block, i) => (
           <section key={i} className={c.theoryBlock}>
             <h4>{block.title}</h4>

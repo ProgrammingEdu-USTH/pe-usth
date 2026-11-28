@@ -1,0 +1,2734 @@
+{
+  "groups": [
+    {
+      "id": "M1",
+      "title": "M1 · Cơ sở toán học, dữ liệu và tiền xử lý",
+      "ids": [
+        "ML01",
+        "ML02",
+        "ML03"
+      ]
+    },
+    {
+      "id": "M2",
+      "title": "M2 · Hồi quy tuyến tính và tối ưu hóa",
+      "ids": [
+        "ML04",
+        "ML05",
+        "ML06",
+        "ML07",
+        "ML08"
+      ]
+    },
+    {
+      "id": "M3",
+      "title": "M3 · Machine Learning",
+      "ids": [
+        "ML09",
+        "ML10",
+        "ML11",
+        "ML12"
+      ]
+    },
+    {
+      "id": "M4",
+      "title": "M4 · Machine Learning",
+      "ids": [
+        "ML13",
+        "ML14",
+        "ML15",
+        "ML16",
+        "ML17",
+        "ML18"
+      ]
+    },
+    {
+      "id": "M5",
+      "title": "M5 · Machine Learning",
+      "ids": [
+        "ML19",
+        "ML20",
+        "ML21",
+        "ML22"
+      ]
+    },
+    {
+      "id": "M6",
+      "title": "M6 · Machine Learning",
+      "ids": [
+        "ML23",
+        "ML24",
+        "ML25",
+        "ML26",
+        "ML27",
+        "ML28"
+      ]
+    }
+  ],
+  "lessons": [
+    {
+      "id": "ML01",
+      "title": "ML01 · Biểu diễn dữ liệu dạng bảng và không gian vector",
+      "level": "Cơ bản",
+      "before": [],
+      "topics": [
+        "mẫu",
+        "thuộc tính",
+        "không gian vector",
+        "ma trận dữ liệu",
+        "shape"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Mỗi mẫu là một điểm trong không gian\nbody: Một căn nhà có thể được mô tả bởi vector x = [diện_tích, số_phòng]. Nếu có n mẫu và d thuộc tính, ma trận dữ liệu X có shape (n, d); hàng là mẫu, cột là thuộc tính.\ntitle: Shape là hợp đồng dữ liệu\nbullets: X[i] là mẫu thứ i; X[:, j] là toàn bộ thuộc tính j.\nKhông được đảo trục: X.shape[0] là số mẫu, X.shape[1] là số đặc trưng.\nMột cột bias thêm vào mô hình thường tạo ma trận (n, d+1)."
+        },
+        {
+          "type": "paragraph",
+          "text": "Hãy dự đoán shape của dữ liệu 3 căn nhà, mỗi căn có diện tích và số phòng."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX = np.array([[40, 2], [55, 3], [70, 4]])\nprint(X.shape)\nprint(X[:, 0])",
+          "expected": "(3, 2)\n[40 55 70]"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: X có 4 hàng và 3 cột biểu diễn gì?\noptions: title: 3 mẫu, mỗi mẫu 4 thuộc tính\ncorrect: False\ntitle: 4 mẫu, mỗi mẫu 3 thuộc tính\ncorrect: True\ntitle: một vector có 12 mẫu\ncorrect: False\ncorrect: 1"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Nhầm shape (n,d) thành (d,n) làm thao tác theo cột bị sai."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Ba hàng tương ứng ba căn nhà; hai cột là diện tích và số phòng."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Một bảng mô phỏng có 8 ngôi nhà, mỗi nhà gồm diện tích, số phòng và số tầng. X có shape nào? Giải thích hai trục.",
+          "answer": "(8,3): tám hàng là tám mẫu; ba cột là ba thuộc tính. Mỗi mẫu là vector thuộc R³."
+        },
+        {
+          "prompt": "X=[[40,2],[55,3],[70,4]]. Viết code lấy mẫu thứ hai và giải thích kết quả.",
+          "answer": "X[1] là [55,3], diện tích 55 và số phòng 3. Index bắt đầu từ 0.\n\n```python\nimport numpy as np\nX=np.array([[40,2],[55,3],[70,4]])\nprint(X[1].tolist())\n```\nKết quả: [55, 3]"
+        },
+        {
+          "prompt": "Với cùng X, lấy toàn bộ diện tích. Kết quả có shape nào?",
+          "answer": "X[:,0] trả vector [40,55,70], shape (3,).\n\n```python\nimport numpy as np\nX=np.array([[40,2],[55,3],[70,4]])\na=X[:,0]\nprint(a.tolist())\nprint(a.shape)\n```\nKết quả: [40, 55, 70]\n(3,)"
+        },
+        {
+          "prompt": "So sánh shape của X[:,0] và X[:,0:1] khi X có ba hàng, hai cột.",
+          "answer": "Chọn chỉ số cột tạo (3,); lát cắt cột giữ ma trận (3,1).\n\n```python\nimport numpy as np\nX=np.array([[40,2],[55,3],[70,4]])\nprint(X[:,0].shape)\nprint(X[:,0:1].shape)\n```\nKết quả: (3,)\n(3, 1)"
+        },
+        {
+          "prompt": "Ghép cột toàn 1 ở bên trái X=[[40,2],[55,3]]. In ma trận và shape mới.",
+          "answer": "Cột bias có một số 1 cho mỗi mẫu; ma trận mới có shape (2,3).\n\n```python\nimport numpy as np\nX=np.array([[40,2],[55,3]])\nB=np.column_stack([np.ones(len(X),dtype=int),X])\nprint(B.tolist())\nprint(B.shape)\n```\nKết quả: [[1, 40, 2], [1, 55, 3]]\n(2, 3)"
+        },
+        {
+          "prompt": "Tính khoảng cách Euclid giữa hai mẫu (30,6) và (25,3). Viết kết quả với bốn chữ số thập phân.",
+          "answer": "Khoảng cách sqrt((30−25)²+(6−3)²)=sqrt(34)≈5.8310.\n\n```python\nimport numpy as np\na=np.array([30.,6.]); b=np.array([25.,3.])\nprint(f\"{np.sqrt(np.sum((a-b)**2)):.4f}\")\n```\nKết quả: 5.8310"
+        },
+        {
+          "prompt": "Trong khoảng cách giữa (30,6) và (25,3), diện tích đóng góp bao nhiêu vào tổng bình phương khoảng cách? Vì sao cần chú ý đơn vị?",
+          "answer": "Diện tích góp 25 trong tổng 34, tức khoảng 73.53%. Đặc trưng có thang đo lớn có thể chi phối khoảng cách; chuẩn hóa được học ở ML03."
+        },
+        {
+          "prompt": "Có một mẫu duy nhất gồm hai thuộc tính. So sánh np.array([40,2]) với np.array([[40,2]]).",
+          "answer": "Mảng đầu là vector shape (2,); mảng sau là ma trận dữ liệu có một hàng, shape (1,2).\n\n```python\nimport numpy as np\nprint(np.array([40,2]).shape)\nprint(np.array([[40,2]]).shape)\n```\nKết quả: (2,)\n(1, 2)"
+        },
+        {
+          "prompt": "Một ma trận có shape (4,3). Sau chuyển vị, số phần tử và shape là gì? Chuyển vị có tạo mẫu quan sát mới không?",
+          "answer": "Shape mới (3,4), vẫn 12 phần tử. Chuyển vị đổi cách bố trí trục, không thu thập thêm mẫu quan sát.\n\n```python\nimport numpy as np\nX=np.arange(12).reshape(4,3)\nprint(X.T.shape)\nprint(X.T.size)\n```\nKết quả: (3, 4)\n12"
+        },
+        {
+          "prompt": "Hai ma trận cùng shape (6,2) có chắc biểu diễn cùng ý nghĩa dữ liệu không? Cho một phản ví dụ.",
+          "answer": "Không. Một ma trận có cột diện tích,số phòng; ma trận kia có cột số phòng,diện tích. Shape giống nhau nhưng thứ tự và ý nghĩa đặc trưng khác nhau."
+        },
+        {
+          "prompt": "Từ X=[[40,2],[55,3],[70,4]], giữ hai mẫu cuối mà vẫn giữ cả hai đặc trưng. Viết code và nêu shape.",
+          "answer": "X[1:,:] giữ hàng 1 và 2, shape (2,2).\n\n```python\nimport numpy as np\nX=np.array([[40,2],[55,3],[70,4]])\nY=X[1:,:]\nprint(Y.tolist())\nprint(Y.shape)\n```\nKết quả: [[55, 3], [70, 4]]\n(2, 2)"
+        },
+        {
+          "prompt": "Sau khi thêm bias vào X shape (5,2), một bạn báo ma trận mới shape (6,2). Bạn ấy đã nhầm gì?",
+          "answer": "Đã tăng số hàng như thêm một mẫu. Bias là thêm một thuộc tính cho từng mẫu nên shape đúng là (5,3), cột bias gồm năm số 1."
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M1",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML02",
+      "title": "ML02 · Thống kê mô tả và ma trận hiệp phương sai",
+      "level": "Trung cấp",
+      "before": [
+        "ML01"
+      ],
+      "topics": [
+        "trung bình",
+        "phương sai mẫu",
+        "hiệp phương sai",
+        "ma trận PSD",
+        "trừ tâm"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Trừ tâm trước khi đo đồng biến\nbody: Với mỗi cột X_j, trung bình là mean(X_j). Dữ liệu tâm hóa X_c = X - mean(X). Hiệp phương sai mẫu C_jk = sum_i (X_ij-mean_j)(X_ik-mean_k)/(n-1). Đường chéo là phương sai mẫu.\ntitle: Ma trận hiệp phương sai\nbullets: C đối xứng: C_jk = C_kj.\nC là nửa xác định dương: vᵀCv ≥ 0 với mọi v.\nMẫu số n-1 là quy ước hiệp phương sai mẫu; cần ít nhất hai mẫu."
+        },
+        {
+          "type": "paragraph",
+          "text": "Một bộ dữ liệu có diện tích và số phòng: hãy dự đoán dấu của hiệp phương sai trước khi tính."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX = np.array([[40., 2.], [50., 3.], [60., 4.]])\nprint(np.mean(X, axis=0))\nprint(np.cov(X, rowvar=False))",
+          "expected": "[50.  3.]\n[[100.  10.]\n [ 10.   1.]]"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Nếu diện tích và số phòng cùng tăng trong các mẫu, hiệp phương sai thường có dấu nào?\noptions: title: dương\ncorrect: True\ntitle: âm\ncorrect: False\ntitle: luôn bằng 0\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Hiệp phương sai không phải correlation và không bị giới hạn trong [-1,1]."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Trừ trung bình rồi nhân sai lệch tương ứng; các sai lệch cùng dấu tạo tích dương."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Tính mean của từng cột X=[[1,4],[3,8]].",
+          "answer": "Hai mean lần lượt là 2 và 6.\n\n```python\nimport numpy as np\nX=np.array([[1.,4.],[3.,8.]])\nprint(X.mean(axis=0).tolist())\n```\nKết quả: [2.0, 6.0]"
+        },
+        {
+          "prompt": "Tâm hóa X=[[1,4],[3,8]] theo cột.",
+          "answer": "Trừ vector mean [2,6] ở mỗi hàng, được [[−1,−2],[1,2]].\n\n```python\nimport numpy as np\nX=np.array([[1.,4.],[3.,8.]])\nprint((X-X.mean(axis=0)).tolist())\n```\nKết quả: [[-1.0, -2.0], [1.0, 2.0]]"
+        },
+        {
+          "prompt": "Tính phương sai mẫu của [1,3].",
+          "answer": "Mean=2; tổng bình phương sai lệch=2; chia 1 được 2.\n\n```python\nimport numpy as np\nx=np.array([1.,3.])\nprint(float(np.var(x,ddof=1)))\n```\nKết quả: 2.0"
+        },
+        {
+          "prompt": "Tính covariance mẫu của x=[1,3], y=[4,8].",
+          "answer": "Sai lệch x=[−1,1], y=[−2,2]; tổng tích=4; chia 1 được 4.\n\n```python\nimport numpy as np\nx=np.array([1.,3.]);y=np.array([4.,8.])\nprint(float(np.sum((x-x.mean())*(y-y.mean()))/(len(x)-1)))\n```\nKết quả: 4.0"
+        },
+        {
+          "prompt": "Dựng ma trận covariance của X=[[1,4],[3,8]].",
+          "answer": "Hai phương sai là 2 và 8; covariance là 4, nên C=[[2,4],[4,8]].\n\n```python\nimport numpy as np\nX=np.array([[1.,4.],[3.,8.]])\nZ=X-X.mean(axis=0)\nprint((Z.T@Z/(len(X)-1)).tolist())\n```\nKết quả: [[2.0, 4.0], [4.0, 8.0]]"
+        },
+        {
+          "prompt": "Tính covariance của x=[1,2,3], y=[3,2,1].",
+          "answer": "Mean hai cột đều 2; tổng tích sai lệch=−2, chia 2 được −1.\n\n```python\nimport numpy as np\nprint(float(np.cov([1.,2.,3.],[3.,2.,1.],ddof=1)[0,1]))\n```\nKết quả: -1.0"
+        },
+        {
+          "prompt": "Vì sao C đối xứng? Giải thích từ tổng tích sai lệch.",
+          "answer": "Mỗi tích (xᵢj−mean_j)(xᵢk−mean_k) không đổi khi đổi j,k, nên C_jk=C_kj."
+        },
+        {
+          "prompt": "Có thể áp dụng công thức covariance mẫu n−1 cho một mẫu duy nhất không?",
+          "answer": "Không theo công thức đang dùng: n−1=0. Cần ít nhất hai mẫu; phải báo giới hạn thay vì coi kết quả là 0."
+        },
+        {
+          "prompt": "Cột x=[7,7,7] có phương sai mẫu bao nhiêu?",
+          "answer": "Mean=7, mọi sai lệch bằng 0 nên phương sai bằng 0.\n\n```python\nimport numpy as np\nprint(float(np.var([7.,7.,7.],ddof=1)))\n```\nKết quả: 0.0"
+        },
+        {
+          "prompt": "Chứng minh covariance không đổi khi cộng hằng số c vào một cột.",
+          "answer": "Mean mới là mean+c; (xᵢ+c)−(mean+c)=xᵢ−mean. Từng tích sai lệch và tổng không đổi."
+        },
+        {
+          "prompt": "Nhân một cột với 2 thì phương sai và covariance với cột không đổi khác biến đổi ra sao?",
+          "answer": "Sai lệch cột được nhân 2. Phương sai nhân 4; covariance với cột còn lại nhân 2."
+        },
+        {
+          "prompt": "C=[[2,−1],[−1,2]] có phần tử âm. Điều đó có tự mâu thuẫn tính PSD không?",
+          "answer": "Không. PSD nói vᵀCv≥0 với mọi v, không đòi mọi phần tử C không âm. Với v=[1,1], vᵀCv=2.\n\n```python\nimport numpy as np\nC=np.array([[2.,-1.],[-1.,2.]])\nv=np.array([1.,1.])\nprint(float(v@C@v))\n```\nKết quả: 2.0"
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M1",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML03",
+      "title": "ML03 · Chuẩn hóa dữ liệu và tránh data leakage",
+      "level": "Cơ bản",
+      "before": [
+        "ML01",
+        "ML02"
+      ],
+      "topics": [
+        "Min–Max",
+        "mean normalization",
+        "Z-score",
+        "data leakage",
+        "tham số scaling"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Ba phép biến đổi cần phân biệt\nbody: Min–Max: x'=(x-min)/(max-min), thường đưa train về [0,1]. Z-score: z=(x-mean)/std. Mean normalization trong slide: (x-mean)/max; đây không phải Min–Max chuẩn.\ntitle: Thống kê phải học từ train\nbody: Tính min, max, mean và std trên train rồi dùng đúng các tham số đó cho validation/test. Nếu dùng toàn bộ dữ liệu trước khi chia, thông tin test rò vào quá trình học và đánh giá lạc quan giả."
+        },
+        {
+          "type": "paragraph",
+          "text": "Bạn có train [10,20] và test [30]. Dự đoán kết quả Min–Max nếu chỉ dùng train."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\ntrain = np.array([10., 20.])\ntest = np.array([30.])\nlo, hi = train.min(), train.max()\nprint((test - lo) / (hi - lo))",
+          "expected": "[2.]"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Với train min=10,max=20, test=30, Min–Max dùng train cho kết quả nào?\noptions: title: 0.5\ncorrect: False\ntitle: 1.0\ncorrect: False\ntitle: 2.0\ncorrect: True\ncorrect: 2"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Chuẩn hóa test bằng min/max của chính test làm mất hợp đồng train và che giấu leakage."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Tham số 10 và 20 được học từ train; test 30 có thể nằm ngoài [0,1]."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Min–Max train=[10,20], test=[15,30]. Tính hai kết quả.",
+          "answer": "Min=10,max=20; kết quả [0.5,2.0].\n\n```python\nimport numpy as np\ntrain=np.array([10.,20.]);test=np.array([15.,30.])\nprint(((test-train.min())/(train.max()-train.min())).tolist())\n```\nKết quả: [0.5, 2.0]"
+        },
+        {
+          "prompt": "Min–Max train=[−10,10], test=[−20,0,20].",
+          "answer": "Khoảng bằng 20; kết quả [−0.5,0.5,1.5].\n\n```python\nimport numpy as np\ntrain=np.array([-10.,10.]);test=np.array([-20.,0.,20.])\nprint(((test-train.min())/(train.max()-train.min())).tolist())\n```\nKết quả: [-0.5, 0.5, 1.5]"
+        },
+        {
+          "prompt": "Với mean train=50,std train=10, tính Z-score của test=[40,50,70].",
+          "answer": "Các kết quả là [−1,0,2].\n\n```python\nimport numpy as np\nprint(((np.array([40.,50.,70.])-50)/10).tolist())\n```\nKết quả: [-1.0, 0.0, 2.0]"
+        },
+        {
+          "prompt": "Chuẩn hóa theo cột: train=[[0,10],[10,30]], mẫu mới=[[5,20]].",
+          "answer": "Min=[0,10],max=[10,30]; mẫu mới biến đổi thành [[0.5,0.5]].\n\n```python\nimport numpy as np\nT=np.array([[0.,10.],[10.,30.]])\nX=np.array([[5.,20.]])\nprint(((X-T.min(axis=0))/(T.max(axis=0)-T.min(axis=0))).tolist())\n```\nKết quả: [[0.5, 0.5]]"
+        },
+        {
+          "prompt": "Vì sao test vượt max train không chứng minh chương trình Min–Max bị lỗi?",
+          "answer": "Thống kê lấy từ train nên test có thể nằm ngoài khoảng đã thấy. Giá trị lớn hơn 1 đúng theo công thức; không tự kẹp trừ khi có quy ước riêng."
+        },
+        {
+          "prompt": "Phân tích lỗi: chia dữ liệu sau khi tính min/max trên toàn bộ dữ liệu.",
+          "answer": "Thông tin từ test đã tham gia thống kê scaling. Cần chia trước, học thống kê trên train, rồi dùng nguyên thống kê đó cho các phần còn lại."
+        },
+        {
+          "prompt": "Theo công thức (x−mean)/max trong tài liệu, train=[10,20] cho kết quả nào?",
+          "answer": "Mean=15,max=20; kết quả [−0.25,0.25]. Đây không phải Min–Max.\n\n```python\nimport numpy as np\nx=np.array([10.,20.])\nprint(((x-x.mean())/x.max()).tolist())\n```\nKết quả: [-0.25, 0.25]"
+        },
+        {
+          "prompt": "So sánh Min–Max và mean normalization của train=[10,20].",
+          "answer": "Min–Max cho [0,1]; quy ước (x−mean)/max cho [−0.25,0.25]. Không thay công thức này bằng công thức kia mà không đổi mô tả."
+        },
+        {
+          "prompt": "Train=[4,4,4]. Vì sao Min–Max trực tiếp không hợp lệ?",
+          "answer": "max=min=4, mẫu số 0. Theo hợp đồng bài tập cần ValueError; thực tế có thể chọn quy tắc xử lý feature hằng khác nhưng phải ghi rõ."
+        },
+        {
+          "prompt": "Một cột train có std=0. Công thức Z-score gặp vấn đề gì?",
+          "answer": "Chia cho 0. Cần quy định cách xử lý cột hằng; không âm thầm xem NaN hay Inf là dữ liệu chuẩn hóa hợp lệ."
+        },
+        {
+          "prompt": "Train có hai thuộc tính, dữ liệu mới có ba thuộc tính. Có nên broadcasting cho chạy rồi dùng kết quả không?",
+          "answer": "Không. Dữ liệu mới phải có cùng số cột, ý nghĩa và thứ tự đặc trưng để dùng thống kê train. Shape không khớp là lỗi hợp đồng cần xử lý."
+        },
+        {
+          "prompt": "Kiểm tra tính tái sử dụng thống kê: train=[0,4], hai lô test [2] và [6].",
+          "answer": "Dùng cùng min=0,max=4, hai kết quả là [0.5] và [1.5]; không fit lại từng lô test.\n\n```python\nimport numpy as np\nlo,hi=0.,4.\nfor test in [[2.],[6.]]:\n    print(((np.array(test)-lo)/(hi-lo)).tolist())\n```\nKết quả: [0.5]\n[1.5]"
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M1",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML04",
+      "title": "ML04 · Hồi quy tuyến tính và hàm mất mát bình phương",
+      "level": "Cơ bản",
+      "before": [
+        "ML01"
+      ],
+      "topics": [
+        "giả thuyết tuyến tính",
+        "residual",
+        "least squares",
+        "hàm lồi",
+        "MSE có hệ số 1/2"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Mô hình và residual\nbody: Hồi quy một biến dùng ŷ = ax + b. Residual là e = ŷ − y. Hàm mất mát E = (1/(2m))Σe²; hệ số 1/2 giúp đạo hàm gọn.\ntitle: Tính lồi\nbody: MSE là hàm lồi theo tham số. Hessian nửa xác định dương; nghiệm tham số duy nhất cần ma trận thiết kế [x,1] đủ hạng."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nx=np.array([20.,40.]); y=np.array([1.6,3.2]); a=.08; b=0.\nprint(np.mean((a*x+b-y)**2)/2)",
+          "expected": "0.0"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Kết quả nào phù hợp với công thức và shape đã học?\noptions: title: Phương án A\ncorrect: False\ntitle: Phương án đúng\ncorrect: True\ntitle: Phương án C\ncorrect: False\ncorrect: 1"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Một kết quả chạy được chưa chắc đúng nếu shape, gradient hoặc điều kiện số học sai."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Theo dõi từng biến trung gian và đối chiếu công thức."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Tính dự đoán và residual cho x=20,y=2,a=0.08,b=0.",
+          "answer": "Dự đoán 1.6; residual y_hat−y=−0.4.\n\n```python\nx,y,a,b=20.,2.,.08,0.\nprint(round(a*x+b,4))\nprint(round(a*x+b-y,4))\n```\nKết quả: 1.6\n-0.4"
+        },
+        {
+          "prompt": "Tính E với residual [1,−1] theo mẫu số 2m.",
+          "answer": "Tổng bình phương=2,m=2 nên E=0.5.\n\n```python\nimport numpy as np\ne=np.array([1.,-1.])\nprint(float(np.sum(e**2)/(2*len(e))))\n```\nKết quả: 0.5"
+        },
+        {
+          "prompt": "x=[20,40],y=[1.6,3.2],a=b=0. Tính E.",
+          "answer": "Dự đoán bằng 0; E=(2.56+10.24)/4=3.2.\n\n```python\nimport numpy as np\ny=np.array([1.6,3.2])\nprint(round(float(np.sum(y**2)/(2*len(y))),4))\n```\nKết quả: 3.2"
+        },
+        {
+          "prompt": "Với cùng dữ liệu x=[20,40],y=[1.6,3.2], tính E khi a=0.08,b=0.",
+          "answer": "Hai dự đoán khớp nhãn; E=0.\n\n```python\nimport numpy as np\nx=np.array([20.,40.]);y=np.array([1.6,3.2])\nprint(float(np.mean((.08*x-y)**2)/2))\n```\nKết quả: 0.0"
+        },
+        {
+          "prompt": "Mẫu đơn x=1.5,y=2.5,a=1,b=1 có E bao nhiêu?",
+          "answer": "Dự đoán 2.5 nên residual=0,E=0.\n\n```python\nx,y,a,b=1.5,2.5,1.,1.\nprint((a*x+b-y)**2/2)\n```\nKết quả: 0.0"
+        },
+        {
+          "prompt": "Vì sao đổi quy ước residual không đổi hàm mất mát bình phương nhưng cần nhất quán khi tính đạo hàm?",
+          "answer": "e và −e có cùng bình phương. Khi đạo hàm phải tính cả đạo hàm của residual theo tham số; đổi dấu residual mà giữ công thức gradient cũ có thể làm cập nhật sai chiều."
+        },
+        {
+          "prompt": "So sánh E của residual [0,2] với [1,1].",
+          "answer": "E lần lượt 1 và 0.5. Cùng tổng residual là 2 không có nghĩa cùng tổng bình phương.\n\n```python\nimport numpy as np\nfor e in [[0.,2.],[1.,1.]]:\n    print(float(np.mean(np.array(e)**2)/2))\n```\nKết quả: 1.0\n0.5"
+        },
+        {
+          "prompt": "Lặp đôi toàn bộ tập dữ liệu có làm thay đổi E ở cùng tham số không?",
+          "answer": "Không. Tổng bình phương và số mẫu cùng nhân 2 nên tỷ số không đổi."
+        },
+        {
+          "prompt": "Với m=3 và tổng bình phương residual=12, tính E và MSE.",
+          "answer": "E=12/6=2; MSE=12/3=4.\n\n```python\nm,sse=3,12.\nprint(sse/(2*m))\nprint(sse/m)\n```\nKết quả: 2.0\n4.0"
+        },
+        {
+          "prompt": "Vì sao phải từ chối dữ liệu rỗng khi tính E theo công thức đang dùng?",
+          "answer": "m=0 làm mẫu số bằng 0. Không coi NaN hay giá trị tự gán là một cost hợp lệ."
+        },
+        {
+          "prompt": "Hàm cost nhận x có 2 phần tử còn y có 1 phần tử. Vì sao không nên để NumPy tự broadcast?",
+          "answer": "Mỗi x cần đúng nhãn y tương ứng. Broadcasting có thể chạy nhưng sẽ so cả hai dự đoán với cùng nhãn ngoài ý định, che lỗi dữ liệu."
+        },
+        {
+          "prompt": "Hàm cost lồi theo a,b có bảo đảm tham số tối ưu duy nhất không?",
+          "answer": "Không. Tính duy nhất cần ma trận thiết kế [x,1] đủ hạng cột. Nếu mọi x bằng nhau thì nhiều cặp a,b có thể tạo cùng dự đoán."
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M2",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML05",
+      "title": "ML05 · Batch Gradient Descent và bước cập nhật",
+      "level": "Trung cấp",
+      "before": [
+        "ML04"
+      ],
+      "topics": [
+        "gradient",
+        "learning rate",
+        "cập nhật đồng thời",
+        "hội tụ",
+        "phân kỳ"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Gradient\nbody: Với ŷ=Xθ, gradient của E=(1/(2m))||Xθ−y||² là (1/m)Xᵀ(Xθ−y). Batch GD cập nhật đồng thời θ mới = θ − α gradient.\ntitle: Learning rate\nbody: α quá lớn có thể phân kỳ; α quá nhỏ hội tụ chậm. Cần dùng toàn bộ batch để gradient phản ánh toàn bộ dữ liệu."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,1.],[1.,2.]])\ny=np.array([2.,3.]); theta=np.zeros(2); alpha=.1\ng=X.T@(X@theta-y)/len(y); print(theta-alpha*g)",
+          "expected": "[0.25 0.35]"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Kết quả nào phù hợp với công thức và shape đã học?\noptions: title: Phương án A\ncorrect: False\ntitle: Phương án đúng\ncorrect: True\ntitle: Phương án C\ncorrect: False\ncorrect: 1"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Một kết quả chạy được chưa chắc đúng nếu shape, gradient hoặc điều kiện số học sai."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Theo dõi từng biến trung gian và đối chiếu công thức."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Tính d_a,d_b cho x=[20,40],y=[1.6,3.2],a=b=0.",
+          "answer": "d_a=−80,d_b=−2.4.\n\n```python\nimport numpy as np\nx=np.array([20.,40.]);y=np.array([1.6,3.2]);e=-y\nprint(round(float(np.mean(e*x)),4))\nprint(round(float(e.mean()),4))\n```\nKết quả: -80.0\n-2.4"
+        },
+        {
+          "prompt": "Từ gradient trên và alpha=0.001, cập nhật đồng thời a,b.",
+          "answer": "a_new=0.08,b_new=0.0024.\n\n```python\na,b,da,db,alpha=0.,0.,-80.,-2.4,.001\nprint(a-alpha*da)\nprint(b-alpha*db)\n```\nKết quả: 0.08\n0.0024"
+        },
+        {
+          "prompt": "Dự đoán sau bước trên có khớp chính xác y=[1.6,3.2] không?",
+          "answer": "Không. Có bias mới 0.0024 nên dự đoán [1.6024,3.2024]. a=0.08 riêng lẻ không chứng minh cả mô hình khớp.\n\n```python\nimport numpy as np\nx=np.array([20.,40.])\nprint(np.round(.08*x+.0024,4).tolist())\n```\nKết quả: [1.6024, 3.2024]"
+        },
+        {
+          "prompt": "x=[1,2],y=[2,3],a=b=0,alpha=0.1. Tính một bước cập nhật.",
+          "answer": "d_a=−4,d_b=−2.5 nên a_new=0.4,b_new=0.25.\n\n```python\nimport numpy as np\nx=np.array([1.,2.]);y=np.array([2.,3.]);e=-y\nprint(round(float(-.1*np.mean(e*x)),4))\nprint(round(float(-.1*e.mean()),4))\n```\nKết quả: 0.4\n0.25"
+        },
+        {
+          "prompt": "Với x=[1,2],y=[2,3], hãy tính b_new nếu lỡ dùng a_new=0.4 trước khi tính gradient b. So với cập nhật đồng thời.",
+          "answer": "Dùng a mới cho residual [−1.6,−2.2], mean=−1.9 nên b_new=0.19, khác đáp án đồng thời 0.25.\n\n```python\nimport numpy as np\nx=np.array([1.,2.]);y=np.array([2.,3.])\nprint(round(float(-.1*np.mean(.4*x-y)),4))\n```\nKết quả: 0.19"
+        },
+        {
+          "prompt": "Tại a=2,b=0 với x=[1,2],y=[2,4], gradient và cập nhật bằng gì?",
+          "answer": "Residual=0 nên cả hai gradient bằng 0, tham số vẫn là a=2,b=0."
+        },
+        {
+          "prompt": "Một mẫu x=2,y=5,a=1,b=1,alpha=0.1. Tính cập nhật.",
+          "answer": "Dự đoán=3,residual=−2,d_a=−4,d_b=−2. a_new=1.4,b_new=1.2.\n\n```python\nx,y,a,b,alpha=2.,5.,1.,1.,.1\ne=a*x+b-y\nprint(a-alpha*e*x)\nprint(b-alpha*e)\n```\nKết quả: 1.4\n1.2"
+        },
+        {
+          "prompt": "Vì sao thay sum residual bằng mean residual làm bước cập nhật ít phụ thuộc trực tiếp số mẫu hơn?",
+          "answer": "Mean chia cho m. Nếu lặp đôi toàn bộ dữ liệu, sum tăng gấp đôi nhưng mean không đổi; gradient của hàm E dùng mẫu số m."
+        },
+        {
+          "prompt": "Giữ gradient [−4,−2.5], so sánh độ lớn bước với alpha=0.1 và alpha=0.01.",
+          "answer": "Bước lần lượt [0.4,0.25] và [0.04,0.025]. Giảm alpha mười lần làm bước nhỏ mười lần tại cùng gradient."
+        },
+        {
+          "prompt": "Một bước làm cost giảm có đủ chứng minh thuật toán đã hội tụ không?",
+          "answer": "Không. Cần theo dõi qua các bước và điều kiện dừng cụ thể; một lần giảm không chứng minh đã tới cực tiểu."
+        },
+        {
+          "prompt": "Vì sao không làm tròn tham số sau mỗi bước chỉ để output dễ đọc?",
+          "answer": "Làm tròn thay đổi trạng thái thuật toán và có thể làm bước nhỏ biến mất. Giữ độ chính xác tính toán, chỉ định dạng khi hiển thị."
+        },
+        {
+          "prompt": "X=[[1,1],[1,2]],theta=[0,0],y=[2,3],alpha=0.1. Tính theta mới và chỉ rõ thứ tự bias/slope.",
+          "answer": "Gradient=[−2.5,−4] nên theta_new=[0.25,0.4]. Cột đầu là bias, cột sau là đặc trưng; không đổi chỗ hai hệ số.\n\n```python\nimport numpy as np\nX=np.array([[1.,1.],[1.,2.]])\ntheta=np.zeros(2);y=np.array([2.,3.])\nprint(np.round(theta-.1*(X.T@(X@theta-y)/len(y)),4).tolist())\n```\nKết quả: [0.25, 0.4]"
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M2",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML06",
+      "title": "ML06 · Batch, SGD và mini-batch",
+      "level": "Trung cấp",
+      "before": [
+        "ML05"
+      ],
+      "topics": [
+        "Batch GD",
+        "SGD",
+        "mini-batch",
+        "permutation",
+        "nhiễu gradient"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Tạo batch bằng permutation và phân biệt BGD, SGD, mini-batch\nbody: Giải quyết bài toán bằng ma trận NumPy, giữ rõ shape và điều kiện số học. Công thức trong bài bám DOCX hiệu đính.\ntitle: Ngộ nhận cần tránh\nbody: Không đảo trục, không dùng nghịch đảo trực tiếp khi có solve/lstsq, và không bỏ qua trường hợp biên."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán đầu ra trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nprint(\"shape và công thức quyết định kết quả\")",
+          "expected": "shape và công thức quyết định kết quả"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều gì cần giữ khi triển khai thuật toán?\noptions: title: shape và công thức\ncorrect: True\ntitle: đảo trục tùy ý\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Code chạy không đồng nghĩa thuật toán đúng."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng đại lượng trung gian."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Chia 11 mẫu thành batch size 4, giữ phần dư. Nêu kích thước và số bước mỗi epoch.",
+          "answer": "Các batch có 4,4,3 mẫu; có 3 bước cập nhật.\n\n```python\nn,b=11,4\nprint([min(b,n-i) for i in range(0,n,b)])\n```\nKết quả: [4, 4, 3]"
+        },
+        {
+          "prompt": "Có 5 mẫu, batch size 8. Nếu giữ batch cuối thì có dùng được hết dữ liệu không?",
+          "answer": "Có. Một batch chứa cả 5 mẫu; batch size là giới hạn chia, không buộc mọi batch đủ 8."
+        },
+        {
+          "prompt": "Cho idx=[2,0,1], X=[10,20,30], y=[1,2,3]. Tính X[idx],y[idx].",
+          "answer": "Kết quả [30,10,20] và [3,1,2]; mỗi nhãn đi cùng mẫu tương ứng.\n\n```python\nimport numpy as np\nidx=np.array([2,0,1]);X=np.array([10,20,30]);y=np.array([1,2,3])\nprint(X[idx].tolist())\nprint(y[idx].tolist())\n```\nKết quả: [30, 10, 20]\n[3, 1, 2]"
+        },
+        {
+          "prompt": "Giải thích vì sao xáo trộn độc lập X và y có thể khiến loss vẫn tính được nhưng học sai.",
+          "answer": "Shape vẫn khớp nên phép toán chạy, nhưng nhãn không còn thuộc đúng mẫu. Tính hợp lệ kích thước không bảo đảm cặp dữ liệu đúng."
+        },
+        {
+          "prompt": "Chia idx=[4,1,3,0,2] thành batch size 2, giữ phần dư.",
+          "answer": "Các nhóm chỉ số là [4,1],[3,0],[2].\n\n```python\nidx=[4,1,3,0,2]\nprint([idx[i:i+2] for i in range(0,len(idx),2)])\n```\nKết quả: [[4, 1], [3, 0], [2]]"
+        },
+        {
+          "prompt": "Một epoch trên 12 mẫu, batch size lần lượt 12,3,1 có bao nhiêu bước?",
+          "answer": "Lần lượt 1,4,12 bước. Không có nghĩa các phương pháp đạt cùng tham số sau một epoch vì tham số cập nhật giữa các batch.\n\n```python\nn=12\nfor b in [12,3,1]:\n    print(len(range(0,n,b)))\n```\nKết quả: 1\n4\n12"
+        },
+        {
+          "prompt": "Tạo hai generator mới cùng seed rồi gọi permutation(6) một lần mỗi generator. Kết quả có giống nhau không?",
+          "answer": "Có trong cùng môi trường NumPy và cùng chuỗi lời gọi. Không cần hard-code permutation để kiểm tính tái lập.\n\n```python\nimport numpy as np\na=np.random.default_rng(7).permutation(6)\nb=np.random.default_rng(7).permutation(6)\nprint(bool(np.array_equal(a,b)))\n```\nKết quả: True"
+        },
+        {
+          "prompt": "Gradient theo từng mẫu của một batch ngắn là [2,6]. Tính gradient trung bình và bước theta mới khi theta=1,alpha=0.1.",
+          "answer": "Gradient=4; theta_new=1−0.1×4=0.6.\n\n```python\ng=sum([2.,6.])/2\nprint(g)\nprint(round(1.-.1*g,4))\n```\nKết quả: 4.0\n0.6"
+        },
+        {
+          "prompt": "Vì sao batch_size=0 cần bị từ chối thay vì cố tạo batch?",
+          "answer": "Kích thước batch phải là số nguyên dương; bước range bằng 0 không hợp lệ và không định nghĩa được cách tiến qua dữ liệu."
+        },
+        {
+          "prompt": "Nêu khác nhau giữa một step và một epoch.",
+          "answer": "Step là một lần cập nhật từ batch hiện tại. Epoch là một lượt đi qua tập train theo quy tắc duyệt; có thể gồm nhiều step."
+        },
+        {
+          "prompt": "Trong một epoch dùng permutation, cần kiểm bất biến nào để biết không mất hoặc lặp mẫu?",
+          "answer": "Ghép tất cả chỉ số batch phải chứa mỗi chỉ số từ 0 đến n−1 đúng một lần nếu không sampling có hoàn lại hoặc bỏ batch cuối.\n\n```python\nidx=[4,1,3,0,2];batches=[idx[i:i+2] for i in range(0,len(idx),2)]\nflat=[j for batch in batches for j in batch]\nprint(sorted(flat)==list(range(5)))\n```\nKết quả: True"
+        },
+        {
+          "prompt": "Vì sao gradient mini-batch có thể dao động khác gradient toàn tập?",
+          "answer": "Mỗi batch chỉ chứa một phần dữ liệu, có phân bố và residual khác nhau; gradient ước lượng có biến thiên giữa batch. Không từ đó kết luận mọi bước đều giảm loss toàn tập."
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M2",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML07",
+      "title": "ML07 · Hồi quy đa biến và Normal Equations",
+      "level": "Nâng cao",
+      "before": [
+        "ML04",
+        "ML05"
+      ],
+      "topics": [
+        "design matrix",
+        "bias",
+        "normal equations",
+        "khả nghịch",
+        "đa cộng tuyến"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Design matrix, bias, solve và lstsq cho hồi quy đa biến\nbody: Giải quyết bài toán bằng ma trận NumPy, giữ rõ shape và điều kiện số học. Công thức trong bài bám DOCX hiệu đính.\ntitle: Ngộ nhận cần tránh\nbody: Không đảo trục, không dùng nghịch đảo trực tiếp khi có solve/lstsq, và không bỏ qua trường hợp biên."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán đầu ra trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nprint(\"shape và công thức quyết định kết quả\")",
+          "expected": "shape và công thức quyết định kết quả"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều gì cần giữ khi triển khai thuật toán?\noptions: title: shape và công thức\ncorrect: True\ntitle: đảo trục tùy ý\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Code chạy không đồng nghĩa thuật toán đúng."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng đại lượng trung gian."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "X shape (7,3),y shape (7,). Nêu shape của X.T@y và theta.",
+          "answer": "X.T@y là vector (3,); theta là vector (3,). Nếu X đã chứa bias thì ba thành phần đã gồm bias."
+        },
+        {
+          "prompt": "Tính X.T@X với X=[[1,1],[1,2]].",
+          "answer": "Kết quả [[2,3],[3,5]].\n\n```python\nimport numpy as np\nX=np.array([[1.,1.],[1.,2.]])\nprint((X.T@X).tolist())\n```\nKết quả: [[2.0, 3.0], [3.0, 5.0]]"
+        },
+        {
+          "prompt": "Với X=[[1,1],[1,2]],y=[2,4], tính X.T@y.",
+          "answer": "Kết quả [6,10].\n\n```python\nimport numpy as np\nX=np.array([[1.,1.],[1.,2.]]);y=np.array([2.,4.])\nprint((X.T@y).tolist())\n```\nKết quả: [6.0, 10.0]"
+        },
+        {
+          "prompt": "Giải normal equations cho X=[[1,1],[1,2]],y=[2,4].",
+          "answer": "Theta=[0,2], nên dự đoán là 0+2x.\n\n```python\nimport numpy as np\nX=np.array([[1.,1.],[1.,2.]]);y=np.array([2.,4.])\nt=np.linalg.solve(X.T@X,X.T@y)\nprint(np.round(t,6).tolist())\n```\nKết quả: [0.0, 2.0]"
+        },
+        {
+          "prompt": "Không có bias: X=[[2],[4]],y=[3,6]. Tính theta.",
+          "answer": "Theta=(4+16)⁻¹(6+24)=1.5.\n\n```python\nimport numpy as np\nX=np.array([[2.],[4.]]);y=np.array([3.,6.])\nprint(np.linalg.solve(X.T@X,X.T@y).tolist())\n```\nKết quả: [1.5]"
+        },
+        {
+          "prompt": "Kiểm tra rank của X=[[1,2],[2,4]]. Vì sao không dùng inverse chuẩn?",
+          "answer": "Rank=1<2 vì cột hai gấp đôi cột một; Gram matrix suy biến.\n\n```python\nimport numpy as np\nX=np.array([[1.,2.],[2.,4.]])\nprint(int(np.linalg.matrix_rank(X)))\n```\nKết quả: 1"
+        },
+        {
+          "prompt": "X có 2 hàng và 3 cột. Có thể đủ hạng cột không?",
+          "answer": "Không. Rank không vượt min(2,3)=2 nên không thể bằng 3; không áp dụng công thức inverse của Gram matrix."
+        },
+        {
+          "prompt": "Nêu lỗi khi kiểm X.shape != y.shape để xác định số mẫu khớp nhau.",
+          "answer": "X là 2D nên shape là (m,d), y là 1D nên shape là (m,). Hai tuple vốn khác nhau. Phải kiểm ndim rồi so X.shape[0] với y.shape[0]."
+        },
+        {
+          "prompt": "Vì sao np.linalg.matrix_rank(A) < A.shape là điều kiện sai?",
+          "answer": "A.shape là tuple kích thước, không phải số cột. Với A vuông, so rank với A.shape[0] sau khi kiểm A là ma trận vuông."
+        },
+        {
+          "prompt": "Với một đặc trưng x=[20,40], thêm bias rồi giải y=[1.6,3.2].",
+          "answer": "Theta xấp xỉ [0,0.08]. Không làm tròn bên trong solver chỉ để trông giống đáp án.\n\n```python\nimport numpy as np\nx=np.array([20.,40.]);X=np.column_stack([np.ones(2),x]);y=np.array([1.6,3.2])\nt=np.linalg.solve(X.T@X,X.T@y)\nprint(bool(np.allclose(t,[0.,.08],rtol=1e-9,atol=1e-12)))\n```\nKết quả: True"
+        },
+        {
+          "prompt": "Đổi thứ tự cột trong X nhưng dùng nguyên theta cũ có bảo toàn dự đoán không?",
+          "answer": "Không nói chung. Cần hoán vị theta tương ứng với hoán vị cột; các hệ số phải gắn đúng đặc trưng."
+        },
+        {
+          "prompt": "Giải least squares cho dữ liệu có cột trùng bằng lstsq. Có thể tính dự đoán hữu hạn dù inverse không tồn tại không?",
+          "answer": "Có. lstsq chọn một nghiệm least squares; ví dụ hai cột giống nhau có thể chia đều hệ số. Điều này không khôi phục tính duy nhất của toàn bộ hệ số.\n\n```python\nimport numpy as np\nX=np.array([[1.,1.],[2.,2.],[3.,3.]]);y=np.array([2.,4.,6.])\nt=np.linalg.lstsq(X,y,rcond=None)[0]\nprint(bool(np.allclose(X@t,y)))\n```\nKết quả: True"
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M2",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML08",
+      "title": "ML08 · Đặc trưng đa thức và nguy cơ quá khớp",
+      "level": "Trung cấp",
+      "before": [
+        "ML07"
+      ],
+      "topics": [
+        "polynomial features",
+        "basis expansion",
+        "design matrix",
+        "bậc đa thức",
+        "overfitting"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Polynomial features, basis expansion và overfitting\nbody: Giải quyết bài toán bằng ma trận NumPy, giữ rõ shape và điều kiện số học. Công thức trong bài bám DOCX hiệu đính.\ntitle: Ngộ nhận cần tránh\nbody: Không đảo trục, không dùng nghịch đảo trực tiếp khi có solve/lstsq, và không bỏ qua trường hợp biên."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán đầu ra trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nprint(\"shape và công thức quyết định kết quả\")",
+          "expected": "shape và công thức quyết định kết quả"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều gì cần giữ khi triển khai thuật toán?\noptions: title: shape và công thức\ncorrect: True\ntitle: đảo trục tùy ý\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Code chạy không đồng nghĩa thuật toán đúng."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng đại lượng trung gian."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Tạo ma trận [1,x,x²] cho x=[0,1,2].",
+          "answer": "Các hàng là [1,0,0],[1,1,1],[1,2,4].\n\n```python\nimport numpy as np\nx=np.array([0.,1.,2.])\nprint(np.column_stack([np.ones(len(x)),x,x**2]).tolist())\n```\nKết quả: [[1.0, 0.0, 0.0], [1.0, 1.0, 1.0], [1.0, 2.0, 4.0]]"
+        },
+        {
+          "prompt": "Với theta=[1,2,3], tính dự đoán tại x=2 theo [1,x,x²].",
+          "answer": "1+2×2+3×4=17.\n\n```python\nimport numpy as np\nprint(float(np.array([1.,2.,4.])@np.array([1.,2.,3.])))\n```\nKết quả: 17.0"
+        },
+        {
+          "prompt": "Tạo hàng bậc ba gồm bias cho x=−2.",
+          "answer": "[1,−2,4,−8]; số mũ lẻ giữ dấu âm.\n\n```python\nx=-2\nprint([x**i for i in range(4)])\n```\nKết quả: [1, -2, 4, -8]"
+        },
+        {
+          "prompt": "Dữ liệu có 5 mẫu, mở rộng một biến đến bậc 4 có bias. Nêu shape và số hệ số.",
+          "answer": "Ma trận (5,5); có 5 hệ số. Điều này chưa tự chứng minh ma trận đủ hạng."
+        },
+        {
+          "prompt": "So sánh x**2 và 2*x tại x=[1,2,3].",
+          "answer": "Bình phương [1,4,9] khác nhân đôi [2,4,6].\n\n```python\nimport numpy as np\nx=np.array([1,2,3])\nprint((x**2).tolist())\nprint((2*x).tolist())\n```\nKết quả: [1, 4, 9]\n[2, 4, 6]"
+        },
+        {
+          "prompt": "Dự đoán cho X_poly=[[1,0,0],[1,1,1],[1,2,4]],theta=[1,2,1].",
+          "answer": "Các dự đoán là [1,4,9].\n\n```python\nimport numpy as np\nX=np.array([[1.,0.,0.],[1.,1.,1.],[1.,2.,4.]])\nprint((X@np.array([1.,2.,1.])).tolist())\n```\nKết quả: [1.0, 4.0, 9.0]"
+        },
+        {
+          "prompt": "Giải thích vì sao polynomial regression vẫn dùng được mô hình y_hat=X_poly@theta.",
+          "answer": "Các phép lũy thừa được tính thành cột dữ liệu trước. Mô hình sau đó cộng tuyến tính các cột với trọng số theta; phi tuyến nằm ở ánh xạ x sang đặc trưng."
+        },
+        {
+          "prompt": "Hai mô hình bậc 1 và 6 có train error lần lượt 2 và 0. Có đủ dữ liệu để chọn bậc 6 không?",
+          "answer": "Không. Chỉ biết bậc 6 khớp train hơn, chưa có bằng chứng về tổng quát hóa. Cần đánh giá theo quy trình dữ liệu riêng sẽ học ở ML13."
+        },
+        {
+          "prompt": "Một bạn chỉ tạo [x,x²] cho test trong khi train dùng [1,x,x²]. Lỗi là gì?",
+          "answer": "Thiếu bias làm số cột không khớp theta ba phần tử. Cần áp dụng cùng phép tạo đặc trưng ở hai nơi."
+        },
+        {
+          "prompt": "Tại x=10, so sánh độ lớn x và x⁴. Vì sao cần chú ý thang đo?",
+          "answer": "x=10,x⁴=10000. Các cột có độ lớn chênh lệch có thể gây vấn đề tối ưu/số học; cần dùng đúng quy trình scaling đã học."
+        },
+        {
+          "prompt": "x=[1,1,1], tạo [1,x,x²]. Có đủ hạng cột không?",
+          "answer": "Không, ba cột đều giống nhau, rank chỉ 1.\n\n```python\nimport numpy as np\nx=np.ones(3);X=np.column_stack([np.ones(3),x,x**2])\nprint(int(np.linalg.matrix_rank(X)))\n```\nKết quả: 1"
+        },
+        {
+          "prompt": "Mở rộng bậc 0 cho n mẫu có ý nghĩa mô hình gì?",
+          "answer": "Chỉ có cột toàn 1 nên mô hình dự đoán hằng theta0 cho mọi mẫu; không phụ thuộc x."
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M2",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML09",
+      "title": "ML09 · Tính sigmoid, xác suất và ranh giới quyết định tuyến tính/phi tuyến.",
+      "level": "Trung cấp",
+      "before": [
+        "ML04"
+      ],
+      "topics": [
+        "logistic regression",
+        "sigmoid",
+        "logit",
+        "decision boundary",
+        "ngưỡng 0.5"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Tính sigmoid, xác suất và ranh giới quyết định tuyến tính/phi tuyến.\nbody: Nội dung trọng tâm: logistic regression; sigmoid; logit; decision boundary; ngưỡng 0.5. Công thức, giả định và ví dụ phải được đối chiếu với bài ML09 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Tính sigmoid tại z=0.",
+          "answer": "Kết quả 0.5.\n\n```python\nimport numpy as np\nprint(float(1/(1+np.exp(0.))))\n```\nKết quả: 0.5"
+        },
+        {
+          "prompt": "Tính sigmoid tại z=[−2,0,2], làm tròn bốn chữ số để hiển thị.",
+          "answer": "Xấp xỉ [0.1192,0.5,0.8808].\n\n```python\nimport numpy as np\nz=np.array([-2.,0.,2.])\nprint(np.round(1/(1+np.exp(-z)),4).tolist())\n```\nKết quả: [0.1192, 0.5, 0.8808]"
+        },
+        {
+          "prompt": "p=[0.2,0.5,0.9], quy tắc lớp 1 nếu p≥0.5. Dự đoán nhãn.",
+          "answer": "Kết quả [0,1,1]; p đúng ngưỡng thuộc lớp 1 theo quy ước đề.\n\n```python\nimport numpy as np\np=np.array([.2,.5,.9])\nprint((p>=.5).astype(int).tolist())\n```\nKết quả: [0, 1, 1]"
+        },
+        {
+          "prompt": "Với b=−3,w=2, tìm ranh giới p=0.5 theo x.",
+          "answer": "−3+2x=0 nên x=1.5. Phía x lớn hơn có z>0 và p>0.5."
+        },
+        {
+          "prompt": "Tại x=2,b=−3,w=2, tính z và sigmoid, làm tròn bốn chữ số.",
+          "answer": "z=1,p≈0.7311.\n\n```python\nimport numpy as np\nz=-3.+2.*2.\nprint(z)\nprint(round(float(1/(1+np.exp(-z))),4))\n```\nKết quả: 1.0\n0.7311"
+        },
+        {
+          "prompt": "Với p=[0.4,0.6,0.8], so sánh dự đoán ở ngưỡng 0.5 và 0.8, dùng ≥.",
+          "answer": "Hai bộ nhãn là [0,1,1] và [0,0,1].\n\n```python\nimport numpy as np\np=np.array([.4,.6,.8])\nfor threshold in [.5,.8]:\n    print((p>=threshold).astype(int).tolist())\n```\nKết quả: [0, 1, 1]\n[0, 0, 1]"
+        },
+        {
+          "prompt": "Vì sao không lấy y_hat=z làm xác suất khi dùng logistic regression?",
+          "answer": "z có thể là bất kỳ số thực nào, kể cả âm hoặc lớn hơn 1. Sigmoid ánh xạ z sang khoảng (0,1)."
+        },
+        {
+          "prompt": "Dùng đồng nhất thức sigmoid(−z)=1−sigmoid(z) để kiểm tra z=2.",
+          "answer": "Hai phía bằng nhau trong dung sai số học; không so chuỗi thập phân.\n\n```python\nimport numpy as np\ns=lambda z:1/(1+np.exp(-z))\nprint(bool(np.isclose(s(-2.),1-s(2.))))\n```\nKết quả: True"
+        },
+        {
+          "prompt": "Với z=x1+x2−3, nêu hai điểm trên ranh giới p=0.5.",
+          "answer": "Ví dụ (1,2),(2,1), vì tổng hai tọa độ bằng 3. Đây là đường thẳng theo hai thuộc tính gốc."
+        },
+        {
+          "prompt": "Với z=x²−1 và ngưỡng 0.5, tìm các điểm ranh giới trên trục x.",
+          "answer": "z=0 cho x=−1 và x=1; lớp 1 ở |x|≥1 theo quy tắc ≥, lớp 0 khi |x|<1."
+        },
+        {
+          "prompt": "Mẫu có p=0.7 nhưng nhãn thật 0. Có thể kết luận code sigmoid sai không?",
+          "answer": "Không. Xác suất mô hình không bảo đảm nhãn từng mẫu. Cần tách lỗi tính toán khỏi dự đoán sai của mô hình."
+        },
+        {
+          "prompt": "X=[[1,0],[1,2]],theta=[−1,1]. Tính z và dự đoán ngưỡng 0.5.",
+          "answer": "z=[−1,1]; dự đoán [0,1]. Cột đầu là bias.\n\n```python\nimport numpy as np\nX=np.array([[1.,0.],[1.,2.]]);theta=np.array([-1.,1.])\nz=X@theta\nprint(z.tolist())\nprint((1/(1+np.exp(-z))>=.5).astype(int).tolist())\n```\nKết quả: [-1.0, 1.0]\n[0, 1]"
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M3",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML10",
+      "title": "ML10 · Tính cross-entropy và gradient cho hồi quy logistic.",
+      "level": "Trung cấp",
+      "before": [
+        "ML09"
+      ],
+      "topics": [
+        "binary cross-entropy",
+        "log loss",
+        "gradient",
+        "clipping xác suất",
+        "xác suất dự báo"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Tính cross-entropy và gradient cho hồi quy logistic.\nbody: Nội dung trọng tâm: binary cross-entropy; log loss; gradient; clipping xác suất; xác suất dự báo. Công thức, giả định và ví dụ phải được đối chiếu với bài ML10 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Tính BCE khi y=1,p=0.8, dùng log tự nhiên và in sáu chữ số.",
+          "answer": "−log(0.8)≈0.223144.\n\n```python\nimport numpy as np\nprint(f\"{-np.log(.8):.6f}\")\n```\nKết quả: 0.223144"
+        },
+        {
+          "prompt": "Tính BCE khi y=0,p=0.2. So với y=1,p=0.8.",
+          "answer": "−log(1−0.2)=−log(0.8), bằng nhau.\n\n```python\nimport numpy as np\nprint(f\"{-np.log(1-.2):.6f}\")\n```\nKết quả: 0.223144"
+        },
+        {
+          "prompt": "y=[1,0],p=[0.8,0.3]. Tính mean BCE.",
+          "answer": "Mean của −log(0.8) và −log(0.7), xấp xỉ 0.289909.\n\n```python\nimport numpy as np\ny=np.array([1.,0.]);p=np.array([.8,.3])\nprint(f\"{-np.mean(y*np.log(p)+(1-y)*np.log(1-p)):.6f}\")\n```\nKết quả: 0.289909"
+        },
+        {
+          "prompt": "So sánh loss của y=1 tại p=0.9 và p=0.1.",
+          "answer": "Lần lượt khoảng 0.105361 và 2.302585; dự đoán sai tự tin bị phạt mạnh.\n\n```python\nimport numpy as np\nfor p in [.9,.1]:\n    print(f\"{-np.log(p):.6f}\")\n```\nKết quả: 0.105361\n2.302585"
+        },
+        {
+          "prompt": "X=[[1,0],[1,1]],theta=[0,0],y=[0,1]. Tính p và gradient.",
+          "answer": "p=[0.5,0.5]; residual=[0.5,−0.5]; gradient=[0,−0.25].\n\n```python\nimport numpy as np\nX=np.array([[1.,0.],[1.,1.]]);y=np.array([0.,1.]);p=np.full(2,.5)\nprint(p.tolist())\nprint((X.T@(p-y)/len(y)).tolist())\n```\nKết quả: [0.5, 0.5]\n[0.0, -0.25]"
+        },
+        {
+          "prompt": "Dùng gradient [0,−0.25],theta=[0,0],alpha=0.1 để cập nhật.",
+          "answer": "Theta mới [0,0.025].\n\n```python\nimport numpy as np\ntheta=np.zeros(2);g=np.array([0.,-.25])\nprint((theta-.1*g).tolist())\n```\nKết quả: [0.0, 0.025]"
+        },
+        {
+          "prompt": "Vì sao y shape (m,1) và p shape (m,) có thể làm p−y sai?",
+          "answer": "Broadcasting có thể tạo ma trận (m,m), không còn một residual trên mỗi mẫu. Phải chuẩn hóa và kiểm shape trước khi tính."
+        },
+        {
+          "prompt": "Đặt eps=1e−6, clip p=[0,1] vào [eps,1−eps]. Kiểm loss hữu hạn.",
+          "answer": "Sau clipping không có log(0); loss hữu hạn, nhưng giá trị vẫn phụ thuộc eps.\n\n```python\nimport numpy as np\np=np.clip(np.array([0.,1.]),1e-6,1-1e-6);y=np.array([1.,0.])\nloss=-np.mean(y*np.log(p)+(1-y)*np.log(1-p))\nprint(bool(np.isfinite(loss)))\n```\nKết quả: True"
+        },
+        {
+          "prompt": "Vì sao không thay log tự nhiên bằng log10 mà giữ nguyên công thức gradient như cũ?",
+          "answer": "Đổi cơ số nhân loss với hằng số 1/ln(10), gradient cũng phải nhân cùng hằng số. Giữ công thức cũ sẽ không còn là đạo hàm của loss vừa định nghĩa."
+        },
+        {
+          "prompt": "Lặp đôi toàn bộ các mẫu có làm mean BCE ở cùng tham số thay đổi không?",
+          "answer": "Không. Tổng loss và m cùng nhân đôi; mean giữ nguyên."
+        },
+        {
+          "prompt": "p=0.5 ở mọi mẫu thì BCE mỗi mẫu bằng bao nhiêu dù y=0 hay y=1?",
+          "answer": "Đều bằng −ln(0.5)=ln(2)≈0.693147.\n\n```python\nimport numpy as np\nprint(f\"{-np.log(.5):.6f}\")\n```\nKết quả: 0.693147"
+        },
+        {
+          "prompt": "Một mô hình đổi p của nhãn thật 1 từ 0.6 thành 0.9. Nhãn threshold 0.5 giữ nguyên; BCE thay đổi thế nào?",
+          "answer": "BCE giảm từ −ln(0.6) xuống −ln(0.9), dù nhãn dự đoán không đổi. Accuracy một mẫu không mô tả hết thay đổi của xác suất."
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M3",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML11",
+      "title": "ML11 · Dựng gradient, Hessian và một bước Newton đa biến.",
+      "level": "Nâng cao",
+      "before": [
+        "ML10"
+      ],
+      "topics": [
+        "Newton–Raphson",
+        "Hessian",
+        "độ cong",
+        "nghịch đảo ma trận",
+        "hội tụ bậc hai"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Dựng gradient, Hessian và một bước Newton đa biến.\nbody: Nội dung trọng tâm: Newton–Raphson; Hessian; độ cong; nghịch đảo ma trận; hội tụ bậc hai. Công thức, giả định và ví dụ phải được đối chiếu với bài ML11 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "H=[[2,0],[0,4]],g=[2,8]. Tìm delta giải H delta=g.",
+          "answer": "Delta=[1,2].\n\n```python\nimport numpy as np\nH=np.diag([2.,4.]);g=np.array([2.,8.])\nprint(np.linalg.solve(H,g).tolist())\n```\nKết quả: [1.0, 2.0]"
+        },
+        {
+          "prompt": "Theta=[3,5],delta=[1,2]. Tính bước Newton.",
+          "answer": "Theta mới=[2,3].\n\n```python\nimport numpy as np\nprint((np.array([3.,5.])-np.array([1.,2.])).tolist())\n```\nKết quả: [2.0, 3.0]"
+        },
+        {
+          "prompt": "Với f(t)=(t−3)²/2, tại t=0 tính gradient,Hessian và t mới.",
+          "answer": "g=−3,H=1,t_new=0−(−3)/1=3.\n\n```python\nt=0.\ng=t-3;H=1.\nprint(g)\nprint(H)\nprint(t-g/H)\n```\nKết quả: -3.0\n1.0\n3.0"
+        },
+        {
+          "prompt": "p=[0.5,0.8]. Tính p(1−p), làm tròn để hiển thị.",
+          "answer": "Các trọng số là [0.25,0.16].\n\n```python\nimport numpy as np\np=np.array([.5,.8])\nprint(np.round(p*(1-p),4).tolist())\n```\nKết quả: [0.25, 0.16]"
+        },
+        {
+          "prompt": "X=[[1,0],[1,1]],p=[0.5,0.5]. Tính Hessian mean logistic.",
+          "answer": "H=[[0.25,0.125],[0.125,0.125]].\n\n```python\nimport numpy as np\nX=np.array([[1.,0.],[1.,1.]]);p=np.full(2,.5)\nH=X.T@np.diag(p*(1-p))@X/len(p)\nprint(H.tolist())\n```\nKết quả: [[0.25, 0.125], [0.125, 0.125]]"
+        },
+        {
+          "prompt": "Với X,p trên, y=[0,1],theta=[0,0], tính một bước Newton.",
+          "answer": "g=[0,−0.25]; delta=[2,−4]; theta mới=[−2,4].\n\n```python\nimport numpy as np\nX=np.array([[1.,0.],[1.,1.]]);p=np.full(2,.5);y=np.array([0.,1.])\ng=X.T@(p-y)/2;H=X.T@np.diag(p*(1-p))@X/2\nprint((-np.linalg.solve(H,g)).tolist())\n```\nKết quả: [-2.0, 4.0]"
+        },
+        {
+          "prompt": "Giải thích vì sao trừ H@g không tương đương trừ solve(H,g).",
+          "answer": "Solve tìm delta sao cho H delta=g. Nhân H tạo vector H g khác phép nghịch đảo tác động lên g, trừ những trường hợp đặc biệt."
+        },
+        {
+          "prompt": "Nếu theta có 3 phần tử nhưng H shape (2,2), nên làm gì?",
+          "answer": "Báo lỗi shape và kiểm lại design matrix/tham số; không cắt theta hoặc thêm số để phép tính chạy."
+        },
+        {
+          "prompt": "H=[[1,1],[1,1]] có khả nghịch không? Kiểm rank.",
+          "answer": "Rank=1<2 nên suy biến; bước Newton chuẩn không xác định duy nhất bằng inverse.\n\n```python\nimport numpy as np\nprint(int(np.linalg.matrix_rank([[1.,1.],[1.,1.]])))\n```\nKết quả: 1"
+        },
+        {
+          "prompt": "Tại p=0.5, trọng số p(1−p) bằng 0.25. Khi p tiến gần 0 hay 1, trọng số thay đổi ra sao?",
+          "answer": "Tiến gần 0. Điều này có thể làm độ cong nhỏ và hệ Newton khó giải hơn; không mặc định H luôn ổn định."
+        },
+        {
+          "prompt": "Vì sao nên giữ gradient và Hessian cùng quy ước tổng hoặc trung bình?",
+          "answer": "Chúng phải là đạo hàm của cùng một loss. Chia m cho chỉ một trong hai làm tỷ lệ bước Newton sai."
+        },
+        {
+          "prompt": "Kiểm chứng H delta=g sau khi giải với H=[[2,1],[1,3]],g=[1,2].",
+          "answer": "Dùng allclose kiểm phần dư thay vì so chuỗi số thực.\n\n```python\nimport numpy as np\nH=np.array([[2.,1.],[1.,3.]]);g=np.array([1.,2.])\ndelta=np.linalg.solve(H,g)\nprint(bool(np.allclose(H@delta,g)))\n```\nKết quả: True"
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M3",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML12",
+      "title": "ML12 · Phân loại bằng k-NN từ khoảng cách và biểu quyết láng giềng.",
+      "level": "Trung cấp",
+      "before": [
+        "ML01"
+      ],
+      "topics": [
+        "lazy learning",
+        "khoảng cách Euclid",
+        "Manhattan",
+        "nearest neighbors",
+        "majority vote"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Phân loại bằng k-NN từ khoảng cách và biểu quyết láng giềng.\nbody: Nội dung trọng tâm: lazy learning; khoảng cách Euclid; Manhattan; nearest neighbors; majority vote. Công thức, giả định và ví dụ phải được đối chiếu với bài ML12 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Tính khoảng cách Euclid giữa (1,2) và (4,6).",
+          "answer": "sqrt((4−1)²+(6−2)²)=5.\n\n```python\nimport numpy as np\nx=np.array([1.,2.]);z=np.array([4.,6.])\nprint(float(np.sqrt(np.sum((x-z)**2))))\n```\nKết quả: 5.0"
+        },
+        {
+          "prompt": "Tính Manhattan giữa (1,2) và (4,6).",
+          "answer": "|4−1|+|6−2|=7.\n\n```python\nimport numpy as np\nprint(float(np.abs(np.array([1.,2.])-np.array([4.,6.])).sum()))\n```\nKết quả: 7.0"
+        },
+        {
+          "prompt": "Train một chiều [0,3,8], truy vấn 2. Nêu khoảng cách và chỉ số gần nhất.",
+          "answer": "Khoảng cách [2,1,6]; chỉ số 1 gần nhất.\n\n```python\nimport numpy as np\nX=np.array([0.,3.,8.]);d=np.abs(X-2.)\nprint(d.tolist())\nprint(int(np.argmin(d)))\n```\nKết quả: [2.0, 1.0, 6.0]\n1"
+        },
+        {
+          "prompt": "Train X=[0,3,8],y=[0,1,0],query=2,k=1. Dự đoán là gì?",
+          "answer": "Điểm 3 gần nhất, nhãn 1; dự đoán 1."
+        },
+        {
+          "prompt": "Ba láng giềng có nhãn [0,1,1]. Tính số phiếu và dự đoán.",
+          "answer": "Lớp 0: một phiếu, lớp 1: hai phiếu, dự đoán 1.\n\n```python\nlabels=[0,1,1]\nprint(labels.count(0))\nprint(labels.count(1))\n```\nKết quả: 1\n2"
+        },
+        {
+          "prompt": "Khoảng cách [0.4,0.1,0.7,0.2],k=2. Chọn chỉ số hai láng giềng.",
+          "answer": "Chỉ số [1,3], tương ứng 0.1 và 0.2.\n\n```python\nimport numpy as np\nd=np.array([.4,.1,.7,.2])\nprint(np.argsort(d)[:2].tolist())\n```\nKết quả: [1, 3]"
+        },
+        {
+          "prompt": "Vì sao cần cùng thứ tự cột giữa train và query?",
+          "answer": "Khoảng cách phải trừ các thuộc tính tương ứng; đảo cột có thể so diện tích với số phòng dù shape vẫn hợp lệ."
+        },
+        {
+          "prompt": "Nêu nguy cơ dùng k=1 với dữ liệu có điểm nhiễu.",
+          "answer": "Một nhãn nhiễu gần query có thể quyết định hoàn toàn dự đoán. Không kết luận k lớn hơn luôn tốt; cần quy trình chọn k và đánh giá phù hợp."
+        },
+        {
+          "prompt": "Với k=4,nhãn [0,1,0,1], áp dụng quy tắc hòa chọn lớp số nhỏ hơn.",
+          "answer": "Hai phiếu mỗi lớp; theo quy tắc đã cho, dự đoán 0. Đây là quy ước bài tập chứ không phải mọi k-NN đều dùng như vậy."
+        },
+        {
+          "prompt": "Hai điểm train cách query bằng nhau, chỉ được lấy một điểm. Vì sao cần quy tắc thứ tự?",
+          "answer": "Nếu cắt top-k tại khoảng cách hòa thì lựa chọn có thể phụ thuộc thứ tự sort. Cần quy tắc xác định, chẳng hạn khoảng cách rồi chỉ số train."
+        },
+        {
+          "prompt": "Vì sao không dùng query label để chọn metric Euclid hay Manhattan?",
+          "answer": "Nhãn thật của dữ liệu đánh giá không được tham gia lựa chọn cách dự đoán; nếu chọn theo test label thì đánh giá bị leakage."
+        },
+        {
+          "prompt": "Query=[0,0], train=[[1,0],[0,2],[3,4]]. Tính vector khoảng cách Euclid.",
+          "answer": "Các khoảng cách [1,2,5].\n\n```python\nimport numpy as np\nX=np.array([[1.,0.],[0.,2.],[3.,4.]])\nprint(np.sqrt(np.sum(X**2,axis=1)).tolist())\n```\nKết quả: [1.0, 2.0, 5.0]"
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M3",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML13",
+      "title": "ML13 · Tổ chức train/validation/test và thực hiện K-fold/LOOCV đúng vai trò.",
+      "level": "Trung cấp",
+      "before": [
+        "ML04"
+      ],
+      "topics": [
+        "train set",
+        "validation set",
+        "test set",
+        "K-fold",
+        "LOOCV",
+        "leakage"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Tổ chức train/validation/test và thực hiện K-fold/LOOCV đúng vai trò.\nbody: Nội dung trọng tâm: train set; validation set; test set; K-fold; LOOCV; leakage. Công thức, giả định và ví dụ phải được đối chiếu với bài ML13 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Có 20 mẫu,giữ 5 mẫu test riêng. Còn bao nhiêu mẫu cho train/validation và lựa chọn mô hình?",
+          "answer": "Còn 15 mẫu; 5 mẫu test không tham gia bước lựa chọn.\n\n```python\nprint(20-5)\n```\nKết quả: 15"
+        },
+        {
+          "prompt": "Với 12 mẫu,K=3 chia đều, liệt kê ba tập validation liên tiếp theo chỉ số.",
+          "answer": "[0,1,2,3],[4,5,6,7],[8,9,10,11]. Đây chỉ là ví dụ minh họa cách chia, chưa phải khuyến nghị bỏ shuffle cho mọi dữ liệu.\n\n```python\nindices=list(range(12))\nprint([indices[i:i+4] for i in range(0,12,4)])\n```\nKết quả: [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]]"
+        },
+        {
+          "prompt": "Validation có chỉ số [0,1] trong tập [0,1,2,3,4,5]. Tìm train indices.",
+          "answer": "Train=[2,3,4,5], không có giao với validation.\n\n```python\nall_idx=list(range(6));val={0,1}\nprint([i for i in all_idx if i not in val])\n```\nKết quả: [2, 3, 4, 5]"
+        },
+        {
+          "prompt": "Ba fold có validation MSE bằng 1,2,3 và cùng kích thước. Tính trung bình.",
+          "answer": "Mean=2. Không gọi đây là test MSE của một test set riêng.\n\n```python\nscores=[1.,2.,3.]\nprint(sum(scores)/len(scores))\n```\nKết quả: 2.0"
+        },
+        {
+          "prompt": "LOOCV với 5 mẫu: mỗi lượt train bao nhiêu mẫu, tổng bao nhiêu lần fit?",
+          "answer": "Mỗi lượt train 4 mẫu và validation 1 mẫu; tổng cộng 5 lần fit."
+        },
+        {
+          "prompt": "Một chương trình fit model trên toàn bộ dữ liệu rồi mới chia K fold để dự đoán. Vì sao đánh giá sai?",
+          "answer": "Mô hình đã thấy các mẫu gọi là validation. Đổi chỉ số khi dự đoán không xóa thông tin đã học; phải fit độc lập theo train từng fold."
+        },
+        {
+          "prompt": "Train fold=[10,20],validation=[30]. Tính Min–Max đúng cho validation.",
+          "answer": "Dùng lo=10,hi=20 từ train fold; kết quả 2.0.\n\n```python\ntrain=[10.,20.];value=30.\nprint((value-min(train))/(max(train)-min(train)))\n```\nKết quả: 2.0"
+        },
+        {
+          "prompt": "Vì sao mang trọng số model fold trước sang fold sau có thể làm leakage?",
+          "answer": "Validation fold sau có thể từng nằm trong train fold trước. Trọng số đã mang thông tin đó, nên fold sau không còn đánh giá từ một lần fit độc lập."
+        },
+        {
+          "prompt": "Năm fold validation có một mẫu bị xuất hiện hai lần và một mẫu không xuất hiện. Có đạt phân hoạch K-fold thông thường không?",
+          "answer": "Không. Mỗi mẫu phải thuộc validation đúng một lần trong một lượt K-fold; cần kiểm trùng và thiếu chỉ số."
+        },
+        {
+          "prompt": "Kiểm tra coverage của các fold [[0,1],[2,3],[4,5]].",
+          "answer": "Ghép lại có đủ sáu chỉ số và không trùng.\n\n```python\nfolds=[[0,1],[2,3],[4,5]]\nflat=[i for f in folds for i in f]\nprint(sorted(flat)==list(range(6)) and len(flat)==len(set(flat)))\n```\nKết quả: True"
+        },
+        {
+          "prompt": "Tại sao không chỉ chọn mô hình có điểm tốt nhất trên một fold riêng lẻ?",
+          "answer": "Điểm một fold có thể phụ thuộc cách chia; cần tổng hợp theo quy trình CV thay vì chọn lần chia may mắn. Sau lựa chọn thường fit lại trên phần train cho phép và đánh giá test riêng."
+        },
+        {
+          "prompt": "Một ca fold có train rỗng khi K=1. Cần xử lý thế nào?",
+          "answer": "K-fold thông thường cần ít nhất 2 fold và đủ dữ liệu; phải từ chối K không hợp lệ trước khi fit, không biến lỗi môi trường này thành điểm đánh giá."
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M4",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML14",
+      "title": "ML14 · Tính và diễn giải MAE, MSE, RMSE và R².",
+      "level": "Cơ bản",
+      "before": [
+        "ML04"
+      ],
+      "topics": [
+        "MAE",
+        "MSE",
+        "RMSE",
+        "R²",
+        "residual"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Tính và diễn giải MAE, MSE, RMSE và R².\nbody: Nội dung trọng tâm: MAE; MSE; RMSE; R²; residual. Công thức, giả định và ví dụ phải được đối chiếu với bài ML14 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "y=[1,3],pred=[2,1]. Tính residual theo pred−y.",
+          "answer": "Residual=[1,−2].\n\n```python\nimport numpy as np\ny=np.array([1.,3.]);pred=np.array([2.,1.])\nprint((pred-y).tolist())\n```\nKết quả: [1.0, -2.0]"
+        },
+        {
+          "prompt": "Tính MAE cho residual [1,−2].",
+          "answer": "(1+2)/2=1.5.\n\n```python\nimport numpy as np\nprint(float(np.mean(np.abs([1.,-2.]))))\n```\nKết quả: 1.5"
+        },
+        {
+          "prompt": "Tính MSE và RMSE cho residual [1,−2], in RMSE sáu chữ số.",
+          "answer": "MSE=2.5; RMSE=sqrt(2.5)≈1.581139.\n\n```python\nimport numpy as np\nmse=np.mean(np.array([1.,-2.])**2)\nprint(float(mse))\nprint(f\"{np.sqrt(mse):.6f}\")\n```\nKết quả: 2.5\n1.581139"
+        },
+        {
+          "prompt": "y=[1,2,3],pred=[1,2,3]. Tính MAE,MSE,RMSE và R².",
+          "answer": "Ba sai số bằng 0; SST>0 nên R²=1.\n\n```python\nimport numpy as np\ny=np.array([1.,2.,3.]);e=np.zeros(3)\nprint(float(np.mean(np.abs(e))))\nprint(float(np.mean(e**2)))\nprint(float(np.sqrt(np.mean(e**2))))\nprint(float(1-np.sum(e**2)/np.sum((y-y.mean())**2)))\n```\nKết quả: 0.0\n0.0\n0.0\n1.0"
+        },
+        {
+          "prompt": "y=[1,2,3],pred=[2,2,2]. Tính R².",
+          "answer": "Dự đoán bằng mean y, SSE=SST=2 nên R²=0.\n\n```python\nimport numpy as np\ny=np.array([1.,2.,3.]);pred=np.full(3,2.)\nprint(float(1-np.sum((pred-y)**2)/np.sum((y-y.mean())**2)))\n```\nKết quả: 0.0"
+        },
+        {
+          "prompt": "y=[1,2,3],pred=[0,0,0]. Tính R².",
+          "answer": "SSE=14,SST=2 nên R²=1−7=−6.\n\n```python\nimport numpy as np\ny=np.array([1.,2.,3.])\nprint(float(1-np.sum(y**2)/np.sum((y-y.mean())**2)))\n```\nKết quả: -6.0"
+        },
+        {
+          "prompt": "Vì sao E=Σe²/(2m) trong bài hồi quy không được báo là MSE nguyên giá trị?",
+          "answer": "MSE=Σe²/m=2E. Chúng có cùng vị trí cực tiểu khi dữ liệu cố định nhưng giá trị khác nhau."
+        },
+        {
+          "prompt": "So sánh MAE của residual [0,4] với [2,2], và MSE tương ứng.",
+          "answer": "MAE đều 2; MSE lần lượt 8 và 4, phản ánh ảnh hưởng của residual lớn.\n\n```python\nimport numpy as np\nfor e in [[0.,4.],[2.,2.]]:\n    a=np.array(e)\n    print((float(np.abs(a).mean()),float((a*a).mean())))\n```\nKết quả: (2.0, 8.0)\n(2.0, 4.0)"
+        },
+        {
+          "prompt": "Tất cả y=[5,5]. Vì sao R² cần xử lý riêng ngay cả khi dự đoán đúng?",
+          "answer": "Mean=5 và SST=0. Khi SSE=0, công thức có 0/0; cần ghi không xác định hoặc quy ước rõ ràng thay vì dùng phép chia trực tiếp."
+        },
+        {
+          "prompt": "Đổi y và pred từ tỷ đồng sang triệu đồng bằng nhân 1000. MAE,RMSE,MSE thay đổi ra sao?",
+          "answer": "MAE và RMSE nhân 1000; MSE nhân 1000000. R² giữ nguyên nếu SST>0 vì cả SSE và SST nhân cùng hệ số bình phương."
+        },
+        {
+          "prompt": "Một báo cáo dùng lỗi tính trên dữ liệu đã fit rồi gọi là test MSE. Sai ở đâu?",
+          "answer": "Sai tên tập đánh giá. Đây là training MSE; phải giữ dữ liệu đánh giá riêng và ghi đúng tập dùng để tính."
+        },
+        {
+          "prompt": "Nếu m=0 thì có thể báo mean error=0 để tránh lỗi không?",
+          "answer": "Không. Chưa có quan sát để lấy trung bình; phải từ chối hoặc báo không có dữ liệu theo hợp đồng đã định."
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M4",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML15",
+      "title": "ML15 · Tính metric phân loại từ confusion matrix và chọn metric theo chi phí lỗi.",
+      "level": "Trung cấp",
+      "before": [
+        "ML09"
+      ],
+      "topics": [
+        "TP/FP/FN/TN",
+        "accuracy",
+        "precision",
+        "recall",
+        "F1"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Tính metric phân loại từ confusion matrix và chọn metric theo chi phí lỗi.\nbody: Nội dung trọng tâm: TP/FP/FN/TN; accuracy; precision; recall; F1. Công thức, giả định và ví dụ phải được đối chiếu với bài ML15 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "y=[1,1,0,0],pred=[1,0,1,0]. Đếm TP,FP,FN,TN.",
+          "answer": "Mỗi loại có đúng một mẫu.\n\n```python\ny=[1,1,0,0];pred=[1,0,1,0]\nprint([sum(a==t and b==p for a,b in zip(y,pred)) for t,p in [(1,1),(0,1),(1,0),(0,0)]])\n```\nKết quả: [1, 1, 1, 1]"
+        },
+        {
+          "prompt": "TP=3,FP=1,FN=2,TN=4. Tính accuracy.",
+          "answer": "(3+4)/(3+1+2+4)=0.7.\n\n```python\ntp,fp,fn,tn=3,1,2,4\nprint((tp+tn)/(tp+fp+fn+tn))\n```\nKết quả: 0.7"
+        },
+        {
+          "prompt": "Với cùng counts, tính precision và recall.",
+          "answer": "Precision=3/4=0.75; recall=3/5=0.6.\n\n```python\ntp,fp,fn=3,1,2\nprint(tp/(tp+fp))\nprint(tp/(tp+fn))\n```\nKết quả: 0.75\n0.6"
+        },
+        {
+          "prompt": "Với cùng counts, tính F1 và in sáu chữ số.",
+          "answer": "F1=6/9≈0.666667.\n\n```python\ntp,fp,fn=3,1,2\nprint(f\"{2*tp/(2*tp+fp+fn):.6f}\")\n```\nKết quả: 0.666667"
+        },
+        {
+          "prompt": "Confusion matrix quy ước hàng=true [0,1],cột=pred [0,1]. TP=3,FP=1,FN=2,TN=4. Viết ma trận.",
+          "answer": "[[TN,FP],[FN,TP]]=[[4,1],[2,3]]. Phải ghi quy ước trục.\n\n```python\ntn,fp,fn,tp=4,1,2,3\nprint([[tn,fp],[fn,tp]])\n```\nKết quả: [[4, 1], [2, 3]]"
+        },
+        {
+          "prompt": "Có 10 mẫu dương thật, mô hình tìm được 6. Recall là bao nhiêu?",
+          "answer": "TP=6,FN=4; recall=6/10=0.6.\n\n```python\nprint(6/10)\n```\nKết quả: 0.6"
+        },
+        {
+          "prompt": "Mô hình báo dương 8 mẫu trong đó 2 mẫu sai. Precision bao nhiêu?",
+          "answer": "TP=6,FP=2; precision=6/8=0.75.\n\n```python\nprint((8-2)/8)\n```\nKết quả: 0.75"
+        },
+        {
+          "prompt": "Vì sao không dùng trung bình cộng precision và recall thay cho F1 đã định nghĩa?",
+          "answer": "F1 là trung bình điều hòa 2PR/(P+R), không phải (P+R)/2. Cần giữ đúng định nghĩa; hai cách khác nhau khi P khác R."
+        },
+        {
+          "prompt": "Không có nhãn dương thật. Recall có tự bằng 0 theo công thức không?",
+          "answer": "Không: TP+FN=0 nên công thức trực tiếp không xác định. Nếu chọn trả 0 phải ghi đây là quy ước, không phải kết quả phép chia."
+        },
+        {
+          "prompt": "TP=0,FP=2,FN=3. F1 theo công thức đếm bằng bao nhiêu?",
+          "answer": "Mẫu số=5>0,tử số=0 nên F1=0 dù không có TP.\n\n```python\ntp,fp,fn=0,2,3\nprint(2*tp/(2*tp+fp+fn))\n```\nKết quả: 0.0"
+        },
+        {
+          "prompt": "Trong bài toán bỏ sót ca dương có chi phí cao, metric nào cần theo dõi trực tiếp?",
+          "answer": "Recall và số FN giúp theo dõi bỏ sót. Vẫn cần xem FP/precision và chi phí thực tế; không kết luận tối ưu chỉ từ một metric."
+        },
+        {
+          "prompt": "Đổi quy ước lớp dương từ 1 sang 0 có giữ nguyên precision/recall không?",
+          "answer": "Không nói chung. Counts dương/âm đổi vai trò; phải nêu rõ lớp dương trước khi tính và diễn giải metric."
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M4",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML16",
+      "title": "ML16 · Giải thích sự thay đổi TPR/FPR theo threshold và ý nghĩa AUC.",
+      "level": "Trung cấp",
+      "before": [
+        "ML15"
+      ],
+      "topics": [
+        "ROC",
+        "AUC",
+        "TPR",
+        "FPR",
+        "threshold"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Giải thích sự thay đổi TPR/FPR theo threshold và ý nghĩa AUC.\nbody: Nội dung trọng tâm: ROC; AUC; TPR; FPR; threshold. Công thức, giả định và ví dụ phải được đối chiếu với bài ML16 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "TP=8,FN=2,FP=3,TN=7. Tính TPR và FPR.",
+          "answer": "TPR=8/10=0.8; FPR=3/10=0.3.\n\n```python\ntp,fn,fp,tn=8,2,3,7\nprint(tp/(tp+fn))\nprint(fp/(fp+tn))\n```\nKết quả: 0.8\n0.3"
+        },
+        {
+          "prompt": "y=[1,0,1,0],score=[0.9,0.8,0.4,0.1]. Dùng ngưỡng 0.5 và quy tắc ≥, tính TPR/FPR.",
+          "answer": "Dự đoán [1,1,0,0]; TP=1,FP=1,FN=1,TN=1 nên cả hai tỷ lệ 0.5.\n\n```python\ny=[1,0,1,0];score=[.9,.8,.4,.1];pred=[int(s>=.5) for s in score]\ntp=sum(t==1 and p==1 for t,p in zip(y,pred));fp=sum(t==0 and p==1 for t,p in zip(y,pred))\nprint(pred)\nprint((tp/2,fp/2))\n```\nKết quả: [1, 1, 0, 0]\n(0.5, 0.5)"
+        },
+        {
+          "prompt": "Vẫn dữ liệu trên, giảm ngưỡng về 0.3.",
+          "answer": "Dự đoán [1,1,1,0]; TPR=1,FPR=0.5.\n\n```python\ny=[1,0,1,0];score=[.9,.8,.4,.1];pred=[int(s>=.3) for s in score]\nprint(pred)\nprint((sum(t==1 and p==1 for t,p in zip(y,pred))/2,sum(t==0 and p==1 for t,p in zip(y,pred))/2))\n```\nKết quả: [1, 1, 1, 0]\n(1.0, 0.5)"
+        },
+        {
+          "prompt": "Nếu ngưỡng lớn hơn mọi score, ROC ở điểm nào khi hai lớp đều có mặt?",
+          "answer": "Không mẫu nào dự đoán dương: FP=TP=0 nên (FPR,TPR)=(0,0)."
+        },
+        {
+          "prompt": "Nếu ngưỡng thấp hơn mọi score, ROC ở điểm nào khi hai lớp đều có mặt?",
+          "answer": "Mọi mẫu đều dự đoán dương nên (FPR,TPR)=(1,1)."
+        },
+        {
+          "prompt": "Dương score=[0.9,0.4],âm score=[0.8,0.1]. Tính AUC theo cặp, tie=0.5.",
+          "answer": "Bốn cặp: 0.9 thắng hai lần,0.4 thắng một lần; AUC=3/4=0.75.\n\n```python\npositive=[.9,.4];negative=[.8,.1]\ncredit=sum(1. if u>v else .5 if u==v else 0. for u in positive for v in negative)\nprint(credit/(len(positive)*len(negative)))\n```\nKết quả: 0.75"
+        },
+        {
+          "prompt": "Dương score=[0.5],âm score=[0.5]. Tính AUC theo quy ước tie=0.5.",
+          "answer": "Một cặp hòa, AUC=0.5.\n\n```python\nu,v=.5,.5\nprint(1. if u>v else .5 if u==v else 0.)\n```\nKết quả: 0.5"
+        },
+        {
+          "prompt": "Một hệ xếp mọi mẫu dương trên mọi mẫu âm có AUC theo cặp bao nhiêu?",
+          "answer": "AUC=1 vì mọi cặp dương–âm đều có score dương cao hơn. Điều này không tự quyết định ngưỡng vận hành."
+        },
+        {
+          "prompt": "Các score được cộng cùng một hằng số có đổi thứ hạng và AUC không?",
+          "answer": "Không nếu phép cộng không tạo lỗi số học. Thứ tự và quan hệ hòa giữ nguyên; ngưỡng số cụ thể có thể cần đổi tương ứng."
+        },
+        {
+          "prompt": "Tại sao AUC cao không bảo đảm mọi ngưỡng đều phù hợp?",
+          "answer": "Một ngưỡng vẫn có thể tạo quá nhiều FP hoặc FN. Cần chọn theo chi phí lỗi và dữ liệu validation, giữ test độc lập."
+        },
+        {
+          "prompt": "Tập test chỉ có một lớp. Nên ghi AUC thế nào?",
+          "answer": "Báo không xác định hoặc lỗi input theo hợp đồng. Không gán 0.5 hay 1 rồi trình bày như đo được ROC hợp lệ."
+        },
+        {
+          "prompt": "TPR có tên metric nào đã học ở ML15?",
+          "answer": "TPR=TP/(TP+FN), chính là recall/sensitivity của lớp dương theo cùng quy ước nhãn."
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M4",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML17",
+      "title": "ML17 · Chẩn đoán underfitting/overfitting qua sai số train và dữ liệu mới.",
+      "level": "Trung cấp",
+      "before": [
+        "ML08",
+        "ML13"
+      ],
+      "topics": [
+        "bias",
+        "variance",
+        "generalization",
+        "model complexity",
+        "feature selection"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Chẩn đoán underfitting/overfitting qua sai số train và dữ liệu mới.\nbody: Nội dung trọng tâm: bias; variance; generalization; model complexity; feature selection. Công thức, giả định và ví dụ phải được đối chiếu với bài ML17 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Mô hình A: train MSE=1,validation=8; B: train=2,validation=3. Nếu quy trình validation hợp lệ, nên ưu tiên mô hình nào theo validation MSE?",
+          "answer": "Ưu tiên B theo tiêu chí đã cho, dù train MSE cao hơn. Chưa dùng test để thay đổi lựa chọn."
+        },
+        {
+          "prompt": "Tính khoảng cách validation−train cho A=(1,8),B=(2,3).",
+          "answer": "A có gap=7; B gap=1. Gap hỗ trợ chẩn đoán nhưng vẫn cần mức sai số tuyệt đối và ngữ cảnh.\n\n```python\nfor train,val in [(1.,8.),(2.,3.)]:\n    print(val-train)\n```\nKết quả: 7.0\n1.0"
+        },
+        {
+          "prompt": "Mô hình bậc 1,3,8 có validation MSE=[5,2,7]. Chọn bậc theo tiêu chí nhỏ nhất,không dùng test.",
+          "answer": "Chọn bậc 3. Không chọn bậc 8 chỉ vì linh hoạt hơn.\n\n```python\ndegrees=[1,3,8];scores=[5.,2.,7.]\nprint(degrees[min(range(len(scores)),key=lambda i:scores[i])])\n```\nKết quả: 3"
+        },
+        {
+          "prompt": "Train và validation error đều cao. Nêu hai hướng kiểm tra trước khi kết luận chỉ cần tăng bậc.",
+          "answer": "Kiểm tối ưu đã hội tụ chưa,feature/nhãn/shape có đúng không; sau đó xét mô hình có đủ khả năng biểu diễn quan hệ không. Dữ liệu hoặc code sai cũng có thể tạo lỗi cao."
+        },
+        {
+          "prompt": "Vì sao không sửa hyperparameter sau mỗi lần xem test score?",
+          "answer": "Khi quyết định phụ thuộc test thì test trở thành dữ liệu lựa chọn. Cần validation/CV để chọn,giữ test cho đánh giá cuối."
+        },
+        {
+          "prompt": "Một feature chứa kết quả xảy ra sau thời điểm cần dự đoán. Train/validation score rất tốt có đủ tin không?",
+          "answer": "Không. Có nguy cơ leakage vì thông tin chưa tồn tại lúc dự đoán thực tế. Cần kiểm thời điểm và nguồn từng feature."
+        },
+        {
+          "prompt": "Sau khi thêm feature ngẫu nhiên,train error giảm nhưng validation tăng. Diễn giải có căn cứ.",
+          "answer": "Mô hình tận dụng thêm độ linh hoạt để khớp train nhưng chưa có bằng chứng feature giúp tổng quát hóa; cần cân nhắc bỏ hoặc đánh giá theo quy trình ổn định."
+        },
+        {
+          "prompt": "Tại sao train MSE=0 chưa đủ gọi mô hình tốt?",
+          "answer": "Mục tiêu là dự đoán dữ liệu chưa dùng để học. Ghi nhớ train có thể đạt 0 nhưng sai ngoài train,đặc biệt khi mô hình quá phức tạp."
+        },
+        {
+          "prompt": "Ba lần chia cho model A có validation MSE=[1,5,3]. Tính mean và khoảng min–max.",
+          "answer": "Mean=3,min=1,max=5. Các kết quả dao động nên không chỉ chọn lần tốt nhất để báo cáo.\n\n```python\nscores=[1.,5.,3.]\nprint(sum(scores)/len(scores))\nprint((min(scores),max(scores)))\n```\nKết quả: 3.0\n(1.0, 5.0)"
+        },
+        {
+          "prompt": "Mô hình hằng dự đoán cùng một giá trị cho quan hệ thật cong rõ. Có thể gặp loại thiếu phù hợp nào?",
+          "answer": "Có thể underfit do không biểu diễn được sự thay đổi theo x. Cần đánh giá và kiểm dữ liệu; không chỉ dùng tên mô hình để kết luận mọi bài toán."
+        },
+        {
+          "prompt": "Giải thích vì sao càng nhiều tham số không đồng nghĩa càng tốt.",
+          "answer": "Nhiều tham số tăng khả năng khớp cả tín hiệu và nhiễu. Chất lượng cần được đo ngoài dữ liệu huấn luyện và cân nhắc độ phức tạp phù hợp."
+        },
+        {
+          "prompt": "Hai model cùng validation MSE=2 nhưng một model có train MSE=0.1,một model=1.8. Có đủ để kết luận model nào luôn tốt hơn không?",
+          "answer": "Không. Validation score đang ngang nhau theo tiêu chí cho trước; có thể xét độ ổn định,độ phức tạp và chi phí theo quy trình. Không tự suy từ train gap ra bảo đảm tuyệt đối."
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M4",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML18",
+      "title": "ML18 · Thêm phạt L2, không phạt bias và giải thích hiệu ứng shrinkage.",
+      "level": "Nâng cao",
+      "before": [
+        "ML17",
+        "ML05"
+      ],
+      "topics": [
+        "L2 regularization",
+        "Ridge",
+        "shrinkage",
+        "lambda",
+        "underfitting"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Thêm phạt L2, không phạt bias và giải thích hiệu ứng shrinkage.\nbody: Nội dung trọng tâm: L2 regularization; Ridge; shrinkage; lambda; underfitting. Công thức, giả định và ví dụ phải được đối chiếu với bài ML18 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "w=[3,4],lambda=0.2. Tính penalty lambda*sum(w²)/2.",
+          "answer": "0.2×25/2=2.5.\n\n```python\nimport numpy as np\nw=np.array([3.,4.]);print(float(.2*np.sum(w*w)/2))\n```\nKết quả: 2.5"
+        },
+        {
+          "prompt": "Với cùng w, tính gradient riêng của penalty.",
+          "answer": "lambda*w=[0.6,0.8].\n\n```python\nimport numpy as np\nprint(np.round(.2*np.array([3.,4.]),4).tolist())\n```\nKết quả: [0.6, 0.8]"
+        },
+        {
+          "prompt": "Data loss=1.5,penalty=2.5. Tổng mục tiêu tối ưu là gì?",
+          "answer": "4.0; khi báo metric dữ liệu cần phân biệt data loss với loss có penalty.\n\n```python\nprint(1.5+2.5)\n```\nKết quả: 4.0"
+        },
+        {
+          "prompt": "Gradient data theo w là [1,−1],w=[2,3],lambda=0.1. Tính gradient tổng.",
+          "answer": "[1.2,−0.7].\n\n```python\nimport numpy as np\nprint((np.array([1.,-1.])+.1*np.array([2.,3.])).tolist())\n```\nKết quả: [1.2, -0.7]"
+        },
+        {
+          "prompt": "w=2,gradient data=0,alpha=0.1,lambda=0.5. Tính w mới.",
+          "answer": "2−0.1×0.5×2=1.9.\n\n```python\nw=2.;print(w-.1*.5*w)\n```\nKết quả: 1.9"
+        },
+        {
+          "prompt": "Nếu bias b=10 và w=0,penalty trong quy ước loại bias là bao nhiêu?",
+          "answer": "Bằng 0 dù b lớn; không tính b² vào tổng penalty."
+        },
+        {
+          "prompt": "Chỉ từ training data loss tăng sau thêm L2 có kết luận regularization thất bại không?",
+          "answer": "Không. L2 có thể đánh đổi fit train để cải thiện validation; cần đo ngoài train và nêu loss nào đang báo."
+        },
+        {
+          "prompt": "Nêu khác biệt lambda và learning rate alpha.",
+          "answer": "Lambda thay mục tiêu qua penalty; alpha điều khiển bước tối ưu. Đổi alpha không tương đương đổi regularization."
+        },
+        {
+          "prompt": "Theo quy ước penalty lambda*sum(w²)/(2m), gradient phạt là gì?",
+          "answer": "lambda*w/m. Khác quy ước không chia m; phải giữ công thức loss và gradient khớp nhau."
+        },
+        {
+          "prompt": "Vì sao không tự phạt bias chỉ vì nó nằm trong theta[0]?",
+          "answer": "Cần thực hiện đúng hợp đồng bài: theta[0] là bias phải loại khỏi penalty. Vị trí mảng không thay định nghĩa toán học."
+        },
+        {
+          "prompt": "Mô hình đã underfit rõ. Tăng penalty có chắc sửa được không?",
+          "answer": "Không. Penalty mạnh hơn có thể hạn chế thêm khả năng fit; cần kiểm tra dữ liệu,tối ưu và độ phức tạp."
+        },
+        {
+          "prompt": "Các lambda=[0,0.1,1] có validation MSE=[4,2,3]. Chọn theo tiêu chí đã cho.",
+          "answer": "Chọn 0.1; chưa dùng test để đổi lựa chọn.\n\n```python\nlam=[0,.1,1];score=[4,2,3]\nprint(lam[min(range(3),key=lambda i:score[i])])\n```\nKết quả: 0.1"
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M4",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML19",
+      "title": "ML19 · Tính net input và thiết kế perceptron cho một cổng logic.",
+      "level": "Cơ bản",
+      "before": [
+        "ML09"
+      ],
+      "topics": [
+        "perceptron",
+        "trọng số",
+        "bias",
+        "step function",
+        "cổng AND"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Tính net input và thiết kế perceptron cho một cổng logic.\nbody: Nội dung trọng tâm: perceptron; trọng số; bias; step function; cổng AND. Công thức, giả định và ví dụ phải được đối chiếu với bài ML19 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Tính net với x=[2,3],w=[1,−1],b=2.",
+          "answer": "Net=1.\n\n```python\nimport numpy as np\nprint(float(np.array([1.,-1.])@np.array([2.,3.])+2))\n```\nKết quả: 1.0"
+        },
+        {
+          "prompt": "Lập bảng AND với w=[1,1],b=−1.5,step>=0.",
+          "answer": "Output theo (0,0),(0,1),(1,0),(1,1) là [0,0,0,1].\n\n```python\ninputs=[(0,0),(0,1),(1,0),(1,1)]\nprint([int(x+y-1.5>=0) for x,y in inputs])\n```\nKết quả: [0, 0, 0, 1]"
+        },
+        {
+          "prompt": "Tạo OR bằng w=[1,1],b=−0.5.",
+          "answer": "Output [0,1,1,1].\n\n```python\ninputs=[(0,0),(0,1),(1,0),(1,1)]\nprint([int(x+y-.5>=0) for x,y in inputs])\n```\nKết quả: [0, 1, 1, 1]"
+        },
+        {
+          "prompt": "Với net=[−0.1,0,0.1],step>=0 trả gì?",
+          "answer": "[0,1,1].\n\n```python\nprint([int(z>=0) for z in [-.1,0.,.1]])\n```\nKết quả: [0, 1, 1]"
+        },
+        {
+          "prompt": "Một bạn bỏ bias của perceptron AND nói trên. Input (0,0) sẽ được dự đoán gì?",
+          "answer": "Net=0 nên ra 1 theo >=0,không đúng bảng AND.\n\n```python\nprint(int(0+0>=0))\n```\nKết quả: 1"
+        },
+        {
+          "prompt": "Viết đường biên với w=[2,−1],b=1.",
+          "answer": "2x1−x2+1=0,hay x2=2x1+1."
+        },
+        {
+          "prompt": "Kiểm tra x=(1,3) nằm trên biên 2x1−x2+1=0.",
+          "answer": "Net=0,thuộc lớp 1 nếu step>=0.\n\n```python\nz=2*1-3+1\nprint(z)\nprint(int(z>=0))\n```\nKết quả: 0\n1"
+        },
+        {
+          "prompt": "Vì sao phải công bố cách xử lý net=0?",
+          "answer": "Hai implementation dùng >0 và >=0 cho nhãn khác nhau tại biên; test cần khớp quy ước."
+        },
+        {
+          "prompt": "Phân biệt net input với output của perceptron.",
+          "answer": "Net là tổng có trọng số cộng bias,có thể là số thực bất kỳ; output step là nhãn theo ngưỡng."
+        },
+        {
+          "prompt": "Nếu w dài 3 nhưng x dài 2,nên xử lý ra sao?",
+          "answer": "Báo lỗi shape; không tự bỏ trọng số hay thêm thuộc tính giả."
+        },
+        {
+          "prompt": "Giải thích vì sao không thêm XOR thành nhãn test đúng rồi gọi perceptron đã học được.",
+          "answer": "Phải có một bộ tham số và quy tắc dự đoán tạo đúng output; hard-code nhãn theo test không chứng minh mô hình tuyến tính biểu diễn được XOR."
+        },
+        {
+          "prompt": "Nhân w=[1,1],b=−1.5 với 2. Kiểm bảng AND.",
+          "answer": "Bộ mới [2,2],b=−3 vẫn cho [0,0,0,1].\n\n```python\nprint([int(2*x+2*y-3>=0) for x,y in [(0,0),(0,1),(1,0),(1,1)]])\n```\nKết quả: [0, 0, 0, 1]"
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M5",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML20",
+      "title": "ML20 · So sánh sigmoid, tanh, ReLU và vai trò phi tuyến/đạo hàm.",
+      "level": "Trung cấp",
+      "before": [
+        "ML19"
+      ],
+      "topics": [
+        "activation",
+        "sigmoid",
+        "tanh",
+        "ReLU",
+        "vanishing gradient",
+        "khả vi"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: So sánh sigmoid, tanh, ReLU và vai trò phi tuyến/đạo hàm.\nbody: Nội dung trọng tâm: activation; sigmoid; tanh; ReLU; vanishing gradient; khả vi. Công thức, giả định và ví dụ phải được đối chiếu với bài ML20 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Tính ReLU cho [−2,0,3].",
+          "answer": "[0,0,3].\n\n```python\nimport numpy as np\nprint(np.maximum(0,np.array([-2.,0.,3.])).tolist())\n```\nKết quả: [0.0, 0.0, 3.0]"
+        },
+        {
+          "prompt": "Tính sigmoid(0),tanh(0),ReLU(0).",
+          "answer": "Lần lượt 0.5,0,0.\n\n```python\nimport numpy as np\nprint(float(1/(1+np.exp(0.))))\nprint(float(np.tanh(0.)))\nprint(float(np.maximum(0,0.)))\n```\nKết quả: 0.5\n0.0\n0.0"
+        },
+        {
+          "prompt": "Output sigmoid s=0.5. Tính đạo hàm.",
+          "answer": "s(1−s)=0.25.\n\n```python\ns=.5\nprint(s*(1-s))\n```\nKết quả: 0.25"
+        },
+        {
+          "prompt": "Output tanh t=0.6. Tính đạo hàm.",
+          "answer": "1−t²=0.64.\n\n```python\nt=.6\nprint(round(1-t*t,4))\n```\nKết quả: 0.64"
+        },
+        {
+          "prompt": "Theo quy ước ReLU derivative tại 0 bằng 0,tính đạo hàm cho [−2,0,3].",
+          "answer": "[0,0,1].\n\n```python\nimport numpy as np\nz=np.array([-2.,0.,3.])\nprint((z>0).astype(int).tolist())\n```\nKết quả: [0, 0, 1]"
+        },
+        {
+          "prompt": "So sánh sigmoid derivative tại output 0.5 và 0.99.",
+          "answer": "0.25 và 0.0099; output gần bão hòa có đạo hàm nhỏ hơn.\n\n```python\nfor s in [.5,.99]:\n    print(round(s*(1-s),4))\n```\nKết quả: 0.25\n0.0099"
+        },
+        {
+          "prompt": "Tại sao ReLU output không phải xác suất hợp lệ nói chung?",
+          "answer": "Output có thể lớn hơn 1. ReLU không tự chuẩn hóa thành xác suất."
+        },
+        {
+          "prompt": "Viết miền giá trị sigmoid và tanh trên đầu vào thực hữu hạn về mặt toán học.",
+          "answer": "Sigmoid trong (0,1),tanh trong (−1,1). Số học máy có thể làm tròn tới biên."
+        },
+        {
+          "prompt": "Rút gọn hai tầng h=2x+1,o=3h−4 không có activation.",
+          "answer": "o=6x−1 vẫn affine.\n\n```python\nx=2.\nh=2*x+1\nprint(3*h-4)\nprint(6*x-1)\n```\nKết quả: 11.0\n11.0"
+        },
+        {
+          "prompt": "Tích năm đạo hàm đều bằng 0.1 có độ lớn bao nhiêu?",
+          "answer": "10⁻5; đây là minh họa nhân nhiều hệ số nhỏ,chưa phải đo gradient của một mạng cụ thể.\n\n```python\nprint(f\"{.1**5:.5f}\")\n```\nKết quả: 0.00001"
+        },
+        {
+          "prompt": "Vì sao không kết luận ReLU luôn tốt hơn sigmoid cho mọi tầng?",
+          "answer": "Lựa chọn phụ thuộc vai trò tầng và bài toán; output nhị phân cần diễn giải xác suất có thể dùng sigmoid,ReLU có điểm gãy và vùng gradient 0."
+        },
+        {
+          "prompt": "Một neuron ReLU có net âm cho mọi mẫu. Gradient theo net ở các mẫu ấy là gì?",
+          "answer": "Bằng 0 trong vùng âm;nó có thể không nhận cập nhật từ đường truyền này. Không coi đây là mọi neuron của mạng đều ngừng học."
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M5",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML21",
+      "title": "ML21 · Tính lan truyền tiến qua tầng ẩn và tầng ra với shape nhất quán.",
+      "level": "Nâng cao",
+      "before": [
+        "ML20"
+      ],
+      "topics": [
+        "MLP",
+        "hidden layer",
+        "affine transform",
+        "activation",
+        "feed-forward"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Tính lan truyền tiến qua tầng ẩn và tầng ra với shape nhất quán.\nbody: Nội dung trọng tâm: MLP; hidden layer; affine transform; activation; feed-forward. Công thức, giả định và ví dụ phải được đối chiếu với bài ML21 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "X có 5 mẫu,2 thuộc tính,tầng ẩn 3 neuron,output 1 neuron. Nêu shape W1,b1,W2,b2 theo quy ước hàng là mẫu.",
+          "answer": "W1=(2,3),b1=(3,),W2=(3,1),b2=(1,)."
+        },
+        {
+          "prompt": "x=[[1,2]],W1=[[1,0],[0,1]],b1=[−2,1]. Tính z1.",
+          "answer": "z1=[[-1,3]].\n\n```python\nimport numpy as np\nX=np.array([[1.,2.]]);W=np.eye(2);b=np.array([-2.,1.])\nprint((X@W+b).tolist())\n```\nKết quả: [[-1.0, 3.0]]"
+        },
+        {
+          "prompt": "Áp dụng ReLU lên z1=[[-1,3]].",
+          "answer": "h=[[0,3]].\n\n```python\nimport numpy as np\nprint(np.maximum(0,np.array([[-1.,3.]])).tolist())\n```\nKết quả: [[0.0, 3.0]]"
+        },
+        {
+          "prompt": "h=[[0,3]],W2=[[2],[1]],b2=[−1]. Tính net output.",
+          "answer": "z2=[[2]].\n\n```python\nimport numpy as np\nh=np.array([[0.,3.]])\nprint((h@np.array([[2.],[1.]])+np.array([-1.])).tolist())\n```\nKết quả: [[2.0]]"
+        },
+        {
+          "prompt": "Áp dụng sigmoid lên output net=2,in bốn chữ số.",
+          "answer": "Xấp xỉ 0.8808.\n\n```python\nimport numpy as np\nprint(round(float(1/(1+np.exp(-2.))),4))\n```\nKết quả: 0.8808"
+        },
+        {
+          "prompt": "Một batch có hai mẫu,weight identity,bias=[1,−1]. Tính affine cho [[0,2],[3,4]].",
+          "answer": "Kết quả [[1,1],[4,3]].\n\n```python\nimport numpy as np\nX=np.array([[0.,2.],[3.,4.]])\nprint((X@np.eye(2)+np.array([1.,-1.])).tolist())\n```\nKết quả: [[1.0, 1.0], [4.0, 3.0]]"
+        },
+        {
+          "prompt": "Vì sao cần giữ net z trước activation nếu sắp tính backprop?",
+          "answer": "Đạo hàm activation có thể cần z hoặc output activation; lưu cache giúp tính backward đúng theo cùng forward."
+        },
+        {
+          "prompt": "Đầu vào một mẫu shape (2,) có nhất thiết cùng shape output với (1,2) không?",
+          "answer": "Không. Vector 1D có thể làm mất trục batch trong kết quả. Cần quy định rõ API nhận batch 2D hay một mẫu 1D."
+        },
+        {
+          "prompt": "Nếu đổi thứ tự mẫu trong batch nhưng không đổi weight,mỗi output tương ứng thay đổi thế nào?",
+          "answer": "Với các affine và activation độc lập theo hàng,output hoán vị theo cùng thứ tự mẫu; không tự hoán vị nhãn riêng."
+        },
+        {
+          "prompt": "Đếm tham số mạng d=2,h=3,output=1 có bias cả hai tầng.",
+          "answer": "W1 có6,b1 có3,W2 có3,b2 có1,tổng13.\n\n```python\nd,h,o=2,3,1\nprint(d*h+h+h*o+o)\n```\nKết quả: 13"
+        },
+        {
+          "prompt": "Bỏ phi tuyến giữa hai affine có thể vẫn tạo đường biên XOR đúng bằng mạng tuyến tính thuần không?",
+          "answer": "Không. Hợp affine vẫn affine nên không tạo khả năng biểu diễn XOR trong không gian input gốc bằng một ngưỡng tuyến tính."
+        },
+        {
+          "prompt": "Một bạn dùng W1.T thay W1 chỉ vì phép nhân báo lỗi. Cần kiểm gì trước?",
+          "answer": "Đối chiếu quy ước hàng/cột và số input/output neuron; transpose tùy tiện có thể chạy nhưng đổi ý nghĩa kiến trúc."
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M5",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML22",
+      "title": "ML22 · Tính delta và gradient trọng số bằng quy tắc chuỗi.",
+      "level": "Nâng cao",
+      "before": [
+        "ML21"
+      ],
+      "topics": [
+        "backpropagation",
+        "chain rule",
+        "delta",
+        "gradient trọng số",
+        "sigmoid derivative"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Tính delta và gradient trọng số bằng quy tắc chuỗi.\nbody: Nội dung trọng tâm: backpropagation; chain rule; delta; gradient trọng số; sigmoid derivative. Công thức, giả định và ví dụ phải được đối chiếu với bài ML22 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "H=[[1,2],[3,4]],delta2=[[1],[−1]]. Tính H.T@delta2/2.",
+          "answer": "Gradient W2=[[-1],[-1]].\n\n```python\nimport numpy as np\nH=np.array([[1.,2.],[3.,4.]]);delta=np.array([[1.],[-1.]])\nprint((H.T@delta/2).tolist())\n```\nKết quả: [[-1.0], [-1.0]]"
+        },
+        {
+          "prompt": "Delta=[[1,3],[3,5]],tính mean theo mẫu làm gradient bias.",
+          "answer": "[2,4].\n\n```python\nimport numpy as np\nprint(np.array([[1.,3.],[3.,5.]]).mean(axis=0).tolist())\n```\nKết quả: [2.0, 4.0]"
+        },
+        {
+          "prompt": "Một sigmoid có output 0.5,gradient từ phía sau là 2. Tính gradient theo net.",
+          "answer": "2×0.5×0.5=0.5.\n\n```python\ns=.5;upstream=2.\nprint(upstream*s*(1-s))\n```\nKết quả: 0.5"
+        },
+        {
+          "prompt": "Delta output=[[2]],W2=[[1],[−3]]. Tính gradient theo activation ẩn trước nhân đạo hàm activation.",
+          "answer": "[[2,−6]].\n\n```python\nimport numpy as np\nprint((np.array([[2.]])@np.array([[1.],[-3.]]).T).tolist())\n```\nKết quả: [[2.0, -6.0]]"
+        },
+        {
+          "prompt": "Activation ẩn sigmoid=[0.5,0.5],upstream=[2,−6]. Tính delta ẩn.",
+          "answer": "[0.5,−1.5].\n\n```python\nimport numpy as np\ns=np.array([.5,.5]);g=np.array([2.,-6.])\nprint((g*s*(1-s)).tolist())\n```\nKết quả: [0.5, -1.5]"
+        },
+        {
+          "prompt": "X=[[1,2]],delta1=[[0.5,−1.5]]. Tính gradient W1 cho một mẫu.",
+          "answer": "[[0.5,−1.5],[1,−3]].\n\n```python\nimport numpy as np\nprint((np.array([[1.,2.]]).T@np.array([[.5,-1.5]])).tolist())\n```\nKết quả: [[0.5, -1.5], [1.0, -3.0]]"
+        },
+        {
+          "prompt": "Vì sao không cập nhật W2 ngay sau tính gradient W2 rồi dùng nó tính gradient W1?",
+          "answer": "Gradient W1 phải thuộc cùng mạng và tham số đã dùng forward. Dùng W2 mới làm trộn hai điểm tham số."
+        },
+        {
+          "prompt": "Theo quy ước delta là đạo hàm từng mẫu chưa chia n,viết gradient W=X.T@delta/n. Nếu dùng sum loss thì khác gì?",
+          "answer": "Gradient sum không chia n. Cả loss,delta và gradient phải nhất quán để tránh nhân/chia n sai."
+        },
+        {
+          "prompt": "Phân biệt forward cache và nhãn y trong backprop.",
+          "answer": "Cache chứa input/net/activation của lượt forward; y xác định sai số theo loss. Không thay activation bằng nhãn khi nhân đạo hàm."
+        },
+        {
+          "prompt": "W=2,gradient=−3,alpha=0.1. Tính cập nhật.",
+          "answer": "W_new=2.3.\n\n```python\nprint(2.-.1*(-3.))\n```\nKết quả: 2.3"
+        },
+        {
+          "prompt": "Một neuron ReLU net âm có đạo hàm activation 0. Upstream khác 0 thì delta theo net ra sao?",
+          "answer": "Bằng 0 ở điểm đó do nhân đạo hàm activation; không được bỏ thừa số activation chỉ vì upstream khác 0."
+        },
+        {
+          "prompt": "Vì sao phép nhân elementwise trong delta không thay bằng @ tùy ý?",
+          "answer": "Delta thường nhân đạo hàm từng neuron cùng vị trí. @ trộn/tổng theo chiều ma trận,có thể sai shape hoặc nghĩa dù đôi lúc chạy được."
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M5",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML23",
+      "title": "ML23 · Thực hiện một vòng Lloyd K-Means và theo dõi SSE nội cụm.",
+      "level": "Nâng cao",
+      "before": [
+        "ML01"
+      ],
+      "topics": [
+        "K-Means",
+        "centroid",
+        "assignment",
+        "centroid update",
+        "SSE",
+        "cực tiểu địa phương"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Thực hiện một vòng Lloyd K-Means và theo dõi SSE nội cụm.\nbody: Nội dung trọng tâm: K-Means; centroid; assignment; centroid update; SSE; cực tiểu địa phương. Công thức, giả định và ví dụ phải được đối chiếu với bài ML23 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Mẫu một chiều x=3,tâm [0,10]. Gán vào tâm nào?",
+          "answer": "Tâm 0 vì khoảng cách 3<7.\n\n```python\ncenters=[0.,10.];x=3.\nprint(min(range(2),key=lambda j:abs(x-centers[j])))\n```\nKết quả: 0"
+        },
+        {
+          "prompt": "Cụm gồm [1,3,5],tính tâm mới.",
+          "answer": "Mean=3.\n\n```python\nprint(sum([1.,3.,5.])/3)\n```\nKết quả: 3.0"
+        },
+        {
+          "prompt": "Cụm vector [[0,2],[2,4]],tính centroid.",
+          "answer": "[1,3].\n\n```python\nimport numpy as np\nprint(np.array([[0.,2.],[2.,4.]]).mean(axis=0).tolist())\n```\nKết quả: [1.0, 3.0]"
+        },
+        {
+          "prompt": "Tính SSE của cụm [1,3,5] với tâm 3.",
+          "answer": "4+0+4=8.\n\n```python\nimport numpy as np\nx=np.array([1.,3.,5.]);print(float(np.sum((x-3)**2)))\n```\nKết quả: 8.0"
+        },
+        {
+          "prompt": "Dữ liệu [0,2,8,10],tâm cũ [0,10]. Assignment và update một vòng.",
+          "answer": "Hai cụm [0,2],[8,10];tâm mới [1,9].\n\n```python\nimport numpy as np\nx=np.array([0.,2.,8.,10.]);c=np.array([0.,10.])\nlabels=np.argmin((x[:,None]-c[None,:])**2,axis=1)\nprint(labels.tolist())\nprint([float(x[labels==i].mean()) for i in range(2)])\n```\nKết quả: [0, 0, 1, 1]\n[1.0, 9.0]"
+        },
+        {
+          "prompt": "Tính SSE trước và sau update của ví dụ trên.",
+          "answer": "SSE trước=8,sau=4.\n\n```python\nimport numpy as np\nx=np.array([0.,2.,8.,10.])\nfor c in [[0.,10.],[1.,9.]]:\n    d=(x[:,None]-np.array(c)[None,:])**2\n    print(float(d.min(axis=1).sum()))\n```\nKết quả: 8.0\n4.0"
+        },
+        {
+          "prompt": "Vì sao không trung bình nhãn cụm để tính centroid?",
+          "answer": "Nhãn cụm là mã gán,chỉ số không mang tọa độ. Centroid phải lấy mean vector đặc trưng của các mẫu được gán."
+        },
+        {
+          "prompt": "Một mẫu cách hai centroid bằng nhau. Cần quy định gì?",
+          "answer": "Cách phá hòa,chẳng hạn chọn chỉ số tâm nhỏ hơn. Quy tắc giúp tái lập và kiểm thử assignment."
+        },
+        {
+          "prompt": "Nêu hai điều kiện dừng thường dùng và giới hạn của chúng.",
+          "answer": "Giới hạn số vòng và độ dịch tâm dưới tolerance; cũng có thể kiểm nhãn không đổi. Phải nêu tolerance và xử lý cụm rỗng; dừng không chứng minh cực tiểu toàn cục."
+        },
+        {
+          "prompt": "Vì sao so sánh hai lần chạy cần giữ cùng dữ liệu và ghi seed?",
+          "answer": "Khởi tạo ảnh hưởng kết quả; giữ dữ liệu/seed giúp tách ảnh hưởng thuật toán khỏi thay đổi thí nghiệm."
+        },
+        {
+          "prompt": "K=1 trên [0,2,4],centroid và SSE tối ưu là gì?",
+          "answer": "Tâm=2,SSE=8.\n\n```python\nimport numpy as np\nx=np.array([0.,2.,4.]);c=x.mean()\nprint(float(c))\nprint(float(np.sum((x-c)**2)))\n```\nKết quả: 2.0\n8.0"
+        },
+        {
+          "prompt": "Có thể gọi SSE train nhỏ là bằng chứng phân cụm có ý nghĩa nghiệp vụ không?",
+          "answer": "Không. SSE chỉ phản ánh mục tiêu khoảng cách trên dữ liệu/thang đo đã chọn;cần diễn giải cụm và đánh giá phù hợp."
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M6",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML24",
+      "title": "ML24 · Đánh giá phân cụm bằng so sánh cặp và phân biệt internal/external validation.",
+      "level": "Trung cấp",
+      "before": [
+        "ML23"
+      ],
+      "topics": [
+        "Rand Index",
+        "Jaccard",
+        "pair counting",
+        "internal validation",
+        "external validation"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Đánh giá phân cụm bằng so sánh cặp và phân biệt internal/external validation.\nbody: Nội dung trọng tâm: Rand Index; Jaccard; pair counting; internal validation; external validation. Công thức, giả định và ví dụ phải được đối chiếu với bài ML24 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Có 5 mẫu. Tính số cặp không thứ tự.",
+          "answer": "5×4/2=10.\n\n```python\nn=5\nprint(n*(n-1)//2)\n```\nKết quả: 10"
+        },
+        {
+          "prompt": "Hai phân hoạch [0,0,1] và [5,5,7] có cùng quan hệ cặp không?",
+          "answer": "Có,cặp (0,1) cùng cụm;hai cặp còn lại khác cụm trong cả hai."
+        },
+        {
+          "prompt": "Với true=[0,0,1],pred=[0,1,1],liệt kê ba cặp và đồng thuận.",
+          "answer": "(0,1) bất đồng,(0,2) đồng thuận khác cụm,(1,2) bất đồng;Rand=1/3."
+        },
+        {
+          "prompt": "Tính Rand cho ví dụ trên bằng đếm cặp.",
+          "answer": "Một trong ba cặp đồng thuận.\n\n```python\nfrom itertools import combinations\nt=[0,0,1];p=[0,1,1];pairs=list(combinations(range(3),2))\nprint(f\"{sum((t[i]==t[j])==(p[i]==p[j]) for i,j in pairs)/len(pairs):.6f}\")\n```\nKết quả: 0.333333"
+        },
+        {
+          "prompt": "Gọi a=2 cặp cùng cụm cả hai,b=1 chỉ cùng true,c=1 chỉ cùng pred,d=2 khác cả hai. Tính Rand.",
+          "answer": "(a+d)/(a+b+c+d)=4/6.\n\n```python\na,b,c,d=2,1,1,2\nprint(f\"{(a+d)/(a+b+c+d):.6f}\")\n```\nKết quả: 0.666667"
+        },
+        {
+          "prompt": "Với cùng a,b,c,d,tính Jaccard cùng cụm.",
+          "answer": "a/(a+b+c)=2/4=0.5.\n\n```python\na,b,c=2,1,1\nprint(a/(a+b+c))\n```\nKết quả: 0.5"
+        },
+        {
+          "prompt": "Vì sao không so trực tiếp mã cụm dự đoán với nhãn tham chiếu bằng == từng mẫu?",
+          "answer": "Mã cụm có thể hoán vị tùy ý mà vẫn cùng phân hoạch. So tên số đánh đồng vấn đề nhận dạng tên với cấu trúc nhóm."
+        },
+        {
+          "prompt": "External score tốt có đủ chứng minh cụm có hình dạng gọn trong không gian đặc trưng không?",
+          "answer": "Không. External so với nhãn tham chiếu;độ gọn/khoảng cách nội tại là khía cạnh khác."
+        },
+        {
+          "prompt": "Internal validation có dùng nhãn tham chiếu bắt buộc không?",
+          "answer": "Không theo nghĩa internal;dùng dữ liệu và cấu trúc cụm. Cần nêu metric cụ thể,không tự tạo nhãn chuẩn từ chính output rồi coi external score cao là bằng chứng."
+        },
+        {
+          "prompt": "Hai phân hoạch mọi mẫu tách riêng có Jaccard cùng cụm theo a/(a+b+c) ra sao?",
+          "answer": "Không có cặp cùng cụm ở cả hai,mẫu số 0. Phải công bố quy ước hoặc báo không xác định;không mặc định phép chia cho kết quả 1."
+        },
+        {
+          "prompt": "Nếu một nhãn bị thiếu,có nên âm thầm loại mẫu chỉ ở một trong hai phân hoạch không?",
+          "answer": "Không. Hai mảng phải tham chiếu cùng tập mẫu theo cùng thứ tự;lọc cần áp dụng đồng bộ và ghi phạm vi đánh giá."
+        },
+        {
+          "prompt": "Một cặp cùng true nhưng khác pred đóng góp thế nào vào Rand và Jaccard?",
+          "answer": "Là bất đồng:không vào tử Rand;vào mẫu số Jaccard nhưng không vào tử. Đây là cặp bị tách so với tham chiếu."
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M6",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML25",
+      "title": "ML25 · Thực hiện PCA qua trừ tâm, covariance, eigen decomposition và projection.",
+      "level": "Nâng cao",
+      "before": [
+        "ML02"
+      ],
+      "topics": [
+        "PCA",
+        "covariance",
+        "eigenvalue",
+        "eigenvector",
+        "explained variance",
+        "projection"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Thực hiện PCA qua trừ tâm, covariance, eigen decomposition và projection.\nbody: Nội dung trọng tâm: PCA; covariance; eigenvalue; eigenvector; explained variance; projection. Công thức, giả định và ví dụ phải được đối chiếu với bài ML25 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "X=[[1,2],[3,4]],tính mean và Xc.",
+          "answer": "Mean=[2,3],Xc=[[-1,−1],[1,1]].\n\n```python\nimport numpy as np\nX=np.array([[1.,2.],[3.,4.]])\nprint(X.mean(axis=0).tolist())\nprint((X-X.mean(axis=0)).tolist())\n```\nKết quả: [2.0, 3.0]\n[[-1.0, -1.0], [1.0, 1.0]]"
+        },
+        {
+          "prompt": "Eigenvalues=[4,1]. Tính explained variance ratio.",
+          "answer": "[0.8,0.2].\n\n```python\nimport numpy as np\nv=np.array([4.,1.]);print((v/v.sum()).tolist())\n```\nKết quả: [0.8, 0.2]"
+        },
+        {
+          "prompt": "Eigenvalues theo thứ tự giảm [6,3,1]. Giữ ít nhất 90% cần bao nhiêu thành phần?",
+          "answer": "Hai thành phần vì (6+3)/10=0.9.\n\n```python\nimport numpy as np\nv=np.array([6.,3.,1.]);c=np.cumsum(v)/v.sum()\nprint(int(np.searchsorted(c,.9)+1))\n```\nKết quả: 2"
+        },
+        {
+          "prompt": "Xc=[[1,2],[3,4]],V_k=[[1],[0]]. Tính projection.",
+          "answer": "[[1],[3]],shape (2,1).\n\n```python\nimport numpy as np\nprint((np.array([[1.,2.],[3.,4.]])@np.array([[1.],[0.]])).tolist())\n```\nKết quả: [[1.0], [3.0]]"
+        },
+        {
+          "prompt": "Vì sao np.linalg.eigh phù hợp covariance thực đối xứng?",
+          "answer": "Hàm dành cho ma trận Hermitian/đối xứng,trả hệ eigenvalue/eigenvector phù hợp cấu trúc. Vẫn cần sắp thứ tự theo mục tiêu PCA."
+        },
+        {
+          "prompt": "eigh trả eigenvalues tăng dần. Nếu lấy cột đầu mà muốn giữ phương sai lớn nhất,sai ở đâu?",
+          "answer": "Đã chọn hướng phương sai nhỏ nhất. Cần sắp giảm dần và hoán vị cột eigenvector tương ứng."
+        },
+        {
+          "prompt": "Dữ liệu mọi cột hằng có explained variance ratio theo lambda/sum(lambda) thế nào?",
+          "answer": "Tổng phương sai bằng 0 nên tỷ lệ không xác định trực tiếp. Cần quy định riêng thay vì chấp nhận NaN."
+        },
+        {
+          "prompt": "Eigenvector v và −v có cùng tái tạo nếu tọa độ projection đổi dấu theo không?",
+          "answer": "Có,zvᵀ=(-z)(−v)ᵀ. Không ép eigenvector cùng dấu với một output mẫu rồi báo sai toán học."
+        },
+        {
+          "prompt": "X shape (10,4),giữ k=2. Tính số tọa độ ban đầu và sau projection.",
+          "answer": "Ban đầu 40,sau 20,không tính mean và các vector hướng cần lưu.\n\n```python\nn,d,k=10,4,2\nprint(n*d)\nprint(n*k)\n```\nKết quả: 40\n20"
+        },
+        {
+          "prompt": "Có nên fit PCA riêng trên test rồi đưa tọa độ vào model học trên PCA train không?",
+          "answer": "Không. Các hướng và mean có thể khác nhau;model cần cùng phép biến đổi đã fit trên train."
+        },
+        {
+          "prompt": "Một thuộc tính đơn vị lớn có phương sai lớn. PCA covariance có tự bỏ ảnh hưởng đơn vị không?",
+          "answer": "Không. Scale ảnh hưởng covariance và hướng PCA;quy trình scaling trước PCA phải nêu rõ và học từ train."
+        },
+        {
+          "prompt": "Nếu hai eigenvalues bằng nhau,có thể yêu cầu mọi thư viện trả đúng từng vector giống hệt không?",
+          "answer": "Không. Có thể có nhiều cơ sở trực chuẩn trong cùng không gian con. Kiểm không gian/phương sai hoặc tái tạo phù hợp hơn so vector từng phần tử."
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M6",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML26",
+      "title": "ML26 · Tính impurity và chọn split cho cây quyết định.",
+      "level": "Nâng cao",
+      "before": [
+        "ML01"
+      ],
+      "topics": [
+        "decision tree",
+        "Gini",
+        "entropy",
+        "impurity decrease",
+        "information gain"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Tính impurity và chọn split cho cây quyết định.\nbody: Nội dung trọng tâm: decision tree; Gini; entropy; impurity decrease; information gain. Công thức, giả định và ví dụ phải được đối chiếu với bài ML26 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Node thuần một lớp có Gini và entropy bao nhiêu?",
+          "answer": "Cả hai bằng 0;hạng 0 log0 lấy giới hạn bằng 0."
+        },
+        {
+          "prompt": "Tính Gini với tỷ lệ [0.5,0.5].",
+          "answer": "0.5.\n\n```python\np=[.5,.5]\nprint(1-sum(x*x for x in p))\n```\nKết quả: 0.5"
+        },
+        {
+          "prompt": "Tính Gini với tỷ lệ [0.75,0.25].",
+          "answer": "1−0.5625−0.0625=0.375.\n\n```python\np=[.75,.25]\nprint(1-sum(x*x for x in p))\n```\nKết quả: 0.375"
+        },
+        {
+          "prompt": "Nhánh trái 3 mẫu Gini=0,phải 1 mẫu Gini=0.5. Tính impurity sau split.",
+          "answer": "3/4×0+1/4×0.5=0.125.\n\n```python\nprint(3/4*0+1/4*.5)\n```\nKết quả: 0.125"
+        },
+        {
+          "prompt": "Cha Gini=0.5,con weighted Gini=0.125. Tính giảm impurity.",
+          "answer": "0.375.\n\n```python\nprint(.5-.125)\n```\nKết quả: 0.375"
+        },
+        {
+          "prompt": "Entropy log2 của hai lớp cân bằng là bao nhiêu?",
+          "answer": "1 bit.\n\n```python\nimport math\nprint(-sum(p*math.log2(p) for p in [.5,.5]))\n```\nKết quả: 1.0"
+        },
+        {
+          "prompt": "Split A weighted Gini=0.2,B=0.3,cùng cha. Chọn theo giảm Gini.",
+          "answer": "Chọn A vì impurity con thấp hơn,cùng impurity cha nên gain cao hơn."
+        },
+        {
+          "prompt": "Feature x=[1,2,3,4],ngưỡng 2.5. Liệt kê chỉ số trái với <= và phải với >.",
+          "answer": "Trái [0,1],phải [2,3].\n\n```python\nx=[1,2,3,4]\nprint([i for i,v in enumerate(x) if v<=2.5])\nprint([i for i,v in enumerate(x) if v>2.5])\n```\nKết quả: [0, 1]\n[2, 3]"
+        },
+        {
+          "prompt": "Vì sao tên lớp 0 và 1 đổi chỗ không làm Gini đổi?",
+          "answer": "Gini dùng bình phương tỷ lệ lớp;hoán vị các tỷ lệ không đổi tổng."
+        },
+        {
+          "prompt": "Nếu split tạo hai nhánh nhưng giữ nguyên tỷ lệ lớp như cha,impurity giảm thế nào?",
+          "answer": "Bằng 0 vì weighted impurity con bằng impurity cha."
+        },
+        {
+          "prompt": "Tại sao không chọn ngưỡng theo test label?",
+          "answer": "Ngưỡng là phần model đã học;test phải giữ ngoài fitting và lựa chọn để đánh giá độc lập."
+        },
+        {
+          "prompt": "Một node có counts [1,3]. Tính tỷ lệ và Gini.",
+          "answer": "Tỷ lệ [0.25,0.75],Gini=0.375.\n\n```python\nc=[1,3];p=[x/sum(c) for x in c]\nprint(p)\nprint(1-sum(x*x for x in p))\n```\nKết quả: [0.25, 0.75]\n0.375"
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M6",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML27",
+      "title": "ML27 · Giải thích Bagging và Random Forest giảm phương sai bằng bootstrap và feature subsampling.",
+      "level": "Nâng cao",
+      "before": [
+        "ML26"
+      ],
+      "topics": [
+        "ensemble",
+        "bootstrap",
+        "bagging",
+        "random subspace",
+        "Random Forest",
+        "decorrelation"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Giải thích Bagging và Random Forest giảm phương sai bằng bootstrap và feature subsampling.\nbody: Nội dung trọng tâm: ensemble; bootstrap; bagging; random subspace; Random Forest; decorrelation. Công thức, giả định và ví dụ phải được đối chiếu với bài ML27 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Ba model hồi quy dự đoán [2,4,6]. Bagging mean là gì?",
+          "answer": "4.\n\n```python\nprint(sum([2.,4.,6.])/3)\n```\nKết quả: 4.0"
+        },
+        {
+          "prompt": "Hai model dự đoán hai mẫu: [1,3] và [3,5]. Gộp theo mẫu.",
+          "answer": "Mean=[2,4].\n\n```python\nimport numpy as np\nprint(np.array([[1.,3.],[3.,5.]]).mean(axis=0).tolist())\n```\nKết quả: [2.0, 4.0]"
+        },
+        {
+          "prompt": "Bootstrap indices=[1,1,3,0] trên X=[10,20,30,40]. Nêu mẫu lấy được và số mẫu duy nhất.",
+          "answer": "[20,20,40,10];3 mẫu duy nhất.\n\n```python\nX=[10,20,30,40];idx=[1,1,3,0]\nprint([X[i] for i in idx])\nprint(len(set(idx)))\n```\nKết quả: [20, 20, 40, 10]\n3"
+        },
+        {
+          "prompt": "Với bootstrap indices trên và n=4,chỉ số nào không được chọn?",
+          "answer": "Chỉ số 2.\n\n```python\nidx=[1,1,3,0]\nprint(sorted(set(range(4))-set(idx)))\n```\nKết quả: [2]"
+        },
+        {
+          "prompt": "Vì sao phải bootstrap X và y bằng cùng indices?",
+          "answer": "Giữ đúng cặp mẫu–nhãn;resample riêng hai mảng sẽ làm model học nhãn sai."
+        },
+        {
+          "prompt": "Nếu mọi model dự đoán 5,mean của 100 model là gì?",
+          "answer": "Vẫn 5;tăng số model giống hệt không thay output.\n\n```python\nprint(sum([5.]*100)/100)\n```\nKết quả: 5.0"
+        },
+        {
+          "prompt": "Nhãn ba cây [0,1,1],tính majority vote.",
+          "answer": "1.\n\n```python\nlabels=[0,1,1]\nprint(max(set(labels),key=labels.count))\n```\nKết quả: 1"
+        },
+        {
+          "prompt": "Tại sao không tạo đa dạng bằng cách cố ý sửa đáp án train tùy tiện?",
+          "answer": "Làm sai mục tiêu học. Đa dạng bagging đến từ sampling và giới hạn feature theo thuật toán,không bịa nhãn."
+        },
+        {
+          "prompt": "Một feature set có d=10,cấu hình mỗi split xem 3 feature. Có phải toàn cây chỉ được dùng đúng 3 feature cố định không?",
+          "answer": "Không theo Random Forest thường dùng;tập ứng viên có thể được lấy lại ở mỗi split. Phải đọc cấu hình và thuật toán cụ thể."
+        },
+        {
+          "prompt": "Nêu điều cần ghi để tái lập ensemble mô phỏng.",
+          "answer": "Dữ liệu/thứ tự mẫu,seed,số model,cách resample,feature sampling và quy tắc tổng hợp/phá hòa."
+        },
+        {
+          "prompt": "Có thể dùng test label để chọn ra cây tốt nhất rồi gọi đó là bagging không?",
+          "answer": "Không. Vừa dùng test để lựa chọn,vừa thay phép gộp ensemble bằng chọn model;không đúng quy trình đã định."
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M6",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    },
+    {
+      "id": "ML28",
+      "title": "ML28 · Thiết kế và kiểm thử pipeline định giá/phân loại nhà từ dữ liệu đầu vào tới đánh giá.",
+      "level": "Nâng cao",
+      "before": [
+        "ML03",
+        "ML07",
+        "ML09",
+        "ML13",
+        "ML15"
+      ],
+      "topics": [
+        "preprocessing",
+        "regression",
+        "classification",
+        "validation",
+        "input contract",
+        "capstone"
+      ],
+      "reading": [
+        {
+          "type": "paragraph",
+          "text": "title: Thiết kế và kiểm thử pipeline định giá/phân loại nhà từ dữ liệu đầu vào tới đánh giá.\nbody: Nội dung trọng tâm: preprocessing; regression; classification; validation; input contract; capstone. Công thức, giả định và ví dụ phải được đối chiếu với bài ML28 trong DOCX hiệu đính.\ntitle: Kiểm tra giả định\nbody: Theo dõi shape, miền giá trị, trường hợp rỗng/suy biến và phân biệt dữ liệu huấn luyện với đánh giá."
+        },
+        {
+          "type": "paragraph",
+          "text": "Dự đoán kết quả trước khi chạy ví dụ."
+        },
+        {
+          "type": "code",
+          "code": "import numpy as np\nX=np.array([[1.,2.]])\nprint(X.shape)",
+          "expected": "(1, 2)"
+        },
+        {
+          "type": "paragraph",
+          "text": "question: Điều nào cần kiểm tra trước khi chạy thuật toán?\noptions: title: shape và giả định\ncorrect: True\ntitle: màu giao diện\ncorrect: False\ntitle: hard-code\ncorrect: False\ncorrect: 0"
+        },
+        {
+          "type": "paragraph",
+          "text": "title: Ngộ nhận thường gặp\nbody: Ví dụ chạy được không chứng minh mọi input hợp lệ."
+        },
+        {
+          "type": "paragraph",
+          "text": "n: 1\ntitle: Giải thích ví dụ\nbody: Kiểm tra từng bước và ca biên."
+        }
+      ],
+      "drills": [
+        {
+          "prompt": "Pipeline gồm chia dữ liệu,fit scaler,train model,test. Sắp thứ tự tránh leakage.",
+          "answer": "Chia train/test trước;fit scaler trên train;biến đổi hai tập bằng scaler train;fit model trên train;đánh giá test riêng."
+        },
+        {
+          "prompt": "X có shape (40,3),y có 39 phần tử. Nên làm gì trước huấn luyện?",
+          "answer": "Từ chối shape không khớp và tìm lỗi ghép dữ liệu;không cắt bỏ mẫu tùy tiện để qua test."
+        },
+        {
+          "prompt": "Một cột có NaN. Nếu chọn điền mean,cần lấy mean từ đâu?",
+          "answer": "Chỉ train của split/fold;áp dụng cùng giá trị đã học cho validation/test. Cần nêu quy tắc cho cột train toàn NaN."
+        },
+        {
+          "prompt": "Giả sử định nghĩa lớp 1 là giá>=3 tỷ. Nhãn của [2,3,4] là gì?",
+          "answer": "[0,1,1]. Đây là ngưỡng minh họa có chủ ý,không khẳng định là chuẩn phân loại thị trường.\n\n```python\nprices=[2.,3.,4.]\nprint([int(v>=3.) for v in prices])\n```\nKết quả: [0, 1, 1]"
+        },
+        {
+          "prompt": "Test y=[2,4],pred=[3,3]. Tính MAE và MSE.",
+          "answer": "Residual [1,−1],MAE=1,MSE=1.\n\n```python\nimport numpy as np\ny=np.array([2.,4.]);pred=np.array([3.,3.]);e=pred-y\nprint(float(np.abs(e).mean()))\nprint(float((e*e).mean()))\n```\nKết quả: 1.0\n1.0"
+        },
+        {
+          "prompt": "Test classification y=[1,0,1],pred=[1,1,0]. Đếm TP,FP,FN.",
+          "answer": "Mỗi count bằng 1;precision=recall=F1=0.5.\n\n```python\ny=[1,0,1];pred=[1,1,0]\nprint([sum(t==a and p==b for t,p in zip(y,pred)) for a,b in [(1,1),(0,1),(1,0)]])\n```\nKết quả: [1, 1, 1]"
+        },
+        {
+          "prompt": "Một fold không có mẫu dương. Nên che lỗi bằng F1=1 không?",
+          "answer": "Không. Báo counts và áp dụng quy tắc mẫu số rõ ràng;không biến giới hạn dữ liệu thành thành tích tốt."
+        },
+        {
+          "prompt": "Ensemble hồi quy ba model cho một nhà [2.8,3.0,3.2]. Tính dự đoán mean.",
+          "answer": "3.0 tỷ theo đơn vị minh họa.\n\n```python\nprint(round(sum([2.8,3.,3.2])/3,6))\n```\nKết quả: 3.0"
+        },
+        {
+          "prompt": "Tập dữ liệu chỉ sáu nhà. Vì sao điểm test cao chưa đủ kết luận dùng được cho thị trường?",
+          "answer": "Mẫu rất nhỏ,phạm vi hẹp và metric dao động theo split;chưa đại diện thị trường hoặc thay đổi theo thời gian."
+        },
+        {
+          "prompt": "Cần lưu những gì để người khác tái lập capstone mô phỏng?",
+          "answer": "Code sinh dữ liệu/seed,schema/đơn vị,quy tắc nhãn,các chỉ số split,tham số scaler/model,quy tắc metric và kết quả thật."
+        },
+        {
+          "prompt": "Nếu thử nhiều lựa chọn rồi chọn theo test tốt nhất,có thể báo test là đánh giá độc lập không?",
+          "answer": "Không. Test đã tham gia lựa chọn;phải ghi rõ giới hạn và cần dữ liệu đánh giá độc lập mới nếu muốn kết luận tổng quát hóa."
+        }
+      ],
+      "reviewExercises": [],
+      "strand": "M6",
+      "provenance": "Giáo trình ML hiệu đính; bản Studio trong reference/studio-lessons.json."
+    }
+  ]
+}

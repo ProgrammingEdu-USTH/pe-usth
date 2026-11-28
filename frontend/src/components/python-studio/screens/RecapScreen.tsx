@@ -4,7 +4,9 @@
 // mini-game đếm điểm/combo/"đúng ngay lần đầu", khoá thường đếm câu đúng và ca
 // kiểm thử đạt.
 import Recap from '@/components/lesson-chrome/exercises/Recap';
-import { EMPTY_SCORE, isGraded } from '@/lib/studio-lesson';
+import { withoutRichMarks } from '@/lib/rich-tokens';
+import { isStaticCourse } from '@/lib/static-courses';
+import { EMPTY_SCORE, isGraded, keyIdeas } from '@/lib/studio-lesson';
 
 import ReviewQuiz from '../ReviewQuiz';
 import { sandboxMode } from './chrome';
@@ -57,7 +59,11 @@ export default function RecapScreen({
    * `play` hôm nay không có khoá nào xuất bản, nhưng để sót nó là dựng lại đúng
    * cái bẫy "có nút mà không màn nào mount" của `TryItButton`.
    */
-  const deOn = completed ? <ReviewQuiz courseId={courseId} /> : undefined;
+  //
+  // Khoá tĩnh không có đề chấm ở máy chủ, không có XP, và không gửi điểm đi đâu.
+  const local = isStaticCourse(courseId);
+  const quiz = completed ? <ReviewQuiz courseId={courseId} /> : undefined;
+  const deOn = local ? undefined : quiz;
 
   if (play) {
     const xpText =
@@ -130,11 +136,19 @@ export default function RecapScreen({
 
   return (
     <Recap
-      xpLabel={completed ? `+${xpReward} XP` : `${xpReward} XP`}
+      xpLabel={
+        local
+          ? completed
+            ? 'Đã hoàn thành'
+            : 'Chưa đánh dấu'
+          : completed
+            ? `+${xpReward} XP`
+            : `${xpReward} XP`
+      }
       title={completed ? 'Đã hoàn thành bài học!' : 'Tổng kết bài học'}
       description={
         (completed
-          ? 'Tiến độ và XP đã được lưu. Bạn có thể quay lại luyện tập bất cứ lúc nào.'
+          ? `${local ? 'Dấu hoàn thành nằm trên máy này.' : 'Tiến độ và XP đã được lưu.'} Bạn có thể quay lại luyện tập bất cứ lúc nào.`
           : tests.length
             ? 'Bài này chấm tự động — nộp bài ở màn sandbox để ghi nhận hoàn thành.'
             : sandboxMode(lesson) === 'procedure'
@@ -144,7 +158,7 @@ export default function RecapScreen({
         // nghiệm KHÔNG còn chặn đường đi tiếp, nhưng cũng không chọn lại được
         // để lấy lại điểm. Im lặng về chuyện đó thì con số XP thấp hơn trông
         // như lỗi.
-        (graded.length
+        (graded.length && !local
           ? ` Điểm bài tính theo số câu trắc nghiệm đúng ngay lần trả lời đầu (${firstTry}/${graded.length}) — trả lời sai vẫn đi tiếp được.`
           : '') +
         (draft.assisted
@@ -175,11 +189,9 @@ export default function RecapScreen({
       facts={[
         lesson.step_1?.context?.body,
         ...(lesson.step_1?.explain ?? []).map((row) => row.body),
-        // Bài đọc không có `explain`/`context`: lấy đoạn văn đầu của từng màn
-        // đọc làm ý chính, thay vì để ô "Ghi nhớ" trống trơn.
-        ...(lesson.step_1?.read ?? []).map(
-          (slice) => slice.find((b) => b.type === 'paragraph')?.text,
-        ),
+        // Bài đọc không có `explain`/`context`: lấy ý chính từ phần đọc, thay
+        // vì để ô "Ghi nhớ" trống trơn.
+        ...keyIdeas(lesson.step_1?.read ?? []).map(withoutRichMarks),
         lesson.step_1?.misconception?.body
           ? `Tránh ngộ nhận: ${lesson.step_1.misconception.body}`
           : undefined,

@@ -76,7 +76,7 @@ export default function HomePage() {
         trang chủ từng KHÔNG có một liên kết, một tiêu đề, một chữ nào (đo 23/11/2026 trên bản build: 0 / 0 / 0) —
         trình thu thập và trình đọc màn hình chỉ thấy <title>. Khối này ẩn theo kiểu "chỉ cho máy đọc" (không dùng
         display:none, kẻo giấu luôn khỏi trình đọc màn hình).
-        CHỈ MỘT liên kết, tới `/courses/python_advanced` — cùng đích với ô khoá học trong cảnh. Trang chủ cố ý "một cửa":
+        CHỈ MỘT liên kết, tới `/bookshelf/python` (28/11/2026: `/courses/python_advanced` nay là redirect 307 sang đó) — cùng đích với ô khoá học trong cảnh. Trang chủ cố ý "một cửa":
         e2e `mobile-responsive` đòi không có `/ide` ở đây (08/11/2026, lối vào IDE nằm ở header trang khoá học), nên nav
         này KHÔNG trỏ `/ide` hay `/lesson/…` dù bản gốc có. Phần crawler thực sự thiếu là CHỮ (tiêu đề, mô tả, tên học phần).
         Viết lại từ nhánh `test` cf16be7: bản gốc trỏ `#map`, `#courses`, `#leaderboard` (neo của trang chủ cũ, không
@@ -88,7 +88,7 @@ export default function HomePage() {
         <p>{course?.description ?? ''}</p>
         <ul>
           <li>
-            <Link tabIndex={-1} href={`/courses/${COURSE_ID}`}>
+            <Link tabIndex={-1} href="/bookshelf/python">
               Khoá học
             </Link>
           </li>

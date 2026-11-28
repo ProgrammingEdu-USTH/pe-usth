@@ -13,7 +13,7 @@ export interface MisconceptionProps {
 
 export default function Misconception({ myth, correction, exampleLabel, langTag, code }: MisconceptionProps) {
   return (
-    <div>
+    <div data-gh-pair="">
       <span className={shellStyles.eyebrow} style={{ background: 'var(--st-err-bg)', color: 'var(--st-err-text)' }}>
         ⚠ Hiểu lầm phổ biến
       </span>
@@ -42,7 +42,7 @@ export default function Misconception({ myth, correction, exampleLabel, langTag,
         <div style={{ fontSize: 14, color: 'var(--edu-t1)', lineHeight: 1.6 }}>{correction}</div>
       </div>
       {code && (
-        <>
+        <div data-gh-right="">
           {exampleLabel && (
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--edu-t3)', marginBottom: 6 }}>
               <span>● {exampleLabel}</span>
@@ -50,7 +50,7 @@ export default function Misconception({ myth, correction, exampleLabel, langTag,
             </div>
           )}
           <CodeBlock lines={code} showDots={false} />
-        </>
+        </div>
       )}
     </div>
   );

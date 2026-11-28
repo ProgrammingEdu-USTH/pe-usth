@@ -1,0 +1,1828 @@
+/* ══════════════════════════════════════════════════════════════════════
+   BOOKSHELF MODULE STYLES
+   Chỉ sử dụng CSS variables (--bs-*, --ds-*) — không viết mã màu hex cứng.
+   Nền dùng LofiRoomBackdrop (đồng bộ góc học mờ mờ) + vùng cuộn giữ scrollbar.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.pageWrap {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  color: var(--bs-ink);
+  font-family: var(--f-body, 'Be Vietnam Pro', system-ui, sans-serif);
+  box-sizing: border-box;
+}
+
+.shellForeground {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.hubStandaloneWrap {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  color: var(--bs-ink);
+  font-family: var(--f-body, 'Be Vietnam Pro', system-ui, sans-serif);
+  box-sizing: border-box;
+}
+
+.hubStandaloneMain {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  width: 100%;
+  padding: 78px max(16px, env(safe-area-inset-right, 0px)) 28px
+    max(16px, env(safe-area-inset-left, 0px));
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.topBar {
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 18px 24px 10px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  z-index: 5;
+}
+
+.topLeft {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topTitle {
+  justify-self: center;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--bs-ink);
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+
+.topHint {
+  justify-self: end;
+  font-size: 13px;
+  color: var(--bs-ink-soft);
+  text-align: right;
+}
+
+.mainArea {
+  flex: 1;
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 10px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   1. CHIẾC TỦ SÁCH CĂN GIỮA (DÙNG CHUNG TRONG GÓC HỌC & /bookshelf)
+   ────────────────────────────────────────────────────────────────────── */
+
+.cabinetCenterWrap {
+  width: 100%;
+  max-width: 840px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cabinetInRoom {
+  padding-top: 6px;
+}
+
+.cabinetHead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 0 4px;
+}
+
+.cabinetTitle {
+  margin: 0;
+  font-family: var(--f-display, 'Be Vietnam Pro', system-ui, sans-serif);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--bs-ink);
+}
+
+.cabinetSub {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--bs-ink-soft);
+}
+
+.shelfCabinet {
+  background: var(--bs-wood-slot);
+  border: 14px solid var(--bs-wood);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 8px 26px var(--bs-shadow),
+    0 24px 48px var(--bs-shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.shelfTier {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px 24px 0;
+  min-height: 222px;
+  border-bottom: 16px solid var(--bs-wood);
+  box-shadow: inset 0 -4px 0 var(--bs-wood-dark);
+}
+
+.shelfTier:last-child {
+  border-bottom: 0;
+  box-shadow: none;
+  padding-bottom: 14px;
+  min-height: 194px;
+}
+
+.shelfRowGrid {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 22px;
+}
+
+.spinesGroup {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.shelfRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.tierPreviewSlot {
+  flex: 1;
+  min-width: 240px;
+  min-height: 164px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 14px;
+}
+
+.tierHint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--bs-ink-muted);
+  text-align: right;
+}
+
+.hoverPreviewCard {
+  width: 100%;
+  max-width: 390px;
+  background: var(--bs-glass);
+  border: 1px solid var(--bs-primary);
+  border-radius: 14px;
+  padding: 12px 14px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 12px 26px var(--bs-shadow);
+  box-sizing: border-box;
+}
+
+.hoverPreviewHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.hoverPreviewIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--bs-primary-soft);
+  border: 1.5px solid var(--bs-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.hoverPreviewTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hoverPreviewTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--bs-ink);
+}
+
+.hoverPreviewStats {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--bs-ink-soft);
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.hoverPreviewFoot {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bs-accent);
+}
+
+.shelfPlankLabel {
+  margin-top: 8px;
+  padding: 5px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bs-wood-label);
+}
+
+.tierNote {
+  align-self: center;
+  font-size: 13px;
+  color: var(--bs-ink-muted);
+  margin-left: 8px;
+  margin-bottom: 20px;
+}
+
+.spineBtn {
+  position: relative;
+  width: 84px;
+  height: 196px;
+  border: 0;
+  border-radius: 7px 7px 3px 3px;
+  background: var(--bs-spine-bg);
+  color: var(--bs-spine-ink);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 6px 14px;
+  box-shadow:
+    inset 3px 0 0 rgba(255, 255, 255, 0.14),
+    inset -3px 0 0 rgba(0, 0, 0, 0.2),
+    0 8px 16px var(--bs-shadow);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), filter 0.2s ease;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.spineBtn::before,
+.spineBtn::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: var(--bs-spine-band);
+}
+
+.spineBtn::before {
+  top: 11px;
+}
+
+.spineBtn::after {
+  bottom: 11px;
+}
+
+.spineBtn:focus-visible, .spineBtnActive {
+  transform: translateY(-9px);
+  filter: brightness(1.09);
+  outline: 2px solid var(--bs-accent);
+  outline-offset: 2px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .spineBtn:hover {
+  transform: translateY(-9px);
+  filter: brightness(1.09);
+  outline: 2px solid var(--bs-accent);
+  outline-offset: 2px;
+}
+}
+
+.spineBtnPulled, .spineBtnPulled:focus-visible {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-20px) scale(0.92);
+  outline: 0;
+  transition: opacity 0.14s ease, transform 0.18s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .spineBtnPulled:hover {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-20px) scale(0.92);
+  outline: 0;
+  transition: opacity 0.14s ease, transform 0.18s ease;
+}
+}
+
+.spineBtnSettled {
+  animation: spineSettle 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cabinetHead,
+.shelfCabinet {
+  transition:
+    opacity 0.36s ease,
+    transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.36s ease;
+}
+
+.cabinetPulling .cabinetHead,
+.cabinetPulling .shelfCabinet {
+  opacity: 0.28;
+  transform: scale(0.975);
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+.cabinetReturning .cabinetHead,
+.cabinetReturning .shelfCabinet {
+  animation: cabinetWake 0.56s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  pointer-events: none;
+}
+
+/* ── Hiệu ứng rút sách 3D ra khỏi tủ ── */
+.pullOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1400px;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 48%, var(--bs-scrim-center), var(--bs-scrim-edge));
+  animation: pullBackdropIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.pullBook3d {
+  position: relative;
+  width: min(360px, calc(100vw - 48px));
+  height: 448px;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50%;
+  will-change: transform;
+  animation: pullBookOut 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.pullCoverFace {
+  position: absolute;
+  inset: 0;
+  transform: translateZ(32px);
+  backface-visibility: hidden;
+  border-radius: 10px 18px 18px 10px;
+  background: linear-gradient(160deg, var(--bs-cover), var(--bs-cover-deep));
+  color: var(--bs-ink);
+  padding: 24px 26px 28px 34px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow:
+    inset 18px 0 0 rgba(0, 0, 0, 0.16),
+    0 28px 58px var(--bs-shadow);
+  box-sizing: border-box;
+}
+
+.pullBackFace {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg) translateZ(32px);
+  backface-visibility: hidden;
+  border-radius: 18px 10px 10px 18px;
+  background: var(--bs-cover-deep);
+}
+
+.pullSpineFace {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 64px;
+  transform-origin: center center;
+  transform: translateX(-32px) rotateY(-90deg);
+  backface-visibility: hidden;
+  border-radius: 6px 0 0 6px;
+  background: var(--bs-spine-bg);
+  color: var(--bs-spine-ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26px 6px 22px;
+  box-shadow:
+    inset 3px 0 0 rgba(255, 255, 255, 0.16),
+    inset -4px 0 0 rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+}
+
+.pullSpineFace::before,
+.pullSpineFace::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 7px;
+  background: var(--bs-spine-band);
+}
+
+.pullSpineFace::before {
+  top: 16px;
+}
+
+.pullSpineFace::after {
+  bottom: 16px;
+}
+
+.pullPagesEdge {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  right: 0;
+  width: 58px;
+  transform-origin: center center;
+  transform: translateX(29px) rotateY(90deg);
+  backface-visibility: hidden;
+  border-radius: 0 4px 4px 0;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--bs-paper) 0px,
+    var(--bs-paper) 3px,
+    var(--bs-paper-edge) 3px,
+    var(--bs-paper-edge) 5px
+  );
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.18);
+}
+
+@keyframes pullBackdropIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes pullBookOut {
+  0% {
+    transform: translate3d(var(--pull-dx, 0px), var(--pull-dy, 0px), 0px) scale(0.5) rotateZ(0deg) rotateY(86deg);
+  }
+  24% {
+    transform: translate3d(var(--pull-dx, 0px), calc(var(--pull-dy, 0px) - 34px), 85px) scale(0.6) rotateZ(-4deg) rotateY(68deg);
+  }
+  70% {
+    transform: translate3d(0px, -10px, 95px) scale(0.95) rotateZ(1.5deg) rotateY(14deg);
+  }
+  100% {
+    transform: translate3d(0px, -14px, 0px) scale(1) rotateZ(0deg) rotateY(0deg);
+  }
+}
+
+.pullOverlayReturn {
+  animation: putBackdropOut 0.58s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.pullBook3dReturn {
+  animation: putBookBack 0.58s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes putBackdropOut {
+  0% {
+    opacity: 1;
+  }
+  68% {
+    opacity: 0.82;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes putBookBack {
+  0% {
+    transform: translate3d(0px, -14px, 0px) scale(1) rotateZ(0deg) rotateY(0deg);
+  }
+  30% {
+    transform: translate3d(0px, -10px, 95px) scale(0.95) rotateZ(1.5deg) rotateY(14deg);
+  }
+  76% {
+    transform: translate3d(var(--pull-dx, 0px), calc(var(--pull-dy, 0px) - 34px), 85px) scale(0.6) rotateZ(-4deg) rotateY(68deg);
+  }
+  100% {
+    transform: translate3d(var(--pull-dx, 0px), var(--pull-dy, 0px), 0px) scale(0.5) rotateZ(0deg) rotateY(86deg);
+  }
+}
+
+@keyframes spineSettle {
+  0% {
+    transform: translateY(-6px);
+    filter: brightness(1.08);
+  }
+  100% {
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes cabinetWake {
+  0% {
+    opacity: 0.32;
+    transform: scale(0.975);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.spineBadge {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--bs-pill-new-bg);
+  color: var(--bs-pill-new-ink);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.spineEmblem {
+  margin-top: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.spineLabel {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1.15;
+  text-transform: uppercase;
+  max-height: 124px;
+  overflow: visible;
+  white-space: nowrap;
+  margin-bottom: 6px;
+}
+
+.spineSoon {
+  position: relative;
+  width: 78px;
+  height: 174px;
+  border-radius: 7px;
+  background: var(--bs-soon-bg);
+  border: 1px dashed var(--bs-soon-border);
+  color: var(--bs-soon-ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 6px;
+  box-sizing: border-box;
+  opacity: 0.8;
+}
+
+.soonTag {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--bs-soon-border);
+  color: var(--bs-ink-soft);
+}
+
+.colorNoteRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--bs-ink-soft);
+  margin-top: 2px;
+}
+
+.dotPrimary,
+.dotAccent {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  flex: none;
+}
+
+.dotPrimary {
+  background: var(--bs-primary);
+}
+
+.dotAccent {
+  background: var(--bs-accent);
+}
+
+.ctaThemedBtn {
+  background: var(--bs-cta-bg) !important;
+  color: var(--bs-cta-ink) !important;
+  border-color: transparent !important;
+  font-weight: 700 !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   2. TRANG BÌA SÁCH + 4 ĐỒ VẬT (/bookshelf/[courseSlug] · bước cover)
+   ────────────────────────────────────────────────────────────────────── */
+
+.coverStage {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(300px, 380px) minmax(220px, 1fr);
+  gap: 28px;
+  align-items: center;
+  max-width: 1220px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.propsColumn {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 36px;
+}
+
+.propCard {
+  background: var(--bs-code-bg);
+  border: 1px solid var(--bs-code-border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 14px 30px var(--bs-shadow);
+  font-size: 12.5px;
+  color: var(--bs-ink);
+}
+
+.propTermHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  color: var(--bs-ink-muted);
+  font-size: 11px;
+}
+
+.termDots {
+  display: inline-flex;
+  gap: 5px;
+  margin-right: 6px;
+}
+
+.termDot1,
+.termDot2,
+.termDot3 {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.termDot1 {
+  background: var(--bs-code-pink);
+}
+.termDot2 {
+  background: var(--bs-code-amber);
+}
+.termDot3 {
+  background: var(--bs-code-green);
+}
+
+.propCode {
+  margin: 0;
+  font-family: var(--f-mono, ui-monospace, monospace);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--bs-ink);
+  white-space: pre-wrap;
+}
+
+.codeOutput {
+  color: var(--bs-code-green);
+}
+
+.codeAccent {
+  color: var(--bs-code-amber);
+}
+
+.libChipsTitle {
+  margin: 0 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bs-ink-muted);
+}
+
+.libChipsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.libChip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--bs-primary);
+  background: var(--bs-primary-soft);
+  color: var(--bs-ink);
+  font-family: var(--f-mono, ui-monospace, monospace);
+  font-size: 11.5px;
+}
+
+/* Sửa lỗi đè chữ bảng SQL: tách rõ footer bên dưới bảng */
+.sqlTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.sqlTable th {
+  text-align: left;
+  padding: 5px 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--bs-ink-soft);
+  font-weight: 600;
+}
+
+.sqlTable td {
+  padding: 5px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  color: var(--bs-ink);
+}
+
+.sqlRowMatch td {
+  background: var(--bs-primary-soft);
+  color: var(--bs-ink);
+}
+
+.sqlTableFoot {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--bs-surface-border);
+  font-size: 11.5px;
+  color: var(--bs-accent);
+  font-weight: 600;
+}
+
+.sqlStickyNote {
+  position: relative;
+  background: var(--bs-sticky-bg);
+  color: var(--bs-sticky-ink);
+  border-radius: 8px;
+  padding: 16px 16px 14px;
+  box-shadow: 0 14px 28px var(--bs-shadow);
+  transform: rotate(-1.5deg);
+}
+
+.sqlStickyNote::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 16px;
+  background: var(--bs-tape-bg);
+  border-radius: 2px;
+}
+
+.sqlStickyPre {
+  margin: 0 0 8px;
+  font-family: var(--f-mono, ui-monospace, monospace);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--bs-sticky-ink);
+  white-space: pre-wrap;
+}
+
+.sqlStickyCap {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.propShelfWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.propSvgHolder {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 92px;
+  padding-bottom: 2px;
+}
+
+.miniPlank {
+  width: 100%;
+  height: 10px;
+  background: var(--bs-wood);
+  border-radius: 4px;
+  box-shadow: 0 6px 14px var(--bs-shadow);
+  position: relative;
+}
+
+.miniPlank::before,
+.miniPlank::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  width: 10px;
+  height: 10px;
+  background: var(--bs-wood-dark);
+}
+
+.miniPlank::before {
+  left: 20px;
+}
+
+.miniPlank::after {
+  right: 20px;
+}
+
+.propShelfCaption {
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--bs-ink-soft);
+  text-align: center;
+}
+
+/* Bìa sách trung tâm */
+.coverCenterCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.hardCoverBtn {
+  position: relative;
+  width: 100%;
+  min-height: 448px;
+  border: 0;
+  border-radius: 10px 18px 18px 10px;
+  background: linear-gradient(160deg, var(--bs-cover), var(--bs-cover-deep));
+  color: var(--bs-ink);
+  padding: 24px 26px 28px 34px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  box-shadow:
+    inset 18px 0 0 rgba(0, 0, 0, 0.16),
+    8px 8px 0 var(--bs-paper-edge),
+    0 24px 52px var(--bs-shadow);
+  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+  box-sizing: border-box;
+}
+
+.hardCoverBtn:focus-visible {
+  transform: translateY(-4px);
+  outline: 2px solid var(--bs-accent);
+  outline-offset: 4px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .hardCoverBtn:hover {
+  transform: translateY(-4px);
+  outline: 2px solid var(--bs-accent);
+  outline-offset: 4px;
+}
+}
+
+.coverInnerFrame {
+  position: absolute;
+  inset: 14px 14px 14px 28px;
+  border: 1.5px solid var(--bs-cover-border);
+  border-radius: 6px 12px 12px 6px;
+  pointer-events: none;
+  opacity: 0.72;
+}
+
+.coverBindingTabs {
+  position: absolute;
+  left: 4px;
+  top: 28px;
+  bottom: 28px;
+  width: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.coverBindingTab {
+  height: 5px;
+  width: 14px;
+  border-radius: 2px;
+  background: var(--bs-accent);
+  opacity: 0.85;
+}
+
+.coverRibbon {
+  position: absolute;
+  top: -4px;
+  right: 34px;
+  width: 22px;
+  height: 56px;
+  background: var(--bs-ribbon);
+  border-radius: 2px 2px 0 0;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%);
+  box-shadow: 0 4px 10px var(--bs-shadow);
+}
+
+.coverEmblem {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: rgba(15, 14, 24, 0.28);
+  border: 2px solid var(--bs-cover-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  z-index: 1;
+}
+
+.coverEyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bs-ink-soft);
+  margin-bottom: 6px;
+  z-index: 1;
+}
+
+.coverTitle {
+  margin: 0 0 10px;
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--bs-ink);
+  z-index: 1;
+}
+
+.coverRule {
+  width: 48px;
+  height: 2px;
+  background: var(--bs-cover-border);
+  margin: 4px auto 14px;
+  z-index: 1;
+}
+
+.coverTagline {
+  margin: 0 0 20px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--bs-ink-soft);
+  max-width: 270px;
+  z-index: 1;
+}
+
+.coverStatsLine {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--bs-ink);
+  margin-bottom: 10px;
+  z-index: 1;
+}
+
+.coverProgWrap {
+  width: 82%;
+  z-index: 1;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   3. SÁCH MỞ 2 TRANG (SYLLABUS & LESSONS)
+   ────────────────────────────────────────────────────────────────────── */
+
+.spreadWrapper {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.bookSpread {
+  position: relative;
+  width: 100%;
+  min-height: 540px;
+  background: var(--bs-paper);
+  color: var(--bs-paper-ink);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 -6px 0 var(--bs-paper-edge),
+    0 28px 60px var(--bs-shadow);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+
+.bookSpread::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 34px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--bs-paper-spine) 48%,
+    var(--bs-paper-spine) 52%,
+    transparent
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.bookSpread::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 36px;
+  width: 24px;
+  height: 76px;
+  background: var(--bs-ribbon);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.pageHalf {
+  position: relative;
+  padding: 30px 36px 42px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.pageEyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bs-paper-mute);
+  margin-bottom: 10px;
+}
+
+.spreadHeadRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.spreadCourseIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--bs-cover);
+  border: 2px solid var(--bs-cover-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.spreadTitle {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--bs-paper-ink);
+  line-height: 1.15;
+}
+
+.spreadSubMeta {
+  font-size: 13px;
+  color: var(--bs-paper-mute);
+  margin-top: 2px;
+}
+
+.paperDivider {
+  height: 1px;
+  background: var(--bs-paper-border);
+  margin: 6px 0 14px;
+}
+
+.spreadTagline {
+  margin: 0 0 18px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--bs-paper-ink);
+}
+
+/* Trang học thêm ngoài mạch bài, dưới danh sách "Bạn sẽ học được". */
+.extraLinks {
+  list-style: none;
+  margin: -10px 0 18px;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.extraLink {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bs-primary-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.outcomesHeading {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bs-paper-mute);
+  margin-bottom: 10px;
+}
+
+.outcomesList {
+  list-style: none;
+  margin: 0 0 22px;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.outcomeItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--bs-paper-ink);
+}
+
+.outcomeTick {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--bs-primary-soft);
+  color: var(--bs-primary-text);
+  font-size: 11px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  margin-top: 1px;
+}
+
+.statTiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.statTile {
+  background: var(--bs-paper-card);
+  border-radius: 12px;
+  padding: 12px 10px;
+  text-align: center;
+}
+
+.statTileNum {
+  display: block;
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--bs-paper-ink);
+  line-height: 1.2;
+}
+
+.statTileLbl {
+  display: block;
+  font-size: 12px;
+  color: var(--bs-paper-mute);
+  margin-top: 2px;
+}
+
+.spreadCtaRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+.paperPrimaryBtn {
+  background: var(--bs-cta-alt-bg) !important;
+  color: var(--bs-cta-alt-ink) !important;
+  border-color: transparent !important;
+}
+
+.ctaMinuteHint {
+  font-size: 12.5px;
+  color: var(--bs-paper-mute);
+}
+
+.pageNumberLeft,
+.pageNumberRight {
+  position: absolute;
+  bottom: 14px;
+  font-size: 12px;
+  color: var(--bs-paper-mute);
+}
+
+.pageNumberLeft {
+  left: 34px;
+}
+
+.pageNumberRight {
+  right: 34px;
+}
+
+.rightHeading {
+  margin: 0 0 14px;
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--bs-paper-ink);
+}
+
+/* Danh sách chặng có thanh cuộn rõ ràng (tuân thủ goc-hoc-thanh-cuon) */
+.stagesScroll {
+  overflow-y: auto;
+  max-height: 420px;
+  padding-right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bs-scrollbar-thumb) var(--bs-scrollbar-track);
+}
+
+.stageCardBtn {
+  width: 100%;
+  text-align: left;
+  background: var(--bs-paper-card);
+  border: 1.5px solid var(--bs-paper-border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  color: var(--bs-paper-ink);
+  transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
+  box-sizing: border-box;
+}
+
+.stageCardBtn:focus-visible {
+  background: var(--bs-paper-card-hover);
+  border-color: var(--bs-primary);
+  outline: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .stageCardBtn:hover {
+  background: var(--bs-paper-card-hover);
+  border-color: var(--bs-primary);
+  outline: none;
+}
+}
+
+.stageCardActive {
+  border-color: var(--bs-primary);
+  background: var(--bs-paper-card-hover);
+}
+
+.stageCardHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.stageTitleGroup {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.stageNumCircle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--bs-cta-alt-bg);
+  color: var(--bs-cta-alt-ink);
+  font-size: 13.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.stageNumMuted {
+  background: var(--bs-paper-border);
+  color: var(--bs-paper-ink);
+}
+
+.stageCardName {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--bs-paper-ink);
+  line-height: 1.3;
+}
+
+.stageCardMeta {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: var(--bs-paper-mute);
+}
+
+.stageCardSummary {
+  margin: 8px 0 10px;
+  font-size: 12.5px;
+  color: var(--bs-paper-mute);
+  line-height: 1.4;
+}
+
+.stageStatusPill {
+  flex: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  background: var(--bs-paper-border);
+  color: var(--bs-paper-ink);
+  white-space: nowrap;
+}
+
+.stageStatusActive {
+  background: var(--bs-cta-alt-bg);
+  color: var(--bs-cta-alt-ink);
+}
+
+.stageStatusDone {
+  background: var(--bs-ok-soft);
+  color: var(--bs-ok);
+}
+
+/* Mục lục bài học (tái sử dụng layout Ảnh 7) */
+.lessonStageControls {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.lessonStageNav {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.lessonListScroll {
+  overflow-y: auto;
+  max-height: 410px;
+  padding-right: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bs-scrollbar-thumb) var(--bs-scrollbar-track);
+}
+
+.lessonRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1.5px solid transparent;
+  background: transparent;
+  color: var(--bs-paper-ink);
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.lessonRow:focus-visible {
+  background: var(--bs-paper-card);
+  border-color: var(--bs-paper-border);
+  outline: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .lessonRow:hover {
+  background: var(--bs-paper-card);
+  border-color: var(--bs-paper-border);
+  outline: none;
+}
+}
+
+.lessonRowCur {
+  background: var(--bs-primary-soft);
+  border-color: var(--bs-primary);
+}
+
+.lessonRowLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.lessonCircle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--bs-paper-card);
+  color: var(--bs-paper-ink);
+  font-size: 12.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.lessonCircleDone {
+  background: var(--bs-ok);
+  color: var(--bs-ok-ink);
+}
+
+.lessonCircleCur {
+  background: var(--bs-cta-alt-bg);
+  color: var(--bs-cta-alt-ink);
+}
+
+.lessonTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--bs-paper-ink);
+  line-height: 1.3;
+}
+
+.lessonMeta {
+  font-size: 12px;
+  color: var(--bs-paper-mute);
+  margin-top: 2px;
+}
+
+.lessonStateText {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--bs-paper-mute);
+  white-space: nowrap;
+  flex: none;
+}
+
+.lessonStateDone {
+  color: var(--bs-ok);
+}
+
+.lessonStateCur {
+  color: var(--bs-primary-text);
+}
+
+.bottomActionBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.bottomActionLink {
+  text-decoration: none;
+}
+
+.coverCtaWrap {
+  display: inline-flex;
+}
+
+/* Nhịp hạ bìa sách & 4 đồ vật hai bên xuất hiện đồng bộ sau cú rút 3D */
+.coverStageAnimated .hardCoverBtn {
+  animation: coverSettle 0.3s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.coverStageAnimated .coverCtaWrap {
+  animation: coverCtaIn 0.36s cubic-bezier(0.22, 1, 0.36, 1) 0.14s backwards;
+}
+
+.coverStageAnimated > .propsColumn:first-child > :nth-child(1) {
+  animation: propFromRight 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.08s backwards;
+}
+
+.coverStageAnimated > .propsColumn:first-child > :nth-child(2) {
+  animation: propFromRight 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.16s backwards;
+}
+
+.coverStageAnimated > .propsColumn:last-child > :nth-child(1) {
+  animation: propFromLeft 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.12s backwards;
+}
+
+.coverStageAnimated > .propsColumn:last-child > :nth-child(2) {
+  animation: propFromLeft 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.2s backwards;
+}
+
+@keyframes coverSettle {
+  0% {
+    opacity: 0.72;
+    transform: translateY(-10px) scale(0.975);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes coverCtaIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes propFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(24px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes propFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-24px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Nhịp 1 khi bấm "Về tủ sách": thu 4 đồ vật + nút để trả bìa về trung tâm */
+.coverStageExiting .hardCoverBtn {
+  animation: coverLiftReturn 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  pointer-events: none;
+}
+
+.coverStageExiting .coverCtaWrap {
+  animation: coverCtaOut 0.16s ease forwards;
+  pointer-events: none;
+}
+
+.coverStageExiting > .propsColumn:first-child > * {
+  animation: propBackRight 0.18s ease forwards;
+  pointer-events: none;
+}
+
+.coverStageExiting > .propsColumn:last-child > * {
+  animation: propBackLeft 0.18s ease forwards;
+  pointer-events: none;
+}
+
+@keyframes coverLiftReturn {
+  0% {
+    transform: none;
+  }
+  100% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes coverCtaOut {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes propBackRight {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(22px) scale(0.95);
+  }
+}
+
+@keyframes propBackLeft {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-22px) scale(0.95);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pullOverlay,
+  .pullOverlayReturn,
+  .pullBook3d,
+  .pullBook3dReturn,
+  .spineBtnSettled,
+  .cabinetReturning .cabinetHead,
+  .cabinetReturning .shelfCabinet,
+  .coverStageAnimated .hardCoverBtn,
+  .coverStageAnimated .coverCtaWrap,
+  .coverStageAnimated > .propsColumn:first-child > :nth-child(1),
+  .coverStageAnimated > .propsColumn:first-child > :nth-child(2),
+  .coverStageAnimated > .propsColumn:last-child > :nth-child(1),
+  .coverStageAnimated > .propsColumn:last-child > :nth-child(2),
+  .coverStageExiting .hardCoverBtn,
+  .coverStageExiting .coverCtaWrap,
+  .coverStageExiting > .propsColumn:first-child > *,
+  .coverStageExiting > .propsColumn:last-child > * {
+    animation: none;
+  }
+
+  .cabinetHead,
+  .shelfCabinet,
+  .spineBtn,
+  .spineBtnPulled,
+  .hardCoverBtn {
+    transition: none;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   4. RESPONSIVE
+   ────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  .coverStage {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    max-width: 560px;
+  }
+
+  .propsColumn {
+    flex-direction: row;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .propsColumn > * {
+    flex: 1 1 220px;
+  }
+
+  .bookSpread {
+    grid-template-columns: 1fr;
+  }
+
+  .bookSpread::before {
+    display: none;
+  }
+
+  .pageHalf {
+    padding: 24px 22px 36px;
+  }
+}
+
+@media (max-width: 720px) {
+  .shelfRowGrid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tierPreviewSlot {
+    min-width: 0;
+    min-height: 0;
+    justify-content: flex-start;
+    padding-bottom: 8px;
+  }
+
+  .tierHint {
+    text-align: left;
+  }
+
+  .hoverPreviewCard {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .topBar {
+    grid-template-columns: auto 1fr;
+    padding: 14px 16px 8px;
+  }
+
+  .topHint {
+    display: none;
+  }
+
+  .mainArea {
+    padding: 8px 14px 24px;
+  }
+
+  .statTiles {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+}
+
+/* Sàn đích bấm 44px. */
+.spineBtn,
+.hardCoverBtn,
+.stageCardBtn,
+.lessonRow {
+  min-height: 44px;
+}
+
+/* Trong cột cuộn, hàng không được co xuống dưới chiều cao chữ. */
+.lessonRow,
+.stageCardBtn {
+  flex-shrink: 0;
+}

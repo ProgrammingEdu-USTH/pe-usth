@@ -15,6 +15,12 @@ export interface ShellBProps {
   title: React.ReactNode;
   description?: React.ReactNode;
   centered?: boolean;
+  /**
+   * Cách thẻ trải trên hai trang sách ở màn rộng (goc-hoc-lesson.css):
+   * `split` — đề ở trang trái, chỗ làm ở trang phải; `flow` — chữ chảy từ trái
+   * sang phải. Vắng thì thẻ giữ một cột.
+   */
+  layout?: 'split' | 'flow';
   children?: React.ReactNode;
   hint?: { icon: React.ReactNode; label: string; text: React.ReactNode };
   /** true = hiện sẵn gợi ý; mặc định phải bấm nút "Gợi ý" mới mở. */
@@ -31,6 +37,7 @@ export default function ShellB({
   title,
   description,
   centered,
+  layout,
   children,
   hint,
   hintOpenByDefault = false,
@@ -41,7 +48,7 @@ export default function ShellB({
   const open = controlled ? hintOpen : internalOpen;
 
   return (
-    <section className={styles.card}>
+    <section className={styles.card} data-gh-card="" data-gh-layout={layout}>
       <div className={centered ? styles.headerCentered : styles.header}>
         <span className={styles.eyebrow}>
           {eyebrowIcon}
@@ -62,7 +69,11 @@ export default function ShellB({
         </p>
       )}
 
-      {children && <div className={styles.content}>{children}</div>}
+      {children && (
+        <div className={styles.content} data-gh-body="">
+          {children}
+        </div>
+      )}
 
       {hint && (
         <>

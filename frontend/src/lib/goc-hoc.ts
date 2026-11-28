@@ -152,25 +152,6 @@ export function buildContent(input: {
   };
 }
 
-/** Bài được gợi ý học tiếp; chưa biết tiến độ thì là bài đầu khoá. */
-export function nextLesson(
-  content: RoomContent,
-): { module: RoomModule; lesson: RoomLesson } | null {
-  for (const mod of content.modules) {
-    for (const lesson of mod.lessons) {
-      if (lesson.state === 'cur') return { module: mod, lesson };
-    }
-  }
-  const first = content.modules[0];
-  if (first && first.lessons[0]) return { module: first, lesson: first.lessons[0] };
-  return null;
-}
-
-/** Đường tới bài học THẬT. `?lesson=` dùng chỉ số 0-based — xem lesson/python_advanced. */
-export function lessonHref(content: RoomContent, no: number): string {
-  return `${content.course.lessonUrl}?lesson=${Math.max(0, no - 1)}`;
-}
-
 /**
  * Số của người học. Mỗi trường `null` nghĩa là CHƯA BIẾT và phải hiện ra là
  * trống — không được đổi thành 0, vì "0 XP" là một khẳng định còn "—" thì
@@ -201,11 +182,6 @@ export const EMPTY_USER: RoomUser = {
   badgeList: null,
   board: null,
 };
-
-/** Chữ hiện ra cho một con số có thể chưa biết. */
-export function num(value: number | null | undefined): string {
-  return typeof value === 'number' && Number.isFinite(value) ? value.toLocaleString('vi-VN') : '—';
-}
 
 /* ĐÃ XOÁ 08/11/2026: hàm lấy chữ cái cho ảnh đại diện. Không ai gọi nó, trong
    khi `engine.js` viết thẳng CÙNG MỘT luật — `(x.trim()[0] || '?').toUpperCase()`

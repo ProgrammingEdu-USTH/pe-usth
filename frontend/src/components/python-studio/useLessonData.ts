@@ -24,6 +24,16 @@ import {
   type TrangThaiDongY,
 } from '@/lib/log-consent';
 import { buildScreens, type StudioLesson as Lesson } from '@/lib/studio-lesson';
+import docCourses from '@/lib/doc-courses.json';
+import {
+  isStaticCourse,
+  lessonBundleUrl,
+  LOCAL_LEARNER,
+  markDone,
+  readDone,
+  STATIC_COURSES,
+} from '@/lib/static-courses';
+import { chuLoi } from '@/lib/loi-mang';
 
 /**
  * Mã của bài chạy ở ĐÂU. Đi vào payload của mọi sự kiện vì mọi phép gộp thời
@@ -157,6 +167,31 @@ export function useLessonData({
     setEmpty(false);
     const duongContent = `/api/courses/${encodeURIComponent(courseId)}/lessons/${lessonNo}/content`;
     try {
+      // KHOÁ TĨNH: lấy nội dung từ tệp của chính trang này rồi dừng. Không một
+      // lượt gọi API nào, và `datBoiCanhBai` không được gọi nên lớp ghi sự kiện
+      // đứng im — một người đọc bài không sinh ra tài khoản khách.
+      if (isStaticCourse(courseId)) {
+        const response = await fetch(lessonBundleUrl(courseId, lessonNo));
+        setEnrolled(true);
+        setTotalLessons(docCourses[courseId].lessons);
+        if (response.status === 404) {
+          setMeta({ title: `Bài ${lessonNo}`, xpReward: 0 });
+          setEmpty(true);
+          return;
+        }
+        if (!response.ok) throw new Error(`Không tải được bài học (${response.status}).`);
+        const bundle = (await response.json()) as { title: string; contentJson: Lesson };
+        setMeta({ title: bundle.title, xpReward: 0 });
+        setCompleted(readDone(courseId).includes(lessonNo));
+        const list = buildScreens(bundle.contentJson);
+        if (!list.length) {
+          setEmpty(true);
+          return;
+        }
+        setLesson(bundle.contentJson);
+        onDraftReady?.(bundle.contentJson, LOCAL_LEARNER, list.length);
+        return;
+      }
       // BA lượt gọi SONG SONG, không tuần tự.
       //
       // ĐO TRÊN PRODUCTION (25/10/2026, Resource Timing, API đã nóng): ba lượt
@@ -271,7 +306,7 @@ export function useLessonData({
       });
       onDraftReady?.(content, Number(profile.id), list.length);
     } catch (error) {
-      setLoadError(error instanceof Error ? error.message : 'Không kết nối được backend.');
+      setLoadError(chuLoi(error));
     } finally {
       setLoading(false);
     }
@@ -283,10 +318,11 @@ export function useLessonData({
   }, [courseId, lessonNo]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    const studio = isStaticCourse(courseId) ? STATIC_COURSES[courseId].title : 'Python Studio';
     document.title = meta?.title
-      ? `${meta.title} · Python Studio | Programming Edu`
-      : 'Python Studio | Programming Edu';
-  }, [meta?.title]);
+      ? `${meta.title} · ${studio} | Programming Edu`
+      : `${studio} | Programming Edu`;
+  }, [courseId, meta?.title]);
 
   /**
    * Người học bấm Đồng ý / Không. Trạng thái mới lấy từ MÁY CHỦ TRẢ VỀ, không
@@ -309,7 +345,7 @@ export function useLessonData({
       });
       await load();
     } catch (error) {
-      setMessage((error as Error).message);
+      setMessage(chuLoi(error));
     } finally {
       setBusy(false);
     }
@@ -317,6 +353,15 @@ export function useLessonData({
 
   const complete = useCallback(
     async (quizScore: number) => {
+      if (isStaticCourse(courseId)) {
+        setCompleted(true);
+        setMessage(
+          markDone(courseId, lessonNo)
+            ? 'Đã đánh dấu hoàn thành trên máy này.'
+            : 'Trình duyệt này không cho lưu, nên dấu hoàn thành sẽ mất khi tải lại trang.',
+        );
+        return;
+      }
       setBusy(true);
       try {
         const body = await json(`/api/lessons/${lessonNo}/complete`, {
@@ -356,7 +401,7 @@ export function useLessonData({
             : 'Đã lưu hoàn thành bài học.',
         );
       } catch (error) {
-        setMessage(`Chưa lưu được tiến độ: ${(error as Error).message}`);
+        setMessage(`Chưa lưu được tiến độ: ${chuLoi(error)}`);
       } finally {
         setBusy(false);
       }

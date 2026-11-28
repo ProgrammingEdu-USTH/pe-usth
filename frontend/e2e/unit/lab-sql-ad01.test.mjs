@@ -1,0 +1,245 @@
+// Chấm bài SQL của bài thử AD01 (public/lab-sql). Chạy sql.js THẬT trong node, không giả.
+//
+// Test này khoá hai tính chất mà một cổng chấm SQL dễ mất:
+//  1. ĐÚNG KHÔNG PHỤ THUỘC CÁCH VIẾT: CTE, truy vấn con, bí danh khác đều đạt.
+//  2. SAI BỊ BẮT, kể cả cách sai chỉ "đúng tình cờ" trên dữ liệu mẫu (SUM(DISTINCT)) — đó là lý do
+//     đề có bộ dữ liệu thử thêm. Gỡ bộ đó ra thì ca SUM(DISTINCT) phải đỏ (xem ablate trong mô tả commit).
+import { test, before } from 'node:test';
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const require = createRequire(import.meta.url);
+const DIR = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'public', 'lab-sql');
+const initSqlJs = require(join(DIR, 'vendor', 'sql-wasm.js'));
+const Lab = require(join(DIR, 'grade.js'));
+const AD01 = require(join(DIR, 'ad01-data.js'));
+
+let SQL;
+before(async () => {
+  SQL = await initSqlJs({ locateFile: (f) => join(DIR, 'vendor', f) });
+});
+
+const cham = (sql) => Lab.chamBai(SQL, AD01.de, sql);
+
+test('đáp án mẫu đạt trên cả hai bộ dữ liệu', () => {
+  const r = cham(AD01.DAP_AN);
+  assert.equal(r.dat, true, JSON.stringify(r.theoBo.map((x) => x.lech)));
+  assert.equal(r.theoBo.length, 2);
+});
+
+test('câu SAI của đề (JOIN hai bảng con) trượt, và phản hồi chỉ ra hàng bị nhân', () => {
+  const r = cham(AD01.SAI);
+  assert.equal(r.dat, false);
+  assert.match(r.phanHoi, /SAI|hàng|giá trị/);
+  // Trên dữ liệu của quán nó ra 200 ở đơn 101: số hàng đúng (3) nhưng giá trị sai.
+  const chinh = r.theoBo.find((x) => !x.an);
+  assert.equal(chinh.dat, false);
+  assert.deepEqual(chinh.nhan.values[0], [101, 200, 200]);
+});
+
+test('một cách viết KHÁC (truy vấn con tương quan, bí danh khác) vẫn đạt', () => {
+  const r = cham(`SELECT p.id AS don,
+  (SELECT SUM(amount) FROM purchase_lines WHERE order_id = p.id) AS tien_hang,
+  (SELECT SUM(amount) FROM payments WHERE order_id = p.id) AS da_tra
+FROM purchases p WHERE p.status = 'paid'`);
+  assert.equal(r.dat, true, r.phanHoi);
+});
+
+test('SUM(DISTINCT) đúng ở dữ liệu của quán nhưng SAI ở dữ liệu thử thêm', () => {
+  const r = cham(`SELECT p.id, SUM(DISTINCT l.amount) AS line_total, SUM(DISTINCT m.amount) AS paid_total
+FROM purchases p LEFT JOIN purchase_lines l ON l.order_id = p.id LEFT JOIN payments m ON m.order_id = p.id
+WHERE p.status = 'paid' GROUP BY p.id`);
+  const chinh = r.theoBo.find((x) => !x.an);
+  const an = r.theoBo.find((x) => x.an);
+  assert.equal(chinh.dat, true, 'phải tình cờ đúng ở dữ liệu của quán — nếu không thì ca này không chứng minh được gì');
+  assert.equal(an.dat, false);
+  assert.equal(r.dat, false);
+  assert.match(r.phanHoi, /thử thêm/);
+});
+
+test('INNER JOIN làm mất đơn 104 (chưa có dòng hàng) — trượt vì thiếu hàng', () => {
+  const r = cham(`SELECT p.id, SUM(l.amount), SUM(m.amount) FROM purchases p
+JOIN (SELECT order_id, SUM(amount) amount FROM purchase_lines GROUP BY order_id) l ON l.order_id = p.id
+JOIN (SELECT order_id, SUM(amount) amount FROM payments GROUP BY order_id) m ON m.order_id = p.id
+WHERE p.status = 'paid' GROUP BY p.id`);
+  assert.equal(r.dat, false);
+  assert.match(r.phanHoi, /hàng/);
+});
+
+test('đổi NULL thành 0 (COALESCE) bị bắt: "chưa có thanh toán" khác "đã trả 0"', () => {
+  const r = cham(DAP_AN_COALESCE());
+  assert.equal(r.dat, false);
+});
+
+test('sai số cột bị báo bằng số cột, không bằng tên cột', () => {
+  const r = cham(`SELECT p.id FROM purchases p WHERE p.status = 'paid'`);
+  assert.equal(r.dat, false);
+  assert.match(r.phanHoi, /3 cột/);
+});
+
+test('lỗi cú pháp trả phản hồi nói là lỗi SQL, không ném ra ngoài', () => {
+  const r = cham('SELEC 1');
+  assert.equal(r.dat, false);
+  assert.match(r.phanHoi, /SQL báo lỗi/);
+});
+
+test('câu phá dữ liệu (DROP/DELETE) không làm hỏng lần chấm sau', () => {
+  const xau = cham('DROP TABLE purchases; SELECT 1,2,3');
+  assert.equal(xau.dat, false);
+  const tot = cham(AD01.DAP_AN);
+  assert.equal(tot.dat, true, 'mỗi lần chấm phải dựng CSDL mới');
+});
+
+test('thứ tự hàng không bị chấm (đề không đòi ORDER BY)', () => {
+  const r = cham(AD01.DAP_AN.replace('ORDER BY p.id', 'ORDER BY p.id DESC'));
+  assert.equal(r.dat, true);
+});
+
+function DAP_AN_COALESCE() {
+  return AD01.DAP_AN.replace('l.total AS line_total', 'COALESCE(l.total,0) AS line_total').replace('m.total AS paid_total', 'COALESCE(m.total,0) AS paid_total');
+}
+
+// ---------------------------------------------------------------------------
+// Trang dùng lại CSS và bộ vẽ của Quán Mây (không sao chép). Phụ thuộc đó phải bị canh:
+// đổi tên một lớp hay bỏ một hàm ở Quán Mây sẽ làm trang này hỏng ÂM THẦM (mất kiểu, hoặc ném lỗi khi vẽ cảnh).
+// ---------------------------------------------------------------------------
+import { readFileSync } from 'node:fs';
+const doc = (...p) => readFileSync(join(DIR, '..', ...p), 'utf8');
+
+test('mọi lớp CSS của Quán Mây mà trang dùng vẫn còn trong quan-may.css', () => {
+  const css = doc('quan-may', 'quan-may.css');
+  const js = doc('lab-sql', 'ad01.js');
+  const dung = new Set();
+  for (const m of js.matchAll(/class:\s*'([^']+)'/g)) m[1].split(/\s+/).forEach((c) => dung.add(c));
+  for (const m of js.matchAll(/btn\([^)]*?,\s*'([^']*)'/g)) m[1].split(/\s+/).filter(Boolean).forEach((c) => dung.add(c));
+  // Lớp do chính lab-sql.css định nghĩa thì không cần có ở Quán Mây.
+  const rieng = doc('lab-sql', 'lab-sql.css');
+  // 'who-linh' và 'ketqua' là móc chọn phần tử (test/CSS có thể bám vào), không có kiểu riêng.
+  const MOC = new Set(['btn', 'who-linh', 'ketqua']);
+  const coKieu = (c, nguon) => nguon.includes('.' + c) && new RegExp('\\.' + c.replace(/-/g, '\\-') + '(?![\\w-])').test(nguon);
+  const thieu = [...dung].filter((c) => !MOC.has(c) && !coKieu(c, css) && !coKieu(c, rieng));
+  assert.deepEqual(thieu, [], 'lớp không còn ở quan-may.css hay lab-sql.css: ' + thieu.join(', '));
+  assert.ok(dung.size >= 20, 'phép quét lớp phải thấy nhiều lớp (đang thấy ' + dung.size + '), nếu không nó đang mù');
+});
+
+test('mọi hàm vẽ của QuanMayIso mà trang gọi vẫn được iso.js xuất ra', () => {
+  const iso = doc('quan-may', 'iso.js');
+  const js = doc('lab-sql', 'ad01.js');
+  const xuat = /window\.QuanMayIso = \{([^}]*)\}/.exec(iso)[1].split(',').map((x) => x.trim());
+  const kit = /\n  return \{ u, P, ([^}]*)\};/.exec(iso)[1].split(',').map((x) => x.trim());
+  const parts = [...(/const parts = \{([\s\S]*?)\n  \};\n  return \{ u, P/.exec(iso)[1].matchAll(/^    (\w+)[:(]/gm))].map((m) => m[1]);
+  const goi = (re, nguon = js) => [...new Set([...nguon.matchAll(re)].map((m) => m[1]))];
+  const iso1 = goi(/ISO\.(\w+)/g);
+  const k = goi(/\bk\.(\w+)\(/g).filter((x) => x !== 'parts' && !(x in String.prototype)); // `k` ở chỗ khác là một chuỗi (k.startsWith)
+  // `p` còn là tên của một mục trong hàng đợi worker (p.ok/p.no) — chỉ quét phần SAU dòng `const p = k.parts`.
+  const p = goi(/\bp\.(\w+)\(/g, js.slice(js.indexOf('const p = k.parts')));
+  assert.ok(iso1.length >= 3 && k.length >= 5 && p.length >= 2, `phép quét phải thấy lời gọi: ISO ${iso1}, k ${k}, p ${p}`);
+  assert.deepEqual(iso1.filter((x) => !xuat.includes(x)), [], 'QuanMayIso không xuất');
+  assert.deepEqual(k.filter((x) => !kit.includes(x)), [], 'kit không có');
+  assert.deepEqual(p.filter((x) => !parts.includes(x)), [], 'parts không có');
+});
+
+// ---------------------------------------------------------------------------
+// Ba núm vặn của bước "Thử": câu SQL SINH RA phải đúng với điều màn hình hứa. Chạy sql.js thật cho cả tám tổ hợp.
+// Nếu bộ sinh sai, người học vặn núm và thấy kết quả không khớp lời Linh nói, mà không có lỗi nào báo.
+// ---------------------------------------------------------------------------
+const chayQuan = (sql) => {
+  const db = new SQL.Database();
+  try { db.exec(AD01.QUAN); const r = db.exec(sql); return r.length ? r[r.length - 1].values : []; } finally { db.close(); }
+};
+const tohop = (preL, preP, left) => ({ preL, preP, left });
+
+test('núm vặn: số hàng của đơn 101 sau khi nối đúng 4 → 2 → 2 → 1 (lời hứa của nét nối trên quầy)', () => {
+  const n = (k) => chayQuan(AD01.xayCau(k).soi).find((r) => r[0] === 101)[1];
+  assert.equal(n(tohop(false, false, true)), 4);
+  assert.equal(n(tohop(true, false, true)), 2);
+  assert.equal(n(tohop(false, true, true)), 2);
+  assert.equal(n(tohop(true, true, true)), 1);
+});
+
+test('núm vặn: chỉ gom MỘT bên thì bên kia vẫn bị nhân; gom cả hai thì khớp bảng cần ra', () => {
+  const kq = (k) => Object.fromEntries(chayQuan(AD01.xayCau(k).sql).map((r) => [r[0], [r[1], r[2]]]));
+  assert.deepEqual(kq(tohop(false, false, true))[101], [200, 200]);
+  assert.deepEqual(kq(tohop(true, false, true))[101], [200, 100]);
+  assert.deepEqual(kq(tohop(false, true, true))[101], [100, 200]);
+  assert.deepEqual(kq(tohop(true, true, true)), AD01.CAN_RA);
+});
+
+test('núm vặn: tắt LEFT JOIN làm mất đơn 104, nên nhiệm vụ "cả bảng khớp" không đạt bằng đường tắt', () => {
+  const ids = chayQuan(AD01.xayCau(tohop(true, true, false)).sql).map((r) => r[0]);
+  assert.deepEqual(ids, [101, 102]);
+});
+
+test('núm vặn: câu sinh ra ở trạng thái đúng cũng PASS bộ chấm (cả dữ liệu ẩn), còn trạng thái ban đầu thì trượt', () => {
+  assert.equal(cham(AD01.xayCau(tohop(true, true, true)).sql).dat, true);
+  assert.equal(cham(AD01.xayCau(tohop(false, false, true)).sql).dat, false);
+});
+
+test('bước Đoán gõ số, KHÔNG có phương án chọn (phản hồi: chọn câu dài nhất là ra đáp án)', () => {
+  assert.equal(AD01.doan.luaChon, undefined);
+  assert.equal(AD01.doan.soHang, 4);
+  assert.equal(AD01.doan.tong, 200);
+});
+
+// ---------------------------------------------------------------------------
+// "Tòa nhà truy vấn" và sổ báo cáo của chủ quán: hai thứ này nói bằng SỐ, nên số phải đến từ SQL chứ không phải tính tay.
+// ---------------------------------------------------------------------------
+test('tòa nhà: số hàng qua ba tầng là 3·4·6 khi chưa gom, 3·3·4 khi gom dòng hàng, 3·3·3 khi gom cả hai', () => {
+  const tang = (k) => AD01.xayCau(k).tang.map((q) => chayQuan(q)[0][0]);
+  assert.deepEqual(tang(tohop(false, false, true)), [3, 4, 6]);
+  assert.deepEqual(tang(tohop(true, false, true)), [3, 3, 4]);
+  assert.deepEqual(tang(tohop(true, true, true)), [3, 3, 3]);
+  // JOIN thường làm tầng sau CO LẠI: đơn 104 rơi khỏi tòa nhà (đúng điều lời Linh nói về LEFT JOIN).
+  assert.deepEqual(tang(tohop(true, true, false)), [3, 2, 2]);
+});
+
+test('sổ báo cáo: "két thật" 150 đúng bằng tổng tiền khách trả của các đơn đã thanh toán trong dữ liệu của quán', () => {
+  const t = chayQuan("SELECT SUM(m.amount) FROM payments m JOIN purchases p ON p.id = m.order_id WHERE p.status = 'paid'")[0][0];
+  assert.equal(AD01.KET_THAT, t);
+  // và câu SAI khiến báo cáo nói 250 thay vì 150: đó là điều chủ quán bị lừa.
+  const hang = chayQuan(AD01.SAI);
+  assert.equal(hang.reduce((a, r) => a + (r[1] || 0), 0), 250);
+});
+
+test('ngày mai: bộ dữ liệu ẩn có đủ hai ca mà người học sẽ thấy (đơn 201 hai món cùng giá, đơn 202 chưa có thanh toán)', () => {
+  const db = new SQL.Database();
+  try {
+    db.exec(AD01.de.duLieu[1].sql);
+    const r = db.exec(AD01.DAP_AN)[0].values;
+    assert.deepEqual(r.find((x) => x[0] === 201), [201, 80, 80]);
+    assert.deepEqual(r.find((x) => x[0] === 202), [202, 25, null]);
+  } finally { db.close(); }
+});
+
+// ---------------------------------------------------------------------------
+// Ngữ cảnh người học NHÌN THẤY (ba bảng ở màn "Vụ việc") và thông báo lỗi tiếng Việt.
+// ---------------------------------------------------------------------------
+test('ba bảng hiện cho người học (HIEN_THI) khớp từng ô với dữ liệu mà SQL thật chạy trên đó', () => {
+  const db = new SQL.Database();
+  try {
+    db.exec(AD01.QUAN);
+    for (const [ten, b] of Object.entries(AD01.HIEN_THI)) {
+      const r = db.exec(`SELECT ${b.cot.join(', ')} FROM ${ten} ORDER BY id`)[0];
+      assert.deepEqual(r.columns, b.cot, ten);
+      assert.deepEqual(r.values, b.hang, `${ten}: bảng hiện ra khác bảng thật`);
+    }
+  } finally { db.close(); }
+});
+
+test('màn "Vụ việc": đơn 101 có đúng 5 dòng (1 đơn + 2 dòng hàng + 2 thanh toán) để người học bấm tìm', () => {
+  const dem = Object.entries(AD01.HIEN_THI).reduce((a, [ten, b]) => a + b.hang.filter((r) => (ten === 'purchases' ? r[0] : r[1]) === 101).length, 0);
+  assert.equal(dem, 5);
+});
+
+test('lỗi SQL được dịch ra tiếng Việt có chỉ dẫn, với lỗi thật do sql.js ném ra (không phải chuỗi tự bịa)', () => {
+  const loi = (sql) => { const db = new SQL.Database(); try { db.exec(AD01.QUAN); db.exec(sql); } catch (e) { return e.message; } finally { db.close(); } };
+  assert.match(AD01.viLoi(loi('SELECT * FROM nope')), /Không có bảng «nope»/);
+  assert.match(AD01.viLoi(loi('SELECT zzz FROM purchases')), /Không có cột «zzz»/);
+  assert.match(AD01.viLoi(loi('SELECT id FROM purchases p JOIN payments m ON p.id = m.order_id')), /nhiều bảng/);
+  assert.match(AD01.viLoi(loi('SELEC 1')), /kiểm tra dấu phẩy/);
+  // phản hồi của bộ chấm bọc lỗi trong câu có khuôn cố định: dịch phần lỗi, giữ phần còn lại.
+  assert.match(AD01.viPhanHoi(cham('SELECT * FROM nope').phanHoi), /^SQL báo lỗi: Không có bảng «nope»/);
+  assert.equal(AD01.viPhanHoi('Số hàng sai.'), 'Số hàng sai.');
+});

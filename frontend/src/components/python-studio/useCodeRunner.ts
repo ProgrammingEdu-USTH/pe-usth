@@ -120,7 +120,10 @@ export function useLessonRun({
   setMessage,
   setCelebrate,
   saveCompletion,
+  waitForContent = false,
 }: {
+  /** Khoá tĩnh: đợi có nội dung rồi mới quyết nạp runtime — xem shouldPrewarm(). */
+  waitForContent?: boolean;
   lesson: Lesson | null;
   screens: LessonScreen[];
   draft: LessonDraft;
@@ -153,7 +156,7 @@ export function useLessonRun({
   // Nạp sẵn runtime NGAY khi mở màn, không chờ API trả nội dung — xem
   // shouldPrewarm() để biết vì sao chờ là mất không 1,0–1,5 s mỗi lần mở bài.
   const runner = useCodeRunner({
-    enabled: shouldPrewarm(lesson),
+    enabled: shouldPrewarm(lesson, waitForContent),
     packages: lesson?.step_4?.packages,
   });
   const { running, runtimeStatus } = runner;

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 
 import { ALL_PRECEDENCES } from '@/components/PageStyles';
-import { withAssetVersion } from '@/lib/assetVersion';
 import { SCRIPT_TRUOC_PAINT } from '@/lib/giao-dien';
 
 // Root layout TỐI THIỂU — không import CSS global nào ở đây.
@@ -83,6 +82,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             Cả hai chỉ là gợi ý tải trước, KHÔNG áp style nào, nên không đổi
             giao diện. Sửa tận gốc (bỏ @import, đưa <link> font vào thẳng đây)
             phải sửa edu-theme.css — ngoài phạm vi lần này. */}
+        {/* Mở sẵn kết nối tới API: lượt gọi đầu (có cookie) đỡ một vòng DNS + TLS. */}
+        <link rel="preconnect" href={API_ORIGIN} crossOrigin="use-credentials" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         {/* no-page-custom-font là luật của Pages Router ("phải đặt trong
@@ -180,9 +181,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             lệch hydrate. */}
         <script dangerouslySetInnerHTML={{ __html: SCRIPT_TRUOC_PAINT }} />
         {children}
-        {/* Hiệu ứng chuột xanh–đỏ (đèn bám con trỏ, nghiêng 3D ô khóa học). Chỉ đổi biến CSS,
-            không chèn DOM nên không gây lỗi hydration; tự tắt trên cảm ứng/giảm chuyển động. */}
-        <script src={withAssetVersion('/static/js/edu-fx.js')} defer />
       </body>
     </html>
   );

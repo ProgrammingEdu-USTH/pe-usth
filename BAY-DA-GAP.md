@@ -6968,6 +6968,19 @@ Ghi lại để không ai vấp lại. Mỗi dòng là một lỗi có thật đ
   phải đọc tiếp NGƯỜI GỌI làm gì với kết quả. **GIỚI HẠN:** chưa có số đo tần suất `/auth/refresh` lỗi trên production; refresh lỗi
   liên tục bằng mã khác 401 (ví dụ 400) thì người học nhận 401 cho tới khi cookie mốc hết hạn — backend hiện chỉ ném 401 cho phiên chết.
 
+- **ĐO TỐC ĐỘ ĐIỆN THOẠI: một giả thuyết bị bác, một con số lạc, và thủ phạm thật ở trang chủ lẫn /ide (28/11/2026).**
+  Cách đo: Playwright trên production, `PerformanceObserver` (không vết), GPU d3d11, 390×844, CPU 4×, 150 ms / 1,6 Mbps, API GIẢ
+  ở trình duyệt (không ghi production — nên KHÔNG đo độ trễ backend), trung vị 3 lượt.
+  · **Bác:** "Pyodide nạp trước làm bài học chậm" — CHẶN `/pyodide/` thì LCP 4 492 ms so với 4 576 ms. Thời gian nằm ở tải + chạy
+    ~230 KB JS (yêu cầu nội dung bắt đầu ở giây 3,6). Muốn nhanh hơn phải đổi kiến trúc (nội dung bài dạng tệp tĩnh).
+  · **Lạc:** `/bookshelf` FCP 5 396 ms ở lượt đầu; 5 lượt sau trung vị 1 520 ms. Đừng sửa theo một lượt.
+  · **Trang chủ:** 93/127 hoạt ảnh đang chạy nằm NGOÀI màn 390px. Tạm dừng bằng `IntersectionObserver` (`.khuat`, camera lia
+    tới thì tự chạy lại): đứng yên 5 s, luồng chính 4 272 → 3 020 ms, tính style 1 784 → 721 ms; máy tính không đổi (0 cái dừng).
+  · **/ide:** Monaco ~1,2 MB nối tiếp (tệp 623 KB ~6 s, CSS tới giây 11,4) → hiện sau ~14,6 s. Giữ Monaco (Xem từng bước cần nó
+    để tô dòng), hiện đoạn mã chỉ đọc trong lúc tải: LCP 14 912 → 1 880 ms, nút Chạy bấm được ngay; Monaco lên vẫn như cũ.
+  · **Bộ đo từng treo 55 phút** ở một lượt /ide máy tính: mỗi lượt đo phải có hạn giờ riêng và ghi kết quả dần.
+  **GIỚI HẠN:** máy giả lập, chưa đo trên điện thoại thật; chưa đo tương tác (bấm mở màn con).
+
 ## Phần 2 · Lịch sử số ca test frontend (dòng "Mốc trước là…" của bảng mốc nền)
 
 Mỗi dòng ghi một lần số ca đổi và VÌ SAO. Dời từ mục "Mốc nền" của AGENTS.md; con số HIỆN TẠI và khối phân rã theo tệp vẫn ở AGENTS.md.

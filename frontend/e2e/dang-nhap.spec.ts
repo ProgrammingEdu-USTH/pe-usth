@@ -64,6 +64,13 @@ test('mở /login và /register KHÔNG gọi API; ô nhập đủ nhãn và đ�
   }
   await expect(page.getByLabel('Email hoặc số điện thoại')).toBeVisible();
   await expect(page.getByLabel('Mật khẩu', { exact: true })).toBeVisible();
+  for (const path of ['/login', '/register']) {
+    await page.goto(path, { waitUntil: 'networkidle' });
+    for (const a of await page.locator('main a').all()) {
+      const cao = await a.evaluate((el) => el.getBoundingClientRect().height);
+      expect(cao, `liên kết "${(await a.innerText()).trim()}" ở ${path} thấp hơn 44px`).toBeGreaterThanOrEqual(44);
+    }
+  }
   expect(goi, 'trang công khai mở ra mà đã gọi API').toEqual([]);
 });
 

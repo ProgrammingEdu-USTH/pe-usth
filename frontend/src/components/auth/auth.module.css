@@ -172,6 +172,13 @@
   font-weight: 600;
 }
 
+/* Liên kết dưới nút chính là đích bấm trên điện thoại: đo 18px khi để trần, sàn của repo là 44px. */
+.chuyen a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
 .oNhap:focus-visible,
 .nutHien:focus-visible,
 .nutChinh:focus-visible,

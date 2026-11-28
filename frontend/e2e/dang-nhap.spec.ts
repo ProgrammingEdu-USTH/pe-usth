@@ -3,7 +3,7 @@
 // Canh những thứ mà unit test (lõi `auth-session.ts`) không thấy được:
 //  · trang CÔNG KHAI mở ra KHÔNG gọi một lời nào tới API (bot quét web rơi vào đây; `apiFetch` gặp 401 là tự tạo khách);
 //  · luồng thật: điền form → đúng request → lưu phiên → về trang chủ;
-//  · khách bấm Đăng ký thì request đi `/auth/upgrade` KÈM Bearer của khách (giữ tiến độ), không phải `/auth/register`;
+//  · khách bấm Đăng ký thì request đi `/api/auth/upgrade` KÈM Bearer của khách (giữ tiến độ), không phải `/auth/register`;
 //  · người đã đăng nhập vào `/login` thấy nút Đăng xuất chứ không thấy form, và bấm thì phiên ở máy bị xoá.
 import { expect, test, type Page, type Route } from '@playwright/test';
 
@@ -40,7 +40,12 @@ async function giaApi(page: Page, traLoi: (path: string, method: string) => { st
       auth: await req.headerValue('authorization'),
       body: req.method() === 'POST' ? req.postDataJSON() : null,
     });
-    const r = path.startsWith('/auth/') ? traLoi(path, req.method()) : { status: 200, body: { ok: true } };
+    // Gateway thật không phục vụ /auth/upgrade ở gốc (chỉ /api/auth/upgrade): giả đúng như vậy, không thì spec xanh trong khi production 404.
+    const r = path === '/auth/upgrade'
+      ? { status: 404, body: {} }
+      : /^[/](api[/])?auth[/]/.test(path)
+        ? traLoi(path, req.method())
+        : { status: 200, body: { ok: true } };
     return route.fulfill({ status: r.status, contentType: 'application/json', headers: cors, body: JSON.stringify(r.body) });
   });
   return goi;
@@ -98,7 +103,7 @@ test('đăng nhập ĐÚNG: gửi một định danh ở field email, lưu phiê
   expect(await luuTru(page)).toBe(THAT);
 });
 
-test('KHÁCH đăng ký: ghi chú "giữ tiến độ", request đi /auth/upgrade kèm Bearer của khách, phiên được thay', async ({ page }) => {
+test('KHÁCH đăng ký: ghi chú "giữ tiến độ", request đi /api/auth/upgrade kèm Bearer của khách, phiên được thay', async ({ page }) => {
   await coPhien(page, KHACH);
   const goi = await giaApi(page, () => ({ status: 200, body: { ok: true, upgraded: true, access: THAT, refreshExpiresIn: 3600 } }));
   await page.goto('/register');
@@ -109,8 +114,8 @@ test('KHÁCH đăng ký: ghi chú "giữ tiến độ", request đi /auth/upgrad
   await page.getByLabel('Nhập lại mật khẩu').fill('matkhau123');
   await page.getByRole('button', { name: 'Tạo tài khoản' }).click();
   await expect(page).toHaveURL(`${ORIGIN}/`);
-  const up = goi.find((g) => g.path === '/auth/upgrade');
-  expect(up, 'khách đăng ký mà không đi /auth/upgrade — tiến độ sẽ ở lại tài khoản khách').toBeTruthy();
+  const up = goi.find((g) => g.path === '/api/auth/upgrade');
+  expect(up, 'khách đăng ký mà không đi /api/auth/upgrade — tiến độ sẽ ở lại tài khoản khách').toBeTruthy();
   expect(up?.auth).toBe(`Bearer ${KHACH}`);
   expect(up?.body).toEqual({ name: 'Lan', password: 'matkhau123', email: 'lan@dung.vn' });
   expect(goi.some((g) => g.path === '/auth/register')).toBe(false);

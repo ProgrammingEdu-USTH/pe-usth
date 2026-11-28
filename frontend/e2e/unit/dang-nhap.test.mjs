@@ -3,10 +3,10 @@
  *
  * VÌ SAO FILE NÀY TỒN TẠI: trang đăng nhập của nhánh `test` là bản xem trước (không nơi nào gọi `/auth/login`; chữ
  * "đang ở chế độ xem trước UI"), nên chưa từng có ca nào canh phần QUAN TRỌNG của một trang đăng ký trên nền tảng
- * "khách học ngay": khách bấm Đăng ký thì phải đi `/auth/upgrade` (giữ tiến độ), không phải `/auth/register` (tạo user mới,
+ * "khách học ngay": khách bấm Đăng ký thì phải đi `/api/auth/upgrade` (giữ tiến độ), không phải `/auth/register` (tạo user mới,
  * tiến độ ở lại tài khoản khách). Các ca dưới đọc CHÍNH mã nguồn, không chép luật.
  *
- * ABLATION (28/11/2026, 15 ca) — gỡ từng mảnh rồi đọc dòng `fail` THẬT:
+ * ABLATION (28/11/2026, 16 ca) — gỡ từng mảnh rồi đọc dòng `fail` THẬT:
  *   laKhach luôn false (khách đi register, mất tiến độ)              → 2 đỏ
  *   upgrade bằng fetch trần (không đính Bearer của khách)            → 1 đỏ
  *   bỏ luuPhienMoi (báo thành công mà không lưu phiên)               → 3 đỏ
@@ -15,6 +15,7 @@
  *   đăng xuất không gọi server                                        → 1 đỏ
  *   dangXuat không còn xoá phiên ở máy / xoaPhien quên xoá access     → 2 đỏ / 2 đỏ
  *   loaiTaiKhoan coi mọi token là tài khoản thật                      → 3 đỏ
+ *   upgrade gọi `/auth/upgrade` Ở GỐC (gateway chỉ phục vụ /api/...)   → 2 đỏ
  *
  * Chạy: cd frontend && npm run test:unit
  */
@@ -134,16 +135,36 @@ test('dangNhap: 200 nhưng KHÔNG có access thì không được báo thành c�
   assert.equal(kho.size, 0);
 });
 
-test('dangKy: KHÁCH đi /auth/upgrade và đính Bearer của khách (giữ tiến độ)', async () => {
+test('dangKy: KHÁCH đi /api/auth/upgrade và đính Bearer của khách (giữ tiến độ)', async () => {
   const goi = gia(() => json(200, { ok: true, upgraded: true, access: 'tok-that', refreshExpiresIn: 100 }));
   // Đúng như trên trình duyệt: access của khách nằm trong localStorage (apiFetch đọc từ đó, và tự refresh khi hết hạn).
   kho.set('pe_access', KHACH);
   const kq = await dangKy(F, KHACH);
   assert.deepEqual(kq, { ok: true, nangCap: true });
-  assert.equal(goi[0].url, 'http://api.test/auth/upgrade');
+  assert.equal(goi[0].url, 'http://api.test/api/auth/upgrade');
   assert.equal(goi[0].auth, `Bearer ${KHACH}`);
   assert.equal(goi[0].opts.credentials, 'include');
   assert.equal(kho.get('pe_access'), 'tok-that', 'access của khách phải bị thay bằng access của tài khoản thật');
+});
+
+test('đường dẫn: mọi /auth/* frontend gọi Ở GỐC phải nằm trong PREFIX_EXCLUDED của gateway; upgrade phải đi dưới /api', () => {
+  // Gateway (src/api-gateway/api-gateway.setup.ts) đặt prefix `/api` cho MỌI route, trừ danh sách path kế thừa từ bản Django.
+  // `/auth/upgrade` là route MỚI nên không có trong danh sách ⇒ chỉ sống ở `/api/auth/upgrade`; gọi ở gốc là 404 trên production.
+  // (Đã xảy ra 28/11/2026: unit và e2e đều xanh vì chúng giả API, không đi qua gateway thật.)
+  const gw = readFileSync(join(ROOT, 'src', 'api-gateway', 'api-gateway.setup.ts'), 'utf8');
+  const khoi = gw.match(/const PREFIX_EXCLUDED = \[([\s\S]*?)\n\];/);
+  assert.ok(khoi, 'không đọc được PREFIX_EXCLUDED');
+  const ngoaiLe = new Set([...khoi[1].matchAll(/path: '([^']+)'/g)].map((m) => m[1]));
+  assert.ok(ngoaiLe.has('auth/login') && ngoaiLe.has('health'), 'đọc PREFIX_EXCLUDED ra rỗng hoặc sai');
+  const nguon = ['api.ts', 'auth-session.ts'].map((f) => readFileSync(join(HERE, '..', '..', 'src', 'lib', f), 'utf8')).join('\n');
+  const goiGoc = [...nguon.matchAll(/\$\{(?:api)?[oO]rigin\(\)\}\/(auth\/[a-z/]+)/g)].map((m) => m[1]);
+  assert.ok(goiGoc.length >= 5, `chỉ thấy ${goiGoc.length} lời gọi /auth/* ở gốc (đáng ra ≥ 5): regex lệch khỏi mã`);
+  for (const p of goiGoc) {
+    assert.ok(ngoaiLe.has(p), `frontend gọi /${p} Ở GỐC nhưng gateway chỉ phục vụ nó dưới /api (thiếu trong PREFIX_EXCLUDED) ⇒ 404`);
+  }
+  const apiFetchTran = [...nguon.matchAll(/apiFetch\('\/(auth\/[a-z/]+)'/g)].map((m) => m[1]);
+  assert.deepEqual(apiFetchTran.filter((p) => !ngoaiLe.has(p)), [], 'apiFetch gọi /auth/* ở gốc mà gateway không phục vụ');
+  assert.match(nguon, /apiFetch\('\/api\/auth\/upgrade'/, 'dangKy của khách không gọi /api/auth/upgrade');
 });
 
 test('dangKy: người CHƯA có phiên (hoặc đã là tài khoản thật) đi /auth/register, không đính Bearer', async () => {

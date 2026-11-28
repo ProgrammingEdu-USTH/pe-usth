@@ -85,7 +85,7 @@ export function danhDauPhien(giay?: unknown): void {
 }
 
 /**
- * Lưu phiên mới do `/auth/login`, `/auth/register`, `/auth/upgrade` trả về: cùng hai việc `ensureGuest()` làm cho
+ * Lưu phiên mới do `/auth/login`, `/auth/register`, `/api/auth/upgrade` trả về: cùng hai việc `ensureGuest()` làm cho
  * khách (access ở localStorage + cookie mốc), để khoá `pe_access` chỉ được nhắc ở file này. Trả `false` khi response
  * không có `access` — người gọi KHÔNG được báo "thành công" khi không có phiên nào được lưu.
  */

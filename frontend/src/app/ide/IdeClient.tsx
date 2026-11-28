@@ -666,6 +666,14 @@ export default function IdeClient() {
                   nhãn thứ hai cho cùng một khung. */}
               <div className={styles.paneHead} aria-hidden="true">main.py</div>
               <div className={styles.editorBody}>
+              {/* Monaco ~1,2 MB: trên điện thoại mạng chậm dựng xong sau ~14,6 s (đo 28/11/2026). Trong lúc đó hiện
+                  luôn đoạn mã (chỉ đọc, đã có trong HTML máy chủ) để đọc và bấm Chạy được ngay; Monaco lên thì gỡ. */}
+              {editorPhase === 'loading' && (
+                <div className={styles.xemTruoc}>
+                  <pre aria-label="Mã đang mở (chỉ đọc)">{code}</pre>
+                  <p>Đang tải trình soạn thảo… Bấm “Chạy” được ngay.</p>
+                </div>
+              )}
               {editorPhase === 'failed' ? (
                 <PlainEditor code={code} onChange={updateCode} onRun={run} onRetry={retryEditor} />
               ) : (

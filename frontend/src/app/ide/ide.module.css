@@ -175,7 +175,28 @@
    `.outputPane` thôi tự đặt `overflow: auto`, phần cuộn nay là `.outputBody`. */
 .editorPane,
 .outputPane { display: flex; flex-direction: column; padding: 0; }
-.editorBody { flex: 1 1 auto; min-height: 0; padding: 8px 0; }
+.editorBody { position: relative; flex: 1 1 auto; min-height: 0; padding: 8px 0; }
+/* Bản xem trước trong lúc Monaco tải (xem IdeClient): phủ kín khung, cùng cỡ chữ 15/24 để lúc đổi không nhảy. */
+.xemTruoc {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding: 8px 16px;
+  background: var(--edu-panel-bg-solid);
+}
+.xemTruoc p { margin: 16px 0 0; font-size: 13px; color: var(--edu-t2); }
+.xemTruoc pre {
+  margin: 0;
+  padding-left: 50px; /* chỗ của cột số dòng Monaco (đo ở 390px) */
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--edu-t1);
+  tab-size: 4;
+}
 .outputBody { flex: 1 1 auto; min-height: 0; padding: 16px 18px; overflow: auto; }
 
 /* Dải TRẦM, không phải một nhãn nhấn: nền lấy GIẤY nên nó chìm hơn mặt thẻ trắng

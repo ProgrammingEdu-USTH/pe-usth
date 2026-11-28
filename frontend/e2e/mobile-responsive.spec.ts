@@ -116,6 +116,23 @@ test('điện thoại: hoạt ảnh Góc học ngoài màn tạm dừng, trong m
     .toEqual({ coTrong: true, ngoaiChay: 0 });
 });
 
+// 28/11/2026: Monaco ~1,2 MB, mạng điện thoại chậm dựng xong sau ~14,6 s. Trong lúc đó phải thấy mã và bấm Chạy được.
+test('/ide điện thoại: trình soạn thảo còn tải thì đã thấy mã và nút Chạy bấm được', async ({ page }) => {
+  let tha!: () => void;
+  const cong = new Promise<void>((r) => (tha = r));
+  await page.route('**/monaco/**', async (route) => {
+    await cong;
+    await route.continue();
+  });
+  await page.goto('/ide', { waitUntil: 'domcontentloaded' });
+  const xemTruoc = page.locator('pre[aria-label="Mã đang mở (chỉ đọc)"]');
+  await expect(xemTruoc).toContainText('Programming EDU');
+  await expect(page.getByRole('button', { name: /Chạy/ }).first()).toBeEnabled();
+  tha();
+  await expect(page.locator('.monaco-editor .view-lines')).toBeVisible({ timeout: 60_000 });
+  await expect(xemTruoc).toHaveCount(0);
+});
+
 // 23/11/2026: cảnh Góc học là DOM do engine.js dựng ở CLIENT, nên HTML thô máy chủ trả cho `/` từng có 0 liên kết,
 // 0 tiêu đề, 0 chữ (đo trên bản build) — trình thu thập và trình đọc màn hình chỉ thấy <title>. Ca này đọc HTML THÔ
 // (không chạy JS, không hydrate) và đòi khối <nav> có đủ: tên khoá, tên MỌI học phần (lấy từ curricula.json chứ không
